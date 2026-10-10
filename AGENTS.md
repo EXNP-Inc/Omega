@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Omega is an all-plugin Cordis agent harness. Read [docs/architecture.md](docs/architecture.md) before changing `packages/`; follow [docs/AGENTS.md](docs/AGENTS.md) for documentation.
+Omega is an all-plugin Cordis agent harness. Read [docs/architecture.md](docs/architecture.md) before changing `packages/`; follow [docs/AGENTS.md](docs/AGENTS.md) for documentation. This repository is a branded fork: before pulling upstream or any rebrand-adjacent work, read [FORK_PATCHES.md](FORK_PATCHES.md).
 
 ## Pre-stable APIs and released Session data
 
