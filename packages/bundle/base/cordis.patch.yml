@@ -121,7 +121,7 @@
       name: '@omega-ai/dsh-credentials-local'
 
     # The pi-ai multi-provider twin ships its two default routes, `alice` and
-    # `mac`, on localhost gateways (127.0.0.1:8001/8002) that a deployment
+    # `mac`, on LAN gateways (192.168.10.210:8001/8002) that a deployment
     # routes to its model servers; keys resolve per request through their
     # apiKeyEnv references (ALICE_API_KEY / MAC_API_KEY) and fail loud when unset.
     # A `llm-pi-ai:` settings section merges over this base per provider, so a
@@ -136,7 +136,7 @@
             displayName: alice
             apiKeyEnv: ALICE_API_KEY
             api: openai-responses
-            baseURL: http://127.0.0.1:8001/v1
+            baseURL: http://192.168.10.210:8001/v1
             reasoning: xhigh
             models:
               - id: qwen3.8-27b
@@ -150,7 +150,7 @@
             displayName: Mac
             apiKeyEnv: MAC_API_KEY
             api: openai-responses
-            baseURL: http://127.0.0.1:8002/v1
+            baseURL: http://192.168.10.210:8002/v1
             reasoning: xhigh
             models:
               - id: qwen3.8-27b-lite
