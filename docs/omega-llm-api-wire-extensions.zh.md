@@ -12,7 +12,7 @@
 |---|---|---|
 | HTTP 字段名 | 小写 kebab-case；HTTP 匹配仍不区分大小写 | `user-agent`, `x-omega-harness-session-id` |
 | Omega 请求正文扩展字段 | 使用保留 `dsh_` 前缀的 snake case | `dsh_plugin_packages`, `dsh_session_log` |
-| DSH 持有的嵌套 JSON 成员 | Camel case | `afterSeq`, `throughSeq`, `sessionId` |
+| Omega 持有的嵌套 JSON 成员 | Camel case | `afterSeq`, `throughSeq`, `sessionId` |
 | 带标签的值 | 使用 kebab-case 字符串；持久事件采用 `domain/action` | `session-log-omega/delivery-accepted` |
 
 每个正文扩展独立持有自身的 `version`。版本仅适用于包含该字段的对象；不同字段的版本之间不存在兼容或排序关系。JSON 成员顺序不属于协议。

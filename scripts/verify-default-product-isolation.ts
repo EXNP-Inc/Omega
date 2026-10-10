@@ -21,8 +21,10 @@ import {
 } from './verify-client-packages.ts'
 
 const EXPERIMENTAL_PREFIX = '@omega-ai/dsh-experimental-'
-// The independently published entry package owns platform-engine dependencies.
+// The independently published entry package owns platform-engine dependencies;
+// the default product must not depend on the engines or unknown kit variants directly.
 const EXTERNAL_KIT_PACKAGES = new Set(['@deepseek-ai/libreoffice-kit'])
+const EXTERNAL_ENGINE_PREFIX = '@deepseek-ai/libreoffice-kit-'
 const PROFILE_SOURCE = 'packages/boot/app-boot/src/profile.ts'
 const PRESET_PATTERN = 'packages/bundle/web-app/presets/*.patch.yml'
 const RUNTIME_SECTIONS = ['dependencies', 'optionalDependencies', 'peerDependencies'] as const
@@ -143,6 +145,7 @@ export function verifyDefaultProductIsolation(root: string): ProductIsolationRes
     const pkg = packages.get(packageName)
     if (pkg !== undefined) add(pkg, origin)
     else if (EXTERNAL_KIT_PACKAGES.has(packageName)) return
+    else if (packageName.startsWith(EXTERNAL_ENGINE_PREFIX)) failures.push(`${origin}: unknown workspace package ${name}`)
     else if (packageName.startsWith('@omega-ai/')) failures.push(`${origin}: unknown workspace package ${name}`)
   }
   const dependency = (name: string, range: string, owner: Package, origin: string): void => {

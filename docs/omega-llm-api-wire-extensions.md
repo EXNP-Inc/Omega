@@ -12,7 +12,7 @@ The adapter sends the additions to its resolved `baseURL`, including a configure
 |---|---|---|
 | HTTP field names | Lowercase kebab-case; HTTP matching remains case-insensitive | `user-agent`, `x-omega-harness-session-id` |
 | Omega request-body extension fields | Snake case with the reserved `dsh_` prefix | `dsh_plugin_packages`, `dsh_session_log` |
-| DSH-owned nested JSON members | Camel case | `afterSeq`, `throughSeq`, `sessionId` |
+| Omega-owned nested JSON members | Camel case | `afterSeq`, `throughSeq`, `sessionId` |
 | Tagged values | Kebab-case strings; durable events use `domain/action` | `session-log-omega/delivery-accepted` |
 
 Each body extension owns its `version` independently. A version applies only to the object that contains it; no compatibility or ordering relationship exists between versions of different fields. JSON member order is not part of the protocol.

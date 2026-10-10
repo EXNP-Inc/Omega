@@ -149,7 +149,7 @@ Append-only, prefix-stable, replacing, or independent behavior, including the ex
 
 已安装 bundle 的卡片和详情、组件列表与配置详情、设置中的插件清单都展示这些元信息，包括禁用插件和预设内插件。读取时不激活插件。
 
-仅设置页会移除字面包名和模块名回退值的 npm scope 与 Cordis/DSH 前缀；插件管理页保留完整名称。locale 标题和描述保持原样。插件没有展示描述时，行配置页可以使用注册组件的摘要。
+仅设置页会移除字面包名和模块名回退值的 npm scope 与 Cordis/Omega 前缀；插件管理页保留完整名称。locale 标题和描述保持原样。插件没有展示描述时，行配置页可以使用注册组件的摘要。
 
 Install 界面仍使用 `pnpm view` 返回的 npm registry 信息，不用 locale 元信息替换。
 

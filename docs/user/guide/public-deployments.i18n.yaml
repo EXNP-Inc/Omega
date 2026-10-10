@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/user/guide/public-deployments.md
 /publish-the-web-ui-behind-a-reverse-proxy:
-  en: 15b92e92d2526f37
-  zh: b58079cf6eee78cc
+  en: 10f00e056b85ceed
+  zh: c26210595f0fc3fa
 /publish-the-web-ui-behind-a-reverse-proxy/what-public-url-advertises:
   en: 576292b93ccf299a
   zh: ded5adc55396869c
