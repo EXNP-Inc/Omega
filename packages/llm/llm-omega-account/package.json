@@ -1,0 +1,54 @@
+{
+  "name": "@omega-ai/dsh-llm-omega-account",
+  "description": "Omega account provider authentication and discovery",
+  "version": "0.2.1-alpha.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
+    "directory": "packages/llm/llm-omega-account"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-llm-omega": "workspace:*",
+    "@omega-ai/dsh-launch-environment": "workspace:*",
+    "@omega-ai/dsh-omega-account": "workspace:*",
+    "@omega-ai/cordis-plugin-loader": "workspace:~"
+  },
+  "devDependencies": {
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-llm-omega": "workspace:*",
+    "@omega-ai/dsh-launch-environment": "workspace:*",
+    "@omega-ai/dsh-omega-account": "workspace:*",
+    "@omega-ai/cordis-plugin-loader": "workspace:~",
+    "@omega-ai/dsh-llm-omega-api-key": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+    "@omega-ai/dsh-omega-account": {
+      "optional": true
+    },
+    "@omega-ai/cordis-plugin-loader": {
+      "optional": true
+    }
+  }
+}

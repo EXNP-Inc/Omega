@@ -74,7 +74,7 @@ describe('installer preparation preserves application dependencies', () => {
       DSH_DESKTOP_TARGET_ARCH: 'x64',
       DSH_DESKTOP_UNSIGNED: '1',
     }, 'win32', 'x64')
-    expect(config.artifactName).toBe('deepseek-harness-${version}-${os}-${arch}-unsigned.${ext}')
+    expect(config.artifactName).toBe('omega-harness-${version}-${os}-${arch}-unsigned.${ext}')
   })
 
   it('packages every preload entry point the shell loads', async () => {
@@ -90,7 +90,7 @@ describe('installer preparation preserves application dependencies', () => {
     const config = createElectronBuilderConfig({
       DSH_DESKTOP_APP_ID: 'com.example.installer',
       DSH_DESKTOP_AUTO_UPDATE_ENV: 'production',
-      DSH_DESKTOP_MANDATORY_UPDATE_TEST_ORIGIN: 'https://harness-test.deepseek.com',
+      DSH_DESKTOP_MANDATORY_UPDATE_TEST_ORIGIN: 'https://harness-test.omega.com',
       DSH_DESKTOP_MANDATORY_UPDATE_PROD_ORIGIN: 'https://policy.example.com',
       DSH_DESKTOP_MACOS_SIGNING_IDENTITY: 'Example Company (TEAMID1234)',
       DSH_DESKTOP_MACOS_TEAM_ID: 'TEAMID1234',

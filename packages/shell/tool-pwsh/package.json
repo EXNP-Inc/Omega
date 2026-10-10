@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-tool-pwsh",
+  "name": "@omega-ai/dsh-tool-pwsh",
   "description": "Model-facing pwsh tool over the bash executor seam",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/shell/tool-pwsh"
   },
   "type": "module",
@@ -27,41 +27,41 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-jobs": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-sandbox": "workspace:*",
-    "@deepseek-ai/dsh-sandbox-policy": "workspace:*",
-    "@deepseek-ai/dsh-shell": "workspace:*",
-    "@deepseek-ai/dsh-shell-env": "workspace:*",
-    "@deepseek-ai/dsh-system-prompt": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
-    "@deepseek-ai/dsh-user-approval": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-jobs": "workspace:*",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-sandbox": "workspace:*",
+    "@omega-ai/dsh-sandbox-policy": "workspace:*",
+    "@omega-ai/dsh-shell": "workspace:*",
+    "@omega-ai/dsh-shell-env": "workspace:*",
+    "@omega-ai/dsh-system-prompt": "workspace:*",
+    "@omega-ai/dsh-tools": "workspace:*",
+    "@omega-ai/dsh-user-approval": "workspace:*"
   },
   "dependencies": {
-    "@deepseek-ai/schemastery": "workspace:~"
+    "@omega-ai/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-agent-loop": "workspace:*",
-    "@deepseek-ai/dsh-agent-loop-testkit": "workspace:*",
-    "@deepseek-ai/dsh-app-boot": "workspace:*",
-    "@deepseek-ai/dsh-jobs": "workspace:*",
-    "@deepseek-ai/dsh-jobs-local": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-loader-smoke": "workspace:*",
-    "@deepseek-ai/dsh-pwsh-local": "workspace:*",
-    "@deepseek-ai/dsh-sandbox": "workspace:*",
-    "@deepseek-ai/dsh-sandbox-policy": "workspace:*",
-    "@deepseek-ai/dsh-session-projection": "workspace:*",
-    "@deepseek-ai/dsh-shell": "workspace:*",
-    "@deepseek-ai/dsh-shell-env": "workspace:*",
-    "@deepseek-ai/dsh-subprocess-local": "workspace:*",
-    "@deepseek-ai/dsh-system-prompt": "workspace:*",
-    "@deepseek-ai/dsh-tool-jobs": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
-    "@deepseek-ai/dsh-user-approval": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-agent-loop": "workspace:*",
+    "@omega-ai/dsh-agent-loop-testkit": "workspace:*",
+    "@omega-ai/dsh-app-boot": "workspace:*",
+    "@omega-ai/dsh-jobs": "workspace:*",
+    "@omega-ai/dsh-jobs-local": "workspace:*",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-loader-smoke": "workspace:*",
+    "@omega-ai/dsh-pwsh-local": "workspace:*",
+    "@omega-ai/dsh-sandbox": "workspace:*",
+    "@omega-ai/dsh-sandbox-policy": "workspace:*",
+    "@omega-ai/dsh-session-projection": "workspace:*",
+    "@omega-ai/dsh-shell": "workspace:*",
+    "@omega-ai/dsh-shell-env": "workspace:*",
+    "@omega-ai/dsh-subprocess-local": "workspace:*",
+    "@omega-ai/dsh-system-prompt": "workspace:*",
+    "@omega-ai/dsh-tool-jobs": "workspace:*",
+    "@omega-ai/dsh-tools": "workspace:*",
+    "@omega-ai/dsh-user-approval": "workspace:*"
   }
 }

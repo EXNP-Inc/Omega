@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import LlmRuntime, { createUserMessage, ReasoningEffortId } from '@deepseek-ai/dsh-llm'
-import type { StreamChunk } from '@deepseek-ai/dsh-llm'
+import { Context } from '@omega-ai/cordis'
+import LlmRuntime, { createUserMessage, ReasoningEffortId } from '@omega-ai/dsh-llm'
+import type { StreamChunk } from '@omega-ai/dsh-llm'
 import { liveConfig } from '../../../settings/settings/tests/live-config.ts'
 const configurations = new WeakMap<Context, Awaited<ReturnType<typeof liveConfig>>>()
-import * as LlmPiAi from '@deepseek-ai/dsh-llm-pi-ai'
-import { PiAiAdapter } from '@deepseek-ai/dsh-llm-pi-ai'
-import type { ContextFormed } from '@deepseek-ai/dsh-llm'
+import * as LlmPiAi from '@omega-ai/dsh-llm-pi-ai'
+import { PiAiAdapter } from '@omega-ai/dsh-llm-pi-ai'
+import type { ContextFormed } from '@omega-ai/dsh-llm'
 import { getBuiltinModels } from '@earendil-works/pi-ai/providers/all'
 import { AssistantMessageEventStream } from '@earendil-works/pi-ai/utils/event-stream'
 import { normalizeContext } from '@earendil-works/pi-ai/utils/transcript'
@@ -18,7 +18,7 @@ import { assemble } from './assemble.ts'
 import { memoryAuth } from './auth-double.ts'
 import { closeMockServers, mockServer, textEvents } from './mock-server.ts'
 
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@omega-ai/dsh-llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }
@@ -1181,14 +1181,14 @@ describe('configurable-provider directory', () => {
   it('keeps the previous directory when a route collides with another adapter family', async () => {
     const ctx = await bootWithSettings({})
     ctx.llm.registerConfigurableProviders([
-      { provider: 'deepseek-official', displayName: 'DeepSeek', settingsNs: 'llm-deepseek', settingsPath: [] },
+      { provider: 'omega-official', displayName: 'Omega', settingsNs: 'llm-omega', settingsPath: [] },
     ])
     const before = ctx.llm.listConfigurableProviders().length
     expect(before).toBeGreaterThan(30)
 
     await configurations.get(ctx)!.update({
       providers: {
-        'deepseek-official': {
+        'omega-official': {
           api: 'openai-completions',
           baseURL: 'https://acme.test/v1',
           models: [{ id: 'm', contextWindow: 1, maxTokens: 1 }],
@@ -1199,8 +1199,8 @@ describe('configurable-provider directory', () => {
     // The refused swap costs a diagnostic, not the directory: every entry the
     // page needs is still declared.
     expect(ctx.llm.listConfigurableProviders()).toHaveLength(before)
-    expect(ctx.llm.listConfigurableProviders().find(entry => entry.provider === 'deepseek-official')?.settingsNs)
-      .toBe('llm-deepseek')
+    expect(ctx.llm.listConfigurableProviders().find(entry => entry.provider === 'omega-official')?.settingsNs)
+      .toBe('llm-omega')
   })
 
   it('replaces its entries atomically as declared routes come and go', async () => {

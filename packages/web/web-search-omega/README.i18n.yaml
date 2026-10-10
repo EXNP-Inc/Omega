@@ -1,0 +1,88 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/web/web-search-omega/README.md
+/:
+  en: 01cfc5b2d1555f76
+  zh: 3f2fe3dce41dca9e
+/omega-ai-dsh-web-search-omega:
+  en: 33254eb3a7128ed3
+  zh: 87c65de4b160e6fa
+/omega-ai-dsh-web-search-omega/summary:
+  en: d0cbf362b41ce954
+  zh: eb856dcc7fb0e437
+/omega-ai-dsh-web-search-omega/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/omega-ai-dsh-web-search-omega/use-this-package:
+  en: f65d9db7baa4cfb7
+  zh: 5e2a716e59f56447
+/omega-ai-dsh-web-search-omega/use-this-package/when-to-choose-it:
+  en: cb674b08a293ab5b
+  zh: 5d8a1d33dbfc5e51
+/omega-ai-dsh-web-search-omega/use-this-package/minimal-configuration:
+  en: 67a283819a1f069b
+  zh: dced4b4cfc013091
+/omega-ai-dsh-web-search-omega/use-this-package/authentication:
+  en: bc27148e6065acc0
+  zh: 3a804b022e8068be
+/omega-ai-dsh-web-search-omega/use-this-package/what-a-search-returns:
+  en: 94a232b0981adb62
+  zh: 5c08f614635b169c
+/omega-ai-dsh-web-search-omega/use-this-package/request-logging:
+  en: 95a9ff047137bcdc
+  zh: 7997b8e271c5dae1
+/omega-ai-dsh-web-search-omega/use-this-package/failures-and-recovery:
+  en: 586c32578352884a
+  zh: 1edf81aab4bdc75b
+/omega-ai-dsh-web-search-omega/understand-the-implementation:
+  en: 9842c69ad3636bb3
+  zh: 3cdc3f816cbdd0cb
+/omega-ai-dsh-web-search-omega/understand-the-implementation/design-philosophy:
+  en: 1aaff7059082bbde
+  zh: 439eb8f940fc97e8
+/omega-ai-dsh-web-search-omega/understand-the-implementation/source-map:
+  en: e3402d289716ede5
+  zh: a1bfe4232c39e96b
+/omega-ai-dsh-web-search-omega/understand-the-implementation/request-flow:
+  en: a3d32aeab8bd2898
+  zh: 454664bbfe5923be
+/omega-ai-dsh-web-search-omega/further-exploration:
+  en: f2937d7906849f7c
+  zh: 13582db65baabd0b
+/omega-ai-dsh-web-search-omega/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/omega-ai-dsh-web-search-omega/model-experience/auxiliary-omega-search-request:
+  en: 8ec43a9402910d69
+  zh: 2f0cc5f7c1634b87
+/omega-ai-dsh-web-search-omega/model-experience/auxiliary-omega-search-request/what-the-model-sees:
+  en: 855ffc2037aa795e
+  zh: 0e9227f2f910daee
+/omega-ai-dsh-web-search-omega/model-experience/auxiliary-omega-search-request/token-effect:
+  en: f244b4dd6c9e6ad4
+  zh: 50f2434d5119296b
+/omega-ai-dsh-web-search-omega/model-experience/auxiliary-omega-search-request/kv-cache-effect:
+  en: 2bac9662f1792a79
+  zh: 556d9baabd79f9cb
+/omega-ai-dsh-web-search-omega/model-experience/conversation-tool-result-indirectly:
+  en: 666f5753c99783ab
+  zh: b44328e99bcc45c9
+/omega-ai-dsh-web-search-omega/model-experience/conversation-tool-result-indirectly/what-the-model-sees:
+  en: f8ef565d41eb40f5
+  zh: a88be470a8b53661
+/omega-ai-dsh-web-search-omega/model-experience/conversation-tool-result-indirectly/token-effect:
+  en: 01ec43a9b616139d
+  zh: 0a5b7c28fde34bcf
+/omega-ai-dsh-web-search-omega/model-experience/conversation-tool-result-indirectly/kv-cache-effect:
+  en: f5d5f97a153f7c70
+  zh: f681f89596f500f5
+/omega-ai-dsh-web-search-omega/known-limitations-and-deferred-work:
+  en: 337975ccdcaa409f
+  zh: f05a6e76c83447fc
+/omega-ai-dsh-web-search-omega/known-limitations-and-deferred-work/dev-note:
+  en: 7f775cc79dbce94b
+  zh: 12b8f68f9e7c48ca
+/omega-ai-dsh-web-search-omega/known-limitations-and-deferred-work/dev-note/future-dedicated-retrieval-endpoint:
+  en: f2a2957957db256e
+  zh: f2c0c9e3e9a3f17d

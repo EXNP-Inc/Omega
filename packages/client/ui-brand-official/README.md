@@ -1,15 +1,15 @@
 ---
-description: "Official DeepSeek Harness brand occupants for the sidebar, active only in official builds; for users and maintainers choosing or replacing brand presentation."
+description: "Official Omega brand occupants for the sidebar, active only in official builds; for users and maintainers choosing or replacing brand presentation."
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-brand-official
+# @omega-ai/dsh-client-ui-brand-official
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-This package gives an `official` client build the DeepSeek Harness mark and name in the sidebar. Other build profiles keep the shell's fish mark and local-build label, while the conversation hero always uses the animated fish. Choose it for deployments branded as DeepSeek Harness; deployments with another identity should provide a replacement brand package. It has no runtime state and does not affect model requests.
+This package gives an `official` client build the Omega mark and name in the sidebar. Other build profiles keep the shell's fish mark and local-build label, while the conversation hero always uses the animated fish. Choose it for deployments branded as Omega; deployments with another identity should provide a replacement brand package. It has no runtime state and does not affect model requests.
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ This package gives an `official` client build the DeepSeek Harness mark and name
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount this plugin in the browser roster of a deployment whose identity is DeepSeek's own, then build the client with the `official` profile so the occupants register.
+Mount this plugin in the browser roster of a deployment whose identity is Omega's own, then build the client with the `official` profile so the occupants register.
 
 ### Choosing the profile
 

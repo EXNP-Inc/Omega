@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import type {} from '@deepseek-ai/dsh-agent-instructions'
-import { compactCheckpointSource, CompactionId } from '@deepseek-ai/dsh-compaction'
+import { Context } from '@omega-ai/cordis'
+import type { Agent } from '@omega-ai/dsh-agent'
+import type {} from '@omega-ai/dsh-agent-instructions'
+import { compactCheckpointSource, CompactionId } from '@omega-ai/dsh-compaction'
 import LlmRuntime, {
   createMessage,
   createSystemMessage,
@@ -14,35 +14,35 @@ import LlmRuntime, {
   type GenerateOptions,
   type StreamChunk,
   type ToolSchema,
-} from '@deepseek-ai/dsh-llm'
+} from '@omega-ai/dsh-llm'
 import PermissionPresetService, {
   AUTO_PRESET,
   type Config as PermissionConfig,
-} from '@deepseek-ai/dsh-permission-presets'
+} from '@omega-ai/dsh-permission-presets'
 import SessionStore, {
   SessionId,
   SessionLogOffset,
   type Session,
-} from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+} from '@omega-ai/dsh-session'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
 import SubagentRuntime, {
   NO_START_CAPABILITIES,
   resolveChildCwd,
   snapshotSubagentDescriptor,
   type ResolvedSubagentStartRequest,
-} from '@deepseek-ai/dsh-subagent'
-import type {} from '@deepseek-ai/dsh-shell'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import * as ToolSubagent from '@deepseek-ai/dsh-tool-subagent'
+} from '@omega-ai/dsh-subagent'
+import type {} from '@omega-ai/dsh-shell'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import * as ToolSubagent from '@omega-ai/dsh-tool-subagent'
 import ToolRuntime, {
   defineContentToolFixture,
   RUN_CODE_NAME,
   TOOL_ABORTED_BEFORE_DISPATCH,
   type PreToolDecision,
   type ToolExecutionToken,
-} from '@deepseek-ai/dsh-tools'
-import ApprovalService, { setApprovalPolicy, type ApprovalOutcome } from '@deepseek-ai/dsh-user-approval'
-import * as AutoReview from '@deepseek-ai/dsh-experimental-auto-review'
+} from '@omega-ai/dsh-tools'
+import ApprovalService, { setApprovalPolicy, type ApprovalOutcome } from '@omega-ai/dsh-user-approval'
+import * as AutoReview from '@omega-ai/dsh-experimental-auto-review'
 
 const EXPECTED_REVIEW_POLICY = `REVIEW_POLICY
 You are the final authorization reviewer for exactly one pending tool call. Your decision replaces human approval for this call. If you allow it, the call executes immediately with full host access and no later confirmation.

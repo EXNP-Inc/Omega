@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { restoreReleasedV3Artifact } from '@deepseek-ai/dsh-session-format-v2-to-v3'
-import { SessionFormatEventCollector } from '@deepseek-ai/dsh-session-format'
-import type { SessionFormatEvent, SessionFormatHeader, SessionFormatJsonObject } from '@deepseek-ai/dsh-session-format'
-import { createSessionFormatCatalogWithChildren, historicalSessionFormatCatalog, sessionFormatCatalog } from '@deepseek-ai/dsh-session-format-catalog'
+import { restoreReleasedV3Artifact } from '@omega-ai/dsh-session-format-v2-to-v3'
+import { SessionFormatEventCollector } from '@omega-ai/dsh-session-format'
+import type { SessionFormatEvent, SessionFormatHeader, SessionFormatJsonObject } from '@omega-ai/dsh-session-format'
+import { createSessionFormatCatalogWithChildren, historicalSessionFormatCatalog, sessionFormatCatalog } from '@omega-ai/dsh-session-format-catalog'
 import { releasedV3SessionFormatCodec, createSessionFormatV3ToV4, sessionFormatV3ToV4 } from '../src/index.ts'
 
 const header: SessionFormatHeader = { version: 3, id: 'identity', createdAt: 1, isSeeded: false, delegationDepth: 0 }
 const fact: SessionFormatEvent = { type: 'feedback/record', seq: 0, time: 2, data: { text: 'retained' } }
 const seed: SessionFormatEvent = { type: 'session/end-seed', seq: 1, time: 3, data: { inherited: true } }
 const delivery = (version: number | undefined, sessionId = header.id): SessionFormatEvent => ({
-  type: 'session-log-deepseek/delivery-accepted', seq: 1, time: 3,
+  type: 'session-log-omega/delivery-accepted', seq: 1, time: 3,
   data: { sessionId, throughSeq: 0, ...(version === undefined ? {} : { sessionFormatVersion: version }) },
 })
 

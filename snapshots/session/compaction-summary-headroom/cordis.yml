@@ -1,9 +1,9 @@
 # Proactive compaction with a bounded message budget.
 
-- id: llm-deepseek
+- id: llm-omega
   config:
     models:
-      - id: deepseek-v4-flash
+      - id: omega-v4-flash
         contextWindow: 8382
         maxTokens: 1000
 

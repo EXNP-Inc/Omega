@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-compaction-image-offload",
+  "name": "@omega-ai/dsh-compaction-image-offload",
   "description": "Durable image offload for image-capable routes: replace over-budget request images with placeholders and retry",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/compaction/compaction-image-offload"
   },
   "type": "module",
@@ -31,27 +31,27 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-compaction": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-compaction": "workspace:*",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-agent-loop": "workspace:*",
-    "@deepseek-ai/dsh-agent-loop-testkit": "workspace:*",
-    "@deepseek-ai/dsh-attachment": "workspace:*",
-    "@deepseek-ai/dsh-compaction": "workspace:*",
-    "@deepseek-ai/dsh-compaction-basic": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-llm-deepseek": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-projection": "workspace:*",
-    "@deepseek-ai/dsh-token-meter": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-agent-loop": "workspace:*",
+    "@omega-ai/dsh-agent-loop-testkit": "workspace:*",
+    "@omega-ai/dsh-attachment": "workspace:*",
+    "@omega-ai/dsh-compaction": "workspace:*",
+    "@omega-ai/dsh-compaction-basic": "workspace:*",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-llm-omega": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-session-projection": "workspace:*",
+    "@omega-ai/dsh-token-meter": "workspace:*"
   },
   "dependencies": {
-    "@deepseek-ai/dsh-util-values": "workspace:*"
+    "@omega-ai/dsh-util-values": "workspace:*"
   }
 }

@@ -1,0 +1,16 @@
+# Bilingual-pair consistency record for guide.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/upgrade-guide/v0.2.1-alpha.1/local-gateway-defaults/guide.md
+/:
+  en: a1270d0f5e24c1b8
+  zh: f0d29380e01d192e
+/local-gateway-defaults-replace-wan-endpoints:
+  en: 80c37d7c70707815
+  zh: 54f5d701900e8ede
+/local-gateway-defaults-replace-wan-endpoints/change:
+  en: fc2ac2402d361a3b
+  zh: 4b4d9855d246958e
+/local-gateway-defaults-replace-wan-endpoints/migration:
+  en: eda58bcc2e2a6ea8
+  zh: 6912cb9aa95897f9

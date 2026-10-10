@@ -1,8 +1,8 @@
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@omega-ai/cordis'
 import type {
   ConversationNodeDefinition, UnknownSurfaceNode,
-} from '@deepseek-ai/dsh-client-ui-conversation/client'
-import { isAppendSurfaceEvent } from '@deepseek-ai/dsh-session/surface'
+} from '@omega-ai/dsh-client-ui-conversation/client'
+import { isAppendSurfaceEvent } from '@omega-ai/dsh-session/surface'
 import { chatNode } from './common.ts'
 
 declare module '../contract/chat-nodes.ts' {

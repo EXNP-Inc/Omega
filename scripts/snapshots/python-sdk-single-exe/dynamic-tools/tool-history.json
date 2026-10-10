@@ -35,7 +35,7 @@
       "data": {
         "header": {
           "config": {
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "maxTokens": 256000,
             "reasoningEffort": "high"
@@ -79,7 +79,7 @@
       "seq": 12,
       "time": 0,
       "data": {
-        "provider": "deepseek-official",
+        "provider": "omega-official",
         "model": "smoke-model",
         "contextWindow": 1000000
       }
@@ -91,7 +91,7 @@
       "data": {
         "header": {
           "config": {
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "maxTokens": 256000,
             "reasoningEffort": "high"
@@ -162,7 +162,7 @@
       "data": {
         "header": {
           "config": {
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "maxTokens": 256000,
             "reasoningEffort": "high"

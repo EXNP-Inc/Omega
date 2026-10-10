@@ -1,12 +1,12 @@
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@omega-ai/cordis'
 import type {
   AssistantBlock, AssistantMessageNode, ConversationLocation,
   ConversationMatch, ConversationNodeContext, ConversationNodeDefinition,
   PartialAssistant, RequestView,
-} from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type { StreamChunk } from '@deepseek-ai/dsh-llm'
-import { assistantStreamFirstTokenTime } from '@deepseek-ai/dsh-llm/assistant-stream'
-import type { SessionEvent } from '@deepseek-ai/dsh-session/types'
+} from '@omega-ai/dsh-client-ui-conversation/client'
+import type { StreamChunk } from '@omega-ai/dsh-llm'
+import { assistantStreamFirstTokenTime } from '@omega-ai/dsh-llm/assistant-stream'
+import type { SessionEvent } from '@omega-ai/dsh-session/types'
 import { trajectoryNode } from './trajectory-definition-common.ts'
 import {
   displayFailure, emptyAssistantBlock, isTokenDelta, toAssistantBlock, toAssistantBlocks,

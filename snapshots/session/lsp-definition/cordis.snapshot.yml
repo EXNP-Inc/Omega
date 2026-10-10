@@ -1,13 +1,13 @@
 # Keyless replay keeps the LSP composition intact and replaces only the model adapter.
-- id: llm-deepseek
-  name: '@deepseek-ai/dsh-llm-deepseek-api-key'
+- id: llm-omega
+  name: '@omega-ai/dsh-llm-omega-api-key'
   disabled: true
 
 - insert:
     - id: lsp
-      name: '@deepseek-ai/dsh-lsp'
+      name: '@omega-ai/dsh-lsp'
     - id: lsp-stdio
-      name: '@deepseek-ai/dsh-lsp-stdio'
+      name: '@omega-ai/dsh-lsp-stdio'
       config:
         servers:
           fixture:
@@ -16,21 +16,21 @@
             extensionToLanguage:
               '.ts': typescript
     - id: tool-lsp
-      name: '@deepseek-ai/dsh-tool-lsp'
+      name: '@omega-ai/dsh-tool-lsp'
       config:
         maxLocations: 1
     - id: llm-replay
-      name: '@deepseek-ai/dsh-llm-replay'
+      name: '@omega-ai/dsh-llm-replay'
       config:
         providers:
-          - id: deepseek-official
-            name: DeepSeek
+          - id: omega-official
+            name: Omega
             models:
-              - id: deepseek-v4-flash
-              - id: deepseek-v4-pro
+              - id: omega-v4-flash
+              - id: omega-v4-pro
 
 - id: timeout-policy
-  name: '@deepseek-ai/dsh-tool-call-timeout-policy'
+  name: '@omega-ai/dsh-tool-call-timeout-policy'
 
-- id: plugin-package-inventory-deepseek
+- id: plugin-package-inventory-omega
   disabled: true

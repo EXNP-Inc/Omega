@@ -5,30 +5,30 @@
 /:
   en: 6ffef394821a2841
   zh: 1410a5b46b97d9c7
-/deepseek-ai-dsh-api-gateway:
-  en: 7c37b852461967b9
-  zh: c6f7a5be7225c73b
-/deepseek-ai-dsh-api-gateway/summary:
-  en: 501e60ed5d702873
-  zh: 031d5e35ef579337
-/deepseek-ai-dsh-api-gateway/table-of-contents:
+/omega-ai-dsh-api-gateway:
+  en: 36d4f13cacac04b7
+  zh: 0fda62c3707fa570
+/omega-ai-dsh-api-gateway/summary:
+  en: 22e2224f58b71f0a
+  zh: 93f6c07db6588dd7
+/omega-ai-dsh-api-gateway/table-of-contents:
   en: d9859219cdb0f367
   zh: 2a3cfa8cb786e327
-/deepseek-ai-dsh-api-gateway/host-service-typertgatewayservice-ctx-key-typertgateway:
+/omega-ai-dsh-api-gateway/host-service-typertgatewayservice-ctx-key-typertgateway:
   en: 5179435c09004549
   zh: c904462396531947
-/deepseek-ai-dsh-api-gateway/client-service-clientremote-ctx-key-remote:
+/omega-ai-dsh-api-gateway/client-service-clientremote-ctx-key-remote:
   en: c106f0ca3e547f84
   zh: 833e30d7151c41c7
-/deepseek-ai-dsh-api-gateway/model-experience:
+/omega-ai-dsh-api-gateway/model-experience:
   en: 6cb309d3378f035d
   zh: 998042a02ee32850
-/deepseek-ai-dsh-api-gateway/model-experience/kv-cache-effect:
+/omega-ai-dsh-api-gateway/model-experience/kv-cache-effect:
   en: af5abeee32f2d93b
   zh: b320bb727a223a13
-/deepseek-ai-dsh-api-gateway/known-limitations-and-deferred-work:
+/omega-ai-dsh-api-gateway/known-limitations-and-deferred-work:
   en: 3ade2903f40a0a98
   zh: 9af1d557fefdbd89
-/deepseek-ai-dsh-api-gateway/known-limitations-and-deferred-work/dev-note:
+/omega-ai-dsh-api-gateway/known-limitations-and-deferred-work/dev-note:
   en: 10727471030aee01
   zh: e6bee82abd12127d

@@ -1,4 +1,4 @@
-import type { AccountView } from '@deepseek-ai/dsh-deepseek-account/types'
+import type { AccountView } from '@omega-ai/dsh-omega-account/types'
 import { WINDOWS_TITLEBAR_HEIGHT } from '../src/windows-layout.ts'
 import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import type { IpcMainInvokeEvent } from 'electron'
@@ -307,7 +307,7 @@ vi.mock('node:fs/promises', async (importOriginal) => {
   const original = await importOriginal<typeof import('node:fs/promises')>()
   return { ...original, readFile: vi.fn((path: Parameters<typeof original.readFile>[0], encoding?: 'utf8') => {
     if (path === join('desktop-test-app', 'package.json')) {
-      return Promise.resolve(JSON.stringify({ dshDesktopAppId: 'com.deepseek.dsh', dshMandatoryUpdatePolicy: harness.embeddedPolicy }))
+      return Promise.resolve(JSON.stringify({ dshDesktopAppId: 'com.omega.dsh', dshMandatoryUpdatePolicy: harness.embeddedPolicy }))
     }
     return encoding === undefined ? original.readFile(path) : original.readFile(path, encoding)
   }) }
@@ -521,7 +521,7 @@ describe('desktop main startup', () => {
     await vi.advanceTimersByTimeAsync(0)
     const zh = locale === 'zh-CN'
     expect(harness.dialog.showMessageBox).toHaveBeenLastCalledWith(expect.objectContaining({
-      type: 'info', title: zh ? '关于 DeepSeek Harness' : 'About DeepSeek Harness', message: 'DeepSeek Harness',
+      type: 'info', title: zh ? '关于 Omega' : 'About Omega', message: 'Omega',
       detail: zh ? '版本 V1.0.0' : 'Version V1.0.0', buttons: [zh ? '确定' : 'OK'], cancelId: 0,
     }))
     // A dialog that cannot open is logged, not surfaced as an unhandled rejection.
@@ -845,7 +845,7 @@ describe('desktop main startup', () => {
     expect(() => handler(event, 'application', NaN, 34)).toThrow('invalid popup request')
     const application = handler(event, 'application', 48, 34)
     expect(harness.menu.buildFromTemplate.mock.lastCall![0].map(item => item.label ?? item.type)).toEqual([
-      '关于 DeepSeek Harness', 'separator', '检查更新…', '管理 dsh 命令…', 'separator', '退出',
+      '关于 Omega', 'separator', '检查更新…', '管理 dsh 命令…', 'separator', '退出',
     ])
     expect(harness.popup.mock.lastCall![0]).toMatchObject({ window, x: 48, y: 34 })
     expect(harness.popup.mock.lastCall![0].callback).toBeTypeOf('function')
@@ -892,7 +892,7 @@ describe('desktop main startup', () => {
     vi.spyOn(harness.app, 'getLocale').mockReturnValue(locale)
     vi.spyOn(harness.app, 'getPreferredSystemLanguages').mockReturnValue([locale])
     const originalName = harness.app.name
-    harness.app.name = '@deepseek-ai/dsh-desktop'
+    harness.app.name = '@omega-ai/dsh-desktop'
     try {
       await import('../src/main.ts')
       await harness.preparing.promise
@@ -902,7 +902,7 @@ describe('desktop main startup', () => {
         || item.label === en.cliCommandMenu || item.label === zh.cliCommandMenu)
       await expect(JSON.stringify(commands, null, 2) + '\n')
         .toMatchFileSnapshot(`./expected/application-menu-${locale}.json`)
-      expect(harness.app.name).toBe('@deepseek-ai/dsh-desktop')
+      expect(harness.app.name).toBe('@omega-ai/dsh-desktop')
     } finally { harness.app.name = originalName }
   })
 
@@ -2203,7 +2203,7 @@ it.each(['failed', 'expired'] as const)('focuses DSH once when browser authoriza
   const window = harness.windows[0]!
   window.focus.mockClear()
   const state: AccountView = {
-    status: 'signed-out', links: { usageUrl: 'https://platform.deepseek.com/usage', topUpUrl: 'https://platform.deepseek.com/top_up' },
+    status: 'signed-out', links: { usageUrl: 'https://platform.omega.com/usage', topUpUrl: 'https://platform.omega.com/top_up' },
     attempt: { id: 'test-failed-attempt' as NonNullable<AccountView['attempt']>['id'], phase },
   }
   harness.publishAccount(state)
@@ -2220,13 +2220,13 @@ it.each([['light', false], ['dark', true]] as const)('opens Platform authorizati
   await Promise.resolve(invoke(DESKTOP_IPC.boot))
   harness.nativeTheme.shouldUseDarkColors = shouldUseDarkColors
   const state: AccountView = {
-    status: 'signed-out', links: { usageUrl: 'https://platform.deepseek.com/usage', topUpUrl: 'https://platform.deepseek.com/top_up' },
+    status: 'signed-out', links: { usageUrl: 'https://platform.omega.com/usage', topUpUrl: 'https://platform.omega.com/top_up' },
     attempt: { id: 'test-theme-attempt' as NonNullable<AccountView['attempt']>['id'], phase: 'waiting-browser',
-      authorizeUrl: 'https://platform.deepseek.com/dsh/authorize?state=state-1' },
+      authorizeUrl: 'https://platform.omega.com/dsh/authorize?state=state-1' },
   }
   harness.publishAccount(state)
   harness.publishAccount(state)
-  expect(harness.openExternal).toHaveBeenCalledExactlyOnceWith(`https://platform.deepseek.com/dsh/authorize?state=state-1&theme=${theme}`)
+  expect(harness.openExternal).toHaveBeenCalledExactlyOnceWith(`https://platform.omega.com/dsh/authorize?state=state-1&theme=${theme}`)
 })
 
 it('disables native product events for a disabled Desktop launch', async () => {

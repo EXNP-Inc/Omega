@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render } from '@testing-library/react'
-import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
+import { SlotRegistry } from '@omega-ai/dsh-client-ui-renderer/client'
 import { apply, inject } from '../src/client/index.ts'
 import { OfficialBrandMark, OfficialBrandName } from '../src/client/Brand.tsx'
 import { apply as hostApply } from '../src/index.ts'
@@ -80,7 +80,7 @@ describe('official browser-brand plugin', () => {
 
   it('renders the official name independently from both requested mark sizes', () => {
     const name = render(<OfficialBrandName />)
-    expect(name.container.querySelector('svg')?.getAttribute('viewBox')).toBe('26 0 156 24')
+    expect(name.container.querySelector('svg')?.getAttribute('viewBox')).toBe('26 0 72 24')
     name.unmount()
 
     const mark = render(<OfficialBrandMark size={34} />)

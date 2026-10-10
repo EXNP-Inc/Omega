@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-client-ui-settings-agent-loop",
+  "name": "@omega-ai/dsh-client-ui-settings-agent-loop",
   "description": "Settings page of the agent loop on the dsh web client's Plugins page: the parallel tool-call cap of the agent-loop namespace",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/client/ui-settings-agent-loop"
   },
   "type": "module",
@@ -28,9 +28,9 @@
   "dsh": {
     "client": {
       "inject": [
-        "@deepseek-ai/dsh-client-locale",
-        "@deepseek-ai/dsh-client-ui-settings",
-        "@deepseek-ai/dsh-client-ui-plugin-manager"
+        "@omega-ai/dsh-client-locale",
+        "@omega-ai/dsh-client-ui-settings",
+        "@omega-ai/dsh-client-ui-plugin-manager"
       ],
       "platform": "web"
     }
@@ -41,19 +41,19 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~"
+    "@omega-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-api-remotes": "workspace:*",
-    "@deepseek-ai/dsh-client-locale": "workspace:*",
-    "@deepseek-ai/dsh-client-store": "workspace:*",
-    "@deepseek-ai/dsh-client-test-runtime": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-plugin-manager": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-primitives": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-renderer": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-settings": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-slots": "workspace:*",
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-api-remotes": "workspace:*",
+    "@omega-ai/dsh-client-locale": "workspace:*",
+    "@omega-ai/dsh-client-store": "workspace:*",
+    "@omega-ai/dsh-client-test-runtime": "workspace:*",
+    "@omega-ai/dsh-client-ui-plugin-manager": "workspace:*",
+    "@omega-ai/dsh-client-ui-primitives": "workspace:*",
+    "@omega-ai/dsh-client-ui-renderer": "workspace:*",
+    "@omega-ai/dsh-client-ui-settings": "workspace:*",
+    "@omega-ai/dsh-client-ui-slots": "workspace:*",
     "@types/react": "~18.3.1",
     "react": "^18.2.0"
   },

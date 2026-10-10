@@ -1,6 +1,6 @@
 # AGENTS.md
 
-DeepSeek Harness is an all-plugin Cordis agent harness. Read [docs/architecture.md](docs/architecture.md) before changing `packages/`; follow [docs/AGENTS.md](docs/AGENTS.md) for documentation.
+Omega is an all-plugin Cordis agent harness. Read [docs/architecture.md](docs/architecture.md) before changing `packages/`; follow [docs/AGENTS.md](docs/AGENTS.md) for documentation.
 
 ## Pre-stable APIs and released Session data
 
@@ -16,7 +16,7 @@ Record each externally perceptible breaking change immediately in an [upgrade gu
 
 ```
 vendor/      Vendored Cordis (vendor/README.md)
-packages/    @deepseek-ai/dsh-<pkg> workspaces at packages/<group>/<pkg>/
+packages/    @omega-ai/dsh-<pkg> workspaces at packages/<group>/<pkg>/
   core/                 agent/session API
   api/                  remote BFF
   typert/               type graphs
@@ -70,7 +70,7 @@ packages/    @deepseek-ai/dsh-<pkg> workspaces at packages/<group>/<pkg>/
   test-support/         test infrastructure
   util/                 zero-dependency utilities
 python/      Python SDK/runtime (python/README.md)
-native/      @deepseek-ai/node-addon-system source (native/README.md)
+native/      @omega-ai/node-addon-system source (native/README.md)
 benchmarks/  performance gates
 .agents/     Agent workflows/notes
 docs/        Documentation (docs/AGENTS.md)
@@ -87,7 +87,7 @@ pnpm install            # pnpm workspaces, node ^22.19 || >=24
 pnpm run clean           # remove build outputs and safe residue from deleted packages
 pnpm run test           # unit tests
 pnpm run test:coverage  # CI coverage gate: per-file 100% on packages/*/*/src
-pnpm run test:e2e       # real-API tests; self-skip without DEEPSEEK_API_KEY
+pnpm run test:e2e       # real-API tests; self-skip without OMEGA_API_KEY
 pnpm run test:expected  # owner-local process expectations
 pnpm run test:snapshot  # keyless recorded-session replay through shipped profiles; filter: -t <name>
 pnpm run test:snapshot:record  # re-record expected outputs (needs key)
@@ -100,7 +100,7 @@ pnpm run check:windows-wine  # ONLY when diagnosing a known Windows failure (nee
 pnpm run doc-sync       # documentation gates (scripts/run-gates.ts)
 pnpm run test:docs      # quick documentation checks (no build; doc-quick aggregate)
 pnpm run website:build  # VitePress build (doubles as dead-link check)
-pnpm dsh --profile headless "task"  # run one task from source (needs DEEPSEEK_API_KEY)
+pnpm dsh --profile headless "task"  # run one task from source (needs OMEGA_API_KEY)
 pnpm run demo:ptc -- "task"  # headless PTC mode run (needs key)
 pnpm run dev:web | dev:desktop  # build, then launch; Web also rebuilds client bundles on edits. start:web | start:desktop skip the build
 make web|dev-web|desktop|dev-desktop|build  # the same commands; ARGS='--no-open' forwards options
@@ -123,11 +123,11 @@ Before pushing, follow [dsh-pre-push-checks](.agents/skills/dsh-pre-push-checks/
 
 Windows packaging/signing: [required reading](apps/desktop/README.md#windows-ev-signing).
 
-Real-API tests/demos read `DEEPSEEK_API_KEY`, optional `DEEPSEEK_BASE_URL`, and root `.env`. cordis.yml allows `!!js` (never `!js`) under plugin `config` and entry `disabled`; other metadata stays literal, so conditional composition also uses overlays ([primer](docs/cordis-primer.md#loader-configuration)). Never commit credentials. CI e2e skips without a key; [testing.md](docs/testing.md) owns key policy.
+Real-API tests/demos read `OMEGA_API_KEY`, optional `OMEGA_BASE_URL`, and root `.env`. cordis.yml allows `!!js` (never `!js`) under plugin `config` and entry `disabled`; other metadata stays literal, so conditional composition also uses overlays ([primer](docs/cordis-primer.md#loader-configuration)). Never commit credentials. CI e2e skips without a key; [testing.md](docs/testing.md) owns key policy.
 
 ## Conventions
 
-- Packages use `@deepseek-ai/dsh-<name>`; vendor is [rescoped](docs/rescope.md) and `private: true`. Harness packages declare `@deepseek-ai/cordis` in `peerDependencies`/`devDependencies`. Workspace dependency sections use DSH `workspace:*`, vendor/native `workspace:~` ([rules](.agents/notes/implemented/process/2026-08-10-npm-release-sequences.md)).
+- Packages use `@omega-ai/dsh-<name>`; vendor is [rescoped](docs/rescope.md) and `private: true`. Harness packages declare `@omega-ai/cordis` in `peerDependencies`/`devDependencies`. Workspace dependency sections use DSH `workspace:*`, vendor/native `workspace:~` ([rules](.agents/notes/implemented/process/2026-08-10-npm-release-sequences.md)).
 - ESM everywhere (`"type": "module"`). Use package names across packages and `.ts` in local relative imports. Config subprocesses run built `lib/` under plain Node; source regressions use their declared launcher ([testing policy](docs/testing.md#test-subprocess-launch-modes)). The `dsh` CLI source launch runs through tsx's ESM-only hook (`node --import tsx/esm`); modules it reaches must stay ESM (no CJS-only exports) — Node's native TypeScript modes are unavailable across the engines range ([source-launch contract](.agents/notes/implemented/architecture/2026-07-29-dsh-source-launch-tsx-esm.md)). Raw/Web `cordis.yml` bare plugins must appear in their resolver manifest's `dependencies`; `verify-cordis-config` enforces it.
 - **Registrations are effects**: every contribution goes through `ctx.effect()` / `ctx.on()`; a registry's `register()` returns the disposer.
 - **Typed events use declaration merging** and merge-extensible maps. Event JSDoc needs `@mode` and payload `@param`. Public service methods document parameters and non-void returns. `SessionEventMap` members are required-on-read by default — builds that do not know a type refuse the log unless the event carries the envelope's `ignorable: true`; only structural format changes bump `SESSION_FORMAT_VERSION` ([mechanism](.agents/notes/implemented/architecture/2026-08-10-session-log-version-mechanism.md)).

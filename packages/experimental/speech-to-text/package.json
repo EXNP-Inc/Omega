@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-experimental-speech-to-text",
+  "name": "@omega-ai/dsh-experimental-speech-to-text",
   "description": "Experimental speech recognition with independently selectable providers",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/experimental/speech-to-text"
   },
   "type": "module",
@@ -36,23 +36,23 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/schemastery": "workspace:~"
+    "@omega-ai/dsh-brand": "workspace:*",
+    "@omega-ai/schemastery": "workspace:~"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-settings": "workspace:*",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:~"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-settings": "workspace:*",
+    "@omega-ai/cordis-plugin-loader": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-app-boot": "workspace:*",
-    "@deepseek-ai/dsh-config-editor": "workspace:*",
-    "@deepseek-ai/dsh-settings": "workspace:*",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:~"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-app-boot": "workspace:*",
+    "@omega-ai/dsh-config-editor": "workspace:*",
+    "@omega-ai/dsh-settings": "workspace:*",
+    "@omega-ai/cordis-plugin-loader": "workspace:~"
   },
   "peerDependenciesMeta": {
-    "@deepseek-ai/cordis-plugin-loader": {
+    "@omega-ai/cordis-plugin-loader": {
       "optional": true
     }
   }

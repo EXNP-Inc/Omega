@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed, vi } from 'vitest'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
+import type { SessionEvent } from '@omega-ai/dsh-session'
 import {
   acknowledgeReloadConnectionLoss, assertFixtureInventory, captureStableAria, compareOrRefreshGolden, fixtureUserPrompts,
   launchWebScaffold, recordFixture, watchConsole, webSnapshotMode, type WebScaffold,
@@ -231,9 +231,9 @@ describe('web e2e: generic file upload through the real assembly', () => {
     const modelTrigger = page.getByRole('button', { name: /^Select model, current/ })
     await modelTrigger.click()
     await page.getByRole('menuitem', { name: /^Model\b/ }).click()
-    await page.getByRole('menuitemradio', { name: 'DeepSeek-V4-Flash-Vision-Exp' }).click()
+    await page.getByRole('menuitemradio', { name: 'Omega-V4-Flash-Vision-Exp' }).click()
     await expect.poll(() => modelTrigger.getAttribute('aria-label'), { timeout: 10_000 })
-      .toContain('DeepSeek-V4-Flash-Vision-Exp')
+      .toContain('Omega-V4-Flash-Vision-Exp')
     const imageBytes = await readFile(IMAGE_FIXTURE)
     // Pick through the composer's hidden file input: the upload RPC runs
     // immediately and the pending card appears before any prompt is typed.

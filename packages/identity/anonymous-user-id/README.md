@@ -1,15 +1,15 @@
 ---
-description: "Anonymous per-harness-home identity for users and maintainers tracing how telemetry, feedback acknowledgement, and DeepSeek provider requests correlate records."
+description: "Anonymous per-harness-home identity for users and maintainers tracing how telemetry, feedback acknowledgement, and Omega provider requests correlate records."
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-anonymous-user-id
+# @omega-ai/dsh-anonymous-user-id
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-DeepSeek Harness uses one anonymous identifier per harness home to correlate telemetry, feedback, and DeepSeek requests from the same installation without identifying the user. The random UUID is stored in `$DSH_HOME/.anonymous-user-id` (`$DSH_HOME` defaults to `~/.dsh`), persists across restarts, and is regenerated after you delete the file. Different harness homes use different identifiers, and the value contains no machine or account data. Built-in features create and attach it automatically; package consumers can reuse the same value for installation-scoped correlation, but cannot join records across homes.
+Omega uses one anonymous identifier per harness home to correlate telemetry, feedback, and Omega requests from the same installation without identifying the user. The random UUID is stored in `$DSH_HOME/.anonymous-user-id` (`$DSH_HOME` defaults to `~/.dsh`), persists across restarts, and is regenerated after you delete the file. Different harness homes use different identifiers, and the value contains no machine or account data. Built-in features create and attach it automatically; package consumers can reuse the same value for installation-scoped correlation, but cannot join records across homes.
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ DeepSeek Harness uses one anonymous identifier per harness home to correlate tel
 <a id="use-this-package"></a>
 ## Use this package
 
-When you want the records your installation sends out to be recognizable as coming from the same harness home — telemetry, feedback, and DeepSeek requests all carry one shared id — this package is what provides it. There is nothing to install or configure: the id appears automatically, and the shipped feedback, telemetry, and DeepSeek features already use it. Do not use it to identify a user or to join records across different homes; it is anonymous and home-scoped.
+When you want the records your installation sends out to be recognizable as coming from the same harness home — telemetry, feedback, and Omega requests all carry one shared id — this package is what provides it. There is nothing to install or configure: the id appears automatically, and the shipped feedback, telemetry, and Omega features already use it. Do not use it to identify a user or to join records across different homes; it is anonymous and home-scoped.
 
 ### What the id does for you
 
@@ -33,7 +33,7 @@ Three things your installation sends out carry the same id, so records line up a
 
 - **Session telemetry** — your telemetry exports carry the id as the `user.id` resource attribute, so a collector can group an installation's records.
 - **Feedback** — each feedback acknowledgement names the anonymous installation that recorded it.
-- **DeepSeek requests** — every provider request carries the `x-deepseek-harness-user-id` header, so usage can be attributed per installation.
+- **Omega requests** — every provider request carries the `x-omega-harness-user-id` header, so usage can be attributed per installation.
 
 ### Observing and resetting the id
 
@@ -41,10 +41,10 @@ The id lives in `$DSH_HOME/.anonymous-user-id` (`$DSH_HOME` defaults to `~/.dsh`
 
 ### Using it in your own package
 
-When you build a feature that should share the installation's anonymous id, import the value once and reuse it — telemetry, feedback, and DeepSeek already use the same id, so your records line up with theirs:
+When you build a feature that should share the installation's anonymous id, import the value once and reuse it — telemetry, feedback, and Omega already use the same id, so your records line up with theirs:
 
 ```ts
-import { getOrCreateAnonymousUserId } from '@deepseek-ai/dsh-anonymous-user-id'
+import { getOrCreateAnonymousUserId } from '@omega-ai/dsh-anonymous-user-id'
 
 const userId = getOrCreateAnonymousUserId() // stable for the process lifetime
 ```
@@ -96,7 +96,7 @@ Read these pages when the package-level contract is not enough. They move from t
 - [dsh-home-paths](../../util/home-paths/README.md) — owns `$DSH_HOME` and `~/.dsh` resolution.
 - [dsh-session-telemetry-otel](../../session/session-telemetry-otel/README.md) — reports the id as the OTel Resource `user.id`.
 - [dsh-command-feedback](../../feedback/command-feedback/README.md) — embeds the id in the feedback acknowledgement.
-- [dsh-llm-deepseek](../../llm/llm-deepseek/README.md) — sends `x-deepseek-harness-user-id` on provider requests.
+- [dsh-llm-omega](../../llm/llm-omega/README.md) — sends `x-omega-harness-user-id` on provider requests.
 - [Session telemetry subsystem](../../../docs/subsystems/session-telemetry.md) — the telemetry seam and its backend contract.
 
 -----
@@ -104,7 +104,7 @@ Read these pages when the package-level contract is not enough. They move from t
 <a id="model-experience"></a>
 ## Model Experience
 
-None, as the shared identifier reaches DeepSeek only as model-hidden HTTP metadata and registers nothing model-facing.
+None, as the shared identifier reaches Omega only as model-hidden HTTP metadata and registers nothing model-facing.
 
 #### KV Cache effect
 
@@ -120,7 +120,7 @@ These limits describe when the id is a poor fit or needs special attention. They
 - **No recovery after deletion** — losing the file mints a new anonymous identity by design; recovery would require stable derivation material that weakens anonymity.
 - **Best-effort concurrency** — a reader landing in the narrow interval between a concurrent process's exclusive create and completed write can use a different in-memory UUID for that run; later launches converge on the persisted value.
 - **No cross-home identity** — different `$DSH_HOME` values cannot be correlated.
-- **Configured DeepSeek gateways receive the id** — `dsh-llm-deepseek` sends the stable header to its resolved `baseURL`, including deployment overrides, independently of telemetry sharing mode.
+- **Configured Omega gateways receive the id** — `dsh-llm-omega` sends the stable header to its resolved `baseURL`, including deployment overrides, independently of telemetry sharing mode.
 - **Deleting the file does not reset the current process** — memoization keeps the run's id until the next launch.
 
 <a id="dev-note"></a>

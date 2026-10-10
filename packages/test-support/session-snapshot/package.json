@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-session-snapshot",
+  "name": "@omega-ai/dsh-session-snapshot",
   "description": "Session-log snapshot core with an ACP protocol adapter, expected-output normalization, and fixture invariants",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/test-support/session-snapshot"
   },
   "type": "module",
@@ -28,31 +28,31 @@
   "license": "MIT",
   "dependencies": {
     "@agentclientprotocol/sdk": "1.4.0",
-    "@deepseek-ai/cordis-plugin-include": "workspace:~",
-    "@deepseek-ai/dsh-llm-replay": "workspace:*",
-    "@deepseek-ai/dsh-loader-smoke": "workspace:*",
-    "@deepseek-ai/dsh-session-format": "workspace:*",
+    "@omega-ai/cordis-plugin-include": "workspace:~",
+    "@omega-ai/dsh-llm-replay": "workspace:*",
+    "@omega-ai/dsh-loader-smoke": "workspace:*",
+    "@omega-ai/dsh-session-format": "workspace:*",
     "js-yaml": "^4.2.0",
     "vitest": "^4.1.8"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-http-proxy": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-http-proxy": "workspace:*"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-agent-loop": "workspace:*",
-    "@deepseek-ai/dsh-compaction": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-sandbox": "workspace:*",
-    "@deepseek-ai/dsh-sandbox-policy": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-subagent": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
-    "@deepseek-ai/dsh-user-questions": "workspace:*",
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-agent-loop": "workspace:*",
+    "@omega-ai/dsh-compaction": "workspace:*",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-sandbox": "workspace:*",
+    "@omega-ai/dsh-sandbox-policy": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-subagent": "workspace:*",
+    "@omega-ai/dsh-tools": "workspace:*",
+    "@omega-ai/dsh-user-questions": "workspace:*",
     "@types/js-yaml": "^4.0.9",
-    "@deepseek-ai/dsh-http-proxy": "workspace:*"
+    "@omega-ai/dsh-http-proxy": "workspace:*"
   }
 }

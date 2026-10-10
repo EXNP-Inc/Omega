@@ -1,18 +1,18 @@
 # The summary output cap inherits the 1,800-token headroom. A 1,000-token
 # request output reservation lowers the proactive trigger to 5,582 tokens.
 
-- id: llm-deepseek
-  name: '@deepseek-ai/dsh-llm-deepseek-api-key'
+- id: llm-omega
+  name: '@omega-ai/dsh-llm-omega-api-key'
   disabled: true
 
 - id: session-persistence-jsonl
-  name: '@deepseek-ai/dsh-session-persistence-jsonl'
+  name: '@omega-ai/dsh-session-persistence-jsonl'
   config:
     root: !!js dshHomePath('sessions')
     compression: none
 
 - id: compaction-basic
-  name: '@deepseek-ai/dsh-compaction-basic'
+  name: '@omega-ai/dsh-compaction-basic'
   config:
     thresholdRatio: 0.8
     headroomTokens: 1800
@@ -20,12 +20,12 @@
 
 - insert:
     - id: llm-replay
-      name: '@deepseek-ai/dsh-llm-replay'
+      name: '@omega-ai/dsh-llm-replay'
       config:
         providers:
-          - id: deepseek-official
-            name: DeepSeek
+          - id: omega-official
+            name: Omega
             models:
-              - id: deepseek-v4-flash
+              - id: omega-v4-flash
                 contextWindow: 8382
                 defaultMaxTokens: 1000

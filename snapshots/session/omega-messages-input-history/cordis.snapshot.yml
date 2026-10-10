@@ -1,0 +1,47 @@
+# Replay patch shared by the ordinary headless snapshot composition. The model
+# script comes from the scenario's committed session JSONL.
+
+- id: llm-omega
+  name: '@omega-ai/dsh-llm-omega-api-key'
+  disabled: true
+
+- id: plugin-package-inventory-omega
+  disabled: true
+
+- id: session-title-llm
+  disabled: true
+
+- id: session-persistence-jsonl
+  name: '@omega-ai/dsh-session-persistence-jsonl'
+  config:
+    root: !!js dshHomePath('sessions')
+    compression: none
+
+- id: sandbox
+  name: '@omega-ai/dsh-sandbox-local'
+  config:
+    runnerCommand:
+      - bash
+      - -c
+      - while [ "$1" != "--" ]; do shift; done; shift; exec "$@"
+      - passthrough-runner
+    runnerFailureSignatures:
+      - 'passthrough-runner: profile rejected'
+
+- insert:
+    - id: llm-replay
+      name: '@omega-ai/dsh-llm-replay'
+      config:
+        providers:
+          - id: omega-official
+            name: Omega
+            models:
+              - id: omega-v4-flash
+              - id: omega-v4-pro
+          - id: omega-messages
+            name: Omega Messages
+            models:
+              - id: omega-v4-flash
+              - id: omega-v4-pro
+    - id: messages-input-history-snapshot
+      name: '../../../packages/llm/llm-omega/tests/fixtures/input-history.ts'

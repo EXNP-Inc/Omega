@@ -7,8 +7,8 @@ import { fileURLToPath } from 'node:url'
 import { connectDesktopWelcome } from '../../desktop/src/welcome-backend.ts'
 import { chromium, type Browser, type Page } from 'playwright'
 import { afterEach, beforeEach, describe, expect, it, onTestFailed } from 'vitest'
-import { credentialKey, credentialRef } from '@deepseek-ai/dsh-credentials'
-import type {} from '@deepseek-ai/dsh-settings'
+import { credentialKey, credentialRef } from '@omega-ai/dsh-credentials'
+import type {} from '@omega-ai/dsh-settings'
 import {
   acknowledgeReloadConnectionLoss, captureStableAria, compareOrRefreshGolden,
   launchWebScaffold, watchConsole, webSnapshotMode, type WebScaffold,
@@ -59,9 +59,9 @@ describe.skipIf(MODE === 'record')('web e2e: App-only desktop onboarding', () =>
     if (address === null || typeof address === 'string') throw new Error('fixture server address unavailable')
     origin = `http://127.0.0.1:${address.port}`
     const overlay = join(root, 'account.patch.yml')
-    await writeFile(overlay, `- id: deepseek-account\n  config:\n    platformOrigin: ${origin}\n    allowLoopbackHttp: true\n`)
-    scaffold = await launchWebScaffold({ deepSeekMissingCredential: true, extraOverlayPath: overlay })
-    await scaffold.ctx.credentials.modifyRecord(credentialKey('deepseek-account-platform', 'default'), async () => ({
+    await writeFile(overlay, `- id: omega-account\n  config:\n    platformOrigin: ${origin}\n    allowLoopbackHttp: true\n`)
+    scaffold = await launchWebScaffold({ omegaMissingCredential: true, extraOverlayPath: overlay })
+    await scaffold.ctx.credentials.modifyRecord(credentialKey('omega-account-platform', 'default'), async () => ({
       kind: 'grant', payload: { version: 1, issuer: origin, token: 'onboarding-fixture-token' },
     }))
     browser = await chromium.launch()
@@ -243,11 +243,11 @@ describe.skipIf(MODE === 'record')('web e2e: App-only desktop onboarding', () =>
     expect(await page.locator('[data-desktop-onboarding]').evaluate(element => getComputedStyle(element).filter)).toBe('none')
     expect(await page.getByRole('dialog').evaluate(element => getComputedStyle(element.previousElementSibling!).backdropFilter)).toBe('none')
     await page.getByRole('button', { name: '前往充值', exact: true }).click()
-    await page.getByRole('button', { name: '返回 DeepSeek Harness', exact: true }).waitFor()
+    await page.getByRole('button', { name: '返回 Omega', exact: true }).waitFor()
     expect((scaffold.ctx.settings.describe().find(row => row.ns === NS)?.value as { step: string }).step).toBe('credit')
     balanceFailure = true
     const readsBefore = balanceReads
-    await page.getByRole('button', { name: '返回 DeepSeek Harness', exact: true }).click()
+    await page.getByRole('button', { name: '返回 Omega', exact: true }).click()
     await page.getByRole('heading', { name: '准备可用额度', exact: true }).waitFor()
     await expect.poll(() => balanceReads).toBeGreaterThan(readsBefore)
     await expect.poll(() => page.getByRole('button', { name: '下一步', exact: true }).isEnabled()).toBe(true)
@@ -402,8 +402,8 @@ describe.skipIf(MODE === 'record')('web e2e: App-only desktop onboarding', () =>
   })
 
   it('applies API-key defaults without opening App onboarding or repeating after account login', async () => {
-    await scaffold.ctx.credentials.deleteRecord(credentialKey('deepseek-account-platform', 'default'))
-    await scaffold.ctx.credentials.set(credentialRef('DEEPSEEK_API_KEY'), 'fixture-api-key')
+    await scaffold.ctx.credentials.deleteRecord(credentialKey('omega-account-platform', 'default'))
+    await scaffold.ctx.credentials.set(credentialRef('OMEGA_API_KEY'), 'fixture-api-key')
     await scaffold.ctx.settings.mutate(NS, Object.entries(INITIAL).map(([field, value]) => ({ op: 'set', path: [field], value })))
     page = await desktopPage()
     // Completion follows client activation, credential metadata, and three ordered Host writes.
@@ -420,7 +420,7 @@ describe.skipIf(MODE === 'record')('web e2e: App-only desktop onboarding', () =>
     expect(scaffold.ctx.settings.describe().find(row => row.ns === NS)?.value).toMatchObject({ completion: 'api-key', process: 'standard', usage: 'detailed', developerTools: true })
     expect(scaffold.ctx.settings.describe().find(row => row.ns === 'ui-chat')?.value).toMatchObject({ transcriptView: 'standard', performanceUsage: 'detailed' })
     expect(scaffold.ctx.settings.describe().find(row => row.ns === 'ui-settings')?.value).toMatchObject({ enabled: true })
-    await scaffold.ctx.credentials.modifyRecord(credentialKey('deepseek-account-platform', 'default'), async () => ({
+    await scaffold.ctx.credentials.modifyRecord(credentialKey('omega-account-platform', 'default'), async () => ({
       kind: 'grant', payload: { version: 1, issuer: origin, token: 'onboarding-fixture-token' },
     }))
     await page.reload({ waitUntil: 'load' })

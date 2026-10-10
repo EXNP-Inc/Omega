@@ -1,9 +1,9 @@
-/** SDK fixture for native registry changes and unmodified DeepSeek request observation. */
+/** SDK fixture for native registry changes and unmodified Omega request observation. */
 import { appendFile } from 'node:fs/promises'
-import { defineTool } from '@deepseek-ai/dsh-tools'
+import { defineTool } from '@omega-ai/dsh-tools'
 
 export const name = 'sdk-dynamic-tool-cache-fixture'
-export const inject = ['tools', 'systemPrompt', 'deepseekLlmApiExtensions']
+export const inject = ['tools', 'systemPrompt', 'omegaLlmApiExtensions']
 
 /** Observe each request and let the model add or remove a scoped tool. */
 export function apply(ctx, config) {
@@ -15,7 +15,7 @@ export function apply(ctx, config) {
       state.step = event.data.step
     }
   })
-  ctx.effect(() => ctx.deepseekLlmApiExtensions.register('dynamic_tool_cache_observer', {
+  ctx.effect(() => ctx.omegaLlmApiExtensions.register('dynamic_tool_cache_observer', {
     async prepare(request) {
       if (request.purpose !== undefined) return undefined
       const state = states.get(request.sessionId)

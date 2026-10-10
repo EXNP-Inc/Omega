@@ -2,23 +2,23 @@
 
 import { Readable } from 'node:stream'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
+import { Context } from '@omega-ai/cordis'
+import { brandString } from '@omega-ai/dsh-brand'
+import AgentRegistry from '@omega-ai/dsh-agent'
 import type {
   Agent,
   AgentHandle,
   AssistantStreamFrame,
   CreateAgentOptions,
   ResumeAgentOptions,
-} from '@deepseek-ai/dsh-agent'
-import AgentDefaultModelConfig from '@deepseek-ai/dsh-agent-default-model'
-import { LlmAttemptId, ToolCallId, createAssistantMessage, createToolResultMessage, type MessageId, type StreamChunk } from '@deepseek-ai/dsh-llm'
-import SessionStore from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import type { Session, SessionId, UserMessage } from '@deepseek-ai/dsh-session'
-import { SessionQueryError } from '@deepseek-ai/dsh-session-query'
-import { createInboxStub } from '@deepseek-ai/dsh-agent-loop-testkit'
+} from '@omega-ai/dsh-agent'
+import AgentDefaultModelConfig from '@omega-ai/dsh-agent-default-model'
+import { LlmAttemptId, ToolCallId, createAssistantMessage, createToolResultMessage, type MessageId, type StreamChunk } from '@omega-ai/dsh-llm'
+import SessionStore from '@omega-ai/dsh-session'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import type { Session, SessionId, UserMessage } from '@omega-ai/dsh-session'
+import { SessionQueryError } from '@omega-ai/dsh-session-query'
+import { createInboxStub } from '@omega-ai/dsh-agent-loop-testkit'
 import { apply, Config } from '../src/index.ts'
 import { internals } from '../src/runner-internals.ts'
 

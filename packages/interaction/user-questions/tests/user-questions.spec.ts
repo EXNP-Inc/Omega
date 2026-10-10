@@ -1,15 +1,15 @@
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import AgentRegistry, { agentEvents, type Agent } from '@deepseek-ai/dsh-agent'
+import { Context } from '@omega-ai/cordis'
+import AgentRegistry, { agentEvents, type Agent } from '@omega-ai/dsh-agent'
 import UserQuestionService, {
   TIMED_WAIT_PARAMETER,
   UserQuestionError,
   type AskUserQuestionAnswer,
   type AskUserQuestionRequest,
-} from '@deepseek-ai/dsh-user-questions'
-import { createToolResultMessage, createUserMessage, ToolCallId, type ToolSchema, type UserMessage } from '@deepseek-ai/dsh-llm'
-import { Session, SessionId, TOOL_OUTCOME_UNKNOWN } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+} from '@omega-ai/dsh-user-questions'
+import { createToolResultMessage, createUserMessage, ToolCallId, type ToolSchema, type UserMessage } from '@omega-ai/dsh-llm'
+import { Session, SessionId, TOOL_OUTCOME_UNKNOWN } from '@omega-ai/dsh-session'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
 
 interface QuestionAnswerer {
   ask(request: AskUserQuestionRequest): Promise<AskUserQuestionAnswer>
@@ -615,7 +615,7 @@ describe('late replies', () => {
     agent.session.append('turn/start', { turn: 1 })
     agent.session.append('step/start', { turn: 1, step: 1 })
     agent.session.append('request/header', {
-      header: { config: { provider: 'deepseek-official', model: 'deepseek-v4-flash' }, tools },
+      header: { config: { provider: 'omega-official', model: 'omega-v4-flash' }, tools },
       reason: 'initial',
     })
     agent.session.append('tool/call', {

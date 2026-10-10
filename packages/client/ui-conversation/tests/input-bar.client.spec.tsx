@@ -9,21 +9,21 @@
 // the shell (jsdom's beforeinput lacks the ranges Lexical needs).
 
 import './control-row-dom.ts'
-import type { InboxState } from '@deepseek-ai/dsh-agent/types'
-import type { GlobalStandardProps } from '@deepseek-ai/dsh-client-ui-slots'
+import type { InboxState } from '@omega-ai/dsh-agent/types'
+import type { GlobalStandardProps } from '@omega-ai/dsh-client-ui-slots'
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
 import { $getRoot, $isTextNode } from 'lexical'
 import {
   bindSnapshotSelector, conversationSnapshot as conversationFixture, makeTranslate, RemoteError,
   sessionSnapshot as sessionFixture,
-} from '@deepseek-ai/dsh-client-test-runtime'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { SessionListState, SessionSnapshot } from '@deepseek-ai/dsh-api-session-controller/client'
-import type { ContextPressureProjection } from '@deepseek-ai/dsh-token-meter/client'
-import { zh as commonZh } from '@deepseek-ai/dsh-client-locale/src/locales/zh.ts'
-import type { Context } from '@deepseek-ai/cordis'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+} from '@omega-ai/dsh-client-test-runtime'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import type { SessionListState, SessionSnapshot } from '@omega-ai/dsh-api-session-controller/client'
+import type { ContextPressureProjection } from '@omega-ai/dsh-token-meter/client'
+import { zh as commonZh } from '@omega-ai/dsh-client-locale/src/locales/zh.ts'
+import type { Context } from '@omega-ai/cordis'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import type { SubmitOutcome } from '../src/client/contract/input.ts'
 import { SessionInputShell } from '../src/client/input/facade.ts'
 import { $replaceDetectSpanWithText, $selectDetectSpan } from '../src/client/input/editor/span-map.ts'

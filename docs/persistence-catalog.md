@@ -51,7 +51,7 @@ The [format references](persistence-changes/historical-formats/README.md) cover 
 | `event:request/header` | event | `4208123b50df5006b181481ab45fcf1cde807b88d3fd4d340090bc2e202fac41` | [`{ type: "request/header" }`](#persistence-type-sha256-4208123b50df5006b181481ab45fcf1cde807b88d3fd4d340090bc2e202fac41) |
 | `event:sandbox/mode` | event | `516da4cdd6d2f1e5ce488e648578ca51f40e458f707b803e5b24de870e799415` | [`{ type: "sandbox/mode" }`](#persistence-type-sha256-516da4cdd6d2f1e5ce488e648578ca51f40e458f707b803e5b24de870e799415) |
 | `event:schedule/change` | event | `a0a2e5c42e1c929445ecd1cd70f49be6b66441894ec72c08e8ae332821d4a3cb` | [`{ type: "schedule/change" }`](#persistence-type-sha256-a0a2e5c42e1c929445ecd1cd70f49be6b66441894ec72c08e8ae332821d4a3cb) |
-| `event:session-log-deepseek/delivery-accepted` | event | `d63b8b8ffad9c02fd80c43a17df4f240c1fe8118ecca9de34f9d5871838ab5b9` | [`{ type: "session-log-deepseek/delivery-accepted" }`](#persistence-type-sha256-d63b8b8ffad9c02fd80c43a17df4f240c1fe8118ecca9de34f9d5871838ab5b9) |
+| `event:session-log-omega/delivery-accepted` | event | `7ab74927e32737f062560be1c982b7d9ac0df2e3240405eeb22c69a7573d007a` | [`{ type: "session-log-omega/delivery-accepted" }`](#persistence-type-sha256-7ab74927e32737f062560be1c982b7d9ac0df2e3240405eeb22c69a7573d007a) |
 | `event:session/end-seed` | event | `5e6db6e24948d4a853c71cb9fabd252ad051ce93d4672c1266cf837c1c17b84e` | [`{ type: "session/end-seed" }`](#persistence-type-sha256-5e6db6e24948d4a853c71cb9fabd252ad051ce93d4672c1266cf837c1c17b84e) |
 | `event:session/title` | event | `1b912703e2d64f91c99c675b8f805b01076c8325b905c1218ad81ef0b24909d5` | [`{ type: "session/title" }`](#persistence-type-sha256-1b912703e2d64f91c99c675b8f805b01076c8325b905c1218ad81ef0b24909d5) |
 | `event:session/title-llm-request` | event | `ae84c5e493f94acc63cfb70389073ba616ed7ae7aa4fadde048bdcc64d49bb46` | [`{ type: "session/title-llm-request" }`](#persistence-type-sha256-ae84c5e493f94acc63cfb70389073ba616ed7ae7aa4fadde048bdcc64d49bb46) |
@@ -77,7 +77,7 @@ The [format references](persistence-changes/historical-formats/README.md) cover 
 | `event:turn/end` | event | `0f8512903d94f57a4748fa1a2092e64342856796684e6b8343db685b192745ce` | [`{ type: "turn/end" }`](#persistence-type-sha256-0f8512903d94f57a4748fa1a2092e64342856796684e6b8343db685b192745ce) |
 | `event:turn/start` | event | `aa0957eca50aeb28bcd2e6930b95809926edacb550c8c340ba526ba6b861b3d8` | [`{ type: "turn/start" }`](#persistence-type-sha256-aa0957eca50aeb28bcd2e6930b95809926edacb550c8c340ba526ba6b861b3d8) |
 | `event:user/message` | event | `b83ed1b1cfffbd7bd5cca06ea72e44be57beb68b39e5a96660ce42a9e21aa411` | [`{ type: "user/message" }`](#persistence-type-sha256-b83ed1b1cfffbd7bd5cca06ea72e44be57beb68b39e5a96660ce42a9e21aa411) |
-| `event:web/deepseek-search-llm-request` | event | `cf6e3aaf1e2de6480aa0157730a41b9a492108a55304100b0f7e112711dd4331` | [`{ type: "web/deepseek-search-llm-request" }`](#persistence-type-sha256-cf6e3aaf1e2de6480aa0157730a41b9a492108a55304100b0f7e112711dd4331) |
+| `event:web/omega-search-llm-request` | event | `21ec01f3217027d4bfa217d26c4dc9a7fccf2fbc663c6cf145b777c1982b9e44` | [`{ type: "web/omega-search-llm-request" }`](#persistence-type-sha256-21ec01f3217027d4bfa217d26c4dc9a7fccf2fbc663c6cf145b777c1982b9e44) |
 | `event:workspace/changes` | event | `e308ccf867a5398e316e0af8cb6ce238a8d33a63b9b384c8250a686786285f72` | [`{ type: "workspace/changes" }`](#persistence-type-sha256-e308ccf867a5398e316e0af8cb6ce238a8d33a63b9b384c8250a686786285f72) |
 
 ## Event envelope
@@ -331,7 +331,7 @@ Source: [`packages/core/session/src/types.ts:341`](../packages/core/session/src/
   commandId: CommandId
   kind: 'success' | 'error'
   text?: string
-  sourceEventSeq?: import('@deepseek-ai/dsh-session/types').SessionSeq
+  sourceEventSeq?: import('@omega-ai/dsh-session/types').SessionSeq
 }
 ```
 
@@ -842,25 +842,25 @@ Types: [SessionTitleLlmRequestEventData](subsystems/session-title.md)
 
 Source: [`packages/session/session-title-llm/src/index.ts:52`](../packages/session/session-title-llm/src/index.ts)
 
-### `session-log-deepseek/*`
+### `session-log-omega/*`
 
-<a id="session-log-deepseekdelivery-accepted--log-only"></a>
+<a id="session-log-omegadelivery-accepted--log-only"></a>
 
-#### `session-log-deepseek/delivery-accepted` — log-only
+#### `session-log-omega/delivery-accepted` — log-only
 
 ```ts persistence-catalog
 /** Records that the configured endpoint accepted one delivery through `throughSeq`. */
-'session-log-deepseek/delivery-accepted': {
+'session-log-omega/delivery-accepted': {
   /** Session identity the accepted delivery carried; inherited fork markers retain the parent's id. */
-  sessionId: import('@deepseek-ai/dsh-session/types').SessionId
+  sessionId: import('@omega-ai/dsh-session/types').SessionId
   /** Accepted Session format generation; absence identifies version 0. */
   sessionFormatVersion?: number
   /** Last canonical event included in the accepted request. */
-  throughSeq: import('@deepseek-ai/dsh-session/types').SessionSeq
+  throughSeq: import('@omega-ai/dsh-session/types').SessionSeq
 }
 ```
 
-Source: [`packages/session/session-log-deepseek/src/types.ts:81`](../packages/session/session-log-deepseek/src/types.ts)
+Source: [`packages/session/session-log-omega/src/types.ts:81`](../packages/session/session-log-omega/src/types.ts)
 
 ### `step/*`
 
@@ -1253,16 +1253,16 @@ Source: [`packages/core/session/src/types.ts:309`](../packages/core/session/src/
 
 ### `web/*`
 
-<a id="webdeepseek-search-llm-request--log-only"></a>
+<a id="webomega-search-llm-request--log-only"></a>
 
-#### `web/deepseek-search-llm-request` — log-only
+#### `web/omega-search-llm-request` — log-only
 
 ```ts persistence-catalog
-/** Secret-free auxiliary DeepSeek search request recorded before dispatch. */
-'web/deepseek-search-llm-request': DeepSeekSearchLlmRequest
+/** Secret-free auxiliary Omega search request recorded before dispatch. */
+'web/omega-search-llm-request': OmegaSearchLlmRequest
 ```
 
-Source: [`packages/web/web-search-deepseek/src/provider.ts:82`](../packages/web/web-search-deepseek/src/provider.ts)
+Source: [`packages/web/web-search-omega/src/provider.ts:83`](../packages/web/web-search-omega/src/provider.ts)
 
 ### `workspace/*`
 
@@ -2363,13 +2363,13 @@ SHA-256: `e41bdebe246abe17154de7e7a1d81035437eee8d20e7f1edff0d91e2598ad828`
 
 `"session"`
 
-<a id="persistence-type-sha256-47e5d84f1a93450a78c7f3954b43990d0f629af7c034a56313e5deb63e772c1b"></a>
+<a id="persistence-type-sha256-83ffc4cf2c26148bef422fc2ae76cb83cec21149339f20ea8307b01108c8e4ba"></a>
 
-### `"session-log-deepseek/delivery-accepted"`
+### `"session-log-omega/delivery-accepted"`
 
-SHA-256: `47e5d84f1a93450a78c7f3954b43990d0f629af7c034a56313e5deb63e772c1b`
+SHA-256: `83ffc4cf2c26148bef422fc2ae76cb83cec21149339f20ea8307b01108c8e4ba`
 
-`"session-log-deepseek/delivery-accepted"`
+`"session-log-omega/delivery-accepted"`
 
 <a id="persistence-type-sha256-7f13860ee89a2d35ce09f958e85a04566cd59cb1de1d73a9619a9b631961dc71"></a>
 
@@ -2843,13 +2843,13 @@ SHA-256: `de25352d2dc4196309bd84b5bac6319f6d5c898ea0e82bb5ae66c5738d0d426f`
 
 `"user/message"`
 
-<a id="persistence-type-sha256-6f611bed14b2106542480c4a230b4a83baf76dc0d8ac0cd13319a7cb8dae7675"></a>
+<a id="persistence-type-sha256-43e4bd69d6c9e9f85e53b2114216e04583bf1c402d192ee2456a2c1abf5e4e98"></a>
 
-### `"web/deepseek-search-llm-request"`
+### `"web/omega-search-llm-request"`
 
-SHA-256: `6f611bed14b2106542480c4a230b4a83baf76dc0d8ac0cd13319a7cb8dae7675`
+SHA-256: `43e4bd69d6c9e9f85e53b2114216e04583bf1c402d192ee2456a2c1abf5e4e98`
 
-`"web/deepseek-search-llm-request"`
+`"web/omega-search-llm-request"`
 
 <a id="persistence-type-sha256-935c8d486292b13c87b57ca280eb8c58b5b2f5239be86fcd4334c33fdeb87682"></a>
 
@@ -3204,24 +3204,6 @@ Sources: [`packages/subagent/subagent/src/descriptor.ts:72`](../packages/subagen
 | `provider` | required | `string` |
 | `toolFilter` | optional | [`ToolRestriction`](#persistence-type-sha256-3cfc3a56502da1f8c6153c2c56657bab4b749056968634dd0991d325ec1c919f) |
 | `version` | required | `number` |
-
-<a id="persistence-type-sha256-2517ba143a271508d3ca35126d5aca8f7f1facf5aaddce4adf011832042fa2b9"></a>
-
-<a id="persistence-type-deepseeksearchllmrequest"></a>
-
-<a id="persistence-type-packageswebweb-search-deepseeksrcprovidertsdeepseeksearchllmrequest"></a>
-
-### `DeepSeekSearchLlmRequest`
-
-SHA-256: `2517ba143a271508d3ca35126d5aca8f7f1facf5aaddce4adf011832042fa2b9`
-
-Sources: [`packages/web/web-search-deepseek/src/provider.ts:55`](../packages/web/web-search-deepseek/src/provider.ts)
-
-| Property | Presence | Type |
-|---|---|---|
-| `apiVersion` | required | `string` |
-| `body` | required | [`{ max_tokens, messages, model, tools }`](#persistence-type-sha256-930a6567a10bb62ddd157bd8abdf4b182810c8c3b49d91309b3b009a5fed9731) |
-| `endpoint` | required | `string` |
 
 <a id="persistence-type-sha256-1020bbc3c744c060cd31c0891ae79b9e4c3e0adfa3f0be49869309b34e9ef200"></a>
 
@@ -4120,6 +4102,24 @@ Sources: [`packages/api/session-controller/src/types.ts:100`](../packages/api/se
 | `provider` | required | `string` |
 | `reasoningEffort` | optional | `string` |
 
+<a id="persistence-type-sha256-2517ba143a271508d3ca35126d5aca8f7f1facf5aaddce4adf011832042fa2b9"></a>
+
+<a id="persistence-type-omegasearchllmrequest"></a>
+
+<a id="persistence-type-packageswebweb-search-omegasrcprovidertsomegasearchllmrequest"></a>
+
+### `OmegaSearchLlmRequest`
+
+SHA-256: `2517ba143a271508d3ca35126d5aca8f7f1facf5aaddce4adf011832042fa2b9`
+
+Sources: [`packages/web/web-search-omega/src/provider.ts:56`](../packages/web/web-search-omega/src/provider.ts)
+
+| Property | Presence | Type |
+|---|---|---|
+| `apiVersion` | required | `string` |
+| `body` | required | [`{ max_tokens, messages, model, tools }`](#persistence-type-sha256-930a6567a10bb62ddd157bd8abdf4b182810c8c3b49d91309b3b009a5fed9731) |
+| `endpoint` | required | `string` |
+
 <a id="persistence-type-sha256-8e8e91646a5cae3fc78f7532a0013ff2088ae47077642c2edd507a508209b8af"></a>
 
 <a id="persistence-type-oneshotscheduledispatchchange"></a>
@@ -4815,7 +4815,7 @@ One of:
 
 SHA-256: `4e887768586528565381dadbddee6cef555874148089f4579e0b4b1ad096fc9c`
 
-Sources: [`packages/llm/llm/src/types.ts:62`](../packages/llm/llm/src/types.ts) · [`packages/web/web-search-deepseek/src/provider.ts:66`](../packages/web/web-search-deepseek/src/provider.ts)
+Sources: [`packages/llm/llm/src/types.ts:62`](../packages/llm/llm/src/types.ts) · [`packages/web/web-search-omega/src/provider.ts:67`](../packages/web/web-search-omega/src/provider.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -7392,7 +7392,7 @@ Sources: [`packages/webhook/webhook/src/types.ts:74`](../packages/webhook/webhoo
 
 SHA-256: `930a6567a10bb62ddd157bd8abdf4b182810c8c3b49d91309b3b009a5fed9731`
 
-Sources: [`packages/web/web-search-deepseek/src/provider.ts:61`](../packages/web/web-search-deepseek/src/provider.ts)
+Sources: [`packages/web/web-search-omega/src/provider.ts:62`](../packages/web/web-search-omega/src/provider.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -7515,7 +7515,7 @@ Sources: [`packages/core/session/src/types.ts:297`](../packages/core/session/src
 
 SHA-256: `9a2a9029f8d7ede05336980d8342737557f487b913bfd28853d0ab5214600ab5`
 
-Sources: [`packages/web/web-search-deepseek/src/provider.ts:64`](../packages/web/web-search-deepseek/src/provider.ts)
+Sources: [`packages/web/web-search-omega/src/provider.ts:65`](../packages/web/web-search-omega/src/provider.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -7528,7 +7528,7 @@ Sources: [`packages/web/web-search-deepseek/src/provider.ts:64`](../packages/web
 
 SHA-256: `8bb8c3751a6ce64b61aba1ec7ae798c00a5803c4d868a0430873216c6569ed52`
 
-Sources: [`packages/session/session-log-deepseek/src/types.ts:81`](../packages/session/session-log-deepseek/src/types.ts)
+Sources: [`packages/session/session-log-omega/src/types.ts:81`](../packages/session/session-log-omega/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -8212,13 +8212,13 @@ SHA-256: `a0a2e5c42e1c929445ecd1cd70f49be6b66441894ec72c08e8ae332821d4a3cb`
 | `time` | required | `number` |
 | `type` | required | `"schedule/change"` |
 
-<a id="persistence-type-sha256-d63b8b8ffad9c02fd80c43a17df4f240c1fe8118ecca9de34f9d5871838ab5b9"></a>
+<a id="persistence-type-sha256-7ab74927e32737f062560be1c982b7d9ac0df2e3240405eeb22c69a7573d007a"></a>
 
-<a id="persistence-type-eventsession-log-deepseekdelivery-accepted"></a>
+<a id="persistence-type-eventsession-log-omegadelivery-accepted"></a>
 
-### `{ type: "session-log-deepseek/delivery-accepted" }`
+### `{ type: "session-log-omega/delivery-accepted" }`
 
-SHA-256: `d63b8b8ffad9c02fd80c43a17df4f240c1fe8118ecca9de34f9d5871838ab5b9`
+SHA-256: `7ab74927e32737f062560be1c982b7d9ac0df2e3240405eeb22c69a7573d007a`
 
 | Property | Presence | Type |
 |---|---|---|
@@ -8226,7 +8226,7 @@ SHA-256: `d63b8b8ffad9c02fd80c43a17df4f240c1fe8118ecca9de34f9d5871838ab5b9`
 | `ignorable` | optional | `true` |
 | `seq` | required | `number` |
 | `time` | required | `number` |
-| `type` | required | `"session-log-deepseek/delivery-accepted"` |
+| `type` | required | `"session-log-omega/delivery-accepted"` |
 
 <a id="persistence-type-sha256-5e6db6e24948d4a853c71cb9fabd252ad051ce93d4672c1266cf837c1c17b84e"></a>
 
@@ -8711,21 +8711,21 @@ SHA-256: `b83ed1b1cfffbd7bd5cca06ea72e44be57beb68b39e5a96660ce42a9e21aa411`
 | `time` | required | `number` |
 | `type` | required | `"user/message"` |
 
-<a id="persistence-type-sha256-cf6e3aaf1e2de6480aa0157730a41b9a492108a55304100b0f7e112711dd4331"></a>
+<a id="persistence-type-sha256-21ec01f3217027d4bfa217d26c4dc9a7fccf2fbc663c6cf145b777c1982b9e44"></a>
 
-<a id="persistence-type-eventwebdeepseek-search-llm-request"></a>
+<a id="persistence-type-eventwebomega-search-llm-request"></a>
 
-### `{ type: "web/deepseek-search-llm-request" }`
+### `{ type: "web/omega-search-llm-request" }`
 
-SHA-256: `cf6e3aaf1e2de6480aa0157730a41b9a492108a55304100b0f7e112711dd4331`
+SHA-256: `21ec01f3217027d4bfa217d26c4dc9a7fccf2fbc663c6cf145b777c1982b9e44`
 
 | Property | Presence | Type |
 |---|---|---|
-| `data` | required | [`DeepSeekSearchLlmRequest`](#persistence-type-sha256-2517ba143a271508d3ca35126d5aca8f7f1facf5aaddce4adf011832042fa2b9) |
+| `data` | required | [`OmegaSearchLlmRequest`](#persistence-type-sha256-2517ba143a271508d3ca35126d5aca8f7f1facf5aaddce4adf011832042fa2b9) |
 | `ignorable` | optional | `true` |
 | `seq` | required | `number` |
 | `time` | required | `number` |
-| `type` | required | `"web/deepseek-search-llm-request"` |
+| `type` | required | `"web/omega-search-llm-request"` |
 
 <a id="persistence-type-sha256-2d11ca7b0d4493e244b74eba093227866b33249841e59a1e9bf56afed38604c3"></a>
 
@@ -8733,7 +8733,7 @@ SHA-256: `cf6e3aaf1e2de6480aa0157730a41b9a492108a55304100b0f7e112711dd4331`
 
 SHA-256: `2d11ca7b0d4493e244b74eba093227866b33249841e59a1e9bf56afed38604c3`
 
-Sources: [`packages/web/web-search-deepseek/src/provider.ts:71`](../packages/web/web-search-deepseek/src/provider.ts)
+Sources: [`packages/web/web-search-omega/src/provider.ts:72`](../packages/web/web-search-omega/src/provider.ts)
 
 | Property | Presence | Type |
 |---|---|---|

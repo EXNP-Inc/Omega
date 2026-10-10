@@ -1,24 +1,24 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import { createUserMessage, ToolCallId  } from '@deepseek-ai/dsh-llm'
-import type { ContextFormed } from '@deepseek-ai/dsh-llm'
-import type { ToolSchema } from '@deepseek-ai/dsh-llm'
-import { createScope } from '@deepseek-ai/dsh-scope'
-import type { Scope } from '@deepseek-ai/dsh-scope'
-import SystemPrompt, { renderPrompt } from '@deepseek-ai/dsh-system-prompt'
-import { PtcRuntime } from '@deepseek-ai/dsh-ptc-runtime'
-import type { PtcRunRequest, PtcRunResult } from '@deepseek-ai/dsh-ptc-runtime'
-import ToolRuntime, { CodeRunFailedError, RUN_CODE_NAME, TOOL_ABORTED_BEFORE_DISPATCH, defineContentToolFixture, defineTool } from '@deepseek-ai/dsh-tools'
-import type { Config, JsonSchemaNode, PostToolDecision, ToolExecutionResult } from '@deepseek-ai/dsh-tools'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { Session, SessionId } from '@deepseek-ai/dsh-session'
-import ApprovalService, { type ApprovalOutcome, type ApprovalRequest } from '@deepseek-ai/dsh-user-approval'
-import type { SessionEventMap } from '@deepseek-ai/dsh-session'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
-import SandboxPolicy from '@deepseek-ai/dsh-sandbox-policy'
-import SessionProjections from '@deepseek-ai/dsh-session-projection'
+import { Context } from '@omega-ai/cordis'
+import { createUserMessage, ToolCallId  } from '@omega-ai/dsh-llm'
+import type { ContextFormed } from '@omega-ai/dsh-llm'
+import type { ToolSchema } from '@omega-ai/dsh-llm'
+import { createScope } from '@omega-ai/dsh-scope'
+import type { Scope } from '@omega-ai/dsh-scope'
+import SystemPrompt, { renderPrompt } from '@omega-ai/dsh-system-prompt'
+import { PtcRuntime } from '@omega-ai/dsh-ptc-runtime'
+import type { PtcRunRequest, PtcRunResult } from '@omega-ai/dsh-ptc-runtime'
+import ToolRuntime, { CodeRunFailedError, RUN_CODE_NAME, TOOL_ABORTED_BEFORE_DISPATCH, defineContentToolFixture, defineTool } from '@omega-ai/dsh-tools'
+import type { Config, JsonSchemaNode, PostToolDecision, ToolExecutionResult } from '@omega-ai/dsh-tools'
+import type { Agent } from '@omega-ai/dsh-agent'
+import { Session, SessionId } from '@omega-ai/dsh-session'
+import ApprovalService, { type ApprovalOutcome, type ApprovalRequest } from '@omega-ai/dsh-user-approval'
+import type { SessionEventMap } from '@omega-ai/dsh-session'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
+import SandboxPolicy from '@omega-ai/dsh-sandbox-policy'
+import SessionProjections from '@omega-ai/dsh-session-projection'
 
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@omega-ai/dsh-llm' {
   interface MessageSourceMap {
     'order-probe': { kind: 'order-probe' } & ContextFormed
     'test': { kind: 'test' } & ContextFormed
@@ -37,7 +37,7 @@ const testToolSignal = new AbortController().signal
 
 /** A scriptable in-repo PtcRuntime: each test sets `behavior` to drive the bindings however it needs. */
 class FakeRuntime extends PtcRuntime {
-  resolve(request: import('@deepseek-ai/dsh-ptc-runtime').PtcRunRequest): import('@deepseek-ai/dsh-ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+  resolve(request: import('@omega-ai/dsh-ptc-runtime').PtcRunRequest): import('@omega-ai/dsh-ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
   readonly language: string
   readonly isolation = 'fake'
@@ -2030,7 +2030,7 @@ describe('per-agent presentation', () => {
   })
 
   it('inherits a STANDING preset scope\'s mode down the chain, agents beside it unaffected', async () => {
-    const { bindScopeParent } = await import('@deepseek-ai/dsh-scope')
+    const { bindScopeParent } = await import('@omega-ai/dsh-scope')
     const { ctx, systemPrompt } = await setup({ mode: 'native' })
     const calls = registerEcho(ctx)
     // The preset's standing scope declares once; the agent only PARENTS to it

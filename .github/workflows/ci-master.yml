@@ -39,7 +39,7 @@ jobs:
       targets: node24-linux-arm64,node24-macos-arm64,node24-macos-x64
       ci: true
     secrets:
-      DEEPSEEK_API_KEY_EXTERNAL: ${{ secrets.DEEPSEEK_API_KEY_EXTERNAL }}
+      OMEGA_API_KEY_EXTERNAL: ${{ secrets.OMEGA_API_KEY_EXTERNAL }}
 
   # Wine runs once here, independently of the native serial standby aggregates.
   windows:
@@ -166,7 +166,7 @@ jobs:
       # The persistent VM image owns Playwright's Linux system packages; this
       # step also proves that browser provisioning remains usable for failover.
       - name: Install Playwright Chromium and WebKit
-        run: pnpm --filter @deepseek-ai/dsh-web-frontend exec playwright install chromium webkit
+        run: pnpm --filter @omega-ai/dsh-web-frontend exec playwright install chromium webkit
 
       - name: Prepare bubblewrap (unrestrict userns)
         run: bash scripts/prepare-ci-bubblewrap.sh

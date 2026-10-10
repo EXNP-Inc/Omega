@@ -12,18 +12,18 @@ English | [中文](2026-06-13-twin-llm-adapters.zh.md)
 
 Ship **two** adapters against the one contract from the start, deliberately built on different internals:
 
-- `dsh-llm-deepseek` — direct `fetch` + in-repo translation against the DeepSeek API; SSE framing is delegated to `eventsource-parser` ([the archived SSE-parser swap](../../archived/simplification/2026-07-26-eventsource-parser-for-deepseek-sse.md)). The twin identity is owning the fetch/translate internals rather than delegating to a full provider SDK, not hand-rolling transport plumbing.
+- `dsh-llm-omega` — direct `fetch` + in-repo translation against the Omega API; SSE framing is delegated to `eventsource-parser` ([the archived SSE-parser swap](../../archived/simplification/2026-07-26-eventsource-parser-for-deepseek-sse.md)). The twin identity is owning the fetch/translate internals rather than delegating to a full provider SDK, not hand-rolling transport plumbing.
 - `dsh-llm-pi-ai` — the same endpoint through the `@earendil-works/pi-ai` library (its own event vocabulary).
 
 The rule they enforce: **anything the StreamChunk vocabulary cannot express for BOTH implementations is a core-vocabulary bug**, caught immediately rather than at the next provider. The pair pinned down conventions now documented on `StreamChunk` in `dsh-llm/src/types.ts`: usage emitted before finish, nothing after finish, tool-call `arguments` as raw JSON strings end-to-end, and the two sanctioned error paths (throw from `stream()` *or* end with `finish {kind:'error'|'aborted'}`) that a consumer must handle on both sides — a divergence the library-backed adapter surfaced that a single direct-fetch adapter would have hidden.
 
 ## Alternatives considered
 
-- **A single adapter** — less code and half the e2e cost, but leaves the "provider-neutral" claim unverified; the vocabulary would encode DeepSeek-via-fetch assumptions silently.
+- **A single adapter** — less code and half the e2e cost, but leaves the "provider-neutral" claim unverified; the vocabulary would encode Omega-via-fetch assumptions silently.
 - **A mock second adapter** — cheaper but doesn't exercise a real provider's wire quirks, so it proves little. The twin is real-on-real.
 
 ## Consequences
 
 The twin doubles adapter and key-gated e2e maintenance—both cover V4 Flash and Pro across representative reasoning modes—in exchange for continuous seam-neutrality validation and a second implementation example. Both use `apiKey`, `baseURL`, and `models`; the direct-fetch adapter exposes `thinking`/`reasoningEffort`, while pi-ai exposes one `reasoning` level. A future conformance suite could justify retiring one adapter through a superseding Agent Note.
 
-The [Messages adapter](../feature/2026-09-07-deepseek-messages-adapter.md) adds an Anthropic-protocol implementation inside `llm-deepseek`; it preserves the same stream conventions.
+The [Messages adapter](../feature/2026-09-07-omega-messages-adapter.md) adds an Anthropic-protocol implementation inside `llm-omega`; it preserves the same stream conventions.

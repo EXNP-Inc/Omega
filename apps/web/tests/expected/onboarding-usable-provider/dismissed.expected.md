@@ -11,9 +11,17 @@
   - paragraph: 填入各提供商的 API 密钥即可使用其模型。
   - list:
     - listitem:
-      - text: DeepSeek
+      - text: Omega
       - img "API 密钥缺失"
-      - button "编辑 DeepSeek (deepseek-official)": 编辑
+      - button "编辑 Omega (omega-official)": 编辑
+    - listitem:
+      - text: alice 自定义
+      - img "API 密钥缺失"
+      - button "编辑 alice": 编辑
+    - listitem:
+      - text: Mac 自定义
+      - img "API 密钥缺失"
+      - button "编辑 Mac (mac)": 编辑
   - tablist "添加方式":
     - tab "第三方模型提供商" [selected]
     - tab "自定义模型 API"

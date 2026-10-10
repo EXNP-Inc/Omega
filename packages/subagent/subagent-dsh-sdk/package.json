@@ -1,13 +1,13 @@
 {
-  "name": "@deepseek-ai/dsh-subagent-dsh-sdk",
-  "description": "Out-of-process SDK subagent backend: drives a child DeepSeek Harness runtime subprocess over stdio JSON-RPC through the TypeScript SDK client",
+  "name": "@omega-ai/dsh-subagent-dsh-sdk",
+  "description": "Out-of-process SDK subagent backend: drives a child Omega runtime subprocess over stdio JSON-RPC through the TypeScript SDK client",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/subagent/subagent-dsh-sdk"
   },
   "type": "module",
@@ -27,38 +27,38 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-sdk-client": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-subagent": "workspace:*",
-    "@deepseek-ai/dsh-subprocess": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-sdk-client": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-subagent": "workspace:*",
+    "@omega-ai/dsh-subprocess": "workspace:*"
   },
   "dependencies": {
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/schemastery": "workspace:~"
+    "@omega-ai/dsh-brand": "workspace:*",
+    "@omega-ai/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-agent-instructions": "workspace:*",
-    "@deepseek-ai/dsh-app-boot": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-llm-deepseek": "workspace:*",
-    "@deepseek-ai/dsh-llm-deepseek-api-key": "workspace:*",
-    "@deepseek-ai/dsh-loader-smoke": "workspace:*",
-    "@deepseek-ai/dsh-sdk-client": "workspace:*",
-    "@deepseek-ai/dsh-sdk-protocol": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-checkpoint-policy": "workspace:*",
-    "@deepseek-ai/dsh-session-persistence-jsonl": "workspace:*",
-    "@deepseek-ai/dsh-session-projection": "workspace:*",
-    "@deepseek-ai/dsh-skill-filesystem": "workspace:*",
-    "@deepseek-ai/dsh-subagent": "workspace:*",
-    "@deepseek-ai/dsh-subprocess": "workspace:*",
-    "@deepseek-ai/dsh-system-prompt": "workspace:*",
-    "@deepseek-ai/dsh-tool-subagent": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/cordis-plugin-loader": "workspace:~",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-agent-instructions": "workspace:*",
+    "@omega-ai/dsh-app-boot": "workspace:*",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-llm-omega": "workspace:*",
+    "@omega-ai/dsh-llm-omega-api-key": "workspace:*",
+    "@omega-ai/dsh-loader-smoke": "workspace:*",
+    "@omega-ai/dsh-sdk-client": "workspace:*",
+    "@omega-ai/dsh-sdk-protocol": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-session-checkpoint-policy": "workspace:*",
+    "@omega-ai/dsh-session-persistence-jsonl": "workspace:*",
+    "@omega-ai/dsh-session-projection": "workspace:*",
+    "@omega-ai/dsh-skill-filesystem": "workspace:*",
+    "@omega-ai/dsh-subagent": "workspace:*",
+    "@omega-ai/dsh-subprocess": "workspace:*",
+    "@omega-ai/dsh-system-prompt": "workspace:*",
+    "@omega-ai/dsh-tool-subagent": "workspace:*"
   }
 }

@@ -2,24 +2,24 @@
  * Opt-in request clock context. Eligible steps add durable,
  * source-attributed time readings to the request history.
  *
- * @module @deepseek-ai/dsh-time-context
+ * @module @omega-ai/dsh-time-context
  */
 
-import type { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
+import type { Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
 import { z as zod } from 'zod'
-import type { Agent, PreStepDecision } from '@deepseek-ai/dsh-agent'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { ContextFormed } from '@deepseek-ai/dsh-llm'
-declare module '@deepseek-ai/dsh-llm' {
+import type { Agent, PreStepDecision } from '@omega-ai/dsh-agent'
+import { createUserMessage } from '@omega-ai/dsh-llm'
+import type { ContextFormed } from '@omega-ai/dsh-llm'
+declare module '@omega-ai/dsh-llm' {
   interface MessageSourceMap {
     'time-context': { kind: 'time-context' } & ContextFormed
   }
 }
 
-import type { UserMessage } from '@deepseek-ai/dsh-llm'
-import { SessionSeq } from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-session-projection'
+import type { UserMessage } from '@omega-ai/dsh-llm'
+import { SessionSeq } from '@omega-ai/dsh-session'
+import type {} from '@omega-ai/dsh-session-projection'
 import {
   deriveBrowserTimeZoneContext,
   renderBrowserTimeZoneContext,
@@ -30,7 +30,7 @@ import { createTimestampFormatter, formatTimestamp } from './timestamp.ts'
 /** Cordis plugin name used by loader diagnostics. */
 export const name = 'time-context'
 
-declare module '@deepseek-ai/dsh-session-projection/types' {
+declare module '@omega-ai/dsh-session-projection/types' {
   interface SessionProjectionStateMap {
     /** Latest time-context readings. */
     timeContext: TimeContextProjection

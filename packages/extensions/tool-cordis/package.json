@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-tool-cordis",
+  "name": "@omega-ai/dsh-tool-cordis",
   "description": "Read-only runtime API inspection for Harness plugin development",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/extensions/tool-cordis"
   },
   "type": "module",
@@ -32,22 +32,22 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-app-boot": "workspace:*",
-    "@deepseek-ai/dsh-cordis-host-runner": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/cordis-plugin-loader": "workspace:~",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-app-boot": "workspace:*",
+    "@omega-ai/dsh-cordis-host-runner": "workspace:*",
+    "@omega-ai/dsh-tools": "workspace:*"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/cordis-plugin-group": "workspace:~",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-app-boot": "workspace:*",
-    "@deepseek-ai/dsh-cordis-host-runner": "workspace:*",
-    "@deepseek-ai/dsh-system-prompt": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
-    "@deepseek-ai/schemastery": "workspace:~"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/cordis-plugin-group": "workspace:~",
+    "@omega-ai/cordis-plugin-loader": "workspace:~",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-app-boot": "workspace:*",
+    "@omega-ai/dsh-cordis-host-runner": "workspace:*",
+    "@omega-ai/dsh-system-prompt": "workspace:*",
+    "@omega-ai/dsh-tools": "workspace:*",
+    "@omega-ai/schemastery": "workspace:~"
   }
 }

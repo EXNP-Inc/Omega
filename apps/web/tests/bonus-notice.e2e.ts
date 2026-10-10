@@ -252,14 +252,14 @@ describe.skipIf(MODE === 'record')('web e2e: bonus notice', () => {
     // A stored grant bound to the double's origin starts the account credential-stored
     // without driving the browser sign-in flow.
     await writeFile(join(home, '.credentials.yaml'),
-      `version: 1\nrefs: {}\nrecords:\n  deepseek-account-platform/default:\n    kind: grant\n    payload:\n      version: 1\n      token: ${TOKEN}\n      issuer: ${platform.origin}\n`,
+      `version: 1\nrefs: {}\nrecords:\n  omega-account-platform/default:\n    kind: grant\n    payload:\n      version: 1\n      token: ${TOKEN}\n      issuer: ${platform.origin}\n`,
       { mode: 0o600 })
     const overlay = join(root, 'bonus-notice.overlay.yml')
     await writeFile(overlay, (await readFile(OVERLAY_TEMPLATE, 'utf8')).replaceAll('{{origin}}', platform.origin))
     scaffold = await launchWebScaffold({ harnessHome: home, extraOverlayPath: overlay })
     // Resolve the signed-in identity before opening the renderer. First profile discovery
     // emits another account frame, which would supersede the held startup bonus read.
-    expect(await scaffold.ctx.deepseekAccount.getProfile({
+    expect(await scaffold.ctx.omegaAccount.getProfile({
       version: 'test', locale: 'zh-CN', timezoneOffsetSeconds: 28_800,
     })).toMatchObject({ status: 'ready', value: { id: ACCOUNT_ID } })
     browser = await chromium.launch()
@@ -424,7 +424,7 @@ describe.skipIf(MODE === 'record')('web e2e: bonus notice', () => {
     observations.push(`topup.open gets=${String(platform.gets.length - topUpGetsBefore)} summaries=${String(platform.summaries.length - topUpSummariesBefore)}`)
     const callsBefore = (await platformCalls(page)).length
     await topUpSettings.getByRole('link', { name: '充值', exact: true }).click()
-    const topUpOverlay = page.getByRole('dialog', { name: '返回 DeepSeek Harness', exact: true })
+    const topUpOverlay = page.getByRole('dialog', { name: '返回 Omega', exact: true })
     await topUpOverlay.waitFor()
     // Opening the native view reads nothing by itself.
     expect(platform.gets.length).toBe(topUpGetsBefore + 1)
@@ -436,7 +436,7 @@ describe.skipIf(MODE === 'record')('web e2e: bonus notice', () => {
     platform.grant(ORDER_TOPUP, '11.00')
     // Holding the notice read proves the return does not wait for the refresh it starts.
     platform.holdNextGet()
-    await topUpOverlay.getByRole('button', { name: '返回 DeepSeek Harness', exact: true }).click()
+    await topUpOverlay.getByRole('button', { name: '返回 Omega', exact: true }).click()
     await topUpOverlay.waitFor({ state: 'detached', timeout: 30_000 })
     const topUpCalls = (await platformCalls(page)).slice(callsBefore).join(',')
     observations.push(`topup.returned bridge=${topUpCalls} cards=${String(await noticeCards(page).count())}`)
@@ -540,9 +540,9 @@ describe.skipIf(MODE === 'record')('web e2e: bonus notice', () => {
     // Returning from usage refreshes nothing, because only a payment changes the account.
     for (const index of [0, 1]) {
       await failedLinks.nth(index).click()
-      const usageOverlay = page.getByRole('dialog', { name: '返回 DeepSeek Harness', exact: true })
+      const usageOverlay = page.getByRole('dialog', { name: '返回 Omega', exact: true })
       await usageOverlay.waitFor()
-      await usageOverlay.getByRole('button', { name: '返回 DeepSeek Harness', exact: true }).click()
+      await usageOverlay.getByRole('button', { name: '返回 Omega', exact: true }).click()
       await usageOverlay.waitFor({ state: 'detached', timeout: 30_000 })
     }
     const failedUsages = (await platformCalls(page)).filter(call => call === 'open:usage').length - failedUsagesBefore

@@ -3,12 +3,12 @@ import {
   RemoteStream,
   RemoteStreamCarrierError,
   type RemoteStreamOptions,
-} from '@deepseek-ai/dsh-api-gateway/client'
-import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
-import { streamHandle } from '@deepseek-ai/dsh-remote-mock'
-import { LlmAttemptId } from '@deepseek-ai/dsh-llm'
-import { SESSION_FORMAT_VERSION } from '@deepseek-ai/dsh-session/types'
-import type { RemoteResult, RemoteStreamHandle } from '@deepseek-ai/dsh-typert-protocol'
+} from '@omega-ai/dsh-api-gateway/client'
+import { RemoteError } from '@omega-ai/dsh-typert-protocol'
+import { streamHandle } from '@omega-ai/dsh-remote-mock'
+import { LlmAttemptId } from '@omega-ai/dsh-llm'
+import { SESSION_FORMAT_VERSION } from '@omega-ai/dsh-session/types'
+import type { RemoteResult, RemoteStreamHandle } from '@omega-ai/dsh-typert-protocol'
 import {
   createSessionControlStream,
   SessionEventStream,

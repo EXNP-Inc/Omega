@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { SettingsPathOpView } from '@deepseek-ai/dsh-api-remotes/client'
-import { RemoteError, stubConfigForm, type StubConfigForm } from '@deepseek-ai/dsh-client-test-runtime'
+import type { SettingsPathOpView } from '@omega-ai/dsh-api-remotes/client'
+import { RemoteError, stubConfigForm, type StubConfigForm } from '@omega-ai/dsh-client-test-runtime'
 import { WebSearchCardController, type WebSearchSettings } from '../src/client/web-search-card-controller.ts'
 
 /** Make the stub behave like a Host that accepts every write. */
@@ -41,7 +41,7 @@ function ctxWith(namespaces: object) {
 function credentialsApi(configured: boolean) {
   const describe = vi.fn(() => Promise.resolve({
     ok: true as const,
-    value: { DEEPSEEK_API_KEY: { configured, writable: true } },
+    value: { OMEGA_API_KEY: { configured, writable: true } },
   }))
   const set = vi.fn(() => Promise.resolve({ ok: true as const, value: undefined }))
   return { ctx: ctxWith({ credentials: { describe, set } }), describe, set }
@@ -77,12 +77,12 @@ describe('WebSearchCardController', () => {
 
     credentials.describe.mockImplementation(() => Promise.resolve({
       ok: true as const,
-      value: { DEEPSEEK_API_KEY: { configured: true, writable: true } },
+      value: { OMEGA_API_KEY: { configured: true, writable: true } },
     }))
     face.save()
     await vi.waitFor(() => { expect(credentials.set).toHaveBeenCalled() })
 
-    expect(credentials.set).toHaveBeenCalledWith('DEEPSEEK_API_KEY', 'ds-secret')
+    expect(credentials.set).toHaveBeenCalledWith('OMEGA_API_KEY', 'ds-secret')
     expect(host.set).not.toHaveBeenCalled()
     await vi.waitFor(() => {
       expect(face.hooks.webSearchCard.getSnapshot()).toMatchObject({ dirty: false, apiKeyConfigured: true })
@@ -119,9 +119,9 @@ describe('WebSearchCardController', () => {
     // A key written on another surface reaches this card only through this signal.
     credentials.describe.mockImplementation(() => Promise.resolve({
       ok: true as const,
-      value: { DEEPSEEK_API_KEY: { configured: true, writable: true } },
+      value: { OMEGA_API_KEY: { configured: true, writable: true } },
     }))
-    controller.refreshCredential('DEEPSEEK_API_KEY')
+    controller.refreshCredential('OMEGA_API_KEY')
 
     await vi.waitFor(() => {
       expect(controller.inject().hooks.webSearchCard.getSnapshot().apiKeyConfigured).toBe(true)
@@ -161,7 +161,7 @@ describe('WebSearchCardController', () => {
     const host = stubConfigForm<WebSearchSettings>()
     const refusal = () => Promise.resolve({
       ok: false as const,
-      error: new RemoteError('credential/rejected', 'offline', { ref: 'DEEPSEEK_API_KEY' }),
+      error: new RemoteError('credential/rejected', 'offline', { ref: 'OMEGA_API_KEY' }),
     })
     const describe = vi.fn(refusal)
     const set = vi.fn(refusal)

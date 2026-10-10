@@ -1,14 +1,14 @@
 /** General settings companion for the Host Session-log upload configuration. */
-import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-client-locale/client'
-import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
-import type {} from '@deepseek-ai/dsh-client-ui-layout/client'
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
+import type { Context } from '@omega-ai/cordis'
+import type {} from '@omega-ai/dsh-client-locale/client'
+import type {} from '@omega-ai/dsh-client-ui-settings/client'
+import type {} from '@omega-ai/dsh-client-ui-layout/client'
+import type {} from '@omega-ai/dsh-client-ui-renderer/client'
 import { UploadPreference, type UploadSettings } from './upload-preference.ts'
 import { UploadRow, UploadToast, type UploadInjected } from './UploadRow.tsx'
 import { en, zh } from './locales.ts'
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@omega-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap {
     /** API Session-log preference copy. */
     'settings.sessionLog': keyof typeof en
@@ -24,7 +24,7 @@ export const inject = ['slots', 'locale', 'configForms']
  */
 export function apply(ctx: Context): void {
   const locale = 'settings.sessionLog'
-  const namespace = 'session-log-deepseek'
+  const namespace = 'session-log-omega'
   ctx.effect(() => ctx.locale.register(locale, { en, zh }))
   const form = ctx.configForms.get<UploadSettings>(namespace)
   const preference = new UploadPreference(form)

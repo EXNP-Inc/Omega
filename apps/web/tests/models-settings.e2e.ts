@@ -103,7 +103,9 @@ describe('web e2e: Models settings page configures a dormant provider', () => {
   it('refuses a key no HTTP header can carry before anything is written', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-models-illegal-key'))
     const dialog = page.getByRole('dialog', { name: '设置' })
-    const key = dialog.getByLabel('API 密钥')
+    // Exact: the shipped alice/Mac rows carry "API 密钥缺失" credential dots,
+    // which a substring label match would also resolve.
+    const key = dialog.getByLabel('API 密钥', { exact: true })
     const save = dialog.getByRole('button', { name: '保存', exact: true })
 
     // A key no HTTP header can carry would save cleanly and fail the first
@@ -128,7 +130,10 @@ describe('web e2e: Models settings page configures a dormant provider', () => {
     await row.waitFor({ timeout: 10_000 })
     await dialog.getByText('已保存 minimax-cn。', { exact: true }).waitFor({ timeout: 10_000 })
     expect(await dialog.getByRole('img', { name: 'API 密钥已配置' }).count()).toBe(0)
-    expect(await dialog.getByRole('img', { name: 'API 密钥缺失' }).count()).toBe(0)
+    // The shipped alice/Mac rows show missing credential dots of their own;
+    // only the just-saved reference-free profile must claim no key at all.
+    const savedRow = dialog.getByRole('listitem').filter({ hasText: 'minimax-cn' })
+    expect(await savedRow.getByRole('img', { name: 'API 密钥缺失' }).count()).toBe(0)
     const document = await readFile(join(scaffold.harnessHome, 'profiles', 'scaffold', 'cordis.patch.yml'), 'utf8')
     expect(document).toContain('minimax-cn: {}')
     expect(document).not.toContain('MINIMAX_CN_API_KEY')

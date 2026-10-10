@@ -14,7 +14,7 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { clearedProxyEnv } from '@deepseek-ai/dsh-http-proxy'
+import { clearedProxyEnv } from '@omega-ai/dsh-http-proxy'
 import { execa } from 'execa'
 import { describe, expect, it } from 'vitest'
 import type { SourceToolEvidence } from '../../../fixtures/source-tool-driver.ts'
@@ -33,7 +33,7 @@ describe.skipIf(!existsSync(join(repoRoot, 'apps/cli/lib/bin.js')))('dsh SOURCE 
       await writeFile(patch, JSON.stringify([
         { id: 'headless-startup', disabled: true },
         { id: 'headless-runner', disabled: true },
-        { id: 'llm-deepseek', disabled: true },
+        { id: 'llm-omega', disabled: true },
         { id: 'agent-default-model', config: { provider: 'cli-mock', model: 'cli-mock' } },
         { insert: [
           {

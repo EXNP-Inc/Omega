@@ -6,20 +6,20 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import LlmRuntime, { createUserMessage, LlmError, ReasoningEffortId  } from '@deepseek-ai/dsh-llm'
-import type { GenerateOptions, LlmModelReasoningInfo, LlmResolvedModelInfo, StreamChunk } from '@deepseek-ai/dsh-llm'
-import type { ContextFormed } from '@deepseek-ai/dsh-llm'
-import SessionStore, { Session, SessionId, foldRequestHeader } from '@deepseek-ai/dsh-session'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime, { defineContentToolFixture } from '@deepseek-ai/dsh-tools'
-import AgentRegistry, { type Agent } from '@deepseek-ai/dsh-agent'
+import { Context } from '@omega-ai/cordis'
+import LlmRuntime, { createUserMessage, LlmError, ReasoningEffortId  } from '@omega-ai/dsh-llm'
+import type { GenerateOptions, LlmModelReasoningInfo, LlmResolvedModelInfo, StreamChunk } from '@omega-ai/dsh-llm'
+import type { ContextFormed } from '@omega-ai/dsh-llm'
+import SessionStore, { Session, SessionId, foldRequestHeader } from '@omega-ai/dsh-session'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRuntime, { defineContentToolFixture } from '@omega-ai/dsh-tools'
+import AgentRegistry, { type Agent } from '@omega-ai/dsh-agent'
 
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import AgentLoop from '@omega-ai/dsh-agent-loop'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
 import { MockAdapter, textResponse, toolCallResponse } from './mock-adapter.ts'
 
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@omega-ai/dsh-llm' {
   interface MessageSourceMap {
     'outer-wrapper': { kind: 'outer-wrapper' } & ContextFormed
     'test': { kind: 'test' } & ContextFormed
@@ -284,15 +284,15 @@ describe('request stability across the loop', () => {
   })
 
   it('rematerializes the selected adapter maxTokens default after a provider switch', async () => {
-    const deepseek = new MockAdapter([textResponse('deepseek')], undefined, 256_000)
+    const omega = new MockAdapter([textResponse('omega')], undefined, 256_000)
     const other = new MockAdapter([textResponse('other')], undefined, 8_192)
     const ctx = await harnessRoutes([
-      ['deepseek', deepseek],
+      ['omega', omega],
       ['other', other],
     ])
     const agent = await ctx.agentLoop.create(SessionId('adapter-max-tokens-switch'), {
-      provider: 'deepseek',
-      model: 'deepseek-model',
+      provider: 'omega',
+      model: 'omega-model',
     })
     ctx.on('agent/request', async ({ turn }, next) => {
       const config = await next()
@@ -306,7 +306,7 @@ describe('request stability across the loop', () => {
     send(agent, 'second')
     await waitForIdle(ctx, agent)
 
-    expect(deepseek.requests[0]?.maxTokens).toBe(256_000)
+    expect(omega.requests[0]?.maxTokens).toBe(256_000)
     expect(other.requests[0]?.maxTokens).toBe(8_192)
     const headers = agent.session.snapshotEvents().filter(event => event.type === 'request/header')
     expect(headers.map(event => event.data.header.config.maxTokens)).toEqual([256_000, 8_192])
@@ -317,15 +317,15 @@ describe('request stability across the loop', () => {
   })
 
   it('preserves an explicit agent maxTokens cap across a provider switch', async () => {
-    const deepseek = new MockAdapter([textResponse('deepseek')], undefined, 256_000)
+    const omega = new MockAdapter([textResponse('omega')], undefined, 256_000)
     const other = new MockAdapter([textResponse('other')], undefined, 8_192)
     const ctx = await harnessRoutes([
-      ['deepseek', deepseek],
+      ['omega', omega],
       ['other', other],
     ])
     const agent = await ctx.agentLoop.create(SessionId('explicit-max-tokens-switch'), {
-      provider: 'deepseek',
-      model: 'deepseek-model',
+      provider: 'omega',
+      model: 'omega-model',
       maxTokens: 4_096,
     })
     ctx.on('agent/request', async ({ turn }, next) => {
@@ -340,7 +340,7 @@ describe('request stability across the loop', () => {
     send(agent, 'second')
     await waitForIdle(ctx, agent)
 
-    expect(deepseek.requests[0]?.maxTokens).toBe(4_096)
+    expect(omega.requests[0]?.maxTokens).toBe(4_096)
     expect(other.requests[0]?.maxTokens).toBe(4_096)
     const headers = agent.session.snapshotEvents().filter(event => event.type === 'request/header')
     expect(headers.map(event => event.data.header.config.maxTokens)).toEqual([4_096, 4_096])

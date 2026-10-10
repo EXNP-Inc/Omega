@@ -1,17 +1,17 @@
 - insert:
     - id: office-skills
-      name: '@deepseek-ai/dsh-skill-office'
+      name: '@omega-ai/dsh-skill-office'
       config:
         assetRoot: !!js process.cwd() + '/office-skills'
         cli: false
 
-- id: llm-deepseek
+- id: llm-omega
   config:
     thinking: enabled
     reasoningEffort: high
     maxTokens: 8192
     models:
-      - id: deepseek-v4-flash
+      - id: omega-v4-flash
 
 - id: tool-bash
   disabled: true

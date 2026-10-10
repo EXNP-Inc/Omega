@@ -2,8 +2,8 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   Toast, Menu, IconEllipsisOutlineMedium, IconPaperPlaneOutlineMedium, IconSettingsOutlineMedium, IconUserOutlineMedium,
-} from '@deepseek-ai/dsh-client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
+} from '@omega-ai/dsh-client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@omega-ai/dsh-client-ui-slots'
 import type { AccountSectionInjected } from './AccountSection.tsx'
 import { SignOutDialog } from './SignOutDialog.tsx'
 import { SignInDialog } from './SignInDialog.tsx'
@@ -84,7 +84,7 @@ export function AccountMenu({
       }} />
     {account.loginVisible && !account.onboarding && <SignInDialog account={account} colorScheme={colorScheme}
       start={start} cancel={cancel} t={t}
-      close={() => { showLogin(false) }} useApiKey={() => { showLogin(false); openOnboarding('deepseek-official') }} />}
+      close={() => { showLogin(false) }} useApiKey={() => { showLogin(false); openOnboarding('omega-official') }} />}
     {signedIn && signOutImpact !== undefined && <SignOutDialog running={signOutImpact} signOut={signOut}
       close={() => { setSignOutImpact(undefined) }} t={t} />}
   </div>

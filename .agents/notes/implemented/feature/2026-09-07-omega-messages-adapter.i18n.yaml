@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-09-07-omega-messages-adapter.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-09-07-omega-messages-adapter.md
+/agent-note-omega-through-the-anthropic-messages-protocol:
+  en: ecbd7e950f8f0feb
+  zh: 254016339afef7e2
+/agent-note-omega-through-the-anthropic-messages-protocol/problem:
+  en: 6c9d47e829752afe
+  zh: 98bd3b5300bfea8c
+/agent-note-omega-through-the-anthropic-messages-protocol/decision:
+  en: eb0b918559a24c56
+  zh: 062a21b360cb4b98
+/agent-note-omega-through-the-anthropic-messages-protocol/alternatives-considered:
+  en: 00a52f98698a11ff
+  zh: 3cf22f1e6743553e
+/agent-note-omega-through-the-anthropic-messages-protocol/consequences:
+  en: f0b363d25580a469
+  zh: 79b45e0f70e64e92

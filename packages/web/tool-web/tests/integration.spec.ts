@@ -10,15 +10,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http'
 import { AddressInfo } from 'node:net'
-import { Context } from '@deepseek-ai/cordis'
-import { ToolCallId } from '@deepseek-ai/dsh-llm'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime, { type ToolExecutionResult } from '@deepseek-ai/dsh-tools'
-import WebRuntime from '@deepseek-ai/dsh-web'
-import * as WebFetchLocal from '@deepseek-ai/dsh-web-fetch-http'
-import * as WebSearchExa from '@deepseek-ai/dsh-web-search-exa'
-import * as ToolWeb from '@deepseek-ai/dsh-tool-web'
-import * as TimeoutPolicy from '@deepseek-ai/dsh-tool-call-timeout-policy'
+import { Context } from '@omega-ai/cordis'
+import { ToolCallId } from '@omega-ai/dsh-llm'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRuntime, { type ToolExecutionResult } from '@omega-ai/dsh-tools'
+import WebRuntime from '@omega-ai/dsh-web'
+import * as WebFetchLocal from '@omega-ai/dsh-web-fetch-http'
+import * as WebSearchExa from '@omega-ai/dsh-web-search-exa'
+import * as ToolWeb from '@omega-ai/dsh-tool-web'
+import * as TimeoutPolicy from '@omega-ai/dsh-tool-call-timeout-policy'
 import { publicHttpNetwork } from '../../web-fetch-http/src/network.ts'
 
 const testToolSignal = new AbortController().signal
@@ -101,7 +101,7 @@ describe('web_search integration over the real Exa provider', () => {
       JSON.stringify({ results: [{ url: 'https://result.test', title: 'Result', highlights: ['a highlight'] }] }),
       { status: 200, headers: { 'content-type': 'application/json' } },
     )))
-    const out = await call('web_search', { queries: ['deepseek-official'] })
+    const out = await call('web_search', { queries: ['omega-official'] })
     expect(out.isError).toBe(false)
     expect(out.content.map(b => b.type === 'text' ? b.text : '').join('')).toContain('[Result](https://result.test)')
   })

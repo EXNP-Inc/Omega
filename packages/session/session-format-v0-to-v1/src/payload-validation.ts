@@ -1,9 +1,9 @@
-import { SessionFormatError, sessionFormatCount, sessionFormatSafeInteger } from '@deepseek-ai/dsh-session-format'
-import { deepEqualJson } from '@deepseek-ai/dsh-util-values'
+import { SessionFormatError, sessionFormatCount, sessionFormatSafeInteger } from '@omega-ai/dsh-session-format'
+import { deepEqualJson } from '@omega-ai/dsh-util-values'
 import type {
   SessionFormatEvent,
   SessionFormatJsonValue,
-} from '@deepseek-ai/dsh-session-format'
+} from '@omega-ai/dsh-session-format'
 import { assertReleasedV0Keys, releasedV0Record } from './validation-helpers.ts'
 
 type JsonRecord = Record<string, SessionFormatJsonValue>
@@ -169,7 +169,7 @@ export function assertReleasedPayloadSemantics(event: SessionFormatEvent, versio
     case 'schedule/change':
       scheduleChangeValue(data, label)
       return
-    case 'session-log-deepseek/delivery-accepted':
+    case 'session-log-omega/delivery-accepted':
       {
         const acceptedVersion = data['sessionFormatVersion'] === undefined
           ? 0
@@ -284,10 +284,10 @@ export function assertReleasedPayloadSemantics(event: SessionFormatEvent, versio
     case 'user/message':
       messageValue(data, label, version, 'user')
       return
-    case 'web/deepseek-search-llm-request':
+    case 'web/omega-search-llm-request':
       nonEmptyString(data['endpoint'], `${label} endpoint`)
       nonEmptyString(data['apiVersion'], `${label} apiVersion`)
-      deepSeekSearchBodyValue(data['body'], `${label} body`)
+      omegaSearchBodyValue(data['body'], `${label} body`)
       return
     /* v8 ignore next -- the frozen disposition rejects unknown types before semantic dispatch. */
     default:
@@ -1037,7 +1037,7 @@ function workflowIdentity(data: JsonRecord, label: string): void {
   positiveIntegerValue(data['seq'], `${label} seq`)
 }
 
-function deepSeekSearchBodyValue(value: SessionFormatJsonValue | undefined, label: string): void {
+function omegaSearchBodyValue(value: SessionFormatJsonValue | undefined, label: string): void {
   const body = exactRecord(value, label, ['model', 'max_tokens', 'messages', 'tools'])
   nonEmptyString(body['model'], `${label} model`)
   positiveIntegerValue(body['max_tokens'], `${label} max_tokens`)

@@ -3,7 +3,7 @@ description: "dsh app bin 的应用自有命令行：应用从启动器剩余参
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-cmdline
+# @omega-ai/dsh-cmdline
 
 [English](README.md) | 中文
 
@@ -45,21 +45,21 @@ kind: "package-library"
 
 ```yaml
 - id: web-startup
-  name: '@deepseek-ai/dsh-web-app/startup'
+  name: '@omega-ai/dsh-web-app/startup'
 ```
 
 由解析值配置的行注入发布的服务，并在其配置中直接读取它：
 
 ```yaml
 - id: webserver
-  name: '@deepseek-ai/dsh-host-webserver'
+  name: '@omega-ai/dsh-host-webserver'
   inject: [webStartup]
   config:
     host: !!js ctx.webStartup.host ?? '127.0.0.1'
-    port: !!js ctx.webStartup.port ?? 3080
+    port: !!js ctx.webStartup.port ?? 4080
 ```
 
-结果：即使配置写的是 3080，`dsh --profile web --port 8080` 也会让服务器监听 8080 端口，因为 flag 优先。`--help` 打印你的应用帮助并以 0 退出、不启动任何内容；被拒绝的值（例如非数字端口）打印你的错误并以非零码退出，任何依赖解析值的行都不会启动。
+结果：即使配置写的是 4080，`dsh --profile web --port 8080` 也会让服务器监听 8080 端口，因为 flag 优先。`--help` 打印你的应用帮助并以 0 退出、不启动任何内容；被拒绝的值（例如非数字端口）打印你的错误并以非零码退出，任何依赖解析值的行都不会启动。
 
 ### flag 如何胜过配置值
 

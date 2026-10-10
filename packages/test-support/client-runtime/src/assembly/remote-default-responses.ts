@@ -4,9 +4,9 @@
  * The comment above each row names the plugin that calls it; endpoints boot
  * never touches stay absent so a new call fails loud. `$events` is built into
  * `RemoteMock`.
- * @module @deepseek-ai/dsh-client-test-runtime/src/assembly/remote-default-responses
+ * @module @omega-ai/dsh-client-test-runtime/src/assembly/remote-default-responses
  */
-import { ok, openStream, type RemoteTable } from '@deepseek-ai/dsh-remote-mock'
+import { ok, openStream, type RemoteTable } from '@omega-ai/dsh-remote-mock'
 
 /** Default responses of the boot-time Remote endpoints; a spec loads it first and layers its own table on top. */
 export const remoteDefaultResponses: RemoteTable = {
@@ -17,11 +17,14 @@ export const remoteDefaultResponses: RemoteTable = {
     'workspace/initializeDefault': ok(undefined),
     // ui-settings `mirror.ensure()` at apply and again on `connection/reset`.
     'settings/describe': ok({ writable: true, hasDocument: false, namespaces: [] }),
-    // ui-model-selection `ModelDirectoryResolver` constructor.
+    // ui-model-selection `ModelDirectoryResolver` constructor; mirrors the shipped localhost providers.
     'session/modelCatalog': ok({
-      default: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
-      routableProviders: [],
-      groups: [],
+      default: { provider: 'mac', model: 'qwen3.8-27b-lite' },
+      routableProviders: ['alice', 'mac'],
+      groups: [
+        { id: 'alice', name: 'alice', models: [{ id: 'qwen3.8-27b', name: 'Qwen3.8-27B' }] },
+        { id: 'mac', name: 'Mac', models: [{ id: 'qwen3.8-27b-lite', name: 'Mac' }] },
+      ],
       failures: [],
     }),
     // ui-agent-preset hero chip and header label on first mount.
@@ -50,7 +53,7 @@ export const remoteDefaultResponses: RemoteTable = {
     // api-session-controller client `apply`: the control stream's opening baseline, then open.
     'session/control': openStream([{ type: 'baseline', value: { projections: {} } }]),
     // ui-settings-account shares the account snapshot across settings and the sidebar menu.
-    'account/watch': openStream([{ status: 'signed-out', attempt: null, links: { usageUrl: 'https://platform.deepseek.com/usage', topUpUrl: 'https://platform.deepseek.com/top_up' } }]),
+    'account/watch': openStream([{ status: 'signed-out', attempt: null, links: { usageUrl: 'https://platform.omega.com/usage', topUpUrl: 'https://platform.omega.com/top_up' } }]),
     // api-workspace-controller client `apply`: the follow stream's opening baseline, then open.
     'workspace/follow': openStream([{ type: 'baseline', value: { items: [], archivedSessionIds: [], pinnedSessionIds: [] } }]),
   },

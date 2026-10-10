@@ -1,13 +1,13 @@
 /** Desktop-only analytics RPC and live compaction collection. */
-import { type Context, type Volatile } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import { Remote, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
-import type {} from '@deepseek-ai/dsh-host-product-telemetry-otel'
-import type {} from '@deepseek-ai/dsh-deepseek-account'
-import type {} from '@deepseek-ai/dsh-settings'
-import type {} from '@deepseek-ai/cordis-plugin-loader'
-import type {} from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-compaction/types'
+import { type Context, type Volatile } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
+import { Remote, TypertRemoteService } from '@omega-ai/dsh-typert-protocol'
+import type {} from '@omega-ai/dsh-host-product-telemetry-otel'
+import type {} from '@omega-ai/dsh-omega-account'
+import type {} from '@omega-ai/dsh-settings'
+import type {} from '@omega-ai/cordis-plugin-loader'
+import type {} from '@omega-ai/dsh-session'
+import type {} from '@omega-ai/dsh-compaction/types'
 import type { ProductEvent } from './events.ts'
 
 /** Application-owned collection policy; no user settings surface. */
@@ -18,7 +18,7 @@ export interface Config {
   appVersion?: string
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context {
     productAnalytics: ProductAnalytics
   }
@@ -26,7 +26,7 @@ declare module '@deepseek-ai/cordis' {
 
 /** Authenticated event intake; disabled instances do not inspect identity or accept new events. */
 export default class ProductAnalytics extends TypertRemoteService {
-  static inject = ['deepseekAccount', 'productTelemetry']
+  static inject = ['omegaAccount', 'productTelemetry']
   static Config = z.object({ enabled: z.boolean().default(true).volatile(), appVersion: z.string() })
   private active = true
   private readonly listeners = new Set<() => void>()
@@ -82,7 +82,7 @@ export default class ProductAnalytics extends TypertRemoteService {
   async report(event: ProductEvent): Promise<void> {
     if (!this.enabled()) return
     try {
-      const identity = await this.ctx.deepseekAccount.getDeviceIdentity().catch(() => undefined)
+      const identity = await this.ctx.omegaAccount.getDeviceIdentity().catch(() => undefined)
       if (!this.enabled()) return
       this.ctx.productTelemetry.emit({
         ...event, body: event.eventName,

@@ -261,9 +261,9 @@ Host service backing the generated `ctx.remote.credentials` namespace. It carrie
 
 Source: [`packages/api/settings-controller/src/credentials.ts`](../../packages/api/settings-controller/src/credentials.ts)
 
-<a id="ctxdeepseekaccount--deepseekaccount-abstract-seam"></a>
+<a id="ctxomegaaccount--omegaaccount-abstract-seam"></a>
 
-### `ctx.deepseekAccount` — `DeepSeekAccount` (abstract seam)
+### `ctx.omegaAccount` — `OmegaAccount` (abstract seam)
 
 Account operations; only Host consumers can obtain a request credential.
 
@@ -364,7 +364,7 @@ abstract getPlatformSession(): Promise<PlatformSession | null>
 abstract getDeviceIdentity(): Promise<{ deviceId?: string; userId?: AccountUserId; osVersion: string }>
 ```
 
-Source: [`packages/credentials/deepseek-account/src/index.ts`](../../packages/credentials/deepseek-account/src/index.ts)
+Source: [`packages/credentials/omega-account/src/index.ts`](../../packages/credentials/omega-account/src/index.ts)
 
 <a id="authorization-events"></a>
 
@@ -437,13 +437,13 @@ Committed change to a provider-managed credential source: a `set`, an `unset`, o
 
 Source: [`packages/credentials/credentials/src/types.ts`](../../packages/credentials/credentials/src/types.ts)
 
-<a id="deepseek-account-events"></a>
+<a id="omega-account-events"></a>
 
-### `deepseek-account/*` events
+### `omega-account/*` events
 
-<a id="deepseek-accountmodel-sign-in-required--emit"></a>
+<a id="omega-accountmodel-sign-in-required--emit"></a>
 
-#### `deepseek-account/model-sign-in-required` — emit
+#### `omega-account/model-sign-in-required` — emit
 
 An account model request requires the user to sign in.
 
@@ -451,14 +451,14 @@ An account model request requires the user to sign in.
 /** An account model request requires the user to sign in.
  * @mode emit
  */
-'deepseek-account/model-sign-in-required'(): void
+'omega-account/model-sign-in-required'(): void
 ```
 
-Source: [`packages/credentials/deepseek-account/src/types.ts`](../../packages/credentials/deepseek-account/src/types.ts)
+Source: [`packages/credentials/omega-account/src/types.ts`](../../packages/credentials/omega-account/src/types.ts)
 
-<a id="deepseek-accountsession-expired--emit"></a>
+<a id="omega-accountsession-expired--emit"></a>
 
-#### `deepseek-account/session-expired` — emit
+#### `omega-account/session-expired` — emit
 
 Server rejection removed the current account credential; this notification is not replayed.
 
@@ -466,14 +466,14 @@ Server rejection removed the current account credential; this notification is no
 /** Server rejection removed the current account credential; this notification is not replayed.
  * @mode emit
  */
-'deepseek-account/session-expired'(): void
+'omega-account/session-expired'(): void
 ```
 
-Source: [`packages/credentials/deepseek-account/src/types.ts`](../../packages/credentials/deepseek-account/src/types.ts)
+Source: [`packages/credentials/omega-account/src/types.ts`](../../packages/credentials/omega-account/src/types.ts)
 
-<a id="deepseek-accountsigned-out--emit"></a>
+<a id="omega-accountsigned-out--emit"></a>
 
-#### `deepseek-account/signed-out` — emit
+#### `omega-account/signed-out` — emit
 
 Local grant removal has completed.
 
@@ -481,12 +481,12 @@ Local grant removal has completed.
 /** Local grant removal has completed.
  * @mode emit
  */
-'deepseek-account/signed-out'(): void
+'omega-account/signed-out'(): void
 ```
 
-Source: [`packages/credentials/deepseek-account/src/index.ts`](../../packages/credentials/deepseek-account/src/index.ts)
+Source: [`packages/credentials/omega-account/src/index.ts`](../../packages/credentials/omega-account/src/index.ts)
 <!-- END GENERATED cordis-surface -->
 
-账号服务定义提供 getState、getProfile、getBalance、getUnnotifiedBonuses、ackBonusNotified、startSignIn、cancelSignIn、signOut、watch 及仅限 Host 的 resolveToken 和 getPlatformSession。平台提供者使用 AuthorizationFlow 和私有 GrantRecord 实现这些操作。AccountView 区分本地存在与服务器验证；尝试 ID 将取消绑定到单次本地流程。参见[账号包](../../packages/credentials/deepseek-account/README.zh.md)。
+账号服务定义提供 getState、getProfile、getBalance、getUnnotifiedBonuses、ackBonusNotified、startSignIn、cancelSignIn、signOut、watch 及仅限 Host 的 resolveToken 和 getPlatformSession。平台提供者使用 AuthorizationFlow 和私有 GrantRecord 实现这些操作。AccountView 区分本地存在与服务器验证；尝试 ID 将取消绑定到单次本地流程。参见[账号包](../../packages/credentials/omega-account/README.zh.md)。
 
 `AccountClientMetadata` 携带调用方 `DSH_CLIENT_VERSION` 提供的 `version`、当前界面 `locale`，以及操作发起时采样的 `timezoneOffsetSeconds`。偏移为本地时间减 UTC 的秒数：UTC+8 对应 `28800`。其中不含凭证。登录申请在兑换及取消期间保留发起时的元数据；退出操作为撤销重试保留其元数据。

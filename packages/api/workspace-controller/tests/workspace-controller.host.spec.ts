@@ -2,13 +2,13 @@ import { existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync } from 'node:f
 import { tmpdir } from 'node:os'
 import { basename, join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import SessionStore, { SessionId } from '@deepseek-ai/dsh-session'
-import Storage from '@deepseek-ai/dsh-storage'
-import { DomainFacility } from '@deepseek-ai/dsh-storage-domain'
-import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
-import WorkspaceRegistry from '@deepseek-ai/dsh-workspace'
-import type { WorkspaceId } from '@deepseek-ai/dsh-workspace/types'
+import { Context } from '@omega-ai/cordis'
+import SessionStore, { SessionId } from '@omega-ai/dsh-session'
+import Storage from '@omega-ai/dsh-storage'
+import { DomainFacility } from '@omega-ai/dsh-storage-domain'
+import { RemoteError } from '@omega-ai/dsh-typert-protocol'
+import WorkspaceRegistry from '@omega-ai/dsh-workspace'
+import type { WorkspaceId } from '@omega-ai/dsh-workspace/types'
 import WorkspaceController from '../src/index.ts'
 import { DEFAULT_WORKSPACE_DIRECTORY } from '../src/default-workspace.ts'
 import { WorkspaceFeed } from '../src/feed.ts'
@@ -16,14 +16,14 @@ import type { WorkspaceFollowFrame } from '../src/types.ts'
 import { MemoryStorageBackend } from '../../../storage/storage-domain/tests/helpers/memory-backend.ts'
 
 // The controller relays whatever families the providers report; this suite merges its own.
-declare module '@deepseek-ai/dsh-workspace/types' {
+declare module '@omega-ai/dsh-workspace/types' {
   interface SessionActivityKindMap {
     probe: true
     'probe-items': true
   }
 }
 
-declare module '@deepseek-ai/dsh-typert-protocol' {
+declare module '@omega-ai/dsh-typert-protocol' {
   interface RemoteErrorDetailsMap {
     'fixture/failure': {}
   }
@@ -461,7 +461,7 @@ describe('first-use Remote', () => {
     const { controller, ctx, root } = await harness()
     const signal = new AbortController().signal
     const result = await controller.initializeDefault(signal)
-    expect(result!.workspace.path).toBe(join(root, 'deepseek-harness', DEFAULT_WORKSPACE_DIRECTORY))
+    expect(result!.workspace.path).toBe(join(root, 'omega-harness', DEFAULT_WORKSPACE_DIRECTORY))
     expect(result!.workspace.title).toBe(DEFAULT_WORKSPACE_DIRECTORY)
     expect(existsSync(result!.workspace.path)).toBe(true)
     expect(ctx.sessions.list()).toEqual([])

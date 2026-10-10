@@ -7,6 +7,6 @@
  */
 export function orderModelProviders<T extends { readonly id: string }>(groups: readonly T[]): T[] {
   return groups.toSorted((left, right) =>
-    (left.id === 'deepseek-account' ? 0 : left.id === 'deepseek-official' ? 1 : 2)
-      - (right.id === 'deepseek-account' ? 0 : right.id === 'deepseek-official' ? 1 : 2))
+    (left.id === 'omega-account' ? 0 : left.id === 'omega-official' ? 1 : 2)
+      - (right.id === 'omega-account' ? 0 : right.id === 'omega-official' ? 1 : 2))
 }

@@ -1,29 +1,29 @@
 import { describe, expect, it, vi } from 'vitest'
 import { PassThrough } from 'node:stream'
 import { resolve } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import SessionStore, { SESSION_FORMAT_VERSION, Session, SessionId } from '@deepseek-ai/dsh-session'
-import AgentRegistry, { type Agent } from '@deepseek-ai/dsh-agent'
-import SandboxProvider from '@deepseek-ai/dsh-sandbox'
-import type { ConfinedArgv, SandboxPolicy } from '@deepseek-ai/dsh-sandbox'
-import SandboxPolicyService, { setSandboxMode } from '@deepseek-ai/dsh-sandbox-policy'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import TerminalSessionService, { TerminalBackendCleanupError, TerminalSessionId } from '@deepseek-ai/dsh-terminal'
-import type { TerminalSendRequest, TerminalWaitReason } from '@deepseek-ai/dsh-terminal'
-import { BashTerminalBackend, PWSH_PROMPT_SETUP } from '@deepseek-ai/dsh-terminal-bash'
-import { ENCODING_PREAMBLE } from '@deepseek-ai/dsh-pwsh-local'
-import * as ptyLocal from '@deepseek-ai/dsh-terminal-bash'
-import type { ResolvedConfig } from '@deepseek-ai/dsh-terminal-bash/src/config.ts'
-import type { LocalPtySession } from '@deepseek-ai/dsh-terminal-bash/src/session.ts'
-import { SubprocessRuntime } from '@deepseek-ai/dsh-subprocess'
+import { Context } from '@omega-ai/cordis'
+import Loader from '@omega-ai/cordis-plugin-loader'
+import SessionStore, { SESSION_FORMAT_VERSION, Session, SessionId } from '@omega-ai/dsh-session'
+import AgentRegistry, { type Agent } from '@omega-ai/dsh-agent'
+import SandboxProvider from '@omega-ai/dsh-sandbox'
+import type { ConfinedArgv, SandboxPolicy } from '@omega-ai/dsh-sandbox'
+import SandboxPolicyService, { setSandboxMode } from '@omega-ai/dsh-sandbox-policy'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import TerminalSessionService, { TerminalBackendCleanupError, TerminalSessionId } from '@omega-ai/dsh-terminal'
+import type { TerminalSendRequest, TerminalWaitReason } from '@omega-ai/dsh-terminal'
+import { BashTerminalBackend, PWSH_PROMPT_SETUP } from '@omega-ai/dsh-terminal-bash'
+import { ENCODING_PREAMBLE } from '@omega-ai/dsh-pwsh-local'
+import * as ptyLocal from '@omega-ai/dsh-terminal-bash'
+import type { ResolvedConfig } from '@omega-ai/dsh-terminal-bash/src/config.ts'
+import type { LocalPtySession } from '@omega-ai/dsh-terminal-bash/src/session.ts'
+import { SubprocessRuntime } from '@omega-ai/dsh-subprocess'
 import type {
   SubprocessHandle,
   SubprocessSpawnSpec,
   SubprocessTerminalHandle,
   SubprocessTerminalSpawnSpec,
-} from '@deepseek-ai/dsh-subprocess'
-import { unsupportedInbox } from '@deepseek-ai/dsh-agent-loop-testkit'
+} from '@omega-ai/dsh-subprocess'
+import { unsupportedInbox } from '@omega-ai/dsh-agent-loop-testkit'
 
 class EmptySandbox extends SandboxProvider {
   async confine(_argv: readonly string[], _policy: SandboxPolicy): Promise<ConfinedArgv> {

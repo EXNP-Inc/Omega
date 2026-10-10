@@ -1,17 +1,17 @@
 /**
  * Scoped MCP resource providers and the shared model-facing resource tools.
  *
- * @module @deepseek-ai/dsh-mcp-resources
+ * @module @omega-ai/dsh-mcp-resources
  */
 
-import { Service, type Context } from '@deepseek-ai/cordis'
-import { createScope, NamedEntries, ScopedLayers, scopeOf, type ScopeKey, type ScopeLayer } from '@deepseek-ai/dsh-scope'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
-import type { ToolExecution } from '@deepseek-ai/dsh-tools'
-import type {} from '@deepseek-ai/dsh-system-prompt'
+import { Service, type Context } from '@omega-ai/cordis'
+import { createScope, NamedEntries, ScopedLayers, scopeOf, type ScopeKey, type ScopeLayer } from '@omega-ai/dsh-scope'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
+import type { ToolExecution } from '@omega-ai/dsh-tools'
+import type {} from '@omega-ai/dsh-system-prompt'
 import { registerResourceTools } from './tools.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context {
     mcpResources: McpResourceRuntime
   }

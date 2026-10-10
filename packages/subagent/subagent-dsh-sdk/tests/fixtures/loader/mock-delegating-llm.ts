@@ -1,7 +1,7 @@
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@omega-ai/cordis'
 import { appendFileSync } from 'node:fs'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@deepseek-ai/dsh-llm'
-import { ToolCallId, LlmAdapter, ReasoningEffortId } from '@deepseek-ai/dsh-llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@omega-ai/dsh-llm'
+import { ToolCallId, LlmAdapter, ReasoningEffortId } from '@omega-ai/dsh-llm'
 
 /**
  * Test adapter for the `mock-delegate` model: the first request calls the
@@ -67,8 +67,8 @@ export const inject = ['llm']
  * @param ctx - the plugin context supplying `ctx.llm`.
  */
 export function apply(ctx: Context): void {
-  const providers = process.env.DSH_TEST_PARENT_PROVIDER === 'deepseek-official'
-    ? ['deepseek-official', 'mock']
+  const providers = process.env.DSH_TEST_PARENT_PROVIDER === 'omega-official'
+    ? ['omega-official', 'mock']
     : ['mock']
   ctx.llm.registerAdapter(providers, new MockDelegatingAdapter())
 }

@@ -1,4 +1,4 @@
-# Agent Note: 有上限的 DeepSeek 会话日志上传
+# Agent Note: 有上限的 Omega 会话日志上传
 
 Status: implemented
 
@@ -9,11 +9,11 @@ Status: implemented
 
 ## 决策
 
-`session-log-deepseek.Config.maxBytes` 默认 8 MiB，按 UTF-8 字节限制完整的序列化 `dsh_session_log` 字段。每次请求携带水位之后字段能放进上限的最长连续事件段，字段大小包括 header 与数值型 envelope 字段。接受操作把水位推进到该段的 `throughSeq`，后续请求从那里继续。第一条待发事件本身就超过上限时，请求省略该字段，插件记录一条告警，水位停在该事件之前，直到 `maxBytes` 能容纳它。JSON 文本超过运行时字符串上限的事件视为超过任何上限，因此它会阻塞上传但不会使请求失败，插件每次请求只序列化它一次。
+`session-log-omega.Config.maxBytes` 默认 8 MiB，按 UTF-8 字节限制完整的序列化 `dsh_session_log` 字段。每次请求携带水位之后字段能放进上限的最长连续事件段，字段大小包括 header 与数值型 envelope 字段。接受操作把水位推进到该段的 `throughSeq`，后续请求从那里继续。第一条待发事件本身就超过上限时，请求省略该字段，插件记录一条告警，水位停在该事件之前，直到 `maxBytes` 能容纳它。JSON 文本超过运行时字符串上限的事件视为超过任何上限，因此它会阻塞上传但不会使请求失败，插件每次请求只序列化它一次。
 
-DeepSeek 适配器把合并后请求正文的序列化失败视为扩展失败，而非传输失败。它发送不含任何扩展字段的基础正文，跳过联合接受事务，并通过提供方插件的 logger 报告被省略的字段名，因此贡献方会在之后的请求中重发未接受的状态。基础正文本身无法序列化时，请求仍然失败。
+Omega 适配器把合并后请求正文的序列化失败视为扩展失败，而非传输失败。它发送不含任何扩展字段的基础正文，跳过联合接受事务，并通过提供方插件的 logger 报告被省略的字段名，因此贡献方会在之后的请求中重发未接受的状态。基础正文本身无法序列化时，请求仍然失败。
 
-本决策取代[请求扩展决策](2026-08-21-deepseek-llm-api-request-extensions.zh.md)中的完整后缀交付与 fail-closed 序列化。该记录仍负责字段所有权、取消、接受以及其余 fail-closed 失败。
+本决策取代[请求扩展决策](2026-08-21-omega-llm-api-request-extensions.zh.md)中的完整后缀交付与 fail-closed 序列化。该记录仍负责字段所有权、取消、接受以及其余 fail-closed 失败。
 
 ## 考虑过的替代方案
 

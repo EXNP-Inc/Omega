@@ -1,15 +1,15 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import { AssistantStreamAccumulator, createAssistantMessage, createUserMessage, createSystemMessage, ToolCallId, createMessage } from '@deepseek-ai/dsh-llm'
-import type { ContentBlock, Message, TokenUsage } from '@deepseek-ai/dsh-llm'
-import type { ContextFormed } from '@deepseek-ai/dsh-llm'
-import SessionStore, { Session, SessionId, SessionSeq, canonicalHeader } from '@deepseek-ai/dsh-session'
-import type { EpochHeader, SessionEvent, SessionSeq as SessionSeqType } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import TokenMeter from '@deepseek-ai/dsh-token-meter'
-import type { TokenMeasurement, TokenMeterConfig } from '@deepseek-ai/dsh-token-meter'
+import { Context } from '@omega-ai/cordis'
+import { AssistantStreamAccumulator, createAssistantMessage, createUserMessage, createSystemMessage, ToolCallId, createMessage } from '@omega-ai/dsh-llm'
+import type { ContentBlock, Message, TokenUsage } from '@omega-ai/dsh-llm'
+import type { ContextFormed } from '@omega-ai/dsh-llm'
+import SessionStore, { Session, SessionId, SessionSeq, canonicalHeader } from '@omega-ai/dsh-session'
+import type { EpochHeader, SessionEvent, SessionSeq as SessionSeqType } from '@omega-ai/dsh-session'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import TokenMeter from '@omega-ai/dsh-token-meter'
+import type { TokenMeasurement, TokenMeterConfig } from '@omega-ai/dsh-token-meter'
 
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@omega-ai/dsh-llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }
@@ -222,7 +222,7 @@ describe('TokenMeter pricing', () => {
       content: [{ type: 'text', text: 'question' }],
       source: { kind: 'user' },
     }), { surfaceOp: 'append' })
-    appendHeader(session, header('deepseek-v4-flash', { tools: [READ_TOOL] }))
+    appendHeader(session, header('omega-v4-flash', { tools: [READ_TOOL] }))
     const result = service.measure(session)
     expect(result.baseline.kind).toBe('estimated')
     expect(result.totalTokens).toBeGreaterThan(result.surfaceTokens)
@@ -298,7 +298,7 @@ describe('replay anchors and surface folds', () => {
       content: [{ type: 'text', text: 'before' }],
       source: { kind: 'user' },
     }), { surfaceOp: 'append' })
-    appendSuccessfulCall(session, header('deepseek-v4-flash'), {
+    appendSuccessfulCall(session, header('omega-v4-flash'), {
       providerText: 'short',
       durableText: 'a much longer rewritten durable assistant answer',
       usage: USAGE,
@@ -316,7 +316,7 @@ describe('replay anchors and surface folds', () => {
     const service = meter()
     const session = Session.create(SessionId('low-usage-anchor'))
     appendSystem(session, 'system context')
-    appendSuccessfulCall(session, header('deepseek-v4-flash'), {
+    appendSuccessfulCall(session, header('omega-v4-flash'), {
       providerText: 'abcd'.repeat(512),
       usage: { inputTokens: 20, outputTokens: 7 },
     })
@@ -344,7 +344,7 @@ describe('replay anchors and surface folds', () => {
   it('uses an estimated anchor when provider usage is absent', () => {
     const service = meter()
     const session = Session.create(SessionId('missing-usage'))
-    appendSuccessfulCall(session, header('deepseek-v4-flash'), {
+    appendSuccessfulCall(session, header('omega-v4-flash'), {
       providerText: 'provider',
       durableText: 'rewritten',
     })
@@ -383,10 +383,10 @@ describe('replay anchors and surface folds', () => {
   it('invalidates usage for any canonical envelope change or explicit override', () => {
     const service = meter()
     const session = Session.create(SessionId('envelope'))
-    const anchoredHeader = header('deepseek-v4-flash')
+    const anchoredHeader = header('omega-v4-flash')
     appendSuccessfulCall(session, anchoredHeader, { usage: USAGE })
     expect(service.measure(session, { ...anchoredHeader, tools: [] }).baseline.kind).toBe('usage')
-    expect(service.measure(session, header('deepseek-v4-pro')).baseline.kind)
+    expect(service.measure(session, header('omega-v4-pro')).baseline.kind)
       .toBe('estimated')
     expect(service.measure(session, {
       ...anchoredHeader,
@@ -398,9 +398,9 @@ describe('replay anchors and surface folds', () => {
 
   it('folds the latest full header snapshot into the effective envelope', () => {
     const session = Session.create(SessionId('header-snapshot'))
-    appendHeader(session, header('deepseek-v4-flash'))
+    appendHeader(session, header('omega-v4-flash'))
     session.append('request/header', {
-      header: header('deepseek-v4-pro'),
+      header: header('omega-v4-pro'),
       reason: 'change',
     })
     const result = meter().measure(session)
@@ -411,7 +411,7 @@ describe('replay anchors and surface folds', () => {
   it('replays seeded append and replace operations with signed deltas', () => {
     const service = meter()
     const original = Session.create(SessionId('surface-original'))
-    appendSuccessfulCall(original, header('deepseek-v4-flash'), {
+    appendSuccessfulCall(original, header('omega-v4-flash'), {
       usage: USAGE,
       providerText: 'long provider answer '.repeat(100),
     })
@@ -446,7 +446,7 @@ describe('replay anchors and surface folds', () => {
 
   it('prices an empty assistant surface anchor as zero', () => {
     const session = Session.create(SessionId('empty-assistant'))
-    appendSuccessfulCall(session, header('deepseek-v4-flash'), {
+    appendSuccessfulCall(session, header('omega-v4-flash'), {
       providerText: '',
       durableText: '',
     })
@@ -466,7 +466,7 @@ describe('malformed replay and listener lifecycle', () => {
 
   it('rejects an assistant without its step boundary transactionally', () => {
     const session = Session.create(SessionId('bad-step'))
-    appendHeader(session, header('deepseek-v4-flash'))
+    appendHeader(session, header('omega-v4-flash'))
     session.append('assistant/message', {
       stream: [],
       turn: 1,
@@ -476,7 +476,7 @@ describe('malformed replay and listener lifecycle', () => {
         content: [{ type: 'text', text: 'bad' }],
         source: {
           kind: 'model',
-          ...{ provider: 'mock', model: 'deepseek-v4-flash' },
+          ...{ provider: 'mock', model: 'omega-v4-flash' },
         },
       }),
     }, { surfaceOp: 'append' })
@@ -487,7 +487,7 @@ describe('malformed replay and listener lifecycle', () => {
     // A valid append plan whose anchor validation throws: only commit
     // ordering keeps the surface from double-counting across retries.
     const session = Session.create(SessionId('bad-step-surface'))
-    appendHeader(session, header('deepseek-v4-flash'))
+    appendHeader(session, header('omega-v4-flash'))
     session.append('assistant/message', {
       stream: [],
       turn: 1,
@@ -497,7 +497,7 @@ describe('malformed replay and listener lifecycle', () => {
         content: [{ type: 'text', text: 'planned but never committed' }],
         source: {
           kind: 'model',
-          ...{ provider: 'mock', model: 'deepseek-v4-flash' },
+          ...{ provider: 'mock', model: 'omega-v4-flash' },
         },
       }),
     }, { surfaceOp: 'append' })
@@ -522,7 +522,7 @@ describe('malformed replay and listener lifecycle', () => {
 
     const late = Session.create(SessionId('late-assistant'))
     late.append('step/start', { turn: 1, step: 1 })
-    appendHeader(late, header('deepseek-v4-flash'))
+    appendHeader(late, header('omega-v4-flash'))
     late.append('step/end', { turn: 1, step: 1 })
     late.append('assistant/message', {
       stream: [],
@@ -533,7 +533,7 @@ describe('malformed replay and listener lifecycle', () => {
         content: [],
         source: {
           kind: 'model',
-          ...{ provider: 'mock', model: 'deepseek-v4-flash' },
+          ...{ provider: 'mock', model: 'omega-v4-flash' },
         },
       }),
     }, { surfaceOp: 'append' })
@@ -559,7 +559,7 @@ describe('malformed replay and listener lifecycle', () => {
       content: [{ type: 'text', text: 'head' }],
       source: { kind: 'user' },
     }), { surfaceOp: 'append' }).seq
-    appendHeader(session, header('deepseek-v4-flash'))
+    appendHeader(session, header('omega-v4-flash'))
     appendUnchecked(session, {
       type: 'assistant/message',
       seq: SessionSeq(session.seq),
@@ -573,7 +573,7 @@ describe('malformed replay and listener lifecycle', () => {
           content: [{ type: 'text', text: 'replacement' }],
           source: {
             kind: 'model',
-            ...{ provider: 'mock', model: 'deepseek-v4-flash' },
+            ...{ provider: 'mock', model: 'omega-v4-flash' },
           },
         }),
       },

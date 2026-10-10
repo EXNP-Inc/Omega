@@ -2,23 +2,23 @@
 /** Section, setup-card, and hand-written editor behavior over a scripted wire face. */
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import Schema from '@deepseek-ai/schemastery'
-import { Context } from '@deepseek-ai/cordis'
-import { bindSnapshotSelector, RemoteError } from '@deepseek-ai/dsh-client-test-runtime'
+import Schema from '@omega-ai/schemastery'
+import { Context } from '@omega-ai/cordis'
+import { bindSnapshotSelector, RemoteError } from '@omega-ai/dsh-client-test-runtime'
 import type {
   CredentialInfo, RemoteResult, SettingsNamespaceView,
-} from '@deepseek-ai/dsh-api-remotes/client'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+} from '@omega-ai/dsh-api-remotes/client'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
 import {
   ModelsSection, needsSetup, providerCopy, providerTargetLabel, removeProviderProfile,
 } from '../src/client/ModelsSection.tsx'
 import type { ModelsSectionInjected, ModelsSectionProps } from '../src/client/ModelsSection.tsx'
 import { ProviderEditor, pathOps } from '../src/client/ProviderEditor.tsx'
 import {
-  DeepSeekModelsEditor, formatCapacity, modelDrafts, parseCapacity, validateDeepSeekModels,
-} from '../src/client/DeepSeekModelsEditor.tsx'
+  OmegaModelsEditor, formatCapacity, modelDrafts, parseCapacity, validateOmegaModels,
+} from '../src/client/OmegaModelsEditor.tsx'
 import { apiKeyFailure } from '../src/client/apiKey.ts'
-import { SettingsDescribeMirror } from '@deepseek-ai/dsh-client-ui-settings/src/client/settings-mirror.ts'
+import { SettingsDescribeMirror } from '@omega-ai/dsh-client-ui-settings/src/client/settings-mirror.ts'
 import { deriveKeyRef, ModelsSettingsStore } from '../src/client/store.ts'
 import { createModelsOperations } from '../src/client/operations.ts'
 import type { ModelsOperations } from '../src/client/operations.ts'
@@ -31,8 +31,8 @@ afterEach(cleanup)
 const t: ModelsSectionInjected['t'] = key => en[key]
 const OPENAI_TARGET = { provider: 'openai', displayName: 'openai' }
 const openaiCopy = (template: string): string => providerCopy(template, OPENAI_TARGET)
-const DEEPSEEK_TARGET = { provider: 'deepseek-official', displayName: 'DeepSeek' }
-const deepSeekCopy = (template: string): string => providerCopy(template, DEEPSEEK_TARGET)
+const OMEGA_TARGET = { provider: 'omega-official', displayName: 'Omega' }
+const omegaCopy = (template: string): string => providerCopy(template, OMEGA_TARGET)
 
 /** Open one row's capacity disclosure (1-based, as the labels read). */
 function expandRow(position: number): void {
@@ -54,7 +54,7 @@ const PiAiConfig = Schema.object({
   })),
 })
 
-const DeepSeekConfig = Schema.object({
+const OmegaConfig = Schema.object({
   apiKeyEnv: Schema.string().role('credential-ref'),
   baseURL: Schema.string().pattern(/^https:\/\//),
   reasoningEffort: Schema.union(['off', 'low', 'high', 'max']),
@@ -68,43 +68,43 @@ const DeepSeekConfig = Schema.object({
   // composition entry, which is what the restore-defaults path has to read.
   })).default([
     {
-      id: 'deepseek-v4-flash',
-      name: 'DeepSeek-V4-Flash',
+      id: 'omega-v4-flash',
+      name: 'Omega-V4-Flash',
       description: '',
       contextWindow: 1_000_000,
     },
     {
-      id: 'deepseek-v4-pro',
-      name: 'DeepSeek-V4-Pro',
+      id: 'omega-v4-pro',
+      name: 'Omega-V4-Pro',
       description: '',
       contextWindow: 1_000_000,
     },
   ]),
 })
 
-const DEFAULT_DEEPSEEK_MODELS = [
+const DEFAULT_OMEGA_MODELS = [
   {
-    id: 'deepseek-v4-flash',
-    name: 'DeepSeek-V4-Flash',
+    id: 'omega-v4-flash',
+    name: 'Omega-V4-Flash',
     description: 'Preserved hidden detail',
     contextWindow: 1_000_000,
   },
-  { id: 'deepseek-v4-pro', name: 'DeepSeek-V4-Pro', contextWindow: 1_000_000 },
+  { id: 'omega-v4-pro', name: 'Omega-V4-Pro', contextWindow: 1_000_000 },
 ]
 
 function wireNamespaces(): SettingsNamespaceView[] {
   return [
     {
-      ns: 'llm-deepseek',
-      schema: JSON.parse(JSON.stringify(DeepSeekConfig.toJSON())) as JsonValue,
+      ns: 'llm-omega',
+      schema: JSON.parse(JSON.stringify(OmegaConfig.toJSON())) as JsonValue,
       value: {
-        apiKeyEnv: 'DEEPSEEK_API_KEY',
+        apiKeyEnv: 'OMEGA_API_KEY',
         baseURL: 'https://base',
         defaultContextWindow: 1_000_000,
         maxTokens: 256_000,
-        models: DEFAULT_DEEPSEEK_MODELS,
+        models: DEFAULT_OMEGA_MODELS,
       },
-      base: { defaultContextWindow: 1_000_000, maxTokens: 256_000, models: DEFAULT_DEEPSEEK_MODELS },
+      base: { defaultContextWindow: 1_000_000, maxTokens: 256_000, models: DEFAULT_OMEGA_MODELS },
       user: { baseURL: 'https://base' },
       autoGenerate: true, applies: 'live',
       secrets: [],
@@ -138,15 +138,15 @@ function wireNamespaces(): SettingsNamespaceView[] {
       revision: 4,
     },
     {
-      ns: 'llm-deepseek-account',
-      schema: JSON.parse(JSON.stringify(DeepSeekConfig.toJSON())) as JsonValue,
+      ns: 'llm-omega-account',
+      schema: JSON.parse(JSON.stringify(OmegaConfig.toJSON())) as JsonValue,
       value: {
         baseURL: 'https://base',
         defaultContextWindow: 1_000_000,
         maxTokens: 256_000,
-        models: DEFAULT_DEEPSEEK_MODELS,
+        models: DEFAULT_OMEGA_MODELS,
       },
-      base: { defaultContextWindow: 1_000_000, maxTokens: 256_000, models: DEFAULT_DEEPSEEK_MODELS },
+      base: { defaultContextWindow: 1_000_000, maxTokens: 256_000, models: DEFAULT_OMEGA_MODELS },
       user: {},
       autoGenerate: true, applies: 'live',
       secrets: [],
@@ -156,8 +156,8 @@ function wireNamespaces(): SettingsNamespaceView[] {
 }
 
 /** The account provider's settings namespace, under a composition's entry id. */
-function accountNamespace(ns = 'llm-deepseek-account'): SettingsNamespaceView {
-  return { ...wireNamespaces().find(view => view.ns === 'llm-deepseek-account')!, ns }
+function accountNamespace(ns = 'llm-omega-account'): SettingsNamespaceView {
+  return { ...wireNamespaces().find(view => view.ns === 'llm-omega-account')!, ns }
 }
 
 /** Credentials answers over the Remote carrier, which has no envelope. */
@@ -169,7 +169,7 @@ type RefusalCode = 'credential/rejected' | 'gateway/internal' | 'settings/confli
 
 /** One refusal per code, each carrying the details its own code declares. */
 const REFUSALS: { [Code in RefusalCode]: (message: string) => RemoteError<Code> } = {
-  'credential/rejected': message => new RemoteError('credential/rejected', message, { ref: 'DEEPSEEK_API_KEY' }),
+  'credential/rejected': message => new RemoteError('credential/rejected', message, { ref: 'OMEGA_API_KEY' }),
   'gateway/internal': message => new RemoteError('gateway/internal', message, {}),
   'settings/conflict': message =>
     new RemoteError('settings/conflict', message, { ns: 'llm-pi-ai', expected: 4, actual: 5 }),
@@ -193,11 +193,11 @@ function scriptedFace(overrides: {
   const face = {
     llm: {
       listProviders: vi.fn(() => Promise.resolve(remoteOk([
-        { id: 'deepseek-official', name: 'DeepSeek' },
+        { id: 'omega-official', name: 'Omega' },
         { id: 'openai', name: 'openai' },
       ]))),
       listConfigurableProviders: vi.fn(() => Promise.resolve(remoteOk([
-        { provider: 'deepseek-official', displayName: 'DeepSeek', settingsNs: 'llm-deepseek', settingsPath: [], active: true },
+        { provider: 'omega-official', displayName: 'Omega', settingsNs: 'llm-omega', settingsPath: [], active: true },
         { provider: 'openai', displayName: 'openai', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'openai'], active: true },
         { provider: 'anthropic', displayName: 'anthropic', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'anthropic'], active: false },
         { provider: 'zombie', displayName: 'zombie', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'zombie'], active: false },
@@ -308,7 +308,7 @@ async function mountSection(overrides: Parameters<typeof scriptedFace>[0] = {}) 
 
 /**
  * Mount for a user who cannot reach any provider yet: no credential is stored
- * anywhere, so the whole-section DeepSeek route owns the first-run setup card.
+ * anywhere, so the whole-section Omega route owns the first-run setup card.
  */
 async function mountFirstRun(overrides: Parameters<typeof scriptedFace>[0] = {}) {
   const scripted = scriptedFace(overrides)
@@ -320,13 +320,13 @@ async function mountFirstRun(overrides: Parameters<typeof scriptedFace>[0] = {})
 }
 
 /**
- * Mount and open the DeepSeek editor. The shared fixture already has a usable
- * openai route, so DeepSeek is an ordinary row whose card opens through Edit
+ * Mount and open the Omega editor. The shared fixture already has a usable
+ * openai route, so Omega is an ordinary row whose card opens through Edit
  * rather than by itself.
  */
-async function mountDeepSeekCard(overrides: Parameters<typeof scriptedFace>[0] = {}) {
+async function mountOmegaCard(overrides: Parameters<typeof scriptedFace>[0] = {}) {
   const mounted = await mountSection(overrides)
-  fireEvent.click(screen.getByRole('button', { name: deepSeekCopy(en.editProvider) }))
+  fireEvent.click(screen.getByRole('button', { name: omegaCopy(en.editProvider) }))
   return mounted
 }
 
@@ -377,27 +377,27 @@ describe('ModelsSection', () => {
     const scripted = scriptedFace()
     const failure = 'The provider configuration needs repair'
     scripted.face.llm.listProviders.mockResolvedValue(remoteOk([
-      { id: 'deepseek-official', name: 'DeepSeek' },
+      { id: 'omega-official', name: 'Omega' },
     ]))
     scripted.face.llm.listConfigurableProviders.mockResolvedValue(remoteOk([
-      { provider: 'deepseek-official', displayName: 'DeepSeek', settingsNs: 'llm-deepseek', settingsPath: [], error: failure },
+      { provider: 'omega-official', displayName: 'Omega', settingsNs: 'llm-omega', settingsPath: [], error: failure },
     ]))
     scripted.face.credentials.describe.mockResolvedValue(remoteOk({
-      DEEPSEEK_API_KEY: { configured: false, writable: true },
+      OMEGA_API_KEY: { configured: false, writable: true },
     }))
     await mountFace(scripted)
 
     const card = screen.getByRole('listitem')
     expect(within(card).getByRole('alert').textContent).toBe(failure)
     expect(within(card).getByLabelText(en.keyInput)).toBeTruthy()
-    expect(within(card).queryByRole('button', { name: deepSeekCopy(en.editProvider) })).toBeNull()
+    expect(within(card).queryByRole('button', { name: omegaCopy(en.editProvider) })).toBeNull()
   })
 
   it('dispatches the provider-card seat per rendered row, keyed by the owning namespace', async () => {
     const { renderSlot } = await mountSection()
     const cards = cardSeatCalls(renderSlot)
     expect(cards).toContainEqual(['openai', true, true, 'llm-pi-ai'])
-    expect(cards).toContainEqual(['deepseek-official', true, false, 'llm-deepseek'])
+    expect(cards).toContainEqual(['omega-official', true, false, 'llm-omega'])
     // The footer seat renders once below the rows and the add controls.
     expect(renderSlot.mock.calls.filter(call => call[0] === 'settings.models.footer')).toEqual([
       ['settings.models.footer', {}],
@@ -406,7 +406,7 @@ describe('ModelsSection', () => {
 
   it('dispatches the provider-card seat inside the first-run setup card', async () => {
     const { renderSlot } = await mountFirstRun()
-    expect(cardSeatCalls(renderSlot)).toContainEqual(['deepseek-official', true, false, 'llm-deepseek'])
+    expect(cardSeatCalls(renderSlot)).toContainEqual(['omega-official', true, false, 'llm-omega'])
   })
 
   it('dispatches the provider-card seat on the add-provider draft with its dormant row', async () => {
@@ -436,7 +436,7 @@ describe('ModelsSection', () => {
     const { renderSlot, face, controller } = await mountSection()
     fireEvent.click(screen.getByRole('button', { name: en.add }))
     const directory = [
-      { provider: 'deepseek-official', displayName: 'DeepSeek', settingsNs: 'llm-deepseek', settingsPath: [], active: true },
+      { provider: 'omega-official', displayName: 'Omega', settingsNs: 'llm-omega', settingsPath: [], active: true },
       { provider: 'openai', displayName: 'openai', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'openai'], active: true },
     ].map(({ active: _active, ...entry }) => entry)
     face.llm.listConfigurableProviders.mockImplementation(() => Promise.resolve(remoteOk(directory)))
@@ -448,9 +448,9 @@ describe('ModelsSection', () => {
   })
   it('renders the unkeyed whole-section provider as an open setup card in the first-run posture', async () => {
     await mountFirstRun()
-    // Nothing is reachable yet, and DeepSeek has no configured credential and
+    // Nothing is reachable yet, and Omega has no configured credential and
     // no stored apiKey → setup card.
-    expect(screen.getByText('DeepSeek')).toBeTruthy()
+    expect(screen.getByText('Omega')).toBeTruthy()
     expect(screen.getByLabelText(en.keyInput)).toBeTruthy()
     expect(screen.getByText('openai')).toBeTruthy()
     expect(screen.queryByText('Active')).toBeNull()
@@ -468,9 +468,9 @@ describe('ModelsSection', () => {
     expect(configured.className).toContain('credentialDotConfigured')
     expect(configured.closest('li')?.textContent).toContain('openai')
     const missing = screen.getByRole('img', { name: en.credentialMissing })
-    expect(missing.closest('li')?.textContent).toContain('DeepSeek')
+    expect(missing.closest('li')?.textContent).toContain('Omega')
     // The card is still one click away.
-    fireEvent.click(screen.getByRole('button', { name: deepSeekCopy(en.editProvider) }))
+    fireEvent.click(screen.getByRole('button', { name: omegaCopy(en.editProvider) }))
     expect(screen.getByLabelText(en.keyInput)).toBeTruthy()
   })
 
@@ -520,7 +520,7 @@ describe('ModelsSection', () => {
   })
 
   it('decides setup need from the joined credential state and the first-run posture', () => {
-    const entry = { provider: 'p', displayName: 'p', settingsNs: 'llm-deepseek', settingsPath: [], active: true }
+    const entry = { provider: 'p', displayName: 'p', settingsNs: 'llm-omega', settingsPath: [], active: true }
     const row = (credential: ProviderRow['credential']): ProviderRow => ({
       entry,
       configured: true,
@@ -543,9 +543,9 @@ describe('ModelsSection', () => {
   })
 
   it('uses one stable provider identity in action copy', () => {
-    const target = { provider: 'deepseek-official', displayName: 'DeepSeek' }
-    expect(providerTargetLabel(target)).toBe('DeepSeek (deepseek-official)')
-    expect(providerCopy(en.deleteTitle, target)).toBe('Delete DeepSeek (deepseek-official)?')
+    const target = { provider: 'omega-official', displayName: 'Omega' }
+    expect(providerTargetLabel(target)).toBe('Omega (omega-official)')
+    expect(providerCopy(en.deleteTitle, target)).toBe('Delete Omega (omega-official)?')
     expect(providerTargetLabel(OPENAI_TARGET)).toBe('openai')
   })
 
@@ -563,13 +563,13 @@ describe('ModelsSection', () => {
     const key = screen.getByLabelText<HTMLInputElement>(en.keyInput)
     fireEvent.change(key, { target: { value: '  sk-live  ' } })
     fireEvent.click(screen.getByText(en.apply))
-    await waitFor(() => { expect(set).toHaveBeenCalledWith('DEEPSEEK_API_KEY', 'sk-live') })
+    await waitFor(() => { expect(set).toHaveBeenCalledWith('OMEGA_API_KEY', 'sk-live') })
     expect(mutate).not.toHaveBeenCalled()
     // The saved key re-loads the join; the settings answer rides the shared
     // mirror, so the reload shows as a directory read rather than a describe.
     await waitFor(() => { expect(face.llm.listProviders.mock.calls.length).toBeGreaterThan(1) })
     expect((await screen.findByRole('status')).textContent).toBe(
-      providerCopy(en.savedProvider, { provider: 'deepseek-official', displayName: 'DeepSeek' }),
+      providerCopy(en.savedProvider, { provider: 'omega-official', displayName: 'Omega' }),
     )
     fireEvent.click(screen.getByText(en.add))
     expect(screen.queryByRole('status')).toBeNull()
@@ -585,8 +585,8 @@ describe('ModelsSection', () => {
     const { ProviderEditor } = await import('../src/client/ProviderEditor.tsx')
 
     render(<ProviderEditor
-      provider="deepseek-official"
-      displayName="DeepSeek"
+      provider="omega-official"
+      displayName="Omega"
       hideTitle
       namespace={wireNamespaces()[0]!}
       schema={settingsSchema}
@@ -623,7 +623,7 @@ describe('ModelsSection', () => {
     fireEvent.click(save)
 
     expect(await screen.findByText(en.onboardingSaving)).toBeTruthy()
-    expect(set).toHaveBeenCalledWith('DEEPSEEK_API_KEY', 'sk-onboarding')
+    expect(set).toHaveBeenCalledWith('OMEGA_API_KEY', 'sk-onboarding')
     expect(mutate).not.toHaveBeenCalled()
     expect(onClose).not.toHaveBeenCalled()
 
@@ -635,35 +635,35 @@ describe('ModelsSection', () => {
     expect(onClose).toHaveBeenCalledWith(true)
   })
 
-  it('applies customized deepseek fields as path ops', async () => {
-    const { mutate } = await mountDeepSeekCard({
+  it('applies customized omega fields as path ops', async () => {
+    const { mutate } = await mountOmegaCard({
       mutate: vi.fn(() => Promise.resolve(remoteOk(wireNamespaces()[0]))),
     })
     fireEvent.click(screen.getByText(en.customized))
     const baseURL = screen.getByLabelText<HTMLInputElement>(en.baseUrl)
-    // The deepseek placeholder is pinned to the public endpoint, not the
+    // The omega placeholder is pinned to the public endpoint, not the
     // effective value (which may reflect a launch-environment override).
-    expect(baseURL.placeholder).toBe('https://api.deepseek.com/anthropic')
+    expect(baseURL.placeholder).toBe('https://api.omega.com/anthropic')
     fireEvent.change(baseURL, { target: { value: 'https://next2' } })
     fireEvent.click(screen.getByText(en.apply))
     await waitFor(() => { expect(mutate).toHaveBeenCalledTimes(1) })
     // Only the field that actually changed: reasoningEffort was already
     // 'high' in the loaded profile, so it produces no op.
     expect(mutate.mock.calls[0]).toEqual([
-      'llm-deepseek',
+      'llm-omega',
       [{ op: 'set', path: ['baseURL'], value: 'https://next2' }],
       0,
     ])
   })
 
-  it('materializes inherited models and adds an arbitrary DeepSeek id', async () => {
-    const { mutate } = await mountDeepSeekCard({
+  it('materializes inherited models and adds an arbitrary Omega id', async () => {
+    const { mutate } = await mountOmegaCard({
       mutate: vi.fn(() => Promise.resolve(remoteOk(wireNamespaces()[0]))),
     })
     fireEvent.click(screen.getByText(en.customized))
     expect(screen.getByText(en.modelsInherited)).toBeTruthy()
     expect(screen.getAllByLabelText(new RegExp(en.modelId)).map(input => (input as HTMLInputElement).value))
-      .toEqual(['deepseek-v4-flash', 'deepseek-v4-pro'])
+      .toEqual(['omega-v4-flash', 'omega-v4-pro'])
 
     fireEvent.click(screen.getByText(en.addModel))
     const ids = screen.getAllByLabelText(new RegExp(en.modelId))
@@ -678,12 +678,12 @@ describe('ModelsSection', () => {
 
     await waitFor(() => { expect(mutate).toHaveBeenCalledTimes(1) })
     expect(mutate.mock.calls[0]).toEqual([
-      'llm-deepseek',
+      'llm-omega',
       [{
         op: 'set',
         path: ['models'],
         value: [
-          ...DEFAULT_DEEPSEEK_MODELS,
+          ...DEFAULT_OMEGA_MODELS,
           { id: 'private-preview', name: 'Private Preview', contextWindow: 131_072, inputModalities: ['text', 'image'] },
         ],
       }],
@@ -691,11 +691,11 @@ describe('ModelsSection', () => {
     ])
   })
 
-  it('edits the DeepSeek endpoint and credential without a protocol selection', async () => {
+  it('edits the Omega endpoint and credential without a protocol selection', async () => {
     const namespace: SettingsNamespaceView = {
       ...wireNamespaces()[0]!,
-      ns: 'llm-deepseek',
-      value: { apiKeyEnv: 'DEEPSEEK_API_KEY', models: DEFAULT_DEEPSEEK_MODELS },
+      ns: 'llm-omega',
+      value: { apiKeyEnv: 'OMEGA_API_KEY', models: DEFAULT_OMEGA_MODELS },
       user: {},
     }
     const { face, mutate, set } = scriptedFace({
@@ -703,8 +703,8 @@ describe('ModelsSection', () => {
     })
     const { ProviderEditor } = await import('../src/client/ProviderEditor.tsx')
     render(<ProviderEditor
-      provider="deepseek-official"
-      displayName="DeepSeek"
+      provider="omega-official"
+      displayName="Omega"
       namespace={namespace}
       schema={settingsSchema}
       settingsPath={[]}
@@ -715,33 +715,33 @@ describe('ModelsSection', () => {
     />)
     fireEvent.click(screen.getByText(en.customized))
     expect(screen.getByLabelText<HTMLInputElement>(en.baseUrl).placeholder)
-      .toBe('https://api.deepseek.com/anthropic')
+      .toBe('https://api.omega.com/anthropic')
     expect(screen.queryByLabelText(en.customApi)).toBeNull()
-    expect(screen.getByText(en.deepSeekEndpointHint)).toBeTruthy()
+    expect(screen.getByText(en.omegaEndpointHint)).toBeTruthy()
     fireEvent.change(screen.getByLabelText(en.keyInput), { target: { value: 'sk-messages-test' } })
     fireEvent.change(screen.getByLabelText(en.baseUrl), { target: { value: 'https://messages.example/anthropic' } })
     fireEvent.change(screen.getByLabelText(`${en.modelName} 1`), { target: { value: 'Messages Flash' } })
     fireEvent.click(screen.getByText(en.apply))
-    await waitFor(() => { expect(set).toHaveBeenCalledWith('DEEPSEEK_API_KEY', 'sk-messages-test') })
+    await waitFor(() => { expect(set).toHaveBeenCalledWith('OMEGA_API_KEY', 'sk-messages-test') })
     expect(mutate.mock.calls).toEqual([[
-      'llm-deepseek',
+      'llm-omega',
       [
         { op: 'set', path: ['baseURL'], value: 'https://messages.example/anthropic' },
         { op: 'set', path: ['models'], value: [
-          { ...DEFAULT_DEEPSEEK_MODELS[0], name: 'Messages Flash' },
-          DEFAULT_DEEPSEEK_MODELS[1],
+          { ...DEFAULT_OMEGA_MODELS[0], name: 'Messages Flash' },
+          DEFAULT_OMEGA_MODELS[1],
         ] },
       ],
       0,
     ]])
   })
 
-  it('rejects duplicate DeepSeek model ids before writing', async () => {
-    const { mutate } = await mountDeepSeekCard()
+  it('rejects duplicate Omega model ids before writing', async () => {
+    const { mutate } = await mountOmegaCard()
     fireEvent.click(screen.getByText(en.customized))
     fireEvent.click(screen.getByText(en.addModel))
     const ids = screen.getAllByLabelText(new RegExp(en.modelId))
-    fireEvent.change(ids[2] as HTMLInputElement, { target: { value: 'deepseek-v4-flash' } })
+    fireEvent.change(ids[2] as HTMLInputElement, { target: { value: 'omega-v4-flash' } })
     fireEvent.click(screen.getByText(en.apply))
 
     await screen.findByText(`Model 3: ${en.modelIdDuplicate}`)
@@ -751,25 +751,25 @@ describe('ModelsSection', () => {
   it('validates every adapter-owned model catalog invariant', () => {
     expect(modelDrafts(undefined)).toEqual([])
     expect(modelDrafts([null, 'bad', { id: 'ok' }])).toEqual([{}, {}, { id: 'ok' }])
-    expect(validateDeepSeekModels([{}])).toEqual({ index: 0, key: 'modelIdRequired' })
-    expect(validateDeepSeekModels([{ id: 'same' }, { id: 'same' }]))
+    expect(validateOmegaModels([{}])).toEqual({ index: 0, key: 'modelIdRequired' })
+    expect(validateOmegaModels([{ id: 'same' }, { id: 'same' }]))
       .toEqual({ index: 1, key: 'modelIdDuplicate' })
-    expect(validateDeepSeekModels([{ id: 'model', name: '' }]))
+    expect(validateOmegaModels([{ id: 'model', name: '' }]))
       .toEqual({ index: 0, key: 'modelNameInvalid' })
-    expect(validateDeepSeekModels([{ id: 'model', contextWindow: null }]))
+    expect(validateOmegaModels([{ id: 'model', contextWindow: null }]))
       .toEqual({ index: 0, key: 'modelContextInvalid' })
-    expect(validateDeepSeekModels([{ id: 'model', contextWindow: 1.5 }]))
+    expect(validateOmegaModels([{ id: 'model', contextWindow: 1.5 }]))
       .toEqual({ index: 0, key: 'modelContextInvalid' })
-    expect(validateDeepSeekModels([{ id: 'model', contextWindow: 0 }]))
+    expect(validateOmegaModels([{ id: 'model', contextWindow: 0 }]))
       .toEqual({ index: 0, key: 'modelContextInvalid' })
-    expect(validateDeepSeekModels([{ id: 'model', contextWindow: 1 }])).toBeUndefined()
-    expect(validateDeepSeekModels([{ id: 'model', maxTokens: null }]))
+    expect(validateOmegaModels([{ id: 'model', contextWindow: 1 }])).toBeUndefined()
+    expect(validateOmegaModels([{ id: 'model', maxTokens: null }]))
       .toEqual({ index: 0, key: 'modelMaxTokensInvalid' })
-    expect(validateDeepSeekModels([{ id: 'model', maxTokens: 1.5 }]))
+    expect(validateOmegaModels([{ id: 'model', maxTokens: 1.5 }]))
       .toEqual({ index: 0, key: 'modelMaxTokensInvalid' })
-    expect(validateDeepSeekModels([{ id: 'model', maxTokens: 0 }]))
+    expect(validateOmegaModels([{ id: 'model', maxTokens: 0 }]))
       .toEqual({ index: 0, key: 'modelMaxTokensInvalid' })
-    expect(validateDeepSeekModels([{ id: 'model', maxTokens: 8192 }])).toBeUndefined()
+    expect(validateOmegaModels([{ id: 'model', maxTokens: 8192 }])).toBeUndefined()
   })
 
   it('reads context windows written as counts, thousands, or millions', () => {
@@ -807,7 +807,7 @@ describe('ModelsSection', () => {
   })
 
   it('accepts a suffixed context window and stores the plain count', async () => {
-    const { mutate } = await mountDeepSeekCard({
+    const { mutate } = await mountOmegaCard({
       mutate: vi.fn(() => Promise.resolve(remoteOk(wireNamespaces()[0]))),
     })
     fireEvent.click(screen.getByText(en.customized))
@@ -833,13 +833,13 @@ describe('ModelsSection', () => {
 
     await waitFor(() => { expect(mutate).toHaveBeenCalledTimes(1) })
     expect(mutate.mock.calls[0]).toEqual([
-      'llm-deepseek',
+      'llm-omega',
       [{
         op: 'set',
         path: ['models'],
         value: [
-          { ...DEFAULT_DEEPSEEK_MODELS[0], contextWindow: 1_000_000 },
-          { ...DEFAULT_DEEPSEEK_MODELS[1], contextWindow: 256_000 },
+          { ...DEFAULT_OMEGA_MODELS[0], contextWindow: 1_000_000 },
+          { ...DEFAULT_OMEGA_MODELS[1], contextWindow: 256_000 },
         ],
       }],
       0,
@@ -847,7 +847,7 @@ describe('ModelsSection', () => {
   })
 
   it('keeps unreadable context-window text on screen and refuses the write', async () => {
-    const { mutate } = await mountDeepSeekCard()
+    const { mutate } = await mountOmegaCard()
     fireEvent.click(screen.getByText(en.customized))
     expandRow(1)
     expandRow(2)
@@ -874,8 +874,8 @@ describe('ModelsSection', () => {
     const { face } = scriptedFace()
     const stored = { models: [{ id: 'user-only-model', name: 'User Only' }] }
     const overridden: SettingsNamespaceView = {
-      ns: 'llm-deepseek',
-      schema: JSON.parse(JSON.stringify(DeepSeekConfig.toJSON())) as JsonValue,
+      ns: 'llm-omega',
+      schema: JSON.parse(JSON.stringify(OmegaConfig.toJSON())) as JsonValue,
       value: { ...stored, defaultContextWindow: 1_000_000 },
       ...base === undefined ? {} : { base },
       user: stored,
@@ -885,8 +885,8 @@ describe('ModelsSection', () => {
     }
     const { ProviderEditor } = await import('../src/client/ProviderEditor.tsx')
     render(<ProviderEditor
-      provider="deepseek-official"
-      displayName="DeepSeek"
+      provider="omega-official"
+      displayName="Omega"
       namespace={overridden}
       schema={settingsSchema}
       settingsPath={[]}
@@ -904,14 +904,14 @@ describe('ModelsSection', () => {
 
     expect(screen.getByText(en.modelsInherited)).toBeTruthy()
     expect(screen.getAllByLabelText(new RegExp(en.modelId)).map(input => (input as HTMLInputElement).value))
-      .toEqual(base === undefined ? ['deepseek-v4-flash', 'deepseek-v4-pro'] : ['pinned-by-deployment'])
+      .toEqual(base === undefined ? ['omega-v4-flash', 'omega-v4-pro'] : ['pinned-by-deployment'])
   })
 
   it('keeps every row\'s unreadable text, not just the last one edited', async () => {
     // The regression: one active buffer meant editing a second row displaced
     // the first, which then fell back to rendering its stored NaN as `NaN` —
     // losing the text the user was told they could still correct.
-    await mountDeepSeekCard()
+    await mountOmegaCard()
     fireEvent.click(screen.getByText(en.customized))
     expandRow(1)
     expandRow(2)
@@ -925,7 +925,7 @@ describe('ModelsSection', () => {
   })
 
   it('re-keys the typed text around a removed row', async () => {
-    await mountDeepSeekCard()
+    await mountOmegaCard()
     fireEvent.click(screen.getByText(en.customized))
     const windows = (): HTMLInputElement[] => capacityInputs(en.contextWindow)
     const removeRow = (at: number): void => {
@@ -959,7 +959,7 @@ describe('ModelsSection', () => {
     // The regression: reset removed the override but left the buffer, so an
     // inherited row displayed text no settings layer stores — and because an
     // unreadable buffer never settles, it stayed there indefinitely.
-    const { mutate } = await mountDeepSeekCard({
+    const { mutate } = await mountOmegaCard({
       mutate: vi.fn(() => Promise.resolve(remoteOk(wireNamespaces()[0]))),
     })
     fireEvent.click(screen.getByText(en.customized))
@@ -982,7 +982,7 @@ describe('ModelsSection', () => {
   })
 
   it('edits an output cap per model and carries its text across a removal', async () => {
-    const { mutate } = await mountDeepSeekCard({
+    const { mutate } = await mountOmegaCard({
       mutate: vi.fn(() => Promise.resolve(remoteOk(wireNamespaces()[0]))),
     })
     fireEvent.click(screen.getByText(en.customized))
@@ -1005,36 +1005,36 @@ describe('ModelsSection', () => {
     fireEvent.click(screen.getByText(en.apply))
     await waitFor(() => { expect(mutate).toHaveBeenCalledTimes(1) })
     expect(mutate.mock.calls[0]).toEqual([
-      'llm-deepseek',
+      'llm-omega',
       [{
         op: 'set',
         path: ['models'],
-        value: [{ ...DEFAULT_DEEPSEEK_MODELS[1], maxTokens: 64_000 }],
+        value: [{ ...DEFAULT_OMEGA_MODELS[1], maxTokens: 64_000 }],
       }],
       0,
     ])
   })
 
   it('settles a pasted id and refuses whitespace that would never match', async () => {
-    await mountDeepSeekCard()
+    await mountOmegaCard()
     fireEvent.click(screen.getByText(en.customized))
     const ids = screen.getAllByLabelText<HTMLInputElement>(new RegExp(en.modelId))
-    fireEvent.change(ids[0] as HTMLInputElement, { target: { value: '  deepseek-v4-flash  ' } })
+    fireEvent.change(ids[0] as HTMLInputElement, { target: { value: '  omega-v4-flash  ' } })
     fireEvent.blur(ids[0] as HTMLInputElement)
-    expect((ids[0] as HTMLInputElement).value).toBe('deepseek-v4-flash')
+    expect((ids[0] as HTMLInputElement).value).toBe('omega-v4-flash')
     // A settled id needs no second trim.
     fireEvent.blur(ids[0] as HTMLInputElement)
-    expect((ids[0] as HTMLInputElement).value).toBe('deepseek-v4-flash')
+    expect((ids[0] as HTMLInputElement).value).toBe('omega-v4-flash')
 
     // An id that is only whitespace is as absent as an empty one, and a padded
     // id is a duplicate of its trimmed twin.
-    expect(validateDeepSeekModels([{ id: '   ' }])).toEqual({ index: 0, key: 'modelIdRequired' })
-    expect(validateDeepSeekModels([{ id: 'model' }, { id: 'model ' }]))
+    expect(validateOmegaModels([{ id: '   ' }])).toEqual({ index: 0, key: 'modelIdRequired' })
+    expect(validateOmegaModels([{ id: 'model' }, { id: 'model ' }]))
       .toEqual({ index: 1, key: 'modelIdDuplicate' })
   })
 
   it('renders malformed draft fallbacks without inventing catalog values', () => {
-    render(<DeepSeekModelsEditor
+    render(<OmegaModelsEditor
       models={[{}]}
       overridden={false}
       defaultContextWindow={undefined}
@@ -1053,7 +1053,7 @@ describe('ModelsSection', () => {
   })
 
   it('can empty and reset the model override, then clear optional fields without dropping hidden data', async () => {
-    const { mutate } = await mountDeepSeekCard({
+    const { mutate } = await mountOmegaCard({
       mutate: vi.fn(() => Promise.resolve(remoteOk(wireNamespaces()[0]))),
     })
     fireEvent.click(screen.getByText(en.customized))
@@ -1072,13 +1072,13 @@ describe('ModelsSection', () => {
 
     await waitFor(() => { expect(mutate).toHaveBeenCalledTimes(1) })
     expect(mutate.mock.calls[0]).toEqual([
-      'llm-deepseek',
+      'llm-omega',
       [{
         op: 'set',
         path: ['models'],
         value: [
-          { id: 'deepseek-v4-flash', description: 'Preserved hidden detail' },
-          DEFAULT_DEEPSEEK_MODELS[1],
+          { id: 'omega-v4-flash', description: 'Preserved hidden detail' },
+          DEFAULT_OMEGA_MODELS[1],
         ],
       }],
       0,
@@ -1087,7 +1087,7 @@ describe('ModelsSection', () => {
 
   it('clears an inherited override with an unset op, never a whole-section replace', async () => {
     // A whole-section replace would clobber sibling overrides to clear one field.
-    const { mutate } = await mountDeepSeekCard()
+    const { mutate } = await mountOmegaCard()
     fireEvent.click(screen.getByText(en.customized))
     const url = screen.getByLabelText<HTMLInputElement>(en.baseUrl)
     expect(url.value).toBe('https://base')
@@ -1097,17 +1097,17 @@ describe('ModelsSection', () => {
     // This editor clears one field through an unset op so it cannot clobber
     // sibling overrides with a whole-section replacement.
     expect(mutate.mock.calls[0]).toEqual([
-      'llm-deepseek',
+      'llm-omega',
       [{ op: 'unset', path: ['baseURL'] }],
       0,
     ])
   })
 
-  it('pins the deepseek placeholder and clears typed input back to inherited', async () => {
+  it('pins the omega placeholder and clears typed input back to inherited', async () => {
     const { face } = scriptedFace()
     const bare: SettingsNamespaceView = {
-      ns: 'llm-deepseek',
-      schema: JSON.parse(JSON.stringify(DeepSeekConfig.toJSON())) as JsonValue,
+      ns: 'llm-omega',
+      schema: JSON.parse(JSON.stringify(OmegaConfig.toJSON())) as JsonValue,
       value: {},
       autoGenerate: true, applies: 'live',
       secrets: [],
@@ -1115,8 +1115,8 @@ describe('ModelsSection', () => {
     }
     const { ProviderEditor } = await import('../src/client/ProviderEditor.tsx')
     render(<ProviderEditor
-      provider="deepseek-official"
-      displayName="DeepSeek"
+      provider="omega-official"
+      displayName="Omega"
       namespace={bare}
       schema={settingsSchema}
       settingsPath={[]}
@@ -1127,7 +1127,7 @@ describe('ModelsSection', () => {
     />)
     fireEvent.click(screen.getByText(en.customized))
     const baseURL = screen.getByLabelText<HTMLInputElement>(en.baseUrl)
-    expect(baseURL.placeholder).toBe('https://api.deepseek.com/anthropic')
+    expect(baseURL.placeholder).toBe('https://api.omega.com/anthropic')
     fireEvent.change(baseURL, { target: { value: 'https://x' } })
     expect(baseURL.value).toBe('https://x')
     fireEvent.change(baseURL, { target: { value: '' } })
@@ -1135,7 +1135,7 @@ describe('ModelsSection', () => {
   })
 
   it('saves credentials without changing the default model', async () => {
-    const { ctx, set } = await mountDeepSeekCard()
+    const { ctx, set } = await mountOmegaCard()
     const initialize = vi.spyOn(ctx.remote.session, 'initializeDefaultModel')
     fireEvent.change(await screen.findByLabelText(en.keyInput), { target: { value: 'test-key' } })
     fireEvent.click(screen.getByText(en.apply))
@@ -1145,7 +1145,7 @@ describe('ModelsSection', () => {
   })
 
   it('rejects an invalid draft before writing', async () => {
-    const { mutate } = await mountDeepSeekCard()
+    const { mutate } = await mountOmegaCard()
     fireEvent.click(screen.getByText(en.customized))
     fireEvent.change(screen.getByLabelText(en.baseUrl), { target: { value: 'not-a-url' } })
     fireEvent.click(screen.getByText(en.apply))
@@ -1303,7 +1303,7 @@ describe('ModelsSection', () => {
   it('tells the user to reopen when another writer moved the namespace first', async () => {
     // The stale-draft overwrite: two tabs open the same card, the other saves,
     // and this one must be refused rather than replay its opening snapshot.
-    const { set } = await mountDeepSeekCard({
+    const { set } = await mountOmegaCard({
       mutate: vi.fn(() => Promise.resolve(remoteFail('changed since it was read', 'settings/conflict'))),
     })
     fireEvent.click(screen.getByText(en.customized))
@@ -1314,7 +1314,7 @@ describe('ModelsSection', () => {
   })
 
   it('keeps the card usable after a refused write', async () => {
-    await mountDeepSeekCard({
+    await mountOmegaCard({
       mutate: vi.fn(() => Promise.resolve(remoteFail('the host refused', 'settings/rejected'))),
     })
     fireEvent.click(screen.getByText(en.customized))
@@ -1327,7 +1327,7 @@ describe('ModelsSection', () => {
 
   it('surfaces a shadowed credential write on the card', async () => {
     await mountFirstRun({
-      set: vi.fn(() => Promise.resolve(remoteFail('credentials: DEEPSEEK_API_KEY is shadowed by the read-only environment'))),
+      set: vi.fn(() => Promise.resolve(remoteFail('credentials: OMEGA_API_KEY is shadowed by the read-only environment'))),
     })
     const key = screen.getByLabelText<HTMLInputElement>(en.keyInput)
     fireEvent.change(key, { target: { value: 'sk-live' } })
@@ -1507,7 +1507,7 @@ describe('ModelsSection', () => {
   it('opens on the custom mode when every catalog provider is already configured', async () => {
     const scripted = scriptedFace()
     scripted.face.llm.listConfigurableProviders.mockResolvedValue(remoteOk([
-      { provider: 'deepseek-official', displayName: 'DeepSeek', settingsNs: 'llm-deepseek', settingsPath: [] },
+      { provider: 'omega-official', displayName: 'Omega', settingsNs: 'llm-omega', settingsPath: [] },
       { provider: 'openai', displayName: 'openai', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'openai'] },
     ]))
     await mountFace(scripted)
@@ -1560,7 +1560,7 @@ describe('ModelsSection', () => {
   it('picks a catalog target when the catalog becomes addable after the card opened', async () => {
     const scripted = scriptedFace()
     const exhausted = [
-      { provider: 'deepseek-official', displayName: 'DeepSeek', settingsNs: 'llm-deepseek', settingsPath: [] },
+      { provider: 'omega-official', displayName: 'Omega', settingsNs: 'llm-omega', settingsPath: [] },
       { provider: 'openai', displayName: 'openai', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'openai'] },
     ]
     scripted.face.llm.listConfigurableProviders.mockResolvedValue(remoteOk(exhausted))
@@ -1741,12 +1741,12 @@ describe('ModelsSection', () => {
     fireEvent.click(screen.getAllByText(en.cancel)[0] as HTMLElement)
     // The add card kept its draft…
     expect(screen.getByLabelText(en.provider)).toBeTruthy()
-    // …and DeepSeek collapsed to an ordinary row carrying the missing-key dot.
+    // …and Omega collapsed to an ordinary row carrying the missing-key dot.
     expect(screen.getAllByLabelText(en.keyInput)).toHaveLength(1)
     expect(screen.getAllByRole('img', { name: en.credentialMissing })
-      .some(dot => dot.closest('li')?.textContent?.includes('DeepSeek') === true)).toBe(true)
+      .some(dot => dot.closest('li')?.textContent?.includes('Omega') === true)).toBe(true)
     // Its card reopens through Edit, which closes the add card as any row does.
-    fireEvent.click(screen.getByRole('button', { name: deepSeekCopy(en.editProvider) }))
+    fireEvent.click(screen.getByRole('button', { name: omegaCopy(en.editProvider) }))
     expect(screen.getAllByLabelText(en.keyInput)).toHaveLength(1)
     expect(screen.queryByLabelText(en.provider)).toBeNull()
   })
@@ -1762,7 +1762,7 @@ describe('ModelsSection', () => {
       t={t}
       renderSlot={() => null}
     />)
-    await screen.findByText('DeepSeek')
+    await screen.findByText('Omega')
   })
 
   it('removes by unsetting the profile path, never by rebuilding the section', async () => {
@@ -1887,7 +1887,7 @@ describe('apiKeyFailure', () => {
   })
 
   it.each([
-    ['a pasted environment line', 'DEEPSEEK_API_KEY=sk-abc'],
+    ['a pasted environment line', 'OMEGA_API_KEY=sk-abc'],
     ['double quotes', '"sk-abc"'],
     ['single quotes', '\'sk-abc\''],
     ['backticks', '`sk-abc`'],
@@ -1910,33 +1910,33 @@ it.each([en, zh])('edits the account model catalog without credential or endpoin
   const describe = vi.spyOn(ops, 'describeCredential')
   const namespace = accountNamespace()
   const onClose = vi.fn()
-  render(<ProviderEditor provider="deepseek-account" displayName={copy.deepSeekAccount}
+  render(<ProviderEditor provider="omega-account" displayName={copy.omegaAccount}
     namespace={namespace} settingsPath={[]} schema={settingsSchema}
     operations={ops} t={key => copy[key]} readOnly={false} onClose={onClose} />)
   expect(screen.queryByLabelText(copy.keyInput)).toBeNull()
   expect(screen.queryByLabelText(copy.baseUrl)).toBeNull()
   expect(describe).not.toHaveBeenCalled()
-  expect(screen.getByDisplayValue('deepseek-v4-flash')).toBeTruthy()
+  expect(screen.getByDisplayValue('omega-v4-flash')).toBeTruthy()
   expect(screen.queryByText(content => content.includes(copy.advancedHint))).toBeNull()
   await expect(`${document.body.textContent}\n`)
-    .toMatchFileSnapshot(`./expected/deepseek-account-${copy === en ? 'en' : 'zh'}.txt`)
+    .toMatchFileSnapshot(`./expected/omega-account-${copy === en ? 'en' : 'zh'}.txt`)
   const set = vi.spyOn(ops, 'storeCredential')
-  fireEvent.change(screen.getAllByLabelText(new RegExp(copy.modelId))[0]!, { target: { value: 'deepseek-v4-mini' } })
+  fireEvent.change(screen.getAllByLabelText(new RegExp(copy.modelId))[0]!, { target: { value: 'omega-v4-mini' } })
   fireEvent.click(screen.getByText(copy.apply))
   await waitFor(() => { expect(onClose).toHaveBeenCalledWith(true) })
   expect(mutate.mock.calls[0]).toEqual([
-    'llm-deepseek-account',
+    'llm-omega-account',
     [{
       op: 'set',
       path: ['models'],
       value: [
         {
-          id: 'deepseek-v4-mini',
-          name: 'DeepSeek-V4-Flash',
+          id: 'omega-v4-mini',
+          name: 'Omega-V4-Flash',
           description: 'Preserved hidden detail',
           contextWindow: 1_000_000,
         },
-        { id: 'deepseek-v4-pro', name: 'DeepSeek-V4-Pro', contextWindow: 1_000_000 },
+        { id: 'omega-v4-pro', name: 'Omega-V4-Pro', contextWindow: 1_000_000 },
       ],
     }],
     0,
@@ -1944,18 +1944,18 @@ it.each([en, zh])('edits the account model catalog without credential or endpoin
   expect(set).not.toHaveBeenCalled()
 })
 
-it('keeps the DeepSeek editor for an account route under a renamed settings entry', async () => {
+it('keeps the Omega editor for an account route under a renamed settings entry', async () => {
   const namespace = accountNamespace('team-account-entry')
   const mutate = vi.fn(() => Promise.resolve(remoteOk(namespace)))
   const ops = operationsWith(scriptedFace({ mutate }).face)
   const set = vi.spyOn(ops, 'storeCredential')
   const onClose = vi.fn()
-  render(<ProviderEditor provider="deepseek-account" displayName={en.deepSeekAccount}
+  render(<ProviderEditor provider="omega-account" displayName={en.omegaAccount}
     namespace={namespace} settingsPath={[]} schema={settingsSchema}
     operations={ops} t={t} readOnly={false} onClose={onClose} />)
   expect(screen.queryByText(content => content.includes(en.advancedHint))).toBeNull()
-  expect(screen.getByDisplayValue('deepseek-v4-flash')).toBeTruthy()
-  fireEvent.change(screen.getAllByLabelText(new RegExp(en.modelId))[0]!, { target: { value: 'deepseek-v4-mini' } })
+  expect(screen.getByDisplayValue('omega-v4-flash')).toBeTruthy()
+  fireEvent.change(screen.getAllByLabelText(new RegExp(en.modelId))[0]!, { target: { value: 'omega-v4-mini' } })
   fireEvent.click(screen.getByText(en.apply))
   await waitFor(() => { expect(onClose).toHaveBeenCalledWith(true) })
   expect(mutate).toHaveBeenCalledWith('team-account-entry', expect.any(Array), 0)
@@ -1972,30 +1972,30 @@ it('opens the account row from the section and saves to its own namespace', asyn
       ...row,
       accountAvailable: true,
       entry: {
-        provider: 'deepseek-account', displayName: en.deepSeekAccount, settingsNs: namespace.ns, settingsPath: [], active: true,
+        provider: 'omega-account', displayName: en.omegaAccount, settingsNs: namespace.ns, settingsPath: [], active: true,
       },
     }, ...state.rows]
   }) })
   fireEvent.click(screen.getByRole('button', {
-    name: providerCopy(en.editProvider, { provider: 'deepseek-account', displayName: en.deepSeekAccount }),
+    name: providerCopy(en.editProvider, { provider: 'omega-account', displayName: en.omegaAccount }),
   }))
-  expect(screen.getByDisplayValue('deepseek-v4-flash')).toBeTruthy()
-  fireEvent.change(screen.getAllByLabelText(new RegExp(en.modelId))[0]!, { target: { value: 'deepseek-v4-mini' } })
+  expect(screen.getByDisplayValue('omega-v4-flash')).toBeTruthy()
+  fireEvent.change(screen.getAllByLabelText(new RegExp(en.modelId))[0]!, { target: { value: 'omega-v4-mini' } })
   fireEvent.click(screen.getByText(en.apply))
   await waitFor(() => { expect(mutate).toHaveBeenCalledTimes(1) })
   expect(mutate.mock.calls[0]).toEqual([
-    'llm-deepseek-account',
+    'llm-omega-account',
     [{
       op: 'set',
       path: ['models'],
       value: [
         {
-          id: 'deepseek-v4-mini',
-          name: 'DeepSeek-V4-Flash',
+          id: 'omega-v4-mini',
+          name: 'Omega-V4-Flash',
           description: 'Preserved hidden detail',
           contextWindow: 1_000_000,
         },
-        { id: 'deepseek-v4-pro', name: 'DeepSeek-V4-Pro', contextWindow: 1_000_000 },
+        { id: 'omega-v4-pro', name: 'Omega-V4-Pro', contextWindow: 1_000_000 },
       ],
     }],
     0,
@@ -2008,12 +2008,12 @@ it('renders the localized account row and supports catalogs without capacity def
   const { controller, view } = await mountFace(scripted)
   const row = controller.store.getSnapshot().rows[0]!
   await act(async () => { controller.store.update((state) => {
-    state.rows = [{ ...row, accountAvailable: true, entry: { ...row.entry, provider: 'deepseek-account' } }]
+    state.rows = [{ ...row, accountAvailable: true, entry: { ...row.entry, provider: 'omega-account' } }]
   }) })
-  expect(screen.getByText(en.deepSeekAccount)).toBeTruthy()
+  expect(screen.getByText(en.omegaAccount)).toBeTruthy()
   view.unmount()
   const namespace = accountNamespace()
-  render(<ProviderEditor provider="deepseek-account" displayName={en.deepSeekAccount}
+  render(<ProviderEditor provider="omega-account" displayName={en.omegaAccount}
     namespace={{ ...namespace, value: { models: [] }, base: { models: [] } }} settingsPath={[]} schema={settingsSchema}
     operations={operationsWith(scripted.face)} t={t} readOnly={false} onClose={() => {}} />)
   expect(screen.queryByLabelText(en.keyInput)).toBeNull()

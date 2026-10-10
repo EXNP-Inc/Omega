@@ -3,7 +3,7 @@ description: "OpenTelemetry session-telemetry backend for deployments choosing a
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-session-telemetry-otel
+# @omega-ai/dsh-session-telemetry-otel
 
 English | [中文](README.zh.md)
 
@@ -11,7 +11,7 @@ English | [中文](README.zh.md)
 
 The adapter injects `otel`; the [shared OTel plugin](../../telemetry/otel/README.md) creates its independent Session-log channel. Authorization, redaction, identity, scope version, configuration, and the shutdown deadline remain owned here.
 
-`dsh-session-telemetry-otel` exports session records through the OTel JS SDK only after new explicit feedback, for all users and providers, including `deepseek-official`. `FEEDBACK_ONLY` releases the canonical prefix through that feedback, including context; later records wait for the next explicit feedback. `DISABLED` constructs no transport. Scheduled batching can finish an authorized upload without another user interaction or model call. Deployments own their redaction rules.
+`dsh-session-telemetry-otel` exports session records through the OTel JS SDK only after new explicit feedback, for all users and providers, including `omega-official`. `FEEDBACK_ONLY` releases the canonical prefix through that feedback, including context; later records wait for the next explicit feedback. `DISABLED` constructs no transport. Scheduled batching can finish an authorized upload without another user interaction or model call. Deployments own their redaction rules.
 
 ## Table of Contents
 
@@ -44,7 +44,7 @@ Uploading modes require an exporter URL. Processor settings control the independ
 
 ```yaml
 - id: sessionTelemetry-otel
-  name: '@deepseek-ai/dsh-session-telemetry-otel'
+  name: '@omega-ai/dsh-session-telemetry-otel'
   config:
     mode: FEEDBACK_ONLY       # optional; defaults to FEEDBACK_ONLY
     shutdownTimeoutMillis: 3000 # optional; defaults to 3000
@@ -69,7 +69,7 @@ Model requests, request headers, Session creation or adoption, restoration, and 
 
 ### What leaves the machine
 
-Each Session event becomes one `eventName: "session-log"` record. `attributes.sessionId` is the collector Session identity; `attributes.content` encodes the complete event envelope with redacted `event.data`. JSON values are preserved, not the original JSONL bytes or key ordering. Legacy `session.id`, `event.seq`, and `event.type` metadata remain for existing consumers. Resources carry application and anonymous-user identity; scope carries the backend package name and version. The base profile uses `https://dsh-otel-collector.deepseeksvc.com/v1/logs`; `DSH_TELEMETRY_OTLP_URL` overrides it. No channel header is added implicitly.
+Each Session event becomes one `eventName: "session-log"` record. `attributes.sessionId` is the collector Session identity; `attributes.content` encodes the complete event envelope with redacted `event.data`. JSON values are preserved, not the original JSONL bytes or key ordering. Legacy `session.id`, `event.seq`, and `event.type` metadata remain for existing consumers. Resources carry application and anonymous-user identity; scope carries the backend package name and version. The base profile uses `http://127.0.0.1:8090/v1/logs`; `DSH_TELEMETRY_OTLP_URL` overrides it. No channel header is added implicitly.
 
 The shared OTel channel measures each record once with the SDK OTLP JSON serializer, including its resource/scope envelope, then greedily packs requests using those conservative sizes. A single oversized event produces one rejection diagnostic without truncation. Session logs never mix with product analytics in a request. Capture handoff and shutdown are not collector acknowledgements.
 
@@ -117,7 +117,7 @@ Read these pages when the backend contract is not enough. They move from the sea
 - [Session telemetry seam](../session-telemetry/README.md) — the capture contract, record vocabulary, and redaction waterfall.
 - [Session telemetry subsystem](../../../docs/subsystems/session-telemetry.md) — the capability split and type declarations.
 - [Anonymous user identity](../../identity/anonymous-user-id/README.md) — the id reported as the OTel Resource `user.id`.
-- [Generated configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-session-telemetry-otel) — every accepted config field and its source declaration.
+- [Generated configuration catalog](../../../docs/config-catalog.md#omega-aidsh-session-telemetry-otel) — every accepted config field and its source declaration.
 
 -----
 
@@ -139,7 +139,7 @@ These limits define where SDK behavior governs and where export guarantees end. 
 
 - **Upstream experimental tree** — `@opentelemetry/sdk-logs` is published from the upstream experimental tree; SDK API churn lands here and only here, while the seam contract does not move.
 - **Live-collector behavior belongs to the SDK exporter** — authentication, TLS, throttling, and other real OTLP deployment behavior follow the upstream SDK rather than a package-owned compatibility layer.
-- **Best-effort handoff** — new cold snapshots and a new feedback submission after restart can repeat prefixes; receivers deduplicate by Session id, format version, and event seq. There is no durable outbox, delivery watermark, automatic retry promise, or collector-acceptance guarantee. OTel and the opt-in DeepSeek API path can overlap. Withdrawal exports a deletion event, not remote erasure.
+- **Best-effort handoff** — new cold snapshots and a new feedback submission after restart can repeat prefixes; receivers deduplicate by Session id, format version, and event seq. There is no durable outbox, delivery watermark, automatic retry promise, or collector-acceptance guarantee. OTel and the opt-in Omega API path can overlap. Withdrawal exports a deletion event, not remote erasure.
 
 - **Backend availability** — feedback submitted while this plugin is disabled or unloaded is recorded locally but not automatically replayed when it returns. Capture requires the subscriber to remain mounted until it observes the submission; unloading during a pending cold write can miss its post-flush notification.
 

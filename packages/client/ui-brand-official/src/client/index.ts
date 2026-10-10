@@ -1,7 +1,7 @@
-/** Official DeepSeek Harness occupants for the generic browser-brand slots. */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type {} from '@deepseek-ai/dsh-client-ui-sidebar/client'
+/** Official Omega occupants for the generic browser-brand slots. */
+import type { Context as ClientContext } from '@omega-ai/cordis'
+import type {} from '@omega-ai/dsh-client-ui-renderer/client'
+import type {} from '@omega-ai/dsh-client-ui-sidebar/client'
 import { OfficialBrandMark, OfficialBrandName } from './Brand.tsx'
 
 /** Required service: the UI slot registry. */
@@ -9,7 +9,7 @@ export const inject = ['slots']
 
 /**
  * Fill the sidebar brand slots as one declaration-aware registration set. The
- * conversation hero stays on its declaring package's animated fish fallback,
+ * conversation hero stays on its declaring package's swaying omega mark fallback,
  * so the official build registers nothing there.
  * @param ctx - Client root context.
  */

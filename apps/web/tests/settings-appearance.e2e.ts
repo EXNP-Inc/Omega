@@ -3,8 +3,8 @@ import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import { chromium, type Locator } from 'playwright'
 import { expect, it, onTestFinished, vi } from 'vitest'
-import type { AccountView } from '@deepseek-ai/dsh-deepseek-account/types'
-import type {} from '@deepseek-ai/dsh-deepseek-account'
+import type { AccountView } from '@omega-ai/dsh-omega-account/types'
+import type {} from '@omega-ai/dsh-omega-account'
 import {
   captureStableAria, compareOrRefreshGolden, launchWebScaffold, webSnapshotMode,
 } from './scaffold.ts'
@@ -30,10 +30,10 @@ it('shares settings card materials and control sizes in both palettes', async ()
     { op: 'set', path: ['step'], value: 'done' },
     { op: 'set', path: ['completion'], value: 'completed' },
   ])
-  const account = scaffold.ctx.deepseekAccount
+  const account = scaffold.ctx.omegaAccount
   const state: AccountView = {
     status: 'credential-stored', attempt: null,
-    links: { usageUrl: 'https://platform.deepseek.com/usage', topUpUrl: 'https://platform.deepseek.com/top_up' },
+    links: { usageUrl: 'https://platform.omega.com/usage', topUpUrl: 'https://platform.omega.com/top_up' },
   }
   // The Platform provider supplies synthetic identity and wallets; renderer, RPC, and settings remain real.
   const mocks = [

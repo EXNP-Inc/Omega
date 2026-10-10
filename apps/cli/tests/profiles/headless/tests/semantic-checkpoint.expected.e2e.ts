@@ -1,17 +1,17 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import {
   fixtureContext,
   normalizeSessionSnapshot,
   normalizeSessionSnapshots,
   type NormalizeContext,
-} from '@deepseek-ai/dsh-session-snapshot'
-import { LOADER_SMOKE_TEST_TIMEOUT_MS, runLoaderSmoke } from '@deepseek-ai/dsh-loader-smoke'
-import { createUserMessage, ToolCallId, createMessage } from '@deepseek-ai/dsh-llm'
-import { SessionSeq, SESSION_FORMAT_VERSION, SessionId, type SessionEvent, type SessionHeader } from '@deepseek-ai/dsh-session'
-import JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
+} from '@omega-ai/dsh-session-snapshot'
+import { LOADER_SMOKE_TEST_TIMEOUT_MS, runLoaderSmoke } from '@omega-ai/dsh-loader-smoke'
+import { createUserMessage, ToolCallId, createMessage } from '@omega-ai/dsh-llm'
+import { SessionSeq, SESSION_FORMAT_VERSION, SessionId, type SessionEvent, type SessionHeader } from '@omega-ai/dsh-session'
+import JsonlSessionPersistence from '@omega-ai/dsh-session-persistence-jsonl'
 import { logPath } from '../../../../../../packages/session/session-persistence-jsonl/src/format.ts'
 import { describe, expect, it } from 'vitest'
 
@@ -71,7 +71,7 @@ async function seedInterruptedSession(root: string, cwd: string): Promise<string
           content: [{ type: 'tool-call', id: ToolCallId('unknown-outcome-call'), name: 'write_remote', arguments: '{"value":1}' }],
           source: {
             kind: 'model',
-            ...{ provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+            ...{ provider: 'omega-official', model: 'omega-v4-flash' },
           },
         }),
       },

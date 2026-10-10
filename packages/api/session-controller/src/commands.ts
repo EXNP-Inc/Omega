@@ -2,28 +2,28 @@
 
 import { modelAvailable } from './catalog.ts'
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@deepseek-ai/cordis'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { Agent, ModelSelection as AgentModelSelection } from '@deepseek-ai/dsh-agent'
-import { AttachmentError } from '@deepseek-ai/dsh-attachment'
+import type { Context } from '@omega-ai/cordis'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { Agent, ModelSelection as AgentModelSelection } from '@omega-ai/dsh-agent'
+import { AttachmentError } from '@omega-ai/dsh-attachment'
 import type {
   AttachmentAdmissionPart, FileAttachmentRef, ImageAttachmentRef,
-} from '@deepseek-ai/dsh-attachment'
-import type { FileUploadReceiptId } from '@deepseek-ai/dsh-client-file-upload/types'
-import type {} from '@deepseek-ai/dsh-client-file-upload'
+} from '@omega-ai/dsh-attachment'
+import type { FileUploadReceiptId } from '@omega-ai/dsh-client-file-upload/types'
+import type {} from '@omega-ai/dsh-client-file-upload'
 import {
   ReasoningEffortId, assistantStreamChunks, createUserMessage, freezeMessage,
-} from '@deepseek-ai/dsh-llm'
-import type { MessageSource } from '@deepseek-ai/dsh-llm'
-import { buildForkSeed } from '@deepseek-ai/dsh-session/fork'
-import { SessionLogOffset, SessionSeq } from '@deepseek-ai/dsh-session'
-import type { SessionEvent, SessionHeader, SessionId, UserMessage } from '@deepseek-ai/dsh-session'
-import { SessionQueryError, type SessionObservation } from '@deepseek-ai/dsh-session-query'
-import { SessionTitleInvalidError } from '@deepseek-ai/dsh-session-title'
-import { canonicalClientTimeZone } from '@deepseek-ai/dsh-util-time'
-import { assertNever } from '@deepseek-ai/dsh-util-values'
-import { RemoteError, remoteErrorOf } from '@deepseek-ai/dsh-typert-protocol'
-import type { Workspace } from '@deepseek-ai/dsh-workspace'
+} from '@omega-ai/dsh-llm'
+import type { MessageSource } from '@omega-ai/dsh-llm'
+import { buildForkSeed } from '@omega-ai/dsh-session/fork'
+import { SessionLogOffset, SessionSeq } from '@omega-ai/dsh-session'
+import type { SessionEvent, SessionHeader, SessionId, UserMessage } from '@omega-ai/dsh-session'
+import { SessionQueryError, type SessionObservation } from '@omega-ai/dsh-session-query'
+import { SessionTitleInvalidError } from '@omega-ai/dsh-session-title'
+import { canonicalClientTimeZone } from '@omega-ai/dsh-util-time'
+import { assertNever } from '@omega-ai/dsh-util-values'
+import { RemoteError, remoteErrorOf } from '@omega-ai/dsh-typert-protocol'
+import type { Workspace } from '@omega-ai/dsh-workspace'
 import {
   ApiSessionAgentController,
   ApiSessionCwdConflict,

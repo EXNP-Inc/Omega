@@ -1,16 +1,16 @@
 import { describe, expect, it, vi } from 'vitest'
 import { readFile, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import SubagentRuntime from '@deepseek-ai/dsh-subagent'
-import type { SubagentCapabilities, SubagentProvider, SubagentResult, SubagentRun, SubagentStartRequest } from '@deepseek-ai/dsh-subagent'
-import type { WorkflowMeta, WorkflowResult, WorkflowResultInfo, WorkflowRun, WorkflowRunInfo } from '@deepseek-ai/dsh-workflow'
+import { Context } from '@omega-ai/cordis'
+import Loader from '@omega-ai/cordis-plugin-loader'
+import type { Agent } from '@omega-ai/dsh-agent'
+import SubagentRuntime from '@omega-ai/dsh-subagent'
+import type { SubagentCapabilities, SubagentProvider, SubagentResult, SubagentRun, SubagentStartRequest } from '@omega-ai/dsh-subagent'
+import type { WorkflowMeta, WorkflowResult, WorkflowResultInfo, WorkflowRun, WorkflowRunInfo } from '@omega-ai/dsh-workflow'
 import * as ptcEngineModule from '../src/index.ts'
 import PtcWorkflowEngine, { type Config } from '../src/index.ts'
-import { SessionId } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import { SessionId } from '@omega-ai/dsh-session'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
 
 import { fakeParent, mountPtcRuntime } from './setup.ts'
 
@@ -223,7 +223,7 @@ describe('dsh-workflow-ptc', { timeout: 120_000 }, () => {
         reply: () => ({ output: [], structured: { files: ['x.ts', 'y.ts'] }, stopReason: 'completed' }),
       })
       const result = await run(ctx, parent, scripted(`
-        const found = await agent('list files', { model: 'deepseek-v4-pro', schema: { type: 'object', properties: { files: { type: 'array', items: { type: 'string' } } }, required: ['files'] } })
+        const found = await agent('list files', { model: 'omega-v4-pro', schema: { type: 'object', properties: { files: { type: 'array', items: { type: 'string' } } }, required: ['files'] } })
         return { first: found.files[0], count: found.files.length }
       `))
       expect(result.stopReason, result.error?.split('\n')[0]).toBe('completed')
@@ -233,7 +233,7 @@ describe('dsh-workflow-ptc', { timeout: 120_000 }, () => {
         properties: { files: { type: 'array', items: { type: 'string' } } },
         required: ['files'],
       })
-      expect(provider.runs[0]!.request.agentOptions).toEqual({ model: 'deepseek-v4-pro' })
+      expect(provider.runs[0]!.request.agentOptions).toEqual({ model: 'omega-v4-pro' })
       expect(provider.runs[0]!.request.parent).toBeDefined()
     })
 

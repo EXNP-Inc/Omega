@@ -1,13 +1,13 @@
 {
-  "name": "@deepseek-ai/dsh-sdk-client",
-  "description": "TypeScript client SDK for driving a DeepSeek Harness runtime subprocess over stdio JSON-RPC: the DeepSeekHarness high-level turns API and the lower-level HarnessClient",
+  "name": "@omega-ai/dsh-sdk-client",
+  "description": "TypeScript client SDK for driving a Omega runtime subprocess over stdio JSON-RPC: the OmegaHarness high-level turns API and the lower-level HarnessClient",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/sdk/client"
   },
   "type": "module",
@@ -26,18 +26,18 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@deepseek-ai/dsh": "workspace:*"
+    "@omega-ai/dsh": "workspace:*"
   },
   "peerDependencies": {
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-sdk-protocol": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/cordis": "workspace:~"
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-sdk-protocol": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-sdk-protocol": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/cordis": "workspace:~"
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-sdk-protocol": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/cordis": "workspace:~"
   }
 }

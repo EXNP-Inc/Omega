@@ -1,16 +1,16 @@
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@omega-ai/cordis'
 import { useEffect, useId, useMemo, useState } from 'react'
-import type { FileAttachmentRef, ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
-import type { PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import type { FileAttachmentRef, ImageAttachmentRef } from '@omega-ai/dsh-attachment'
+import type { PropsLocale, PropsRuntime } from '@omega-ai/dsh-client-ui-slots'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import {
   IconCheckOutlineRegular, IconChevronDownOutlineRegular, IconChevronUpOutlineRegular, IconCloseOutlineRegular,
   FileTypeIcon, fileSizeText, IconEditOutlineRegular, InlineEditor, IconQueueOutlineRegular, IconSendOutlineRegular,
   IconTrashOutlineRegular, projectUserText, Tooltip,
-} from '@deepseek-ai/dsh-client-ui-primitives'
-import type { InboxState } from '@deepseek-ai/dsh-agent/types'
-import type { QueueAction } from '@deepseek-ai/dsh-api-session-controller/types'
-import type { MessageId } from '@deepseek-ai/dsh-llm/brand'
+} from '@omega-ai/dsh-client-ui-primitives'
+import type { InboxState } from '@omega-ai/dsh-agent/types'
+import type { QueueAction } from '@omega-ai/dsh-api-session-controller/types'
+import type { MessageId } from '@omega-ai/dsh-llm/brand'
 import { NS } from '../locales.ts'
 import css from './QueueDock.module.css'
 

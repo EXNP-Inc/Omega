@@ -1,13 +1,13 @@
 {
-  "name": "@deepseek-ai/dsh-webhook",
-  "description": "Fire-and-forget webhook rule runtime that creates Workspace-backed DeepSeek Harness Sessions",
+  "name": "@omega-ai/dsh-webhook",
+  "description": "Fire-and-forget webhook rule runtime that creates Workspace-backed Omega Sessions",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/webhook/webhook"
   },
   "type": "module",
@@ -32,31 +32,31 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-agent-default-model": "workspace:*",
-    "@deepseek-ai/dsh-agent-preset-registry": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-permission-presets": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-title": "workspace:*",
-    "@deepseek-ai/dsh-workspace": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-agent-default-model": "workspace:*",
+    "@omega-ai/dsh-agent-preset-registry": "workspace:*",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-permission-presets": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-session-title": "workspace:*",
+    "@omega-ai/dsh-workspace": "workspace:*"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/cordis-plugin-include": "workspace:~",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-agent-default-model": "workspace:*",
-    "@deepseek-ai/dsh-agent-preset-registry": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-permission-presets": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-title": "workspace:*",
-    "@deepseek-ai/dsh-workspace": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/cordis-plugin-include": "workspace:~",
+    "@omega-ai/cordis-plugin-loader": "workspace:~",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-agent-default-model": "workspace:*",
+    "@omega-ai/dsh-agent-preset-registry": "workspace:*",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-permission-presets": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-session-title": "workspace:*",
+    "@omega-ai/dsh-workspace": "workspace:*"
   },
   "dependencies": {
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/dsh-util-values": "workspace:*"
+    "@omega-ai/dsh-brand": "workspace:*",
+    "@omega-ai/dsh-util-values": "workspace:*"
   }
 }

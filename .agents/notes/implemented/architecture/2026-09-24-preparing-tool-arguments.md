@@ -8,7 +8,7 @@ English | [中文](2026-09-24-preparing-tool-arguments.zh.md)
 
 [Three-stage tool calls](2026-09-22-tool-call-three-phases.md) make tool identity visible before `tool/call`. A raw argument prefix alone cannot supply field-aware presentation: write/edit need a complete path and decoded content length, while bash/run_code need the description before the command or program finishes streaming.
 
-The order in which the model generates arguments also decides what can appear first. On 2026-09-24, 310 controlled requests against the real DeepSeek V4 API exercised bash/run_code/write/edit:
+The order in which the model generates arguments also decides what can appear first. On 2026-09-24, 310 controlled requests against the real Omega V4 API exercised bash/run_code/write/edit:
 
 | Variant | Change | bash first key is description | run_code first key is description |
 |---|---|---|---|

@@ -1,13 +1,13 @@
 {
-  "name": "@deepseek-ai/dsh-workspace",
-  "description": "Workspace entity registry (ctx.workspaceRegistry): durable workspace records with validated session attachment over the domain data form for the DeepSeek Harness",
+  "name": "@omega-ai/dsh-workspace",
+  "description": "Workspace entity registry (ctx.workspaceRegistry): durable workspace records with validated session attachment over the domain data form for the Omega",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/workspace/workspace"
   },
   "type": "module",
@@ -32,23 +32,23 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-persistence": "workspace:*",
-    "@deepseek-ai/dsh-storage": "workspace:*",
-    "@deepseek-ai/dsh-storage-domain": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-session-persistence": "workspace:*",
+    "@omega-ai/dsh-storage": "workspace:*",
+    "@omega-ai/dsh-storage-domain": "workspace:*",
+    "@omega-ai/dsh-typert-protocol": "workspace:*"
   },
   "dependencies": {
-    "@deepseek-ai/dsh-brand": "workspace:*",
+    "@omega-ai/dsh-brand": "workspace:*",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-persistence": "workspace:*",
-    "@deepseek-ai/dsh-storage": "workspace:*",
-    "@deepseek-ai/dsh-storage-domain": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-session-persistence": "workspace:*",
+    "@omega-ai/dsh-storage": "workspace:*",
+    "@omega-ai/dsh-storage-domain": "workspace:*",
+    "@omega-ai/dsh-typert-protocol": "workspace:*"
   }
 }

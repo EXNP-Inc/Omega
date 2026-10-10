@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-tool-ralph",
+  "name": "@omega-ai/dsh-tool-ralph",
   "description": "Model-facing fresh-agent Ralph loop over the workflow and subagent seams",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/workflow/tool-ralph"
   },
   "type": "module",
@@ -27,32 +27,32 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-subagent": "workspace:*",
-    "@deepseek-ai/dsh-system-prompt": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
-    "@deepseek-ai/dsh-workflow": "workspace:*",
-    "@deepseek-ai/cordis": "workspace:~"
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-subagent": "workspace:*",
+    "@omega-ai/dsh-system-prompt": "workspace:*",
+    "@omega-ai/dsh-tools": "workspace:*",
+    "@omega-ai/dsh-workflow": "workspace:*",
+    "@omega-ai/cordis": "workspace:~"
   },
   "dependencies": {
-    "@deepseek-ai/schemastery": "workspace:~"
+    "@omega-ai/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-agent-loop": "workspace:*",
-    "@deepseek-ai/dsh-agent-loop-testkit": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-subagent": "workspace:*",
-    "@deepseek-ai/dsh-subagent-in-process-driver": "workspace:*",
-    "@deepseek-ai/dsh-subagent-spawn-in-process": "workspace:*",
-    "@deepseek-ai/dsh-system-prompt": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
-    "@deepseek-ai/dsh-workflow": "workspace:*",
-    "@deepseek-ai/dsh-workflow-ptc": "workspace:*",
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-session-projection": "workspace:*"
+    "@omega-ai/cordis-plugin-loader": "workspace:~",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-agent-loop": "workspace:*",
+    "@omega-ai/dsh-agent-loop-testkit": "workspace:*",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-subagent": "workspace:*",
+    "@omega-ai/dsh-subagent-in-process-driver": "workspace:*",
+    "@omega-ai/dsh-subagent-spawn-in-process": "workspace:*",
+    "@omega-ai/dsh-system-prompt": "workspace:*",
+    "@omega-ai/dsh-tools": "workspace:*",
+    "@omega-ai/dsh-workflow": "workspace:*",
+    "@omega-ai/dsh-workflow-ptc": "workspace:*",
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-session-projection": "workspace:*"
   }
 }

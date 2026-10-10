@@ -188,7 +188,7 @@
       "data": {
         "header": {
           "config": {
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "maxTokens": 256000,
             "reasoningEffort": "high"
@@ -217,7 +217,7 @@
       "seq": 15,
       "time": 0,
       "data": {
-        "provider": "deepseek-official",
+        "provider": "omega-official",
         "model": "smoke-model",
         "contextWindow": 1000000
       }
@@ -284,7 +284,7 @@
       "data": {
         "header": {
           "config": {
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "maxTokens": 256000,
             "reasoningEffort": "high"
@@ -309,7 +309,7 @@
       }
     },
     {
-      "type": "session-log-deepseek/delivery-accepted",
+      "type": "session-log-omega/delivery-accepted",
       "seq": 20,
       "time": 0,
       "data": {
@@ -337,11 +337,11 @@
           ],
           "source": {
             "kind": "model",
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "replayState": {
               "response": {
-                "kind": "deepseek-messages",
+                "kind": "omega-messages",
                 "version": 1,
                 "model": "smoke-model"
               },
@@ -426,7 +426,7 @@
               },
               "replayState": {
                 "response": {
-                  "kind": "deepseek-messages",
+                  "kind": "omega-messages",
                   "version": 1,
                   "model": "smoke-model"
                 },
@@ -537,7 +537,7 @@
       }
     },
     {
-      "type": "session-log-deepseek/delivery-accepted",
+      "type": "session-log-omega/delivery-accepted",
       "seq": 28,
       "time": 0,
       "data": {
@@ -565,11 +565,11 @@
           ],
           "source": {
             "kind": "model",
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "replayState": {
               "response": {
-                "kind": "deepseek-messages",
+                "kind": "omega-messages",
                 "version": 1,
                 "model": "smoke-model"
               },
@@ -654,7 +654,7 @@
               },
               "replayState": {
                 "response": {
-                  "kind": "deepseek-messages",
+                  "kind": "omega-messages",
                   "version": 1,
                   "model": "smoke-model"
                 },
@@ -735,7 +735,7 @@
       }
     },
     {
-      "type": "session-log-deepseek/delivery-accepted",
+      "type": "session-log-omega/delivery-accepted",
       "seq": 34,
       "time": 0,
       "data": {
@@ -763,11 +763,11 @@
           ],
           "source": {
             "kind": "model",
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "replayState": {
               "response": {
-                "kind": "deepseek-messages",
+                "kind": "omega-messages",
                 "version": 1,
                 "model": "smoke-model"
               },
@@ -852,7 +852,7 @@
               },
               "replayState": {
                 "response": {
-                  "kind": "deepseek-messages",
+                  "kind": "omega-messages",
                   "version": 1,
                   "model": "smoke-model"
                 },
@@ -968,7 +968,7 @@
       }
     },
     {
-      "type": "session-log-deepseek/delivery-accepted",
+      "type": "session-log-omega/delivery-accepted",
       "seq": 42,
       "time": 0,
       "data": {
@@ -996,11 +996,11 @@
           ],
           "source": {
             "kind": "model",
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "replayState": {
               "response": {
-                "kind": "deepseek-messages",
+                "kind": "omega-messages",
                 "version": 1,
                 "model": "smoke-model"
               },
@@ -1085,7 +1085,7 @@
               },
               "replayState": {
                 "response": {
-                  "kind": "deepseek-messages",
+                  "kind": "omega-messages",
                   "version": 1,
                   "model": "smoke-model"
                 },
@@ -1173,7 +1173,7 @@
       }
     },
     {
-      "type": "session-log-deepseek/delivery-accepted",
+      "type": "session-log-omega/delivery-accepted",
       "seq": 49,
       "time": 0,
       "data": {
@@ -1201,11 +1201,11 @@
           ],
           "source": {
             "kind": "model",
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "replayState": {
               "response": {
-                "kind": "deepseek-messages",
+                "kind": "omega-messages",
                 "version": 1,
                 "model": "smoke-model"
               },
@@ -1290,7 +1290,7 @@
               },
               "replayState": {
                 "response": {
-                  "kind": "deepseek-messages",
+                  "kind": "omega-messages",
                   "version": 1,
                   "model": "smoke-model"
                 },
@@ -1417,7 +1417,7 @@
       }
     },
     {
-      "type": "session-log-deepseek/delivery-accepted",
+      "type": "session-log-omega/delivery-accepted",
       "seq": 60,
       "time": 0,
       "data": {
@@ -1443,11 +1443,11 @@
           ],
           "source": {
             "kind": "model",
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "replayState": {
               "response": {
-                "kind": "deepseek-messages",
+                "kind": "omega-messages",
                 "version": 1,
                 "model": "smoke-model"
               },
@@ -1518,7 +1518,7 @@
               },
               "replayState": {
                 "response": {
-                  "kind": "deepseek-messages",
+                  "kind": "omega-messages",
                   "version": 1,
                   "model": "smoke-model"
                 },
@@ -1893,7 +1893,7 @@
           "data": {
             "header": {
               "config": {
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "maxTokens": 256000,
                 "reasoningEffort": "high"
@@ -1928,7 +1928,7 @@
           "seq": 15,
           "time": 0,
           "data": {
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "contextWindow": 1000000
           }
@@ -2019,7 +2019,7 @@
           "data": {
             "header": {
               "config": {
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "maxTokens": 256000,
                 "reasoningEffort": "high"
@@ -2050,7 +2050,7 @@
       "payload": {
         "sessionId": "{{parent}}",
         "event": {
-          "type": "session-log-deepseek/delivery-accepted",
+          "type": "session-log-omega/delivery-accepted",
           "seq": 20,
           "time": 0,
           "data": {
@@ -2084,11 +2084,11 @@
               ],
               "source": {
                 "kind": "model",
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "replayState": {
                   "response": {
-                    "kind": "deepseek-messages",
+                    "kind": "omega-messages",
                     "version": 1,
                     "model": "smoke-model"
                   },
@@ -2173,7 +2173,7 @@
                   },
                   "replayState": {
                     "response": {
-                      "kind": "deepseek-messages",
+                      "kind": "omega-messages",
                       "version": 1,
                       "model": "smoke-model"
                     },
@@ -2326,7 +2326,7 @@
       "payload": {
         "sessionId": "{{parent}}",
         "event": {
-          "type": "session-log-deepseek/delivery-accepted",
+          "type": "session-log-omega/delivery-accepted",
           "seq": 28,
           "time": 0,
           "data": {
@@ -2360,11 +2360,11 @@
               ],
               "source": {
                 "kind": "model",
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "replayState": {
                   "response": {
-                    "kind": "deepseek-messages",
+                    "kind": "omega-messages",
                     "version": 1,
                     "model": "smoke-model"
                   },
@@ -2449,7 +2449,7 @@
                   },
                   "replayState": {
                     "response": {
-                      "kind": "deepseek-messages",
+                      "kind": "omega-messages",
                       "version": 1,
                       "model": "smoke-model"
                     },
@@ -2560,7 +2560,7 @@
       "payload": {
         "sessionId": "{{parent}}",
         "event": {
-          "type": "session-log-deepseek/delivery-accepted",
+          "type": "session-log-omega/delivery-accepted",
           "seq": 34,
           "time": 0,
           "data": {
@@ -2594,11 +2594,11 @@
               ],
               "source": {
                 "kind": "model",
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "replayState": {
                   "response": {
-                    "kind": "deepseek-messages",
+                    "kind": "omega-messages",
                     "version": 1,
                     "model": "smoke-model"
                   },
@@ -2683,7 +2683,7 @@
                   },
                   "replayState": {
                     "response": {
-                      "kind": "deepseek-messages",
+                      "kind": "omega-messages",
                       "version": 1,
                       "model": "smoke-model"
                     },
@@ -2841,7 +2841,7 @@
       "payload": {
         "sessionId": "{{parent}}",
         "event": {
-          "type": "session-log-deepseek/delivery-accepted",
+          "type": "session-log-omega/delivery-accepted",
           "seq": 42,
           "time": 0,
           "data": {
@@ -2875,11 +2875,11 @@
               ],
               "source": {
                 "kind": "model",
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "replayState": {
                   "response": {
-                    "kind": "deepseek-messages",
+                    "kind": "omega-messages",
                     "version": 1,
                     "model": "smoke-model"
                   },
@@ -2964,7 +2964,7 @@
                   },
                   "replayState": {
                     "response": {
-                      "kind": "deepseek-messages",
+                      "kind": "omega-messages",
                       "version": 1,
                       "model": "smoke-model"
                     },
@@ -3302,7 +3302,7 @@
           "data": {
             "header": {
               "config": {
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "reasoningEffort": "high",
                 "maxTokens": 256000
@@ -3336,7 +3336,7 @@
           "seq": 15,
           "time": 0,
           "data": {
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "contextWindow": 1000000
           }
@@ -3368,7 +3368,7 @@
       "payload": {
         "sessionId": "{{child-1}}",
         "event": {
-          "type": "session-log-deepseek/delivery-accepted",
+          "type": "session-log-omega/delivery-accepted",
           "seq": 17,
           "time": 0,
           "data": {
@@ -3400,11 +3400,11 @@
               ],
               "source": {
                 "kind": "model",
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "replayState": {
                   "response": {
-                    "kind": "deepseek-messages",
+                    "kind": "omega-messages",
                     "version": 1,
                     "model": "smoke-model"
                   },
@@ -3475,7 +3475,7 @@
                   },
                   "replayState": {
                     "response": {
-                      "kind": "deepseek-messages",
+                      "kind": "omega-messages",
                       "version": 1,
                       "model": "smoke-model"
                     },
@@ -3619,7 +3619,7 @@
       "payload": {
         "sessionId": "{{parent}}",
         "event": {
-          "type": "session-log-deepseek/delivery-accepted",
+          "type": "session-log-omega/delivery-accepted",
           "seq": 49,
           "time": 0,
           "data": {
@@ -3653,11 +3653,11 @@
               ],
               "source": {
                 "kind": "model",
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "replayState": {
                   "response": {
-                    "kind": "deepseek-messages",
+                    "kind": "omega-messages",
                     "version": 1,
                     "model": "smoke-model"
                   },
@@ -3742,7 +3742,7 @@
                   },
                   "replayState": {
                     "response": {
-                      "kind": "deepseek-messages",
+                      "kind": "omega-messages",
                       "version": 1,
                       "model": "smoke-model"
                     },
@@ -4111,7 +4111,7 @@
           "data": {
             "header": {
               "config": {
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "reasoningEffort": "high",
                 "maxTokens": 256000
@@ -4145,7 +4145,7 @@
           "seq": 15,
           "time": 0,
           "data": {
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "contextWindow": 1000000
           }
@@ -4177,7 +4177,7 @@
       "payload": {
         "sessionId": "{{child-2}}",
         "event": {
-          "type": "session-log-deepseek/delivery-accepted",
+          "type": "session-log-omega/delivery-accepted",
           "seq": 17,
           "time": 0,
           "data": {
@@ -4209,11 +4209,11 @@
               ],
               "source": {
                 "kind": "model",
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "replayState": {
                   "response": {
-                    "kind": "deepseek-messages",
+                    "kind": "omega-messages",
                     "version": 1,
                     "model": "smoke-model"
                   },
@@ -4284,7 +4284,7 @@
                   },
                   "replayState": {
                     "response": {
-                      "kind": "deepseek-messages",
+                      "kind": "omega-messages",
                       "version": 1,
                       "model": "smoke-model"
                     },
@@ -4459,7 +4459,7 @@
       "payload": {
         "sessionId": "{{parent}}",
         "event": {
-          "type": "session-log-deepseek/delivery-accepted",
+          "type": "session-log-omega/delivery-accepted",
           "seq": 60,
           "time": 0,
           "data": {
@@ -4491,11 +4491,11 @@
               ],
               "source": {
                 "kind": "model",
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "replayState": {
                   "response": {
-                    "kind": "deepseek-messages",
+                    "kind": "omega-messages",
                     "version": 1,
                     "model": "smoke-model"
                   },
@@ -4566,7 +4566,7 @@
                   },
                   "replayState": {
                     "response": {
-                      "kind": "deepseek-messages",
+                      "kind": "omega-messages",
                       "version": 1,
                       "model": "smoke-model"
                     },

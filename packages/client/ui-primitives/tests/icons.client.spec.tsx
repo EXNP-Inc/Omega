@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
 import { cleanup, render } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
-import * as primitives from '@deepseek-ai/dsh-client-ui-primitives'
+import * as primitives from '@omega-ai/dsh-client-ui-primitives'
 import {
   IconAlarmClockOutlineRegular, IconApiOutlineRegular, IconArchiveOutlineRegular, IconFolderCloseRegular,
   IconGoalOutlineRegular, IconSendOutlineRegular,
-} from '@deepseek-ai/dsh-client-ui-primitives'
+} from '@omega-ai/dsh-client-ui-primitives'
 
 afterEach(cleanup)
 
@@ -122,16 +122,15 @@ describe('product icon set', () => {
   })
 })
 
-describe('FishLogo', () => {
-  it('renders the fish path in currentColor at the native ratio', () => {
-    const { container } = render(<primitives.FishLogo />)
+describe('OmegaLogo', () => {
+  it('renders the omega path in currentColor at the native square ratio', () => {
+    const { container } = render(<primitives.OmegaLogo />)
     const svg = container.querySelector('svg')!
     expect(svg.getAttribute('width')).toBe('24')
-    expect(Number(svg.getAttribute('height'))).toBeCloseTo(17.66, 1)
-    expect(svg.getAttribute('viewBox')).toBe('0 0 23.16 17.04')
+    expect(svg.getAttribute('height')).toBe('24')
+    expect(svg.getAttribute('viewBox')).toBe('0 0 24 24')
     expect(container.querySelectorAll('path')).toHaveLength(1)
     expect(container.innerHTML).toContain('currentColor')
-    expect(container.innerHTML).not.toContain('M0 0L23.16')
   })
 })
 
@@ -139,11 +138,11 @@ describe('BrandWordmark', () => {
   it('can render the name artwork with or without its leading mark', () => {
     const view = render(<primitives.BrandWordmark />)
     const svg = view.container.querySelector('svg')!
-    expect(svg.getAttribute('width')).toBe('182')
-    expect(svg.getAttribute('viewBox')).toBe('0 0 182 24')
+    expect(svg.getAttribute('width')).toBe('98')
+    expect(svg.getAttribute('viewBox')).toBe('0 0 98 24')
 
     view.rerender(<primitives.BrandWordmark includeMark={false} />)
-    expect(svg.getAttribute('width')).toBe('156')
-    expect(svg.getAttribute('viewBox')).toBe('26 0 156 24')
+    expect(svg.getAttribute('width')).toBe('72')
+    expect(svg.getAttribute('viewBox')).toBe('26 0 72 24')
   })
 })

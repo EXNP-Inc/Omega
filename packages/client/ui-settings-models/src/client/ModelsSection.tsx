@@ -23,9 +23,9 @@
 
 import { useId, useState } from 'react'
 import type { ReactNode } from 'react'
-import { Button, IconPlusOutlineRegular, Modal, SegmentedControl } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { InjectFace, PropsRenderSlots } from '@deepseek-ai/dsh-client-ui-slots'
-import type { SettingsNamespaceView } from '@deepseek-ai/dsh-api-remotes/client'
+import { Button, IconPlusOutlineRegular, Modal, SegmentedControl } from '@omega-ai/dsh-client-ui-primitives'
+import type { InjectFace, PropsRenderSlots } from '@omega-ai/dsh-client-ui-slots'
+import type { SettingsNamespaceView } from '@omega-ai/dsh-api-remotes/client'
 // Type-only: pulls this package's SlotMap merge (the two Models child slots).
 import type {} from './slot-contract.ts'
 import { CustomProviderCard } from './CustomProviderCard.tsx'
@@ -167,7 +167,7 @@ export async function removeProviderProfile(
  * @returns whether to render the setup card.
  */
 export function needsSetup(row: ProviderRow, anyUsable: boolean): boolean {
-  if (anyUsable || row.entry.provider === 'deepseek-account') return false
+  if (anyUsable || row.entry.provider === 'omega-account') return false
   if (row.entry.settingsPath.length > 0) return false
   return row.credential?.configured !== true
 }
@@ -232,8 +232,8 @@ export function ModelsSection(props: ModelsSectionProps): ReactNode {
 function Loaded({ injected, renderSlot }: { injected: ModelsSectionFace; renderSlot: ModelsRenderSlot }): ReactNode {
   const { controller, operations, schema, t } = injected
   const snapshot = injected.useSnapshot(value => value)
-  const state = { ...snapshot, rows: snapshot.rows.map(row => row.entry.provider === 'deepseek-account'
-    ? { ...row, entry: { ...row.entry, displayName: t('deepSeekAccount') } } : row) }
+  const state = { ...snapshot, rows: snapshot.rows.map(row => row.entry.provider === 'omega-account'
+    ? { ...row, entry: { ...row.entry, displayName: t('omegaAccount') } } : row) }
   const [editing, setEditing] = useState<EditorTarget | undefined>(undefined)
   const [addOpen, setAddOpen] = useState(false)
   const [addMode, setAddMode] = useState<AddMode>('catalog')

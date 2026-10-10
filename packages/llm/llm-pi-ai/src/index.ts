@@ -11,7 +11,7 @@
  *
  * ```yaml
  * - id: llm
- *   name: '@deepseek-ai/dsh-llm-pi-ai'
+ *   name: '@omega-ai/dsh-llm-pi-ai'
  *   config:
  *     providers:
  *       # Catalog route: everything but the credential comes from pi-ai.
@@ -52,18 +52,18 @@
  *               max: ultra
  * ```
  *
- * @module @deepseek-ai/dsh-llm-pi-ai
+ * @module @omega-ai/dsh-llm-pi-ai
  */
-import type {} from '@deepseek-ai/dsh-settings'
+import type {} from '@omega-ai/dsh-settings'
 
-import type {} from '@deepseek-ai/cordis-plugin-loader'
+import type {} from '@omega-ai/cordis-plugin-loader'
 
-import type { Context } from '@deepseek-ai/cordis'
-import { launchEnvironmentOf } from '@deepseek-ai/dsh-launch-environment'
-import { assertUsableApiKey, LlmError, resolveImageAttachmentAccess } from '@deepseek-ai/dsh-llm'
-import type { AdapterRegistrationHandle, DirectoryRegistrationHandle, LlmConfigurableProvider } from '@deepseek-ai/dsh-llm'
-import type {} from '@deepseek-ai/dsh-fs'
-import { deepEqualJson } from '@deepseek-ai/dsh-util-values'
+import type { Context } from '@omega-ai/cordis'
+import { launchEnvironmentOf } from '@omega-ai/dsh-launch-environment'
+import { assertUsableApiKey, LlmError, resolveImageAttachmentAccess } from '@omega-ai/dsh-llm'
+import type { AdapterRegistrationHandle, DirectoryRegistrationHandle, LlmConfigurableProvider } from '@omega-ai/dsh-llm'
+import type {} from '@omega-ai/dsh-fs'
+import { deepEqualJson } from '@omega-ai/dsh-util-values'
 import { PiAiAdapter } from './adapter.ts'
 import { authContextFrom, credentialStoreFrom } from './auth.ts'
 import { catalogProviderIds } from './catalog.ts'
@@ -169,7 +169,7 @@ export function apply(ctx: Context, config: Config): void {
     return next
   }
   profiles()
-  ctx.on('internal/config', function (this: import('@deepseek-ai/cordis').Fiber, _raw, next) {
+  ctx.on('internal/config', function (this: import('@omega-ai/cordis').Fiber, _raw, next) {
     const raw: unknown = next()
     if (this !== ctx.fiber) return raw
     const candidate = Config(raw as import('./config.ts').Options)
@@ -242,7 +242,7 @@ export function apply(ctx: Context, config: Config): void {
     const entries = directoryEntries(profiles(), settingsNs)
     if (deepEqualJson(entries, directoryFacts)) return
     // Atomic replace, never dispose-then-register: a route another adapter
-    // family already declares (a profile keyed `deepseek-official`) would
+    // family already declares (a profile keyed `omega-official`) would
     // otherwise leave this plugin's whole directory withdrawn and the Models
     // page empty. The candidate set is validated first, so a collision keeps
     // the previous entries serving and only costs a diagnostic.

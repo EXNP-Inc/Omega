@@ -1,6 +1,6 @@
 /** Keeps Electron's private Platform credentials bound to the active account provider. */
-import type { Context } from '@deepseek-ai/cordis'
-import type { PlatformSession } from '@deepseek-ai/dsh-deepseek-account'
+import type { Context } from '@omega-ai/cordis'
+import type { PlatformSession } from '@omega-ai/dsh-omega-account'
 
 /**
  * Publish account sessions for each provider lifetime, clearing them on removal or stream termination.
@@ -8,8 +8,8 @@ import type { PlatformSession } from '@deepseek-ai/dsh-deepseek-account'
  * @param publish - Synchronous private IPC delivery; never forwards credentials to the renderer.
  */
 export function installPlatformSessionPublisher(ctx: Context, publish: (session: PlatformSession | null) => void): void {
-  ctx.inject(['deepseekAccount'], (accountCtx) => {
-    const account = accountCtx.deepseekAccount
+  ctx.inject(['omegaAccount'], (accountCtx) => {
+    const account = accountCtx.omegaAccount
     accountCtx.effect(() => {
       const lifetime = new AbortController()
       const updates = (async () => {

@@ -1,13 +1,13 @@
-import OTel from '@deepseek-ai/dsh-otel'
+import OTel from '@omega-ai/dsh-otel'
 /** Desktop-only collector policy and bounded shutdown against an unresponsive receiver. */
 import { createServer } from 'node:http'
 import { once } from 'node:events'
 import { fileURLToPath } from 'node:url'
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import { loadOverlayPatches } from '@deepseek-ai/dsh-app-boot'
-import * as Telemetry from '@deepseek-ai/dsh-host-product-telemetry-otel'
-import Analytics from '@deepseek-ai/dsh-client-product-analytics'
+import { Context } from '@omega-ai/cordis'
+import Loader from '@omega-ai/cordis-plugin-loader'
+import { loadOverlayPatches } from '@omega-ai/dsh-app-boot'
+import * as Telemetry from '@omega-ai/dsh-host-product-telemetry-otel'
+import Analytics from '@omega-ai/dsh-client-product-analytics'
 import { afterEach, expect, it, onTestFinished, vi } from 'vitest'
 
 afterEach(() => { vi.unstubAllEnvs() })
@@ -29,7 +29,7 @@ it.each(['desktop', 'web'])('limits collection and its shutdown to the Desktop l
     cwd: '/workspace', home: '/home', startedBundles: [], overlays: [], telemetryDisabledEnv: undefined,
   })
   const identity = vi.fn().mockResolvedValue(undefined)
-  ctx.provide('deepseekAccount', { getDeviceIdentity: identity } as never)
+  ctx.provide('omegaAccount', { getDeviceIdentity: identity } as never)
   await ctx.plugin(OTel)
   ctx.baseUrl = 'file:///'
   await ctx.plugin(Loader).await()

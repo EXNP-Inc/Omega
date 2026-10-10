@@ -10,7 +10,7 @@
  * mounted for the seat to exist. Data only — this module is the one legitimate
  * meeting point of the two planes, so it carries strings, never client imports.
  *
- * @module @deepseek-ai/dsh-cordis-client-runner/client/slot-catalog
+ * @module @omega-ai/dsh-cordis-client-runner/client/slot-catalog
  */
 
 /* jscpd:ignore-start */
@@ -351,7 +351,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     slotInject: '',
     declaredBy: 'an entry in \'conversation.chat.node\' (client-ui-chat), so it exists while that entry is mounted',
     occupants: [
-      'client-ui-deliverables DeliverablesTail id \'@deepseek-ai/dsh-client-ui-deliverables\'',
+      'client-ui-deliverables DeliverablesTail id \'@omega-ai/dsh-client-ui-deliverables\'',
       'client-ui-plan PlanCards',
       'client-ui-schedule ScheduleTurnCard id \'schedule-created\'',
     ],
@@ -1880,12 +1880,12 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'useSessionRetainInfo: UseSessionRetainInfo',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
     ],
-    keyDomain: 'open: any string the owner dispatches (no compile-time key set), already taken: @deepseek-ai/dsh-experimental-voice-input-bundle',
+    keyDomain: 'open: any string the owner dispatches (no compile-time key set), already taken: @omega-ai/dsh-experimental-voice-input-bundle',
     hookContext: '',
     slotInject: '',
     declaredBy: 'an entry in \'main\' (client-ui-plugin-manager), so it exists while that entry is mounted',
     occupants: [
-      'experimental-client-ui-voice-input VoiceSetupPrompt key \'@deepseek-ai/dsh-experimental-voice-input-bundle\'',
+      'experimental-client-ui-voice-input VoiceSetupPrompt key \'@omega-ai/dsh-experimental-voice-input-bundle\'',
     ],
     replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'plugins.bundle.activation\', () => ctx.slots.register(\n      { name: \'plugins.bundle.activation\', key: \'<one key the owner dispatches>\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
@@ -1920,12 +1920,12 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'useSessionRetainInfo: UseSessionRetainInfo',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
     ],
-    keyDomain: 'open: any string the owner dispatches (no compile-time key set), already taken: @deepseek-ai/dsh-experimental-voice-input-bundle',
+    keyDomain: 'open: any string the owner dispatches (no compile-time key set), already taken: @omega-ai/dsh-experimental-voice-input-bundle',
     hookContext: '',
     slotInject: '',
     declaredBy: 'an entry in \'main\' (client-ui-plugin-manager), so it exists while that entry is mounted',
     occupants: [
-      'experimental-client-ui-voice-input VoicePreparation key \'@deepseek-ai/dsh-experimental-voice-input-bundle\'',
+      'experimental-client-ui-voice-input VoicePreparation key \'@omega-ai/dsh-experimental-voice-input-bundle\'',
     ],
     replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'plugins.bundle.config\', () => ctx.slots.register(\n      { name: \'plugins.bundle.config\', key: \'<one key the owner dispatches>\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
@@ -2642,7 +2642,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     declaredBy: 'an entry in \'sidebar.settings\' (client-ui-settings-general), so it exists while that entry is mounted',
     occupants: [
       'client-ui-settings-models WelcomeNotice id \'welcome-notice\'',
-      'client-ui-settings-models DeepSeekOnboardingDialog id \'deepseek-official\'',
+      'client-ui-settings-models OmegaOnboardingDialog id \'omega-official\'',
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'settings.onboarding\', () => ctx.slots.register(\n      { name: \'settings.onboarding\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
@@ -2974,7 +2974,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     kind: 'single',
     scope: 'root',
     summary: 'Brand mark rendered in the expanded brand row and collapsed rail.',
-    doc: 'Brand mark rendered in the expanded brand row and collapsed rail.\nDeclared by this package\'s `sidebar` entry; deployments may replace\nthe shell\'s fish fallback without replacing the surrounding controls.',
+    doc: 'Brand mark rendered in the expanded brand row and collapsed rail.\nDeclared by this package\'s `sidebar` entry; deployments may replace\nthe shell\'s omega mark fallback without replacing the surrounding controls.',
     registerOptions: [],
     ownerProps: [
       '/** Geometry supplied to the sidebar brand-mark occupant. */\nexport interface SidebarBrandMarkOwnerProps {\n  /** Requested square edge in pixels. */\n  size: number\n}',

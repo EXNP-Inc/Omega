@@ -1,46 +1,46 @@
 /**
- * High-level run API over {@link HarnessClient}: `DeepSeekHarness` owns one
+ * High-level run API over {@link HarnessClient}: `OmegaHarness` owns one
  * runtime subprocess across many sessions; `HarnessSession.run` sends a
  * prompt and settles when the whole agent next becomes idle.
  *
- * @module @deepseek-ai/dsh-sdk-client/api
+ * @module @omega-ai/dsh-sdk-client/api
  */
 
 import { randomUUID } from 'node:crypto'
 import { resolve } from 'node:path'
-import type { SessionEvent, TurnEndReason } from '@deepseek-ai/dsh-session'
+import type { SessionEvent, TurnEndReason } from '@omega-ai/dsh-session'
 import { createProcessHarnessClient, HarnessClient, isRecord, SdkProtocolError } from './client.ts'
 import type { RuntimeProcessOptions } from './launch.ts'
-import type { ContentBlock, DeepSeekHarnessOptions, HarnessNotification, RunResult, SdkPromptContentBlock } from './types.ts'
+import type { ContentBlock, OmegaHarnessOptions, HarnessNotification, RunResult, SdkPromptContentBlock } from './types.ts'
 
 /**
- * Reusable SDK for running DeepSeek Harness agent turns in a runtime
+ * Reusable SDK for running Omega agent turns in a runtime
  * subprocess. The subprocess starts lazily on first use and stays owned by
  * this instance until {@link close}; always close (or `await using`) so the
  * child is reaped.
  */
-export class DeepSeekHarness implements AsyncDisposable {
+export class OmegaHarness implements AsyncDisposable {
   private clientInstance: HarnessClient
   private readonly createClient: () => HarnessClient
   private readonly cwd: string
   private readonly provider: string
   private readonly model: string
-  private readonly reasoningEffort: DeepSeekHarnessOptions['reasoningEffort']
+  private readonly reasoningEffort: OmegaHarnessOptions['reasoningEffort']
   private readonly maxTokens: number | undefined
   private initialized: Promise<void> | undefined
   private closed = false
 
   /** @param options - dsh launch configuration plus the session route, effort, and output cap. */
-  constructor(options?: DeepSeekHarnessOptions)
-  constructor(options: DeepSeekHarnessOptions = {}, clientFactory?: () => HarnessClient) {
+  constructor(options?: OmegaHarnessOptions)
+  constructor(options: OmegaHarnessOptions = {}, clientFactory?: () => HarnessClient) {
     this.createClient = clientFactory ?? (() => new HarnessClient(options))
     this.clientInstance = this.createClient()
     // Absolute before the handshake: the child spawns relative to THIS
     // process's cwd, but the wire cwd is resolved again inside the child — a
     // relative value would double-resolve (e.g. `worker` → `worker/worker`).
     this.cwd = resolve(options.cwd ?? options.processCwd ?? process.cwd())
-    this.provider = options.provider ?? 'deepseek-official'
-    this.model = options.model ?? 'deepseek-v4-flash'
+    this.provider = options.provider ?? 'mac'
+    this.model = options.model ?? 'qwen3.8-27b-lite'
     this.reasoningEffort = options.reasoningEffort
     this.maxTokens = options.maxTokens
   }
@@ -84,7 +84,7 @@ export class DeepSeekHarness implements AsyncDisposable {
         } catch (cleanupError: unknown) {
           throw new AggregateError(
             [error, cleanupError],
-            'DeepSeek Harness initialization and cleanup failed',
+            'Omega initialization and cleanup failed',
           )
         }
         if (!this.closed) this.clientInstance = this.createClient()
@@ -134,14 +134,14 @@ export class DeepSeekHarness implements AsyncDisposable {
 }
 
 /** Construct the high-level API against a generic process for package-local fake-runtime tests. */
-export function createProcessDeepSeekHarness(
+export function createProcessOmegaHarness(
   runtime: RuntimeProcessOptions,
-  options: DeepSeekHarnessOptions = {},
-): DeepSeekHarness {
-  const Constructor = DeepSeekHarness as new (
-    publicOptions: DeepSeekHarnessOptions,
+  options: OmegaHarnessOptions = {},
+): OmegaHarness {
+  const Constructor = OmegaHarness as new (
+    publicOptions: OmegaHarnessOptions,
     clientFactory: () => HarnessClient,
-  ) => DeepSeekHarness
+  ) => OmegaHarness
   return new Constructor({
     ...runtime.cwd === undefined ? {} : { processCwd: runtime.cwd },
     ...options,
@@ -164,7 +164,7 @@ export class HarnessSession {
    * @param harness - the owning harness (supplies the client and handshake).
    * @param id - the wire session id this handle runs on.
    */
-  constructor(readonly harness: DeepSeekHarness, readonly id: string) {}
+  constructor(readonly harness: OmegaHarness, readonly id: string) {}
 
   /**
    * Queue one prompt, then observe the whole session through its next idle.

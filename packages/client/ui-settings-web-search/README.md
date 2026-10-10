@@ -1,15 +1,15 @@
 ---
-description: "The DeepSeek web-search provider's settings page on the dsh web client's Plugins page: its API key, endpoint, and per-request search budget."
+description: "The Omega web-search provider's settings page on the dsh web client's Plugins page: its API key, endpoint, and per-request search budget."
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-settings-web-search
+# @omega-ai/dsh-client-ui-settings-web-search
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-Open **Plugins** in the sidebar and select **Web search** in the Official group to set the provider's key, endpoint, and how many times one request may search. The page stages what is typed and writes it only on save; the key is written through the credentials domain rather than the settings document, so its literal never rides a response. The page exists while the Host serves the `web-search-deepseek` namespace.
+Open **Plugins** in the sidebar and select **Web search** in the Official group to set the provider's key, endpoint, and how many times one request may search. The page stages what is typed and writes it only on save; the key is written through the credentials domain rather than the settings document, so its literal never rides a response. The page exists while the Host serves the `web-search-omega` namespace.
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ Open **Plugins** in the sidebar and select **Web search** in the Official group 
 <a id="use-this-package"></a>
 ## Use this package
 
-The **Web search** card in the Official group opens the page. **API key** starts blank on every load and reports only whether a key is configured; without one, it says that only conversations using a DeepSeek Account model can search, through the default endpoint, because those searches authenticate with the account sign-in; a blank draft keeps the stored key, and the control is disabled when the credential cannot be written from here, such as a key the process environment supplies. **Endpoint** and **Max searches per request** render the effective value, carry an **Overridden** badge with **Reset to default** once overridden, and save as a reset when emptied. Nothing is written until **Save**; leaving the page drops the drafts.
+The **Web search** card in the Official group opens the page. **API key** starts blank on every load and reports only whether a key is configured; without one, it says that only conversations using a Omega Account model can search, through the default endpoint, because those searches authenticate with the account sign-in; a blank draft keeps the stored key, and the control is disabled when the credential cannot be written from here, such as a key the process environment supplies. **Endpoint** and **Max searches per request** render the effective value, carry an **Overridden** badge with **Reset to default** once overridden, and save as a reset when emptied. Nothing is written until **Save**; leaving the page drops the drafts.
 
 -----
 
@@ -35,7 +35,7 @@ The **Web search** card in the Official group opens the page. **API key** starts
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The Host half is an empty `apply`, present only so the package holds a Loader row the client module system serves the browser half for. The browser half binds the `web-search-deepseek` namespace through `ctx.configForms.get` and keeps the staged form in `WebSearchCardController` over the shared `SettingsFormModel` of `ui-primitives`, with the key as the form's one secret control: its write goes to `remote.credentials.set` under the reference the section's `apiKeyEnv` names (`DEEPSEEK_API_KEY` when it names none), and success is read back from `remote.credentials.describe`. The controller re-reads the credential when the scope changes and when the Host reports `credentials/reference-updated` for the watched reference, since a key written on the Models page changes no settings section. The page registers `WebSearchCard` into the Plugins page's `plugins.item` slot through `ctx.configForms.whileServed`.
+The Host half is an empty `apply`, present only so the package holds a Loader row the client module system serves the browser half for. The browser half binds the `web-search-omega` namespace through `ctx.configForms.get` and keeps the staged form in `WebSearchCardController` over the shared `SettingsFormModel` of `ui-primitives`, with the key as the form's one secret control: its write goes to `remote.credentials.set` under the reference the section's `apiKeyEnv` names (`OMEGA_API_KEY` when it names none), and success is read back from `remote.credentials.describe`. The controller re-reads the credential when the scope changes and when the Host reports `credentials/reference-updated` for the watched reference, since a key written on the Models page changes no settings section. The page registers `WebSearchCard` into the Plugins page's `plugins.item` slot through `ctx.configForms.whileServed`.
 
 </details>
 
@@ -48,7 +48,7 @@ The Host half is an empty `apply`, present only so the package holds a Loader ro
 - [ui-settings](../ui-settings/README.md) — the settings scope and the served-namespace watch the page rides.
 - [ui-primitives](../ui-primitives/README.md) — the settings form model and fields the page renders.
 - [credentials](../../credentials/README.md) — the credential-reference seam the key writes through.
-- [web-search-deepseek](../../web/web-search-deepseek/README.md) — the provider that registers the namespace.
+- [web-search-omega](../../web/web-search-omega/README.md) — the provider that registers the namespace.
 
 -----
 

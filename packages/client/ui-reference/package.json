@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-client-ui-reference",
+  "name": "@omega-ai/dsh-client-ui-reference",
   "description": "Unified Web @file and @session reference source",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/client/ui-reference"
   },
   "type": "module",
@@ -28,12 +28,12 @@
   "dsh": {
     "client": {
       "inject": [
-        "@deepseek-ai/dsh-api-remotes",
-        "@deepseek-ai/dsh-api-session-controller",
-        "@deepseek-ai/dsh-client-connection",
-        "@deepseek-ai/dsh-client-locale",
-        "@deepseek-ai/dsh-client-ui-input-trigger",
-        "@deepseek-ai/dsh-client-ui-sidebar-right"
+        "@omega-ai/dsh-api-remotes",
+        "@omega-ai/dsh-api-session-controller",
+        "@omega-ai/dsh-client-connection",
+        "@omega-ai/dsh-client-locale",
+        "@omega-ai/dsh-client-ui-input-trigger",
+        "@omega-ai/dsh-client-ui-sidebar-right"
       ],
       "platform": "web"
     }
@@ -44,23 +44,23 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~"
+    "@omega-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-api-remotes": "workspace:*",
-    "@deepseek-ai/dsh-api-session-controller": "workspace:*",
-    "@deepseek-ai/dsh-client-connection": "workspace:*",
-    "@deepseek-ai/dsh-client-locale": "workspace:*",
-    "@deepseek-ai/dsh-client-test-runtime": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-input-trigger": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-primitives": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-slots": "workspace:*",
-    "@deepseek-ai/dsh-file-reference": "workspace:*",
-    "@deepseek-ai/dsh-session-reference": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*",
-    "@deepseek-ai/dsh-util-workspace-path": "workspace:*",
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-client-ui-sidebar-right": "workspace:*"
+    "@omega-ai/dsh-api-remotes": "workspace:*",
+    "@omega-ai/dsh-api-session-controller": "workspace:*",
+    "@omega-ai/dsh-client-connection": "workspace:*",
+    "@omega-ai/dsh-client-locale": "workspace:*",
+    "@omega-ai/dsh-client-test-runtime": "workspace:*",
+    "@omega-ai/dsh-client-ui-input-trigger": "workspace:*",
+    "@omega-ai/dsh-client-ui-primitives": "workspace:*",
+    "@omega-ai/dsh-client-ui-slots": "workspace:*",
+    "@omega-ai/dsh-file-reference": "workspace:*",
+    "@omega-ai/dsh-session-reference": "workspace:*",
+    "@omega-ai/dsh-typert-protocol": "workspace:*",
+    "@omega-ai/dsh-util-workspace-path": "workspace:*",
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-client-ui-sidebar-right": "workspace:*"
   },
   "files": [
     "lib/index.js",

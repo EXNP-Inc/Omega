@@ -1,7 +1,7 @@
 /** Client-safe configuration form views and change notifications. */
 
-import type { Branded } from '@deepseek-ai/dsh-brand'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+import type { Branded } from '@omega-ai/dsh-brand'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
 
 /** Nominal id of one profile plugin entry. */
 export type SettingsNamespace = Branded<'SettingsNamespace'>
@@ -22,7 +22,7 @@ export interface SettingsSecretView {
 export interface SettingsNamespaceView {
   /** Generate a page if no custom page is registered for this instance. */
   autoGenerate: boolean
-  /** Namespace key (`llm-deepseek`, `llm-pi-ai`, …). */
+  /** Namespace key (`llm-omega`, `llm-pi-ai`, …). */
   ns: string
   /** Serialized schemastery schema envelope (`schema.toJSON()`); rehydrate with `new Schema(json)`. */
   schema: JsonValue
@@ -63,7 +63,7 @@ export interface SettingsDescribeValue {
   namespaces: SettingsNamespaceView[]
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Events {
     /**
      * One profile entry's form values, availability, or page policy changed.

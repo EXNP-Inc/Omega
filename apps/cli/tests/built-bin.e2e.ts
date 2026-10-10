@@ -11,9 +11,9 @@ import {
   PROTOCOL_VERSION,
   type SessionNotification,
 } from '@agentclientprotocol/sdk'
-import { withFileLock, writeFileAtomic } from '@deepseek-ai/dsh-atomic-write'
-import { startMockLlmServer } from '@deepseek-ai/dsh-llm-mock-server'
-import { entryListSchema } from '@deepseek-ai/cordis-plugin-include'
+import { withFileLock, writeFileAtomic } from '@omega-ai/dsh-atomic-write'
+import { startMockLlmServer } from '@omega-ai/dsh-llm-mock-server'
+import { entryListSchema } from '@omega-ai/cordis-plugin-include'
 import { execa } from 'execa'
 import * as yaml from 'js-yaml'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -117,9 +117,9 @@ function createProfileLifecycleFixture(): ProfileLifecycleFixture {
   writeFileSync(join(bundleDir, 'cordis.patch.yml'), [
     '- insert:',
     '    - id: hmr-timer',
-    "      name: '@deepseek-ai/cordis-plugin-timer'",
+    "      name: '@omega-ai/cordis-plugin-timer'",
     '    - id: hmr',
-    "      name: '@deepseek-ai/dsh-hmr'",
+    "      name: '@omega-ai/dsh-hmr'",
     '      config:',
     '        root: []',
     '    - id: profile-lifecycle-fixture',
@@ -192,8 +192,8 @@ function createEnvironmentProbeProfile(home: string, project: string): void {
     '  void ctx.loader.await().then(async () => {',
     "    let text = ''",
     '    for await (const chunk of ctx.llm.stream({',
-    "      provider: 'deepseek-official',",
-    "      model: 'deepseek-v4-flash',",
+    "      provider: 'omega-official',",
+    "      model: 'omega-v4-flash',",
     '      messages: [],',
     '      maxTokens: 32,',
     '    })) {',
@@ -212,7 +212,7 @@ function createEnvironmentProbeProfile(home: string, project: string): void {
     name: 'dsh-profile-environment-probe',
     private: true,
     dependencies: {},
-    dsh: { profile: { bundles: ['@deepseek-ai/dsh-base'] } },
+    dsh: { profile: { bundles: ['@omega-ai/dsh-base'] } },
   }, undefined, 2))
   writeFileSync(join(profileDir, 'cordis.patch.yml'), [
     '- insert:',
@@ -235,7 +235,7 @@ interface StartupFixture {
  * A custom profile whose ordinary provider plugin injects `cmdlineArgs`, plus
  * a row that reads its app-owned service through a `!!js` config expression.
  * Both plugin modules resolve
- * `@deepseek-ai/dsh-cmdline` and `commander` through the profile module
+ * `@omega-ai/dsh-cmdline` and `commander` through the profile module
  * fallback, exactly as an installed out-of-tree bundle does.
  */
 function createStartupFixture(): StartupFixture {
@@ -248,7 +248,7 @@ function createStartupFixture(): StartupFixture {
   mkdirSync(bundleDir, { recursive: true })
   writeFileSync(join(bundleDir, 'startup.mjs'), [
     "import { Command } from 'commander'",
-    "import { parseCmdline } from '@deepseek-ai/dsh-cmdline'",
+    "import { parseCmdline } from '@omega-ai/dsh-cmdline'",
     "export const name = 'fixture-startup'",
     "export const inject = ['cmdlineArgs']",
     'export function apply(ctx) {',
@@ -287,9 +287,9 @@ function createStartupFixture(): StartupFixture {
   writeFileSync(join(bundleDir, 'cordis.patch.yml'), [
     '- insert:',
     '    - id: hmr-timer',
-    "      name: '@deepseek-ai/cordis-plugin-timer'",
+    "      name: '@omega-ai/cordis-plugin-timer'",
     '    - id: hmr',
-    "      name: '@deepseek-ai/dsh-hmr'",
+    "      name: '@omega-ai/dsh-hmr'",
     '      config:',
     '        root: []',
     '    - id: startup-fixture',
@@ -425,19 +425,19 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
     writeFileSync(patch, [
       '- insert:',
       '    - id: missing-sdk-startup-plugin',
-      '      name: "@deepseek-ai/dsh-missing-sdk-startup-plugin"',
+      '      name: "@omega-ai/dsh-missing-sdk-startup-plugin"',
       '',
     ].join('\n'))
     try {
       const result = await runBuiltBin(['--profile', 'sdk', '--patch', patch], {
         DSH_HOME: home,
         DSH_TELEMETRY_DISABLED: '1',
-        DEEPSEEK_API_KEY: 'built-sdk-startup-failure-no-call',
+        OMEGA_API_KEY: 'built-sdk-startup-failure-no-call',
       }, home)
       expect(result.code).toBe(0)
       expect(result.stdout).toBe('')
       expect(result.stderr).toContain('warning: 1 entry did not activate')
-      expect(result.stderr).toContain('@deepseek-ai/dsh-missing-sdk-startup-plugin')
+      expect(result.stderr).toContain('@omega-ai/dsh-missing-sdk-startup-plugin')
     } finally {
       rmSync(home, { recursive: true, force: true })
     }
@@ -465,7 +465,7 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
         ...process.env,
         DSH_HOME: home,
         DSH_TELEMETRY_DISABLED: '1',
-        DEEPSEEK_API_KEY: 'built-sdk-profile-no-call',
+        OMEGA_API_KEY: 'built-sdk-profile-no-call',
       },
       extendEnv: false,
     })
@@ -490,13 +490,13 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
         jsonrpc: '2.0',
         id: 1,
         method: 'initialize',
-        params: { cwd: home, provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        params: { cwd: home, provider: 'omega-official', model: 'omega-v4-flash' },
       })}\n`)
       const initialized = await response(1)
       expect(initialized, `${JSON.stringify(initialized)}\n${stderr}`).toMatchObject({
         jsonrpc: '2.0',
         id: 1,
-        result: { serverInfo: { name: 'deepseek-harness-sdk-runtime' } },
+        result: { serverInfo: { name: 'omega-harness-sdk-runtime' } },
       })
       child.stdin.write(`${JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'shutdown' })}\n`)
       expect(await response(2)).toEqual({ jsonrpc: '2.0', id: 2, result: {} })
@@ -521,7 +521,17 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
       successText: 'ACP BUILT PROFILE OK',
     })
     const home = mkdtempSync(join(tmpdir(), 'dsh-built-acp-'))
-    const child = execa(process.execPath, [dshBin, '--profile', 'acp'], {
+    // The mock speaks the Anthropic route, so pin the ACP session's provider
+    // route to it instead of the shipped pi-ai default.
+    const acpPatch = join(home, 'acp-mock-route.cordis.yml')
+    writeFileSync(acpPatch, [
+      '- id: acp',
+      '  config:',
+      '    provider: omega-official',
+      '    model: omega-v4-flash',
+      '',
+    ].join('\n'))
+    const child = execa(process.execPath, [dshBin, '--profile', 'acp', '--patch', acpPatch], {
       cwd: home,
       reject: false,
       timeout: SPAWN_TIMEOUT_MS,
@@ -530,8 +540,8 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
         ...process.env,
         DSH_HOME: home,
         DSH_TELEMETRY_DISABLED: '1',
-        DEEPSEEK_API_KEY: apiKey,
-        DEEPSEEK_BASE_URL: server.baseURL,
+        OMEGA_API_KEY: apiKey,
+        OMEGA_BASE_URL: server.baseURL,
         DSH_PERMISSION_MODE: 'danger-full-access',
       },
       extendEnv: false,
@@ -562,7 +572,7 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
         protocolVersion: PROTOCOL_VERSION,
         clientCapabilities: {},
       })
-      expect(initialized.agentInfo).toMatchObject({ name: 'deepseek-harness-acp' })
+      expect(initialized.agentInfo).toMatchObject({ name: 'omega-harness-acp' })
       expect(initialized.agentCapabilities).toEqual({
         mcpCapabilities: { http: true },
         promptCapabilities: { image: false, audio: false, embeddedContext: false },
@@ -606,12 +616,22 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
       successText: 'published headless profile reached the mock',
     })
     const home = mkdtempSync(join(tmpdir(), 'dsh-built-headless-'))
+    // The mock speaks the Anthropic route, so pin the profile default to it
+    // instead of the shipped pi-ai default.
+    const headlessPatch = join(home, 'headless-mock-route.cordis.yml')
+    writeFileSync(headlessPatch, [
+      '- id: agent-default-model',
+      '  config:',
+      '    provider: omega-official',
+      '    model: omega-v4-flash',
+      '',
+    ].join('\n'))
     try {
-      const result = await runBuiltBin(['--profile', 'headless', 'answer', 'from', 'the', 'published', 'entry'], {
+      const result = await runBuiltBin(['--profile', 'headless', '--patch', headlessPatch, 'answer', 'from', 'the', 'published', 'entry'], {
         DSH_HOME: home,
         DSH_TELEMETRY_DISABLED: '1',
-        DEEPSEEK_API_KEY: apiKey,
-        DEEPSEEK_BASE_URL: server.baseURL,
+        OMEGA_API_KEY: apiKey,
+        OMEGA_BASE_URL: server.baseURL,
       })
       expect(result.code, result.stderr).toBe(0)
       expect(result.stdout).toBe('published headless profile reached the mock')
@@ -685,7 +705,7 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
       }
       expect(manifest.dependencies).toEqual({})
       expect(manifest.dsh.profile).toEqual({
-        bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app'],
+        bundles: ['@omega-ai/dsh-base', '@omega-ai/dsh-web-app'],
       })
       expect(readFileSync(join(dir, 'cordis.patch.yml'), 'utf8')).toContain('[]')
       expect(readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')).toContain('nodeLinker: hoisted')
@@ -743,7 +763,7 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
     })
     const home = mkdtempSync(join(tmpdir(), 'dsh-home-environment-'))
     const project = mkdtempSync(join(tmpdir(), 'dsh-home-project-'))
-    writeFileSync(join(home, '.credentials.yaml'), `version: 1\nrefs:\n  DEEPSEEK_API_KEY: ${apiKey}\n`, { mode: 0o600 })
+    writeFileSync(join(home, '.credentials.yaml'), `version: 1\nrefs:\n  OMEGA_API_KEY: ${apiKey}\n`, { mode: 0o600 })
     createEnvironmentProbeProfile(home, project)
     try {
       const result = await runBuiltBin(
@@ -751,8 +771,8 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
         {
           DSH_HOME: home,
           DSH_TELEMETRY_DISABLED: '1',
-          DEEPSEEK_API_KEY: undefined,
-          DEEPSEEK_BASE_URL: server.baseURL,
+          OMEGA_API_KEY: undefined,
+          OMEGA_BASE_URL: server.baseURL,
         },
         project,
       )
@@ -780,7 +800,7 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
       const result = await runBuiltBin(['--profile', 'web', '--patch', invalidProvider, '--port', '0', '--no-open'], {
         DSH_HOME: home,
         DSH_BROWSER_OPEN_TEST_EXIT_ON_READY: '1',
-        DEEPSEEK_API_KEY: 'keyless-invalid-config',
+        OMEGA_API_KEY: 'keyless-invalid-config',
         DSH_TELEMETRY_DISABLED: '1',
         NODE_OPTIONS: `--import=${webReadyExitHook}`,
       })
@@ -1127,14 +1147,14 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
         dsh: { profile: { bundles: string[] } }
       }
       expect(Object.keys(installed.dependencies).sort()).toEqual(['bundle-alias', 'ordinary-library'])
-      expect(installed.dsh.profile.bundles).toEqual(['@deepseek-ai/dsh-base', 'bundle-alias'])
-      installed.dsh.profile.bundles = ['@deepseek-ai/dsh-base']
+      expect(installed.dsh.profile.bundles).toEqual(['@omega-ai/dsh-base', 'bundle-alias'])
+      installed.dsh.profile.bundles = ['@omega-ai/dsh-base']
       writeFileSync(manifestPath, JSON.stringify(installed))
       const refreshed = await runBuiltBin(['plugin', '--profile', 'alias', 'root'], { DSH_HOME: home }, home)
       expect(refreshed.code).toBe(0)
       expect(refreshed.stderr).not.toContain('declares no dsh.bundle')
       const active = JSON.parse(readFileSync(manifestPath, 'utf8')) as { dsh: { profile: { bundles: string[] } } }
-      expect(active.dsh.profile.bundles).toEqual(['@deepseek-ai/dsh-base'])
+      expect(active.dsh.profile.bundles).toEqual(['@omega-ai/dsh-base'])
       const removed = await runBuiltBin(['plugin', '--profile', 'alias', 'remove', 'bundle-alias'], { DSH_HOME: home }, home)
       expect(removed.code).toBe(0)
       const remaining = JSON.parse(readFileSync(manifestPath, 'utf8')) as {
@@ -1142,7 +1162,7 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
         dsh: { profile: { bundles: string[] } }
       }
       expect(Object.keys(remaining.dependencies)).toEqual(['ordinary-library'])
-      expect(remaining.dsh.profile.bundles).toEqual(['@deepseek-ai/dsh-base'])
+      expect(remaining.dsh.profile.bundles).toEqual(['@omega-ai/dsh-base'])
     } finally {
       rmSync(home, { recursive: true, force: true })
     }
@@ -1158,7 +1178,7 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
         name: 'dsh-profile-up',
         private: true,
         dependencies: { 'late-bundle': 'file:./late-bundle' },
-        dsh: { profile: { bundles: ['@deepseek-ai/dsh-base'] } },
+        dsh: { profile: { bundles: ['@omega-ai/dsh-base'] } },
       }))
       writeFileSync(join(profileDir, 'cordis.patch.yml'), '[]\n')
       // v1: no dsh manifest — a plain dependency.
@@ -1166,7 +1186,7 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
       const first = await runBuiltBin(['plugin', '--profile', 'up', 'root'], { DSH_HOME: home })
       expect(first.code).toBe(0)
       let manifest = JSON.parse(readFileSync(join(profileDir, 'package.json'), 'utf8')) as { dsh: { profile: { bundles: string[] } } }
-      expect(manifest.dsh.profile.bundles).toEqual(['@deepseek-ai/dsh-base'])
+      expect(manifest.dsh.profile.bundles).toEqual(['@omega-ai/dsh-base'])
       // v2: the installed package now declares dsh.bundle (an update landed).
       writeFileSync(join(installed, 'package.json'), JSON.stringify({
         name: 'late-bundle', version: '2.0.0', dsh: { bundle: { patch: './cordis.patch.yml' } },
@@ -1175,7 +1195,7 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
       const second = await runBuiltBin(['plugin', '--profile', 'up', 'root'], { DSH_HOME: home })
       expect(second.code).toBe(0)
       manifest = JSON.parse(readFileSync(join(profileDir, 'package.json'), 'utf8')) as { dsh: { profile: { bundles: string[] } } }
-      expect(manifest.dsh.profile.bundles).toEqual(['@deepseek-ai/dsh-base'])
+      expect(manifest.dsh.profile.bundles).toEqual(['@omega-ai/dsh-base'])
     } finally {
       rmSync(home, { recursive: true, force: true })
     }
@@ -1190,10 +1210,10 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
       const { stdout, code, stderr } = await runBuiltBin(['web', '--dump-default-config'], { DSH_HOME: home })
       expect(code).toBe(0)
       expect(stderr).toBe('')
-      expect(stdout).toContain("name: '@deepseek-ai/dsh-agent-loop'")
+      expect(stdout).toContain("name: '@omega-ai/dsh-agent-loop'")
       expect(stdout).toContain('agents: []')
-      expect(stdout).toContain('# == @deepseek-ai/dsh-base')
-      expect(stdout).toContain("name: '@deepseek-ai/dsh-host-webserver'")
+      expect(stdout).toContain('# == @omega-ai/dsh-base')
+      expect(stdout).toContain("name: '@omega-ai/dsh-host-webserver'")
       expect(existsSync(join(home, 'profiles', 'node_modules'))).toBe(false)
     }, SPAWN_TIMEOUT_MS + 30_000)
 
@@ -1204,7 +1224,7 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
       )
       expect(code).toBe(0)
       expect(stderr).toBe('')
-      expect(stdout).toContain('# == @deepseek-ai/dsh-web-app')
+      expect(stdout).toContain('# == @omega-ai/dsh-web-app')
       expect(existsSync(join(home, 'profiles', 'rescue', 'package.json'))).toBe(true)
     }, SPAWN_TIMEOUT_MS + 30_000)
 
@@ -1227,10 +1247,10 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
       )
       expect(code).toBe(0)
       expect(stderr).toBe('')
-      expect(stdout).toContain("name: '@deepseek-ai/dsh-headless'")
-      expect(stdout).not.toMatch(/name: '@deepseek-ai\/dsh-host-/)
-      expect(stdout).not.toContain("name: '@deepseek-ai/dsh-web-app'")
-      expect(stdout).not.toMatch(/name: '@deepseek-ai\/dsh-client-/)
+      expect(stdout).toContain("name: '@omega-ai/dsh-headless'")
+      expect(stdout).not.toMatch(/name: '@omega-ai\/dsh-host-/)
+      expect(stdout).not.toContain("name: '@omega-ai/dsh-web-app'")
+      expect(stdout).not.toMatch(/name: '@omega-ai\/dsh-client-/)
     }, SPAWN_TIMEOUT_MS + 30_000)
 
     it('prints the exact standalone sdk-minimal tree without dsh-base', async () => {
@@ -1242,37 +1262,37 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
       expect(stderr).toBe('')
       const rows = yaml.load(stdout, { schema: entryListSchema }) as Array<{ id?: string; name?: string }>
       expect(rows.map(row => [row.id, row.name])).toEqual([
-        ['sdk-app-startup', '@deepseek-ai/dsh-sdk-app'],
-        ['sdk-jsonrpc-server', '@deepseek-ai/dsh-sdk-jsonrpc-server'],
-        ['deepseek-llm-api-extensions', '@deepseek-ai/dsh-deepseek-llm-api-extensions'],
-        ['session-log-deepseek', '@deepseek-ai/dsh-session-log-deepseek'],
-        ['plugin-package-inventory-deepseek', '@deepseek-ai/dsh-plugin-package-inventory-deepseek'],
-        ['llm-deepseek', '@deepseek-ai/dsh-llm-deepseek-api-key'],
-        ['sandbox', '@deepseek-ai/dsh-sandbox-local'],
-        ['session-projection', '@deepseek-ai/dsh-session-projection'],
-        ['sandbox-policy', '@deepseek-ai/dsh-sandbox-policy'],
-        ['subprocess', '@deepseek-ai/dsh-subprocess-local'],
-        ['pty', '@deepseek-ai/dsh-terminal'],
-        ['terminal-bash', '@deepseek-ai/dsh-terminal-bash'],
-        ['terminal-pwsh', '@deepseek-ai/dsh-terminal-bash'],
-        ['timer', '@deepseek-ai/cordis-plugin-timer'],
-        ['llm', '@deepseek-ai/dsh-llm'],
-        ['session', '@deepseek-ai/dsh-session'],
-        ['session-title', '@deepseek-ai/dsh-session-title'],
-        ['system-prompt', '@deepseek-ai/dsh-system-prompt'],
-        ['tools', '@deepseek-ai/dsh-tools'],
-        ['mcp-resources', '@deepseek-ai/dsh-mcp-resources'],
-        ['agent', '@deepseek-ai/dsh-agent'],
-        ['llm-retry', '@deepseek-ai/dsh-llm-retry'],
-        ['jobs', '@deepseek-ai/dsh-jobs-local'],
-        ['agent-loop', '@deepseek-ai/dsh-agent-loop'],
-        ['persistent-bash', '@deepseek-ai/dsh-tool-bash-persistent'],
-        ['persistent-pwsh', '@deepseek-ai/dsh-tool-pwsh-persistent'],
-        ['sessions', '@deepseek-ai/dsh-session-persistence-jsonl'],
+        ['sdk-app-startup', '@omega-ai/dsh-sdk-app'],
+        ['sdk-jsonrpc-server', '@omega-ai/dsh-sdk-jsonrpc-server'],
+        ['omega-llm-api-extensions', '@omega-ai/dsh-omega-llm-api-extensions'],
+        ['session-log-omega', '@omega-ai/dsh-session-log-omega'],
+        ['plugin-package-inventory-omega', '@omega-ai/dsh-plugin-package-inventory-omega'],
+        ['llm-omega', '@omega-ai/dsh-llm-omega-api-key'],
+        ['sandbox', '@omega-ai/dsh-sandbox-local'],
+        ['session-projection', '@omega-ai/dsh-session-projection'],
+        ['sandbox-policy', '@omega-ai/dsh-sandbox-policy'],
+        ['subprocess', '@omega-ai/dsh-subprocess-local'],
+        ['pty', '@omega-ai/dsh-terminal'],
+        ['terminal-bash', '@omega-ai/dsh-terminal-bash'],
+        ['terminal-pwsh', '@omega-ai/dsh-terminal-bash'],
+        ['timer', '@omega-ai/cordis-plugin-timer'],
+        ['llm', '@omega-ai/dsh-llm'],
+        ['session', '@omega-ai/dsh-session'],
+        ['session-title', '@omega-ai/dsh-session-title'],
+        ['system-prompt', '@omega-ai/dsh-system-prompt'],
+        ['tools', '@omega-ai/dsh-tools'],
+        ['mcp-resources', '@omega-ai/dsh-mcp-resources'],
+        ['agent', '@omega-ai/dsh-agent'],
+        ['llm-retry', '@omega-ai/dsh-llm-retry'],
+        ['jobs', '@omega-ai/dsh-jobs-local'],
+        ['agent-loop', '@omega-ai/dsh-agent-loop'],
+        ['persistent-bash', '@omega-ai/dsh-tool-bash-persistent'],
+        ['persistent-pwsh', '@omega-ai/dsh-tool-pwsh-persistent'],
+        ['sessions', '@omega-ai/dsh-session-persistence-jsonl'],
       ])
-      expect(stdout).toContain('# == @deepseek-ai/dsh-sdk-minimal')
-      expect(stdout).not.toContain('@deepseek-ai/dsh-base')
-      expect(stdout).not.toContain('@deepseek-ai/dsh-web-app')
+      expect(stdout).toContain('# == @omega-ai/dsh-sdk-minimal')
+      expect(stdout).not.toContain('@omega-ai/dsh-base')
+      expect(stdout).not.toContain('@omega-ai/dsh-web-app')
     }, SPAWN_TIMEOUT_MS * 2 + 30_000)
 
     it('composes the profile user layer and a --patch overlay in order', async () => {

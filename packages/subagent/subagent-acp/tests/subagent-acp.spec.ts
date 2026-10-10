@@ -1,21 +1,21 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
+import { Context } from '@omega-ai/cordis'
+import Loader from '@omega-ai/cordis-plugin-loader'
 import { chmodSync, existsSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { PassThrough, type Readable } from 'node:stream'
 import { fileURLToPath } from 'node:url'
-import SubagentRuntime from '@deepseek-ai/dsh-subagent'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { MAX_TIMER_DELAY_MS } from '@deepseek-ai/dsh-timeout'
-import type { SubprocessHandle, SubprocessOutcome } from '@deepseek-ai/dsh-subprocess'
+import SubagentRuntime from '@omega-ai/dsh-subagent'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import type { Agent } from '@omega-ai/dsh-agent'
+import { MAX_TIMER_DELAY_MS } from '@omega-ai/dsh-timeout'
+import type { SubprocessHandle, SubprocessOutcome } from '@omega-ai/dsh-subprocess'
 import * as acp from '../src/index.ts'
 import * as acpRun from '../src/run.ts'
 import { acpStopReason, acpContentText, DEFAULT_DISPOSE_EOF_GRACE_MS, DEFAULT_DISPOSE_GRACE_MS, disposeAcpChild, startAcpRun, toAcpPrompt, type AcpRunSpec } from '../src/run.ts'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
-import { spawnSubprocess } from '@deepseek-ai/dsh-subprocess-local/src/spawn.ts'
+import LocalSubprocessRuntime from '@omega-ai/dsh-subprocess-local'
+import { spawnSubprocess } from '@omega-ai/dsh-subprocess-local/src/spawn.ts'
 
 /**
  * Keyless integration tests for the ACP subagent backend. Each spawns a REAL
@@ -223,12 +223,12 @@ describe('child env layering (through the subprocess seam)', () => {
           process.execPath,
           '--input-type=module',
           '--eval',
-          'process.stdout.write(JSON.stringify([process.env.ACP_TEST_AMBIENT_SECRET_TOKEN ?? "absent", process.env.DEEPSEEK_API_KEY]))',
+          'process.stdout.write(JSON.stringify([process.env.ACP_TEST_AMBIENT_SECRET_TOKEN ?? "absent", process.env.OMEGA_API_KEY]))',
         ],
         cwd: process.cwd(),
         stdio: { stdin: 'ignore', stdout: { maxBytes: 1000 }, stderr: { maxBytes: 1000 } },
         graceMs: 1000,
-        env: { DEEPSEEK_API_KEY: 'explicit' },
+        env: { OMEGA_API_KEY: 'explicit' },
       })
       await running.done
       expect(running.collected.stdout!.readFrom(0).text).toBe('["absent","explicit"]')

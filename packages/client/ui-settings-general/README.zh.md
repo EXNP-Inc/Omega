@@ -3,7 +3,7 @@ description: "dsh Web 客户端的设置外壳、无特定功能归属文案与�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-settings-general
+# @omega-ai/dsh-client-ui-settings-general
 
 [English](README.md) | 中文
 
@@ -92,7 +92,7 @@ Web 与桌面端的通用设置底部显示当前发布版本，使用构建注�
 
 - [ui-settings](../ui-settings/README.zh.md)——本外壳所依赖 slot 类型与 scope 服务所在的领域底座。
 - [ui-sidebar](../ui-sidebar/README.zh.md)——承载 `sidebar.settings` 席位的侧边栏外壳。
-- [ui-settings-models](../ui-settings-models/README.zh.md)——贡献 DeepSeek 引导步骤的功能包。
+- [ui-settings-models](../ui-settings-models/README.zh.md)——贡献 Omega 引导步骤的功能包。
 - [settings](../../settings/README.zh.md)——持久化用户设置 seam 及其文件提供方。
 - [slot 系统标准](../../../.agents/notes/implemented/architecture/2026-07-22-slot-type-chain-implementation.zh.md)——账本背后的组合模型。
 

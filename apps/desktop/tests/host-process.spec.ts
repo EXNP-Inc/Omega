@@ -52,9 +52,9 @@ process.on('message', message => {
 function projectWithHost(source = HTTP_HOST): string {
   const project = mkdtempSync(join(tmpdir(), 'dsh-desktop-host-test-'))
   roots.push(project)
-  const packageRoot = join(project, 'node_modules', '@deepseek-ai', 'dsh-desktop-host')
+  const packageRoot = join(project, 'node_modules', '@omega-ai', 'dsh-desktop-host')
   mkdirSync(join(packageRoot, 'lib'), { recursive: true })
-  writeFileSync(join(packageRoot, 'package.json'), '{"name":"@deepseek-ai/dsh-desktop-host","type":"module"}\n')
+  writeFileSync(join(packageRoot, 'package.json'), '{"name":"@omega-ai/dsh-desktop-host","type":"module"}\n')
   writeFileSync(join(packageRoot, 'lib', 'index.js'), source)
   return project
 }
@@ -217,18 +217,18 @@ describe('desktop host process', () => {
 })
 
 it.each([null, 'stable-account'])('carries Platform identity %s over private IPC and clears credentials on shutdown', async (userId) => {
-  const runtime = projectWithHost(HTTP_HOST.replace("process.send({ type: 'ready'", "process.send({ type: 'platform-session', session: { origin: 'https://platform.deepseek.com', userId: " + JSON.stringify(userId) + ", token: 'fixture-secret', embeddedPageDist: 'feat/test' } }); process.send({ type: 'ready'"))
+  const runtime = projectWithHost(HTTP_HOST.replace("process.send({ type: 'ready'", "process.send({ type: 'platform-session', session: { origin: 'https://platform.omega.com', userId: " + JSON.stringify(userId) + ", token: 'fixture-secret', embeddedPageDist: 'feat/test' } }); process.send({ type: 'ready'"))
   const changed = vi.fn()
   const host = new DesktopHostProcess(process.execPath, runtime, runtime, undefined, process.env, undefined, undefined, undefined, changed)
   hosts.push(host)
   await host.start()
-  expect(changed).toHaveBeenCalledWith({ origin: 'https://platform.deepseek.com', userId, token: 'fixture-secret', embeddedPageDist: 'feat/test' })
+  expect(changed).toHaveBeenCalledWith({ origin: 'https://platform.omega.com', userId, token: 'fixture-secret', embeddedPageDist: 'feat/test' })
   await host.stop()
   expect(changed).toHaveBeenLastCalledWith(null)
 })
 
 it.each([undefined, '', 7])('rejects malformed Platform account identity %s on private IPC', async (userId) => {
-  const session = { origin: 'https://platform.deepseek.com', token: 'fixture-secret', userId }
+  const session = { origin: 'https://platform.omega.com', token: 'fixture-secret', userId }
   const runtime = projectWithHost(HTTP_HOST.replace("process.send({ type: 'ready'",
     `process.send({ type: 'platform-session', session: ${JSON.stringify(session)} }); process.send({ type: 'ready'`))
   const changed = vi.fn()

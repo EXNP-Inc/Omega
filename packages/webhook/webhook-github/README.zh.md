@@ -3,7 +3,7 @@ description: "面向把已认证 JSON 事件路由到 webhook 运行时的部署
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-webhook-github
+# @omega-ai/dsh-webhook-github
 
 [English](README.md) | 中文
 
@@ -54,7 +54,7 @@ kind: "package-reference"
 <a id="dedicated-listener-composition"></a>
 ## 专用监听器组合
 
-普通 Web profile 已经拥有 `ctx.webServer`。把另一个 `dsh-host-webserver` 和此适配器挂载到仅隔离 `webServer` 的 group 内；适配器仍会继承凭据与 `webhookRuntime`。[GitHub 评审指南](../../../docs/user/guide/github-review.zh.md)在 TLS 反向代理后使用 `127.0.0.1:3081/github`，而 UI 继续位于端口 3080。
+普通 Web profile 已经拥有 `ctx.webServer`。把另一个 `dsh-host-webserver` 和此适配器挂载到仅隔离 `webServer` 的 group 内；适配器仍会继承凭据与 `webhookRuntime`。[GitHub 评审指南](../../../docs/user/guide/github-review.zh.md)在 TLS 反向代理后使用 `127.0.0.1:3081/github`，而 UI 继续位于端口 4080。
 
 <a id="model-experience"></a>
 ## 模型体验

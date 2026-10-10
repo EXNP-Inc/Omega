@@ -7,9 +7,9 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed, onTestFinished, vi } from 'vitest'
-import type { GenerateOptions, StreamChunk } from '@deepseek-ai/dsh-llm'
-import { LlmAdapter } from '@deepseek-ai/dsh-llm'
-import type {} from '@deepseek-ai/dsh-webhook'
+import type { GenerateOptions, StreamChunk } from '@omega-ai/dsh-llm'
+import { LlmAdapter } from '@omega-ai/dsh-llm'
+import type {} from '@omega-ai/dsh-webhook'
 import {
   captureExpandedTurnProcessAria,
   captureStableAria,
@@ -30,7 +30,7 @@ const EXPANDED_EXPECTED = fileURLToPath(
 const PROVIDER = 'github-webhook-review-test'
 const MODEL = 'reply'
 const SECRET = 'github-webhook-review-secret'
-const TITLE = 'Review deepseek-ai/deepseek-harness#314'
+const TITLE = 'Review omega-ai/omega-harness#314'
 const REPLY = 'Review complete: no actionable findings.'
 
 /** Deterministic model response for the webhook-created Session. */
@@ -130,10 +130,10 @@ describe.skipIf(MODE === 'record')('web e2e: GitHub ready-for-review', () => {
     const payload = {
       action: 'ready_for_review',
       number: 314,
-      repository: { full_name: 'deepseek-ai/deepseek-harness' },
+      repository: { full_name: 'omega-ai/omega-harness' },
       pull_request: {
         title: 'Fix session replay',
-        html_url: 'https://github.com/deepseek-ai/deepseek-harness/pull/314',
+        html_url: 'https://github.com/omega-ai/omega-harness/pull/314',
         draft: false,
         user: { login: 'octocat' },
         base: { ref: 'master', sha: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' },

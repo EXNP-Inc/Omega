@@ -3,7 +3,7 @@ description: "面向用户与维护者的文件型凭据提供方：选择、配
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-credentials-local
+# @omega-ai/dsh-credentials-local
 
 [English](README.md) | 中文
 
@@ -34,7 +34,7 @@ kind: "package-reference"
 ### 设置
 
 ```yaml
-- name: '@deepseek-ai/dsh-credentials-local'
+- name: '@omega-ai/dsh-credentials-local'
   config:
     path: /absolute/path/to/.credentials.yaml
 ```
@@ -46,19 +46,19 @@ kind: "package-reference"
 | `watch` | `true` | 文件在磁盘上变化时自动重载 |
 | `debounceMs` | `100` | 变化后等待这么久再重载，单位为毫秒 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-credentials-local)完整列出了所有受支持字段及其 JSDoc，是这些信息的真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-credentials-local)完整列出了所有受支持字段及其 JSDoc，是这些信息的真源。
 
 ### 存储与移除密钥
 
 用 `set` 保存密钥、用 `unset` 移除、用 `describe` 检查密钥是否已配置——与凭据 API 提供的操作相同：
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
-import { credentialRef } from '@deepseek-ai/dsh-credentials'
+import type { Context } from '@omega-ai/cordis'
+import { credentialRef } from '@omega-ai/dsh-credentials'
 
 declare const ctx: Context
 
-const ref = credentialRef('DEEPSEEK_API_KEY')
+const ref = credentialRef('OMEGA_API_KEY')
 await ctx.credentials.set(ref, 'sk-…')          // save
 await ctx.credentials.describe(ref)             // { configured, source?, writable } — never the value
 await ctx.credentials.unset(ref)                // remove
@@ -72,12 +72,12 @@ await ctx.credentials.unset(ref)                // remove
 
 | 位置 | 可写？ | 优先于 |
 |---|---|---|
-| 你启动时的环境（`DEEPSEEK_API_KEY=… dsh`） | 否 | 一切 |
+| 你启动时的环境（`OMEGA_API_KEY=… dsh`） | 否 | 一切 |
 | 存储文件 | 是（`set`/`unset`） | 两个 `.env` 文件 |
 | 项目的 `.env`（`<invocation cwd>/.env`） | 不在此处 | 主目录 `.env` |
 | 主目录的 `.env`（`$DSH_HOME/.env`） | 不在此处 | 无 |
 
-启动环境优先，因为按次覆盖——`DEEPSEEK_API_KEY=… dsh`、CI 机密、容器 `-e`——代表本次运行的明确意图；它无法从产品内部修改，因此被报告为只读，写入会被拒绝。其他一切来源都输给存储文件，这正是你保存的密钥会立即生效的原因，即使某个 `.env` 里还留着更旧的密钥；没有存储任何东西时，那两个 `.env` 层会参与解析。环境层是启动时拍摄的启动器[环境快照](../../util/launch-environment/README.zh.md)，因此启动之后才导出的变量不会被看到。
+启动环境优先，因为按次覆盖——`OMEGA_API_KEY=… dsh`、CI 机密、容器 `-e`——代表本次运行的明确意图；它无法从产品内部修改，因此被报告为只读，写入会被拒绝。其他一切来源都输给存储文件，这正是你保存的密钥会立即生效的原因，即使某个 `.env` 里还留着更旧的密钥；没有存储任何东西时，那两个 `.env` 层会参与解析。环境层是启动时拍摄的启动器[环境快照](../../util/launch-environment/README.zh.md)，因此启动之后才导出的变量不会被看到。
 
 ### 凭据文件本身
 
@@ -87,7 +87,7 @@ await ctx.credentials.unset(ref)                // remove
 version: 1
 
 refs:
-  DEEPSEEK_API_KEY: sk-…
+  OMEGA_API_KEY: sk-…
   OPENAI_API_KEY: sk-…
 
 records:
@@ -116,7 +116,7 @@ records:
 
 ### 可能出错的地方
 
-- **启动环境提供的密钥是只读的**——`DEEPSEEK_API_KEY=… dsh` 在本轮运行中优先，保存或移除它都会被拒绝。请先在启动 shell 中清除该变量。
+- **启动环境提供的密钥是只读的**——`OMEGA_API_KEY=… dsh` 在本轮运行中优先，保存或移除它都会被拒绝。请先在启动 shell 中清除该变量。
 - **空值无法保存**——存储空字符串会被拒绝；请改为移除密钥。
 - **存储拒绝加载它无法信任的文件**——任何其他用户可读的文件、格式错误的 YAML 或无法访问的路径都会在启动时失败；运行期热重载则保留最后可用内容并告警。
 - **同一时刻的修改都会被保留**——如果你在产品写入的同时编辑文件，你的变更会被并入，而不是被覆盖。

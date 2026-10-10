@@ -1,0 +1,57 @@
+{
+  "name": "@omega-ai/dsh-web-search-omega",
+  "description": "Omega-backed search provider (native web_search via the Anthropic-compatible API) for the Omega web capability seam (ctx.web)",
+  "version": "0.2.1-alpha.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
+    "directory": "packages/web/web-search-omega"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-credentials": "workspace:*",
+    "@omega-ai/dsh-omega-account": "workspace:*",
+    "@omega-ai/dsh-launch-environment": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-web": "workspace:*",
+    "@omega-ai/cordis": "workspace:~"
+  },
+  "dependencies": {
+    "@omega-ai/schemastery": "workspace:~"
+  },
+  "devDependencies": {
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-credentials": "workspace:*",
+    "@omega-ai/dsh-credentials-local": "workspace:*",
+    "@omega-ai/dsh-omega-account": "workspace:*",
+    "@omega-ai/dsh-launch-environment": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-web": "workspace:*",
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-http-proxy": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+    "@omega-ai/dsh-omega-account": {
+      "optional": true
+    }
+  }
+}

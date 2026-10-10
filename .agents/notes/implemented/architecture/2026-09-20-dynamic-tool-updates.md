@@ -16,7 +16,7 @@ Plugin and MCP tools change during conversations. Providers differ in whether th
 
 Loop and compaction requests carry this snapshot as `GenerateOptions.toolHistory`. At adapter dispatch, `projectToolUpdates` uses the prepared route's `toolUpdate`. Unsupported routes receive active definitions without `deferLoading` or developer messages. Supported routes defer historical additions; `in-history` retains removed definitions and removal blocks, while `addition-only` omits both. Only current-series update identities survive. Missing history or a request prefix omitting recorded updates uses current declarations without developer updates. Explicit deferred loading remains available on capable routes.
 
-DeepSeek translates projected updates into system-role `tool_addition` and `tool_removal` blocks and `defer_loading` declarations, sending the tool-changes beta header when update blocks occur. The default `deepseek-flash` entry declares `addition-only`; pi-ai declares no mode. Chat and Trajectory display developer messages as context nodes, using localized tool-change notices: single changes show the tool name; multiple changes show counts and expandable name lists.
+Omega translates projected updates into system-role `tool_addition` and `tool_removal` blocks and `defer_loading` declarations, sending the tool-changes beta header when update blocks occur. The default `omega-flash` entry declares `addition-only`; pi-ai declares no mode. Chat and Trajectory display developer messages as context nodes, using localized tool-change notices: single changes show the tool name; multiple changes show counts and expandable name lists.
 
 ## Alternatives considered
 
@@ -34,4 +34,4 @@ Tool lists and logical update events are capability-independent; only outgoing d
 
 The authored [headless prompt/tool scenario](../../../../snapshots/session/dynamic-tool-prompt-updates/snapshot.yml) pins an appended prompt beside a deferred tool addition and verifies that the first request's messages stay unchanged. It shares the stable-prompt scenario's tool lifecycle and schema expectations.
 
-The [real DeepSeek SDK test](../../../../apps/cli/tests/profiles/sdk/dynamic-tool-cache.e2e.ts) measures the first request after a native tool addition with both unchanged and simultaneously updated instructions. Unique user history prevents a shared system-prompt cache hit from satisfying the preceding-input assertion. Removal checks tool availability without requiring cache retention; each case disables retries.
+The [real Omega SDK test](../../../../apps/cli/tests/profiles/sdk/dynamic-tool-cache.e2e.ts) measures the first request after a native tool addition with both unchanged and simultaneously updated instructions. Unique user history prevents a shared system-prompt cache hit from satisfying the preceding-input assertion. Removal checks tool availability without requiring cache retention; each case disables retries.

@@ -33,7 +33,7 @@ try {
   createPluginProfile(profile)
   await writeFile(join(project, 'desktop-runtime.json'), JSON.stringify({
     schemaVersion: 1, release, ...desktopTargetPlatform(target), files: [],
-    sharedPackages: ['@deepseek-ai/dsh', '@deepseek-ai/dsh-desktop-host']
+    sharedPackages: ['@omega-ai/dsh', '@omega-ai/dsh-desktop-host']
       .map(name => ({ name, version: manifest.version, path: `node_modules/${name}` })),
   }))
   await cp(join(repo, 'apps/desktop/lib/types'), join(application, 'lib'), { recursive: true })
@@ -51,7 +51,7 @@ try {
     process.platform === 'win32' ? 'junction' : 'dir')
   await writeFile(join(profile, 'cordis.patch.yml'), JSON.stringify([
     { id: 'webserver', config: { host: '127.0.0.1', port: 0 } },
-    { id: 'llm-deepseek', disabled: true }, { id: 'session-title-llm', disabled: true },
+    { id: 'llm-omega', disabled: true }, { id: 'session-title-llm', disabled: true },
     { id: 'session-telemetry-otel', disabled: true },
     { id: 'agent-preset-registry', config: { default: 'standard' } },
     { insert: [{ id: 'update-control', name: new URL('../tests/fixtures/workspace-update-host.mjs', import.meta.url).href }] },

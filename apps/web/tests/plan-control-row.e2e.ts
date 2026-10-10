@@ -11,8 +11,8 @@ import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
 // Type-only: pulls the plan/mode SessionEventMap merge so the discriminant
 // filter below types as the plan-mode event in the host aggregate.
-import type {} from '@deepseek-ai/dsh-plan-mode'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
+import type {} from '@omega-ai/dsh-plan-mode'
+import type { SessionEvent } from '@omega-ai/dsh-session'
 import {
   assertFixtureInventory, compareOrRefreshGolden,
   launchWebScaffold, watchConsole, webSnapshotMode, type WebScaffold,
@@ -29,8 +29,8 @@ const VIEWPORT = { width: 800, height: 720 } as const
 
 /** Chip aria-label on the English page; the seat renders only while plan is the effective target. */
 const CHIP_ARIA = 'Plan mode on, press to turn off'
-const SHORT_MODEL = 'DeepSeek-V4-Flash'
-const LONG_MODEL = 'DeepSeek-V4-Flash-Vision-Exp'
+const SHORT_MODEL = 'Omega-V4-Flash'
+const LONG_MODEL = 'Omega-V4-Flash-Vision-Exp'
 
 /** Observe painted controls rather than the composer's internal compact flag. */
 async function controlLayout(page: Page) {
@@ -142,7 +142,7 @@ describe('web e2e: plan chip click area at the narrow viewport', () => {
     // The regression depends on the real model label width: a bare fallback
     // trigger would fit beside the chip even on the pre-fix layout. The
     // directory loads asynchronously, so poll for the real label.
-    await expect.poll(() => trigger.getAttribute('aria-label'), { timeout: 10_000 }).toContain('DeepSeek-V4-Flash')
+    await expect.poll(() => trigger.getAttribute('aria-label'), { timeout: 10_000 }).toContain('Omega-V4-Flash')
     const chipBox = await chip.boundingBox()
     const triggerBox = await trigger.boundingBox()
     expect(chipBox).not.toBeNull()

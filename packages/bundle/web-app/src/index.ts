@@ -1,5 +1,5 @@
 /**
- * @deepseek-ai/dsh-web-app — the browser-surface bundle's runtime glue plugin
+ * @omega-ai/dsh-web-app — the browser-surface bundle's runtime glue plugin
  * plus the bundle patch (`cordis.patch.yml`, declared by the `dsh.bundle.patch`
  * manifest field). The plugin owns the browser-surface glue: it resolves
  * the built frontend dist (workspace knowledge of this bundle, never user
@@ -9,7 +9,7 @@
  * advertised `publicUrl` replaces the published root — the loopback URL
  * otherwise. App command-line values arrive through the `webStartup` service
  * expressions in the bundle patch.
- * @module @deepseek-ai/dsh-web-app
+ * @module @omega-ai/dsh-web-app
  */
 
 import { spawn, type ChildProcess } from 'node:child_process'
@@ -17,16 +17,16 @@ import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 import { networkInterfaces } from 'node:os'
 import { fileURLToPath } from 'node:url'
-import type { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import { addHarnessSourceSection, auditStartupEntries } from '@deepseek-ai/dsh-app-boot'
-import type {} from '@deepseek-ai/dsh-client-connection'
-import * as FrontendStatic from '@deepseek-ai/dsh-host-frontend-static'
-import { launchedThroughSsh, launchEnvironmentOf } from '@deepseek-ai/dsh-launch-environment'
-import { scrubbedParentEnv } from '@deepseek-ai/dsh-subprocess'
-import type {} from '@deepseek-ai/cordis-plugin-loader'
-import type {} from '@deepseek-ai/dsh-host-webserver'
-import type {} from '@deepseek-ai/dsh-shell-env'
+import type { Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
+import { addHarnessSourceSection, auditStartupEntries } from '@omega-ai/dsh-app-boot'
+import type {} from '@omega-ai/dsh-client-connection'
+import * as FrontendStatic from '@omega-ai/dsh-host-frontend-static'
+import { launchedThroughSsh, launchEnvironmentOf } from '@omega-ai/dsh-launch-environment'
+import { scrubbedParentEnv } from '@omega-ai/dsh-subprocess'
+import type {} from '@omega-ai/cordis-plugin-loader'
+import type {} from '@omega-ai/dsh-host-webserver'
+import type {} from '@omega-ai/dsh-shell-env'
 import { parsePublicUrl } from './public-url.ts'
 
 /** Stable Cordis plugin name. */
@@ -147,7 +147,7 @@ function webSurfacePrompt(webUrl: string): string {
   const updateContract = 'The client-plugin HMR receiver is active, but client-plugin changes reload without a refresh only while '
     + '`pnpm run dev:web` is also running from this same checkout to rebuild their bundles; verify that watcher before promising automatic updates. '
     + 'Every other change — the apps/web shell and plain packages — requires rebuilding the affected Web artifacts and verifying this existing URL after a page refresh. '
-  return `You are interacting with the user through the DeepSeek Harness Web GUI at ${webUrl}. `
+  return `You are interacting with the user through the Omega Web GUI at ${webUrl}. `
     + 'When the user refers to "this page", "this GUI", or "this app" without naming another target, they mean this GUI. '
     + 'The browser provides no implicit DOM, route, or screenshot context. '
     + updateContract
@@ -178,10 +178,10 @@ function appRootUrl(ctx: Context, publicUrl: string | undefined): string {
 function resolveDistIndex(): string {
   const require = createRequire(import.meta.url)
   try {
-    return join(dirname(require.resolve('@deepseek-ai/dsh-web-frontend/package.json')), 'dist', 'index.html')
+    return join(dirname(require.resolve('@omega-ai/dsh-web-frontend/package.json')), 'dist', 'index.html')
   } catch {
     /* v8 ignore next 2 -- reachable only when the frontend package is absent from the checkout */
-    throw new Error('web-app: @deepseek-ai/dsh-web-frontend is not resolvable from this composition')
+    throw new Error('web-app: @omega-ai/dsh-web-frontend is not resolvable from this composition')
   }
 }
 
@@ -262,7 +262,7 @@ export function apply(ctx: Context, config: Config): void {
       runtimeCtx.shellEnv.register({
         name: 'web-runtime',
         variables: {
-          [DSH_WEB_URL]: { description: 'Advertised URL of the DeepSeek Harness Web GUI serving this session.' },
+          [DSH_WEB_URL]: { description: 'Advertised URL of the Omega Web GUI serving this session.' },
         },
         resolve: () => ({ [DSH_WEB_URL]: appRootUrl(runtimeCtx, publicUrl) }),
       })

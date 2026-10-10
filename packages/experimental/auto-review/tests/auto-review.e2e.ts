@@ -2,36 +2,36 @@ import { randomUUID } from 'node:crypto'
 import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import { mountAgentLoopTestDependencies } from '@deepseek-ai/dsh-agent-loop-testkit'
-import { SandboxBashExecutor } from '@deepseek-ai/dsh-bash-sandbox'
-import { NodePtcRuntime } from '@deepseek-ai/dsh-ptc-runtime-node'
-import * as FsObservationPolicy from '@deepseek-ai/dsh-fs-observation-policy'
-import { SandboxedFileSystem } from '@deepseek-ai/dsh-fs-sandbox'
+import { Context } from '@omega-ai/cordis'
+import type { Agent } from '@omega-ai/dsh-agent'
+import AgentLoop from '@omega-ai/dsh-agent-loop'
+import { mountAgentLoopTestDependencies } from '@omega-ai/dsh-agent-loop-testkit'
+import { SandboxBashExecutor } from '@omega-ai/dsh-bash-sandbox'
+import { NodePtcRuntime } from '@omega-ai/dsh-ptc-runtime-node'
+import * as FsObservationPolicy from '@omega-ai/dsh-fs-observation-policy'
+import { SandboxedFileSystem } from '@omega-ai/dsh-fs-sandbox'
 import {
   createUserMessage, isAgentLoopRequest, ToolCallId,
   type StreamChunk,
-} from '@deepseek-ai/dsh-llm'
-import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
-import PermissionPresetService, { AUTO_PRESET } from '@deepseek-ai/dsh-permission-presets'
-import SandboxProvider, { type ConfinedArgv, type SandboxPolicy } from '@deepseek-ai/dsh-sandbox'
-import SandboxPolicyService from '@deepseek-ai/dsh-sandbox-policy'
-import { SessionId, type SessionEvent } from '@deepseek-ai/dsh-session'
-import * as ShellEnv from '@deepseek-ai/dsh-shell-env'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
-import * as ToolBash from '@deepseek-ai/dsh-tool-bash'
-import * as ToolFs from '@deepseek-ai/dsh-tool-fs'
-import { RUN_CODE_NAME } from '@deepseek-ai/dsh-tools'
-import ApprovalService, { setApprovalPolicy } from '@deepseek-ai/dsh-user-approval'
+} from '@omega-ai/dsh-llm'
+import * as LlmOmega from '@omega-ai/dsh-llm-omega-api-key'
+import PermissionPresetService, { AUTO_PRESET } from '@omega-ai/dsh-permission-presets'
+import SandboxProvider, { type ConfinedArgv, type SandboxPolicy } from '@omega-ai/dsh-sandbox'
+import SandboxPolicyService from '@omega-ai/dsh-sandbox-policy'
+import { SessionId, type SessionEvent } from '@omega-ai/dsh-session'
+import * as ShellEnv from '@omega-ai/dsh-shell-env'
+import LocalSubprocessRuntime from '@omega-ai/dsh-subprocess-local'
+import * as ToolBash from '@omega-ai/dsh-tool-bash'
+import * as ToolFs from '@omega-ai/dsh-tool-fs'
+import { RUN_CODE_NAME } from '@omega-ai/dsh-tools'
+import ApprovalService, { setApprovalPolicy } from '@omega-ai/dsh-user-approval'
 import { expect, it, vi } from 'vitest'
-import * as AutoReview from '@deepseek-ai/dsh-experimental-auto-review'
+import * as AutoReview from '@omega-ai/dsh-experimental-auto-review'
 
-const PROVIDER = 'deepseek-official'
-const FLASH = 'deepseek-v4-flash'
-const PRO = 'deepseek-v4-pro'
-const VISION = 'deepseek-v4-flash-vision-exp'
+const PROVIDER = 'omega-official'
+const FLASH = 'omega-v4-flash'
+const PRO = 'omega-v4-pro'
+const VISION = 'omega-v4-flash-vision-exp'
 const REAL = process.env.DSH_AUTO_REVIEW_CERTIFICATION === '1'
 const DENIED = 'AUTO_REVIEW_DENIED'
 type Risk = 'low' | 'medium' | 'high'
@@ -133,7 +133,7 @@ async function mount(ctx: Context, workspace: string, dshHome: string): Promise<
     systemPrompt: {}, tools: { mode: 'both' },
   })
   // No reasoning or output-budget override: use each shipped model's defaults.
-  await ctx.plugin(LlmDeepSeek, { retryPolicy: { mode: 'normal', maxRetries: 0 } })
+  await ctx.plugin(LlmOmega, { retryPolicy: { mode: 'normal', maxRetries: 0 } })
   await ctx.plugin(SandboxPolicyService, { mode: 'workspace-write', workspaceRoot: workspace })
   await ctx.plugin(UnusedSandbox)
   await ctx.plugin(SandboxedFileSystem, { cwd: workspace })
@@ -250,7 +250,7 @@ async function missing(path: string): Promise<boolean> {
 it('certifies eight Auto risk/authorization cases with zero retries and zero skipped', {
   retry: 0, timeout: 1_800_000,
 }, async () => {
-  if (REAL && !process.env.DEEPSEEK_API_KEY) throw new Error('Real Auto certification requires DEEPSEEK_API_KEY')
+  if (REAL && !process.env.OMEGA_API_KEY) throw new Error('Real Auto certification requires OMEGA_API_KEY')
   const root = await mkdtemp(join(tmpdir(), 'dsh-auto-review-'))
   const ctx = new Context()
   try {

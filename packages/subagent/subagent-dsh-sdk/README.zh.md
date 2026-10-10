@@ -3,13 +3,13 @@ description: "面向用户与维护者的进程外 SDK subagent 后端，用于�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-subagent-dsh-sdk
+# @omega-ai/dsh-subagent-dsh-sdk
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-subagent-dsh-sdk` 在全新的 DeepSeek Harness 子进程中运行每个委派任务，子进程拥有自己的 profile、会话、模型路由与工具。父级提供任务与工作目录，每个子进程使用其已配置的运行时，并与父级对话保持隔离。父级只会收到子进程最终的 assistant 文本或安全错误；中间消息与工具流量保留在子进程内。当委派需要完整的 Harness 运行时而不是共享进程内状态时，选择此后端，并接受每次运行都要启动新进程的成本。
+`dsh-subagent-dsh-sdk` 在全新的 Omega 子进程中运行每个委派任务，子进程拥有自己的 profile、会话、模型路由与工具。父级提供任务与工作目录，每个子进程使用其已配置的运行时，并与父级对话保持隔离。父级只会收到子进程最终的 assistant 文本或安全错误；中间消息与工具流量保留在子进程内。当委派需要完整的 Harness 运行时而不是共享进程内状态时，选择此后端，并接受每次运行都要启动新进程的成本。
 
 ## 目录
 
@@ -43,21 +43,21 @@ kind: "package-reference"
 | `patches` | `[]` | 每次启动的有序 profile patch 文件，在插件加载时解析并校验 |
 | `dshHome` | 必填 | 每个嵌套子进程的绝对隔离 Harness home |
 | `cwd` | 父会话 cwd | 子进程及其 SDK 会话的工作目录覆盖值 |
-| `provider` | `deepseek-official` | 写入子进程 `initialize` 的提供方路由 |
-| `model` | `deepseek-v4-flash` | 写入子进程 `initialize` 的模型 |
+| `provider` | `omega-official` | 写入子进程 `initialize` 的提供方路由 |
+| `model` | `omega-v4-flash` | 写入子进程 `initialize` 的模型 |
 | `maxTokens` | 适配器／提供方路由默认值 | 写入子进程 `initialize` 的单次请求输出 token 上限 |
 | `env` | `{}` | 叠加在已清理凭据的父环境之上的显式子环境 |
 | `shutdownTimeoutMs` | `1000` | dispose（资源释放）期间协议 `shutdown` 交换的时限 |
 | `disposeEofGraceMs` | `6000` | stdin EOF 之后、平台终止之前的宽限 |
 | `disposeGraceMs` | `3000` | 终止后的退出确认宽限 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-subagent-dsh-sdk)是每个受支持字段及其 JSDoc 的穷尽式真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-subagent-dsh-sdk)是每个受支持字段及其 JSDoc 的穷尽式真源。
 
 请求 `agentOptions` 会分别覆盖 `provider`、`model` 与 `maxTokens`。`reasoningEffort` 没有提供方实例默认值：请求省略时保持缺省，由所选子模型解析自身默认值。面向模型的 subagent 工具可在每次调用时选择提供方／模型／推理强度；`maxTokens` 仍由工具配置或本提供方默认值在部署侧控制。
 
 ```yaml
 - id: subagent-dsh-sdk
-  name: '@deepseek-ai/dsh-subagent-dsh-sdk'
+  name: '@omega-ai/dsh-subagent-dsh-sdk'
   config:
     providerName: dsh-sdk
     profile: sdk
@@ -65,9 +65,9 @@ kind: "package-reference"
     dshHome: !!js dshHomePath('children')
     maxTokens: 49152
     env:
-      DEEPSEEK_API_KEY: !!js process.env.DEEPSEEK_API_KEY
+      OMEGA_API_KEY: !!js process.env.OMEGA_API_KEY
 - id: tool-subagent
-  name: '@deepseek-ai/dsh-tool-subagent'
+  name: '@omega-ai/dsh-tool-subagent'
   config: { provider: dsh-sdk, toolName: subagent, maxDepth: 'provider-managed' }
 ```
 
@@ -127,7 +127,7 @@ kind: "package-reference"
 - [dsh-subagent seam](../subagent/README.zh.md)——本提供方注册于其上的注册表与启动 API。
 - [ACP subagent 后端](../subagent-acp/README.zh.md)——经 Agent Client Protocol 的兄弟进程外提供方。
 - [TypeScript SDK 客户端](../../sdk/client/README.zh.md)——本后端用以驱动子进程的 stdio JSON-RPC 客户端。
-- [生成配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-subagent-dsh-sdk)——每个受支持配置字段及其源声明。
+- [生成配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-subagent-dsh-sdk)——每个受支持配置字段及其源声明。
 
 -----
 

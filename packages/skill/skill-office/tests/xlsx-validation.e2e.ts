@@ -4,16 +4,16 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execa } from 'execa'
 import { describe, expect, it } from 'vitest'
-import { runLoaderSmoke } from '@deepseek-ai/dsh-loader-smoke'
-import { readImageFile } from '@deepseek-ai/dsh-attachment-local'
-import { parseSessionLog } from '@deepseek-ai/dsh-llm-replay'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
+import { runLoaderSmoke } from '@omega-ai/dsh-loader-smoke'
+import { readImageFile } from '@omega-ai/dsh-attachment-local'
+import { parseSessionLog } from '@omega-ai/dsh-llm-replay'
+import type { SessionEvent } from '@omega-ai/dsh-session'
 
 const repo = fileURLToPath(new URL('../../../../', import.meta.url))
 // DSH_PRIMARY_RUNTIME names the same runtime.json + dependencies/ payload used by shipped deployments.
 const runtime = process.env.DSH_PRIMARY_RUNTIME
 const python = runtime && join(runtime, 'dependencies/python', process.platform === 'win32' ? 'python.exe' : 'bin/python3')
-const model = process.env.MODEL_NAME ?? 'deepseek-flash'
+const model = process.env.MODEL_NAME ?? 'omega-flash'
 // Development gateways can expose Chat Completions without the official Messages API.
 const completions = process.env.DSH_OFFICE_TEST_API === 'openai-completions'
 
@@ -62,7 +62,7 @@ const cases = [
   },
 ] as const
 
-describe.skipIf(!process.env.DEEPSEEK_API_KEY || !runtime)('Excel validation scope', () => {
+describe.skipIf(!process.env.OMEGA_API_KEY || !runtime)('Excel validation scope', () => {
   it.each(cases)('$name', async ({ task, kind }) => {
     let events: SessionEvent[] = []
     let original: Buffer | undefined
@@ -115,20 +115,20 @@ process.exitCode = result.status ?? 1;
         }
         await writeFile(join(cwd, 'office.patch.json'), JSON.stringify([
           { insert: [
-            { id: 'office-validation', name: '@deepseek-ai/dsh-skill-office', ...kind === 'blank' ? { config: { cli: fixtureCli } } : {} },
-            { id: 'office-dependencies', name: '@deepseek-ai/dsh-tool-workspace-dependencies', config: { source: runtime } },
+            { id: 'office-validation', name: '@omega-ai/dsh-skill-office', ...kind === 'blank' ? { config: { cli: fixtureCli } } : {} },
+            { id: 'office-dependencies', name: '@omega-ai/dsh-tool-workspace-dependencies', config: { source: runtime } },
           ] },
           ...completions ? [
-            { id: 'llm-deepseek', disabled: true },
+            { id: 'llm-omega', disabled: true },
             { id: 'llm-pi-ai', config: { providers: { 'office-test': {
-              api: 'openai-completions', apiKeyEnv: 'DEEPSEEK_API_KEY', baseURL: process.env.DEEPSEEK_BASE_URL,
-              compat: { thinkingFormat: 'deepseek' },
+              api: 'openai-completions', apiKeyEnv: 'OMEGA_API_KEY', baseURL: process.env.OMEGA_BASE_URL,
+              compat: { thinkingFormat: 'omega' },
               models: [{ id: model, contextWindow: 128000, maxTokens: 8192, input: ['text', 'image'] }],
             } } } },
-          ] : [{ id: 'llm-deepseek', config: { thinking: 'enabled', reasoningEffort: 'high', maxTokens: 8192,
+          ] : [{ id: 'llm-omega', config: { thinking: 'enabled', reasoningEffort: 'high', maxTokens: 8192,
             models: [{ id: model, contextWindow: 128000, maxTokens: 8192, inputModalities: ['text', 'image'] }],
           } }],
-          { id: 'agent-default-model', config: { provider: completions ? 'office-test' : 'deepseek-official', model } },
+          { id: 'agent-default-model', config: { provider: completions ? 'office-test' : 'omega-official', model } },
           { id: 'attachment-local', config: { dshHome: join(cwd, '.image-store') } },
           { id: 'session-persistence-jsonl', config: { root: join(cwd, '.sessions'), compression: 'none' } },
         ]))

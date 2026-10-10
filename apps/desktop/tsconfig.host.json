@@ -15,7 +15,7 @@
       "path": "../../packages/util/home-paths"
     },
     {
-      "path": "../../packages/credentials/deepseek-account"
+      "path": "../../packages/credentials/omega-account"
     },
     {
       "path": "../../packages/api/gateway/tsconfig.host.json"

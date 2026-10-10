@@ -16,7 +16,7 @@ async function fixture<T>(body: (manifest: string) => Promise<T>): Promise<T> {
     for (const version of versions) {
       const output = join(run.root, version, 'installer')
       await mkdir(output, { recursive: true })
-      const filename = `deepseek-harness-${version}-win-x64.exe`
+      const filename = `omega-harness-${version}-win-x64.exe`
       const body = Buffer.from(`inert fixture ${version}`)
       await writeFile(join(output, filename), body)
       await writeFile(join(output, `${filename}.blockmap`), 'inert map')
@@ -40,7 +40,7 @@ describe('qualification distribution file planning', () => {
       expect(next!.publicationAuthorized).toBe(false)
       expect(next!.verified).toBe('file-integrity-only')
       expect(load(next!.feed.contents)).toMatchObject({ version: versions[1],
-        files: [{ url: `https://download-test.deepseek.com/${next!.binaries[0]!.key}` }] })
+        files: [{ url: `https://download-test.omega.com/${next!.binaries[0]!.key}` }] })
     })
   })
 

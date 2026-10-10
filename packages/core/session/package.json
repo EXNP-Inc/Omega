@@ -1,13 +1,13 @@
 {
-  "name": "@deepseek-ai/dsh-session",
-  "description": "Event-sourced session store for the DeepSeek Harness",
+  "name": "@omega-ai/dsh-session",
+  "description": "Event-sourced session store for the Omega",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/core/session"
   },
   "type": "module",
@@ -40,18 +40,18 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/dsh-scope": "workspace:*",
-    "@deepseek-ai/cordis": "workspace:~"
+    "@omega-ai/dsh-scope": "workspace:*",
+    "@omega-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-scope": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*",
-    "@deepseek-ai/dsh-typert-registry": "workspace:*",
-    "@deepseek-ai/cordis": "workspace:~"
+    "@omega-ai/dsh-scope": "workspace:*",
+    "@omega-ai/dsh-typert-protocol": "workspace:*",
+    "@omega-ai/dsh-typert-registry": "workspace:*",
+    "@omega-ai/cordis": "workspace:~"
   },
   "dependencies": {
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/dsh-util-values": "workspace:*"
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-brand": "workspace:*",
+    "@omega-ai/dsh-util-values": "workspace:*"
   }
 }

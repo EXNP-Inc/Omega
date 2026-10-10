@@ -1,13 +1,13 @@
 import { describe, expectTypeOf, it } from 'vitest'
-import type { Context } from '@deepseek-ai/cordis'
-import { ToolCallId } from '@deepseek-ai/dsh-llm'
-import { defineTool } from '@deepseek-ai/dsh-tools'
+import type { Context } from '@omega-ai/cordis'
+import { ToolCallId } from '@omega-ai/dsh-llm'
+import { defineTool } from '@omega-ai/dsh-tools'
 import type {
   ToolDispatchExecution,
   ToolExecution,
   ToolExecutionInput,
   ToolRunContext,
-} from '@deepseek-ai/dsh-tools'
+} from '@omega-ai/dsh-tools'
 
 function inputAndExecutionContracts(
   input: ToolExecutionInput,

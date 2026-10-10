@@ -7,7 +7,7 @@
  * a key is entered; a blank key materializes a reference-free profile for
  * provider-native authentication);
  * the collapsed 自定义设置 area carries the per-family extras (`baseURL` for
- * both families, DeepSeek's id/name/context-window model catalog, and the
+ * both families, Omega's id/name/context-window model catalog, and the
  * display name and wire protocol of a pi-ai route the adapter does not ship —
  * the two fields the create card asked that route for, editable here for the
  * same reason).
@@ -25,11 +25,11 @@ import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import type {
   CredentialInfo, SettingsNamespaceView, SettingsPathOpView,
-} from '@deepseek-ai/dsh-api-remotes/client'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+} from '@omega-ai/dsh-api-remotes/client'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
 import {
-  DeepSeekModelsEditor, modelDrafts, validateDeepSeekModels,
-} from './DeepSeekModelsEditor.tsx'
+  OmegaModelsEditor, modelDrafts, validateOmegaModels,
+} from './OmegaModelsEditor.tsx'
 import { apiKeyFailure } from './apiKey.ts'
 import { EditorFooter } from './EditorFooter.tsx'
 import { ModelListEditor } from './ModelListEditor.tsx'
@@ -41,7 +41,7 @@ import type { en } from './locales.ts'
 import styles from './ModelsSection.module.css'
 
 /** Per-adapter-family curated field sets (unknown namespaces get the hint alone). */
-type EditorLayout = 'deepseek' | 'pi-ai' | 'unknown'
+type EditorLayout = 'omega' | 'pi-ai' | 'unknown'
 
 
 
@@ -139,7 +139,7 @@ export function pathOps(
 
 /** The editor layout the owning namespace selects. */
 function layoutOf(ns: string): EditorLayout {
-  if (ns === 'llm-deepseek') return 'deepseek'
+  if (ns === 'llm-omega') return 'omega'
   if (ns === 'llm-pi-ai') return 'pi-ai'
   return 'unknown'
 }
@@ -184,9 +184,9 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
   const node = useMemo(() => schema.nodeAtPath(root, settingsPath), [root, schema, settingsPath])
   const fallback = schema.getPath(namespace.value, settingsPath)
   const disabled = props.readOnly || busy
-  const accountProvider = props.provider === 'deepseek-account'
+  const accountProvider = props.provider === 'omega-account'
   // Account settings use a configurable Cordis entry id.
-  const layout = accountProvider ? 'deepseek' : layoutOf(namespace.ns)
+  const layout = accountProvider ? 'omega' : layoutOf(namespace.ns)
   const keyRef = refFor(schema, namespace, settingsPath, props.provider)
   // The same schema read the create card makes, so the choices offered here
   // and there cannot drift apart: both come from the adapter's own `Config`.
@@ -227,7 +227,7 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
 
   // The model list is validated by the same per-row checker for both families,
   // so a bad row is named by its position rather than by a blanket message.
-  const modelFailure = validateDeepSeekModels(schema.getPath(draft, ['models']))
+  const modelFailure = validateOmegaModels(schema.getPath(draft, ['models']))
   const keyFailure = apiKeyFailure(keyDraft)
   // What a probe or a write must carry: the typed key with paste whitespace
   // removed. A blank field yields an empty string, which both call sites read
@@ -271,7 +271,7 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
       // with a bad row; it stays because the schema check below would refuse
       // the write with a message naming a path instead of the row, and because
       // nothing but this function decides what is written.
-      const failure = validateDeepSeekModels(schema.getPath(next, ['models']))
+      const failure = validateOmegaModels(schema.getPath(next, ['models']))
       /* v8 ignore next 3 -- unreachable from the card: the same failure disables submit */
       if (failure !== undefined) {
         return `${t('model')} ${String(failure.index + 1)}: ${t(failure.key)}`
@@ -346,9 +346,9 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
    * narrowed so the per-family branches below are total: an unknown namespace
    * renders the hint instead and never reaches this body.
    */
-  const curatedFields = (family: 'deepseek' | 'pi-ai'): ReactNode => {
+  const curatedFields = (family: 'omega' | 'pi-ai'): ReactNode => {
     // What a hand-declared route names for itself and nothing else can supply.
-    // A whole-section `llm-deepseek` profile is a composition fact with no
+    // A whole-section `llm-omega` profile is a composition fact with no
     // per-route identity for its schema to carry, hence the family test.
     const ownsIdentity = family === 'pi-ai' && props.declared === true
     const customModels = schema.getPath(draft, ['models'])
@@ -373,7 +373,7 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
       },
       onReset: () => { setDraft(current => schema.deletePath(current, ['models'])) },
     }
-    if (accountProvider) return <DeepSeekModelsEditor {...catalogProps}
+    if (accountProvider) return <OmegaModelsEditor {...catalogProps}
       defaultContextWindow={typeof defaultContextWindow === 'number' ? defaultContextWindow : undefined}
       defaultMaxTokens={typeof defaultMaxTokens === 'number' ? defaultMaxTokens : undefined} />
     return (
@@ -431,17 +431,17 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
                 className={styles['input']}
                 type="text"
                 value={stringAt(draft, 'baseURL') ?? ''}
-                placeholder={family === 'deepseek'
-                  ? t('deepSeekBaseUrl')
+                placeholder={family === 'omega'
+                  ? t('omegaBaseUrl')
                   : stringAt(fallback, 'baseURL') ?? t('baseUrlDefault')}
-                aria-describedby={family === 'deepseek' ? `${props.provider}-endpoint-hint` : undefined}
+                aria-describedby={family === 'omega' ? `${props.provider}-endpoint-hint` : undefined}
                 aria-label={t('baseUrl')}
                 disabled={disabled}
                 onChange={(event) => {
                   setField('baseURL', event.target.value === '' ? undefined : event.target.value)
                 }}
               />
-              {family === 'deepseek' ? <span id={`${props.provider}-endpoint-hint`} className={styles['advancedHint']}>{t('deepSeekEndpointHint')}</span> : null}
+              {family === 'omega' ? <span id={`${props.provider}-endpoint-hint`} className={styles['advancedHint']}>{t('omegaEndpointHint')}</span> : null}
             </div>
             {/* The protocol sits beside the endpoint it describes, as it does
                 on the create card. */}
@@ -469,11 +469,11 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
               )
               : null}
             {/* Both families edit the same rows through the same contract; only
-                the extras differ — DeepSeek's inherited capacities, pi-ai's
+                the extras differ — Omega's inherited capacities, pi-ai's
                 endpoint interrogation. */}
-            {family === 'deepseek'
+            {family === 'omega'
               ? (
-                <DeepSeekModelsEditor
+                <OmegaModelsEditor
                   {...catalogProps}
                   defaultContextWindow={typeof defaultContextWindow === 'number'
                     ? defaultContextWindow

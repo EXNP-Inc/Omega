@@ -1,6 +1,6 @@
 /** Fixed V3 event vocabulary and namespaced historical opaque events. */
 
-import type { SessionFormatEvent } from '@deepseek-ai/dsh-session-format'
+import type { SessionFormatEvent } from '@omega-ai/dsh-session-format'
 
 // This historical list must not inherit additions or removals from the current Session event list.
 /* jscpd:ignore-start */
@@ -36,7 +36,7 @@ export const RELEASED_V3_EVENT_TYPES: ReadonlySet<string> = new Set([
   'request/header',
   'sandbox/mode',
   'schedule/change',
-  'session-log-deepseek/delivery-accepted',
+  'session-log-omega/delivery-accepted',
   'session/end-seed',
   'session/title',
   'session/title-llm-request',
@@ -62,7 +62,7 @@ export const RELEASED_V3_EVENT_TYPES: ReadonlySet<string> = new Set([
   'turn/end',
   'turn/start',
   'user/message',
-  'web/deepseek-search-llm-request',
+  'web/omega-search-llm-request',
   'workspace/changes',
 ])
 /* jscpd:ignore-end */

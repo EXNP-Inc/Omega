@@ -1,7 +1,7 @@
-import { Context } from '@deepseek-ai/cordis'
-import { SessionId, type SessionHeader } from '@deepseek-ai/dsh-session'
-import { SessionFormatUnsupportedError, SessionPersistenceCorruptionError } from '@deepseek-ai/dsh-session-persistence'
-import JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
+import { Context } from '@omega-ai/cordis'
+import { SessionId, type SessionHeader } from '@omega-ai/dsh-session'
+import { SessionFormatUnsupportedError, SessionPersistenceCorruptionError } from '@omega-ai/dsh-session-persistence'
+import JsonlSessionPersistence from '@omega-ai/dsh-session-persistence-jsonl'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -52,7 +52,7 @@ describe.each(['none', 'zstd'] as const)('historical catalog publication (%s)', 
     const f = await fixture()
     await f.write(f.parent, [
       { type: 'feedback/record', seq: 0, time: 1, data: {} },
-      { type: 'session-log-deepseek/delivery-accepted', seq: 1, time: 2,
+      { type: 'session-log-omega/delivery-accepted', seq: 1, time: 2,
         data: { sessionId: 'other', sessionFormatVersion: 4, throughSeq: 0 } },
     ], false, 4)
     await expect(f.ctx.sessionPersistence.open(f.parent, access)).rejects.toThrow('wrong Session')

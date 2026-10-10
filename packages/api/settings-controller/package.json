@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-api-settings-controller",
+  "name": "@omega-ai/dsh-api-settings-controller",
   "description": "Remote owner for the configuration surfaces over the settings-domain seams",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/api/settings-controller"
   },
   "type": "module",
@@ -44,25 +44,25 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@deepseek-ai/schemastery": "workspace:~",
+    "@omega-ai/schemastery": "workspace:~",
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-agent-preset-registry": "workspace:*",
-    "@deepseek-ai/dsh-credentials": "workspace:*",
-    "@deepseek-ai/dsh-native-command": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-settings": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-agent-preset-registry": "workspace:*",
+    "@omega-ai/dsh-credentials": "workspace:*",
+    "@omega-ai/dsh-native-command": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-settings": "workspace:*",
+    "@omega-ai/dsh-typert-protocol": "workspace:*"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-agent-preset-registry": "workspace:*",
-    "@deepseek-ai/dsh-credentials": "workspace:*",
-    "@deepseek-ai/dsh-native-command": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-settings": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-agent-preset-registry": "workspace:*",
+    "@omega-ai/dsh-credentials": "workspace:*",
+    "@omega-ai/dsh-native-command": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-settings": "workspace:*",
+    "@omega-ai/dsh-typert-protocol": "workspace:*"
   }
 }

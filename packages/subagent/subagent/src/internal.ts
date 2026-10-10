@@ -1,13 +1,13 @@
 /**
  * Continuation integration markers and host adapters outside the public
  * Service Definition and model-facing Agent messaging contract.
- * @module @deepseek-ai/dsh-subagent/internal
+ * @module @omega-ai/dsh-subagent/internal
  */
 
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import type { ContentBlock, MessageId, MessageSource } from '@deepseek-ai/dsh-llm'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import type { ToolDefinition } from '@deepseek-ai/dsh-tools'
+import type { Agent } from '@omega-ai/dsh-agent'
+import type { ContentBlock, MessageId, MessageSource } from '@omega-ai/dsh-llm'
+import type { SessionId } from '@omega-ai/dsh-session'
+import type { ToolDefinition } from '@omega-ai/dsh-tools'
 import type SubagentRuntime from './index.ts'
 import type { SubagentDelivery } from './inbox.ts'
 

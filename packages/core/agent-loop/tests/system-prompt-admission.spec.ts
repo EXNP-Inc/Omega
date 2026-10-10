@@ -1,18 +1,18 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import AgentRegistry, { installModelSelection, type Agent, type ModelSelectionRef } from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import LlmRuntime, { createUserMessage, LlmError, type GenerateOptions } from '@deepseek-ai/dsh-llm'
-import { toPiContext } from '@deepseek-ai/dsh-llm-pi-ai/src/context.ts'
-import SessionStore, { Session, SessionId } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime, { defineContentToolFixture } from '@deepseek-ai/dsh-tools'
+import { Context } from '@omega-ai/cordis'
+import AgentRegistry, { installModelSelection, type Agent, type ModelSelectionRef } from '@omega-ai/dsh-agent'
+import AgentLoop from '@omega-ai/dsh-agent-loop'
+import LlmRuntime, { createUserMessage, LlmError, type GenerateOptions } from '@omega-ai/dsh-llm'
+import { toPiContext } from '@omega-ai/dsh-llm-pi-ai/src/context.ts'
+import SessionStore, { Session, SessionId } from '@omega-ai/dsh-session'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRuntime, { defineContentToolFixture } from '@omega-ai/dsh-tools'
 import { MockAdapter, textResponse } from './mock-adapter.ts'
 
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@omega-ai/dsh-llm' {
   interface MessageSourceMap {
-    'test-compaction': { kind: 'test-compaction' } & import('@deepseek-ai/dsh-llm').ContextFormed
+    'test-compaction': { kind: 'test-compaction' } & import('@omega-ai/dsh-llm').ContextFormed
   }
 }
 

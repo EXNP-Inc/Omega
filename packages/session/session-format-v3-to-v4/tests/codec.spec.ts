@@ -1,16 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { SessionFormatEventCollector } from '@deepseek-ai/dsh-session-format'
-import type { SessionFormatEvent, SessionFormatJsonObject } from '@deepseek-ai/dsh-session-format'
-import { sessionFormatCatalog } from '@deepseek-ai/dsh-session-format-catalog'
-import { releasedV2SessionFormatCodec } from '@deepseek-ai/dsh-session-format-v2-to-v3'
+import { SessionFormatEventCollector } from '@omega-ai/dsh-session-format'
+import type { SessionFormatEvent, SessionFormatJsonObject } from '@omega-ai/dsh-session-format'
+import { sessionFormatCatalog } from '@omega-ai/dsh-session-format-catalog'
+import { releasedV2SessionFormatCodec } from '@omega-ai/dsh-session-format-v2-to-v3'
 import { assertReleasedV4Header, assertV4RowAdmission, releasedV4SessionFormatCodec, restoreReleasedV4Artifact } from '../src/index.ts'
 
 const header = { version: 4, id: 'parent', createdAt: 1, isSeeded: false, delegationDepth: 0 }
 const fact: SessionFormatEvent = { type: 'feedback/record', seq: 0, time: 1, data: { text: 'retained' } }
 const catalog: SessionFormatEvent = { type: 'subagent/catalog', seq: 0, time: 1, data: { version: 0, childId: 'child', childCreatedAt: 2, mode: 'one-shot' } }
-const types = new Set(['subagent/catalog', 'feedback/record', 'session-log-deepseek/delivery-accepted', 'session/end-seed'])
+const types = new Set(['subagent/catalog', 'feedback/record', 'session-log-omega/delivery-accepted', 'session/end-seed'])
 const delivery = (version: number | undefined, sessionId = header.id): SessionFormatEvent => ({
-  type: 'session-log-deepseek/delivery-accepted', seq: 1, time: 2,
+  type: 'session-log-omega/delivery-accepted', seq: 1, time: 2,
   data: { sessionId, throughSeq: 0, ...(version === undefined ? {} : { sessionFormatVersion: version }) },
 })
 

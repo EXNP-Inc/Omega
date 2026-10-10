@@ -9,7 +9,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from deepseek_harness import RunResult
+from omega_harness import RunResult
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -34,7 +34,7 @@ def live_result(**overrides: object) -> RunResult:
 
 @pytest.fixture
 def live_smoke(monkeypatch: pytest.MonkeyPatch) -> SimpleNamespace:
-    import deepseek_harness
+    import omega_harness
 
     state = SimpleNamespace(
         prompts=[], session_ids=[], challenges=[], checked_logs=[], closed=False,
@@ -95,9 +95,9 @@ def live_smoke(monkeypatch: pytest.MonkeyPatch) -> SimpleNamespace:
                 raise AssertionError(state.receipt_mode)
             return state.verify_result
 
-    monkeypatch.setenv("DEEPSEEK_API_KEY", "unit-test-key")
-    monkeypatch.setenv("DEEPSEEK_BASE_URL", "https://api.invalid")
-    monkeypatch.setattr(deepseek_harness, "DeepSeekHarness", ScriptedHarness)
+    monkeypatch.setenv("OMEGA_API_KEY", "unit-test-key")
+    monkeypatch.setenv("OMEGA_BASE_URL", "https://api.invalid")
+    monkeypatch.setattr(omega_harness, "OmegaHarness", ScriptedHarness)
     monkeypatch.setattr(globals_["secrets"], "token_hex", fresh_challenge)
     monkeypatch.setitem(globals_, "assert_zstd_session_log", state.checked_logs.append)
     return state
@@ -271,7 +271,7 @@ def test_snapshot_comparison_preserves_opaque_generation_qualifiers() -> None:
     expected = {
         "header": {"type": "session", "version": 0, "otherVersion": 7},
         "accepted": {
-            "type": "session-log-deepseek/delivery-accepted",
+            "type": "session-log-omega/delivery-accepted",
             "data": {"sessionId": "s", "throughSeq": 4},
         },
         "source": {
@@ -282,7 +282,7 @@ def test_snapshot_comparison_preserves_opaque_generation_qualifiers() -> None:
     actual = {
         "header": {"type": "session", "version": 1, "otherVersion": 7},
         "accepted": {
-            "type": "session-log-deepseek/delivery-accepted",
+            "type": "session-log-omega/delivery-accepted",
             "data": {"sessionId": "s", "sessionFormatVersion": 1, "throughSeq": 4},
         },
         "source": {
@@ -512,7 +512,7 @@ def test_snapshot_comparison_accepts_current_output_against_v2_without_rewriting
 
 def native_delivery_snapshot(version: int) -> dict[str, str]:
     event = {
-        "type": "session-log-deepseek/delivery-accepted",
+        "type": "session-log-omega/delivery-accepted",
         "data": {"sessionId": "s", "throughSeq": 0, "sessionFormatVersion": version},
     }
     return {
@@ -567,7 +567,7 @@ def test_native_writer_comparison_rejects_stale_current_delivery(tmp_path: Path,
 
 def test_native_writer_comparison_preserves_captured_and_nested_delivery_values() -> None:
     delivery = {
-        "type": "session-log-deepseek/delivery-accepted",
+        "type": "session-log-omega/delivery-accepted",
         "data": {"sessionId": "s", "throughSeq": 0, "sessionFormatVersion": 3},
     }
     captured = {"type": "custom/event", "data": {
@@ -631,7 +631,7 @@ def test_committed_python_native_goldens_compare_current_output_without_rewritin
         if result.get("type") == "session":
             assert result["version"] == source_version
             result["version"] = SESSION_FORMAT_VERSION
-        if result.get("type") == "session-log-deepseek/delivery-accepted":
+        if result.get("type") == "session-log-omega/delivery-accepted":
             assert result["data"]["sessionFormatVersion"] == source_version
             result["data"]["sessionFormatVersion"] = SESSION_FORMAT_VERSION
         return result

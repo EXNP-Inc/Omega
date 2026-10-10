@@ -27,7 +27,7 @@ import { packedIdentity } from './tarball.ts'
 import { verifyInstalledProductIsolation } from './installed-product-isolation.ts'
 
 /**
- * Environment for the installed artifact: no host Node hooks, no host DeepSeek
+ * Environment for the installed artifact: no host Node hooks, no host Omega
  * Harness home, and no ambient npm user agent that would confuse npm.
  * @param consumerRoot - the throwaway consumer directory.
  * @returns The child environment.

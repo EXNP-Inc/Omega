@@ -18,16 +18,16 @@
  * profile directory. Pnpm-managed entries in the profile's `node_modules`
  * resolve first. The runtime resolution supplies packages carried by the
  * installation and selected bundles to Node's ESM and CommonJS resolvers.
- * @module @deepseek-ai/dsh-app-boot/profile
+ * @module @omega-ai/dsh-app-boot/profile
  */
 
 import { createRequire } from 'node:module'
 import { existsSync, mkdirSync, readdirSync, readFileSync, readlinkSync, realpathSync, rmSync, statSync, unlinkSync, writeFileSync } from 'node:fs'
 import { basename, dirname, join, relative, resolve, sep } from 'node:path'
-import type { EntryOptions } from '@deepseek-ai/cordis-plugin-loader'
-import { applyEntryPatches, type PatchOptions } from '@deepseek-ai/cordis-plugin-include'
-import { resolveDshHome } from '@deepseek-ai/dsh-home-paths'
-import type { DshBundleManifest, DshPackageManifest } from '@deepseek-ai/dsh-package-manifest'
+import type { EntryOptions } from '@omega-ai/cordis-plugin-loader'
+import { applyEntryPatches, type PatchOptions } from '@omega-ai/cordis-plugin-include'
+import { resolveDshHome } from '@omega-ai/dsh-home-paths'
+import type { DshBundleManifest, DshPackageManifest } from '@omega-ai/dsh-package-manifest'
 import { evaluatePluginCompatibility, pluginCompatibilityWarning } from './plugin-compatibility.ts'
 import { readProfileVersionExemptions } from './profile-compatibility.ts'
 import { loadOverlayPatches } from './index.ts'
@@ -178,25 +178,25 @@ export function resolveProfileDir(name: string, home: string = resolveDshHome())
 /** The shipped profile templates auto-initialized on first use, by name. */
 export const PROFILE_TEMPLATES: Record<string, ProfileTemplate> = {
   acp: {
-    bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-acp-app'],
+    bundles: ['@omega-ai/dsh-base', '@omega-ai/dsh-acp-app'],
   },
   web: {
-    bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app'],
+    bundles: ['@omega-ai/dsh-base', '@omega-ai/dsh-web-app'],
   },
   headless: {
-    bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-headless'],
+    bundles: ['@omega-ai/dsh-base', '@omega-ai/dsh-headless'],
   },
   sdk: {
-    bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-sdk-app'],
+    bundles: ['@omega-ai/dsh-base', '@omega-ai/dsh-sdk-app'],
   },
   'sdk-minimal': {
-    bundles: ['@deepseek-ai/dsh-sdk-minimal'],
+    bundles: ['@omega-ai/dsh-sdk-minimal'],
   },
 }
 
 /** Installation-owned bundle tuples normalized to the shipped template. */
 const INSTALLATION_OWNED_PROFILE_TUPLES: Record<string, readonly string[]> = {
-  headless: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', '@deepseek-ai/dsh-headless'],
+  headless: ['@omega-ai/dsh-base', '@omega-ai/dsh-web-app', '@omega-ai/dsh-headless'],
 }
 
 /**
@@ -206,11 +206,11 @@ const INSTALLATION_OWNED_PROFILE_TUPLES: Record<string, readonly string[]> = {
 const RETIRED_BUNDLES: ReadonlySet<string> = new Set([
   // The Web composition mounts Schedule itself
   // ([upgrade guide](../../../../docs/upgrade-guide/v0.2.0-rc.2/schedule-bundle-retired/guide.md)).
-  '@deepseek-ai/dsh-experimental-schedule-bundle',
+  '@omega-ai/dsh-experimental-schedule-bundle',
 ])
 
 /** The bundle list a `dsh plugin` init uses for a name with no shipped template. */
-export const DEFAULT_PROFILE_BUNDLES: readonly string[] = ['@deepseek-ai/dsh-base']
+export const DEFAULT_PROFILE_BUNDLES: readonly string[] = ['@omega-ai/dsh-base']
 
 /**
  * The bundles the dsh installation ships for a person to switch on: each a
@@ -221,10 +221,10 @@ export const DEFAULT_PROFILE_BUNDLES: readonly string[] = ['@deepseek-ai/dsh-bas
  * [admission](../../../../.agents/notes/implemented/architecture/2026-09-21-experimental-capabilities-as-optional-bundles.md)).
  */
 export const OPTIONAL_BUNDLES: readonly string[] = [
-  '@deepseek-ai/dsh-experimental-agent-team-profile',
-  '@deepseek-ai/dsh-experimental-voice-input-bundle',
-  '@deepseek-ai/dsh-experimental-auto-review',
-  '@deepseek-ai/dsh-experimental-inspector-profile',
+  '@omega-ai/dsh-experimental-agent-team-profile',
+  '@omega-ai/dsh-experimental-voice-input-bundle',
+  '@omega-ai/dsh-experimental-auto-review',
+  '@omega-ai/dsh-experimental-inspector-profile',
 ]
 
 const PROFILE_PATCH_TEMPLATE = `# Your patch layer for this dsh profile, applied after every bundle layer:
@@ -694,7 +694,7 @@ function packageDirFromAnchor(anchor: string, packageName: string): string | und
 /**
  * Resolve one bundle package's directory: installation anchor first, then the
  * profile directory. The installation-first order is the contract that
- * `@deepseek-ai/dsh-base` (and every other in-box bundle) always comes from
+ * `@omega-ai/dsh-base` (and every other in-box bundle) always comes from
  * the same installation as the running dsh, never from a profile-local copy.
  * Resolution does not require the package to export `./package.json`.
  * @param binName - the diagnostic prefix on the thrown error.

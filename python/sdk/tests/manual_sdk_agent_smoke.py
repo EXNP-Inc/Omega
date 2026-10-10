@@ -15,7 +15,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
-from deepseek_harness import DeepSeekHarness
+from omega_harness import OmegaHarness
 
 
 class MockCompletionHandler(BaseHTTPRequestHandler):
@@ -61,7 +61,7 @@ def run_smoke(repo_root: Path, keep_sessions: bool) -> None:
     print(f"mock_base_url={base_url}")
 
     try:
-        with DeepSeekHarness(
+        with OmegaHarness(
             model="sdk-smoke-model",
             cwd=str(repo_root / "python/sdk"),
             runtime_cwd=str(repo_root),
@@ -77,8 +77,8 @@ def run_smoke(repo_root: Path, keep_sessions: bool) -> None:
                 "DSH_HOME": str(dsh_home),
                 "DSH_PERMISSION_MODE": "danger-full-access",
                 "DSH_TELEMETRY_DISABLED": "1",
-                "DEEPSEEK_BASE_URL": base_url,
-                "DEEPSEEK_API_KEY": "sdk-smoke-key",
+                "OMEGA_BASE_URL": base_url,
+                "OMEGA_API_KEY": "sdk-smoke-key",
             },
             request_timeout_seconds=20,
             shutdown_timeout_seconds=2,
@@ -119,7 +119,7 @@ def main() -> None:
         "--repo-root",
         type=Path,
         default=Path(__file__).resolve().parents[3],
-        help="Path to the deepseek-harness checkout.",
+        help="Path to the omega-harness checkout.",
     )
     parser.add_argument("--keep-sessions", action="store_true")
     args = parser.parse_args()

@@ -5,15 +5,15 @@
 - id: headless-runner
   disabled: true
 
-- id: llm-deepseek
+- id: llm-omega
   disabled: true
 
 - id: agent-loop
   config:
     agents:
       - id: main
-        provider: deepseek-official
-        model: deepseek-v4-flash
+        provider: omega-official
+        model: omega-v4-flash
         cwd: !!js process.cwd()
 
 - id: session-persistence-jsonl
@@ -38,7 +38,7 @@
 
 - insert:
     - id: agent-team
-      name: '@deepseek-ai/dsh-experimental-agent-team'
+      name: '@omega-ai/dsh-experimental-agent-team'
       config:
         maxMembers: 8
         maxTasks: 256
@@ -47,7 +47,7 @@
         disposalTimeoutMs: 5000
 
     - id: tool-agent-team
-      name: '@deepseek-ai/dsh-experimental-tool-agent-team'
+      name: '@omega-ai/dsh-experimental-tool-agent-team'
       config:
         freshProvider: spawn
         forkProvider: fork

@@ -1,13 +1,13 @@
 {
-  "name": "@deepseek-ai/dsh-sandbox-local",
-  "description": "Local process-sandbox backends for the DeepSeek Harness sandbox seam: bwrap, the npm-distributed landlock-run launcher, macOS Seatbelt, or the Windows ACL restricted-token runner — functionally probed, fail-closed",
+  "name": "@omega-ai/dsh-sandbox-local",
+  "description": "Local process-sandbox backends for the Omega sandbox seam: bwrap, the npm-distributed landlock-run launcher, macOS Seatbelt, or the Windows ACL restricted-token runner — functionally probed, fail-closed",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/sandbox/sandbox-local"
   },
   "type": "module",
@@ -27,21 +27,21 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-sandbox": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-sandbox": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*"
   },
   "dependencies": {
-    "@deepseek-ai/dsh-sandbox-windows-acl": "workspace:*",
-    "@deepseek-ai/dsh-util-values": "workspace:*",
-    "@deepseek-ai/node-addon-system": "workspace:~",
-    "@deepseek-ai/schemastery": "workspace:~"
+    "@omega-ai/dsh-sandbox-windows-acl": "workspace:*",
+    "@omega-ai/dsh-util-values": "workspace:*",
+    "@omega-ai/node-addon-system": "workspace:~",
+    "@omega-ai/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-sandbox": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-sandbox": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*"
   }
 }

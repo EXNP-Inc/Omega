@@ -1,25 +1,25 @@
 /**
  * Models settings and product-onboarding plugin, browser half. It registers
- * the Models page plus the ordered preview-notice and official-DeepSeek
+ * the Models page plus the ordered preview-notice and official-Omega
  * onboarding dialogs, whose UI shares this package's modal wrapper. The Host
  * settings and credential contracts stay behind their existing wire APIs.
  * Export discipline:
  * packages/client/AGENTS.md.
  */
-import type {} from '@deepseek-ai/dsh-client-product-analytics/client'
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type {} from '@omega-ai/dsh-client-product-analytics/client'
+import type { Context as ClientContext } from '@omega-ai/cordis'
 // Type-only: pulls the shell's SlotMap merge (the 'settings.section' entry).
-import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
+import type {} from '@omega-ai/dsh-client-ui-settings/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
-import type {} from '@deepseek-ai/dsh-client-locale/client'
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
+import type {} from '@omega-ai/dsh-client-locale/client'
+import type {} from '@omega-ai/dsh-client-ui-renderer/client'
 // Type-only: pulls the ctx.remote merge and the forwarded-event key face
 // (settings/credentials invalidations ride the allowlist) into this program.
-import type {} from '@deepseek-ai/dsh-api-remotes/client'
+import type {} from '@omega-ai/dsh-api-remotes/client'
 import { ModelsSection } from './ModelsSection.tsx'
 import type { ModelsSectionInjected } from './ModelsSection.tsx'
-import { DeepSeekOnboardingDialog } from './DeepSeekOnboardingDialog.tsx'
-import type { DeepSeekOnboardingInjected } from './DeepSeekOnboardingDialog.tsx'
+import { OmegaOnboardingDialog } from './OmegaOnboardingDialog.tsx'
+import type { OmegaOnboardingInjected } from './OmegaOnboardingDialog.tsx'
 import { WelcomeNotice } from './WelcomeNotice.tsx'
 import type { WelcomeNoticeInjected } from './WelcomeNotice.tsx'
 import { WelcomeNoticeStore } from './welcome-store.ts'
@@ -34,7 +34,7 @@ export type { ModelsSectionInjected, ModelsSectionProps } from './ModelsSection.
 export type { ModelsFooterOwnerProps, ProviderCardExtrasOwnerProps } from './slot-contract.ts'
 export type { ModelsKey } from './locales.ts'
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@omega-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap {
     /** The Models page + product-onboarding copy. */
     'settings.models': ModelsKey
@@ -97,7 +97,7 @@ export function apply(ctx: ClientContext): void {
     schema,
     t,
   })
-  const deepSeekOnboardingInjected = (): DeepSeekOnboardingInjected => ({
+  const omegaOnboardingInjected = (): OmegaOnboardingInjected => ({
     automatic: credentialOnboarding,
     track: (name, attributes) => ctx.get('productAnalytics')?.track(name, attributes),
     controller,
@@ -154,9 +154,9 @@ export function apply(ctx: ClientContext): void {
   }, WelcomeNotice))
   ctx.slots.inject('settings.onboarding', () => ctx.slots.register({
     name: 'settings.onboarding',
-    id: 'deepseek-official',
+    id: 'omega-official',
     children: { 'settings.models.sign-in': { kind: 'single', scope: 'root' } },
     order: 0,
-    inject: deepSeekOnboardingInjected,
-  }, DeepSeekOnboardingDialog))
+    inject: omegaOnboardingInjected,
+  }, OmegaOnboardingDialog))
 }

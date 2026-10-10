@@ -1,12 +1,12 @@
 /** What the browser half registers, when, which credential it watches, and that it all leaves with the fiber. */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { describe, expect, it, vi } from 'vitest'
-import { resolveSlotLabel } from '@deepseek-ai/dsh-client-ui-slots'
-import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
-import { RemoteError, TestRemote } from '@deepseek-ai/dsh-client-test-runtime'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import { apply as settingsApply, inject as settingsInject } from '@deepseek-ai/dsh-client-ui-settings/client'
+import { resolveSlotLabel } from '@omega-ai/dsh-client-ui-slots'
+import { SlotRegistry } from '@omega-ai/dsh-client-ui-renderer/client'
+import { RemoteError, TestRemote } from '@omega-ai/dsh-client-test-runtime'
+import { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
+import { apply as settingsApply, inject as settingsInject } from '@omega-ai/dsh-client-ui-settings/client'
 import { apply, inject, NS } from '../src/client/index.ts'
 import type { WebSearchCardFace } from '../src/client/index.ts'
 import { apply as hostApply } from '../src/index.ts'
@@ -55,7 +55,7 @@ describe('ui-settings-web-search apply', () => {
   })
 
   it('registers the page while the Host serves the namespace, titled in the active locale', async () => {
-    const { ctx, slots } = await bench(['web-search-deepseek'])
+    const { ctx, slots } = await bench(['web-search-omega'])
     declareRoot(slots)
 
     await ctx.plugin({ inject: [...inject], apply }).await()
@@ -91,12 +91,12 @@ describe('ui-settings-web-search apply', () => {
 
     // A key written on another surface changes no settings section, so this
     // event is the only thing that reaches the page.
-    remote.emit('credentials/reference-updated', ['DEEPSEEK_API_KEY'])
+    remote.emit('credentials/reference-updated', ['OMEGA_API_KEY'])
     await vi.waitFor(() => { expect(describeCredentials).toHaveBeenCalledTimes(1) })
   })
 
   it('collapses the page on teardown', async () => {
-    const { ctx, slots } = await bench(['web-search-deepseek'])
+    const { ctx, slots } = await bench(['web-search-omega'])
     declareRoot(slots)
     const fiber = ctx.plugin({ inject: [...inject], apply })
     await fiber.await()

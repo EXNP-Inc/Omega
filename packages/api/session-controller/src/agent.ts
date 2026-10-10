@@ -1,19 +1,19 @@
 /** Agent activation, composition, and model-selection policy owned by API Session. */
 
 import { mkdir } from 'node:fs/promises'
-import type { Context } from '@deepseek-ai/cordis'
-import { installModelSelection } from '@deepseek-ai/dsh-agent'
+import type { Context } from '@omega-ai/cordis'
+import { installModelSelection } from '@omega-ai/dsh-agent'
 import type {
   Agent, AgentOptions, AgentSetup, ModelSelection as AgentModelSelection, ModelSelectionRef,
-} from '@deepseek-ai/dsh-agent'
-import type {} from '@deepseek-ai/dsh-agent-default-model'
-import type {} from '@deepseek-ai/dsh-agent-preset-registry'
-import { ReasoningEffortId } from '@deepseek-ai/dsh-llm'
-import type { Session, SessionId } from '@deepseek-ai/dsh-session'
-import type { SessionInspection } from '@deepseek-ai/dsh-session-persistence'
-import { SessionQueryError, type SessionObservation } from '@deepseek-ai/dsh-session-query'
-import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
-import type {} from '@deepseek-ai/dsh-typert-registry'
+} from '@omega-ai/dsh-agent'
+import type {} from '@omega-ai/dsh-agent-default-model'
+import type {} from '@omega-ai/dsh-agent-preset-registry'
+import { ReasoningEffortId } from '@omega-ai/dsh-llm'
+import type { Session, SessionId } from '@omega-ai/dsh-session'
+import type { SessionInspection } from '@omega-ai/dsh-session-persistence'
+import { SessionQueryError, type SessionObservation } from '@omega-ai/dsh-session-query'
+import { RemoteError } from '@omega-ai/dsh-typert-protocol'
+import type {} from '@omega-ai/dsh-typert-registry'
 import type { ModelSelection } from './types.ts'
 
 /** Cold Session identity absent from persistence. */

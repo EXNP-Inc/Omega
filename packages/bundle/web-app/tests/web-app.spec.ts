@@ -14,12 +14,12 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { PassThrough } from 'node:stream'
 import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import * as AppBoot from '@deepseek-ai/dsh-app-boot'
-import { createLaunchEnvironmentSnapshot, DSH_LAUNCH_ENVIRONMENT_KEY } from '@deepseek-ai/dsh-launch-environment'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import type { WebServer } from '@deepseek-ai/dsh-host-webserver'
+import { Context } from '@omega-ai/cordis'
+import Loader from '@omega-ai/cordis-plugin-loader'
+import * as AppBoot from '@omega-ai/dsh-app-boot'
+import { createLaunchEnvironmentSnapshot, DSH_LAUNCH_ENVIRONMENT_KEY } from '@omega-ai/dsh-launch-environment'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import type { WebServer } from '@omega-ai/dsh-host-webserver'
 import { apply, Config, internals } from '../src/index.ts'
 
 vi.mock('node:child_process', async importOriginal => ({
@@ -157,7 +157,7 @@ describe('web-app runtime glue', () => {
       'open:http://127.0.0.1:4567/?token=test-token',
     ])
     const assembly = await ctx.systemPrompt.assemble()
-    expect(assembly.sections.find(entry => entry.name === 'harness:source')?.text).toContain('DeepSeek Harness implementation checkout')
+    expect(assembly.sections.find(entry => entry.name === 'harness:source')?.text).toContain('Omega implementation checkout')
     const section = assembly.sections.find(entry => entry.name === 'app:web-surface')
     expect(section?.text).toContain('http://127.0.0.1:4567')
     // The single update contract: the receiver is always on; no-refresh
@@ -450,7 +450,7 @@ describe('web-app runtime glue', () => {
   })
 
   it('scrubs the helper environment and reports helper spawn or exit failures', async () => {
-    vi.stubEnv('DEEPSEEK_API_KEY', 'must-not-reach-browser')
+    vi.stubEnv('OMEGA_API_KEY', 'must-not-reach-browser')
     vi.stubEnv('DSH_HOME', '/must-not-reach-browser')
     const completed = launcher()
     vi.mocked(spawn).mockReturnValueOnce(completed)
@@ -464,7 +464,7 @@ describe('web-app runtime glue', () => {
     ])
     expect(args?.[2]).toContain("if (process.platform === 'win32')")
     expect(args?.[2]).toContain('launcher.ref()')
-    expect(options?.env).not.toHaveProperty('DEEPSEEK_API_KEY')
+    expect(options?.env).not.toHaveProperty('OMEGA_API_KEY')
     expect(options?.env).not.toHaveProperty('DSH_HOME')
     expect(options?.env?.PATH).toBe(process.env.PATH)
     expect(options?.stdio).toEqual(['ignore', 'inherit', 'pipe'])

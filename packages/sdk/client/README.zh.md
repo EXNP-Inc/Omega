@@ -1,15 +1,15 @@
 ---
-description: "面向以子进程方式启动 DeepSeek Harness 运行时、并通过 stdio JSON-RPC 驱动 agent（智能体）轮次的调用方的 TypeScript SDK 客户端：DeepSeekHarness 运行 API 与低层 HarnessClient。"
+description: "面向以子进程方式启动 Omega 运行时、并通过 stdio JSON-RPC 驱动 agent（智能体）轮次的调用方的 TypeScript SDK 客户端：OmegaHarness 运行 API 与低层 HarnessClient。"
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-sdk-client
+# @omega-ai/dsh-sdk-client
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-sdk-client` 让 TypeScript 程序通过 stdio JSON-RPC 启动并驱动完整的 DeepSeek Harness 运行时。使用 `DeepSeekHarness` 可打开会话、发送文本或图像提示词、收集事件与通知流，并在运行时进入 idle 后取得最后提交的助手响应；使用 `HarnessClient` 可直接发送协议请求和订阅通知。调用方可以提供 `dshBin`；否则客户端解析同版本的 `@deepseek-ai/dsh` 可执行文件。客户端跨多次运行持有子进程，公开类型化的传输与协议错误，并在 `close()` 或 `await using` 时回收进程。它适用于调用方能够选择运行时 profile 和启动设置的场景。
+`dsh-sdk-client` 让 TypeScript 程序通过 stdio JSON-RPC 启动并驱动完整的 Omega 运行时。使用 `OmegaHarness` 可打开会话、发送文本或图像提示词、收集事件与通知流，并在运行时进入 idle 后取得最后提交的助手响应；使用 `HarnessClient` 可直接发送协议请求和订阅通知。调用方可以提供 `dshBin`；否则客户端解析同版本的 `@omega-ai/dsh` 可执行文件。客户端跨多次运行持有子进程，公开类型化的传输与协议错误，并在 `close()` 或 `await using` 时回收进程。它适用于调用方能够选择运行时 profile 和启动设置的场景。
 
 ## 目录
 
@@ -25,19 +25,19 @@ kind: "package-library"
 <a id="use-this-package"></a>
 ## 使用本包
 
-当 TypeScript 代码需要从另一进程驱动完整 Harness 运行时、且你能显式指名运行时可执行文件时，使用本客户端。常用路径极简：用启动规格构造 `DeepSeekHarness`，运行提示词，然后关闭它，使子进程总能被回收。
+当 TypeScript 代码需要从另一进程驱动完整 Harness 运行时、且你能显式指名运行时可执行文件时，使用本客户端。常用路径极简：用启动规格构造 `OmegaHarness`，运行提示词，然后关闭它，使子进程总能被回收。
 
-### 用 DeepSeekHarness 运行 agent 轮次
+### 用 OmegaHarness 运行 agent 轮次
 
 ```ts
-import { DeepSeekHarness } from '@deepseek-ai/dsh-sdk-client'
-import { ReasoningEffortId } from '@deepseek-ai/dsh-llm'
+import { OmegaHarness } from '@omega-ai/dsh-sdk-client'
+import { ReasoningEffortId } from '@omega-ai/dsh-llm'
 
-await using harness = new DeepSeekHarness({
+await using harness = new OmegaHarness({
   profile: 'sdk',
   patches: ['./automation.cordis.yml'],
-  provider: 'deepseek-official',
-  model: 'deepseek-v4-flash',
+  provider: 'omega-official',
+  model: 'omega-v4-flash',
   reasoningEffort: ReasoningEffortId('max'),
   maxTokens: 49_152,
 })
@@ -65,13 +65,13 @@ console.log(result.finalResponse)
 
 ### 设计理念
 
-客户端是同一协议上的两层：`DeepSeekHarness`（自有运行）叠加在 `HarnessClient`（协议客户端）之上，与 Python SDK 的分层一致。它运行在任何 harness 上下文之外，因此直接 spawn 运行时而非经由 `dsh-subprocess` 服务——即该 seam 记录的 SDK 托管传输例外——其关闭阶梯也位于本包。运行时对上下文内每个会话都发通知；会话树范围限定是客户端对 `subagent.started` 血缘边的过滤。
+客户端是同一协议上的两层：`OmegaHarness`（自有运行）叠加在 `HarnessClient`（协议客户端）之上，与 Python SDK 的分层一致。它运行在任何 harness 上下文之外，因此直接 spawn 运行时而非经由 `dsh-subprocess` 服务——即该 seam 记录的 SDK 托管传输例外——其关闭阶梯也位于本包。运行时对上下文内每个会话都发通知；会话树范围限定是客户端对 `subagent.started` 血缘边的过滤。
 
 ### 源码地图
 
 | 文件 | 职责 |
 |---|---|
-| [`src/api.ts`](src/api.ts) | `DeepSeekHarness` + `HarnessSession`：自有运行、从回执到 idle 的收集、`finalResponse` |
+| [`src/api.ts`](src/api.ts) | `OmegaHarness` + `HarnessSession`：自有运行、从回执到 idle 的收集、`finalResponse` |
 | [`src/client.ts`](src/client.ts) | `HarnessClient`：spawn、握手、请求、订阅扇出、类型化错误 |
 | [`src/dispose.ts`](src/dispose.ts) | 私有关闭阶梯：stdin EOF → SIGTERM → SIGKILL 直到真正退出 |
 | [`src/types.ts`](src/types.ts) | 启动与超时选项、通知结构、`RunResult` |
@@ -118,7 +118,7 @@ console.log(result.finalResponse)
 
 这些限制说明本客户端何时不合适或需要特别注意。它们是当前包约束，不是与其他 SDK 客户端的对比或任务积压。
 
-- **无捆绑运行时解析**——客户端解析同版本 `@deepseek-ai/dsh` 包（或调用方提供的 `dshBin`）；打包可执行文件的发现留在 Python 侧，直到出现 TypeScript 发行版消费方。
+- **无捆绑运行时解析**——客户端解析同版本 `@omega-ai/dsh` 包（或调用方提供的 `dshBin`）；打包可执行文件的发现留在 Python 侧，直到出现 TypeScript 发行版消费方。
 - **无轮次中取消**——协议层没有提示词取消方法；放弃轮次意味着关闭运行时（见[协议限制](../protocol/README.zh.md#known-limitations-and-deferred-work)）。
 - **没有逐提示词结果**——低层 `prompt()` 只返回入队回执；高层 `run()` 负责从回执到 idle 的收集，放弃该过程意味着关闭运行时。
 - **客户端→服务端通知与服务端→客户端请求**在协议两端都未实现；传输层为未来审批流程保留了承载能力。

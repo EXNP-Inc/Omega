@@ -3,7 +3,7 @@ description: "面向用户与维护者的 subagent 委派 seam，用于选择提
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-subagent
+# @omega-ai/dsh-subagent
 
 [English](README.md) | 中文
 
@@ -32,9 +32,9 @@ kind: "package-reference"
 把服务与一个提供方和委派工具一起挂载。提供方以你配置的名称注册（进程内 spawn 后端默认为 `spawn`）；工具行指名该提供方，让模型看到一个静态工具。一个最小的一次性配置：
 
 ```yaml
-- name: '@deepseek-ai/dsh-subagent'
-- name: '@deepseek-ai/dsh-subagent-spawn-in-process'
-- name: '@deepseek-ai/dsh-tool-subagent'
+- name: '@omega-ai/dsh-subagent'
+- name: '@omega-ai/dsh-subagent-spawn-in-process'
+- name: '@omega-ai/dsh-tool-subagent'
   config:
     provider: spawn
     toolName: subagent
@@ -135,7 +135,7 @@ kind: "package-reference"
 - [进程内 spawn 后端](../subagent-spawn-in-process/README.zh.md)——最容易组合的提供方。
 - [Auto review](../../experimental/auto-review/README.zh.md)——只有进程内 DSH 子级继承的当前会话授权模式。
 - [进程外 ACP 后端](../subagent-acp/README.zh.md)——经 Agent Client Protocol 拥有自有运行时的子级。
-- [DeepSeek 输入转换](../../llm/llm-deepseek/README.zh.md#model-experience)——已保存结算通知的提供方回放规则。
+- [Omega 输入转换](../../llm/llm-omega/README.zh.md#model-experience)——已保存结算通知的提供方回放规则。
 - [tool-subagent-control README](../tool-subagent-control/README.zh.md)——后续消息、中断与列举面。
 
 -----

@@ -3,13 +3,13 @@ description: "本次运行环境的不可变快照，记住每个值来自哪一
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-launch-environment
+# @omega-ai/dsh-launch-environment
 
 [English](README.md) | 中文
 
 ## 概述
 
-使用 `@deepseek-ai/dsh-launch-environment` 解析启动时的环境值，无需信任压平的 `process.env`。它会冻结继承的进程值、调用目录的 `.env` 和 Harness 主目录的 `.env`，再按固定可信顺序返回胜出的值及其来源。调用方可以在敏感查找中排除某些层；无论之后顺序如何变化，被省略的层都不可达。快照不可变，但每一层仍会被复制到 `process.env`，因此它不隔离子进程。请把它作为库导入；不能从 `cordis.yml` 挂载它。
+使用 `@omega-ai/dsh-launch-environment` 解析启动时的环境值，无需信任压平的 `process.env`。它会冻结继承的进程值、调用目录的 `.env` 和 Harness 主目录的 `.env`，再按固定可信顺序返回胜出的值及其来源。调用方可以在敏感查找中排除某些层；无论之后顺序如何变化，被省略的层都不可达。快照不可变，但每一层仍会被复制到 `process.env`，因此它不隔离子进程。请把它作为库导入；不能从 `cordis.yml` 挂载它。
 
 ## 目录
 
@@ -29,10 +29,10 @@ kind: "package-library"
 ### 解析一个值
 
 ```ts
-import { launchEnvironmentOf } from '@deepseek-ai/dsh-launch-environment'
+import { launchEnvironmentOf } from '@omega-ai/dsh-launch-environment'
 
-declare const ctx: import('@deepseek-ai/cordis').Context
-const endpoint = launchEnvironmentOf(ctx).get('DEEPSEEK_BASE_URL')?.value
+declare const ctx: import('@omega-ai/cordis').Context
+const endpoint = launchEnvironmentOf(ctx).get('OMEGA_BASE_URL')?.value
 ```
 
 `get(name)` 按可信度从高到低搜索所有层。`getFrom(name, sources)` 只搜索指定的层，不改变这一可信顺序——绝不能接受某一层的调用方不把它列进去，因此后续任何重新排序都无法让它回来。
@@ -47,7 +47,7 @@ const endpoint = launchEnvironmentOf(ctx).get('DEEPSEEK_BASE_URL')?.value
 | `<invocation cwd>/.env` | harness 被启动于其中的项目；产品信任它配置自己的 agent（智能体） |
 | `$DSH_HOME/.env` | 用户自己的机器级默认值 |
 
-变量名按平台自身的规则匹配：POSIX 上精确匹配，Windows 上不区分大小写。在 Windows 上做大小写敏感的查找会选错层——shell 里的 `deepseek_api_key` 与项目 `.env` 里的 `DEEPSEEK_API_KEY` 对操作系统而言是同一个变量。
+变量名按平台自身的规则匹配：POSIX 上精确匹配，Windows 上不区分大小写。在 Windows 上做大小写敏感的查找会选错层——shell 里的 `omega_api_key` 与项目 `.env` 里的 `OMEGA_API_KEY` 对操作系统而言是同一个变量。
 
 ### 没有启动器引导这棵树时
 
@@ -88,7 +88,7 @@ const endpoint = launchEnvironmentOf(ctx).get('DEEPSEEK_BASE_URL')?.value
 
 - [boot 包](../../boot/app-boot/README.zh.md)——在任何配置项挂载之前填充 `ctx.launchEnvironment` 的启动器。
 - [凭据存储](../../credentials/credentials-local/README.zh.md)——针对快照各层解析已存储的凭据。
-- [DeepSeek 提供方](../../llm/llm-deepseek/README.zh.md)——通过启动环境读取提供方配置。
+- [Omega 提供方](../../llm/llm-omega/README.zh.md)——通过启动环境读取提供方配置。
 
 -----
 

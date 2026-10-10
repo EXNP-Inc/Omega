@@ -1,11 +1,11 @@
-import OTel from '@deepseek-ai/dsh-otel'
-import { Context } from '@deepseek-ai/cordis'
+import OTel from '@omega-ai/dsh-otel'
+import { Context } from '@omega-ai/cordis'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
 import { afterEach, expect, it, vi } from 'vitest'
-import ProductTelemetry, { Config as TelemetryConfig, type ProductTelemetryRecord } from '@deepseek-ai/dsh-host-product-telemetry-otel'
-import { Session, SessionId, SessionSeq } from '@deepseek-ai/dsh-session'
-import { CompactionId } from '@deepseek-ai/dsh-compaction'
+import ProductTelemetry, { Config as TelemetryConfig, type ProductTelemetryRecord } from '@omega-ai/dsh-host-product-telemetry-otel'
+import { Session, SessionId, SessionSeq } from '@omega-ai/dsh-session'
+import { CompactionId } from '@omega-ai/dsh-compaction'
 import Analytics from '../src/index.ts'
 
 const cleanup: (() => Promise<void>)[] = []
@@ -16,7 +16,7 @@ async function setup(enabled: boolean) {
   cleanup.push(() => ctx.fiber.dispose())
   const getDeviceIdentity = vi.fn().mockResolvedValue({ deviceId: 'login-device', userId: 'user-1', osVersion: 'fixture-os', ignored: 'private-field' })
   const emit = vi.fn<(record: ProductTelemetryRecord) => void>()
-  ctx.provide('deepseekAccount', { getDeviceIdentity } as never)
+  ctx.provide('omegaAccount', { getDeviceIdentity } as never)
   ctx.provide('webServer', {} as never)
   ctx.provide('productTelemetry', { emit } as never)
   const fiber = await ctx.plugin(Analytics, { enabled, appVersion: 'test-version' })
@@ -75,7 +75,7 @@ it('writes the selected event through the real exporter to an isolated collector
   const ctx = new Context()
   cleanup.push(() => ctx.fiber.dispose())
   ctx.provide('credentials', { readRecord: async () => undefined } as never)
-  ctx.provide('deepseekAccount', { getDeviceIdentity: async () => undefined } as never)
+  ctx.provide('omegaAccount', { getDeviceIdentity: async () => undefined } as never)
   ctx.provide('webServer', {} as never)
   await ctx.plugin(OTel)
   const exporter = await ctx.plugin(ProductTelemetry, TelemetryConfig({ endpoint: `http://127.0.0.1:${address.port}/v1/logs`, serviceName: 'test', serviceVersion: '1', compression: 'none' }))
@@ -114,7 +114,7 @@ it('omits an unavailable account and isolates exporter submission failure', asyn
 it('requires the exporter even when collection is disabled', async () => {
   const ctx = new Context()
   cleanup.push(() => ctx.fiber.dispose())
-  ctx.provide('deepseekAccount', { getDeviceIdentity: async () => undefined } as never)
+  ctx.provide('omegaAccount', { getDeviceIdentity: async () => undefined } as never)
   const fiber = ctx.plugin(Analytics, { enabled: false })
   await Promise.resolve()
   expect(ctx.get('productAnalytics')).toBeUndefined()

@@ -8,7 +8,7 @@ Status: implemented
 
 [三阶段工具调用](2026-09-22-tool-call-three-phases.zh.md)让工具身份在 `tool/call` 之前就可见。只有原始参数前缀不足以按字段展示：write/edit 需要完整路径和解码后的内容长度，bash/run_code 需要在命令或程序流入结束前显示描述。
 
-模型生成参数的顺序也决定了什么能先显示。2026-09-24 用真实 DeepSeek V4 API 对 bash/run_code/write/edit 做了 310 次受控请求：
+模型生成参数的顺序也决定了什么能先显示。2026-09-24 用真实 Omega V4 API 对 bash/run_code/write/edit 做了 310 次受控请求：
 
 | 变体 | 改了什么 | bash 首键为 description | run_code 首键为 description |
 |---|---|---|---|

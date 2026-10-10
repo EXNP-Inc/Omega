@@ -2,12 +2,12 @@
  * Types for the TypeScript SDK client: launch options, notification shapes,
  * and owned activity results.
  *
- * @module @deepseek-ai/dsh-sdk-client/types
+ * @module @omega-ai/dsh-sdk-client/types
  */
 
-import type { ContentBlock, ReasoningEffortId } from '@deepseek-ai/dsh-llm'
-import type { SdkPromptContentBlock } from '@deepseek-ai/dsh-sdk-protocol'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
+import type { ContentBlock, ReasoningEffortId } from '@omega-ai/dsh-llm'
+import type { SdkPromptContentBlock } from '@omega-ai/dsh-sdk-protocol'
+import type { SessionEvent } from '@omega-ai/dsh-session'
 
 /** One server-to-client notification as received off the wire. */
 export interface HarnessNotification {
@@ -36,7 +36,7 @@ export interface HarnessClientOptions {
    * The complete child environment, read when {@link HarnessClient.start}
    * spawns. `undefined` reads the parent env at that time; passing an object
    * reads that object at spawn and replaces the parent environment entirely, so callers own
-   * credential policy (see `scrubbedParentEnv` in `@deepseek-ai/dsh-subprocess`
+   * credential policy (see `scrubbedParentEnv` in `@omega-ai/dsh-subprocess`
    * for the shared scrub-then-merge base).
    */
   env?: NodeJS.ProcessEnv
@@ -52,13 +52,13 @@ export interface HarnessClientOptions {
   disposeGraceMs?: number
 }
 
-/** Options for the high-level {@link DeepSeekHarness} wrapper. */
-export interface DeepSeekHarnessOptions extends HarnessClientOptions {
+/** Options for the high-level {@link OmegaHarness} wrapper. */
+export interface OmegaHarnessOptions extends HarnessClientOptions {
   /** Workspace cwd recorded on every SDK-created session (default: the process cwd, else `process.cwd()`). */
   cwd?: string
-  /** Provider route for SDK-created agents (default `deepseek-official`). */
+  /** Provider route for SDK-created agents (default `mac`). */
   provider?: string
-  /** Model for SDK-created agents (default `deepseek-v4-flash`). */
+  /** Model for SDK-created agents (default `qwen3.8-27b-lite`). */
   model?: string
   /** Adapter-owned reasoning effort for the selected provider/model route. */
   reasoningEffort?: ReasoningEffortId

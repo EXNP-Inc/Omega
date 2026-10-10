@@ -1,19 +1,19 @@
 // @vitest-environment jsdom
 /** Detail adapters accept the exact recorded result text and retain safe fallback paths. */
 import { describe, expect, it } from 'vitest'
-import type { ToolResultNode } from '@deepseek-ai/dsh-client-ui-chat/client'
-import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import { en, zh } from '@deepseek-ai/dsh-client-ui-conversation/src/client/locales.ts'
-import { en as commonEn } from '@deepseek-ai/dsh-client-locale/src/locales/en.ts'
-import { zh as commonZh } from '@deepseek-ai/dsh-client-locale/src/locales/zh.ts'
-import { statusLine } from '@deepseek-ai/dsh-tool-jobs/src/render.ts'
-import { presentation } from '@deepseek-ai/dsh-tool-session-query/src/presentation.ts'
-import { renderList, renderRead, renderSpawn } from '@deepseek-ai/dsh-tool-terminal/src/render.ts'
-import { formatSpillNotice } from '@deepseek-ai/dsh-spill-policy/notice'
+import type { ToolResultNode } from '@omega-ai/dsh-client-ui-chat/client'
+import { makeTranslate } from '@omega-ai/dsh-client-test-runtime'
+import { en, zh } from '@omega-ai/dsh-client-ui-conversation/src/client/locales.ts'
+import { en as commonEn } from '@omega-ai/dsh-client-locale/src/locales/en.ts'
+import { zh as commonZh } from '@omega-ai/dsh-client-locale/src/locales/zh.ts'
+import { statusLine } from '@omega-ai/dsh-tool-jobs/src/render.ts'
+import { presentation } from '@omega-ai/dsh-tool-session-query/src/presentation.ts'
+import { renderList, renderRead, renderSpawn } from '@omega-ai/dsh-tool-terminal/src/render.ts'
+import { formatSpillNotice } from '@omega-ai/dsh-spill-policy/notice'
 import { detailBadge, detailJson, detailList, detailRecord, inspectionItems, nonempty } from '../src/client/tool/models/detail-model-shared.ts'
 import { detailsCardModel } from '../src/client/tool/models/details-card-model.ts'
-import { SpillLocator } from '@deepseek-ai/dsh-spill'
-import { PartialArguments } from '@deepseek-ai/dsh-util-values'
+import { SpillLocator } from '@omega-ai/dsh-spill'
+import { PartialArguments } from '@omega-ai/dsh-util-values'
 
 const t = makeTranslate(en, commonEn)
 
@@ -95,7 +95,7 @@ describe('control detail adapters', () => {
     expect(details('wait_agent', '{"timedOut":false,"noProgress":{"message":"No peer"}}')?.items[0]?.description).toBe('No peer')
     expect(details('subagent', 'started background subagent job job-1', { prompt: 'Do work' })?.items[0]?.fields).toContainEqual({ label: 'Job ID', value: 'job-1' })
     expect(details('subagent', 'A useful reply', { prompt: 'Do work' })?.items[0]?.markdown).toBe('A useful reply')
-    expect(details('list_subagent_models', 'deepseek-chat — Fast\nunknown', { model: 'deepseek-chat' })?.items).toHaveLength(2)
+    expect(details('list_subagent_models', 'omega-chat — Fast\nunknown', { model: 'omega-chat' })?.items).toHaveLength(2)
     expect(details('job_kill', 'requested cancellation of job j1', { job_id: 'j1', reason: 'stop' })?.summary).toContain('Cancellation requested')
     expect(details('job_kill', 'job j1 had already finished completed', { job_id: 'j1' })?.summary).toContain('Already finished')
     const spawnText = renderSpawn({ sessionId: 'pty-1', type: 'shell', status: { kind: 'running' }, motd: 'ready' }, 1000)

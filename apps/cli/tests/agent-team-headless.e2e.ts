@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { execa } from 'execa'
 import { describe, expect, it } from 'vitest'
-import { resolveExampleLaunch } from '@deepseek-ai/dsh-loader-smoke'
+import { resolveExampleLaunch } from '@omega-ai/dsh-loader-smoke'
 
 const dshBinScript = fileURLToPath(new URL('../src/bin.ts', import.meta.url))
 const tsconfigPath = fileURLToPath(new URL('../../../tsconfig.json', import.meta.url))
@@ -28,21 +28,27 @@ describe('dsh run with Agent Teams enabled', () => {
         name: 'dsh-profile-headless',
         private: true,
         dependencies: {
-          '@deepseek-ai/dsh-experimental-agent-team-profile': 'workspace:^',
+          '@omega-ai/dsh-experimental-agent-team-profile': 'workspace:^',
         },
         dsh: {
           profile: {
             bundles: [
-              '@deepseek-ai/dsh-base',
-              '@deepseek-ai/dsh-headless',
-              '@deepseek-ai/dsh-experimental-agent-team-profile',
+              '@omega-ai/dsh-base',
+              '@omega-ai/dsh-headless',
+              '@omega-ai/dsh-experimental-agent-team-profile',
             ],
           },
         },
       }, undefined, 2) + '\n')
       await writeFile(join(profileDir, 'cordis.patch.yml'), [
-        '- id: llm-deepseek',
+        '- id: llm-omega',
         '  disabled: true',
+        // Route the deterministic fixture adapter, which registers on
+        // omega-official, where the profile's default model points.
+        '- id: agent-default-model',
+        '  config:',
+        '    provider: omega-official',
+        '    model: omega-v4-flash',
         '- id: session-persistence-jsonl',
         '  config:',
         `    root: '${sessions}'`,
@@ -60,7 +66,7 @@ describe('dsh run with Agent Teams enabled', () => {
           DSH_HOME: home,
           DSH_AGENTS_HOME: join(cwd, '.agents'),
           DSH_TELEMETRY_DISABLED: '1',
-          DEEPSEEK_API_KEY: '',
+          OMEGA_API_KEY: '',
           NODE_OPTIONS: [
             process.env.NODE_OPTIONS,
             '--disable-warning=ExperimentalWarning',

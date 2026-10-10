@@ -1,8 +1,8 @@
 /** Host-resolved file identities across pending stats, reconnects, and disposal. */
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
-import type { RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
-import { sessionFileAddress } from '@deepseek-ai/dsh-util-workspace-path'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import { RemoteError } from '@omega-ai/dsh-typert-protocol'
+import type { RemoteResult } from '@omega-ai/dsh-typert-protocol'
+import { sessionFileAddress } from '@omega-ai/dsh-util-workspace-path'
 import { describe, expect, it, onTestFinished } from 'vitest'
 import { ChangeFeed } from '../src/client/change-feed.ts'
 import { createFileResourceProvider } from '../src/client/provider.ts'

@@ -10,20 +10,20 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
-import { PtcRuntime } from '@deepseek-ai/dsh-ptc-runtime'
-import type { PtcRunRequest, PtcRunResult } from '@deepseek-ai/dsh-ptc-runtime'
-import { ToolCallId, LlmAdapter, LlmRuntime } from '@deepseek-ai/dsh-llm'
-import type { GenerateOptions, LlmModelInfo, LlmResolvedModelInfo, Message, StreamChunk } from '@deepseek-ai/dsh-llm'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime, { RUN_CODE_NAME } from '@deepseek-ai/dsh-tools'
-import type { Config as ToolConfig } from '@deepseek-ai/dsh-tools'
-import LocalFileSystem from '@deepseek-ai/dsh-fs-local'
-import * as FsPolicy from '@deepseek-ai/dsh-fs-observation-policy'
-import LocalAttachmentStore from '@deepseek-ai/dsh-attachment-local'
-import { AttachmentError, AttachmentId, AttachmentStore } from '@deepseek-ai/dsh-attachment'
-import type { ImageAttachmentLimits, ImageAttachmentRef, SaveImageAttachment, StoredImageAttachment } from '@deepseek-ai/dsh-attachment'
-import * as ToolFs from '@deepseek-ai/dsh-tool-fs'
+import { Context } from '@omega-ai/cordis'
+import { PtcRuntime } from '@omega-ai/dsh-ptc-runtime'
+import type { PtcRunRequest, PtcRunResult } from '@omega-ai/dsh-ptc-runtime'
+import { ToolCallId, LlmAdapter, LlmRuntime } from '@omega-ai/dsh-llm'
+import type { GenerateOptions, LlmModelInfo, LlmResolvedModelInfo, Message, StreamChunk } from '@omega-ai/dsh-llm'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRuntime, { RUN_CODE_NAME } from '@omega-ai/dsh-tools'
+import type { Config as ToolConfig } from '@omega-ai/dsh-tools'
+import LocalFileSystem from '@omega-ai/dsh-fs-local'
+import * as FsPolicy from '@omega-ai/dsh-fs-observation-policy'
+import LocalAttachmentStore from '@omega-ai/dsh-attachment-local'
+import { AttachmentError, AttachmentId, AttachmentStore } from '@omega-ai/dsh-attachment'
+import type { ImageAttachmentLimits, ImageAttachmentRef, SaveImageAttachment, StoredImageAttachment } from '@omega-ai/dsh-attachment'
+import * as ToolFs from '@omega-ai/dsh-tool-fs'
 import {
   applyReadImageTool,
   formatImageReadOutput,
@@ -71,7 +71,7 @@ class CatalogAdapter extends LlmAdapter {
 
 /** In-process PTC mode seam fake that invokes the real registry bindings. */
 class FakeRuntime extends PtcRuntime {
-  resolve(request: import('@deepseek-ai/dsh-ptc-runtime').PtcRunRequest): import('@deepseek-ai/dsh-ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+  resolve(request: import('@omega-ai/dsh-ptc-runtime').PtcRunRequest): import('@omega-ai/dsh-ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
   readonly language = 'typescript'
   readonly isolation = 'fake'

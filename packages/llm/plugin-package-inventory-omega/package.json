@@ -1,0 +1,63 @@
+{
+  "name": "@omega-ai/dsh-plugin-package-inventory-omega",
+  "description": "Active Loader-backed plugin package inventory for official Omega LLM API requests",
+  "version": "0.2.1-alpha.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
+    "directory": "packages/llm/plugin-package-inventory-omega"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./types": {
+      "types": "./lib/types/types.d.ts",
+      "default": "./lib/types/types.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@omega-ai/dsh-brand": "workspace:*",
+    "@omega-ai/schemastery": "workspace:~"
+  },
+  "peerDependencies": {
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/cordis-plugin-loader": "workspace:~",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-agent-preset-registry": "workspace:*",
+    "@omega-ai/dsh-omega-llm-api-extensions": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+    "@omega-ai/dsh-agent-preset-registry": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@omega-ai/dsh-app-boot": "workspace:*",
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/cordis-plugin-include": "workspace:~",
+    "@omega-ai/cordis-plugin-loader": "workspace:~",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-agent-preset-registry": "workspace:*",
+    "@omega-ai/dsh-omega-llm-api-extensions": "workspace:*",
+    "@omega-ai/dsh-scope": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-session-projection": "workspace:*"
+  }
+}

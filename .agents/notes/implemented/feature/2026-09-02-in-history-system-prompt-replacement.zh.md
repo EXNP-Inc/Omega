@@ -6,9 +6,9 @@ Status: implemented
 
 ## Problem
 
-每一次系统提示词变更都要付出整个提供方前缀缓存的代价。循环在每个步骤渲染提示词；一旦字节不同——plan 模式片段进入或退出、某个 skill 或工具指引片段完成注册、agent 作用域的 persona 遮蔽、`{{model}}` 变量改变——请求的消息 0 随之改变，DeepSeek 上下文缓存从第一个 token 起失效。长时间的 agent 会话反复为此付费，而[运行时上下文快照设计](../../archived/feature/2026-07-30-current-sandbox-policy-context.md)之所以存在，正是因为把会变化的事实移出提示词是保持前缀稳定的唯一办法。
+每一次系统提示词变更都要付出整个提供方前缀缓存的代价。循环在每个步骤渲染提示词；一旦字节不同——plan 模式片段进入或退出、某个 skill 或工具指引片段完成注册、agent 作用域的 persona 遮蔽、`{{model}}` 变量改变——请求的消息 0 随之改变，Omega 上下文缓存从第一个 token 起失效。长时间的 agent 会话反复为此付费，而[运行时上下文快照设计](../../archived/feature/2026-07-30-current-sandbox-policy-context.md)之所以存在，正是因为把会变化的事实移出提示词是保持前缀稳定的唯一办法。
 
-一个 DeepSeek 模型——在此按为本项工作提供的模型事实记录——移除了这一限制：它接受对话任意位置的 `system` 消息，并把最新一条视为完整的有效系统提示词，替换最前面那条。工具 schema 仍属于被缓存的前缀；[动态工具更新](../architecture/2026-09-20-dynamic-tool-updates.zh.md)可以延迟新增声明，而保留定义的变化仍使复用失效。有了这样的模型，harness 可以把新提示词追加到已缓存的历史之后而不是重写消息 0，前缀就能保持热态。
+一个 Omega 模型——在此按为本项工作提供的模型事实记录——移除了这一限制：它接受对话任意位置的 `system` 消息，并把最新一条视为完整的有效系统提示词，替换最前面那条。工具 schema 仍属于被缓存的前缀；[动态工具更新](../architecture/2026-09-20-dynamic-tool-updates.zh.md)可以延迟新增声明，而保留定义的变化仍使复用失效。有了这样的模型，harness 可以把新提示词追加到已缓存的历史之后而不是重写消息 0，前缀就能保持热态。
 
 因为[系统提示词是 surface 第 0 号节点](../architecture/2026-09-02-system-prompt-as-surface-node.zh.md)，harness 拥有实现这一点的表示：提示词变更是对 `system/message` surface 节点的操作，而「替换最新的系统节点」与「追加新节点」之间的选择是逐路由的决定。
 
@@ -18,7 +18,7 @@ Status: implemented
 
 ### 能力
 
-`dsh-llm` 定义 `SystemPromptUpdate = 'in-history'`，并把它作为可选的并列字段 `systemPromptUpdate` 放在 `LlmResolvedModelInfo` 与 `PreparedLlmCall` 上；`normalizeModelInfo` 用代码为 `INVALID_MODEL_INFO` 的 `LlmError` 拒绝任何其他值。DeepSeek 适配器的目录模型（`DeepSeekCatalogModel.systemPromptUpdate`，加载时由 zod 校验）与回放提供者的 `ReplayModelConfig.systemPromptUpdate` 逐模型声明它；缺省表示该模型需要重写消息 0。`dsh-llm-deepseek` 仅内置 `deepseek-flash` 条目，在该条目上声明它，同时声明文本和图片输入。该精确目录条目记录模型能力；名称和协议类别不能推导其他模型是否支持。部署方可以通过 `cordis.yml` 的 `models` 列表替换目录，所有 `dsh-llm-pi-ai` 路由保持替换行为。
+`dsh-llm` 定义 `SystemPromptUpdate = 'in-history'`，并把它作为可选的并列字段 `systemPromptUpdate` 放在 `LlmResolvedModelInfo` 与 `PreparedLlmCall` 上；`normalizeModelInfo` 用代码为 `INVALID_MODEL_INFO` 的 `LlmError` 拒绝任何其他值。Omega 适配器的目录模型（`OmegaCatalogModel.systemPromptUpdate`，加载时由 zod 校验）与回放提供者的 `ReplayModelConfig.systemPromptUpdate` 逐模型声明它；缺省表示该模型需要重写消息 0。`dsh-llm-omega` 仅内置 `omega-flash` 条目，在该条目上声明它，同时声明文本和图片输入。该精确目录条目记录模型能力；名称和协议类别不能推导其他模型是否支持。部署方可以通过 `cordis.yml` 的 `models` 列表替换目录，所有 `dsh-llm-pi-ai` 路由保持替换行为。
 
 循环把该模式记录进会话：`RequestContext.systemPromptUpdate` 与 provider、model、容量并列成为 `request/context` 的字段，其中任一项与最新快照不同时就记录一次。准入读取 `agent/request` 之后实际准备调用的 `PreparedLlmCall.systemPromptUpdate`；先前快照不是准入输入。因此首次请求、恢复的会话、路由变更以及同一路由的能力变更，都使用将服务该调用的绑定适配器的能力。
 
@@ -90,8 +90,8 @@ Chat 与 Trajectory 通过纯操作 `uiConversation.inspectSystemPrompt` 解释�
 - `packages/core/agent-loop/tests/system-prompt-admission.spec.ts` 覆盖文本变化或未变时从具备能力切换到不具备能力的路由、反向路由切换、恢复时的路由准入、请求中间件或准备阶段取消，以及已准备路由保持绑定时并发选择发生变化。重试压缩用例覆盖遮蔽最新提示词后有或没有更早更新存活的情况，并验证复用已接纳的组装结果、用户消息仅接纳一次，以及未变的后续重试不会多记序列 header。具备和不具备能力路由的清除用例会移除三个生效提示词版本，验证重复请求与带 seed 的恢复保持为空且不多记提示词事件，并仅恢复新文本；日志重建与 pi 转换器都不保留旧指令。`src/agent.ts` 与 `src/runtime-context.ts` 的聚焦覆盖率在语句、分支、函数和行四项均达到 100%。
 - `packages/core/agent-loop/tests/system-prompt-projection.spec.ts` 钉住序列延续时的追加、序列开始时无论是否存在后续存活节点、有效文本是否变化都执行的重新基线化、空提示词对所有生效版本的清除，以及不具备能力时只做替换的行为。
 - `packages/core/agent-loop/tests/request-reconstruction.spec.ts` 钉住继承 header 下追加的节点及携带 `systemPromptUpdate` 的 `request/context`、序列开始时折回第 0 号节点、由压缩驱动的重新基线化，以及在不支持 `toolUpdate` 的路由上、开启序列的 `change` header 下由工具 schema 变更驱动的重新基线化。
-- `packages/llm/llm/tests/service.spec.ts`、`packages/llm/llm-deepseek/tests/adapter.spec.ts` 与 `packages/test-support/llm-replay/tests/llm-replay.spec.ts` 钉住已解析模型信息上声明的模式，以及加载时对任何其他值的拒绝。
+- `packages/llm/llm/tests/service.spec.ts`、`packages/llm/llm-omega/tests/adapter.spec.ts` 与 `packages/test-support/llm-replay/tests/llm-replay.spec.ts` 钉住已解析模型信息上声明的模式，以及加载时对任何其他值的拒绝。
 - `packages/llm/token-meter/tests/context-breakdown-projection.spec.ts` 钉住最新与中间提示词移除、精确启发式总量、头部改写后的 surface 顺序、额外来源引用、休眠空节点与回退清空、不可变转换、紧凑保留检查点、延迟注册、重放和版本失效。
 - `packages/client/ui-conversation`、`ui-chat` 与 `ui-trajectory` 的客户端测试钉住更新卡片、同一步骤 header 的去重、更新之后不存在系统变更，以及合成的轨迹 header。
 - 无密钥的手写快照 `snapshots/session/system-prompt-in-history/` 在回放路由上声明该能力，通过 fixture 片段在第一次工具调用之后改变提示词，钉住追加的 `system/message`、未被触及的第 0 号节点、唯一一条 `request/header` 以及 `request/context` 中的模式。
-- `packages/llm/llm-deepseek/tests/adapter.e2e.ts` 针对 `DEEPSEEK_IN_HISTORY_MODEL` 指定的模型运行两个步骤并夹带一次提示词变更，断言回复遵循追加的提示词，并断言追加后的请求比同一对话在重写最前提示词时读取更多的缓存 token；该变量未设置时跳过。
+- `packages/llm/llm-omega/tests/adapter.e2e.ts` 针对 `OMEGA_IN_HISTORY_MODEL` 指定的模型运行两个步骤并夹带一次提示词变更，断言回复遵循追加的提示词，并断言追加后的请求比同一对话在重写最前提示词时读取更多的缓存 token；该变量未设置时跳过。

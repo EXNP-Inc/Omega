@@ -1,6 +1,6 @@
 /** Deterministic keyless Agent Teams adapter shared by profile snapshot and CLI e2e. */
 
-import { ToolCallId, LlmAdapter } from '@deepseek-ai/dsh-llm'
+import { ToolCallId, LlmAdapter } from '@omega-ai/dsh-llm'
 
 let nextCall = 0
 
@@ -206,7 +206,7 @@ export const name = 'team-fixture-llm'
 /** LLM registry dependency. */
 export const inject = ['llm']
 
-/** Register the keyless adapter on the shipped default provider route. */
+/** Register the keyless adapter on the deterministic `omega-official` fixture route. */
 export function apply(ctx) {
-  ctx.llm.registerAdapter(['deepseek-official'], new TeamFixtureAdapter())
+  ctx.llm.registerAdapter(['omega-official'], new TeamFixtureAdapter())
 }

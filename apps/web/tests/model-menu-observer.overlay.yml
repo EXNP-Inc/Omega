@@ -1,0 +1,7 @@
+# The scenario asserts the default selection stays on its first declared
+# route across the whole keyboard tour, so pin it there instead of the
+# scaffold's replay Omega catalog default.
+- id: agent-default-model
+  config:
+    provider: origin-gateway
+    model: origin-large

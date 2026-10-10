@@ -1,8 +1,8 @@
 /** Native V4 metadata and generation-owned relationship validation. */
 
 import { isAbsolute } from 'node:path'
-import { SessionFormatError, SessionFormatUnsupportedMigrationError, isSessionFormatJsonObject, sessionFormatCount } from '@deepseek-ai/dsh-session-format'
-import type { SessionFormatArtifact, SessionFormatEvent } from '@deepseek-ai/dsh-session-format'
+import { SessionFormatError, SessionFormatUnsupportedMigrationError, isSessionFormatJsonObject, sessionFormatCount } from '@omega-ai/dsh-session-format'
+import type { SessionFormatArtifact, SessionFormatEvent } from '@omega-ai/dsh-session-format'
 import { assertV4DeveloperData } from './developer.ts'
 import { assertV4LifecycleRelationships } from './relationships.ts'
 import { assertV4MessageSources } from './message-sources.ts'
@@ -87,7 +87,7 @@ export function restoreReleasedV4Artifact(artifact: SessionFormatArtifact, known
  * @returns the active delivery's nonempty Session id, or undefined for other events and generations.
  */
 export function validateDeliveryAccepted(event: SessionFormatEvent, currentVersion: 3 | 4): string | undefined {
-  if (event.type !== 'session-log-deepseek/delivery-accepted') return undefined
+  if (event.type !== 'session-log-omega/delivery-accepted') return undefined
   const data = event.data
   if (!isSessionFormatJsonObject(data)) throw new SessionFormatError('delivery-accepted data must be an object')
   const version = sessionFormatCount(data['sessionFormatVersion'] === undefined ? 0 : data['sessionFormatVersion'], 'delivery sessionFormatVersion')

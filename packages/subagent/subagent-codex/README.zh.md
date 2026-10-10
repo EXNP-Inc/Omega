@@ -3,13 +3,13 @@ description: "面向用户与维护者的一次性 Codex subagent 提供方，�
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-subagent-codex
+# @omega-ai/dsh-subagent-codex
 
 [English](README.md) | 中文
 
 ## 概述
 
-当委派工作需要在父会话工作区中的真实无人值守 Codex 会话内运行时，把 `@deepseek-ai/dsh-subagent-codex` 安装进 Profile。每次委派都会为一个自包含文本任务使用全新且隔离的 Codex 线程，并且只返回其最终答案或安全失败诊断。原生 Codex 配置和身份验证继续作为权威来源，而 `permissionMode` 选择非交互式审批和沙箱行为。Bundle 会提供兼容的原生 Codex 载荷，但只有配置委派工具后才会向模型公开相应能力。
+当委派工作需要在父会话工作区中的真实无人值守 Codex 会话内运行时，把 `@omega-ai/dsh-subagent-codex` 安装进 Profile。每次委派都会为一个自包含文本任务使用全新且隔离的 Codex 线程，并且只返回其最终答案或安全失败诊断。原生 Codex 配置和身份验证继续作为权威来源，而 `permissionMode` 选择非交互式审批和沙箱行为。Bundle 会提供兼容的原生 Codex 载荷，但只有配置委派工具后才会向模型公开相应能力。
 
 ## 目录
 
@@ -32,8 +32,8 @@ kind: "package-bundle"
 把包安装进目标 Profile，然后重启该 Profile。安装会把官方 wrapper 与一个兼容的原生平台载荷带入 Profile；声明的 patch 层只注册休眠的提供方，不启动任何 Codex 进程。
 
 ```sh
-dsh plugin --profile <name> add @deepseek-ai/dsh-subagent-codex
-dsh plugin --profile <name> remove @deepseek-ai/dsh-subagent-codex
+dsh plugin --profile <name> add @omega-ai/dsh-subagent-codex
+dsh plugin --profile <name> remove @omega-ai/dsh-subagent-codex
 dsh --profile <name>
 ```
 
@@ -55,7 +55,7 @@ dsh --profile <name>
 | `approve-for-me` | `approvalPolicy: on-request`、`approvalsReviewer: auto_review`、`sandbox: workspace-write` | 由 Codex 自动评审权限请求，不等待人工 |
 | `dangerously-bypass-approvals-and-sandbox` | `approvalPolicy: never`、`sandbox: danger-full-access` | 跳过审批与 sandbox；必须显式选择该值 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-subagent-codex)是每个受支持字段及其 JSDoc 的穷尽式真源。已配置的 `model` 会原样传给每个临时 `thread/start`；省略时保留原生模型选择。提供方不会发现模型、改写别名、选择 `modelProvider` 或 `serviceTier`，也不会设置 fallback。具有凭证特征的环境变量会在显式 `env` 覆盖生效前被移除，因此供子进程使用的 API 密钥必须在该配置中显式提供。
+生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-subagent-codex)是每个受支持字段及其 JSDoc 的穷尽式真源。已配置的 `model` 会原样传给每个临时 `thread/start`；省略时保留原生模型选择。提供方不会发现模型、改写别名、选择 `modelProvider` 或 `serviceTier`，也不会设置 fallback。具有凭证特征的环境变量会在显式 `env` 覆盖生效前被移除，因此供子进程使用的 API 密钥必须在该配置中显式提供。
 
 ### 暴露工具
 
@@ -63,11 +63,11 @@ dsh --profile <name>
 
 ```yaml
 - id: jobs
-  name: '@deepseek-ai/dsh-jobs-local'
+  name: '@omega-ai/dsh-jobs-local'
 - id: tool-jobs
-  name: '@deepseek-ai/dsh-tool-jobs'
+  name: '@omega-ai/dsh-tool-jobs'
 - id: tool-subagent-codex
-  name: '@deepseek-ai/dsh-tool-subagent'
+  name: '@omega-ai/dsh-tool-subagent'
   config:
     provider: codex
     toolName: subagent_codex
@@ -127,7 +127,7 @@ dsh --profile <name>
 - [dsh-subagent seam](../subagent/README.zh.md)——本提供方注册于其上的注册表与启动 API。
 - [Claude Code subagent 提供方](../subagent-claude-code/README.zh.md)——经官方 Agent SDK 的兄弟产品后端。
 - [历史Claude Code 与 Codex 后端](../../../.agents/notes/archived/feature/2026-08-04-claude-code-and-codex-subagent-backends.md)——产品提供方的设计记录。
-- [生成配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-subagent-codex)——每个受支持配置字段及其源声明。
+- [生成配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-subagent-codex)——每个受支持配置字段及其源声明。
 
 -----
 
@@ -173,7 +173,7 @@ Codex 子级会在一个全新的临时线程中，以单个轮次接收这些�
 - **静态选择实例**——Profile 配置项固定提供方名称、可选模型与工具绑定；调用无法动态选择或修改提供方与模型，而且每个公开工具都需要唯一的 `toolName`。
 - **身份验证与账户状态仍由原生机制管理**——Bundle 会提供 CLI，但不会创建账户、登录、信任项目或改写 Codex 设置；配置与身份验证失败会公开其生命周期阶段与安全的 `unknown` 回退，而不会增加单独的公开分类体系。
 - **委派时必须存在原生平台载荷**——省略 optional dependencies 的安装、不受支持的平台以及缺失或损坏的载荷都会在第一次运行时失败；不会回退到宿主 CLI。
-- **兼容性由开发证据锁定**——若要从已验证的 0.153.4 协议基线升级，必须重新生成上游 schema 证据，并重新运行握手、答案选择、审批、取消、无密钥真实产品以及带密钥的 DeepSeek 随机数测试。
+- **兼容性由开发证据锁定**——若要从已验证的 0.153.4 协议基线升级，必须重新生成上游 schema 证据，并重新运行握手、答案选择、审批、取消、无密钥真实产品以及带密钥的 Omega 随机数测试。
 - **没有人工审批路径**——已知的无人值守审批请求会被拒绝，未知服务器请求会以默认拒绝方式使运行失败；三种 Profile 模式都不会创建 DSH 交互通道或逐次调用 allow 策略。
 - **assistant 载荷仅包含最终文本**——失败运行可以额外公开独立的安全诊断；推理、过程说明、中间消息、工具通信、用量信息、原始 stderr 和工作区差异不会进入父会话，通用 Job id、通知与状态来自共享作业运行时。
 - **没有可选的共享能力**——对于本提供方，共享服务会拒绝 `agentOptions`、输出 schema、子任务角色设定、工具筛选和 harness 深度强制约束。

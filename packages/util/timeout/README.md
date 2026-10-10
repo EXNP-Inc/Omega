@@ -3,7 +3,7 @@ description: "Shared timeout arithmetic, deadline fusion, and timeout-versus-can
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-timeout
+# @omega-ai/dsh-timeout
 
 English | [中文](README.zh.md)
 
@@ -30,7 +30,7 @@ Use `deadline` when a capability runs one unit of work under a caller-visible ti
 ### Clamping a timeout hint
 
 ```ts
-import { clampTimeout } from '@deepseek-ai/dsh-timeout'
+import { clampTimeout } from '@omega-ai/dsh-timeout'
 
 declare const requested: number | undefined
 declare const DEFAULT_TIMEOUT_MS: number
@@ -44,7 +44,7 @@ const timeoutMs = clampTimeout(requested, DEFAULT_TIMEOUT_MS, MAX_TIMEOUT_MS, 'b
 ### Running work under a deadline
 
 ```text
-import { deadline, timeoutOf } from '@deepseek-ai/dsh-timeout'
+import { deadline, timeoutOf } from '@omega-ai/dsh-timeout'
 
 using d = deadline(upstream, timeoutMs, 'BASH_TIMEOUT')
 const outcome = await runWork({ signal: d.signal })   // work listens on d.signal and terminates itself
@@ -61,7 +61,7 @@ The signal only notifies: the caller must attach its own termination — hand `d
 ### Streaming with an idle watchdog
 
 ```ts
-import { idleWatchdog } from '@deepseek-ai/dsh-timeout'
+import { idleWatchdog } from '@omega-ai/dsh-timeout'
 
 declare const upstream: AbortSignal | undefined
 declare const idleMs: number
@@ -103,7 +103,7 @@ The library is built on one boundary: share the timing and classification, keep 
 
 ### Why an idle watchdog rearms
 
-`idleWatchdog` keeps one stable fused signal and arms the timer only while `next()` is outstanding; resolution disarms, later demand or `pulse()` rearms, disposal clears, and concurrent demand rejects. Only the transport observes the signal, so the provider's real read must listen to it — the DeepSeek and pi-ai adapters close their response body or SDK request on abort.
+`idleWatchdog` keeps one stable fused signal and arms the timer only while `next()` is outstanding; resolution disarms, later demand or `pulse()` rearms, disposal clears, and concurrent demand rejects. Only the transport observes the signal, so the provider's real read must listen to it — the Omega and pi-ai adapters close their response body or SDK request on abort.
 
 </details>
 

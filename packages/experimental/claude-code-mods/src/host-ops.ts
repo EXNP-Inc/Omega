@@ -8,27 +8,27 @@
  * @module
  */
 
-import type { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
+import type { Context } from '@omega-ai/cordis'
+import type { Agent } from '@omega-ai/dsh-agent'
 // Type-only: activate the `ctx.get('subprocess')` and `ctx.get('sessionProjections')` Context declarations.
-import type {} from '@deepseek-ai/dsh-subprocess'
-import type {} from '@deepseek-ai/dsh-session-projection'
-import type { SessionProjectionStateMap } from '@deepseek-ai/dsh-session-projection/types'
-import type { CommandDefinition } from '@deepseek-ai/dsh-commands'
-import type { FileSystem, FsTarget } from '@deepseek-ai/dsh-fs'
-import { createUserMessage, ToolCallId } from '@deepseek-ai/dsh-llm'
-import type { ContentBlock, Message } from '@deepseek-ai/dsh-llm'
-import { scopeOf } from '@deepseek-ai/dsh-scope'
-import type { Session } from '@deepseek-ai/dsh-session'
+import type {} from '@omega-ai/dsh-subprocess'
+import type {} from '@omega-ai/dsh-session-projection'
+import type { SessionProjectionStateMap } from '@omega-ai/dsh-session-projection/types'
+import type { CommandDefinition } from '@omega-ai/dsh-commands'
+import type { FileSystem, FsTarget } from '@omega-ai/dsh-fs'
+import { createUserMessage, ToolCallId } from '@omega-ai/dsh-llm'
+import type { ContentBlock, Message } from '@omega-ai/dsh-llm'
+import { scopeOf } from '@omega-ai/dsh-scope'
+import type { Session } from '@omega-ai/dsh-session'
 // Type-only: merges the token-meter projection states into SessionProjectionStateMap.
-import type {} from '@deepseek-ai/dsh-token-meter'
-import { defineDomain, domainTable } from '@deepseek-ai/dsh-storage-domain'
-import type { Domain } from '@deepseek-ai/dsh-storage-domain'
-import { assertObjectJsonSchema } from '@deepseek-ai/dsh-tools'
-import type { ToolDefinition, ToolExecutionResult } from '@deepseek-ai/dsh-tools'
-import type { AskUserQuestionOption } from '@deepseek-ai/dsh-user-questions'
-import { randomUUID } from '@deepseek-ai/dsh-util-crypto'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+import type {} from '@omega-ai/dsh-token-meter'
+import { defineDomain, domainTable } from '@omega-ai/dsh-storage-domain'
+import type { Domain } from '@omega-ai/dsh-storage-domain'
+import { assertObjectJsonSchema } from '@omega-ai/dsh-tools'
+import type { ToolDefinition, ToolExecutionResult } from '@omega-ai/dsh-tools'
+import type { AskUserQuestionOption } from '@omega-ai/dsh-user-questions'
+import { randomUUID } from '@omega-ai/dsh-util-crypto'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
 import { record, requireString, stringify } from './values.ts'
 import { z as zod } from 'zod'
 import type { LoadedMod } from './chain.ts'
@@ -45,7 +45,7 @@ export interface AgentBinding {
 }
 
 /** The mods API version string `$.session.version()` reports. */
-export const MODS_API_VERSION: SessionVersion = Object.freeze({ version: 'claude-code-mods/0.1', engine: 'deepseek-harness' })
+export const MODS_API_VERSION: SessionVersion = Object.freeze({ version: 'claude-code-mods/0.1', engine: 'omega-harness' })
 
 /** Largest file `$.fs.read` returns and `$.fs.write` accepts, Claude Code's own limit. */
 export const FS_MAX_BYTES = 4 * 1024 * 1024

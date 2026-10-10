@@ -5,16 +5,16 @@
  * that are already showing, so a default set from one converges the other.
  */
 
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { describe, expect, it, vi } from 'vitest'
-import { resolveSlotLabel } from '@deepseek-ai/dsh-client-ui-slots'
-import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import { createSnapshotStore, type ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
-import { RemoteError, TestRemote } from '@deepseek-ai/dsh-client-test-runtime'
-import { SessionId } from '@deepseek-ai/dsh-session'
-import { apply as settingsApply, inject as settingsInject } from '@deepseek-ai/dsh-client-ui-settings/client'
-import { apply, inject } from '@deepseek-ai/dsh-client-ui-agent-preset/client'
+import { resolveSlotLabel } from '@omega-ai/dsh-client-ui-slots'
+import { SlotRegistry } from '@omega-ai/dsh-client-ui-renderer/client'
+import { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
+import { createSnapshotStore, type ObservableSnapshot } from '@omega-ai/dsh-client-store'
+import { RemoteError, TestRemote } from '@omega-ai/dsh-client-test-runtime'
+import { SessionId } from '@omega-ai/dsh-session'
+import { apply as settingsApply, inject as settingsInject } from '@omega-ai/dsh-client-ui-settings/client'
+import { apply, inject } from '@omega-ai/dsh-client-ui-agent-preset/client'
 import { AgentPresetLabel } from '../src/client/AgentPresetLabel.tsx'
 import type { AgentPresetLabelInjected } from '../src/client/AgentPresetLabel.tsx'
 import { AgentPresetSection } from '../src/client/AgentPresetSection.tsx'
@@ -25,7 +25,7 @@ import { AgentPresetSeatController } from '../src/client/seat-store.ts'
 import { CreatePluginMenuItem, type CreatePluginMenuItemInjected } from '../src/client/CreatePluginMenuItem.tsx'
 import { AgentPresetSectionController } from '../src/client/section-store.ts'
 import { apply as hostApply } from '../src/index.ts'
-import type { AgentPresetRow } from '@deepseek-ai/dsh-agent-preset-registry/types'
+import type { AgentPresetRow } from '@omega-ai/dsh-agent-preset-registry/types'
 
 // These specs assert the shipped Chinese copy. The lane has no jsdom `window`,
 // so browser-language detection never runs and a fresh LocaleRuntime opens on
@@ -449,7 +449,7 @@ describe('ui-agent-preset apply', () => {
     await vi.waitFor(() => { expect(calls.length).toBe(before + 3) })
     const afterRelevant = calls.length
 
-    remote.emit('settings/document-updated', ['llm-deepseek', 1])
+    remote.emit('settings/document-updated', ['llm-omega', 1])
     await Promise.resolve()
 
     // The directory, section, and unbound seat re-read on their own namespace; an unrelated one moves
@@ -534,7 +534,7 @@ describe('ui-agent-preset apply', () => {
     // An unrelated namespace moves nothing: the chip re-reads on its own
     // setting, not on every settings write in the process.
     moveDefault()
-    remote.emit('settings/document-updated', ['llm-deepseek', 1])
+    remote.emit('settings/document-updated', ['llm-omega', 1])
     await Promise.resolve()
     expect(seat.hooks.agentPresetSeat.getSnapshot().current).toBe('standard')
 
@@ -1379,7 +1379,7 @@ describe('AgentPresetSeatController reconciliation', () => {
   })
 
   it('keeps the bare cause of a mount failure, not the frame that names the preset again', async () => {
-    const reason = 'failed to import loader entry ctx (@deepseek-ai/dsh-gone): Cannot find package'
+    const reason = 'failed to import loader entry ctx (@omega-ai/dsh-gone): Cannot find package'
     const controller = new AgentPresetSeatController({
       ...developerTools(),
       remote: {

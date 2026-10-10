@@ -1,4 +1,4 @@
-import type { ProductEvent } from '@deepseek-ai/dsh-client-product-analytics/types'
+import type { ProductEvent } from '@omega-ai/dsh-client-product-analytics/types'
 /** Native welcome operations using the shared Web authentication and RPC APIs. */
 
 import { randomUUID } from 'node:crypto'
@@ -72,10 +72,10 @@ export async function connectDesktopWelcome(
   const settingsAndReference = async () => {
     const settings = await invoke({ namespace: 'settings', method: 'describe', args: {} })
     if (!record(settings) || !Array.isArray(settings.namespaces)) throw new Error('desktop welcome: missing settings namespaces')
-    const official: unknown = settings.namespaces.find((item: unknown) => record(item) && item.ns === 'llm-deepseek')
+    const official: unknown = settings.namespaces.find((item: unknown) => record(item) && item.ns === 'llm-omega')
     if (official === undefined) return { settings: { namespaces: settings.namespaces }, ref: undefined }
     if (!record(official) || !record(official.value) || typeof official.value.apiKeyEnv !== 'string') {
-      throw new Error('desktop welcome: missing official DeepSeek credential reference')
+      throw new Error('desktop welcome: missing official Omega credential reference')
     }
     return { settings: { namespaces: settings.namespaces }, ref: official.value.apiKeyEnv }
   }

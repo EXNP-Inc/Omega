@@ -3,7 +3,7 @@ description: "工具结果保留：文字和图片共享 token 预算，并通�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-spill-policy
+# @omega-ai/dsh-spill-policy
 
 [English](README.md) | 中文
 
@@ -32,8 +32,8 @@ kind: "package-reference"
 挂载 spill 后端，并以估算 token 数设置 `maxInlineTokens`：
 
 ```yaml
-- name: '@deepseek-ai/dsh-spill-local'
-- name: '@deepseek-ai/dsh-spill-policy'
+- name: '@omega-ai/dsh-spill-local'
+- name: '@omega-ai/dsh-spill-policy'
   config:
     maxInlineTokens: 12500
 ```
@@ -42,7 +42,7 @@ kind: "package-reference"
 |---|---|---|
 | `maxInlineTokens` | 省略 | 保留的文字、图片、图片说明和提示的估算 token 上限；省略时禁用策略 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-spill-policy)是每个受支持字段的穷尽式真源。负数或小数上限会让插件加载失败，而不是破坏每次调用的行为。
+生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-spill-policy)是每个受支持字段的穷尽式真源。负数或小数上限会让插件加载失败，而不是破坏每次调用的行为。
 
 ### 模型看到什么
 
@@ -80,7 +80,7 @@ PTC 程序收到完整的规范值。含图片的子结果在转发给模型前�
 
 ### 设计理念
 
-纯保留函数按成本选择有序内容，插件负责策略、读取提示和存储调用。文字使用现有 token-meter 估算。图片使用当前模型的 `imageRequestPricing`，并计入说明文字。DeepSeek 模型复用提供方的图片尺寸计算器。预算是估算值，不保证与实际分词结果完全一致。
+纯保留函数按成本选择有序内容，插件负责策略、读取提示和存储调用。文字使用现有 token-meter 估算。图片使用当前模型的 `imageRequestPricing`，并计入说明文字。Omega 模型复用提供方的图片尺寸计算器。预算是估算值，不保证与实际分词结果完全一致。
 
 ### 两条分支
 

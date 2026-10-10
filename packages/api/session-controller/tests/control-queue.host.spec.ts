@@ -1,17 +1,17 @@
-import { Context } from '@deepseek-ai/cordis'
-import type { Agent, Inbox, InboxState } from '@deepseek-ai/dsh-agent'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { ContextFormed } from '@deepseek-ai/dsh-llm'
-import { SessionId } from '@deepseek-ai/dsh-session'
+import { Context } from '@omega-ai/cordis'
+import type { Agent, Inbox, InboxState } from '@omega-ai/dsh-agent'
+import { createUserMessage } from '@omega-ai/dsh-llm'
+import type { ContextFormed } from '@omega-ai/dsh-llm'
+import { SessionId } from '@omega-ai/dsh-session'
 import { afterEach, describe, expect, it } from 'vitest'
 import { SessionControlController } from '../src/control.ts'
 import type { SessionControlFrame } from '../src/types.ts'
 import {
   mountAgentLoopTestDependencies,
   mountAgentLoopTestHarness,
-} from '@deepseek-ai/dsh-agent-loop-testkit'
+} from '@omega-ai/dsh-agent-loop-testkit'
 
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@omega-ai/dsh-llm' {
   interface MessageSourceMap {
     'fixture': { kind: 'fixture' } & ContextFormed
   }

@@ -4,18 +4,18 @@
  * catalog subscription. Saved drafts enter the model before the first lookup
  * returns; Session-scope disposal releases the shell and its resources.
  */
-import type {} from '@deepseek-ai/dsh-client-product-analytics/client'
-import type { ModelSelectionProjection } from '@deepseek-ai/dsh-api-session-controller/types'
-import type { PlanProjection } from '@deepseek-ai/dsh-plan-mode/types'
-import type { GoalProjection } from '@deepseek-ai/dsh-goal/types'
-import type { Context } from '@deepseek-ai/cordis'
+import type {} from '@omega-ai/dsh-client-product-analytics/client'
+import type { ModelSelectionProjection } from '@omega-ai/dsh-api-session-controller/types'
+import type { PlanProjection } from '@omega-ai/dsh-plan-mode/types'
+import type { GoalProjection } from '@omega-ai/dsh-goal/types'
+import type { Context } from '@omega-ai/cordis'
 import type {
   ISessions, SessionBinding, SessionFace,
-} from '@deepseek-ai/dsh-api-session-controller/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { TranslateNS } from '@deepseek-ai/dsh-client-locale/client'
-import type { InboxState } from '@deepseek-ai/dsh-agent/types'
-import type { ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
+} from '@omega-ai/dsh-api-session-controller/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { TranslateNS } from '@omega-ai/dsh-client-locale/client'
+import type { InboxState } from '@omega-ai/dsh-agent/types'
+import type { ObservableSnapshot } from '@omega-ai/dsh-client-store'
 import type {
   DraftAttachmentId, DraftAttachmentSerializationResult, DraftInitializationOptions, DraftInitializationResult, InputTriggerController,
   SessionInputResolver, SessionInput, SubmitOutcome,

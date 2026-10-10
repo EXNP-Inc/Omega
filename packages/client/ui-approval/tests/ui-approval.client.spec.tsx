@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
-import { Context } from '@deepseek-ai/cordis'
-import { createScope, scopeOf } from '@deepseek-ai/dsh-api-session-controller/client'
-import type { ToolCallId } from '@deepseek-ai/dsh-llm'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { Context } from '@omega-ai/cordis'
+import { createScope, scopeOf } from '@omega-ai/dsh-api-session-controller/client'
+import type { ToolCallId } from '@omega-ai/dsh-llm'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ApprovalPanel } from '../src/client/ApprovalPanel.tsx'

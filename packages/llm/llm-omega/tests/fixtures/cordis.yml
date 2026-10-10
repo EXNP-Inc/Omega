@@ -1,0 +1,24 @@
+- name: '@omega-ai/dsh-llm'
+- name: '@omega-ai/dsh-session'
+- name: '@omega-ai/dsh-session-projection'
+- name: '@omega-ai/dsh-system-prompt'
+- name: '@omega-ai/dsh-tools'
+- name: '@omega-ai/dsh-agent'
+- name: '@omega-ai/dsh-agent-loop'
+  config:
+    agents: []
+- name: '@omega-ai/dsh-credentials-local'
+  config:
+    path: {{credentials}}
+    watch: false
+- name: '@omega-ai/dsh-llm-omega-api-key'
+  config:
+    apiKeyEnv: OMEGA_API_KEY
+    baseURL: {{endpoint}}
+    thinking: enabled
+    reasoningEffort: high
+    maxTokens: 256000
+    streamIdleTimeoutMs: 300000
+- name: '@omega-ai/dsh-llm-omega-account'
+  config:
+    baseURL: {{endpoint}}

@@ -108,7 +108,7 @@ const homeAndGuide = pairedPages([
   {
     source: 'docs/user/index.md',
     route: 'index.md',
-    label: { root: 'DeepSeek Harness', en: 'DeepSeek Harness' },
+    label: { root: 'Omega', en: 'Omega' },
     sidebar: { root: null, en: null },
     section: { root: '首页', en: 'Home' },
     order: 0,
@@ -380,7 +380,7 @@ const subsystemsReference = subsystemGroups.flatMap(([rootSection, enSection, fi
 ))
 
 const reference = [
-  // `docs/deepseek-llm-api-wire-extensions.md` is a repository-only provider protocol reference.
+  // `docs/omega-llm-api-wire-extensions.md` is a repository-only provider protocol reference.
   // Projected links intentionally resolve to its GitHub source instead of a public site route.
   ...pairedPages(([
     ['docs/architecture.md', 'reference/index.md', '架构', 'Architecture', 0],

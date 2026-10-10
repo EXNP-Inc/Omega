@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { SessionFormatUnsupportedMigrationError } from '@deepseek-ai/dsh-session-format'
+import { SessionFormatUnsupportedMigrationError } from '@omega-ai/dsh-session-format'
 import {
   assertReleasedArtifactRelationships,
 } from '../src/index.ts'
@@ -365,7 +365,7 @@ describe('released v1 whole-artifact relationships', () => {
 
   it('validates own delivery ids while preserving inherited ancestor markers', () => {
     const marker = (sessionId: string, version: number | undefined, seq: number) => ({
-      type: 'session-log-deepseek/delivery-accepted', seq, time: seq + 1,
+      type: 'session-log-omega/delivery-accepted', seq, time: seq + 1,
       data: { sessionId, ...(version === undefined ? {} : { sessionFormatVersion: version }), throughSeq: 0 },
     })
     const prefix = [{ type: 'turn/start', seq: 0, time: 1, data: { turn: 1 } }]
@@ -377,7 +377,7 @@ describe('released v1 whole-artifact relationships', () => {
     expect(decode([...prefix, marker('ancestor-of-parent', 1, 1)], seeded).events).toHaveLength(2)
 
     const inertV0 = {
-      type: 'session-log-deepseek/delivery-accepted', seq: 1, time: 2,
+      type: 'session-log-omega/delivery-accepted', seq: 1, time: 2,
       data: { sessionId: 9, sessionFormatVersion: 0, throughSeq: { futureCoordinate: true } },
     }
     const decoded = decode([...prefix, inertV0])
@@ -479,7 +479,7 @@ describe('released v1 whole-artifact relationships', () => {
     const rows = [
       { type: 'turn/start', seq: 0, time: 1, data: { turn: 1 } },
       {
-        type: 'session-log-deepseek/delivery-accepted', seq: 1, time: 2,
+        type: 'session-log-omega/delivery-accepted', seq: 1, time: 2,
         data: { sessionId: 'wrong', throughSeq: 0 },
       },
     ]

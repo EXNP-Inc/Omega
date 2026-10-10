@@ -1,15 +1,15 @@
 /** Command identity and localized input spelling over the effective Host catalog. */
-import type { CommandDescriptor } from '@deepseek-ai/dsh-commands/types'
-import type { TranslateNS } from '@deepseek-ai/dsh-client-locale/client'
+import type { CommandDescriptor } from '@omega-ai/dsh-commands/types'
+import type { TranslateNS } from '@omega-ai/dsh-client-locale/client'
 import { en, zh } from './locales.ts'
 
 const BUILTINS = {
-  goal: '@deepseek-ai/dsh-command-goal',
-  plan: '@deepseek-ai/dsh-plan-mode',
-  feedback: '@deepseek-ai/dsh-command-feedback',
-  compact: '@deepseek-ai/dsh-command-compact',
-  permission: '@deepseek-ai/dsh-permission-presets',
-  export: '@deepseek-ai/dsh-session-log-export',
+  goal: '@omega-ai/dsh-command-goal',
+  plan: '@omega-ai/dsh-plan-mode',
+  feedback: '@omega-ai/dsh-command-feedback',
+  compact: '@omega-ai/dsh-command-compact',
+  permission: '@omega-ai/dsh-permission-presets',
+  export: '@omega-ai/dsh-session-log-export',
 } as const
 
 /** Names whose first-party definitions have localized client presentation. */

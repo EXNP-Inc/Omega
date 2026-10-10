@@ -3,7 +3,7 @@ description: "The browser GUI for dsh: interactive chat, model and settings mana
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-web-app
+# @omega-ai/dsh-web-app
 
 English | [中文](README.zh.md)
 
@@ -40,7 +40,7 @@ dsh --profile web --no-open --port 8080
 
 After startup you see a `dsh web:` line whose root URL carries a fresh process token. Unless `--no-open` or an SSH session suppresses it, the default browser opens that URL, receives a signed cookie, and redirects to the same directory without the token. You know it worked when the page loads and you can chat with the agent. Two failures to expect: if the frontend is not built, startup stops with a build hint (`pnpm run build` in a checkout); if the browser cannot be opened, a credential-free diagnostic prints to stderr while the server keeps running — open the printed startup URL yourself.
 
-**Settings → Models** displays **DeepSeek**, using `DEEPSEEK_API_KEY`. The default is `deepseek-official` / `deepseek-flash` (DeepSeek-V41-Flash). The [DeepSeek plugin](../../llm/llm-deepseek/README.md#endpoint-and-wire-format) uses the Messages API.
+**Settings → Models** displays **Omega**, using `OMEGA_API_KEY`. The default is `omega-official` / `omega-flash` (Omega-V41-Flash). The [Omega plugin](../../llm/llm-omega/README.md#endpoint-and-wire-format) uses the Messages API.
 
 Saved model selections override the composition default. The settings card accepts a Messages-compatible API address and a credential reference.
 
@@ -56,7 +56,7 @@ Saved model selections override the composition default. The settings card accep
 | `publicUrl` | Unset | Advertised HTTP(S) application root; otherwise announce the listener's loopback URL |
 | `trustedHosts` | `[]` | Extra hosts allowed to reach the GUI from the network |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-web-app) lists this runtime plugin's accepted fields and their JSDoc. The shipped composition inserts the `schedule` service row and the `ui-schedule` task page row, while the clock reading and the four reminder tools belong to the `standard`, `cordis`, and `ptc` presets. The `tool-subagent` and `tool-subagent-fork` rows in those presets deny the four tools, so a delegated child's scope never lists them.
+The generated [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-web-app) lists this runtime plugin's accepted fields and their JSDoc. The shipped composition inserts the `schedule` service row and the `ui-schedule` task page row, while the clock reading and the four reminder tools belong to the `standard`, `cordis`, and `ptc` presets. The `tool-subagent` and `tool-subagent-fork` rows in those presets deny the four tools, so a delegated child's scope never lists them.
 
 <a id="public-deployments"></a>
 ### Listening, trust, and public deployments
@@ -109,7 +109,7 @@ The URL line and browser handoff are readiness signals: supervisors RPC as soon 
 | [`src/public-url.ts`](src/public-url.ts) | Advertised-root validation and trailing-slash normalization; a leaf module for local imports, not package API |
 | [`src/startup.ts`](src/startup.ts) | The `web-startup` provider: `--host`, `--port`, `--public-url`, `--trusted-host`, `--no-open`, `--help` |
 | [`cordis.patch.yml`](cordis.patch.yml) | The web patch: restated base values, web host rows, browser roster, preset registry |
-| [`presets/`](presets) | One `@deepseek-ai/dsh-agent-preset` declaration per shipped preset (`standard`, `ptc`, `minimal`, `cordis`), each its own patch file |
+| [`presets/`](presets) | One `@omega-ai/dsh-agent-preset` declaration per shipped preset (`standard`, `ptc`, `minimal`, `cordis`), each its own patch file |
 | [`tests/web-app.spec.ts`](tests/web-app.spec.ts) | Dist resolution, fallback seat, prompt sections, readiness, advertised URL publication |
 | [`tests/startup.spec.ts`](tests/startup.spec.ts) | Command-line parsing over a real Loader tree |
 | [`tests/public-url.spec.ts`](tests/public-url.spec.ts) | Advertised-root parsing and normalization |
@@ -129,7 +129,7 @@ Read these pages when you want to go deeper into the shared core, the browser re
 - [dsh-base](../base/README.md) — the shared core the GUI runs on.
 - [dsh-client-hmr](../../client/hmr/README.md) — how client-plugin changes reload during development.
 - [frontend-static](../../host/frontend-static/README.md) — how the built frontend is served.
-- [Generated configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-web-app) — every accepted config field and its source declaration.
+- [Generated configuration catalog](../../../docs/config-catalog.md#omega-aidsh-web-app) — every accepted config field and its source declaration.
 
 -----
 

@@ -1,16 +1,16 @@
 /**
- * Named wire types for the DeepSeek Harness SDK runtime protocol: the three
+ * Named wire types for the Omega SDK runtime protocol: the three
  * request/result pairs and the four server-to-client notification payloads
  * exchanged over the newline-delimited JSON-RPC stdio transport. The server
- * plugin (`@deepseek-ai/dsh-sdk-jsonrpc-server`) and SDK clients share these shapes;
- * `serverInfo.name` stays the wire-stable `deepseek-harness-sdk-runtime`.
+ * plugin (`@omega-ai/dsh-sdk-jsonrpc-server`) and SDK clients share these shapes;
+ * `serverInfo.name` stays the wire-stable `omega-harness-sdk-runtime`.
  *
- * @module @deepseek-ai/dsh-sdk-protocol/types
+ * @module @omega-ai/dsh-sdk-protocol/types
  */
 
-import type { ContentBlock, ReasoningEffortId } from '@deepseek-ai/dsh-llm'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
-import type { SubagentStopReason } from '@deepseek-ai/dsh-subagent'
+import type { ContentBlock, ReasoningEffortId } from '@omega-ai/dsh-llm'
+import type { SessionEvent } from '@omega-ai/dsh-session'
+import type { SubagentStopReason } from '@omega-ai/dsh-subagent'
 
 /** Parameters for the process-wide SDK handshake. */
 export interface InitializeParams {
@@ -28,7 +28,7 @@ export interface InitializeParams {
 
 /** Wire-stable server identity returned by initialization. */
 export interface InitializeResult {
-  /** Wire-stable server identity (`deepseek-harness-sdk-runtime`) and version. */
+  /** Wire-stable server identity (`omega-harness-sdk-runtime`) and version. */
   serverInfo: { name: string; version: string }
 }
 

@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-experimental-browser-use-runtime",
+  "name": "@omega-ai/dsh-experimental-browser-use-runtime",
   "description": "Session-owned browser resource lifecycles and MCP integration for experimental providers",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/experimental/browser-use-runtime"
   },
   "type": "module",
@@ -32,35 +32,35 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-browser-use": "workspace:*",
-    "@deepseek-ai/dsh-mcp-client": "workspace:*",
-    "@deepseek-ai/dsh-scope": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
-    "@deepseek-ai/dsh-system-prompt": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-browser-use": "workspace:*",
+    "@omega-ai/dsh-mcp-client": "workspace:*",
+    "@omega-ai/dsh-scope": "workspace:*",
+    "@omega-ai/dsh-tools": "workspace:*",
+    "@omega-ai/dsh-system-prompt": "workspace:*"
   },
   "dependencies": {
-    "@deepseek-ai/schemastery": "workspace:~"
+    "@omega-ai/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-browser-use": "workspace:*",
-    "@deepseek-ai/dsh-mcp-client": "workspace:*",
-    "@deepseek-ai/dsh-scope": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
-    "@deepseek-ai/dsh-agent-loop-testkit": "workspace:*",
-    "@deepseek-ai/dsh-agent-loop": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-projection": "workspace:*",
-    "@deepseek-ai/dsh-system-prompt": "workspace:*",
-    "@deepseek-ai/dsh-mcp-resources": "workspace:*",
-    "@deepseek-ai/dsh-ptc-runtime": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/cordis-plugin-include": "workspace:~",
-    "@deepseek-ai/dsh-attachment-local": "workspace:*",
-    "@deepseek-ai/dsh-session-persistence-jsonl": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-browser-use": "workspace:*",
+    "@omega-ai/dsh-mcp-client": "workspace:*",
+    "@omega-ai/dsh-scope": "workspace:*",
+    "@omega-ai/dsh-tools": "workspace:*",
+    "@omega-ai/dsh-agent-loop-testkit": "workspace:*",
+    "@omega-ai/dsh-agent-loop": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-session-projection": "workspace:*",
+    "@omega-ai/dsh-system-prompt": "workspace:*",
+    "@omega-ai/dsh-mcp-resources": "workspace:*",
+    "@omega-ai/dsh-ptc-runtime": "workspace:*",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/cordis-plugin-loader": "workspace:~",
+    "@omega-ai/cordis-plugin-include": "workspace:~",
+    "@omega-ai/dsh-attachment-local": "workspace:*",
+    "@omega-ai/dsh-session-persistence-jsonl": "workspace:*"
   }
 }

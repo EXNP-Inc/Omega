@@ -1,24 +1,24 @@
-import { Context } from '@deepseek-ai/cordis'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import { mountAgentLoopTestDependencies } from '@deepseek-ai/dsh-agent-loop-testkit'
-import { LocalBashExecutor } from '@deepseek-ai/dsh-bash-local'
-import * as BashEnvPlugin from '@deepseek-ai/dsh-shell-env'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
-import * as ToolBash from '@deepseek-ai/dsh-tool-bash'
-import * as ToolTodo from '@deepseek-ai/dsh-tool-todo'
-import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
-import TokenMeter from '@deepseek-ai/dsh-token-meter'
-import ToolResultPruner from '@deepseek-ai/dsh-compaction-tool-result-pruner'
-import JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
-import * as SessionCheckpointPolicy from '@deepseek-ai/dsh-session-checkpoint-policy'
-import { BasicCompactionEngine } from '@deepseek-ai/dsh-compaction-basic'
-import type { BasicCompactionConfig } from '@deepseek-ai/dsh-compaction-basic'
+import { Context } from '@omega-ai/cordis'
+import type { SessionEvent } from '@omega-ai/dsh-session'
+import type { Agent } from '@omega-ai/dsh-agent'
+import AgentLoop from '@omega-ai/dsh-agent-loop'
+import { mountAgentLoopTestDependencies } from '@omega-ai/dsh-agent-loop-testkit'
+import { LocalBashExecutor } from '@omega-ai/dsh-bash-local'
+import * as BashEnvPlugin from '@omega-ai/dsh-shell-env'
+import LocalSubprocessRuntime from '@omega-ai/dsh-subprocess-local'
+import * as ToolBash from '@omega-ai/dsh-tool-bash'
+import * as ToolTodo from '@omega-ai/dsh-tool-todo'
+import * as LlmOmega from '@omega-ai/dsh-llm-omega-api-key'
+import TokenMeter from '@omega-ai/dsh-token-meter'
+import ToolResultPruner from '@omega-ai/dsh-compaction-tool-result-pruner'
+import JsonlSessionPersistence from '@omega-ai/dsh-session-persistence-jsonl'
+import * as SessionCheckpointPolicy from '@omega-ai/dsh-session-checkpoint-policy'
+import { BasicCompactionEngine } from '@omega-ai/dsh-compaction-basic'
+import type { BasicCompactionConfig } from '@omega-ai/dsh-compaction-basic'
 
 /**
  * Shared harness for the headless-agent e2e suites: the full plugin stack
- * with the real DeepSeek adapter and the real bash + todo_write tools. Lives
+ * with the real Omega adapter and the real bash + todo_write tools. Lives
  * outside the *.e2e.ts pattern so importing it never re-registers another
  * file's tests.
  */
@@ -50,13 +50,13 @@ export interface CodingHarnessOptions {
    */
   compact?: BasicCompactionConfig
   /**
-   * Test-only context capacity advertised for `deepseek-v4-flash`. Automatic
+   * Test-only context capacity advertised for `omega-v4-flash`. Automatic
    * pressure scales the message budget left after the request's reserved
    * output tokens, so this capacity must exceed the advertised output cap.
    */
   modelContextWindow?: number
   /**
-   * Test-only per-request output cap advertised for `deepseek-v4-flash`, which
+   * Test-only per-request output cap advertised for `omega-v4-flash`, which
    * the adapter forwards as `max_tokens` and pressure excludes from the
    * capacity above.
    */
@@ -69,10 +69,10 @@ export async function codingHarness(workdir: string, options: CodingHarnessOptio
     systemPrompt: { personaPrefix: options.personaPrefix ?? '' },
   })
   await ctx.plugin(AgentLoop, { agents: [] })
-  await ctx.plugin(LlmDeepSeek, {
+  await ctx.plugin(LlmOmega, {
     ...options.modelContextWindow === undefined && options.modelMaxTokens === undefined ? {} : {
       models: [{
-        id: 'deepseek-v4-flash',
+        id: 'omega-v4-flash',
         ...options.modelContextWindow === undefined ? {} : { contextWindow: options.modelContextWindow },
         ...options.modelMaxTokens === undefined ? {} : { maxTokens: options.modelMaxTokens },
       }],

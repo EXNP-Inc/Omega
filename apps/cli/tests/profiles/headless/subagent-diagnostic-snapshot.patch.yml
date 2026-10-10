@@ -5,7 +5,7 @@
 - id: headless-runner
   disabled: true
 
-- id: llm-deepseek
+- id: llm-omega
   disabled: true
 
 - id: session-query-sqlite
@@ -21,12 +21,12 @@
       name: './tests/fixtures/subagent-diagnostic-query.ts'
 
     - id: replay
-      name: '@deepseek-ai/dsh-llm-replay'
+      name: '@omega-ai/dsh-llm-replay'
 
     # Publish the persisted agent before the driver selects the single root.
     - id: resumed-agent
       name: './tests/fixtures/subagent-diagnostic-agent.ts'
 
-- id: session-log-deepseek
+- id: session-log-omega
   config:
     enabled: false

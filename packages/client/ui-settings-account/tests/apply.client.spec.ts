@@ -1,16 +1,16 @@
 // @vitest-environment jsdom
 /** Desktop account operations and ordinary-browser isolation in the shipped client composition. */
 import { afterEach, beforeEach, expect, vi } from 'vitest'
-import { ok } from '@deepseek-ai/dsh-remote-mock'
-import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
-import { createClientTest, type TestClient, webApp } from '@deepseek-ai/dsh-client-test-runtime/src/assembly/index.ts'
+import { ok } from '@omega-ai/dsh-remote-mock'
+import { RemoteError } from '@omega-ai/dsh-typert-protocol'
+import { createClientTest, type TestClient, webApp } from '@omega-ai/dsh-client-test-runtime/src/assembly/index.ts'
 import type {
   AccountBonusBatch, AccountBonusOrderId, AccountDetails, AccountUserId, AccountView, SignInAttemptId,
-} from '@deepseek-ai/dsh-deepseek-account/types'
-import type { QuotaNoticeOwnerProps } from '@deepseek-ai/dsh-client-ui-chat/client'
-import type { ThemeRuntime } from '@deepseek-ai/dsh-client-ui-theme/client'
-import { resolveSlotLabel } from '@deepseek-ai/dsh-client-ui-slots'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+} from '@omega-ai/dsh-omega-account/types'
+import type { QuotaNoticeOwnerProps } from '@omega-ai/dsh-client-ui-chat/client'
+import type { ThemeRuntime } from '@omega-ai/dsh-client-ui-theme/client'
+import { resolveSlotLabel } from '@omega-ai/dsh-client-ui-slots'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
 import { Config as OnboardingConfig } from '../src/index.ts'
 import { ChatSettingsSchema as ChatConfig } from '../../ui-chat/src/chat-settings.ts'
 import { DeveloperToolsSettingsSchema as SettingsConfig } from '../../ui-settings/src/developer-tools-settings.ts'
@@ -23,10 +23,10 @@ import { AccountQuotaNotice } from '../src/client/AccountQuotaNotice.tsx'
 import type { AccountQuotaNoticeInjected } from '../src/client/AccountQuotaNotice.tsx'
 
 const it = createClientTest({ roster: webApp })
-const SELF = '@deepseek-ai/dsh-client-ui-settings-account'
+const SELF = '@omega-ai/dsh-client-ui-settings-account'
 const view: AccountView = {
   status: 'signed-out', attempt: null,
-  links: { usageUrl: 'https://platform.deepseek.com/usage', topUpUrl: 'https://platform.deepseek.com/top_up' },
+  links: { usageUrl: 'https://platform.omega.com/usage', topUpUrl: 'https://platform.omega.com/top_up' },
 }
 const stored: AccountView = { ...view, status: 'credential-stored' }
 const profile: AccountDetails['profile'] = { status: 'ready', value: { id: 'account-user' as AccountUserId, name: 'User', contact: null } }
@@ -612,7 +612,7 @@ it('forwards live account notices and removes their subscriptions', async ({ sta
   const unavailable = vi.fn()
   const offExpired = actions.subscribeSessionExpired!(expired)
   const offUnavailable = actions.subscribeModelSignInRequired!(unavailable)
-  for (const event of ['deepseek-account/session-expired', 'deepseek-account/model-sign-in-required']) {
+  for (const event of ['omega-account/session-expired', 'omega-account/model-sign-in-required']) {
     c.mock.streams.push('$events', { type: 'emit', event, args: [] })
   }
   await c.flush()
@@ -620,7 +620,7 @@ it('forwards live account notices and removes their subscriptions', async ({ sta
   expect(unavailable).toHaveBeenCalledOnce()
   offExpired()
   offUnavailable()
-  for (const event of ['deepseek-account/session-expired', 'deepseek-account/model-sign-in-required']) {
+  for (const event of ['omega-account/session-expired', 'omega-account/model-sign-in-required']) {
     c.mock.streams.push('$events', { type: 'emit', event, args: [] })
   }
   await c.flush()

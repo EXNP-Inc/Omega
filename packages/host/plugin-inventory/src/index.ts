@@ -1,11 +1,11 @@
 /** Read-only projection of the current Cordis Loader plugin entries. */
 
-import type { Context, FiberState } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/cordis-plugin-loader'
+import type { Context, FiberState } from '@omega-ai/cordis'
+import type {} from '@omega-ai/cordis-plugin-loader'
 // Type-only: the optional agent-preset roster resolved through `ctx.get`.
-import type {} from '@deepseek-ai/dsh-agent-preset-registry'
-import type {} from '@deepseek-ai/dsh-app-boot'
-import { TypertRemoteService, Remote } from '@deepseek-ai/dsh-typert-protocol'
+import type {} from '@omega-ai/dsh-agent-preset-registry'
+import type {} from '@omega-ai/dsh-app-boot'
+import { TypertRemoteService, Remote } from '@omega-ai/dsh-typert-protocol'
 // Typert-generated ./typert and ./remote artifacts import Zod at runtime.
 import type {} from 'zod'
 import type {

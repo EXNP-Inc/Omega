@@ -3,7 +3,7 @@ description: "MCP client bridge for deployments and maintainers choosing, config
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-mcp-client
+# @omega-ai/dsh-mcp-client
 
 English | [中文](README.zh.md)
 
@@ -33,7 +33,7 @@ Add one entry per server; nothing else is required. After the harness starts, th
 
 ```yaml
 - id: mcp-github
-  name: '@deepseek-ai/dsh-mcp-client'
+  name: '@omega-ai/dsh-mcp-client'
   config:
     serverName: github
     transport: stdio
@@ -43,7 +43,7 @@ Add one entry per server; nothing else is required. After the harness starts, th
       GITHUB_TOKEN: !!js process.env.GITHUB_TOKEN
 
 - id: mcp-web
-  name: '@deepseek-ai/dsh-mcp-client'
+  name: '@omega-ai/dsh-mcp-client'
   config:
     serverName: web
     transport: streamable-http
@@ -66,7 +66,7 @@ Add one entry per server; nothing else is required. After the harness starts, th
 | `reconnect.maxDelayMs` | `30,000` | Backoff ceiling; also the uptime after which the attempt budget resets |
 | `reconnect.maxAttempts` | `10` | Consecutive failed attempts per outage before giving up |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-mcp-client) is the exhaustive source for every accepted field.
+The generated [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-mcp-client) is the exhaustive source for every accepted field.
 
 After startup, the server's tools appear as `mcp__<serverName>__<tool>` — try a prompt that uses one. If the initial connection fails, the harness still starts but no tools from that server appear, and an error is logged. Setting `failOnStartupError: true` rejects plugin activation; [app-boot's startup policy](../../boot/app-boot/README.md) still permits an optional MCP entry to fail without aborting the harness.
 
@@ -105,7 +105,7 @@ This section explains the design decisions behind the bridge and points at the c
 ### Design philosophy
 
 - **Server-qualified identity.** Every MCP tool has the stable identity `(serverName, rawName)`. The namespace is local configuration, never the remote `serverInfo.name` — the remote name is untrusted, not unique across deployments, and can change on upgrade, none of which may silently rename model-facing tools.
-- **Naming is a pinned contract.** Public names are pure functions of `(serverName, rawName)` and satisfy the DeepSeek function-name contract; lossy normalization appends a 12-hex-char SHA-256 hash so distinct identities never collapse. Session history and permission rules therefore survive HMR swaps, re-syncs, and other servers' changes.
+- **Naming is a pinned contract.** Public names are pure functions of `(serverName, rawName)` and satisfy the Omega function-name contract; lossy normalization appends a 12-hex-char SHA-256 hash so distinct identities never collapse. Session history and permission rules therefore survive HMR swaps, re-syncs, and other servers' changes.
 - **The raw name is the only wire name.** `tools/call` always receives the raw name; the public name is never sent to the server and never parsed to recover the raw name.
 - **Full generation or none.** Syncs swap generations atomically: a fetch failure keeps the previous generation, and a registration conflict rolls back the entire attempted generation.
 - **One canonical value, one projection.** The executor preserves the complete canonical MCP value and prepares ordered text/image content. `projectContent` installs that content before `tools/post-execute`, so retention sees real images. Subsequent content replacement, value replacement, and blocking remain authoritative.
@@ -149,7 +149,7 @@ Read these pages when the package-level contract is not enough. They move from t
 - [historical MCP client plugin Agent Note](../../../.agents/notes/archived/feature/2026-07-07-mcp-client-plugin.md) — the naming invariants, discovery and execution design, alternatives, and consequences.
 - [Canonical tool output contract reference](../../core/tools/README.md) — how MCP results map into the canonical tool-output contract.
 - [Third-party memory MCP guide](../../../docs/user/guide/mcp-memory.md) — three memory-server overlays using this package.
-- [Generated configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-mcp-client) — every accepted config field and its source declaration.
+- [Generated configuration catalog](../../../docs/config-catalog.md#omega-aidsh-mcp-client) — every accepted config field and its source declaration.
 
 -----
 

@@ -5,9 +5,9 @@ import { accountView, desktopAccountBackend } from '../src/account-backend.ts'
 
 it('projects only safe account fields and refuses non-browser authorization schemes', () => {
   const state = { links: { usageUrl: 'http://localhost/usage', topUpUrl: 'http://localhost/top_up' }, status: 'signed-out', token: 'not-for-the-renderer',
-    attempt: { id: 'test', phase: 'waiting-browser', authorizeUrl: 'https://platform.deepseek.com/dsh/authorize', codeVerifier: 'private' } }
+    attempt: { id: 'test', phase: 'waiting-browser', authorizeUrl: 'https://platform.omega.com/dsh/authorize', codeVerifier: 'private' } }
   expect(accountView(state)).toEqual({ links: { usageUrl: 'http://localhost/usage', topUpUrl: 'http://localhost/top_up' }, status: 'signed-out', attempt: {
-    id: 'test', phase: 'waiting-browser', authorizeUrl: 'https://platform.deepseek.com/dsh/authorize',
+    id: 'test', phase: 'waiting-browser', authorizeUrl: 'https://platform.omega.com/dsh/authorize',
   } })
   for (const authorizeUrl of ['file:///tmp/example', 'javascript:alert(1)', 'http://example.com/login']) {
     expect(() => accountView({ ...state, attempt: { ...state.attempt, authorizeUrl } })).toThrow()
@@ -19,7 +19,7 @@ it('projects only safe account fields and refuses non-browser authorization sche
 
 it('accepts a no-response login failure without discarding the account projection', () => {
   const state = { status: 'signed-out', attempt: { id: 'test', phase: 'failed', errorCode: 'no-response' },
-    links: { usageUrl: 'https://platform.deepseek.com/usage', topUpUrl: 'https://platform.deepseek.com/top_up' } }
+    links: { usageUrl: 'https://platform.omega.com/usage', topUpUrl: 'https://platform.omega.com/top_up' } }
   expect(accountView(state)).toEqual(state)
 })
 
@@ -40,7 +40,7 @@ it('uses account Remote commands without returning additional wire fields', asyn
 
 it('does not replay an expiry reason from an account snapshot', () => {
   const state = { status: 'signed-out', attempt: null,
-    links: { usageUrl: 'https://platform.deepseek.com/usage', topUpUrl: 'https://platform.deepseek.com/top_up' } }
+    links: { usageUrl: 'https://platform.omega.com/usage', topUpUrl: 'https://platform.omega.com/top_up' } }
   expect(accountView({ ...state, signOutReason: 'expired' })).toEqual(state)
 })
 
@@ -57,7 +57,7 @@ it('receives live expiry separately from account snapshots', async () => {
   const expired = vi.fn()
   const onAnalyticsEnabledChanged = vi.fn()
   const snapshot = { status: 'signed-out', attempt: null,
-    links: { usageUrl: 'https://platform.deepseek.com/usage', topUpUrl: 'https://platform.deepseek.com/top_up' } }
+    links: { usageUrl: 'https://platform.omega.com/usage', topUpUrl: 'https://platform.omega.com/top_up' } }
   const received = Promise.withResolvers<undefined>()
   const backend = desktopAccountBackend(`http://127.0.0.1:${address.port}`, () => Promise.resolve(snapshot), () => Promise.resolve(''))
   const stop = backend.watch(

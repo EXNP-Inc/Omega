@@ -1,0 +1,10 @@
+version: 1
+scenario: omega-messages-replay
+profile: headless
+composition: default
+recording: authored
+header:
+  class: omega-messages
+  pin: true
+  systemPromptSource: text-turn
+  toolSchemasSource: text-turn

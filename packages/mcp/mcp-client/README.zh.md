@@ -3,7 +3,7 @@ description: "面向部署方与维护者的 MCP 客户端桥接说明，用于�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-mcp-client
+# @omega-ai/dsh-mcp-client
 
 [English](README.md) | 中文
 
@@ -33,7 +33,7 @@ kind: "package-reference"
 
 ```yaml
 - id: mcp-github
-  name: '@deepseek-ai/dsh-mcp-client'
+  name: '@omega-ai/dsh-mcp-client'
   config:
     serverName: github
     transport: stdio
@@ -43,7 +43,7 @@ kind: "package-reference"
       GITHUB_TOKEN: !!js process.env.GITHUB_TOKEN
 
 - id: mcp-web
-  name: '@deepseek-ai/dsh-mcp-client'
+  name: '@omega-ai/dsh-mcp-client'
   config:
     serverName: web
     transport: streamable-http
@@ -66,7 +66,7 @@ kind: "package-reference"
 | `reconnect.maxDelayMs` | `30,000` | 退避上限；同时是重置尝试预算所需的正常运行时长 |
 | `reconnect.maxAttempts` | `10` | 每次中断内连续失败尝试次数上限，超出后放弃 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-mcp-client)是每个受支持字段的穷尽式真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-mcp-client)是每个受支持字段的穷尽式真源。
 
 启动后，服务器的工具会以 `mcp__<serverName>__<tool>` 形式出现——试着用一条提示词调用其中一个。如果初始连接失败，harness 仍会启动，但该服务器的工具不会出现，并会记录一条错误。设置 `failOnStartupError: true` 会拒绝插件激活；[app-boot 的启动策略](../../boot/app-boot/README.zh.md)仍允许可选 MCP 配置项失败，而不中止 harness。
 
@@ -105,7 +105,7 @@ kind: "package-reference"
 ### 设计理念
 
 - **服务器限定身份。** 每个 MCP 工具都有稳定的身份 `(serverName, rawName)`。namespace 是本地配置，绝不采用远程 `serverInfo.name`——远程名称不可信、在部署间不唯一、且升级时可能变化，这些都不允许静默重命名面向模型的工具。
-- **命名是固定约定。** 公开名称是 `(serverName, rawName)` 的纯函数，并满足 DeepSeek 函数名称约定；有损规范化会追加 12 位十六进制 SHA-256 hash，使不同身份绝不会折叠。会话历史与权限规则因此能在 HMR（热模块替换）、重新同步和其他服务器变化后保持有效。
+- **命名是固定约定。** 公开名称是 `(serverName, rawName)` 的纯函数，并满足 Omega 函数名称约定；有损规范化会追加 12 位十六进制 SHA-256 hash，使不同身份绝不会折叠。会话历史与权限规则因此能在 HMR（热模块替换）、重新同步和其他服务器变化后保持有效。
 - **原始名称是唯一的协议名称。** `tools/call` 始终收到原始名称；公开名称绝不会发给服务器，也绝不会被解析来还原原始名称。
 - **要么完整世代，要么没有。** 同步会原子地交换世代：获取失败保留上一世代，注册冲突则回滚整个尝试中的世代。
 - **一个规范值，一个投影。** 执行器保留完整的规范 MCP 返回值，并准备有序图文内容。`projectContent` 在 `tools/post-execute` 之前安装已准备的内容，让省略策略看到真实图片块。后续策略的内容替换、值替换和阻止均保持生效。
@@ -149,7 +149,7 @@ SDK 通过旧版通知或现代协议订阅接收工具列表变化。监督器�
 - [历史MCP 客户端插件 Agent Note](../../../.agents/notes/archived/feature/2026-07-07-mcp-client-plugin.md)——命名不变式、发现与执行设计、备选方案与后果。
 - [规范工具输出约定 reference](../../core/tools/README.zh.md)——MCP 结果如何映射进规范工具输出约定。
 - [第三方记忆 MCP 指南](../../../docs/user/guide/mcp-memory.zh.md)——使用本包的三份记忆服务器 overlay。
-- [生成配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-mcp-client)——每个受支持配置字段及其源声明。
+- [生成配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-mcp-client)——每个受支持配置字段及其源声明。
 
 -----
 

@@ -17,9 +17,9 @@
 /agent-note-installed-wheel-python-runtime-pull-request-validation/decision/keyless-behavior:
   en: c1b78f6c3cedd4d2
   zh: 03e267c73af6036b
-/agent-note-installed-wheel-python-runtime-pull-request-validation/decision/real-deepseek-api:
-  en: 0f98f5b5f78b5603
-  zh: 95ee8bafa66d6b1b
+/agent-note-installed-wheel-python-runtime-pull-request-validation/decision/real-omega-api:
+  en: e84c22d6c9c5763f
+  zh: 5a1cd5b8b6ab3f39
 /agent-note-installed-wheel-python-runtime-pull-request-validation/decision/required-targets:
   en: 7a33cde000508475
   zh: 142fb5ec6b59a280
@@ -30,5 +30,5 @@
   en: 360a7e4cd0f6e1ec
   zh: 53beb38864ff052d
 /agent-note-installed-wheel-python-runtime-pull-request-validation/consequences:
-  en: 6161aae704abdd20
-  zh: 4c81c9f6d1bef7d4
+  en: 7a3ca05c8129c095
+  zh: 085f0b89b61deb42

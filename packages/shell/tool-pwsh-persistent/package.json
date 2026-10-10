@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-tool-pwsh-persistent",
+  "name": "@omega-ai/dsh-tool-pwsh-persistent",
   "description": "Model-facing owner-scoped persistent PowerShell tool backed by the Harness PTY service",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/shell/tool-pwsh-persistent"
   },
   "type": "module",
@@ -26,34 +26,34 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-output-retention": "workspace:*",
-    "@deepseek-ai/dsh-terminal": "workspace:*",
-    "@deepseek-ai/dsh-timeout": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
-    "@deepseek-ai/cordis": "workspace:~"
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-output-retention": "workspace:*",
+    "@omega-ai/dsh-terminal": "workspace:*",
+    "@omega-ai/dsh-timeout": "workspace:*",
+    "@omega-ai/dsh-tools": "workspace:*",
+    "@omega-ai/cordis": "workspace:~"
   },
   "dependencies": {
-    "@deepseek-ai/schemastery": "workspace:~"
+    "@omega-ai/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis-plugin-include": "workspace:~",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-agent-loop-testkit": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-output-retention": "workspace:*",
-    "@deepseek-ai/dsh-terminal": "workspace:*",
-    "@deepseek-ai/dsh-terminal-bash": "workspace:*",
-    "@deepseek-ai/dsh-pwsh-local": "workspace:*",
-    "@deepseek-ai/dsh-sandbox": "workspace:*",
-    "@deepseek-ai/dsh-sandbox-policy": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-projection": "workspace:*",
-    "@deepseek-ai/dsh-subprocess-local": "workspace:*",
-    "@deepseek-ai/dsh-system-prompt": "workspace:*",
-    "@deepseek-ai/dsh-timeout": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
-    "@deepseek-ai/cordis": "workspace:~"
+    "@omega-ai/cordis-plugin-include": "workspace:~",
+    "@omega-ai/cordis-plugin-loader": "workspace:~",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-agent-loop-testkit": "workspace:*",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-output-retention": "workspace:*",
+    "@omega-ai/dsh-terminal": "workspace:*",
+    "@omega-ai/dsh-terminal-bash": "workspace:*",
+    "@omega-ai/dsh-pwsh-local": "workspace:*",
+    "@omega-ai/dsh-sandbox": "workspace:*",
+    "@omega-ai/dsh-sandbox-policy": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-session-projection": "workspace:*",
+    "@omega-ai/dsh-subprocess-local": "workspace:*",
+    "@omega-ai/dsh-system-prompt": "workspace:*",
+    "@omega-ai/dsh-timeout": "workspace:*",
+    "@omega-ai/dsh-tools": "workspace:*",
+    "@omega-ai/cordis": "workspace:~"
   }
 }

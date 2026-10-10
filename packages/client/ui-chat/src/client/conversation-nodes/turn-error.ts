@@ -1,7 +1,7 @@
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@omega-ai/cordis'
 import type {
   ConversationMatch, ConversationNodeContext, ConversationNodeDefinition, TurnErrorNode,
-} from '@deepseek-ai/dsh-client-ui-conversation/client'
+} from '@omega-ai/dsh-client-ui-conversation/client'
 import { chatNode } from './common.ts'
 import { displayFailure } from './event-projection.ts'
 
@@ -33,8 +33,8 @@ function failureFrom(match: ConversationMatch): TurnErrorState['failure'] | unde
   const reason = match.event.data.reason
   const failure = reason.kind === 'error' ? reason.error
     : reason.kind === 'aborted' && reason.reason.kind === 'hook'
-      && reason.reason.reason === 'deepseek-account/signed-out'
-      ? { message: 'Stopped because you signed out of DeepSeek.', code: 'ACCOUNT_SIGNED_OUT' } : undefined
+      && reason.reason.reason === 'omega-account/signed-out'
+      ? { message: 'Stopped because you signed out of Omega.', code: 'ACCOUNT_SIGNED_OUT' } : undefined
   if (failure === undefined) return undefined
   const display = displayFailure(failure)
   return {
@@ -65,7 +65,7 @@ export const turnErrorDefinition: ConversationNodeDefinition<TurnErrorState> = {
     if (event.type === 'turn/start') return { id: String(event.data.turn), role: 'start' }
     if (event.type === 'turn/end' && (event.data.reason.kind === 'error'
       || (event.data.reason.kind === 'aborted' && event.data.reason.reason.kind === 'hook'
-        && event.data.reason.reason.reason === 'deepseek-account/signed-out'))) {
+        && event.data.reason.reason.reason === 'omega-account/signed-out'))) {
       return { id: String(event.data.turn), role: 'update' }
     }
     return null

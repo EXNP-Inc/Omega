@@ -1,9 +1,9 @@
 ---
-description: "面向让进程外 SDK 客户端在 DeepSeek Harness 运行时中打开会话并驱动 agent 的部署的 stdio JSON-RPC 服务插件。"
+description: "面向让进程外 SDK 客户端在 Omega 运行时中打开会话并驱动 agent 的部署的 stdio JSON-RPC 服务插件。"
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-sdk-jsonrpc-server
+# @omega-ai/dsh-sdk-jsonrpc-server
 
 [English](README.md) | 中文
 
@@ -29,7 +29,7 @@ kind: "package-reference"
 
 ### 组装
 
-插件在首次使用时为每个 `sessionId` 创建一个 agent。已注册的模型适配器优先用于该路由；尚无适配器负责的 `deepseek-official` 路由会挂载 DeepSeek 适配器，任何其他尚无适配器负责的提供方都会导致初始化失败。初始化成功前，所选适配器会解析确切模型与可选推理强度。
+插件在首次使用时为每个 `sessionId` 创建一个 agent。已注册的模型适配器优先用于该路由；尚无适配器负责的 `omega-official` 路由会挂载 Omega 适配器，任何其他尚无适配器负责的提供方都会导致初始化失败。初始化成功前，所选适配器会解析确切模型与可选推理强度。
 
 ### 配置
 
@@ -37,7 +37,7 @@ kind: "package-reference"
 |---|---|---|
 | `maxTokensAsSuccess` | `false` | 把 max-token 轮次或 subagent 终止报告为成功的 SDK 结果 |
 
-profile 组合拥有每个根 agent 的工具。`input`、`output` 与 `exit` 是仅供测试的运行时传输钩子；生产环境使用进程 stdio 与 `process.exit`。生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-sdk-jsonrpc-server)是每个受支持字段的穷尽式真源。
+profile 组合拥有每个根 agent 的工具。`input`、`output` 与 `exit` 是仅供测试的运行时传输钩子；生产环境使用进程 stdio 与 `process.exit`。生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-sdk-jsonrpc-server)是每个受支持字段的穷尽式真源。
 
 ### stdout 即协议
 
@@ -45,7 +45,7 @@ Stdout 只承载 JSON-RPC 帧，客户端可以逐字节解析；诊断信息应
 
 ### SDK 客户端可以做什么
 
-`initialize` 是运行时就绪边界：服务器由 Loader 组合挂载时，会等待当前插件树完成所有加载任务后再响应，因此首次提示词能够看到 MCP 初始工具发现等异步同级能力。握手返回协议稳定标识 `deepseek-harness-sdk-runtime`。服务器会通过所选适配器校验提供方／模型路由与可选的非空 `reasoningEffort`，再保存这些值；省略时不会保存推理强度，因此模型保留自身默认值。可选的正整数 `maxTokens` 会成为每个 SDK 创建的 agent 及其进程内后代的请求输出上限，省略时则应用所选适配器或提供方路由的默认值。JSON-RPC 请求可能并发分派，因此在一次 `initialize` 成功完成之前，`session/prompt` 会拒绝；客户端必须等待握手完成后再发送提示词。已接受的提示词会把一条带标识的用户消息排入队列，并立即返回 `{ messageId }`；服务器随后把每个持久事实作为 `session.event`、把整个 agent 生命周期的每次状态转换作为 `session.status` 流式发出。它不会把某条助手消息或 `turn/end` 归属于某个提示词，同一会话上的独立请求可以继续排入更多工作。持久化根目录与 persona 来自外围组合。
+`initialize` 是运行时就绪边界：服务器由 Loader 组合挂载时，会等待当前插件树完成所有加载任务后再响应，因此首次提示词能够看到 MCP 初始工具发现等异步同级能力。握手返回协议稳定标识 `omega-harness-sdk-runtime`。服务器会通过所选适配器校验提供方／模型路由与可选的非空 `reasoningEffort`，再保存这些值；省略时不会保存推理强度，因此模型保留自身默认值。可选的正整数 `maxTokens` 会成为每个 SDK 创建的 agent 及其进程内后代的请求输出上限，省略时则应用所选适配器或提供方路由的默认值。JSON-RPC 请求可能并发分派，因此在一次 `initialize` 成功完成之前，`session/prompt` 会拒绝；客户端必须等待握手完成后再发送提示词。已接受的提示词会把一条带标识的用户消息排入队列，并立即返回 `{ messageId }`；服务器随后把每个持久事实作为 `session.event`、把整个 agent 生命周期的每次状态转换作为 `session.status` 流式发出。它不会把某条助手消息或 `turn/end` 归属于某个提示词，同一会话上的独立请求可以继续排入更多工作。持久化根目录与 persona 来自外围组合。
 
 ### 关闭与退出
 
@@ -124,7 +124,7 @@ Stdout 只承载 JSON-RPC 帧，客户端可以逐字节解析；诊断信息应
 - **协议没有逐会话关闭或提示词取消方法**——SDK 创建的 agent 会一直存活到进程关闭。
 - **没有逐提示词结果**——`MessageId` 只标识 inbox 准入；拥有自动化活动区间的客户端必须自行定义并观察该区间。
 - **stdout 纯净性由部署保证**——外围配置仍可能加载 stdout logger 并破坏 JSON-RPC 通道；此插件不会检查或否决同级 logger。
-- **自动挂载适配器仅支持 DeepSeek**——`initialize` 可以复用任何预先注册的模型适配器，但唯一的回退行为是挂载 DeepSeek 适配器。
+- **自动挂载适配器仅支持 Omega**——`initialize` 可以复用任何预先注册的模型适配器，但唯一的回退行为是挂载 Omega 适配器。
 
 <a id="dev-note"></a>
 ### 开发备注

@@ -16,14 +16,11 @@ import { join } from 'node:path'
 import type { Browser, Locator, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { SessionId } from '@deepseek-ai/dsh-session'
+import { SessionId } from '@omega-ai/dsh-session'
 import { launchWebScaffold, watchConsole, captureStableAria, compareOrRefreshGolden, webSnapshotMode, type WebScaffold } from './scaffold.ts'
 import { ZH_BROWSER_LOCALE, connectFreshWorkspaceZh, saveFailureShot } from './support.ts'
 
-/** Points the shipped shared Agent default at this scenario's own route. */
-const OVERLAY = fileURLToPath(new URL('./default-model.overlay.yml', import.meta.url))
-
-/** The route this scenario starts on, patched over the shipped default. */
+/** The logged-route scenario starts its session here. */
 const START_ROUTE = 'origin-gateway'
 const START_MODEL = 'origin-large'
 /** The route the switch lands on, which then becomes the saved default. */
@@ -56,11 +53,11 @@ describe('web e2e: the composer model switch is the default for later sessions',
   }
 
   beforeAll(async () => {
-    scaffold = await launchWebScaffold({ extraOverlayPath: OVERLAY })
-    // Two routes so the picker has somewhere to start and somewhere to go.
-    // Declared through the settings seam rather than the Models page: this
-    // scenario is about the composer, and the declaring flow is covered by
-    // models-settings.e2e.
+    scaffold = await launchWebScaffold()
+    // The default starts on the scaffold's replay-catalog Omega model; the two
+    // declared routes give the picker somewhere to go. Declared through the
+    // settings seam rather than the Models page: this scenario is about the
+    // composer, and the declaring flow is covered by models-settings.e2e.
     await scaffold.ctx.settings.update('llm-pi-ai', {
       providers: {
         [START_ROUTE]: {
@@ -189,20 +186,38 @@ describe('web e2e: the composer model switch is the default for later sessions',
   it('hides search only in the button menu when four models remain', async () => {
     const trigger = page.getByRole('button', { name: /^选择模型/ })
     const search = page.getByRole('searchbox', { name: '搜索模型…' })
-    const setModels = (expanded: boolean) => scaffold.ctx.settings.update('llm-pi-ai', {
-      providers: { [ROUTE]: {
-        displayName: 'Acme Gateway', api: 'openai-completions', baseURL: 'https://gateway.acme.example/v1',
-        models: expanded ? [{ id: MODEL, name: 'Acme Large' }, { id: 'acme-small', name: 'Acme Small' }]
-          : [{ id: MODEL, name: 'Acme Large' }],
-      } },
-    })
+    // The shipped catalog is exactly four entries (the replay Omega pair
+    // plus the bundled alice and Mac models), so the threshold only hides
+    // search while no declared route adds a fifth entry: reset the settings
+    // layer to the shipped composition, then declare Acme across the
+    // threshold and restore both declared routes for the later tests.
+    const declareAcme = (models: unknown[]): Promise<void> =>
+      scaffold.ctx.settings.update('llm-pi-ai', {
+        providers: { [ROUTE]: {
+          displayName: 'Acme Gateway', api: 'openai-completions', baseURL: 'https://gateway.acme.example/v1',
+          models,
+        } },
+      })
+    const restoreRoutes = (): Promise<void> =>
+      scaffold.ctx.settings.update('llm-pi-ai', {
+        providers: {
+          [START_ROUTE]: {
+            displayName: 'Origin Gateway', api: 'openai-completions', baseURL: 'https://gateway.origin.example/v1',
+            models: [{ id: START_MODEL, name: 'Origin Large' }],
+          },
+          [ROUTE]: {
+            displayName: 'Acme Gateway', api: 'openai-completions', baseURL: 'https://gateway.acme.example/v1',
+            models: [{ id: MODEL, name: 'Acme Large' }, { id: 'acme-small', name: 'Acme Small' }],
+          },
+        },
+      })
     try {
-      await setModels(false)
+      await scaffold.ctx.settings.replace('llm-pi-ai', {})
       await trigger.click()
       await page.getByRole('menuitem', { name: /模型/ }).click()
       await expect.poll(() => page.getByRole('menuitemradio').count()).toBe(4)
       expect(await search.count()).toBe(0)
-      const current = page.getByRole('menuitemradio', { name: 'Origin Large', exact: true })
+      const current = page.getByRole('menuitemradio', { name: 'Omega-V4-Flash', exact: true })
       await expect.poll(() => current.evaluate(node => node === node.ownerDocument.activeElement)).toBe(true)
       const rows = page.getByRole('menuitemradio')
       const currentId = await current.getAttribute('id')
@@ -222,13 +237,14 @@ describe('web e2e: the composer model switch is the default for later sessions',
     } finally {
       await page.keyboard.press('Escape')
       await page.keyboard.press('Escape')
-      await setModels(true)
+      await declareAcme([{ id: MODEL, name: 'Acme Large' }])
       await trigger.click()
       await page.getByRole('menuitem', { name: /模型/ }).click()
       await expect.poll(() => page.getByRole('menuitemradio').count()).toBe(5)
       await search.waitFor()
       await search.press('Escape')
       await page.keyboard.press('Escape')
+      await restoreRoutes()
     }
   })
 
@@ -251,7 +267,7 @@ describe('web e2e: the composer model switch is the default for later sessions',
       const readPinned = () => headings.evaluateAll(nodes => nodes.map(node => node.hasAttribute('data-stuck')))
       const resetScroll = async (): Promise<void> => {
         await scroller.evaluate((node) => { node.scrollTop = 0 })
-        await expect.poll(readPinned).toEqual([false, false, false])
+        await expect.poll(readPinned).toEqual([false, false, false, false, false])
       }
       for (const platform of ['web', 'win32', 'darwin']) {
         for (const dark of [false, true]) {
@@ -269,27 +285,27 @@ describe('web e2e: the composer model switch is the default for later sessions',
           })
           expect(await scroller.evaluate(node => node.scrollHeight - node.clientHeight)).toBeGreaterThanOrEqual(secondTop)
           await scroller.evaluate((node) => { node.scrollTop = 10 })
-          await expect.poll(readPinned).toEqual([true, false, false])
+          await expect.poll(readPinned).toEqual([true, false, false, false, false])
           expect(await headings.first().evaluate(node => getComputedStyle(node).backgroundColor))
             .toBe(dark ? 'rgba(48, 49, 54, 0.94)' : 'rgba(248, 249, 250, 0.94)')
           await scroller.evaluate((node, top) => { node.scrollTop = top }, secondTop)
-          await expect.poll(readPinned).toEqual([false, true, false])
+          await expect.poll(readPinned).toEqual([false, true, false, false, false])
           await scroller.evaluate((node) => { node.scrollTop = 10 })
-          await expect.poll(readPinned).toEqual([true, false, false])
+          await expect.poll(readPinned).toEqual([true, false, false, false, false])
           await resetScroll()
         }
       }
       await scroller.evaluate((node) => { node.scrollTop = 10 })
-      await expect.poll(readPinned).toEqual([true, false, false])
+      await expect.poll(readPinned).toEqual([true, false, false, false, false])
       await search.fill('Origin Large')
       await expect.poll(() => headings.count()).toBe(1)
       await expect.poll(readPinned).toEqual([false])
       await page.getByRole('button', { name: '清除搜索', exact: true }).click()
-      await expect.poll(readPinned).toEqual([false, false, false])
+      await expect.poll(readPinned).toEqual([false, false, false, false, false])
       await search.fill('zzzz')
       await expect.poll(() => surface.locator('[data-stuck]').count()).toBe(0)
       await page.getByRole('button', { name: '清除搜索', exact: true }).click()
-      await expect.poll(readPinned).toEqual([false, false, false])
+      await expect.poll(readPinned).toEqual([false, false, false, false, false])
       await search.press('Escape')
       await page.keyboard.press('Escape')
       await trigger.click()
@@ -375,6 +391,13 @@ describe('web e2e: the composer model switch is the default for later sessions',
       getComputedStyle(row.querySelector('span span')!).fontWeight,
     ))
     expect(new Set(modelWeights)).toEqual(new Set(['400']))
+    // The arrow-key tour above scrolled the list, pinning the top heading;
+    // reset to a fully unpinned list before sampling every palette's fills.
+    const paletteScroller = page.getByRole('menu', { name: '模型', exact: true })
+    const paletteHeadings = page.getByRole('group', { name: '模型与推理等级', exact: true }).locator('section[role="group"] > div')
+    await paletteScroller.evaluate((node) => { node.scrollTop = 0 })
+    await expect.poll(() => paletteHeadings.evaluateAll(nodes => nodes.map(node => node.hasAttribute('data-stuck'))))
+      .toEqual([false, false, false, false, false])
     const headingPalettes = await page.getByRole('group', { name: '模型与推理等级', exact: true }).evaluate((menu) => {
       const html = menu.ownerDocument.documentElement
       const body = menu.ownerDocument.body
@@ -443,7 +466,10 @@ describe('web e2e: the composer model switch is the default for later sessions',
       await expect.poll(() => trigger.textContent()).toContain('Acme Large')
       await expect.poll(() => trigger.evaluate(element => element === element.ownerDocument.activeElement)).toBe(true)
       expect(await trigger.evaluate(element => getComputedStyle(element).boxShadow)).toBe('none')
-      expect(scaffold.ctx.agentDefaultModel.currentSelection()).toEqual({ provider: START_ROUTE, model: START_MODEL })
+      // The scaffold's replay pin is the pre-switch default; the save it
+      // triggers is still blocked by the exclusive lock.
+      expect(scaffold.ctx.agentDefaultModel.currentSelection())
+        .toEqual({ provider: 'omega-official', model: 'omega-v4-flash' })
       const aria = await captureStableAria(page, '[data-composer-card]', scaffold.workspaceCwd)
       await compareOrRefreshGolden(fileURLToPath(new URL('./expected/default-model/background-save.expected.md', import.meta.url)), aria, webSnapshotMode())
     } finally {

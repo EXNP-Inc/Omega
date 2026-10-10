@@ -1,7 +1,7 @@
 /**
  * Keyless snapshot coverage for the TypeScript SDK path: each scenario spawns
  * the real `dsh --profile sdk` runtime through
- * `@deepseek-ai/dsh-sdk-client`, drives one turn over stdio JSON-RPC,
+ * `@omega-ai/dsh-sdk-client`, drives one turn over stdio JSON-RPC,
  * and pins the SDK `RunResult`, the complete notification stream, and the
  * persisted session logs. Replay serves recorded model
  * responses via `llm-replay` (`cordis.snapshot.yml`); `DSH_SNAPSHOT=record`
@@ -53,15 +53,15 @@ import {
   type NormalizeContext,
   type SnapshotManifest,
   type WorkspaceSnapshotEntry,
-} from '@deepseek-ai/dsh-session-snapshot'
+} from '@omega-ai/dsh-session-snapshot'
 import {
-  DeepSeekHarness,
+  OmegaHarness,
   type HarnessNotification,
   type NotificationSubscription,
   type RunResult,
   type SdkPromptContentBlock,
-} from '@deepseek-ai/dsh-sdk-client'
-import { SESSION_FORMAT_VERSION } from '@deepseek-ai/dsh-session'
+} from '@omega-ai/dsh-sdk-client'
+import { SESSION_FORMAT_VERSION } from '@omega-ai/dsh-session'
 
 const corpusRoot = fileURLToPath(new URL('../', import.meta.url))
 
@@ -157,7 +157,7 @@ const SDK_ASSERTIONS: Readonly<Record<string, SdkAssertions>> = {
     },
   },
   'subagent-dsh-sdk-dynamic-route': {
-    environment: { DSH_TEST_PARENT_PROVIDER: 'deepseek-official' },
+    environment: { DSH_TEST_PARENT_PROVIDER: 'omega-official' },
     dshSdkChild: {
       config: dshSdkChildConfig,
       agentConfig: {
@@ -603,7 +603,7 @@ async function runScenario(scenario: CorpusScenario): Promise<{
     ...childEnvironment,
   }
 
-  const harness = new DeepSeekHarness({
+  const harness = new OmegaHarness({
     profile: 'sdk',
     patches,
     dshHome,

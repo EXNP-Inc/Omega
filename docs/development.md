@@ -12,7 +12,7 @@ The setup tutorial takes a new contributor from prerequisites to a checked check
 - Node.js TypeScript type stripping enabled. The repository build scripts load `tsdown.config.ts` with tsdown's native config loader, so they fail when `--no-experimental-strip-types` is in `NODE_OPTIONS` or the Node.js build lacks TypeScript support; `pnpm run build` checks this first and names the cause.
 - Corepack-enabled pnpm. The repo pins `pnpm@11.7.0` in `package.json`; run `corepack enable` if `pnpm --version` does not resolve through Corepack.
 - Git 2.26 or newer; hook setup enables Git's worktree-specific configuration extension.
-- Optional: a DeepSeek API key for the Web, headless, and ACP automation demos and real-API e2e tests.
+- Optional: a Omega API key for the Web, headless, and ACP automation demos and real-API e2e tests.
 
 ### Windows and WSL 2
 
@@ -79,7 +79,7 @@ The root build follows the generated dependency order:
 ```sh
 tsc -b tsconfig.host.json
 tsdown --env.DSH_BUILD_FACE host
-pnpm --filter @deepseek-ai/dsh-desktop run bundle
+pnpm --filter @omega-ai/dsh-desktop run bundle
 tsc -b tsconfig.client.json
 tsdown --env.DSH_BUILD_FACE client
 pnpm run build:web
@@ -105,14 +105,14 @@ pnpm run build
 
 ### Environment variables
 
-The real DeepSeek adapter and key-backed agent demos read credentials from the environment or from a gitignored `.env` at the repo root:
+The real Omega adapter and key-backed agent demos read credentials from the environment or from a gitignored `.env` at the repo root:
 
 ```sh
-DEEPSEEK_API_KEY=sk-...
-DEEPSEEK_BASE_URL=https://... # optional
+OMEGA_API_KEY=sk-...
+OMEGA_BASE_URL=https://... # optional
 ```
 
-`DEEPSEEK_BASE_URL` is optional and defaults to the public API. Never commit real credentials. The real-API e2e suites self-skip when `DEEPSEEK_API_KEY` is not set.
+`OMEGA_BASE_URL` is optional and defaults to the public API. Never commit real credentials. The real-API e2e suites self-skip when `OMEGA_API_KEY` is not set.
 
 ### Git integrations
 
@@ -148,7 +148,7 @@ Run the repository build separately before using these source-checkout demos:
 pnpm run build
 ```
 
-The one-shot Headless coding agent needs `DEEPSEEK_API_KEY` in the environment or repo-root `.env`:
+The one-shot Headless coding agent needs `OMEGA_API_KEY` in the environment or repo-root `.env`:
 
 ```sh
 pnpm dsh --profile headless "summarize this workspace"

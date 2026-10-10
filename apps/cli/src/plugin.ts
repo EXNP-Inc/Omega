@@ -1,15 +1,15 @@
 /** Profile package management and explicit, exact-version compatibility approvals. */
-import { runPluginCommand, runProfilePnpm, setProfileVersionExemption, type PackageOperationOptions } from '@deepseek-ai/dsh-plugin-manager/operations'
+import { runPluginCommand, runProfilePnpm, setProfileVersionExemption, type PackageOperationOptions } from '@omega-ai/dsh-plugin-manager/operations'
 import { INSTALL_ANCHOR } from './profile-boot.ts'
-import { DEFAULT_PROFILE_BUNDLES, initProfile, PROFILE_TEMPLATES, readProfileCompatibility, resolveProfileDir, type ProfileContext } from '@deepseek-ai/dsh-app-boot'
-import { withFileLock } from '@deepseek-ai/dsh-atomic-write'
+import { DEFAULT_PROFILE_BUNDLES, initProfile, PROFILE_TEMPLATES, readProfileCompatibility, resolveProfileDir, type ProfileContext } from '@omega-ai/dsh-app-boot'
+import { withFileLock } from '@omega-ai/dsh-atomic-write'
 import { existsSync } from 'node:fs'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 
 function requireDesktopProfile(dir: string): void {
   if (!existsSync(join(dir, 'package.json'))) {
-    throw new Error('Open DeepSeek Harness Desktop once to initialize its profile, then fully quit it before running dsh plugin --profile desktop.')
+    throw new Error('Open Omega Desktop once to initialize its profile, then fully quit it before running dsh plugin --profile desktop.')
   }
 }
 

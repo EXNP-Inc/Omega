@@ -1,20 +1,20 @@
 import { describe, expect, it } from 'vitest'
 import type {
   ChatConversationViewNode, ChatSnapshot,
-} from '@deepseek-ai/dsh-client-ui-chat/client'
+} from '@omega-ai/dsh-client-ui-chat/client'
 import type {
   SessionEventLikeEntry, SessionLiveEventEntry,
-} from '@deepseek-ai/dsh-api-session-controller/client'
+} from '@omega-ai/dsh-api-session-controller/client'
 import {
   ConversationNodeAssembler,
   type ConversationNodeDefinition,
   type ConversationViewDefinition,
-} from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type { SessionEvent } from '@deepseek-ai/dsh-session/types'
+} from '@omega-ai/dsh-client-ui-conversation/client'
+import type { SessionEvent } from '@omega-ai/dsh-session/types'
 import { inspectSystemPrompt } from '../../ui-conversation/src/client/contract/system-prompt.ts'
-import { AssistantStreamAccumulator } from '@deepseek-ai/dsh-llm/assistant-stream'
-import { LlmAttemptId } from '@deepseek-ai/dsh-llm/brand'
-import type { StreamChunk } from '@deepseek-ai/dsh-llm'
+import { AssistantStreamAccumulator } from '@omega-ai/dsh-llm/assistant-stream'
+import { LlmAttemptId } from '@omega-ai/dsh-llm/brand'
+import type { StreamChunk } from '@omega-ai/dsh-llm'
 import { hasAssistantReplyContent } from '../src/client/contract/assistant-content.ts'
 import { assistantDefinition } from '../src/client/conversation-nodes/assistant.ts'
 import { chatViewDefinition } from '../src/client/conversation-nodes/chat-snapshot-builder.ts'
@@ -23,7 +23,7 @@ import { compactionDefinition } from '../src/client/conversation-nodes/compactio
 import { unknownFallbackDefinition } from '../src/client/conversation-nodes/fallback.ts'
 import { nextStepInboxDefinition, nextTurnInboxDefinition } from '../src/client/conversation-nodes/inbox.ts'
 import { developerMessageDefinition, messageDefinition } from '../src/client/conversation-nodes/message.ts'
-import { inspectRequestPrompt } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import { inspectRequestPrompt } from '@omega-ai/dsh-client-ui-conversation/client'
 import { requestPromptDefinition, systemMessageDefinition } from '../src/client/conversation-nodes/request-prompt.ts'
 import { retryDefinition } from '../src/client/conversation-nodes/retry.ts'
 import { toolDefinition } from '../src/client/conversation-nodes/tool.ts'
@@ -2791,9 +2791,9 @@ describe('built-in conversation node Definitions', () => {
 
 it('retains a sign-out cancellation notice when reopening a partial turn', () => {
   const value = assembler([
-    at(7, 'turn/end', { turn: 1, reason: { kind: 'aborted', reason: { kind: 'hook', reason: 'deepseek-account/signed-out' } } }),
+    at(7, 'turn/end', { turn: 1, reason: { kind: 'aborted', reason: { kind: 'hook', reason: 'omega-account/signed-out' } } }),
   ], true)
   expect(node(snapshot(value), 'turn-error')?.data).toMatchObject({
-    code: 'ACCOUNT_SIGNED_OUT', message: 'Stopped because you signed out of DeepSeek.',
+    code: 'ACCOUNT_SIGNED_OUT', message: 'Stopped because you signed out of Omega.',
   })
 })

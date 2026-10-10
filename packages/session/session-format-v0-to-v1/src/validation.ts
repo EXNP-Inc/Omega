@@ -4,14 +4,14 @@ import {
   SessionFormatUnsupportedMigrationError,
   sessionFormatCount,
   sessionFormatSafeInteger,
-} from '@deepseek-ai/dsh-session-format'
-import { isJsonValue } from '@deepseek-ai/dsh-util-values'
+} from '@omega-ai/dsh-session-format'
+import { isJsonValue } from '@omega-ai/dsh-util-values'
 import type {
   SessionFormatArtifact,
   SessionFormatEvent,
   SessionFormatHeader,
   SessionFormatJsonValue,
-} from '@deepseek-ai/dsh-session-format'
+} from '@omega-ai/dsh-session-format'
 import { RELEASED_V0_EVENT_DISPOSITIONS } from './dispositions.ts'
 import { assertReleasedPayloadSemantics } from './payload-validation.ts'
 import { assertReleasedV0Keys, releasedV0Record } from './validation-helpers.ts'
@@ -204,7 +204,7 @@ export function assertReleasedEventPayload(event: SessionFormatEvent, version: 0
     }
     return
   }
-  const versionOptional = version === 1 && event.type === 'session-log-deepseek/delivery-accepted'
+  const versionOptional = version === 1 && event.type === 'session-log-omega/delivery-accepted'
     ? [...disposition.optional, 'sessionFormatVersion']
     : disposition.optional
   assertReleasedV0Keys(data, disposition.required, versionOptional, `${event.type} ${event.seq} data`)

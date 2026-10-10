@@ -1,33 +1,33 @@
-/** Real attachments, filesystem recovery, Node PTC, and DeepSeek image request bytes without a desktop or API key. */
+/** Real attachments, filesystem recovery, Node PTC, and Omega image request bytes without a desktop or API key. */
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
-import LocalAttachments from '@deepseek-ai/dsh-attachment-local'
-import FileSystem from '@deepseek-ai/dsh-fs-local'
-import * as ToolFs from '@deepseek-ai/dsh-tool-fs'
+import { Context } from '@omega-ai/cordis'
+import type { Agent } from '@omega-ai/dsh-agent'
+import type { ImageAttachmentRef } from '@omega-ai/dsh-attachment'
+import LocalAttachments from '@omega-ai/dsh-attachment-local'
+import FileSystem from '@omega-ai/dsh-fs-local'
+import * as ToolFs from '@omega-ai/dsh-tool-fs'
 import {
   createAssistantMessage, createToolResultMessage, createUserMessage, LlmAdapter, LlmRuntime,
   resolveImageAttachmentAccess, ToolCallId,
-} from '@deepseek-ai/dsh-llm'
-import type { ContentBlock, GenerateOptions, ImageBlock, StreamChunk, UserMessage } from '@deepseek-ai/dsh-llm'
-import { deepSeekImageRequestPricing, resolveAdapterOptions } from '@deepseek-ai/dsh-llm-deepseek'
-import { prepareImages } from '@deepseek-ai/dsh-llm-deepseek/src/images.ts'
-import { serialize } from '@deepseek-ai/dsh-llm-deepseek/src/serialize.ts'
-import { createMcpToolDefinition } from '@deepseek-ai/dsh-mcp-client'
-import NodeRuntime from '@deepseek-ai/dsh-ptc-runtime-node'
-import Sandbox from '@deepseek-ai/dsh-sandbox-local'
-import SandboxPolicy from '@deepseek-ai/dsh-sandbox-policy'
-import SessionStore, { SessionId } from '@deepseek-ai/dsh-session'
-import SessionProjections from '@deepseek-ai/dsh-session-projection'
-import LocalSpillStore from '@deepseek-ai/dsh-spill-local'
-import Subprocess from '@deepseek-ai/dsh-subprocess-local'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import { estimateContent } from '@deepseek-ai/dsh-token-meter/estimate'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+} from '@omega-ai/dsh-llm'
+import type { ContentBlock, GenerateOptions, ImageBlock, StreamChunk, UserMessage } from '@omega-ai/dsh-llm'
+import { omegaImageRequestPricing, resolveAdapterOptions } from '@omega-ai/dsh-llm-omega'
+import { prepareImages } from '@omega-ai/dsh-llm-omega/src/images.ts'
+import { serialize } from '@omega-ai/dsh-llm-omega/src/serialize.ts'
+import { createMcpToolDefinition } from '@omega-ai/dsh-mcp-client'
+import NodeRuntime from '@omega-ai/dsh-ptc-runtime-node'
+import Sandbox from '@omega-ai/dsh-sandbox-local'
+import SandboxPolicy from '@omega-ai/dsh-sandbox-policy'
+import SessionStore, { SessionId } from '@omega-ai/dsh-session'
+import SessionProjections from '@omega-ai/dsh-session-projection'
+import LocalSpillStore from '@omega-ai/dsh-spill-local'
+import Subprocess from '@omega-ai/dsh-subprocess-local'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import { estimateContent } from '@omega-ai/dsh-token-meter/estimate'
+import ToolRuntime from '@omega-ai/dsh-tools'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
 import sharp from 'sharp'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import * as SpillPolicy from '../src/index.ts'
@@ -59,7 +59,7 @@ async function setup() {
   const access = (ref: ImageAttachmentRef) => resolveImageAttachmentAccess(
     ctx.attachments, path => ctx.fs.processPathFromHostPath(path), ref,
   )
-  const pricing = deepSeekImageRequestPricing(connection, MODEL, access)
+  const pricing = omegaImageRequestPricing(connection, MODEL, access)
   class VisionRoute extends LlmAdapter {
     override async resolveModel(provider: string, model: string) {
       return { provider, id: model, name: model, inputModalities: ['text', 'image'] as Array<'text' | 'image'> }
@@ -134,7 +134,7 @@ describe('multimodal recovery through real providers', () => {
     expect(await requestImages(result.content)).toEqual(['green'])
   })
 
-  it('retains two distinct end images in both the tool result and DeepSeek request', async () => {
+  it('retains two distinct end images in both the tool result and Omega request', async () => {
     const { execute, originals, cost, requestImages } = await setup()
     const result = await execute('ends')
     expect(result.isError).toBe(false)

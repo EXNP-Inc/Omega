@@ -16,7 +16,7 @@ Status: implemented
 
 循环和压缩请求通过 `GenerateOptions.toolHistory` 携带此快照。适配器分发时，`projectToolUpdates` 使用已准备路由的 `toolUpdate`。不支持的路由接收有效定义，不携带 `deferLoading` 或 developer 消息。支持的路由延迟历史添加；`in-history` 保留已移除定义和移除块，`addition-only` 则省略两者。仅保留当前序列的更新标识。缺少历史或请求前缀遗漏已记录更新时，使用当前声明且不发送 developer 更新。显式延迟加载在支持的路由上仍然可用。
 
-DeepSeek 把投影后的更新转换为 system 角色的 `tool_addition` 和 `tool_removal` 块以及 `defer_loading` 声明，在存在更新块时发送工具变更 beta 请求头。默认 `deepseek-flash` 条目声明 `addition-only`；pi-ai 不声明模式。Chat 和 Trajectory 将 developer 消息显示为上下文节点，工具变更使用本地化通知：单项变更显示工具名，多项变更显示数量及可展开的名称列表。
+Omega 把投影后的更新转换为 system 角色的 `tool_addition` 和 `tool_removal` 块以及 `defer_loading` 声明，在存在更新块时发送工具变更 beta 请求头。默认 `omega-flash` 条目声明 `addition-only`；pi-ai 不声明模式。Chat 和 Trajectory 将 developer 消息显示为上下文节点，工具变更使用本地化通知：单项变更显示工具名，多项变更显示数量及可展开的名称列表。
 
 ## Alternatives considered
 
@@ -34,4 +34,4 @@ DeepSeek 把投影后的更新转换为 system 角色的 `tool_addition` 和 `to
 
 手写的[无界面提示词／工具场景](../../../../snapshots/session/dynamic-tool-prompt-updates/snapshot.yml)钉住追加提示词与延迟工具添加同时发生的行为，并验证首次请求的消息保持不变。它复用稳定提示词场景的工具生命周期和 schema 期望值。
 
-[真实 DeepSeek SDK 测试](../../../../apps/cli/tests/profiles/sdk/dynamic-tool-cache.e2e.ts) 分别在指令不变和指令同时更新时测量原生工具新增后的首次请求。独有的用户历史确保仅命中共享系统提示词缓存无法满足前序输入断言。移除场景检查工具可用性，不要求保留缓存；每个用例均禁用重试。
+[真实 Omega SDK 测试](../../../../apps/cli/tests/profiles/sdk/dynamic-tool-cache.e2e.ts) 分别在指令不变和指令同时更新时测量原生工具新增后的首次请求。独有的用户历史确保仅命中共享系统提示词缓存无法满足前序输入断言。移除场景检查工具可用性，不要求保留缓存；每个用例均禁用重试。

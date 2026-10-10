@@ -1,12 +1,12 @@
-/** Browser saves control the session-log field on real DeepSeek HTTP requests. */
+/** Browser saves control the session-log field on real Omega HTTP requests. */
 import { mkdtemp, rm, writeFile, readFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { chromium } from 'playwright'
 import yaml from 'js-yaml'
 import { expect, it, onTestFinished } from 'vitest'
-import { credentialRef } from '@deepseek-ai/dsh-credentials'
-import { startMockLlmServer } from '@deepseek-ai/dsh-llm-mock-server'
+import { credentialRef } from '@omega-ai/dsh-credentials'
+import { startMockLlmServer } from '@omega-ai/dsh-llm-mock-server'
 import { launchWebScaffold, webSnapshotMode } from './scaffold.ts'
 import { connectFreshWorkspace, newEnglishPage, openSettings } from './support.ts'
 
@@ -18,11 +18,11 @@ it.skipIf(webSnapshotMode() === 'record')('persists the upload switch and omits 
   const key = credentialRef('DSH_UPLOAD_BROWSER_KEY')
   const overlay = join(root, 'upload.yml')
   await writeFile(overlay, JSON.stringify([
-    { id: 'llm-deepseek', config: { baseURL: server.baseURL, apiKeyEnv: key } },
-    { id: 'session-log-deepseek', config: { enabled: true } },
-    { id: 'agent-default-model', config: { provider: 'deepseek-official', model: 'deepseek-v4-flash' } },
+    { id: 'llm-omega', config: { baseURL: server.baseURL, apiKeyEnv: key } },
+    { id: 'session-log-omega', config: { enabled: true } },
+    { id: 'agent-default-model', config: { provider: 'omega-official', model: 'omega-v4-flash' } },
   ]))
-  const scaffold = await launchWebScaffold({ deepSeekMissingCredential: true, extraOverlayPath: overlay })
+  const scaffold = await launchWebScaffold({ omegaMissingCredential: true, extraOverlayPath: overlay })
   onTestFinished(() => scaffold.close())
   await scaffold.ctx.credentials.set(key, 'upload-browser-test-key')
   const browser = await chromium.launch()
@@ -45,7 +45,7 @@ it.skipIf(webSnapshotMode() === 'record')('persists the upload switch and omits 
     await expect.poll(() => toggle.getAttribute('aria-checked')).toBe(String(enabled))
     await expect.poll(async () => {
       const patches = yaml.load(await readFile(join(scaffold.harnessHome, 'profiles/scaffold/cordis.patch.yml'), 'utf8')) as { id: string; config?: { enabled?: boolean } }[]
-      return patches.find(patch => patch.id === 'session-log-deepseek')?.config?.enabled ?? true
+      return patches.find(patch => patch.id === 'session-log-omega')?.config?.enabled ?? true
     }).toBe(enabled)
     await page.keyboard.press('Escape')
   }

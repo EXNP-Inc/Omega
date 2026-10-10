@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from deepseek_harness import DeepSeekHarness
+from omega_harness import OmegaHarness
 
 ROOT = Path(__file__).resolve().parents[3]
 CLI = ROOT / 'apps' / 'cli' / 'lib' / 'bin.js'
@@ -14,14 +14,14 @@ CLI = ROOT / 'apps' / 'cli' / 'lib' / 'bin.js'
 
 @pytest.mark.skipif(not CLI.exists(), reason='requires the built dsh profile runtime')
 def test_account_provider_signout_snapshot(tmp_path: Path) -> None:
-    with DeepSeekHarness(
+    with OmegaHarness(
         dsh_bin=str(CLI),
         dsh_home=str(tmp_path / 'home'),
         cwd=str(tmp_path),
         profile='sdk',
         patches=(str(ROOT / 'snapshots' / 'sdk' / 'account-provider-signout' / 'cordis.yml'),),
-        provider='deepseek-account',
-        model='deepseek-v4-flash',
+        provider='omega-account',
+        model='omega-v4-flash',
         env={'DSH_TELEMETRY_DISABLED': '1', 'DSH_SNAPSHOT': 'replay'},
     ) as harness:
         result = harness.run('Reply with exactly: SDK snapshot')

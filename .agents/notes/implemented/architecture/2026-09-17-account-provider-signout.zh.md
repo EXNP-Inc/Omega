@@ -10,7 +10,7 @@ Status: implemented
 
 ## Decision
 
-`deepseek-official` 和 `deepseek-account` 是独立路由，共享 DeepSeek 协议实现。每个适配器仅有一个凭证解析器和认证请求头模式。两条路由均不回退到另一凭证。账号服务保留[登录决策](2026-09-14-deepseek-account-login.zh.md)定义的来源及签发方校验。
+`omega-official` 和 `omega-account` 是独立路由，共享 Omega 协议实现。每个适配器仅有一个凭证解析器和认证请求头模式。两条路由均不回退到另一凭证。账号服务保留[登录决策](2026-09-14-omega-account-login.zh.md)定义的来源及签发方校验。
 
 账号取消读取运行中 Agent 最近的 `Session.requestContext()`，不维护额外提供方字段。该已记录值在工具和重试阶段保留，随下一次绑定请求更新；空闲 Agent 不计入。新轮次首次准备期间，它仍可能指向上一轮的账号路由，因此退登也可能打断尚未绑定新请求的 API key 轮次。没有历史上下文的首请求若缺少账号凭据，会在传输前失败。
 
@@ -22,6 +22,6 @@ Status: implemented
 
 ## Consequences
 
-模型选择展示两条路由，即使存在 API Key，选择账号路由仍要求登录。两个路由分别由 `llm-deepseek-account` 和 `llm-deepseek-api-key` 注册，拥有独立的模型目录与连接设置，共用 `llm-deepseek` 协议实现。取消保留排队输入，不自动唤醒。已记录的 hook 原因生成本地化对话提示，无须改变持久事件类型。
+模型选择展示两条路由，即使存在 API Key，选择账号路由仍要求登录。两个路由分别由 `llm-omega-account` 和 `llm-omega-api-key` 注册，拥有独立的模型目录与连接设置，共用 `llm-omega` 协议实现。取消保留排队输入，不自动唤醒。已记录的 hook 原因生成本地化对话提示，无须改变持久事件类型。
 
 行为测试覆盖凭证分离、首请求准备、工具阶段取消及路由替换。SDK account-provider-signout 场景启动随附 profile，记录被中断的输出和取消原因。

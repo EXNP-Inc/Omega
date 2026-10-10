@@ -3,21 +3,21 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import SubagentRuntime from '@deepseek-ai/dsh-subagent'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
-import { resolveExampleLaunch } from '@deepseek-ai/dsh-loader-smoke'
+import { Context } from '@omega-ai/cordis'
+import type { Agent } from '@omega-ai/dsh-agent'
+import SubagentRuntime from '@omega-ai/dsh-subagent'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import LocalSubprocessRuntime from '@omega-ai/dsh-subprocess-local'
+import { resolveExampleLaunch } from '@omega-ai/dsh-loader-smoke'
 import * as acp from '../src/index.ts'
 
 /**
  * With-key cross-process boundary proof: the backend spawns the real dsh ACP profile, speaks ACP over
  * stdio, and returns its real model answer. This is the out-of-process counterpart to in-process
- * spawn coverage and self-skips without `DEEPSEEK_API_KEY`.
+ * spawn coverage and self-skips without `OMEGA_API_KEY`.
  */
 
-// The real ACP profile: dsh plus the example's live DeepSeek patch.
+// The real ACP profile: dsh plus the example's live Omega patch.
 const binScript = fileURLToPath(new URL('../../../../apps/cli/src/bin.ts', import.meta.url))
 const exampleConfig = fileURLToPath(new URL('../../../../snapshots/acp/escalation-approved/cordis.yml', import.meta.url))
 const repoTsconfig = fileURLToPath(new URL('../../../../tsconfig.json', import.meta.url))
@@ -32,8 +32,8 @@ function resolveChildLaunch(dshHome: string) {
     configArgs: ['--profile', 'acp', '--patch', exampleConfig],
     tsconfigPath: repoTsconfig,
     env: {
-      ...process.env.DEEPSEEK_API_KEY !== undefined ? { DEEPSEEK_API_KEY: process.env.DEEPSEEK_API_KEY } : {},
-      ...process.env.DEEPSEEK_BASE_URL !== undefined ? { DEEPSEEK_BASE_URL: process.env.DEEPSEEK_BASE_URL } : {},
+      ...process.env.OMEGA_API_KEY !== undefined ? { OMEGA_API_KEY: process.env.OMEGA_API_KEY } : {},
+      ...process.env.OMEGA_BASE_URL !== undefined ? { OMEGA_BASE_URL: process.env.OMEGA_BASE_URL } : {},
       DSH_HOME: dshHome,
       DSH_PERMISSION_MODE: 'danger-full-access',
     },
@@ -53,7 +53,7 @@ afterEach(async () => {
   workdir = undefined
 })
 
-describe.skipIf(!process.env.DEEPSEEK_API_KEY)('ACP backend with-key e2e (drive our own acp-agent)', () => {
+describe.skipIf(!process.env.OMEGA_API_KEY)('ACP backend with-key e2e (drive our own acp-agent)', () => {
   it('drives the real acp-agent example process to answer a prompt', async () => {
     workdir = await mkdtemp(join(tmpdir(), 'dsh-subagent-acp-e2e-'))
     const childLaunch = resolveChildLaunch(join(workdir, '.dsh-child'))

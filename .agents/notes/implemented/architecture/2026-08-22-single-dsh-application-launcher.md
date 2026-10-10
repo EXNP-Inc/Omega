@@ -6,7 +6,7 @@ English | [中文](2026-08-22-single-dsh-application-launcher.zh.md)
 
 ## Problem
 
-DeepSeek Harness application processes need one owner for composition, plugin resolution, environment discovery, shutdown, and user customization. A dedicated app bin with a complete `cordis.yml` creates a second lifecycle beside profile launch: plugins installed into a profile do not reach it, behavior drifts from `dsh-base`, and SDK callers learn arbitrary process argv instead of the product's composition model.
+Omega application processes need one owner for composition, plugin resolution, environment discovery, shutdown, and user customization. A dedicated app bin with a complete `cordis.yml` creates a second lifecycle beside profile launch: plugins installed into a profile do not reach it, behavior drifts from `dsh-base`, and SDK callers learn arbitrary process argv instead of the product's composition model.
 
 The Python SDK distributes a native executable through four platform wheels. Its packaged process uses the same profile launcher while preserving the closed VFS dependency tree, native sidecars, and installed-wheel evidence.
 
@@ -20,7 +20,7 @@ Vendor CLIs, build-only and test-only executables, direct in-process plugin moun
 
 ### Profile applications
 
-`@deepseek-ai/dsh-sdk-app` and `@deepseek-ai/dsh-acp-app` compose the full protocol applications over `@deepseek-ai/dsh-base`. The SDK bundle adds the JSON-RPC server plus app-owned help and stdio lifetime; the ACP bundle adds the automation-only ACP server plus the same application responsibilities. Both adopt the base model, tools, persistence, settings, credentials, policy, and environment behavior. The [standalone sdk-minimal profile](../../archived/architecture/2026-08-24-standalone-sdk-minimal-profile.md) reuses SDK startup and JSON-RPC serving but deliberately owns a complete explicit tree without `dsh-base`.
+`@omega-ai/dsh-sdk-app` and `@omega-ai/dsh-acp-app` compose the full protocol applications over `@omega-ai/dsh-base`. The SDK bundle adds the JSON-RPC server plus app-owned help and stdio lifetime; the ACP bundle adds the automation-only ACP server plus the same application responsibilities. Both adopt the base model, tools, persistence, settings, credentials, policy, and environment behavior. The [standalone sdk-minimal profile](../../archived/architecture/2026-08-24-standalone-sdk-minimal-profile.md) reuses SDK startup and JSON-RPC serving but deliberately owns a complete explicit tree without `dsh-base`.
 
 Profile manifests own patch reload:
 
@@ -38,9 +38,9 @@ The shipped protocol profiles reserve stdout for protocol frames, expose help wi
 
 ### TypeScript SDK customization
 
-`@deepseek-ai/dsh-sdk-client` depends on the same-version `@deepseek-ai/dsh` package, resolves its installed CLI module, runs it through the current Node executable, and selects `sdk` by default. Both client layers expose `dshBin`, `profile`, ordered `patches`, `dshHome`, process cwd, environment, and timeouts; arbitrary command/argv launch remains an internal fake-runtime adapter.
+`@omega-ai/dsh-sdk-client` depends on the same-version `@omega-ai/dsh` package, resolves its installed CLI module, runs it through the current Node executable, and selects `sdk` by default. Both client layers expose `dshBin`, `profile`, ordered `patches`, `dshHome`, process cwd, environment, and timeouts; arbitrary command/argv launch remains an internal fake-runtime adapter.
 
-SDK users customize plugins through profiles. `dsh plugin --profile <name> ...` manages persistent dependencies and bundle order, the profile's `cordis.patch.yml` owns persistent row changes, and launch `patches` supply ordered ephemeral overrides. A custom profile must retain `@deepseek-ai/dsh-sdk-app` or another SDK server row. Relative CLI-module, patch, explicit home, and process-cwd paths become absolute before spawn, and initialization has a finite bound whose diagnostic names the selected profile.
+SDK users customize plugins through profiles. `dsh plugin --profile <name> ...` manages persistent dependencies and bundle order, the profile's `cordis.patch.yml` owns persistent row changes, and launch `patches` supply ordered ephemeral overrides. A custom profile must retain `@omega-ai/dsh-sdk-app` or another SDK server row. Relative CLI-module, patch, explicit home, and process-cwd paths become absolute before spawn, and initialization has a finite bound whose diagnostic names the selected profile.
 
 Direct SDK use follows normal Harness-home resolution: explicit `dshHome`, inherited `DSH_HOME`, then `~/.dsh`. `subagent-dsh-sdk` instead requires an explicit absolute home, so a nested runtime cannot discover a person's profiles, installed plugins, credentials, or sessions through the operating-system home. DSH-specific ACP child examples also pass an isolated home; the ACP backend itself remains generic for non-DSH agents.
 
@@ -48,7 +48,7 @@ Direct SDK use follows normal Harness-home resolution: explicit `dshHome`, inher
 
 The Python runtime wheel stages [`python/sdk-runtime/runtime-bootstrap.mjs`](../../../../python/sdk-runtime/runtime-bootstrap.mjs) as the `dsh-python-runtime-closure` entry. Its ordinary branch calls the public CLI export; a provider-private selector dispatches to the internal subprocess runner before CLI parsing and is not an application entry point. The [native-containment reference](../../../../packages/subprocess/subprocess-local/README.md) owns that private dispatch. The Python client selects `dsh --profile sdk` by default, ordered patch files, and an explicit Harness home; the runnable example under `python/sdk/examples` selects `sdk-minimal`. The installed `dsh` console command exposes the same profile grammar, including the `web` profile.
 
-The executable family is `deepseek-harness-sdk-runtime-<platform>-<arch>`. The SDK wire, wheel and import distribution names, sidecar names, and wire identity `deepseek-harness-sdk-runtime` remain stable. The SDK package family is `@deepseek-ai/dsh-sdk-client`, `@deepseek-ai/dsh-sdk-protocol`, and `@deepseek-ai/dsh-sdk-jsonrpc-server`; `@deepseek-ai/dsh-acp` remains the ACP protocol plugin. There is no Python-specific Node application, checked-in complete config, compatibility package, forwarding executable, fallback parser, or SDK/ACP launcher alias. [docs/architecture.md](../../../../docs/architecture.md) owns this launch, and the [`python/sdk-runtime` README](../../../../python/sdk-runtime/README.md) owns the Windows carrier.
+The executable family is `omega-harness-sdk-runtime-<platform>-<arch>`. The SDK wire, wheel and import distribution names, sidecar names, and wire identity `omega-harness-sdk-runtime` remain stable. The SDK package family is `@omega-ai/dsh-sdk-client`, `@omega-ai/dsh-sdk-protocol`, and `@omega-ai/dsh-sdk-jsonrpc-server`; `@omega-ai/dsh-acp` remains the ACP protocol plugin. There is no Python-specific Node application, checked-in complete config, compatibility package, forwarding executable, fallback parser, or SDK/ACP launcher alias. [docs/architecture.md](../../../../docs/architecture.md) owns this launch, and the [`python/sdk-runtime` README](../../../../python/sdk-runtime/README.md) owns the Windows carrier.
 
 ### Enforcement
 
@@ -87,7 +87,7 @@ The [ACP automation-only protocol](../simplification/2026-07-23-acp-automation-o
 - Focused unit suites cover profile launch resolution, initialization bounds, SDK retries, server readiness, and nested isolated homes with 100% coverage on the changed runtime sources.
 - Keyless ACP and SDK snapshots boot real `dsh` profiles and pin protocol output plus persisted logs; the nested SDK composition boots a second real profile runtime.
 - The real-API workflow caps file parallelism at four because one profile e2e file can own several complete `dsh` subprocess trees; workflow tests pin that resource bound.
-- The Python suite exercises exe and node carriers; packaged-runtime scenarios, native macOS executable construction, both wheels, and clean-wheel default/MCP smokes pin the `deepseek-harness-sdk-runtime-*` artifacts and profile launch.
+- The Python suite exercises exe and node carriers; packaged-runtime scenarios, native macOS executable construction, both wheels, and clean-wheel default/MCP smokes pin the `omega-harness-sdk-runtime-*` artifacts and profile launch.
 - `verify-application-entrypoints` includes invalid fixtures for package bins, executable sources, package-launching demo wrappers, and unclassified demos.
 
 ## Consequences
@@ -95,6 +95,6 @@ The [ACP automation-only protocol](../simplification/2026-07-23-acp-automation-o
 - A user changes an SDK application's plugin composition through a named profile and ordered patches, using the same installation and resolution model as every other dsh application.
 - A custom profile receives live config watching without server module HMR and opts into source-module replacement only through an explicit row override.
 - The full SDK and ACP profiles share the complete base application and one set of policy and tools; `sdk-minimal` owns its explicit standalone roster, and snapshots present intentional assembled differences.
-- Adding `@deepseek-ai/dsh` increases the TypeScript client's install size in exchange for a deterministic same-version runtime.
+- Adding `@omega-ai/dsh` increases the TypeScript client's install size in exchange for a deterministic same-version runtime.
 - Trusted user patches can add a plugin that writes to stdout and corrupt their own protocol stream; shipped profiles guarantee purity, not arbitrary third-party composition.
 - Python packages the ordinary `dsh` profile launcher while retaining a closed native runtime and no system-Node requirement for wheel users.

@@ -3,7 +3,7 @@ description: "Keyless LLM replay plugin for snapshot tests, for test authors boo
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-llm-replay
+# @omega-ai/dsh-llm-replay
 
 English | [中文](README.zh.md)
 
@@ -33,11 +33,11 @@ With `providers` configured, the plugin registers a replay-only adapter whose ca
 
 ```yaml
 - id: llm-replay
-  name: '@deepseek-ai/dsh-llm-replay'
+  name: '@omega-ai/dsh-llm-replay'
   config:
     providers:
-      - id: deepseek-official
-        name: DeepSeek
+      - id: omega-official
+        name: Omega
         retryPolicy:
           mode: normal
           backoff:
@@ -45,9 +45,9 @@ With `providers` configured, the plugin registers a replay-only adapter whose ca
             maxDelayMs: 1
             jitterRatio: 0
         models:
-          - id: deepseek-v4-flash
+          - id: omega-v4-flash
             contextWindow: 128000
-          - id: deepseek-v4-pro
+          - id: omega-v4-pro
   # file/overrideFile/childFiles default to $DSH_SNAPSHOT_FILE /
   # $DSH_SNAPSHOT_OVERRIDE / $DSH_SNAPSHOT_CHILD_FILES, set by the snapshot
   # harness per scenario.
@@ -61,7 +61,7 @@ With `providers` configured, the plugin registers a replay-only adapter whose ca
 | `providers` | — | Optional replay-only provider and model catalog; a model may declare `contextWindow`, text/image modalities, positive `imageRequestTokens` when image-capable, and `systemPromptUpdate: in-history` so a keyless scenario exercises in-history system prompt replacement; invalid values fail at load (`llm-replay: provider "…" model "…" systemPromptUpdate must be "in-history" when present`) and routes never perform provider I/O |
 | `paceMs` | — (burst) | Optional per-chunk delay in ms for genuinely incremental delivery |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-llm-replay) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-llm-replay) is the exhaustive source for every accepted field and its JSDoc.
 
 ### How the fixture works
 
@@ -73,9 +73,9 @@ A scenario where a parent agent delegates to in-process subagents records one ro
 
 ### Failure modes and overrides
 
-When replay serves `deepseek-official` with `ctx.deepseekLlmApiExtensions`, it prepares and accepts those fields after selecting a valid script entry and before yielding the first chunk. This mirrors the live adapter's post-2xx commit point, so durable acceptance watermarks and SDK event notifications behave the same in recording and replay. Replay supplies a synthetic `{ messages: [] }` base body: it proves acceptance side effects, not prepared field bytes.
+When replay serves `omega-official` with `ctx.omegaLlmApiExtensions`, it prepares and accepts those fields after selecting a valid script entry and before yielding the first chunk. This mirrors the live adapter's post-2xx commit point, so durable acceptance watermarks and SDK event notifications behave the same in recording and replay. Replay supplies a synthetic `{ messages: [] }` base body: it proves acceptance side effects, not prepared field bytes.
 
-Two failure modes are not reconstructable from a durable Assistant settlement alone: a pure throw before any chunk has no exception-bearing stream member, and a cancel/hang requires nontermination rather than a replayed finite prefix. A scenario that needs those supplies an optional sidecar (`<scenario>/replay.override.json`) that either replaces the derived script with a bare `ReplayEntry[]` or augments it with `{ patches: [{ at, entry }] }`, which keeps every derived call and swaps the named 0-based call indexes; `at` equal to the derived length appends the retry attempt after an injected transient throw. A `throw` entry accepts DeepSeek request extensions when it has prefix chunks; a zero-chunk throw defaults to pre-2xx non-acceptance and may set `accepted: true` for a post-2xx failure. A `hang` entry may name `readyFile`, which replay writes before waiting for cancellation so an external driver can cancel deterministically.
+Two failure modes are not reconstructable from a durable Assistant settlement alone: a pure throw before any chunk has no exception-bearing stream member, and a cancel/hang requires nontermination rather than a replayed finite prefix. A scenario that needs those supplies an optional sidecar (`<scenario>/replay.override.json`) that either replaces the derived script with a bare `ReplayEntry[]` or augments it with `{ patches: [{ at, entry }] }`, which keeps every derived call and swaps the named 0-based call indexes; `at` equal to the derived length appends the retry attempt after an injected transient throw. A `throw` entry accepts Omega request extensions when it has prefix chunks; a zero-chunk throw defaults to pre-2xx non-acceptance and may set `accepted: true` for a post-2xx failure. A `hang` entry may name `readyFile`, which replay writes before waiting for cancellation so an external driver can cancel deterministically.
 
 ### What can go wrong
 

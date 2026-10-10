@@ -87,7 +87,7 @@
       "path": "../account-controller"
     },
     {
-      "path": "../../credentials/deepseek-account"
+      "path": "../../credentials/omega-account"
     }
   ]
 }

@@ -4,21 +4,21 @@ import { existsSync, readFileSync } from 'node:fs'
 import { readFile, rm } from 'node:fs/promises'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { withFileLock, writeFileAtomic } from '@deepseek-ai/dsh-atomic-write'
-import { Context } from '@deepseek-ai/cordis'
-import type { EntryOptions } from '@deepseek-ai/cordis-plugin-loader'
-import type { PatchOptions } from '@deepseek-ai/cordis-plugin-include'
-import z from '@deepseek-ai/schemastery'
-import { TypertRemoteService, Remote } from '@deepseek-ai/dsh-typert-protocol'
-import { pluginEntryId, readPluginInventory } from '@deepseek-ai/dsh-host-plugin-inventory'
+import { withFileLock, writeFileAtomic } from '@omega-ai/dsh-atomic-write'
+import { Context } from '@omega-ai/cordis'
+import type { EntryOptions } from '@omega-ai/cordis-plugin-loader'
+import type { PatchOptions } from '@omega-ai/cordis-plugin-include'
+import z from '@omega-ai/schemastery'
+import { TypertRemoteService, Remote } from '@omega-ai/dsh-typert-protocol'
+import { pluginEntryId, readPluginInventory } from '@omega-ai/dsh-host-plugin-inventory'
 import {
   readPluginMeta, readProfileManifest, resolveBundleDir, loadOverlayPatches, composeEntries,
   reconcileProfilePatches, readProfilePatches, OPTIONAL_BUNDLES, bundlePatchPaths,
   evaluatePluginCompatibility, readProfileCompatibility, readProfileVersionExemptions,
   setProfileVersionExemption, PROFILE_COMPATIBILITY_FILENAME,
-} from '@deepseek-ai/dsh-app-boot'
-import type {} from '@deepseek-ai/dsh-hmr'
-import type { ProfileContext, ProfileManifest } from '@deepseek-ai/dsh-app-boot'
+} from '@omega-ai/dsh-app-boot'
+import type {} from '@omega-ai/dsh-hmr'
+import type { ProfileContext, ProfileManifest } from '@omega-ai/dsh-app-boot'
 import { bundleManifest, readProfileRegistry, registryArguments, runProfilePnpm, saveManifest, viewProfilePackage } from './operations.ts'
 import { classifyInstallFailure } from './install-failure.ts'
 import { dependencySpec, InvalidInstallSpecError, parseInstallSpec, type ParsedInstallSpec } from './install-spec.ts'
@@ -64,15 +64,15 @@ export interface Config {
 const REGISTRY_URL = /^https?:\/\/\S+$/
 
 const protectedModules = new Set([
-  '@deepseek-ai/dsh-plugin-manager', '@deepseek-ai/cordis-plugin-loader',
-  '@deepseek-ai/cordis-plugin-include', '@deepseek-ai/dsh-api-gateway',
-  '@deepseek-ai/dsh-host-webserver', '@deepseek-ai/dsh-client-modules',
-  '@deepseek-ai/dsh-client-ui-settings-plugin-inventory', '@deepseek-ai/dsh-client-ui-plugin-manager',
-  '@deepseek-ai/dsh-host-plugin-inventory', '@deepseek-ai/dsh-typert-registry',
-  '@deepseek-ai/dsh-api-remotes',
-  '@deepseek-ai/cordis-plugin-timer', '@deepseek-ai/dsh-client-connection',
-  '@deepseek-ai/dsh-host-frontend-static', '@deepseek-ai/dsh-tools',
-  '@deepseek-ai/dsh-hmr',
+  '@omega-ai/dsh-plugin-manager', '@omega-ai/cordis-plugin-loader',
+  '@omega-ai/cordis-plugin-include', '@omega-ai/dsh-api-gateway',
+  '@omega-ai/dsh-host-webserver', '@omega-ai/dsh-client-modules',
+  '@omega-ai/dsh-client-ui-settings-plugin-inventory', '@omega-ai/dsh-client-ui-plugin-manager',
+  '@omega-ai/dsh-host-plugin-inventory', '@omega-ai/dsh-typert-registry',
+  '@omega-ai/dsh-api-remotes',
+  '@omega-ai/cordis-plugin-timer', '@omega-ai/dsh-client-connection',
+  '@omega-ai/dsh-host-frontend-static', '@omega-ai/dsh-tools',
+  '@omega-ai/dsh-hmr',
 ])
 
 /** The profile files an installation writes and a failed or cancelled one restores. */
@@ -165,7 +165,7 @@ function parsedForRegistry(spec: string): ParsedInstallSpec {
   }
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context {
     /** Persistent management of the current profile's composition and packages. */
     pluginManager: PluginManager

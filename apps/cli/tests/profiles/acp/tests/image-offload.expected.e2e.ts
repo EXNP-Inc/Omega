@@ -6,7 +6,7 @@ import { expect, it } from 'vitest'
 import {
   runScenario,
   type InputScript,
-} from '@deepseek-ai/dsh-session-snapshot'
+} from '@omega-ai/dsh-session-snapshot'
 
 const AGENT = {
   binScript: fileURLToPath(new URL('../../../../src/bin.ts', import.meta.url)),
@@ -67,7 +67,7 @@ it('pins Messages Files offload and inline fallback in assembled requests', asyn
         response.writeHead(200, { 'content-type': 'text/event-stream' })
         const toolCall = requests.length === 1
         const events = [
-          { type: 'message_start', message: { id: 'offload-response', model: 'deepseek-v4-flash-vision-exp', usage: { input_tokens: 3, output_tokens: 0 } } },
+          { type: 'message_start', message: { id: 'offload-response', model: 'omega-v4-flash-vision-exp', usage: { input_tokens: 3, output_tokens: 0 } } },
           { type: 'content_block_start', index: 0, content_block: toolCall
             ? { type: 'tool_use', id: 'native-read-image', name: 'read_image', input: { file_path: 'red.png' } }
             : { type: 'text', text: 'DONE' } },

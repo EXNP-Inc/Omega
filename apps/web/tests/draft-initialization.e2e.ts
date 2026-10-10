@@ -4,9 +4,9 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium, type Page } from 'playwright'
 import { expect, it, onTestFinished } from 'vitest'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import type { ClientModuleLoaderTarget } from '@deepseek-ai/dsh-client-modules/client'
-import { formatSessionReferenceMention } from '@deepseek-ai/dsh-session-reference'
+import type { SessionId } from '@omega-ai/dsh-session'
+import type { ClientModuleLoaderTarget } from '@omega-ai/dsh-client-modules/client'
+import { formatSessionReferenceMention } from '@omega-ai/dsh-session-reference'
 import { launchWebScaffold, watchConsole, type WebScaffold } from './scaffold.ts'
 import { newEnglishPage } from './support.ts'
 
@@ -56,7 +56,7 @@ async function observeDraftApi(page: Page): Promise<void> {
         Object.defineProperty(globalThis, '__ModuleLoader__', { configurable: true, writable: true, value: target })
         let load = target.load.bind(target)
         const observeLoad: ClientModuleLoaderTarget['load'] = (registration) => {
-          if (registration.id !== '@deepseek-ai/dsh-client-ui-workspace' || registration.chunk !== undefined) {
+          if (registration.id !== '@omega-ai/dsh-client-ui-workspace' || registration.chunk !== undefined) {
             load(registration)
             return
           }
@@ -104,6 +104,28 @@ async function startSession(page: Page, workspaceId: string | undefined, options
 
 function composer(page: Page) {
   return page.locator('[data-composer-input][contenteditable="true"]').first()
+}
+
+/**
+ * Click near one edge of the first/last draft line. Keyboard line navigation is
+ * not portable here: unmodified Home/End are line-level in Windows/Linux
+ * Chromium but document-level in macOS Chromium (the modifier mapping is
+ * inverted), so edge-biased clicks — optionally shift-extended — are the only
+ * gesture that reaches the same caret or selection on every platform.
+ *
+ * @param which - the line to land on.
+ * @param edge - 'start' clicks 1px in from the left edge, 'end' 2px from the right.
+ * @param shift - extend the current selection to the click point instead of collapsing the caret.
+ */
+async function clickLine(page: Page, which: 'first' | 'last', edge: 'start' | 'end', shift = false): Promise<void> {
+  const line = which === 'first'
+    ? composer(page).locator(':scope > *').first()
+    : composer(page).locator(':scope > *').last()
+  const box = await line.boundingBox()
+  if (box === null) throw new Error(`The ${which} draft line has no box`)
+  const position = { x: edge === 'start' ? 1 : box.width - 2, y: box.height / 2 }
+  if (shift === false) await line.click({ position })
+  else await line.click({ position, modifiers: ['Shift'] })
 }
 
 function selectedSession(page: Page): Promise<string | null> {
@@ -390,8 +412,8 @@ it('restores repeated file, folder and Session capsules across edits, Workspace 
     for (const item of drafts) {
       await openWorkspaceSession(page, item.workspace, item.id)
       await assertDraft(page, item.id, item.draft)
-      await composer(page).click()
-      await page.keyboard.press('ControlOrMeta+End')
+      await clickLine(page, 'last', 'end')
+      await page.keyboard.press('End')
       const suffix = ` · 编辑${round} 🧪`
       await page.keyboard.insertText(suffix)
       item.draft = { ...item.draft, text: item.draft.text + suffix }
@@ -434,8 +456,8 @@ it('reads a legacy string from the existing conversation key and saves ordinary 
   await expect.poll(() => composer(page).evaluate(element =>
     [...element.children].map(paragraph => paragraph.textContent).join('\n')), SETTLE).toBe(legacy)
   expect(await composer(page).locator('[data-composer-chip]').count()).toBe(0)
-  await composer(page).click()
-  await page.keyboard.press('ControlOrMeta+End')
+  await clickLine(page, 'last', 'end')
+  await page.keyboard.press('End')
   await page.keyboard.insertText('，继续编辑')
   await assertDraft(page, firstId, { text: `${legacy}，继续编辑`, references: [] })
   await assertUnsubmitted(scaffold, [firstId])
@@ -495,9 +517,9 @@ it('rematches the current draft after a delayed real skills catalog without repl
   await page.goto(scaffold.authenticatedUrl, { waitUntil: 'load' })
   await assertDraft(page, firstId, initial)
   expect(await composer(page).locator('[data-composer-text-ref]').count()).toBe(0)
-  await composer(page).click()
-  await page.keyboard.press('ControlOrMeta+Home')
-  await page.keyboard.press('End')
+  // End-of-line-one caret: on macOS an unmodified End would skip to the
+  // document end, past the skill command that must be rematched.
+  await clickLine(page, 'first', 'end')
   await expect.poll(() => captured?.request ?? '', SETTLE).toContain(firstId)
   expect(captured?.status).toBe(200)
   expect(captured?.body).toContain('draft-late-original')
@@ -505,16 +527,18 @@ it('rematches the current draft after a delayed real skills catalog without repl
   await page.keyboard.press('Escape')
   const chip = await composer(page).locator('[data-composer-chip]').elementHandle()
   if (chip === null) throw new Error('The initialized file capsule is missing')
-  await composer(page).click()
-  await page.keyboard.press('ControlOrMeta+Home')
-  await page.keyboard.press('Shift+End')
+  // Select the whole first line with a shift-click: Shift+End is
+  // document-level on macOS and would swallow the second line.
+  await clickLine(page, 'first', 'start')
+  await clickLine(page, 'first', 'end', true)
   await page.keyboard.insertText(currentPrefix.trimEnd())
   const edited: DraftSnapshot = {
     text: `${currentPrefix}${file} abcdef`,
     references: [{ ...initial.references[0]!, offset: currentPrefix.length }],
   }
   await assertDraft(page, firstId, edited)
-  await page.keyboard.press('ControlOrMeta+End')
+  await clickLine(page, 'last', 'end')
+  await page.keyboard.press('End')
   await page.keyboard.press('ArrowLeft')
   await page.keyboard.press('ArrowLeft')
   await page.keyboard.press('Shift+ArrowLeft')

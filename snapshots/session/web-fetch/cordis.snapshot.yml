@@ -1,31 +1,31 @@
 # Keyless replay counterpart: deterministic HTTP remains real; only the model
 # adapter is replaced by replay.
-- id: llm-deepseek
-  name: '@deepseek-ai/dsh-llm-deepseek-api-key'
+- id: llm-omega
+  name: '@omega-ai/dsh-llm-omega-api-key'
   disabled: true
 
 - insert:
     - id: llm-replay
-      name: '@deepseek-ai/dsh-llm-replay'
+      name: '@omega-ai/dsh-llm-replay'
       config:
         providers:
-          - id: deepseek-official
-            name: DeepSeek
+          - id: omega-official
+            name: Omega
             models:
-              - id: deepseek-v4-flash
-              - id: deepseek-v4-pro
+              - id: omega-v4-flash
+              - id: omega-v4-pro
 
     - id: web-fetch-fixture
       name: './web-fetch-fixture-server.mjs'
 
 - id: web
-  name: '@deepseek-ai/dsh-web'
+  name: '@omega-ai/dsh-web'
 
 - id: web-fetch-http
-  name: '@deepseek-ai/dsh-web-fetch-http'
+  name: '@omega-ai/dsh-web-fetch-http'
   disabled: true
 
 - id: tool-web
-  name: '@deepseek-ai/dsh-tool-web'
+  name: '@omega-ai/dsh-tool-web'
   config:
     search: false

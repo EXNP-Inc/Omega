@@ -20,7 +20,7 @@ const carrier = process.env.DSH_OFFICE_TEST_CARRIER ?? 'npm'
 const executable = process.env.DSH_OFFICE_TEST_EXECUTABLE ?? process.execPath
 const entry = process.env.DSH_OFFICE_TEST_ENTRY ?? join(repo, 'apps/cli/lib/bin.js')
 
-it.skipIf(!process.env.DEEPSEEK_API_KEY || process.platform === 'win32')(`agent discovers and executes the ${carrier} Office CLI without Node on PATH`, async () => {
+it.skipIf(!process.env.OMEGA_API_KEY || process.platform === 'win32')(`agent discovers and executes the ${carrier} Office CLI without Node on PATH`, async () => {
   const root = await mkdtemp(join(tmpdir(), 'dsh office discovery '))
   try {
     await writeFile(join(root, 'input.docx'), zipSync({
@@ -30,10 +30,10 @@ it.skipIf(!process.env.DEEPSEEK_API_KEY || process.platform === 'win32')(`agent 
     }))
     const patch = join(root, 'office.patch.yml')
     await writeFile(patch, JSON.stringify([
-      ...(process.env.DSH_OFFICE_TEST_API === 'openai-completions' ? [{ id: 'llm-deepseek', disabled: true }, { id: 'llm-pi-ai', config: { providers: { 'office-test': { api: 'openai-completions', apiKeyEnv: 'DEEPSEEK_API_KEY', baseURL: process.env.DEEPSEEK_BASE_URL, compat: { thinkingFormat: 'deepseek' }, models: [{ id: process.env.MODEL_NAME ?? 'deepseek-v4-flash', contextWindow: 128000, maxTokens: 8000 }] } } } }] : []),
+      ...(process.env.DSH_OFFICE_TEST_API === 'openai-completions' ? [{ id: 'llm-omega', disabled: true }, { id: 'llm-pi-ai', config: { providers: { 'office-test': { api: 'openai-completions', apiKeyEnv: 'OMEGA_API_KEY', baseURL: process.env.OMEGA_BASE_URL, compat: { thinkingFormat: 'omega' }, models: [{ id: process.env.MODEL_NAME ?? 'omega-v4-flash', contextWindow: 128000, maxTokens: 8000 }] } } } }] : []),
       { id: 'session-persistence-jsonl', config: { root: join(root, 'sessions'), compression: 'none' } },
       ...carrier === 'sdk' ? [] : [{ insert: [{
-        id: 'office-cli-discovery', name: '@deepseek-ai/dsh-skill-office', config: {
+        id: 'office-cli-discovery', name: '@omega-ai/dsh-skill-office', config: {
           ...(process.env.DSH_OFFICE_TEST_NODE ? { node: process.env.DSH_OFFICE_TEST_NODE } : {}),
           ...(process.env.DSH_OFFICE_TEST_CLI ? { cli: process.env.DSH_OFFICE_TEST_CLI } : {}),
           ...(process.env.DSH_OFFICE_TEST_ASSETS ? { assetRoot: process.env.DSH_OFFICE_TEST_ASSETS } : {}),
@@ -87,7 +87,7 @@ it.skipIf(!process.env.DEEPSEEK_API_KEY || process.platform === 'win32')(`agent 
       }
     })
     try {
-      send(1, 'initialize', { cwd: root, provider: process.env.DSH_OFFICE_TEST_API === 'openai-completions' ? 'office-test' : 'deepseek-official', model: process.env.MODEL_NAME ?? 'deepseek-v4-flash', maxTokens: 8000 })
+      send(1, 'initialize', { cwd: root, provider: process.env.DSH_OFFICE_TEST_API === 'openai-completions' ? 'office-test' : 'omega-official', model: process.env.MODEL_NAME ?? 'omega-v4-flash', maxTokens: 8000 })
       const result = await child
       const diagnostic = `${result.stderr}\n${result.stdout}`
       expect(protocolError, diagnostic).toBeUndefined()

@@ -5,12 +5,12 @@
  * It lives in its own leaf because the package root and `./types` both reach
  * `dsh-agent` through the owner and listener signatures, which a Client program
  * cannot resolve even as a type. A browser-safe consumer imports the id here;
- * `Branded<B>` itself comes from the zero-dependency `@deepseek-ai/dsh-brand`.
+ * `Branded<B>` itself comes from the zero-dependency `@omega-ai/dsh-brand`.
  *
- * @module @deepseek-ai/dsh-jobs/brand
+ * @module @omega-ai/dsh-jobs/brand
  */
 
-import type { Branded } from '@deepseek-ai/dsh-brand'
+import type { Branded } from '@omega-ai/dsh-brand'
 
 /**
  * Identifies a background job. The registry generates `<kind>-N`; predictable

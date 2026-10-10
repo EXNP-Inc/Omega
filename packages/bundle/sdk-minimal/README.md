@@ -3,7 +3,7 @@ description: "Standalone SDK profile with one default shell tool for users who n
 kind: "package-bundle"
 ---
 
-# `@deepseek-ai/dsh-sdk-minimal`
+# `@omega-ai/dsh-sdk-minimal`
 
 English | [中文](README.zh.md)
 
@@ -25,7 +25,7 @@ Use `dsh --profile sdk-minimal` when an SDK client needs a small, explicit codin
 <a id="use-this-package"></a>
 ## Use this package
 
-Launch the profile directly or select it from the Python SDK. Supply an explicit `DSH_HOME`, use a disposable workspace, and provide the model credential through `DEEPSEEK_API_KEY`.
+Launch the profile directly or select it from the Python SDK. Supply an explicit `DSH_HOME`, use a disposable workspace, and provide the model credential through `OMEGA_API_KEY`.
 
 ```sh
 export DSH_HOME=/absolute/path/to/example-dsh-home
@@ -48,7 +48,7 @@ Like every shipped profile, it mounts [MCP resources](../../mcp/mcp-resources/RE
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The bundle's single insert is the complete application tree: SDK stdio startup and JSON-RPC serving, one environment-configured DeepSeek adapter, the explicit agent core, conditional MCP resource tools, local subprocess execution, a platform-selected persistent shell PTY, and uncompressed JSONL persistence under `$DSH_HOME/sessions`. It does not inherit another bundle, so every extra row is an explicit profile change.
+The bundle's single insert is the complete application tree: SDK stdio startup and JSON-RPC serving, one environment-configured Omega adapter, the explicit agent core, conditional MCP resource tools, local subprocess execution, a platform-selected persistent shell PTY, and uncompressed JSONL persistence under `$DSH_HOME/sessions`. It does not inherit another bundle, so every extra row is an explicit profile change.
 
 ### Source map
 

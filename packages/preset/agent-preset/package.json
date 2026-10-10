@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-agent-preset",
+  "name": "@omega-ai/dsh-agent-preset",
   "description": "Declare an Agent capability composition in Cordis YAML",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/preset/agent-preset"
   },
   "type": "module",
@@ -28,22 +28,22 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-agent-preset-registry": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/cordis-plugin-loader": "workspace:~",
+    "@omega-ai/dsh-agent-preset-registry": "workspace:*"
   },
   "dependencies": {
-    "@deepseek-ai/schemastery": "workspace:~"
+    "@omega-ai/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/cordis-plugin-include": "workspace:~",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-agent-preset-registry": "workspace:*",
-    "@deepseek-ai/dsh-compaction-tool-result-pruner": "workspace:*",
-    "@deepseek-ai/dsh-skill": "workspace:*",
-    "@deepseek-ai/dsh-skill-filesystem": "workspace:*",
-    "@deepseek-ai/schemastery": "workspace:~",
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/cordis-plugin-include": "workspace:~",
+    "@omega-ai/cordis-plugin-loader": "workspace:~",
+    "@omega-ai/dsh-agent-preset-registry": "workspace:*",
+    "@omega-ai/dsh-compaction-tool-result-pruner": "workspace:*",
+    "@omega-ai/dsh-skill": "workspace:*",
+    "@omega-ai/dsh-skill-filesystem": "workspace:*",
+    "@omega-ai/schemastery": "workspace:~",
     "@types/js-yaml": "^4.0.9",
     "js-yaml": "^4.2.0"
   }

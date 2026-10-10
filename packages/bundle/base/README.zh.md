@@ -3,7 +3,7 @@ description: "共享的 dsh 核心：为每个 dsh --profile 表层提供模型�
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-base
+# @omega-ai/dsh-base
 
 [English](README.md) | 中文
 
@@ -29,7 +29,7 @@ kind: "package-bundle"
 
 ### 最小自定义 profile
 
-要在共享核心之上构建 profile，请创建一个 profile，其 `package.json` 把 `@deepseek-ai/dsh-base` 列在首位：
+要在共享核心之上构建 profile，请创建一个 profile，其 `package.json` 把 `@omega-ai/dsh-base` 列在首位：
 
 ```json
 {
@@ -37,7 +37,7 @@ kind: "package-bundle"
   "private": true,
   "dsh": {
     "profile": {
-      "bundles": ["@deepseek-ai/dsh-base"]
+      "bundles": ["@omega-ai/dsh-base"]
     }
   }
 }
@@ -47,14 +47,14 @@ kind: "package-bundle"
 
 ### 你得到什么
 
-开箱即用，基于本核心构建的每个 profile 都提供：DeepSeek 模型连接（提供方与模型可配置，你还可以在设置中启用额外提供方）、完整工具集——文件编辑、shell 命令、web 搜索、公开 HTTP(S) 抓取、subagent、任务与目标跟踪——可跨重启存活的持久会话，以及默认权限策略：把文件写入限制在工作区内，危险操作前征询许可。Web 抓取无需逐次审批，其提供方会拒绝非公开目的地址。反馈保存在会话日志中。[OTel 会话上传](../../session/session-telemetry-otel/README.zh.md)对所有用户默认使用 `FEEDBACK_ONLY`，包括 `deepseek-official`：新的文本反馈、消息评分、编辑与撤回会释放截至该事件的完整规范会话日志前缀，包含上下文。后续记录等待下一次显式反馈；发送已授权批次无需进一步交互或模型调用。`DISABLED` 阻止 OTel 捕获。默认开启的 [DeepSeek 会话日志贡献器](../../session/session-log-deepseek/README.zh.md)仍是独立的请求路径。
+开箱即用，基于本核心构建的每个 profile 都提供：Omega 模型连接（提供方与模型可配置，你还可以在设置中启用额外提供方）、完整工具集——文件编辑、shell 命令、web 搜索、公开 HTTP(S) 抓取、subagent、任务与目标跟踪——可跨重启存活的持久会话，以及默认权限策略：把文件写入限制在工作区内，危险操作前征询许可。Web 抓取无需逐次审批，其提供方会拒绝非公开目的地址。反馈保存在会话日志中。[OTel 会话上传](../../session/session-telemetry-otel/README.zh.md)对所有用户默认使用 `FEEDBACK_ONLY`，包括 `omega-official`：新的文本反馈、消息评分、编辑与撤回会释放截至该事件的完整规范会话日志前缀，包含上下文。后续记录等待下一次显式反馈；发送已授权批次无需进一步交互或模型调用。`DISABLED` 阻止 OTel 捕获。默认开启的 [Omega 会话日志贡献器](../../session/session-log-omega/README.zh.md)仍是独立的请求路径。
 
 默认文件编辑使用 `read`、`write` 和 `edit`。`str_replace_editor` 工具仍可显式启用。要将它加入基于 base 的 profile，请在 profile、home 或逐次调用 patch 中添加以下条目：
 
 ```yaml
 - insert:
     - id: tool-str-replace-editor
-      name: '@deepseek-ai/dsh-tool-str-replace-editor'
+      name: '@omega-ai/dsh-tool-str-replace-editor'
       config:
         maxOutputChars: 16000
 ```
@@ -85,7 +85,7 @@ patch 会替换目标行的整个 `config`，而不是合并进它。后续组�
 
 ### 平台门控
 
-patch 在自身上按平台门控两个 shell 栈：`bash-sandbox` 与 `tool-bash` 携带 `disabled: !!js process.platform === 'win32'`，孪生行 `pwsh-sandbox` 与 `tool-pwsh` 以取反的表达式仅在 win32 挂载。权限面与 POSIX 完全一致：沙箱策略通过 Windows ACL 受限令牌 runner（`dsh-sandbox-local` → `@deepseek-ai/dsh-sandbox-windows-acl`）执行相同的文件效果策略，`fs-sandbox` 继续围栏 `ctx.fs` 写入——在其旁再挂载 `dsh-fs-local` 会重复注册 `ctx.fs` 并在加载时失败。
+patch 在自身上按平台门控两个 shell 栈：`bash-sandbox` 与 `tool-bash` 携带 `disabled: !!js process.platform === 'win32'`，孪生行 `pwsh-sandbox` 与 `tool-pwsh` 以取反的表达式仅在 win32 挂载。权限面与 POSIX 完全一致：沙箱策略通过 Windows ACL 受限令牌 runner（`dsh-sandbox-local` → `@omega-ai/dsh-sandbox-windows-acl`）执行相同的文件效果策略，`fs-sandbox` 继续围栏 `ctx.fs` 写入——在其旁再挂载 `dsh-fs-local` 会重复注册 `ctx.fs` 并在加载时失败。
 
 ### 源码地图
 
@@ -130,7 +130,7 @@ patch 在自身上按平台门控两个 shell 栈：`bash-sandbox` 与 `tool-bas
 
 - **覆盖会替换整个设置块**——patch 条目会替换目标的整个配置，因此你的覆盖必须重述每个想保留的设置；不会自动合并。
 - **按表层的设置属于该表层的组合包**——web GUI 与 headless 模式取值不同的默认值放在对应表层的组合包里，而不是共享核心。
-- **Windows 的临时目录授权是按会话的私有子目录**——`workspace-write` 把写入限制在工作区与会话自己的 temp 子目录（`<temp>\dsh-<hash>`，受限子进程的 TMP/TEMP 被改写）；`read-only` 不授予任何临时目录写入权限。见 `@deepseek-ai/dsh-sandbox-windows-acl`。
+- **Windows 的临时目录授权是按会话的私有子目录**——`workspace-write` 把写入限制在工作区与会话自己的 temp 子目录（`<temp>\dsh-<hash>`，受限子进程的 TMP/TEMP 被改写）；`read-only` 不授予任何临时目录写入权限。见 `@omega-ai/dsh-sandbox-windows-acl`。
 - **在沙箱化文件系统提供方之上添加普通提供方会导致 profile 失败**——两者注册同一个服务，profile 因此拒绝加载；二选一。
 
 <a id="dev-note"></a>

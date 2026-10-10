@@ -4,7 +4,7 @@
  * stdout tee, SDK client, update collection, permission fallback, and process
  * shutdown so e2e and snapshot suites do not each reconstruct that boundary.
  *
- * @module @deepseek-ai/dsh-session-snapshot/launcher
+ * @module @omega-ai/dsh-session-snapshot/launcher
  */
 
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
@@ -37,8 +37,8 @@ import {
   type SetSessionConfigOptionResponse,
   type SessionNotification,
 } from '@agentclientprotocol/sdk'
-import { entryListSchema, type PatchOptions } from '@deepseek-ai/cordis-plugin-include'
-import { resolveExampleLaunch } from '@deepseek-ai/dsh-loader-smoke'
+import { entryListSchema, type PatchOptions } from '@omega-ai/cordis-plugin-include'
+import { resolveExampleLaunch } from '@omega-ai/dsh-loader-smoke'
 
 const EXIT_MARKER_GRACE_MS = 250
 
@@ -197,7 +197,7 @@ export function launchAcpTestAgent(options: AcpTestLaunchOptions): LaunchedAcpTe
   }
   const requestPermission = options.requestPermission
     ?? (() => Promise.resolve({ outcome: { outcome: 'cancelled' as const } }))
-  const clientApp = createAcpClientApp({ name: 'deepseek-harness-acp-test-client' })
+  const clientApp = createAcpClientApp({ name: 'omega-harness-acp-test-client' })
     .onNotification(methods.client.session.update, ({ params }) => {
       return trackClientCallback(() => {
         updates.push(params.update)

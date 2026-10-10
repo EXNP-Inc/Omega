@@ -3,7 +3,7 @@ description: "Control Chromium through Stagehand native browser operations and e
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-experimental-browser-use-stagehand-native
+# @omega-ai/dsh-experimental-browser-use-stagehand-native
 
 English | [中文](README.zh.md)
 
@@ -30,8 +30,8 @@ Mount this provider in a profile that supplies Agents, Sessions, the tool regist
 ### Minimal configuration
 
 ```yaml
-- name: '@deepseek-ai/dsh-browser-use'
-- name: '@deepseek-ai/dsh-experimental-browser-use-stagehand-native'
+- name: '@omega-ai/dsh-browser-use'
+- name: '@omega-ai/dsh-experimental-browser-use-stagehand-native'
   config:
     mode: launch
     headless: true
@@ -40,7 +40,7 @@ Mount this provider in a profile that supplies Agents, Sessions, the tool regist
       apiKey: !!js process.env.OPENAI_API_KEY
 ```
 
-Set `OPENAI_API_KEY` before using this example. `model` is required even for navigation-only use. The pinned SDK accepts its cataloged OpenAI, Anthropic, Google, Groq, and Cerebras models; DeepSeek endpoints and `baseURL` overrides are unsupported.
+Set `OPENAI_API_KEY` before using this example. `model` is required even for navigation-only use. The pinned SDK accepts its cataloged OpenAI, Anthropic, Google, Groq, and Cerebras models; Omega endpoints and `baseURL` overrides are unsupported.
 
 The provider forwards `model.apiKey` and optional `model.headers` through the Worker to the Stagehand browser extension, which sends the native model requests.
 
@@ -134,7 +134,7 @@ Unchanged guidance preserves its prompt prefix. Mounting or removing the provide
 
 #### What the model sees
 
-The [`stagehand_` tool catalog](../../../docs/tool-catalog.md#deepseek-aidsh-experimental-browser-use-stagehand-native) defines navigation, tab management, screenshots, actions, observation, and extraction. Results contain current page facts or validated structured data. Supported screenshots appear as durable image attachments. Errors remain visible so the model can inspect state before retrying.
+The [`stagehand_` tool catalog](../../../docs/tool-catalog.md#omega-aidsh-experimental-browser-use-stagehand-native) defines navigation, tab management, screenshots, actions, observation, and extraction. Results contain current page facts or validated structured data. Supported screenshots appear as durable image attachments. Errors remain visible so the model can inspect state before retrying.
 
 #### Token effect
 
@@ -152,7 +152,7 @@ The provider inherits the pinned Stagehand SDK's browser and extension requireme
 
 - **Chromium only** — Firefox and WebKit are outside this provider's scope.
 - **Live browser state** — Session replay restores recorded conversation data, not a browser process, cookies, or tab handles.
-- **Native models** — model names are limited to the pinned SDK catalog for OpenAI, Anthropic, Google, Groq, and Cerebras. DeepSeek endpoints, `baseURL` overrides, autonomous agents, and per-call model selection are unsupported.
+- **Native models** — model names are limited to the pinned SDK catalog for OpenAI, Anthropic, Google, Groq, and Cerebras. Omega endpoints, `baseURL` overrides, autonomous agents, and per-call model selection are unsupported.
 - **Cancellation** — native inference has no abort signal. SDK close waits for active work; successful cleanup permits reconnection on the next tool call while retaining the browser. Cancellation does not undo browser input or guarantee that a native model request stops.
 - **Existing browser access** — an attached browser can also be changed by its user; the reservation coordinates DSH Sessions only.
 - **Cleanup failure** — failed SDK drain retains an attached-browser reservation because native extension work may continue. Final cleanup of a launched browser can release its reservation after both Chromium and its Worker terminate, even if SDK drain failed. Worker, owned-process, or profile cleanup failure retains the reservation; restart the host before selecting another provider.

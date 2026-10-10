@@ -3,7 +3,7 @@ description: "App-owned command lines for dsh app bins: your app parses its own 
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-cmdline
+# @omega-ai/dsh-cmdline
 
 English | [中文](README.zh.md)
 
@@ -45,21 +45,21 @@ You bring your own commander program: declare your flags and your actions, and t
 
 ```yaml
 - id: web-startup
-  name: '@deepseek-ai/dsh-web-app/startup'
+  name: '@omega-ai/dsh-web-app/startup'
 ```
 
 Rows configured from the parsed values inject the published service and read it directly in their config:
 
 ```yaml
 - id: webserver
-  name: '@deepseek-ai/dsh-host-webserver'
+  name: '@omega-ai/dsh-host-webserver'
   inject: [webStartup]
   config:
     host: !!js ctx.webStartup.host ?? '127.0.0.1'
-    port: !!js ctx.webStartup.port ?? 3080
+    port: !!js ctx.webStartup.port ?? 4080
 ```
 
-The outcomes: `dsh --profile web --port 8080` starts the server on port 8080 even when the config says 3080, because the flag wins. `--help` prints your app's help and exits 0 without starting anything; a rejected value (for example a non-numeric port) prints your error and exits nonzero, and no row that depends on the parsed values ever starts.
+The outcomes: `dsh --profile web --port 8080` starts the server on port 8080 even when the config says 4080, because the flag wins. `--help` prints your app's help and exits 0 without starting anything; a rejected value (for example a non-numeric port) prints your error and exits nonzero, and no row that depends on the parsed values ever starts.
 
 ### How flags beat config values
 

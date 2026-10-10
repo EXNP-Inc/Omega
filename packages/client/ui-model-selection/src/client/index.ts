@@ -11,18 +11,18 @@
  * history outside the direct-parent continuation path.
  */
 // Type-only: the carrier types, the forwarded Host-event face and the ctx.remote merge.
-import type { ModelSelection } from '@deepseek-ai/dsh-api-session-controller/types'
-import type {} from '@deepseek-ai/dsh-api-session-controller/client'
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
-import type { CommandUiContract, SelectOption } from '@deepseek-ai/dsh-client-ui-commands/client'
+import type { ModelSelection } from '@omega-ai/dsh-api-session-controller/types'
+import type {} from '@omega-ai/dsh-api-session-controller/client'
+import type { Context as ClientContext } from '@omega-ai/cordis'
+import type { CommandUiContract, SelectOption } from '@omega-ai/dsh-client-ui-commands/client'
 // Type-only: pulls the ui-conversation SlotMap merge (the input.model seat).
-import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type {} from '@omega-ai/dsh-client-ui-conversation/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
-import type {} from '@deepseek-ai/dsh-client-locale/client'
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type {} from '@deepseek-ai/dsh-client-ui-session/client'
-import type { TranslateNS } from '@deepseek-ai/dsh-client-ui-slots'
-import { IconDataOutlineRegular } from '@deepseek-ai/dsh-client-ui-primitives'
+import type {} from '@omega-ai/dsh-client-locale/client'
+import type {} from '@omega-ai/dsh-client-ui-renderer/client'
+import type {} from '@omega-ai/dsh-client-ui-session/client'
+import type { TranslateNS } from '@omega-ai/dsh-client-ui-slots'
+import { IconDataOutlineRegular } from '@omega-ai/dsh-client-ui-primitives'
 import type { ModelDirectoryState } from './directory.ts'
 import { ModelDirectoryResolver } from './service.ts'
 import type { ModelSelectInjected } from './slots.ts'
@@ -36,7 +36,7 @@ export { ModelDirectoryResolver } from './service.ts'
 export type { ModelSelectInjected } from './slots.ts'
 export type { ModelKey } from './locales.ts'
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@omega-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap {
     /** The model selection surfaces' copy (/model popup + composer seat). */
     model: ModelKey
@@ -52,7 +52,7 @@ function rowId(providerId: string, modelId: string): string {
 function optionsOf(directory: ModelDirectoryState, t: TranslateNS<'model'>): SelectOption[] {
   const rows: SelectOption[] = []
   for (const group of orderModelProviders(directory.groups)) {
-    const name = group.id === 'deepseek-account' ? t('provider.account') : group.name
+    const name = group.id === 'omega-account' ? t('provider.account') : group.name
     for (const model of group.models) {
       rows.push({
         id: rowId(group.id, model.id),
@@ -68,7 +68,7 @@ function optionsOf(directory: ModelDirectoryState, t: TranslateNS<'model'>): Sel
   for (const failure of directory.failures) {
     rows.push({
       id: `failure/${failure.id}`,
-      label: failure.id === 'deepseek-account' ? t('provider.account') : failure.name,
+      label: failure.id === 'omega-account' ? t('provider.account') : failure.name,
       detail: t('option.loadError', { message: failure.message }),
     })
   }

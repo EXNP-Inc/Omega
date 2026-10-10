@@ -1,18 +1,18 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import { createToolResultMessage, ToolCallId, type ToolSchema } from '@deepseek-ai/dsh-llm'
-import AgentRegistry, { type Agent } from '@deepseek-ai/dsh-agent'
-import { Session, SessionId, SessionSeq, SESSION_FORMAT_VERSION, type SessionEvent } from '@deepseek-ai/dsh-session'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
+import { Context } from '@omega-ai/cordis'
+import { createToolResultMessage, ToolCallId, type ToolSchema } from '@omega-ai/dsh-llm'
+import AgentRegistry, { type Agent } from '@omega-ai/dsh-agent'
+import { Session, SessionId, SessionSeq, SESSION_FORMAT_VERSION, type SessionEvent } from '@omega-ai/dsh-session'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRuntime from '@omega-ai/dsh-tools'
 import UserQuestionService, {
   isTimedAskUserQuestionSchema,
   type AskUserQuestionAnswer,
   type AskUserQuestionRequest,
-} from '@deepseek-ai/dsh-user-questions'
+} from '@omega-ai/dsh-user-questions'
 // The fold is the projection's own reader of a recorded result, not a service method.
-import { foldUserQuestions } from '@deepseek-ai/dsh-user-questions/src/projection.ts'
-import * as toolAskUser from '@deepseek-ai/dsh-tool-ask-user'
+import { foldUserQuestions } from '@omega-ai/dsh-user-questions/src/projection.ts'
+import * as toolAskUser from '@omega-ai/dsh-tool-ask-user'
 
 const testToolSignal = new AbortController().signal
 
@@ -20,7 +20,7 @@ const testToolSignal = new AbortController().signal
 function headerEvent(seq: number, tools: ToolSchema[]): SessionEvent {
   return {
     type: 'request/header', seq: SessionSeq(seq), time: seq,
-    data: { header: { config: { provider: 'deepseek-official', model: 'deepseek-v4-flash' }, tools }, reason: 'initial' },
+    data: { header: { config: { provider: 'omega-official', model: 'omega-v4-flash' }, tools }, reason: 'initial' },
   }
 }
 

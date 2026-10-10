@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-api-gateway",
+  "name": "@omega-ai/dsh-api-gateway",
   "description": "Typert Remote Host dispatcher and Client API endpoint",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/api/gateway"
   },
   "type": "module",
@@ -36,8 +36,8 @@
   "dsh": {
     "client": {
       "inject": [
-        "@deepseek-ai/dsh-typert-registry",
-        "@deepseek-ai/dsh-client-connection"
+        "@omega-ai/dsh-typert-registry",
+        "@omega-ai/dsh-client-connection"
       ],
       "platform": "web",
       "immediately": true
@@ -55,26 +55,26 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@deepseek-ai/dsh-deque": "workspace:*",
-    "@deepseek-ai/dsh-timeout": "workspace:*",
-    "@deepseek-ai/schemastery": "workspace:~",
+    "@omega-ai/dsh-deque": "workspace:*",
+    "@omega-ai/dsh-timeout": "workspace:*",
+    "@omega-ai/schemastery": "workspace:~",
     "ws": "^8.21.0",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*"
+    "@omega-ai/dsh-typert-protocol": "workspace:*"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-client-connection": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-client-connection": "workspace:*"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/dsh-cmdline": "workspace:*",
-    "@deepseek-ai/dsh-client-connection": "workspace:*",
-    "@deepseek-ai/dsh-host-webserver": "workspace:*",
-    "@deepseek-ai/dsh-remote-mock": "workspace:*",
-    "@deepseek-ai/dsh-typert-registry": "workspace:*",
-    "@deepseek-ai/dsh-util-crypto": "workspace:*",
+    "@omega-ai/dsh-brand": "workspace:*",
+    "@omega-ai/dsh-cmdline": "workspace:*",
+    "@omega-ai/dsh-client-connection": "workspace:*",
+    "@omega-ai/dsh-host-webserver": "workspace:*",
+    "@omega-ai/dsh-remote-mock": "workspace:*",
+    "@omega-ai/dsh-typert-registry": "workspace:*",
+    "@omega-ai/dsh-util-crypto": "workspace:*",
     "@types/ws": "^8.18.1",
-    "@deepseek-ai/cordis": "workspace:~",
+    "@omega-ai/cordis": "workspace:~",
     "zod": "^4.4.3"
   }
 }

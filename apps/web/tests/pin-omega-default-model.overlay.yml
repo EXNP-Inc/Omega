@@ -1,0 +1,9 @@
+# The shipped default model routes to the `mac` pi-ai gateway at
+# 127.0.0.1:8002, which no process in these scenarios serves, so a request
+# would never reach the mock behind OMEGA_BASE_URL. This scenario pins the
+# default back onto the official Omega route, which the OMEGA_BASE_URL /
+# OMEGA_API_KEY pair points at its mock server.
+- id: agent-default-model
+  config:
+    provider: omega-official
+    model: omega-v4-flash

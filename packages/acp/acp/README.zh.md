@@ -1,15 +1,15 @@
 ---
-description: "面向程序化客户端与维护者的仅自动化 ACP（Agent Client Protocol）服务器，用于通过 JSON-RPC stdio 驱动 DeepSeek Harness agent（智能体）。"
+description: "面向程序化客户端与维护者的仅自动化 ACP（Agent Client Protocol）服务器，用于通过 JSON-RPC stdio 驱动 Omega agent（智能体）。"
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-acp
+# @omega-ai/dsh-acp
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-acp` 让受信程序通过标准 [ACP](https://agentclientprotocol.com) 自动操作持久 DeepSeek Harness agent：创建或恢复会话、选择模型与推理强度、挂载 MCP 服务器、提交或取消工作、接收语义更新，并独立关闭会话。进程外 subagent、测试运行器与脚本化控制器适合选择它；它刻意不提供 DSH 专用呈现数据与交互式 UI 功能。持久化支持跨进程重启列出、恢复与关闭会话，但不支持删除、fork、transcript（文本记录）回放与附加目录。运行 `pnpm dsh --profile acp` 可启动服务器；仓库客户端使用 `dsh-subagent-acp`。
+`dsh-acp` 让受信程序通过标准 [ACP](https://agentclientprotocol.com) 自动操作持久 Omega agent：创建或恢复会话、选择模型与推理强度、挂载 MCP 服务器、提交或取消工作、接收语义更新，并独立关闭会话。进程外 subagent、测试运行器与脚本化控制器适合选择它；它刻意不提供 DSH 专用呈现数据与交互式 UI 功能。持久化支持跨进程重启列出、恢复与关闭会话，但不支持删除、fork、transcript（文本记录）回放与附加目录。运行 `pnpm dsh --profile acp` 可启动服务器；仓库客户端使用 `dsh-subagent-acp`。
 
 ## 目录
 
@@ -36,10 +36,10 @@ kind: "package-reference"
 服务器创建的每个会话都使用此处配置的提供方与模型。两个字段都是可选的，以便由另一个 agent/request 监听器提供；可运行的演示组合会同时设置两者。Stdout 只承载协议流量，因此请让日志远离它。
 
 ```yaml
-- name: '@deepseek-ai/dsh-acp'
+- name: '@omega-ai/dsh-acp'
   config:
-    provider: deepseek-official
-    model: deepseek-v4-pro
+    provider: mac
+    model: qwen3.8-27b-lite
 ```
 
 | 字段 | 默认值 | 含义 |
@@ -48,11 +48,11 @@ kind: "package-reference"
 | `model` | — | 每个会话 agent 的模型 |
 | `sessionListPageSize` | `100` | 单页 `session/list` 返回的最大摘要数量 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-acp)是每个受支持字段及其 JSDoc 的穷尽式真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-acp)是每个受支持字段及其 JSDoc 的穷尽式真源。
 
 ### 启动服务器
 
-`pnpm dsh --profile acp` 会启动随附的 stdio 服务器。`acp` profile 会挂载会话持久化，因此客户端可以列出、恢复和关闭持久会话。[`@deepseek-ai/dsh-subagent-acp`](../../subagent/subagent-acp/README.zh.md) 会启动同一 profile 来执行进程外委派。
+`pnpm dsh --profile acp` 会启动随附的 stdio 服务器。`acp` profile 会挂载会话持久化，因此客户端可以列出、恢复和关闭持久会话。[`@omega-ai/dsh-subagent-acp`](../../subagent/subagent-acp/README.zh.md) 会启动同一 profile 来执行进程外委派。
 
 <a id="protocol-contract"></a><a id="standard-acp-v1-surface"></a>
 ### 协议约定

@@ -5,7 +5,7 @@
  *
  * Naming contract (see the mcp-client Agent Note "Naming invariants"): every MCP tool
  * has the stable identity `(serverName, rawName)`; the model-facing public name
- * is `mcp__<serverName>__<rawName>`, normalized to the DeepSeek function-name
+ * is `mcp__<serverName>__<rawName>`, normalized to the Omega function-name
  * constraints. The raw name is only ever sent on the wire (`tools/call`); the
  * public name is never parsed to recover it.
  *
@@ -15,14 +15,14 @@
 import { createHash } from 'node:crypto'
 import { isDeepStrictEqual } from 'node:util'
 import { specTypeSchemas, type Client, type ImageContent } from '@modelcontextprotocol/client'
-import type { Context } from '@deepseek-ai/cordis'
-import { isImageAdmissionError } from '@deepseek-ai/dsh-attachment'
-import type { AttachmentStore, ImageAttachmentRef, ImageMediaType, SaveImageAttachment } from '@deepseek-ai/dsh-attachment'
-import type { ContentBlock } from '@deepseek-ai/dsh-llm'
-import type { ToolDefinition, ToolExecution, ToolExecutionResult } from '@deepseek-ai/dsh-tools'
-import { assertSupportedJsonSchema } from '@deepseek-ai/dsh-tools'
-import type { JsonSchemaNode } from '@deepseek-ai/dsh-tools'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+import type { Context } from '@omega-ai/cordis'
+import { isImageAdmissionError } from '@omega-ai/dsh-attachment'
+import type { AttachmentStore, ImageAttachmentRef, ImageMediaType, SaveImageAttachment } from '@omega-ai/dsh-attachment'
+import type { ContentBlock } from '@omega-ai/dsh-llm'
+import type { ToolDefinition, ToolExecution, ToolExecutionResult } from '@omega-ai/dsh-tools'
+import { assertSupportedJsonSchema } from '@omega-ai/dsh-tools'
+import type { JsonSchemaNode } from '@omega-ai/dsh-tools'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
 
 /** Resolved options relevant to tool bridging. */
 export interface ToolBridgeOptions {
@@ -42,12 +42,12 @@ export type McpResult<Structured extends JsonValue = JsonValue> = {
 }
 
 /**
- * DeepSeek function-name contract: at most 64 characters. Wire-protocol
+ * Omega function-name contract: at most 64 characters. Wire-protocol
  * constant, not configuration.
  */
 const MAX_PUBLIC_NAME_LENGTH = 64
 
-/** DeepSeek function-name contract: only `[A-Za-z0-9_-]` is allowed. */
+/** Omega function-name contract: only `[A-Za-z0-9_-]` is allowed. */
 const INVALID_NAME_CHARS = /[^A-Za-z0-9_-]/g
 
 /** Hex chars of the SHA-256 identity hash appended on lossy normalization. */
@@ -69,7 +69,7 @@ const CANONICAL_BASE64 = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9
  *
  * Deterministic pure function of `(serverName, rawName)`: the clean case is
  * `mcp__<serverName>__<rawName>` verbatim. When character replacement or
- * truncation to the DeepSeek function-name contract (64 chars,
+ * truncation to the Omega function-name contract (64 chars,
  * `[A-Za-z0-9_-]`) changes the name, a 12-hex-char SHA-256 hash of the
  * identity is appended so distinct MCP identities never collapse into the
  * same public name.

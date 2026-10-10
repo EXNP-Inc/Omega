@@ -3,7 +3,7 @@ description: "Scriptable Messages-compatible fault server for testing LLM adapte
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-llm-mock-server
+# @omega-ai/dsh-llm-mock-server
 
 English | [中文](README.zh.md)
 
@@ -39,11 +39,11 @@ pnpm run mock:llm \
   --partial-text "discard this half"
 ```
 
-Point the shipping DeepSeek adapter at the server; it sends requests to `/messages` beneath the server's `/v1` root:
+Point the shipping Omega adapter at the server; it sends requests to `/messages` beneath the server's `/v1` root:
 
 ```sh
-DEEPSEEK_BASE_URL=http://127.0.0.1:8000/v1 \
-DEEPSEEK_API_KEY=mock-key \
+OMEGA_BASE_URL=http://127.0.0.1:8000/v1 \
+OMEGA_API_KEY=mock-key \
 pnpm dsh --profile headless "test provider recovery"
 ```
 

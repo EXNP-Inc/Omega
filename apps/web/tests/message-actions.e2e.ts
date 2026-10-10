@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { SessionId } from '@deepseek-ai/dsh-session'
+import { SessionId } from '@omega-ai/dsh-session'
 import {
   acknowledgeReloadConnectionLoss, assertFixtureInventory, captureStableAria, compareOrRefreshGolden, fixtureUserPrompts,
   launchWebScaffold, parseSeedFixture, renderSeedFixture, seedSession, watchConsole, webSnapshotMode, type WebScaffold,
@@ -124,7 +124,7 @@ function completedTailFixture(raw: string): string {
         message: {
           role: 'assistant',
           content: [{ type: 'text', text: 'DONE' }],
-          source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+          source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
           id: '{{message:99}}',
         },
         stream: [
@@ -167,7 +167,7 @@ function completedTailFixture(raw: string): string {
         turn: 3, step: 1,
         message: {
           role: 'assistant', id: '{{message:101}}',
-          source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+          source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
           content: [{ type: 'text', text: 'ORIGINAL ONLY' }],
         },
         stream: [

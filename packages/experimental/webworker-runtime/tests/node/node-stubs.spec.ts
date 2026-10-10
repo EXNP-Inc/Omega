@@ -48,9 +48,8 @@ const CALLED: [string, Record<string, unknown>, readonly string[]][] = [
   ['node-pty', nodePty, ['spawn', 'open']],
   ['execa', execa, ['execa']],
   ['got', got.default, ['post']],
-  ['@deepseek-ai/pi-ai', piAi, [
-    'createProvider', 'createModels', 'openAICompletionsApi', 'openAIResponsesApi', 'anthropicMessagesApi',
-    'isContextOverflow', 'getSupportedThinkingLevels',
+  ['@omega-ai/pi-ai', piAi, [
+    'createProvider', 'createModels', 'isContextOverflow', 'getSupportedThinkingLevels',
   ]],
 ]
 
@@ -96,6 +95,24 @@ describe('not-implemented stubs', () => {
     })
   }
 
+  it('pi-ai protocol factories construct inert streams that refuse on the request path', () => {
+    quiet()
+    const factories: Record<string, unknown> = {
+      anthropicMessagesApi: piAi.anthropicMessagesApi,
+      openAICompletionsApi: piAi.openAICompletionsApi,
+      openAIResponsesApi: piAi.openAIResponsesApi,
+    }
+    for (const api of Object.keys(factories)) {
+      const streams = (factories[api] as () => { readonly stream: unknown; readonly streamSimple: unknown })()
+      expect(() => (streams.stream as () => unknown)(), api).toThrow(
+        new RegExp(`${api}\\.stream\\b.*not available in the worker host`),
+      )
+      expect(() => (streams.streamSimple as () => unknown)(), api).toThrow(
+        new RegExp(`${api}\\.streamSimple\\b.*not available in the worker host`),
+      )
+    }
+  })
+
   it('keeps the CommonJS interop marker and a default export on every replaced module', () => {
     for (const namespace of [dnsPromises, net, sqlite, vm, workerThreads, childProcess, stream, ws, nodePty, piAi, os, perfHooks, got]) {
       const holder = namespace as { __esModule?: unknown; default?: unknown }
@@ -118,6 +135,19 @@ describe('constructible-but-inert fakes', () => {
     server.close(() => { closed = true })
     expect(closed).toBe(true)
   })
+
+  it('the pi-ai collection registers routes, answers model queries, and refuses to stream', () => {
+    quiet()
+    const models = piAi.builtinModels()
+    models.clearProviders()
+    expect(models.getModels('alice')).toEqual([])
+    expect(models.getModel('alice', 'qwen3.8-27b')).toBeUndefined()
+    models.setProvider({ id: 'alice', getModels: () => [{ id: 'qwen3.8-27b' }] })
+    expect(models.getModels('alice')).toEqual([{ id: 'qwen3.8-27b' }])
+    expect(models.getModel('alice', 'qwen3.8-27b')).toEqual({ id: 'qwen3.8-27b' })
+    expect(models.getModel('alice', 'missing')).toBeUndefined()
+    expect(() => (models.streamSimple as () => unknown)()).toThrow(/streamSimple\b.*not available in the worker host/)
+  })
 })
 
 describe('replaced external packages', () => {
@@ -131,8 +161,8 @@ describe('replaced external packages', () => {
 
   it('lists the packages the loader serves from the bundle', () => {
     expect(REPLACED_EXTERNAL_PACKAGES).not.toContain('chokidar')
-    expect(REPLACED_EXTERNAL_PACKAGES).not.toContain('@deepseek-ai/node-addon-system')
-    expect(REPLACED_EXTERNAL_PACKAGES).not.toContain('@deepseek-ai/node-addon-system/landlock-run')
+    expect(REPLACED_EXTERNAL_PACKAGES).not.toContain('@omega-ai/node-addon-system')
+    expect(REPLACED_EXTERNAL_PACKAGES).not.toContain('@omega-ai/node-addon-system/landlock-run')
     expect(REPLACED_EXTERNAL_PACKAGES).toContain('ws')
   })
 

@@ -18,10 +18,10 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page, Route, WebSocketRoute } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { ToolCallId, expandAssistantStream } from '@deepseek-ai/dsh-llm'
-import type { Session, SessionEvent, SessionId } from '@deepseek-ai/dsh-session'
-import type { SessionListValue } from '@deepseek-ai/dsh-api-session-controller/types'
-import type { RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
+import { ToolCallId, expandAssistantStream } from '@omega-ai/dsh-llm'
+import type { Session, SessionEvent, SessionId } from '@omega-ai/dsh-session'
+import type { SessionListValue } from '@omega-ai/dsh-api-session-controller/types'
+import type { RemoteResult } from '@omega-ai/dsh-typert-protocol'
 import {
   acknowledgeReloadConnectionLoss, assertFixtureInventory, captureExpandedTurnProcessAria, captureStableAria,
   compareOrRefreshGolden, fixtureUserPrompts,
@@ -102,7 +102,7 @@ describe('web e2e: fresh round trip through the real assembly', () => {
     await page.reload({ waitUntil: 'load' })
     await page.locator('[data-composer-input]').first().waitFor({ timeout: 15_000 })
     await page.getByRole('button', { name: 'Standard mode', exact: true }).waitFor({ timeout: 15_000 })
-    await page.getByRole('button', { name: 'Select model, current DeepSeek-V4-Flash' }).waitFor({ timeout: 15_000 })
+    await page.getByRole('button', { name: 'Select model, current Omega-V4-Flash' }).waitFor({ timeout: 15_000 })
     await expect.poll(() => page.evaluate(() => localStorage.getItem('dsh.sessions.current'))).toBe(beforeReload)
     if (MODE !== 'record') {
       await compareOrRefreshGolden(BLANK_EXPECTED,
@@ -221,8 +221,8 @@ describe('web e2e: fresh round trip through the real assembly', () => {
     if (system === undefined) throw new Error('the settled Web request has no system prompt')
     const paragraphs = system.split('\n\n')
     expect(paragraphs.slice(0, 2)).toEqual([
-      'You are an AI agent powered by DeepSeek Harness.',
-      'You are a coding agent powered by the deepseek-v4-flash model.',
+      'You are an AI agent powered by Omega.',
+      'You are a coding agent powered by the omega-v4-flash model.',
     ])
     const suffix = paragraphs.slice(-3).join('\n\n')
       .split(REPO_ROOT).join('{{sourceRoot}}')
@@ -284,7 +284,7 @@ describe('web e2e: fresh round trip through the real assembly', () => {
     await expect(page.getByRole('textbox').first().isVisible()).resolves.toBe(true)
     expect(await page.getByText('WEB_E2E_OK', { exact: false }).count()).toBeGreaterThanOrEqual(1)
     await page.getByRole('button', {
-      name: 'Select model, current DeepSeek-V4-Flash',
+      name: 'Select model, current Omega-V4-Flash',
     }).waitFor({ timeout: 10_000 })
     const snapshot = await captureStableAria(page, '[class*="centerCol"]', scaffold.workspaceCwd)
     await compareOrRefreshGolden(UI_EXPECTED, snapshot, MODE)

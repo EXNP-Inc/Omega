@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-desktop-host",
+  "name": "@omega-ai/dsh-desktop-host",
   "description": "Private Node-mode host process for the Electron desktop application",
   "version": "0.2.1-alpha.1",
   "private": true,
@@ -13,23 +13,23 @@
   "dependencies": {
     "koffi": "^3.1.0",
     "@deepseek-ai/libreoffice-kit": "^0.1.5",
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh": "workspace:*",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-app-boot": "workspace:*",
-    "@deepseek-ai/dsh-client-connection": "workspace:*",
-    "@deepseek-ai/dsh-host-webserver": "workspace:*",
-    "@deepseek-ai/dsh-home-paths": "workspace:*",
-    "@deepseek-ai/dsh-jobs": "workspace:*",
-    "@deepseek-ai/dsh-schedule": "workspace:*",
-    "@deepseek-ai/dsh-tool-workspace-dependencies": "workspace:*",
-    "@deepseek-ai/dsh-skill-office": "workspace:*",
-    "@deepseek-ai/dsh-deepseek-account": "workspace:*",
-    "@deepseek-ai/dsh-workspace": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh": "workspace:*",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-app-boot": "workspace:*",
+    "@omega-ai/dsh-client-connection": "workspace:*",
+    "@omega-ai/dsh-host-webserver": "workspace:*",
+    "@omega-ai/dsh-home-paths": "workspace:*",
+    "@omega-ai/dsh-jobs": "workspace:*",
+    "@omega-ai/dsh-schedule": "workspace:*",
+    "@omega-ai/dsh-tool-workspace-dependencies": "workspace:*",
+    "@omega-ai/dsh-skill-office": "workspace:*",
+    "@omega-ai/dsh-omega-account": "workspace:*",
+    "@omega-ai/dsh-workspace": "workspace:*"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/cordis-plugin-include": "workspace:~",
-    "@deepseek-ai/dsh-skill": "workspace:*"
+    "@omega-ai/cordis-plugin-loader": "workspace:~",
+    "@omega-ai/cordis-plugin-include": "workspace:~",
+    "@omega-ai/dsh-skill": "workspace:*"
   }
 }

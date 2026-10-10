@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { SESSION_FORMAT_VERSION } from '@deepseek-ai/dsh-session'
-import { prepareSessionSnapshotFixtureForComparison } from '@deepseek-ai/dsh-llm-replay'
+import { SESSION_FORMAT_VERSION } from '@omega-ai/dsh-session'
+import { prepareSessionSnapshotFixtureForComparison } from '@omega-ai/dsh-llm-replay'
 import {
   type NormalizeContext,
   extractSnapshotSpillPaths,
@@ -760,7 +760,7 @@ describe('normalizeSessionSnapshot', () => {
       { type: 'session', version, id, createdAt: 1, isSeeded: false, delegationDepth: 0 },
       { type: 'turn/start', seq: 0, time: 1, data: { turn: 1 } },
       {
-        type: 'session-log-deepseek/delivery-accepted', seq: 1, time: 2,
+        type: 'session-log-omega/delivery-accepted', seq: 1, time: 2,
         data: { sessionId: id, throughSeq: 0, sessionFormatVersion: deliveryVersion },
       },
     ].map(record => JSON.stringify(record)).join('\n') + '\n'
@@ -802,7 +802,7 @@ describe('normalizeSessionSnapshot', () => {
     const target = prepareSessionSnapshotFixtureForComparison(source)
     const marker = JSON.parse(target.trimEnd().split('\n').at(-1)!) as unknown
     expect(marker).toEqual({
-      type: 'session-log-deepseek/delivery-accepted', seq: 1, time: 2,
+      type: 'session-log-omega/delivery-accepted', seq: 1, time: 2,
       data: { sessionId: 'recorded-session', throughSeq: 0, sessionFormatVersion: 99 },
     })
     const [historical, migrated] = normalizeSessionSnapshots([source, target], ctx, { nativeWriterOutput: true })
@@ -824,7 +824,7 @@ describe('normalizeSessionSnapshot', () => {
 
   it('preserves delivery and captured-source generations without a validated source generation', () => {
     const event = (version: number): string => JSON.stringify({
-      type: 'session-log-deepseek/delivery-accepted',
+      type: 'session-log-omega/delivery-accepted',
       data: { sessionId: 's', throughSeq: 4, sessionFormatVersion: version },
     })
     expect(normalizeSessionFormatMetadata(event(0))).toBe(event(0))
@@ -839,7 +839,7 @@ describe('normalizeSessionSnapshot', () => {
         createdAt: 0,
       }),
       JSON.stringify({
-        type: 'session-log-deepseek/delivery-accepted',
+        type: 'session-log-omega/delivery-accepted',
         data: { sessionFormatVersion: 1, throughSeq: 21, otherVersion: 8 },
       }),
       JSON.stringify({
@@ -1102,7 +1102,7 @@ function systemMessageEvent(text: string, seq = 2): string {
         id: '11111111-1111-4111-8111-111111111111',
         role: 'system',
         content: text.length === 0 ? [] : [{ type: 'text', text }],
-        source: { kind: 'plugin', plugin: '@deepseek-ai/dsh-system-prompt' },
+        source: { kind: 'plugin', plugin: '@omega-ai/dsh-system-prompt' },
       },
     },
   })
@@ -1194,7 +1194,7 @@ describe('scrubSessionSnapshot', () => {
 
     expect(scrubSessionSnapshot(`${header}\n${system}\n${request}\n${event}\n`)).toBe([
       header,
-      '{"type":"system/message","data":{"turn":1,"step":1,"message":{"id":"11111111-1111-4111-8111-111111111111","role":"system","content":[{"type":"text","text":"{{system}}"}],"source":{"kind":"plugin","plugin":"@deepseek-ai/dsh-system-prompt"}}}}',
+      '{"type":"system/message","data":{"turn":1,"step":1,"message":{"id":"11111111-1111-4111-8111-111111111111","role":"system","content":[{"type":"text","text":"{{system}}"}],"source":{"kind":"plugin","plugin":"@omega-ai/dsh-system-prompt"}}}}',
       '{"type":"request/header","data":{"header":{"tools":"{{tools}}"},"reason":"initial"}}',
       '{"type":"turn/start","data":{"turn":1,"seq":41,"time":42}}',
       '',

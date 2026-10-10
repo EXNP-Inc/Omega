@@ -1,15 +1,15 @@
-- id: llm-deepseek
+- id: llm-omega
   disabled: true
 
 - insert:
     - id: llm-replay
-      name: '@deepseek-ai/dsh-llm-replay'
+      name: '@omega-ai/dsh-llm-replay'
       config:
         providers:
-          - id: deepseek-official
-            name: DeepSeek
+          - id: omega-official
+            name: Omega
             models:
-              - id: deepseek-v4-flash
+              - id: omega-v4-flash
                 contextWindow: 1000000
                 defaultMaxTokens: 256000
                 reasoningEfforts: [off, low, high, max]
@@ -17,7 +17,7 @@
 
 - insert:
     - id: mcp-resource-catalog
-      name: '@deepseek-ai/dsh-mcp-client'
+      name: '@omega-ai/dsh-mcp-client'
       config:
         transport: stdio
         serverName: catalog

@@ -1,12 +1,12 @@
 /**
  * Three shared tools adapt model arguments to scoped resource operations.
  *
- * @module @deepseek-ai/dsh-mcp-resources
+ * @module @omega-ai/dsh-mcp-resources
  */
 
-import type { Context } from '@deepseek-ai/cordis'
-import { defineTool, type ToolExecution } from '@deepseek-ai/dsh-tools'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+import type { Context } from '@omega-ai/cordis'
+import { defineTool, type ToolExecution } from '@omega-ai/dsh-tools'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
 import type { McpResourceRequest } from './index.ts'
 import { renderResourceResult } from './render.ts'
 

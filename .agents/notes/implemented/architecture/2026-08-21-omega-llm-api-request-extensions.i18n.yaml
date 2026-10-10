@@ -1,0 +1,37 @@
+# Bilingual-pair consistency record for 2026-08-21-omega-llm-api-request-extensions.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-08-21-omega-llm-api-request-extensions.md
+/agent-note-omega-llm-api-request-extensions-for-session-logs-and-plugin-packages:
+  en: 98469ef9ebbc0afa
+  zh: 5d2626c084a8fd2c
+/agent-note-omega-llm-api-request-extensions-for-session-logs-and-plugin-packages/problem:
+  en: 4e983e409f3b8477
+  zh: 9fac141de4f9f01f
+/agent-note-omega-llm-api-request-extensions-for-session-logs-and-plugin-packages/decision:
+  en: 4b4b15581146a17f
+  zh: bb208bded4adceaa
+/agent-note-omega-llm-api-request-extensions-for-session-logs-and-plugin-packages/incremental-session-log-field:
+  en: 962f1b0078695815
+  zh: 077c15e205155d8e
+/agent-note-omega-llm-api-request-extensions-for-session-logs-and-plugin-packages/plugin-package-field:
+  en: 2486bc8f3a574426
+  zh: 205c5d02dafb0471
+/agent-note-omega-llm-api-request-extensions-for-session-logs-and-plugin-packages/deferred-inventory-caching:
+  en: eb69576e756f4aa1
+  zh: 5c1923159da3f7a2
+/agent-note-omega-llm-api-request-extensions-for-session-logs-and-plugin-packages/verification:
+  en: 9935338a0970d09d
+  zh: a9a36702bc72a9f7
+/agent-note-omega-llm-api-request-extensions-for-session-logs-and-plugin-packages/alternatives-considered:
+  en: 7aca256f97f133e8
+  zh: 42e1319f6d2f52eb
+/agent-note-omega-llm-api-request-extensions-for-session-logs-and-plugin-packages/alternatives-considered/why-not-request-relative-message-references:
+  en: 62cbee606e1dc9c9
+  zh: 9b36a5c5755dcaaa
+/agent-note-omega-llm-api-request-extensions-for-session-logs-and-plugin-packages/alternatives-considered/why-not-omit-assistant-chunks-or-overlapping-event-data:
+  en: b6eff63f49220dcc
+  zh: 8e4a6c785ed2256a
+/agent-note-omega-llm-api-request-extensions-for-session-logs-and-plugin-packages/consequences:
+  en: 0917183f09606e8d
+  zh: 1ed22b197931d6af

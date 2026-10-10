@@ -3,7 +3,7 @@ description: "dsh Web 客户端共享的 React UI 原子组件：控件、图标
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-client-ui-primitives
+# @omega-ai/dsh-client-ui-primitives
 
 [English](README.md) | 中文
 
@@ -67,12 +67,12 @@ kind: "package-library"
 | `JsonTree`、`JsonBlock` | 只读 JSON 查看。 |
 | `MarkdownText`、`MarkdownDelegateProvider`、`CodeBlock` | 不可信 GFM 与 TeX 数学、owner 委托的 HTTP(S) 导航，以及高亮代码。`CodeBlock` 可通过 `lineNumbers` 开启行号；复制的源码不含行号栏，`contentRef` 则向需要把稳定源码包装节点用作滚动区的 owner 提供该节点。调用方提供自己的语言与复制工具栏时，设置 `showHeader={false}`。 |
 | `TerminalBlock`、`ReadBlock`、`DiffBlock`、`SearchBlock`、`WebBlock` | 与各类工具结果意图对应的 agent 输出卡片。 |
-| `icons/*`、`FishLogo`、`BrandWordmark`、`ReferenceIconRegular`/`ReferenceIconMedium`、`LinkIconRegular`/`LinkIconMedium` | 字形与品牌标识。思考图标的轨道在 16px 视口内保留内边距。`LinkIconMedium` 用于 14px 的可点击链接分类及已知站点标记。 |
+| `icons/*`、`OmegaLogo`、`BrandWordmark`、`ReferenceIconRegular`/`ReferenceIconMedium`、`LinkIconRegular`/`LinkIconMedium` | 字形与品牌标识。思考图标的轨道在 16px 视口内保留内边距。`LinkIconMedium` 用于 14px 的可点击链接分类及已知站点标记。 |
 | `PermissionIconReadOnlyRegular`/`Medium`、`PermissionIconWorkspaceWriteRegular`/`Medium`、`PermissionIconFullAccessRegular`/`Medium` | 只读、工作区写入与完全访问选项使用的权限模式图形。 |
 | `PluginArtworkTerminal`/`Loop`/`Subagent`/`Search`/`Default` | 固定配色的 36×36 插件插画；`Terminal` 为插件卡片和侧边栏开始页入口提供浅蓝色提示符。`Default` 用于没有自有插画的插件。def id 按实例生成，同一插画可在一页中安全重复。 |
 | `GuideArtworkBrowser`/`Files` | 固定配色的 36×36 浏览器与文件夹插画，用于侧栏引导入口。 |
 | `FileTypeIcon`、`classifyFileType`、`fileExtension` | 按类别着色的 28px 文件或文件夹图形，以及它背后共享的不区分大小写文件名映射。代码与配置文件使用细分的全彩技术图形；链接前置图形使用 `LinkIconMedium`，图片内容使用图片预览。 |
-| `languageForPath`、`CODE_HIGHLIGHT_EXTENSIONS`、`useCodeHighlighter` | 代码预览与 diff review 共用的惰性逐行 token 高亮。文件名 grammar 选择再导出自 `@deepseek-ai/dsh-util-code-language`，即 read 卡片持久化短 id `lang` 提示背后的同一张扩展名表。 |
+| `languageForPath`、`CODE_HIGHLIGHT_EXTENSIONS`、`useCodeHighlighter` | 代码预览与 diff review 共用的惰性逐行 token 高亮。文件名 grammar 选择再导出自 `@omega-ai/dsh-util-code-language`，即 read 卡片持久化短 id `lang` 提示背后的同一张扩展名表。 |
 
 有四组容易混淆：
 
@@ -199,7 +199,7 @@ kind: "package-library"
 - **已知站点标记是固定列表**：只有列名的主机解析为自己的标记，其余外部主机仍使用地球；要识别任意站点需要通过网络抓取它的图标。
 - **流式期间跨边界引用解析被推迟**：定义落在增量冻结边界另一侧的引用式链接或脚注，在回复流式输出期间渲染为字面文本；定稿时的全量解析会将其解析。
 - **长高亮 fence 会保留完整 token DOM**：流式路径避免重新解析、重新 tokenize 和 reconcile 已完成前缀，但不会丢弃旧颜色或虚拟化 token span。因此最终 DOM 数量仍随 fence 的 token 数增长；嵌套／容器内 fence 与病态的单个超长行仍走通用尾部路径。
-- **鱼形标志是重新绘制的近似版本**：它来自字体字形，而本地设计数据无法导出其矢量几何；在获得精确导出路径前，使用手工重建版本代替。
+- **Ω 标志来自字体**：Ω 字形从 Arial Bold 描摹（仅轮廓几何，无渲染依赖），因此标志是单一可填充 path；仅当品牌字体更换时才重新描摹。
 - **`Pill` 与 `Input` 没有设计来源**：两个原子组件均自行定义；与其相似的侧边栏搜索字段和视图标签条由消费方组合，不是这些原子组件。
 - **`StateDot` 没有 `Active` 变体**：支持的状态为 done、warning、ongoing、error 和 idle。
 - **面向用户的文案必须由渲染点提供**：这些原子组件是 zero-Cordis 的，拿不到 `ctx.locale`；各功能必须通过原子组件的带类型 prop 提供完整本地化 label（见[决策](../../../.agents/notes/implemented/architecture/2026-08-23-locale-owned-client-ui-copy.zh.md)）。

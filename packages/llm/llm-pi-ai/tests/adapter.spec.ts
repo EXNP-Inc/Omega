@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
-import { Context, Service } from '@deepseek-ai/cordis'
-import { AttachmentId, AttachmentStore, ImageVariantId } from '@deepseek-ai/dsh-attachment'
+import { Context, Service } from '@omega-ai/cordis'
+import { AttachmentId, AttachmentStore, ImageVariantId } from '@omega-ai/dsh-attachment'
 import type {
   ImageAttachmentLimits,
   ImageAttachmentRef,
@@ -8,11 +8,11 @@ import type {
   RequestImageAttachment,
   SaveImageAttachment,
   StoredImageAttachment,
-} from '@deepseek-ai/dsh-attachment'
-import LlmRuntime, { createToolResultMessage, createUserMessage, CONTEXT_WINDOW_EXCEEDED_CODE, LlmError, ReasoningEffortId, userAgent } from '@deepseek-ai/dsh-llm'
-import * as LlmPiAi from '@deepseek-ai/dsh-llm-pi-ai'
-import { PiAiAdapter } from '@deepseek-ai/dsh-llm-pi-ai'
-import { MAX_TIMER_DELAY_MS } from '@deepseek-ai/dsh-timeout'
+} from '@omega-ai/dsh-attachment'
+import LlmRuntime, { createToolResultMessage, createUserMessage, CONTEXT_WINDOW_EXCEEDED_CODE, LlmError, ReasoningEffortId, userAgent } from '@omega-ai/dsh-llm'
+import * as LlmPiAi from '@omega-ai/dsh-llm-pi-ai'
+import { PiAiAdapter } from '@omega-ai/dsh-llm-pi-ai'
+import { MAX_TIMER_DELAY_MS } from '@omega-ai/dsh-timeout'
 import { getBuiltinModels } from '@earendil-works/pi-ai/providers/all'
 import { DEFAULT_MAX_REQUEST_IMAGE_BYTES, resolveProfiles } from '../src/config.ts'
 import { memoryAuth } from './auth-double.ts'
@@ -81,7 +81,7 @@ describe('PiAiAdapter provider routing', () => {
       model: 'deepseek-flash',
       messages: [createUserMessage({
         content: [{ type: 'text', text: 'hi' }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'deepseek-v4-flash' },
       })],
     })
     expect(result.message.content).toEqual([{ type: 'text', text: 'hello' }])
@@ -320,7 +320,7 @@ describe('PiAiAdapter provider routing', () => {
       model: 'gpt-4.1',
       messages: [createUserMessage({
         content: [{ type: 'image', attachment: ref }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'deepseek-v4-flash' },
       })],
     })
 
@@ -922,7 +922,7 @@ describe('provider profile lifecycle', () => {
       model: 'deepseek-v4-pro',
       messages: [createUserMessage({
         content: [{ type: 'image', attachment: IMAGE_REF }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'deepseek-v4-flash' },
       })],
     })).rejects.toMatchObject({
       code: 'UNSUPPORTED_CONTENT',
@@ -933,7 +933,7 @@ describe('provider profile lifecycle', () => {
       model: 'gpt-4.1',
       messages: [createUserMessage({
         content: [{ type: 'image', attachment: IMAGE_REF }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'deepseek-v4-flash' },
       })],
     })).rejects.toMatchObject({ code: 'UNSUPPORTED_CONTENT' })
     await expect(drain({

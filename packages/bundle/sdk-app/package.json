@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-sdk-app",
+  "name": "@omega-ai/dsh-sdk-app",
   "description": "The dsh SDK profile bundle: stdio JSON-RPC serving and process lifecycle over dsh-base",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/bundle/sdk-app"
   },
   "type": "module",
@@ -34,18 +34,18 @@
     }
   },
   "dependencies": {
-    "@deepseek-ai/dsh-cmdline": "workspace:*",
-    "@deepseek-ai/dsh-sdk-jsonrpc-server": "workspace:*",
-    "@deepseek-ai/schemastery": "workspace:~",
+    "@omega-ai/dsh-cmdline": "workspace:*",
+    "@omega-ai/dsh-sdk-jsonrpc-server": "workspace:*",
+    "@omega-ai/schemastery": "workspace:~",
     "commander": "^15.0.0",
-    "@deepseek-ai/dsh-skill-office": "workspace:*",
-    "@deepseek-ai/dsh-tool-workspace-dependencies": "workspace:*"
+    "@omega-ai/dsh-skill-office": "workspace:*",
+    "@omega-ai/dsh-tool-workspace-dependencies": "workspace:*"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~"
+    "@omega-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis-plugin-include": "workspace:~",
-    "@deepseek-ai/cordis": "workspace:~"
+    "@omega-ai/cordis-plugin-include": "workspace:~",
+    "@omega-ai/cordis": "workspace:~"
   }
 }

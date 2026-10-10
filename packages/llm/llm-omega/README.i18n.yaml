@@ -1,0 +1,91 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/llm/llm-omega/README.md
+/:
+  en: 37b73a2e95708a2f
+  zh: 260acf707e7c5015
+/omega-ai-dsh-llm-omega:
+  en: 1fee571067350c1f
+  zh: 61f94baff17b0e1a
+/omega-ai-dsh-llm-omega/summary:
+  en: c200cb5fb7e96f05
+  zh: c409a2608c22fb1f
+/omega-ai-dsh-llm-omega/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/omega-ai-dsh-llm-omega/use-this-package:
+  en: fe27b41cb85cd031
+  zh: 52d833f0909d94f1
+/omega-ai-dsh-llm-omega/use-this-package/when-to-choose-it:
+  en: 721b193a37f0d30d
+  zh: 1f84ba495c72c8c6
+/omega-ai-dsh-llm-omega/use-this-package/minimal-configuration:
+  en: 9f56b0064a2f0b48
+  zh: ccd22f977663f7ec
+/omega-ai-dsh-llm-omega/use-this-package/endpoint-and-wire-format:
+  en: ec71528c6d9671f5
+  zh: 98cff4285c41bc52
+/omega-ai-dsh-llm-omega/use-this-package/account-credentials:
+  en: c791d1f38b8930c7
+  zh: c7660e0dd495f2c1
+/omega-ai-dsh-llm-omega/use-this-package/streaming-with-thinking-and-images:
+  en: 8f05a9bfad1b466b
+  zh: fb1702e4baf02431
+/omega-ai-dsh-llm-omega/use-this-package/dynamic-configuration:
+  en: 49290fc5647136b4
+  zh: 96fa9ce0f9e83c13
+/omega-ai-dsh-llm-omega/use-this-package/provider-specific-request-fields:
+  en: 9ea321bcccd17469
+  zh: a303ba777c6aea1e
+/omega-ai-dsh-llm-omega/use-this-package/failures-and-recovery:
+  en: 2b74e749674efa86
+  zh: 62c94a579cea0deb
+/omega-ai-dsh-llm-omega/understand-the-implementation:
+  en: 1598ac8a8bb9b6bf
+  zh: fdd089c5ae7722cd
+/omega-ai-dsh-llm-omega/understand-the-implementation/design-philosophy:
+  en: 829203c4c282dc46
+  zh: e05dada4a1420a95
+/omega-ai-dsh-llm-omega/understand-the-implementation/source-map:
+  en: dc2d2409ad8c41cc
+  zh: 51fc4ad65dab6378
+/omega-ai-dsh-llm-omega/understand-the-implementation/wire-flow:
+  en: 081bae9bb15e2230
+  zh: b7a2666e462e542a
+/omega-ai-dsh-llm-omega/further-exploration:
+  en: f7eae85b4a5e84bd
+  zh: 41ca799869234cc3
+/omega-ai-dsh-llm-omega/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/omega-ai-dsh-llm-omega/model-experience/omega-request:
+  en: 005e81c1bd7c4ba8
+  zh: 6d49b7da979d0f3a
+/omega-ai-dsh-llm-omega/model-experience/omega-request/what-the-model-sees:
+  en: 18b6f96c89c548d5
+  zh: f468586e20fad6fa
+/omega-ai-dsh-llm-omega/model-experience/omega-request/token-effect:
+  en: f6f8c890fb2465e4
+  zh: cb9e4173a0d7415f
+/omega-ai-dsh-llm-omega/model-experience/omega-request/kv-cache-effect:
+  en: 3b58d8eb4bb2274e
+  zh: 7d843aa3ea578ba7
+/omega-ai-dsh-llm-omega/model-experience/omega-response:
+  en: 6b8a295a436a73f0
+  zh: 5c2073c84e4a72ae
+/omega-ai-dsh-llm-omega/model-experience/omega-response/what-the-model-sees:
+  en: 36a3d0297d6ca209
+  zh: bfc68b8300f61593
+/omega-ai-dsh-llm-omega/model-experience/omega-response/token-effect:
+  en: 533309d1f93b89de
+  zh: 4cc0b86f05c9be53
+/omega-ai-dsh-llm-omega/model-experience/omega-response/kv-cache-effect:
+  en: ddfbea043596878d
+  zh: 4fbf5864a684c053
+/omega-ai-dsh-llm-omega/known-limitations-and-deferred-work:
+  en: a8998567af766c54
+  zh: eb1e3f548f352c6f
+/omega-ai-dsh-llm-omega/known-limitations-and-deferred-work/dev-note:
+  en: acfa2c02b8aa471d
+  zh: 4448eed6342e877f

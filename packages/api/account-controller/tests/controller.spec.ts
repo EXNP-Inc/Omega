@@ -1,7 +1,7 @@
 /** Account Remote delegation preserves provider results, failures, and stream lifetime. */
-import { Context } from '@deepseek-ai/cordis'
-import type { DeepSeekAccount } from '@deepseek-ai/dsh-deepseek-account'
-import type { AccountBonusBatch, AccountBonusOrderId, AccountClientMetadata, AccountUserId } from '@deepseek-ai/dsh-deepseek-account/types'
+import { Context } from '@omega-ai/cordis'
+import type { OmegaAccount } from '@omega-ai/dsh-omega-account'
+import type { AccountBonusBatch, AccountBonusOrderId, AccountClientMetadata, AccountUserId } from '@omega-ai/dsh-omega-account/types'
 import type { AccountView, SignInAttemptId } from '../src/types.ts'
 import { afterEach, expect, it, vi } from 'vitest'
 import AccountController from '../src/index.ts'
@@ -15,17 +15,17 @@ function fixture() {
   const ctx = new Context()
   roots.push(ctx)
   const provider = {
-    getState: vi.fn<DeepSeekAccount['getState']>().mockResolvedValue(state),
-    getProfile: vi.fn<DeepSeekAccount['getProfile']>().mockResolvedValue({ status: 'failed' }),
-    getBalance: vi.fn<DeepSeekAccount['getBalance']>().mockResolvedValue(null),
-    getUnnotifiedBonuses: vi.fn<DeepSeekAccount['getUnnotifiedBonuses']>().mockResolvedValue(null),
-    ackBonusNotified: vi.fn<DeepSeekAccount['ackBonusNotified']>().mockResolvedValue(false),
-    startSignIn: vi.fn<DeepSeekAccount['startSignIn']>().mockResolvedValue(state),
-    cancelSignIn: vi.fn<DeepSeekAccount['cancelSignIn']>().mockResolvedValue(state),
-    signOut: vi.fn<DeepSeekAccount['signOut']>().mockResolvedValue(state),
-    watch: vi.fn<DeepSeekAccount['watch']>(),
+    getState: vi.fn<OmegaAccount['getState']>().mockResolvedValue(state),
+    getProfile: vi.fn<OmegaAccount['getProfile']>().mockResolvedValue({ status: 'failed' }),
+    getBalance: vi.fn<OmegaAccount['getBalance']>().mockResolvedValue(null),
+    getUnnotifiedBonuses: vi.fn<OmegaAccount['getUnnotifiedBonuses']>().mockResolvedValue(null),
+    ackBonusNotified: vi.fn<OmegaAccount['ackBonusNotified']>().mockResolvedValue(false),
+    startSignIn: vi.fn<OmegaAccount['startSignIn']>().mockResolvedValue(state),
+    cancelSignIn: vi.fn<OmegaAccount['cancelSignIn']>().mockResolvedValue(state),
+    signOut: vi.fn<OmegaAccount['signOut']>().mockResolvedValue(state),
+    watch: vi.fn<OmegaAccount['watch']>(),
   }
-  ctx.provide('deepseekAccount', provider as never)
+  ctx.provide('omegaAccount', provider as never)
   return { ctx, provider, controller: new AccountController(ctx) }
 }
 
@@ -78,11 +78,11 @@ it('passes the subscriber lifetime to the provider and returns its state stream'
 
 it('delivers expiry only to current subscribers and stops on disconnect', async () => {
   const { ctx, controller } = fixture()
-  ctx.emit('deepseek-account/session-expired')
+  ctx.emit('omega-account/session-expired')
   const lifetime = new AbortController()
   const iterator = controller.watchExpiry(lifetime.signal)[Symbol.asyncIterator]()
   const first = iterator.next()
-  ctx.emit('deepseek-account/session-expired')
+  ctx.emit('omega-account/session-expired')
   expect(await first).toEqual({ done: false, value: 'session-expired' })
   const next = iterator.next()
   lifetime.abort()

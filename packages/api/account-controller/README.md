@@ -3,7 +3,7 @@ description: "Account screens use authenticated Remote commands and a snapshot s
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-api-account-controller
+# @omega-ai/dsh-api-account-controller
 
 English | [中文](README.zh.md)
 
@@ -56,4 +56,4 @@ No model request prefix changes.
 <a id="dev-note"></a>
 ### Dev Note
 
-The [desktop login decision](../../../.agents/notes/implemented/architecture/2026-09-14-deepseek-account-login.md) records cancellation and storage ownership.
+The [desktop login decision](../../../.agents/notes/implemented/architecture/2026-09-14-omega-account-login.md) records cancellation and storage ownership.

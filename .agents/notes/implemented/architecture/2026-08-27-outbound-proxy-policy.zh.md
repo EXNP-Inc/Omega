@@ -60,7 +60,7 @@ URL 层策略未受影响：仅 `http(s)`、禁止内嵌凭据、长度上限与
 
 **只写文档，让用户设 `NODE_USE_ENV_PROXY=1`。** 基于上文三条实测被否决：对 `$DSH_HOME/.env` 不可见、在最低支持的 Node 上不存在、且无论如何被 `web-fetch-http` 绕过。而这恰恰是仓库此前声称的做法。
 
-**把策略值传递到每一个调用点。** DeepSeek-Reasonix 在 98 处这样做，换来每提供方的 opt-out。被否决：该能力服务于本 Harness 并不具备的需求，而手工改九处意味着第十处会被遗忘——Pi 的变更日志正记录了 OAuth 与 Bedrock 两次事后补漏。它关于隔离性的论点确实成立，本方案改为显式处理 worker 线程、并以「dispose 后还原前一个 dispatcher」的断言来回应。
+**把策略值传递到每一个调用点。** Omega-Reasonix 在 98 处这样做，换来每提供方的 opt-out。被否决：该能力服务于本 Harness 并不具备的需求，而手工改九处意味着第十处会被遗忘——Pi 的变更日志正记录了 OAuth 与 Bedrock 两次事后补漏。它关于隔离性的论点确实成立，本方案改为显式处理 worker 线程、并以「dispose 后还原前一个 dispatcher」的断言来回应。
 
 **`http.setGlobalProxyFromEnv()`。** Node 自带的程序化开关同时覆盖 `fetch` 与 `node:http`，并返回还原函数——正是 `ctx.effect()` 想要的形态。不可用：`added: v24.14.0`，22 线上完全没有。若 `engines` 日后升过该版本，值得回头替换。
 

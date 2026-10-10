@@ -1,0 +1,10 @@
+version: 1
+scenario: omega-messages-input-history
+profile: headless
+composition: omega-messages-input-history
+recording: authored
+header:
+  class: omega-messages-input-history
+  pin: true
+  systemPromptSource: text-turn
+  toolSchemasSource: text-turn

@@ -3,7 +3,7 @@ description: "The shared dsh core: model access, tools, durable sessions, and sa
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-base
+# @omega-ai/dsh-base
 
 English | [中文](README.zh.md)
 
@@ -29,7 +29,7 @@ You get the dsh core automatically: the shipped `web`, `headless`, `sdk`, and `a
 
 ### A minimal custom profile
 
-To build a profile on the shared core, create a profile with a `package.json` that names `@deepseek-ai/dsh-base` first:
+To build a profile on the shared core, create a profile with a `package.json` that names `@omega-ai/dsh-base` first:
 
 ```json
 {
@@ -37,7 +37,7 @@ To build a profile on the shared core, create a profile with a `package.json` th
   "private": true,
   "dsh": {
     "profile": {
-      "bundles": ["@deepseek-ai/dsh-base"]
+      "bundles": ["@omega-ai/dsh-base"]
     }
   }
 }
@@ -47,14 +47,14 @@ Run `dsh --profile my-profile "your task"` and you get a working agent with mode
 
 ### What you get
 
-Out of the box, every profile built on this core provides: a DeepSeek model connection (the provider and model are configurable, and you can enable extra providers from your settings), the full tool set — file editing, shell commands, web search, public HTTP(S) fetch, subagents, task and goal tracking — durable sessions that survive restarts, and the default permission policy that confines file writes to your workspace and asks before risky actions. Web fetch runs without per-call approval; its provider rejects non-public destinations. Feedback stays in the Session log. [OTel session upload](../../session/session-telemetry-otel/README.md) defaults to `FEEDBACK_ONLY` for all users, including `deepseek-official`: new text feedback, message ratings, edits, and withdrawals release the complete canonical prefix through that event, including context. Later records wait for the next explicit feedback; sending an authorized batch needs no further interaction or model call. `DISABLED` prevents OTel capture. The default-on [DeepSeek session-log contributor](../../session/session-log-deepseek/README.md) remains a separate request path.
+Out of the box, every profile built on this core provides: a Omega model connection (the provider and model are configurable, and you can enable extra providers from your settings), the full tool set — file editing, shell commands, web search, public HTTP(S) fetch, subagents, task and goal tracking — durable sessions that survive restarts, and the default permission policy that confines file writes to your workspace and asks before risky actions. Web fetch runs without per-call approval; its provider rejects non-public destinations. Feedback stays in the Session log. [OTel session upload](../../session/session-telemetry-otel/README.md) defaults to `FEEDBACK_ONLY` for all users, including `omega-official`: new text feedback, message ratings, edits, and withdrawals release the complete canonical prefix through that event, including context. Later records wait for the next explicit feedback; sending an authorized batch needs no further interaction or model call. `DISABLED` prevents OTel capture. The default-on [Omega session-log contributor](../../session/session-log-omega/README.md) remains a separate request path.
 
 Default file editing uses `read`, `write`, and `edit`. The `str_replace_editor` tool remains available as an explicit opt-in. To add it to a base-backed profile, put this entry in the profile, home, or invocation patch:
 
 ```yaml
 - insert:
     - id: tool-str-replace-editor
-      name: '@deepseek-ai/dsh-tool-str-replace-editor'
+      name: '@omega-ai/dsh-tool-str-replace-editor'
       config:
         maxOutputChars: 16000
 ```
@@ -85,7 +85,7 @@ A patch replaces the targeted row's whole `config` rather than merging into it. 
 
 ### Platform gating
 
-The patch gates the two shell stacks by platform on its own rows: `bash-sandbox` and `tool-bash` carry `disabled: !!js process.platform === 'win32'`, and their twins `pwsh-sandbox` and `tool-pwsh` mount on win32 only with the inverted expression. The permission surface stays identical to POSIX: the sandbox policy executes the same file-effect policy through the Windows ACL restricted-token runner (`dsh-sandbox-local` → `@deepseek-ai/dsh-sandbox-windows-acl`), and `fs-sandbox` keeps fencing `ctx.fs` writes — mounting `dsh-fs-local` alongside it would double-register `ctx.fs` and fail the load.
+The patch gates the two shell stacks by platform on its own rows: `bash-sandbox` and `tool-bash` carry `disabled: !!js process.platform === 'win32'`, and their twins `pwsh-sandbox` and `tool-pwsh` mount on win32 only with the inverted expression. The permission surface stays identical to POSIX: the sandbox policy executes the same file-effect policy through the Windows ACL restricted-token runner (`dsh-sandbox-local` → `@omega-ai/dsh-sandbox-windows-acl`), and `fs-sandbox` keeps fencing `ctx.fs` writes — mounting `dsh-fs-local` alongside it would double-register `ctx.fs` and fail the load.
 
 ### Source map
 
@@ -130,7 +130,7 @@ These limits tell you when the core needs extra care or where an override must g
 
 - **Overrides replace whole settings blocks** — a patch entry replaces the target's entire configuration, so your override must restate every setting you want to keep; nothing merges automatically.
 - **Per-surface settings belong to the surface's bundle** — a default that differs between the web GUI and headless mode lives in that surface's bundle, not in the shared core.
-- **Windows temp grants are private per-session subdirectories** — `workspace-write` confines writes to the workspace plus the session's own temp subdirectory (`<temp>\dsh-<hash>`, TMP/TEMP rewritten for confined children); `read-only` grants nothing. See `@deepseek-ai/dsh-sandbox-windows-acl`.
+- **Windows temp grants are private per-session subdirectories** — `workspace-write` confines writes to the workspace plus the session's own temp subdirectory (`<temp>\dsh-<hash>`, TMP/TEMP rewritten for confined children); `read-only` grants nothing. See `@omega-ai/dsh-sandbox-windows-acl`.
 - **Adding the plain filesystem provider on top of the sandboxed one fails the profile** — the two register the same service, so the profile refuses to load; use one or the other.
 
 <a id="dev-note"></a>

@@ -7,7 +7,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { request as httpRequest } from 'node:http'
 import type { IncomingHttpHeaders } from 'node:http'
-import { resolveExampleLaunch } from '@deepseek-ai/dsh-loader-smoke'
+import { resolveExampleLaunch } from '@omega-ai/dsh-loader-smoke'
 import ts from 'typescript'
 import { expect } from 'vitest'
 import type { TestContext } from 'vitest'
@@ -71,7 +71,7 @@ export async function withDefaultWeb(
         DSH_HOME: join(root, 'home'),
         DSH_AGENTS_HOME: join(root, '.agents'),
         DSH_TELEMETRY_DISABLED: '1',
-        DEEPSEEK_API_KEY: 'keyless-default-web-no-call',
+        OMEGA_API_KEY: 'keyless-default-web-no-call',
         NODE_NO_WARNINGS: '1',
       },
     })

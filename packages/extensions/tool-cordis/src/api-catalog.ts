@@ -9,7 +9,7 @@
  * the same AST walk as docs/cordis-catalog, so this data and the rendered
  * docs cannot diverge.
  *
- * @module @deepseek-ai/dsh-tool-cordis/api-catalog
+ * @module @omega-ai/dsh-tool-cordis/api-catalog
  */
 
 /* jscpd:ignore-start */
@@ -224,7 +224,7 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
   {
     key: 'agents',
     summary: 'Agent service (`ctx.agents`): tracks live agents and carries the initiating Agent through one process-local asynchronous driver chain.',
-    description: 'Agent service (`ctx.agents`): tracks live agents and carries the initiating Agent through one process-local asynchronous driver chain. Agent *creation* is provided by whichever plugin implements the AgentFactory (`@deepseek-ai/dsh-agent-loop`), registered via setFactory.\n\nInitiator methods provide same-process causal attribution only. Ambient presence is neither liveness proof nor authorization; subjects and owners remain explicit, as does identity at worker, process, persistence, and wire boundaries. Returned Promise boundaries drain during teardown, except a nested lineage that starts an owning-fiber unload is excluded from its own drain.',
+    description: 'Agent service (`ctx.agents`): tracks live agents and carries the initiating Agent through one process-local asynchronous driver chain. Agent *creation* is provided by whichever plugin implements the AgentFactory (`@omega-ai/dsh-agent-loop`), registered via setFactory.\n\nInitiator methods provide same-process causal attribution only. Ambient presence is neither liveness proof nor authorization; subjects and owners remain explicit, as does identity at worker, process, persistence, and wire boundaries. Returned Promise boundaries drain during teardown, except a nested lineage that starts an owning-fiber unload is excluded from its own drain.',
     methods: [
       {
         signature: 'currentInitiator(): Agent | undefined',
@@ -875,110 +875,6 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
-    key: 'deepseekAccount',
-    summary: 'Account operations; only Host consumers can obtain a request credential.',
-    description: 'Account operations; only Host consumers can obtain a request credential.',
-    methods: [
-      {
-        signature: 'abstract getState(): Promise<AccountView>',
-        description: 'Read stored-account presence and the latest login attempt.',
-        parameters: [],
-        returns: 'a snapshot without credentials or PKCE secrets.',
-      },
-      {
-        signature: 'abstract getProfile(client: AccountClientMetadata): Promise<AccountDetails[\'profile\'] | null>',
-        description: 'Query Platform profile independently of wallet balances. A ready result whose stable profile ID first becomes available or changes notifies watch consumers, so identity consumers re-read getPlatformSession; repeated IDs stay silent.',
-        parameters: [{ name: 'client', description: 'identity of the requesting UI for this call.' }],
-        returns: 'profile outcome, or null if signed out or the grant changed during the query.',
-      },
-      {
-        signature: 'abstract getBalance(client: AccountClientMetadata): Promise<AccountDetails[\'balance\'] | null>',
-        description: 'Query Platform recharge and bonus wallet balances independently of profile data.',
-        parameters: [{ name: 'client', description: 'identity of the requesting UI for this call.' }],
-        returns: 'balance outcome, or null if signed out or the grant changed during the query.',
-      },
-      {
-        signature: 'abstract getUnnotifiedBonuses(client: AccountClientMetadata): Promise<AccountBonusBatch | null>',
-        description: 'Query the granted bonuses Platform has not yet recorded as displayed.',
-        parameters: [{ name: 'client', description: 'identity of the requesting UI for this call; its language selects the server-authored message.' }],
-        returns: 'bonuses with their account, or null if signed out or the grant changed during the query.',
-      },
-      {
-        signature: 'abstract ackBonusNotified(accountId: AccountUserId, orderId: AccountBonusOrderId, client: AccountClientMetadata): Promise<boolean>',
-        description: 'Record one displayed bonus as notified for the account it belongs to.',
-        parameters: [{ name: 'accountId', description: 'account the notification was read for; a different current account is never acknowledged.' }, { name: 'orderId', description: 'granted bonus order the user saw.' }, { name: 'client', description: 'identity of the requesting UI for this call.' }],
-        returns: 'true once Platform records the acknowledgement; false if signed out or the account changed.',
-      },
-      {
-        signature: 'abstract startSignIn(client: AccountClientMetadata, callbackOrigin: string, loginSource: \'web\' | \'desktop\'): Promise<AccountView>',
-        description: 'Join an active attempt or start browser authorization.',
-        parameters: [{ name: 'client', description: 'identity of the requesting UI; a new attempt captures it, and joining retains the original attempt\'s identity.' }, { name: 'callbackOrigin', description: 'browser-accessible loopback HTTP origin, including any SSH local port.' }, { name: 'loginSource', description: 'initiating UI, used to return from a failed exchange.' }],
-        returns: 'the initial snapshot without waiting for browser approval.',
-      },
-      {
-        signature: 'abstract cancelSignIn(id: SignInAttemptId): Promise<AccountView>',
-        description: 'Cancel only the named attempt; committing attempts settle before returning.',
-        parameters: [{ name: 'id', description: 'attempt identity from this Host.' }],
-        returns: 'state after cancellation or an already-started commit.',
-      },
-      {
-        signature: 'abstract signOut(client: AccountClientMetadata): Promise<AccountView>',
-        description: 'Remove the local grant while retaining API keys; the provider revokes it in the background.',
-        parameters: [{ name: 'client', description: 'identity of the requesting UI, captured for the background revocation retries.' }],
-        returns: 'the signed-out state after local removal; remote failures never restore the grant.',
-      },
-      {
-        signature: 'abstract watch(signal: AbortSignal): AsyncIterable<AccountView>',
-        description: 'Subscribe to snapshots including a complete initial state.',
-        parameters: [{ name: 'signal', description: 'subscription lifetime; ending it never cancels login.' }],
-        returns: 'complete snapshots as account state changes.',
-      },
-      {
-        signature: 'abstract resolveToken(url: string): Promise<string | undefined>',
-        description: 'Resolve a credential only for the inference origin allowed by the provider.',
-        parameters: [{ name: 'url', description: 'actual request destination or API base URL.' }],
-        returns: 'stored token, or undefined for other origins or a signed-out account.',
-      },
-      {
-        signature: 'abstract rejectToken(token: string): Promise<void>',
-        description: 'Remove an inference-rejected token only while it still matches the stored login.',
-        parameters: [{ name: 'token', description: 'token captured by the rejected inference request.' }],
-        returns: 'after matching credentials are removed and the expiry notification is emitted.',
-      },
-      {
-        signature: 'abstract getPlatformSession(): Promise<PlatformSession | null>',
-        description: 'Read credentials for the configured Platform origin, bound to their issuing environment, and pair them with the account ID from the last successful profile read; no profile request is made.',
-        parameters: [],
-        returns: 'a Host-only snapshot, or null while signed out or when the credential changed during the read.',
-      },
-      {
-        signature: 'abstract getDeviceIdentity(): Promise<{ deviceId?: string; userId?: AccountUserId; osVersion: string }>',
-        description: 'Read existing login identity without creating a device or returning credentials.',
-        parameters: [],
-        returns: 'optional device/account identifiers and the provider\'s OS version string.',
-      },
-    ],
-  },
-  {
-    key: 'deepseekLlmApiExtensions',
-    summary: 'Registry of independently owned top-level fields for official DeepSeek requests.',
-    description: 'Registry of independently owned top-level fields for official DeepSeek requests.',
-    methods: [
-      {
-        signature: 'register<K extends keyof DeepSeekLlmApiExtensionMap>( field: K, provider: DeepSeekLlmApiExtensionProvider<DeepSeekLlmApiExtensionMap[K]>, ): () => Promise<void>',
-        description: 'Register the sole provider of one top-level request field. Registration is effect-scoped.',
-        parameters: [{ name: 'field', description: 'declaration-merged field owned by the provider.' }, { name: 'provider', description: 'request-time field preparation and optional acceptance behavior.' }],
-        returns: 'disposer that releases the field.',
-      },
-      {
-        signature: 'async prepare(request: DeepSeekLlmApiExtensionRequest): Promise<PreparedDeepSeekLlmApiExtensions>',
-        description: 'Prepare every currently registered field from one immutable base request. Preparation failures reject before HTTP dispatch. Field values are cloned and frozen; providers retain no mutable alias to the outgoing request.',
-        parameters: [{ name: 'request', description: 'exact serialized request facts before extension fields.' }],
-        returns: 'detached fields and their idempotent joint acceptance transaction.',
-      },
-    ],
-  },
-  {
     key: 'directoryPicker',
     summary: 'Abstract directory-picking service.',
     description: 'Abstract directory-picking service. Subclass, implement `capability()`, and load the subclass as a plugin — it registers as `ctx.directoryPicker` (one implementation per context; loading a second throws, cordis\' standard duplicate-service behavior). The capability object must be stable for the service lifetime: consumers may capture it across calls.',
@@ -1563,6 +1459,110 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         description: 'Read the current rendering generation before reusing a Client PDF.',
         parameters: [{ name: 'signal', description: 'Remote caller cancellation.' }],
         returns: 'provider lifetime, replaced with rendering, font, or engine configuration.',
+      },
+    ],
+  },
+  {
+    key: 'omegaAccount',
+    summary: 'Account operations; only Host consumers can obtain a request credential.',
+    description: 'Account operations; only Host consumers can obtain a request credential.',
+    methods: [
+      {
+        signature: 'abstract getState(): Promise<AccountView>',
+        description: 'Read stored-account presence and the latest login attempt.',
+        parameters: [],
+        returns: 'a snapshot without credentials or PKCE secrets.',
+      },
+      {
+        signature: 'abstract getProfile(client: AccountClientMetadata): Promise<AccountDetails[\'profile\'] | null>',
+        description: 'Query Platform profile independently of wallet balances. A ready result whose stable profile ID first becomes available or changes notifies watch consumers, so identity consumers re-read getPlatformSession; repeated IDs stay silent.',
+        parameters: [{ name: 'client', description: 'identity of the requesting UI for this call.' }],
+        returns: 'profile outcome, or null if signed out or the grant changed during the query.',
+      },
+      {
+        signature: 'abstract getBalance(client: AccountClientMetadata): Promise<AccountDetails[\'balance\'] | null>',
+        description: 'Query Platform recharge and bonus wallet balances independently of profile data.',
+        parameters: [{ name: 'client', description: 'identity of the requesting UI for this call.' }],
+        returns: 'balance outcome, or null if signed out or the grant changed during the query.',
+      },
+      {
+        signature: 'abstract getUnnotifiedBonuses(client: AccountClientMetadata): Promise<AccountBonusBatch | null>',
+        description: 'Query the granted bonuses Platform has not yet recorded as displayed.',
+        parameters: [{ name: 'client', description: 'identity of the requesting UI for this call; its language selects the server-authored message.' }],
+        returns: 'bonuses with their account, or null if signed out or the grant changed during the query.',
+      },
+      {
+        signature: 'abstract ackBonusNotified(accountId: AccountUserId, orderId: AccountBonusOrderId, client: AccountClientMetadata): Promise<boolean>',
+        description: 'Record one displayed bonus as notified for the account it belongs to.',
+        parameters: [{ name: 'accountId', description: 'account the notification was read for; a different current account is never acknowledged.' }, { name: 'orderId', description: 'granted bonus order the user saw.' }, { name: 'client', description: 'identity of the requesting UI for this call.' }],
+        returns: 'true once Platform records the acknowledgement; false if signed out or the account changed.',
+      },
+      {
+        signature: 'abstract startSignIn(client: AccountClientMetadata, callbackOrigin: string, loginSource: \'web\' | \'desktop\'): Promise<AccountView>',
+        description: 'Join an active attempt or start browser authorization.',
+        parameters: [{ name: 'client', description: 'identity of the requesting UI; a new attempt captures it, and joining retains the original attempt\'s identity.' }, { name: 'callbackOrigin', description: 'browser-accessible loopback HTTP origin, including any SSH local port.' }, { name: 'loginSource', description: 'initiating UI, used to return from a failed exchange.' }],
+        returns: 'the initial snapshot without waiting for browser approval.',
+      },
+      {
+        signature: 'abstract cancelSignIn(id: SignInAttemptId): Promise<AccountView>',
+        description: 'Cancel only the named attempt; committing attempts settle before returning.',
+        parameters: [{ name: 'id', description: 'attempt identity from this Host.' }],
+        returns: 'state after cancellation or an already-started commit.',
+      },
+      {
+        signature: 'abstract signOut(client: AccountClientMetadata): Promise<AccountView>',
+        description: 'Remove the local grant while retaining API keys; the provider revokes it in the background.',
+        parameters: [{ name: 'client', description: 'identity of the requesting UI, captured for the background revocation retries.' }],
+        returns: 'the signed-out state after local removal; remote failures never restore the grant.',
+      },
+      {
+        signature: 'abstract watch(signal: AbortSignal): AsyncIterable<AccountView>',
+        description: 'Subscribe to snapshots including a complete initial state.',
+        parameters: [{ name: 'signal', description: 'subscription lifetime; ending it never cancels login.' }],
+        returns: 'complete snapshots as account state changes.',
+      },
+      {
+        signature: 'abstract resolveToken(url: string): Promise<string | undefined>',
+        description: 'Resolve a credential only for the inference origin allowed by the provider.',
+        parameters: [{ name: 'url', description: 'actual request destination or API base URL.' }],
+        returns: 'stored token, or undefined for other origins or a signed-out account.',
+      },
+      {
+        signature: 'abstract rejectToken(token: string): Promise<void>',
+        description: 'Remove an inference-rejected token only while it still matches the stored login.',
+        parameters: [{ name: 'token', description: 'token captured by the rejected inference request.' }],
+        returns: 'after matching credentials are removed and the expiry notification is emitted.',
+      },
+      {
+        signature: 'abstract getPlatformSession(): Promise<PlatformSession | null>',
+        description: 'Read credentials for the configured Platform origin, bound to their issuing environment, and pair them with the account ID from the last successful profile read; no profile request is made.',
+        parameters: [],
+        returns: 'a Host-only snapshot, or null while signed out or when the credential changed during the read.',
+      },
+      {
+        signature: 'abstract getDeviceIdentity(): Promise<{ deviceId?: string; userId?: AccountUserId; osVersion: string }>',
+        description: 'Read existing login identity without creating a device or returning credentials.',
+        parameters: [],
+        returns: 'optional device/account identifiers and the provider\'s OS version string.',
+      },
+    ],
+  },
+  {
+    key: 'omegaLlmApiExtensions',
+    summary: 'Registry of independently owned top-level fields for official Omega requests.',
+    description: 'Registry of independently owned top-level fields for official Omega requests.',
+    methods: [
+      {
+        signature: 'register<K extends keyof OmegaLlmApiExtensionMap>( field: K, provider: OmegaLlmApiExtensionProvider<OmegaLlmApiExtensionMap[K]>, ): () => Promise<void>',
+        description: 'Register the sole provider of one top-level request field. Registration is effect-scoped.',
+        parameters: [{ name: 'field', description: 'declaration-merged field owned by the provider.' }, { name: 'provider', description: 'request-time field preparation and optional acceptance behavior.' }],
+        returns: 'disposer that releases the field.',
+      },
+      {
+        signature: 'async prepare(request: OmegaLlmApiExtensionRequest): Promise<PreparedOmegaLlmApiExtensions>',
+        description: 'Prepare every currently registered field from one immutable base request. Preparation failures reject before HTTP dispatch. Field values are cloned and frozen; providers retain no mutable alias to the outgoing request.',
+        parameters: [{ name: 'request', description: 'exact serialized request facts before extension fields.' }],
+        returns: 'detached fields and their idempotent joint acceptance transaction.',
       },
     ],
   },
@@ -3798,7 +3798,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     signature: '\'agent/assistant-stream\'(this: Scoped<Agent>, payload: { agent: Agent; frame: AssistantStreamFrame }): void',
     summary: 'Process-local assistant-stream publication.',
     description: 'Process-local assistant-stream publication. Chunk frames are transient; the loop appends one final v2 `assistant/message` or `assistant/attempt` with the same stream before a committed end frame.',
-    parameters: [{ name: 'payload', description: '.frame - one ordered start, chunk, or end publication. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
+    parameters: [{ name: 'payload', description: '.frame - one ordered start, chunk, or end publication. Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
   },
   {
     name: 'agent/created',
@@ -3806,7 +3806,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     signature: '\'agent/created\'(this: Scoped<Agent>, payload: { agent: Agent; source: SessionStartSource; signal?: AbortSignal }): undefined | Promise<undefined>',
     summary: 'An entered agent is ready for per-agent initialization after factory setup.',
     description: 'An entered agent is ready for per-agent initialization after factory setup. Listeners run in order and are awaited before creation resolves. AgentLoop holds queued input until all listeners finish. A throw or rejection fails creation and skips later listeners. Disposal retains the scope and session until dispatch settles; listeners must not await agent.whenIdle() or their own owner\'s disposal.',
-    parameters: [{ name: 'payload', description: '.signal - factory initialization cancellation signal, when provided. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
+    parameters: [{ name: 'payload', description: '.signal - factory initialization cancellation signal, when provided. Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
   },
   {
     name: 'agent/disposed',
@@ -3814,7 +3814,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     signature: '\'agent/disposed\'(this: Scoped<Agent>, payload: { agent: Agent }): void',
     summary: 'An agent left the registry; AgentLoop emits this after driver quiescence and scoped-registration unwind, but before session detachment.',
     description: 'An agent left the registry; AgentLoop emits this after driver quiescence and scoped-registration unwind, but before session detachment. Custom registry users own their driver-ordering contract.',
-    parameters: [{ name: 'payload', description: '.agent - the exact agent removed from the registry. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
+    parameters: [{ name: 'payload', description: '.agent - the exact agent removed from the registry. Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
   },
   {
     name: 'agent/error',
@@ -3822,7 +3822,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     signature: '\'agent/error\'(this: Scoped<Agent>, payload: { agent: Agent; turn: number; step: number; error: unknown }): void',
     summary: 'A step or turn errored.',
     description: 'A step or turn errored. The machine reports a failure here even when the error has no in-turn position for a durable record.',
-    parameters: [{ name: 'payload', description: '.error - the failure, verbatim. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
+    parameters: [{ name: 'payload', description: '.error - the failure, verbatim. Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
   },
   {
     name: 'agent/inbox/claimed',
@@ -3830,7 +3830,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     signature: '\'agent/inbox/claimed\'(this: Scoped<Agent>, payload: { agent: Agent; message: UserMessage; turn: number }): void',
     summary: 'One message left the inbox inside its open turn.',
     description: 'One message left the inbox inside its open turn. If the proposed step is rejected, the claimed message ends here: it is neither discarded nor re-emitted as a user/message, and the turn closes without a step.',
-    parameters: [{ name: 'payload', description: '.turn - the owning turn. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
+    parameters: [{ name: 'payload', description: '.turn - the owning turn. Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
   },
   {
     name: 'agent/inbox/discarded',
@@ -3838,7 +3838,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     signature: '\'agent/inbox/discarded\'(this: Scoped<Agent>, payload: { agent: Agent; message: UserMessage }): void',
     summary: 'One message was discarded from the live inbox.',
     description: 'One message was discarded from the live inbox.',
-    parameters: [{ name: 'payload', description: '.message - the discarded message. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
+    parameters: [{ name: 'payload', description: '.message - the discarded message. Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
   },
   {
     name: 'agent/inbox/inserted',
@@ -3846,7 +3846,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     signature: '\'agent/inbox/inserted\'(this: Scoped<Agent>, payload: { agent: Agent; message: UserMessage }): void',
     summary: 'One message entered the live inbox.',
     description: 'One message entered the live inbox.',
-    parameters: [{ name: 'payload', description: '.message - the inserted message. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
+    parameters: [{ name: 'payload', description: '.message - the inserted message. Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
   },
   {
     name: 'agent/pre-step',
@@ -3854,7 +3854,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     signature: '\'agent/pre-step\'(this: Scoped<Agent>, payload: { agent: Agent; messages: UserMessage[]; turn: number; step: number; signal: AbortSignal }, next: () => Promise<PreStepDecision>): Promise<PreStepDecision>',
     summary: 'Reject a proposed step or replace the messages that enter it.',
     description: 'Reject a proposed step or replace the messages that enter it. Calling `next()` preserves the current messages.',
-    parameters: [{ name: 'payload', description: '.signal - the current turn\'s cancellation signal. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
+    parameters: [{ name: 'payload', description: '.signal - the current turn\'s cancellation signal. Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
   },
   {
     name: 'agent/request',
@@ -3862,7 +3862,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     signature: '\'agent/request\'(this: Scoped<Agent>, payload: { agent: Agent; turn: number; step: number; signal: AbortSignal }, next: () => Promise<LlmCallConfig>): Promise<LlmCallConfig>',
     summary: 'Replace the frozen call configuration.',
     description: 'Replace the frozen call configuration. `await next()` yields the config the machine would use (agent options on the first request, the logged header afterwards); return a replacement to switch. On step admission, this runs after assembly and `step/start`, before the system prompt and accepted user batch are committed. Cancellation here or during subsequent `prepareCall()` resolution commits neither. The prepared call capability governs prompt admission. Model-visible content must use logged channels; this waterfall cannot mutate messages.',
-    parameters: [{ name: 'payload', description: '.signal - the current turn\'s explicit abort signal. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
+    parameters: [{ name: 'payload', description: '.signal - the current turn\'s explicit abort signal. Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
   },
   {
     name: 'agent/request-error',
@@ -3870,7 +3870,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     signature: '\'agent/request-error\'(this: Scoped<Agent>, payload: { agent: Agent; turn: number; step: number; provider: string; failure: LlmFailure; retryPolicy: ResolvedRetryPolicy | undefined; signal: AbortSignal }, next: () => Promise<RequestErrorAction>): Promise<RequestErrorAction>',
     summary: 'Handle one failed model-request attempt before the loop retries or closes its step.',
     description: 'Handle one failed model-request attempt before the loop retries or closes its step. A listener returns `{ kind: \'retry\' }` without calling `next()` when it owns recovery, or calls `next()` to delegate. The default `undefined` leaves the failure terminal.',
-    parameters: [{ name: 'payload', description: '.signal - the turn abort signal. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
+    parameters: [{ name: 'payload', description: '.signal - the turn abort signal. Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
   },
   {
     name: 'agent/status',
@@ -3878,7 +3878,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     signature: '\'agent/status\'(this: Scoped<Agent>, payload: { agent: Agent; status: AgentStatus }): void',
     summary: 'Agent status changed (`idle` ⇄ `running`).',
     description: 'Agent status changed (`idle` ⇄ `running`). A waking delivery enters `running` synchronously after reserving cancellation; `idle` means no driver remains scheduled or active.',
-    parameters: [{ name: 'payload', description: '.status - the status just entered (the transition\'s destination). Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
+    parameters: [{ name: 'payload', description: '.status - the status just entered (the transition\'s destination). Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
   },
   {
     name: 'agent/turn-stopping',
@@ -3886,7 +3886,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     signature: '\'agent/turn-stopping\'(this: Scoped<Agent>, payload: { agent: Agent; turn: number; signal: AbortSignal }): Promise<void> | void',
     summary: 'The turn is about to close: the model owes no response (no live tool calls, no fresh steering).',
     description: 'The turn is about to close: the model owes no response (no live tool calls, no fresh steering). Awaited before the boundary commits — a listener that objects steers (`agent.steer(...)`) and the machine re-reads its inbox: fresh steering runs another step, none closes the turn. Data decides, so listener order cannot change the outcome. The inverse control (stop a tool loop early) is data too: a tool result carrying `concludesTurn` ends the turn at its step. The conclusion never short-circuits already-submitted next-step work: same-step `additionalContexts` or racing steering still runs, and the turn closes only when that inbox drains.',
-    parameters: [{ name: 'payload', description: '.signal - the current turn\'s explicit abort signal. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
+    parameters: [{ name: 'payload', description: '.signal - the current turn\'s explicit abort signal. Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.' }],
   },
   {
     name: 'api-session/activity',
@@ -3941,7 +3941,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     mode: 'waterfall',
     signature: '\'approval/request\'( this: Scoped<Agent>, req: ApprovalRequestEvent, next: () => Promise<ApprovalOutcome>, ): Promise<ApprovalOutcome>',
     summary: 'Ask composed answerers for one decision.',
-    description: 'Ask composed answerers for one decision. Return an outcome to claim the request or call `next()` to delegate. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.',
+    description: 'Ask composed answerers for one decision. Return an outcome to claim the request or call `next()` to delegate. Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.',
     parameters: [{ name: 'req', description: 'pending approval request.' }],
   },
   {
@@ -4041,30 +4041,6 @@ export const EVENT_API: readonly EventApiEntry[] = [
     parameters: [{ name: 'ref', description: 'the reference whose stored value changed.' }],
   },
   {
-    name: 'deepseek-account/model-sign-in-required',
-    mode: 'emit',
-    signature: '\'deepseek-account/model-sign-in-required\'(): void',
-    summary: 'An account model request requires the user to sign in.',
-    description: 'An account model request requires the user to sign in.',
-    parameters: [],
-  },
-  {
-    name: 'deepseek-account/session-expired',
-    mode: 'emit',
-    signature: '\'deepseek-account/session-expired\'(): void',
-    summary: 'Server rejection removed the current account credential; this notification is not replayed.',
-    description: 'Server rejection removed the current account credential; this notification is not replayed.',
-    parameters: [],
-  },
-  {
-    name: 'deepseek-account/signed-out',
-    mode: 'emit',
-    signature: '\'deepseek-account/signed-out\'(): void',
-    summary: 'Local grant removal has completed.',
-    description: 'Local grant removal has completed.',
-    parameters: [],
-  },
-  {
     name: 'domain/changed',
     mode: 'emit',
     signature: '\'domain/changed\'(change: DomainChanged): void',
@@ -4115,9 +4091,9 @@ export const EVENT_API: readonly EventApiEntry[] = [
   {
     name: 'goal/changed',
     mode: 'emit',
-    signature: '\'goal/changed\'(this: import(\'@deepseek-ai/dsh-scope\').Scoped<Agent>, payload: { agent: Agent; change: GoalChanged }): void',
+    signature: '\'goal/changed\'(this: import(\'@omega-ai/dsh-scope\').Scoped<Agent>, payload: { agent: Agent; change: GoalChanged }): void',
     summary: 'Goal mutation accepted by one live agent.',
-    description: 'Goal mutation accepted by one live agent. The matching `goal/change` session event has already committed. Listener failures are contained. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.',
+    description: 'Goal mutation accepted by one live agent. The matching `goal/change` session event has already committed. Listener failures are contained. Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.',
     parameters: [{ name: 'payload', description: '.change - fresh current projection or clear tombstone.' }],
   },
   {
@@ -4151,6 +4127,30 @@ export const EVENT_API: readonly EventApiEntry[] = [
     summary: 'Waterfall around every streaming model call (retry, replay, routing).',
     description: 'Waterfall around every streaming model call (retry, replay, routing). Bound to the LlmRuntime; call `next()` to reach the resolved adapter\'s stream, or yield your own chunks to short-circuit.',
     parameters: [{ name: 'options', description: 'the full request. A LOOP-built request carries the process-local {@link markAgentLoopRequest} identity and arrives deep-frozen (mutation throws): its content is a pure function of the session log (the reconstructability Agent Note), so listeners read it, never rewrite it. Hand-built calls do not carry that marker; callers own their request inputs and must keep them unchanged until the stream settles.' }],
+  },
+  {
+    name: 'omega-account/model-sign-in-required',
+    mode: 'emit',
+    signature: '\'omega-account/model-sign-in-required\'(): void',
+    summary: 'An account model request requires the user to sign in.',
+    description: 'An account model request requires the user to sign in.',
+    parameters: [],
+  },
+  {
+    name: 'omega-account/session-expired',
+    mode: 'emit',
+    signature: '\'omega-account/session-expired\'(): void',
+    summary: 'Server rejection removed the current account credential; this notification is not replayed.',
+    description: 'Server rejection removed the current account credential; this notification is not replayed.',
+    parameters: [],
+  },
+  {
+    name: 'omega-account/signed-out',
+    mode: 'emit',
+    signature: '\'omega-account/signed-out\'(): void',
+    summary: 'Local grant removal has completed.',
+    description: 'Local grant removal has completed.',
+    parameters: [],
   },
   {
     name: 'permission-presets/catalog-changed',
@@ -4205,7 +4205,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     mode: 'emit',
     signature: '\'session/created\'(this: Scoped<Session>, session: Session): void',
     summary: 'Creation announcement during session publication.',
-    description: 'Creation announcement during session publication. A synchronous throw vetoes and rolls back with a paired disposal; detach requested during dispatch is deferred. A returned-promise rejection is logged but cannot retroactively veto this synchronous boundary. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only sessions entered through that agent\'s context.',
+    description: 'Creation announcement during session publication. A synchronous throw vetoes and rolls back with a paired disposal; detach requested during dispatch is deferred. A returned-promise rejection is logged but cannot retroactively veto this synchronous boundary. Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only sessions entered through that agent\'s context.',
     parameters: [{ name: 'session', description: 'the session just entered and announced.' }],
   },
   {
@@ -4213,7 +4213,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     mode: 'emit',
     signature: '\'session/disposed\'(this: Scoped<Session>, session: Session): void',
     summary: 'Emitted once when an announced session leaves the store, including publication rollback, but never for an entry whose creation announcement did not begin.',
-    description: 'Emitted once when an announced session leaves the store, including publication rollback, but never for an entry whose creation announcement did not begin. Listener failures are logged and contained. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`) reuses the owner scope.',
+    description: 'Emitted once when an announced session leaves the store, including publication rollback, but never for an entry whose creation announcement did not begin. Listener failures are logged and contained. Scope-filtered dispatch (`@omega-ai/dsh-scope`) reuses the owner scope.',
     parameters: [{ name: 'session', description: 'the session that is no longer live in the store.' }],
   },
   {
@@ -4221,7 +4221,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     mode: 'emit',
     signature: '\'session/event\'(this: Scoped<Session>, session: Session, event: SessionEvent): void',
     summary: 'Post-commit, fire-and-forget append feed.',
-    description: 'Post-commit, fire-and-forget append feed. The listener snapshot resolves before the log push, but callbacks run after it; observer failures are logged and contained without making the committed append fail. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only events from sessions entered through that agent\'s context.',
+    description: 'Post-commit, fire-and-forget append feed. The listener snapshot resolves before the log push, but callbacks run after it; observer failures are logged and contained without making the committed append fail. Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only events from sessions entered through that agent\'s context.',
     parameters: [{ name: 'session', description: 'the session whose log grew.' }, { name: 'event', description: 'the appended event, exactly as recorded.' }],
   },
   {
@@ -4229,7 +4229,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     mode: 'parallel',
     signature: '\'session/flush\'(this: Scoped<Session>, session: Session): Promise<void> | void',
     summary: 'Awaited parallel durability checkpoint: every listener runs and the caller awaits all of them, with no waterfall veto.',
-    description: 'Awaited parallel durability checkpoint: every listener runs and the caller awaits all of them, with no waterfall veto. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`) reuses the session\'s owner scope.',
+    description: 'Awaited parallel durability checkpoint: every listener runs and the caller awaits all of them, with no waterfall veto. Scope-filtered dispatch (`@omega-ai/dsh-scope`) reuses the session\'s owner scope.',
     parameters: [{ name: 'session', description: 'the session whose buffered events must reach durable storage.' }],
   },
   {
@@ -4285,7 +4285,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     mode: 'waterfall',
     signature: '\'system-prompt/assemble\'(this: Scoped<SystemPrompt>, assembly: PromptAssembly, context: AssembleContext, next: () => Promise<PromptAssembly>): Promise<PromptAssembly>',
     summary: 'Expert waterfall over the assembled sections, contexts, tools, and variables.',
-    description: 'Expert waterfall over the assembled sections, contexts, tools, and variables. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): scoped listeners receive only that scope\'s assemblies. The returned value is authoritative. A supplied signal controls only this explicit assembly request and must not be retained to control later turns. A registered complete section is restored after this waterfall, so listeners cannot add to or replace that scope\'s system prompt.',
+    description: 'Expert waterfall over the assembled sections, contexts, tools, and variables. Scope-filtered dispatch (`@omega-ai/dsh-scope`): scoped listeners receive only that scope\'s assemblies. The returned value is authoritative. A supplied signal controls only this explicit assembly request and must not be retained to control later turns. A registered complete section is restored after this waterfall, so listeners cannot add to or replace that scope\'s system prompt.',
     parameters: [{ name: 'assembly', description: 'the mutable assembly built from registered providers.' }, { name: 'context', description: 'the caller\'s per-assembly context.' }],
   },
   {
@@ -4309,7 +4309,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     mode: 'waterfall',
     signature: '\'tools/execute\'(this: Scoped<ToolRuntime>, exec: ToolDispatchExecution, next: () => Promise<ToolExecutionResult>): Promise<ToolExecutionResult>',
     summary: 'Around-dispatch waterfall for timeout, retry, or metrics.',
-    description: 'Around-dispatch waterfall for timeout, retry, or metrics. `next()` returns a normalized result; wrappers may change only `exec.signal`, while call identity remains immutable. The registry re-fuses the original caller signal before the body, so replacement cannot detach caller cancellation; wrappers must still restore their signal and reach quiescence. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent\'s calls.',
+    description: 'Around-dispatch waterfall for timeout, retry, or metrics. `next()` returns a normalized result; wrappers may change only `exec.signal`, while call identity remains immutable. The registry re-fuses the original caller signal before the body, so replacement cannot detach caller cancellation; wrappers must still restore their signal and reach quiescence. Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent\'s calls.',
     parameters: [{ name: 'exec', description: 'the allowed call about to dispatch (name, parsed arguments, caller agent, signal).' }],
   },
   {
@@ -4317,7 +4317,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     mode: 'waterfall',
     signature: '\'tools/post-execute\'(this: Scoped<ToolRuntime>, exec: ToolExecution, result: Readonly<ToolExecutionResult>, next: () => Promise<PostToolDecision>): Promise<PostToolDecision>',
     summary: 'Accept, replace, enrich, or block a normalized dispatch result.',
-    description: 'Accept, replace, enrich, or block a normalized dispatch result. `next()` accepts it unchanged; thrown tools still reach this waterfall as errors. Async listeners must observe `exec.signal`; after they settle, caller cancellation replaces only a successful accepted outcome with the code selected by whether the tool body was invoked. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent\'s calls.',
+    description: 'Accept, replace, enrich, or block a normalized dispatch result. `next()` accepts it unchanged; thrown tools still reach this waterfall as errors. Async listeners must observe `exec.signal`; after they settle, caller cancellation replaces only a successful accepted outcome with the code selected by whether the tool body was invoked. Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent\'s calls.',
     parameters: [{ name: 'exec', description: 'the call that just ran (name, parsed arguments, caller agent).' }, { name: 'result', description: 'the dispatch outcome a listener may accept, replace, or block.' }],
   },
   {
@@ -4325,7 +4325,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     mode: 'waterfall',
     signature: '\'tools/pre-execute\'(this: Scoped<ToolRuntime>, exec: ToolExecution, next: () => Promise<PreToolDecision>): Promise<PreToolDecision>',
     summary: 'Allow, deny, cancel, or ask before dispatch.',
-    description: 'Allow, deny, cancel, or ask before dispatch. `next()` delegates to allow; `cancel` selects the canonical pre-dispatch cancellation result, and missing approval support turns `ask` into denial. Async gates must observe `exec.signal`; the registry rechecks cancellation after they settle but never abandons their promise. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent\'s calls.',
+    description: 'Allow, deny, cancel, or ask before dispatch. `next()` delegates to allow; `cancel` selects the canonical pre-dispatch cancellation result, and missing approval support turns `ask` into denial. Async gates must observe `exec.signal`; the registry rechecks cancellation after they settle but never abandons their promise. Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent\'s calls.',
     parameters: [{ name: 'exec', description: 'the pending call (name, parsed arguments, caller agent).' }],
   },
   {
@@ -4333,7 +4333,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     mode: 'waterfall',
     signature: '\'tools/ptc-dispatch-log\'(this: Scoped<ToolRuntime>, dispatch: PtcDispatchLog, next: () => Promise<ContentBlock[]>): Promise<ContentBlock[]>',
     summary: 'Allow a listener to replace content in the DURABLE LOG COPY of one `run_code` sub-dispatch outcome before the bridge appends its `tool/ptc-dispatch` event.',
-    description: 'Allow a listener to replace content in the DURABLE LOG COPY of one `run_code` sub-dispatch outcome before the bridge appends its `tool/ptc-dispatch` event. `next()` keeps the content unchanged; a listener may return replacement blocks (e.g. the spill policy\'s preview + locator for an oversized text result). Only the logged copy is affected — the program already received the complete value, and the model sees neither. A throwing listener is contained: the bridge falls back to logging the original settled content. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent\'s dispatches.',
+    description: 'Allow a listener to replace content in the DURABLE LOG COPY of one `run_code` sub-dispatch outcome before the bridge appends its `tool/ptc-dispatch` event. `next()` keeps the content unchanged; a listener may return replacement blocks (e.g. the spill policy\'s preview + locator for an oversized text result). Only the logged copy is affected — the program already received the complete value, and the model sees neither. A throwing listener is contained: the bridge falls back to logging the original settled content. Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent\'s dispatches.',
     parameters: [{ name: 'dispatch', description: 'the parent execution, sub-call identity, and the settled content to log.' }],
   },
   {
@@ -4341,7 +4341,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     mode: 'emit',
     signature: '\'tools/result\'(this: Scoped<ToolRuntime>, exec: Readonly<ToolExecution>, result: Readonly<ToolExecutionResult>): undefined',
     summary: 'Observe the frozen, lossless-JSON final outcome.',
-    description: 'Observe the frozen, lossless-JSON final outcome. Listener failures are contained. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): keyed by `exec.agent`.',
+    description: 'Observe the frozen, lossless-JSON final outcome. Listener failures are contained. Scope-filtered dispatch (`@omega-ai/dsh-scope`): keyed by `exec.agent`.',
     parameters: [{ name: 'exec', description: 'the execution object that traversed the pipeline.' }, { name: 'result', description: 'a deep-frozen snapshot of the final returned result.' }],
   },
   {
@@ -4349,7 +4349,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
     mode: 'waterfall',
     signature: '\'user-questions/request\'( this: Scoped<Agent>, request: AskUserQuestionRequestEvent, next: () => Promise<AskUserQuestionAnswer>, ): Promise<AskUserQuestionAnswer>',
     summary: 'Ask composed answerers for structured user input.',
-    description: 'Ask composed answerers for structured user input. Return an answer to claim the request or call `next()` to delegate. Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.',
+    description: 'Ask composed answerers for structured user input. Return an answer to claim the request or call `next()` to delegate. Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.',
     parameters: [{ name: 'request', description: 'pending user-question request.' }],
   },
   {
@@ -5063,22 +5063,6 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'DailyScheduleRecord',
     declaration: 'export interface DailyScheduleRecord {\n    readonly id: ScheduleId;\n    readonly kind: \'daily\';\n    readonly title: string;\n    readonly prompt: string;\n    readonly time: string;\n    readonly timeZone: string;\n    readonly scheduledAt: string;\n}',
-  },
-  {
-    name: 'DeepSeekLlmApiExtensionMap',
-    declaration: 'export interface DeepSeekLlmApiExtensionMap {\n}',
-  },
-  {
-    name: 'DeepSeekLlmApiExtensionProvider',
-    declaration: 'export interface DeepSeekLlmApiExtensionProvider<T extends DeepSeekLlmApiJson> {\n    prepare(request: DeepSeekLlmApiExtensionRequest): PreparedDeepSeekLlmApiExtension<T> | undefined | Promise<PreparedDeepSeekLlmApiExtension<T> | undefined>;\n}',
-  },
-  {
-    name: 'DeepSeekLlmApiExtensionRequest',
-    declaration: 'export interface DeepSeekLlmApiExtensionRequest {\n    readonly body: Readonly<Record<string, DeepSeekLlmApiJson>>;\n    readonly sessionId?: string;\n    readonly purpose?: \'compaction\' | \'session-title\';\n    readonly signal: AbortSignal;\n}',
-  },
-  {
-    name: 'DeepSeekLlmApiJson',
-    declaration: 'export type DeepSeekLlmApiJson = null | boolean | number | string | DeepSeekLlmApiJson[] | {\n    [key: string]: DeepSeekLlmApiJson;\n};',
   },
   {
     name: 'DeliveryRetentionBounds',
@@ -5977,6 +5961,22 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface OfficeToPdfResult {\n    readonly pdf: Uint8Array;\n    readonly missingFonts: string[];\n    readonly cacheKey: OfficeToPdfKey;\n    readonly generation: OfficeToPdfGeneration;\n}',
   },
   {
+    name: 'OmegaLlmApiExtensionMap',
+    declaration: 'export interface OmegaLlmApiExtensionMap {\n}',
+  },
+  {
+    name: 'OmegaLlmApiExtensionProvider',
+    declaration: 'export interface OmegaLlmApiExtensionProvider<T extends OmegaLlmApiJson> {\n    prepare(request: OmegaLlmApiExtensionRequest): PreparedOmegaLlmApiExtension<T> | undefined | Promise<PreparedOmegaLlmApiExtension<T> | undefined>;\n}',
+  },
+  {
+    name: 'OmegaLlmApiExtensionRequest',
+    declaration: 'export interface OmegaLlmApiExtensionRequest {\n    readonly body: Readonly<Record<string, OmegaLlmApiJson>>;\n    readonly sessionId?: string;\n    readonly purpose?: \'compaction\' | \'session-title\';\n    readonly signal: AbortSignal;\n}',
+  },
+  {
+    name: 'OmegaLlmApiJson',
+    declaration: 'export type OmegaLlmApiJson = null | boolean | number | string | OmegaLlmApiJson[] | {\n    [key: string]: OmegaLlmApiJson;\n};',
+  },
+  {
     name: 'OnboardingPage',
     declaration: 'export type OnboardingPage = \'onboarding_welcome\' | \'onboarding_recharge\' | \'onboarding_use_case\' | \'onboarding_process\';',
   },
@@ -6105,16 +6105,16 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface PreparedAdapterCall {\n    readonly model: LlmResolvedModelInfo;\n    stream(options: GenerateOptions): AsyncIterable<StreamChunk>;\n}',
   },
   {
-    name: 'PreparedDeepSeekLlmApiExtension',
-    declaration: 'export interface PreparedDeepSeekLlmApiExtension<T extends DeepSeekLlmApiJson> {\n    readonly value: T;\n    accept?(): void | Promise<void>;\n}',
-  },
-  {
-    name: 'PreparedDeepSeekLlmApiExtensions',
-    declaration: 'export interface PreparedDeepSeekLlmApiExtensions {\n    readonly fields: Readonly<Partial<DeepSeekLlmApiExtensionMap>>;\n    accept(): Promise<void>;\n}',
-  },
-  {
     name: 'PreparedLlmCall',
     declaration: 'export interface PreparedLlmCall {\n    readonly config: LlmCallConfig;\n    readonly retryPolicy: ResolvedRetryPolicy;\n    readonly context?: LlmModelContext;\n    readonly inputModalities?: readonly ModelModality[];\n    readonly systemPromptUpdate?: SystemPromptUpdate;\n    readonly toolUpdate?: ToolUpdate;\n    readonly adapterDefaults: LlmCallConfigAdapterDefaults;\n    stream(options: GenerateOptions): AsyncIterable<StreamChunk>;\n}',
+  },
+  {
+    name: 'PreparedOmegaLlmApiExtension',
+    declaration: 'export interface PreparedOmegaLlmApiExtension<T extends OmegaLlmApiJson> {\n    readonly value: T;\n    accept?(): void | Promise<void>;\n}',
+  },
+  {
+    name: 'PreparedOmegaLlmApiExtensions',
+    declaration: 'export interface PreparedOmegaLlmApiExtensions {\n    readonly fields: Readonly<Partial<OmegaLlmApiExtensionMap>>;\n    accept(): Promise<void>;\n}',
   },
   {
     name: 'PreparedReferencedMessage',

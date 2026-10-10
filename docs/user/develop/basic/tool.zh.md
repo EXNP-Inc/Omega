@@ -9,8 +9,8 @@
 将 `scratch-plugin/src/my-plugin.ts` 替换为：
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
-import { defineTool } from '@deepseek-ai/dsh-tools'
+import type { Context } from '@omega-ai/cordis'
+import { defineTool } from '@omega-ai/dsh-tools'
 
 export const name = 'greet-tool'
 export const inject = ['tools']
@@ -43,7 +43,7 @@ export function apply(ctx: Context) {
 pnpm dsh web --patch ./scratch-plugin/cordis.yml
 ```
 
-打开 `http://127.0.0.1:3080`，然后输入：`Use the greet tool to greet Ada.` 模型可以调用 `greet`，并收到 `Hello, Ada!` 这一工具结果。
+打开 `http://127.0.0.1:4080`，然后输入：`Use the greet tool to greet Ada.` 模型可以调用 `greet`，并收到 `Hello, Ada!` 这一工具结果。
 
 ## 下一步
 

@@ -11,9 +11,9 @@ from pathlib import Path
 
 import pytest
 
-from deepseek_harness import DeepSeekHarness, HarnessClient, HarnessConfig
-from deepseek_harness.errors import JsonRpcError, TransportClosedError
-from deepseek_harness_runtime import RUNTIME_MODE_ENV_VAR, resolve_bundled_launch_args
+from omega_harness import OmegaHarness, HarnessClient, HarnessConfig
+from omega_harness.errors import JsonRpcError, TransportClosedError
+from omega_harness_runtime import RUNTIME_MODE_ENV_VAR, resolve_bundled_launch_args
 
 _MODES = ("exe", "node")
 
@@ -35,8 +35,8 @@ def _client(tmp_path: Path, mode: str, monkeypatch: pytest.MonkeyPatch, *patches
             cwd=str(tmp_path),
             env={
                 # The lazily mounted adapter requires a key even without a model call.
-                "DEEPSEEK_API_KEY": "sk-dummy-for-boot",
-                "DEEPSEEK_BASE_URL": "http://127.0.0.1:9",
+                "OMEGA_API_KEY": "sk-dummy-for-boot",
+                "OMEGA_BASE_URL": "http://127.0.0.1:9",
                 "DSH_PERMISSION_MODE": "danger-full-access",
                 "DSH_TELEMETRY_DISABLED": "1",
             },
@@ -50,14 +50,14 @@ def test_bundled_runtime_boots_the_sdk_profile(
     tmp_path: Path, mode: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     with _client(tmp_path, mode, monkeypatch) as client:
-        init = client.initialize(provider="deepseek-official", cwd=str(tmp_path), model="deepseek-v4-pro")
+        init = client.initialize(provider="omega-official", cwd=str(tmp_path), model="omega-v4-pro")
 
     assert init.serverInfo is not None
-    assert init.serverInfo.name == "deepseek-harness-sdk-runtime"
+    assert init.serverInfo.name == "omega-harness-sdk-runtime"
     profile = json.loads((tmp_path / "home" / "profiles" / "sdk" / "package.json").read_text())
     assert profile["dsh"]["profile"]["bundles"] == [
-        "@deepseek-ai/dsh-base",
-        "@deepseek-ai/dsh-sdk-app",
+        "@omega-ai/dsh-base",
+        "@omega-ai/dsh-sdk-app",
     ]
 
 
@@ -71,8 +71,8 @@ def test_python_sdk_applies_an_ordered_profile_patch(
         "id": "system-prompt",
         "config": {"persona": "Python SDK ordered patch marker."},
     }]))
-    harness = DeepSeekHarness(
-        model="deepseek-v4-pro",
+    harness = OmegaHarness(
+        model="omega-v4-pro",
         cwd=str(tmp_path),
         dsh_home=str(tmp_path / "home"),
         patches=(str(patch),),
@@ -92,15 +92,15 @@ def test_bundled_runtime_surfaces_unbundled_plugin_failure(
 ) -> None:
     patch = tmp_path / "missing.patch.yml"
     patch.write_text(json.dumps([{
-        "insert": [{"id": "missing", "name": "@deepseek-ai/dsh-does-not-exist"}],
+        "insert": [{"id": "missing", "name": "@omega-ai/dsh-does-not-exist"}],
     }]))
 
     client = _client(tmp_path, mode, monkeypatch, patch)
     client.start()
     try:
         with pytest.raises((JsonRpcError, TransportClosedError, TimeoutError)) as excinfo:
-            client.initialize(provider="deepseek-official", cwd=str(tmp_path), model="deepseek-v4-pro")
+            client.initialize(provider="omega-official", cwd=str(tmp_path), model="omega-v4-pro")
     finally:
         client.close()
 
-    assert "@deepseek-ai/dsh-does-not-exist" in str(excinfo.value)
+    assert "@omega-ai/dsh-does-not-exist" in str(excinfo.value)

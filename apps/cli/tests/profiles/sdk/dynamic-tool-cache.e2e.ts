@@ -4,9 +4,9 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { TokenUsage } from '@deepseek-ai/dsh-llm'
-import { DeepSeekHarness } from '@deepseek-ai/dsh-sdk-client'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
+import type { TokenUsage } from '@omega-ai/dsh-llm'
+import { OmegaHarness } from '@omega-ai/dsh-sdk-client'
+import type { SessionEvent } from '@omega-ai/dsh-session'
 import { describe, expect, it, onTestFinished } from 'vitest'
 
 const fixturePath = fileURLToPath(new URL('./fixtures/dynamic-tool-cache.mjs', import.meta.url))
@@ -40,7 +40,7 @@ function totalInput(usage: TokenUsage): number {
   return usage.inputTokens + (usage.cacheReadTokens ?? 0) + (usage.cacheWriteTokens ?? 0)
 }
 
-describe.skipIf(!process.env.DEEPSEEK_API_KEY)('SDK native tool updates with real DeepSeek', () => {
+describe.skipIf(!process.env.OMEGA_API_KEY)('SDK native tool updates with real Omega', () => {
   it.each([false, true])('keeps the preceding conversation cached after a tool addition (prompt update: %s)', { retry: 0 }, async (updatePrompt) => {
     const root = await mkdtemp(join(tmpdir(), 'dsh-sdk-tool-cache-'))
     onTestFinished(async () => { await rm(root, { recursive: true, force: true }) })
@@ -49,19 +49,19 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('SDK native tool updates with rea
     const callsPath = join(root, 'calls.txt')
     const patch = join(root, 'dynamic-tool-cache.patch.yml')
     await writeFile(patch, JSON.stringify([
-      { id: 'llm-deepseek', config: {
-        apiKeyEnv: 'DEEPSEEK_API_KEY', thinking: 'disabled', maxTokens: 1024,
+      { id: 'llm-omega', config: {
+        apiKeyEnv: 'OMEGA_API_KEY', thinking: 'disabled', maxTokens: 1024,
         retryPolicy: { maxRetries: 0 },
-        models: [{ id: 'deepseek-flash', systemPromptUpdate: 'in-history', toolUpdate: 'addition-only' }],
+        models: [{ id: 'omega-flash', systemPromptUpdate: 'in-history', toolUpdate: 'addition-only' }],
       } },
       { id: 'tools', config: { mode: 'native' } },
-      { id: 'session-log-deepseek', disabled: true },
-      { id: 'plugin-package-inventory-deepseek', disabled: true },
+      { id: 'session-log-omega', disabled: true },
+      { id: 'plugin-package-inventory-omega', disabled: true },
       { insert: [{ id: 'sdk-dynamic-tool-cache-fixture', name: fixturePath, config: { evidencePath, callsPath, sampleLabel, updatePrompt } }] },
     ]))
-    const harness = new DeepSeekHarness({
+    const harness = new OmegaHarness({
       dshBin, profile: 'sdk', patches: [patch], dshHome: join(root, 'home'),
-      cwd: root, processCwd: root, provider: 'deepseek-official', model: 'deepseek-flash',
+      cwd: root, processCwd: root, provider: 'omega-official', model: 'omega-flash',
       env: { ...process.env, DSH_TELEMETRY_DISABLED: '1', DSH_PERMISSION_MODE: 'danger-full-access' },
       initializeTimeoutMs: 30_000,
     })

@@ -51,7 +51,7 @@ describe('filterOptions', () => {
   const alpha = { name: 'alpha', label: 'Alpha provider' }
   const beta = { name: 'beta', label: 'Beta provider' }
   const grouped: SelectOption[] = [
-    { id: 'a-deep', label: 'DeepSeek Flash', group: alpha },
+    { id: 'a-deep', label: 'Omega Flash', group: alpha },
     { id: 'b-flash', label: 'Flash Beta', group: beta },
     { id: 'a-prefix', label: 'Flash Lite', group: alpha, active: true },
   ]

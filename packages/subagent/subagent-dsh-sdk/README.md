@@ -3,13 +3,13 @@ description: "The out-of-process SDK subagent backend for users and maintainers 
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-subagent-dsh-sdk
+# @omega-ai/dsh-subagent-dsh-sdk
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-subagent-dsh-sdk` runs each delegated task in a fresh DeepSeek Harness subprocess with its own profile, session, model route, and tools. The parent provides the task and working directory, while each child uses its configured runtime and remains isolated from the parent conversation. The parent receives the child's final assistant text or a safe error; intermediate messages and tool traffic stay inside the child process. Choose this backend when delegation needs a complete Harness runtime rather than shared in-process state, and accept the cost of starting a new process for every run.
+`dsh-subagent-dsh-sdk` runs each delegated task in a fresh Omega subprocess with its own profile, session, model route, and tools. The parent provides the task and working directory, while each child uses its configured runtime and remains isolated from the parent conversation. The parent receives the child's final assistant text or a safe error; intermediate messages and tool traffic stay inside the child process. Choose this backend when delegation needs a complete Harness runtime rather than shared in-process state, and accept the cost of starting a new process for every run.
 
 ## Table of Contents
 
@@ -43,21 +43,21 @@ The provider advertises `agentOptions: true`, with `outputSchema`/`depthLimit`/`
 | `patches` | `[]` | Ordered per-launch profile patch files, resolved and checked at plugin load |
 | `dshHome` | required | Absolute isolated Harness home for every nested child process |
 | `cwd` | parent session cwd | Working-directory override for the child process and its SDK session |
-| `provider` | `deepseek-official` | Provider route sent in the child's `initialize` |
-| `model` | `deepseek-v4-flash` | Model sent in the child's `initialize` |
+| `provider` | `omega-official` | Provider route sent in the child's `initialize` |
+| `model` | `omega-v4-flash` | Model sent in the child's `initialize` |
 | `maxTokens` | adapter/provider route default | Per-request output-token cap sent in the child's `initialize` |
 | `env` | `{}` | Explicit child environment layered over the credential-scrubbed parent environment |
 | `shutdownTimeoutMs` | `1000` | Bound on the protocol `shutdown` exchange during dispose |
 | `disposeEofGraceMs` | `6000` | Grace after stdin EOF before platform termination |
 | `disposeGraceMs` | `3000` | Exit-confirmation grace after termination |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-subagent-dsh-sdk) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-subagent-dsh-sdk) is the exhaustive source for every accepted field and its JSDoc.
 
 Request `agentOptions` override `provider`, `model`, and `maxTokens` independently. `reasoningEffort` has no provider-instance default: an omitted request leaves it absent so the selected child model resolves its own default. The model-facing subagent tool can select provider/model/reasoning per call; `maxTokens` remains deployment-controlled through tool config or this provider's default.
 
 ```yaml
 - id: subagent-dsh-sdk
-  name: '@deepseek-ai/dsh-subagent-dsh-sdk'
+  name: '@omega-ai/dsh-subagent-dsh-sdk'
   config:
     providerName: dsh-sdk
     profile: sdk
@@ -65,9 +65,9 @@ Request `agentOptions` override `provider`, `model`, and `maxTokens` independent
     dshHome: !!js dshHomePath('children')
     maxTokens: 49152
     env:
-      DEEPSEEK_API_KEY: !!js process.env.DEEPSEEK_API_KEY
+      OMEGA_API_KEY: !!js process.env.OMEGA_API_KEY
 - id: tool-subagent
-  name: '@deepseek-ai/dsh-tool-subagent'
+  name: '@omega-ai/dsh-tool-subagent'
   config: { provider: dsh-sdk, toolName: subagent, maxDepth: 'provider-managed' }
 ```
 
@@ -127,7 +127,7 @@ Read these pages when the package-level contract is not enough. They move from t
 - [dsh-subagent seam](../subagent/README.md) — the registry and start API this provider registers on.
 - [ACP subagent backend](../subagent-acp/README.md) — the sibling out-of-process provider over the Agent Client Protocol.
 - [TypeScript SDK client](../../sdk/client/README.md) — the stdio JSON-RPC client this backend drives the child through.
-- [Generated configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-subagent-dsh-sdk) — every accepted config field and its source declaration.
+- [Generated configuration catalog](../../../docs/config-catalog.md#omega-aidsh-subagent-dsh-sdk) — every accepted config field and its source declaration.
 
 -----
 

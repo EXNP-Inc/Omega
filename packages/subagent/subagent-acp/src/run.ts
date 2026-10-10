@@ -2,7 +2,7 @@
  * Fresh-process ACP subagent client. Drives one child session and owns cancellation and
  * quiescent disposal.
  *
- * @module @deepseek-ai/dsh-subagent-acp/run
+ * @module @omega-ai/dsh-subagent-acp/run
  */
 
 import { randomUUID } from 'node:crypto'
@@ -16,12 +16,12 @@ import {
   type StopReason,
   type ToolKind,
 } from '@agentclientprotocol/sdk'
-import type { ContentBlock } from '@deepseek-ai/dsh-llm'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import { AssistantOutputFold, settleRunResult, subprocessRunHandle } from '@deepseek-ai/dsh-subagent'
-import type { SubagentResult, SubagentRun, SubagentStartRequest, SubagentStopReason } from '@deepseek-ai/dsh-subagent'
-import type { SubprocessHandle, SubprocessOutcome, SubprocessSpawnSpec } from '@deepseek-ai/dsh-subprocess'
+import type { ContentBlock } from '@omega-ai/dsh-llm'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { SessionId } from '@omega-ai/dsh-session'
+import { AssistantOutputFold, settleRunResult, subprocessRunHandle } from '@omega-ai/dsh-subagent'
+import type { SubagentResult, SubagentRun, SubagentStartRequest, SubagentStopReason } from '@omega-ai/dsh-subagent'
+import type { SubprocessHandle, SubprocessOutcome, SubprocessSpawnSpec } from '@omega-ai/dsh-subprocess'
 
 /** Fixed response to child permission requests: reject by default, or select the first allow option. */
 export type PermissionPolicy = 'allow' | 'reject'
@@ -42,7 +42,7 @@ export interface AcpRunSpec {
   permission: PermissionPolicy
   /**
    * Extra environment variables to ADD for the child (e.g. the child harness's
-   * `DEEPSEEK_API_KEY`). Merged on top of the subprocess seam's scrubbed
+   * `OMEGA_API_KEY`). Merged on top of the subprocess seam's scrubbed
    * parent env. A value here is forwarded even if its name matches the
    * credential-scrub pattern (an explicit opt-in for the child's own creds).
    * Explicit `DSH_*` entries are deployment-owned facts for the child harness
@@ -418,7 +418,7 @@ export async function startAcpRun(request: SubagentStartRequest, spec: AcpRunSpe
   const flags = { cancelled: false }
   let latestPermission: AcpPermissionDecision | undefined
 
-  const clientApp = createAcpClientApp({ name: 'deepseek-harness-subagent-acp' })
+  const clientApp = createAcpClientApp({ name: 'omega-harness-subagent-acp' })
     .onNotification(methods.client.session.update, ({ params }) => {
       const update = params.update
       if (update.sessionUpdate === 'agent_message_chunk') {

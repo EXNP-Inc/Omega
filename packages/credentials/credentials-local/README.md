@@ -3,7 +3,7 @@ description: "The file-backed credentials provider for users and maintainers cho
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-credentials-local
+# @omega-ai/dsh-credentials-local
 
 English | [中文](README.zh.md)
 
@@ -34,7 +34,7 @@ Use it as the default local store: the product's base composition loads it, and 
 ### Setting it up
 
 ```yaml
-- name: '@deepseek-ai/dsh-credentials-local'
+- name: '@omega-ai/dsh-credentials-local'
   config:
     path: /absolute/path/to/.credentials.yaml
 ```
@@ -46,19 +46,19 @@ Use it as the default local store: the product's base composition loads it, and 
 | `watch` | `true` | Reload the file automatically when it changes on disk |
 | `debounceMs` | `100` | Wait this long after a change before reloading, in milliseconds |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-credentials-local) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-credentials-local) is the exhaustive source for every accepted field and its JSDoc.
 
 ### Storing and removing keys
 
 Save a key with `set`, remove it with `unset`, and check whether a key is configured with `describe` — the same operations the credential API provides:
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
-import { credentialRef } from '@deepseek-ai/dsh-credentials'
+import type { Context } from '@omega-ai/cordis'
+import { credentialRef } from '@omega-ai/dsh-credentials'
 
 declare const ctx: Context
 
-const ref = credentialRef('DEEPSEEK_API_KEY')
+const ref = credentialRef('OMEGA_API_KEY')
 await ctx.credentials.set(ref, 'sk-…')          // save
 await ctx.credentials.describe(ref)             // { configured, source?, writable } — never the value
 await ctx.credentials.unset(ref)                // remove
@@ -72,12 +72,12 @@ Keys are resolved in one fixed order — the first place that has a value wins:
 
 | Place | Writable? | Wins over |
 |---|---|---|
-| The environment you launched in (`DEEPSEEK_API_KEY=… dsh`) | no | everything |
+| The environment you launched in (`OMEGA_API_KEY=… dsh`) | no | everything |
 | The stored file | yes (`set`/`unset`) | both `.env` files |
 | Your project's `.env` (`<invocation cwd>/.env`) | not here | your home `.env` |
 | Your home `.env` (`$DSH_HOME/.env`) | not here | nothing |
 
-The launching environment wins because a per-run override — `DEEPSEEK_API_KEY=… dsh`, a CI secret, a container `-e` — is this run's explicit intent; it cannot be edited from inside the product, so it is reported read-only and writes to it are refused. Everything else loses to the stored file, which is why a key you save takes effect immediately even when an older key sits in a `.env`; those two `.env` layers resolve when nothing is stored. The environment layer is the launcher's snapshot taken at launch ([environment snapshot](../../util/launch-environment/README.md)), so a variable exported after startup is not seen.
+The launching environment wins because a per-run override — `OMEGA_API_KEY=… dsh`, a CI secret, a container `-e` — is this run's explicit intent; it cannot be edited from inside the product, so it is reported read-only and writes to it are refused. Everything else loses to the stored file, which is why a key you save takes effect immediately even when an older key sits in a `.env`; those two `.env` layers resolve when nothing is stored. The environment layer is the launcher's snapshot taken at launch ([environment snapshot](../../util/launch-environment/README.md)), so a variable exported after startup is not seen.
 
 ### The credential file
 
@@ -87,7 +87,7 @@ A versioned YAML document with one section per key space, and nothing else:
 version: 1
 
 refs:
-  DEEPSEEK_API_KEY: sk-…
+  OMEGA_API_KEY: sk-…
   OPENAI_API_KEY: sk-…
 
 records:
@@ -116,7 +116,7 @@ Only your OS user can read the file: the product creates it with owner-only perm
 
 ### What can go wrong
 
-- **A key the launching environment supplies is read-only** — `DEEPSEEK_API_KEY=… dsh` wins for this run; saving or removing it is refused. Clear the variable in the launching shell first.
+- **A key the launching environment supplies is read-only** — `OMEGA_API_KEY=… dsh` wins for this run; saving or removing it is refused. Clear the variable in the launching shell first.
 - **An empty value cannot be saved** — storing an empty string is refused; remove the key instead.
 - **The store refuses to load a file it cannot trust** — a file any other user can read, malformed YAML, or an unreachable path fails at startup; on a live reload the last good content keeps serving with a warning.
 - **Changes made at the same time are both kept** — if you edit the file while the product writes, your change is folded in rather than overwritten.

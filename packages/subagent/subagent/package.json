@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-subagent",
+  "name": "@omega-ai/dsh-subagent",
   "description": "Abstract subagent seam (ctx.subagents): named-provider registry for delegating to child agents",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/subagent/subagent"
   },
   "type": "module",
@@ -48,89 +48,89 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/dsh-chunked-list": "workspace:*",
-    "@deepseek-ai/dsh-util-values": "workspace:*",
-    "@deepseek-ai/schemastery": "workspace:~",
+    "@omega-ai/dsh-brand": "workspace:*",
+    "@omega-ai/dsh-chunked-list": "workspace:*",
+    "@omega-ai/dsh-util-values": "workspace:*",
+    "@omega-ai/schemastery": "workspace:~",
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-agent-preset-registry": "workspace:*",
-    "@deepseek-ai/dsh-attachment": "workspace:*",
-    "@deepseek-ai/dsh-jobs": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-sandbox": "workspace:*",
-    "@deepseek-ai/dsh-sandbox-policy": "workspace:*",
-    "@deepseek-ai/dsh-scope": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-persistence": "workspace:*",
-    "@deepseek-ai/dsh-session-projection": "workspace:*",
-    "@deepseek-ai/dsh-session-query": "workspace:*",
-    "@deepseek-ai/dsh-system-prompt": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*",
-    "@deepseek-ai/dsh-user-approval": "workspace:*",
-    "@deepseek-ai/dsh-util-time": "workspace:*",
-    "@deepseek-ai/dsh-permission-presets": "workspace:*",
-    "@deepseek-ai/dsh-workspace": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-agent-preset-registry": "workspace:*",
+    "@omega-ai/dsh-attachment": "workspace:*",
+    "@omega-ai/dsh-jobs": "workspace:*",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-sandbox": "workspace:*",
+    "@omega-ai/dsh-sandbox-policy": "workspace:*",
+    "@omega-ai/dsh-scope": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-session-persistence": "workspace:*",
+    "@omega-ai/dsh-session-projection": "workspace:*",
+    "@omega-ai/dsh-session-query": "workspace:*",
+    "@omega-ai/dsh-system-prompt": "workspace:*",
+    "@omega-ai/dsh-tools": "workspace:*",
+    "@omega-ai/dsh-typert-protocol": "workspace:*",
+    "@omega-ai/dsh-user-approval": "workspace:*",
+    "@omega-ai/dsh-util-time": "workspace:*",
+    "@omega-ai/dsh-permission-presets": "workspace:*",
+    "@omega-ai/dsh-workspace": "workspace:*"
   },
   "peerDependenciesMeta": {
-    "@deepseek-ai/dsh-agent-preset-registry": {
+    "@omega-ai/dsh-agent-preset-registry": {
       "optional": true
     },
-    "@deepseek-ai/dsh-permission-presets": {
+    "@omega-ai/dsh-permission-presets": {
       "optional": true
     },
-    "@deepseek-ai/dsh-sandbox": {
+    "@omega-ai/dsh-sandbox": {
       "optional": true
     },
-    "@deepseek-ai/dsh-sandbox-policy": {
+    "@omega-ai/dsh-sandbox-policy": {
       "optional": true
     },
-    "@deepseek-ai/dsh-session-persistence": {
+    "@omega-ai/dsh-session-persistence": {
       "optional": true
     },
-    "@deepseek-ai/dsh-session-projection": {
+    "@omega-ai/dsh-session-projection": {
       "optional": true
     },
-    "@deepseek-ai/dsh-session-query": {
+    "@omega-ai/dsh-session-query": {
       "optional": true
     },
-    "@deepseek-ai/dsh-workspace": {
+    "@omega-ai/dsh-workspace": {
       "optional": true
     },
-    "@deepseek-ai/dsh-jobs": {
+    "@omega-ai/dsh-jobs": {
       "optional": true
     },
-    "@deepseek-ai/dsh-user-approval": {
+    "@omega-ai/dsh-user-approval": {
       "optional": true
     },
-    "@deepseek-ai/dsh-settings": {
+    "@omega-ai/dsh-settings": {
       "optional": true
     }
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-agent-preset-registry": "workspace:*",
-    "@deepseek-ai/dsh-attachment": "workspace:*",
-    "@deepseek-ai/dsh-jobs": "workspace:*",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-sandbox": "workspace:*",
-    "@deepseek-ai/dsh-sandbox-policy": "workspace:*",
-    "@deepseek-ai/dsh-scope": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-session-persistence": "workspace:*",
-    "@deepseek-ai/dsh-session-projection": "workspace:*",
-    "@deepseek-ai/dsh-session-query": "workspace:*",
-    "@deepseek-ai/dsh-system-prompt": "workspace:*",
-    "@deepseek-ai/dsh-tools": "workspace:*",
-    "@deepseek-ai/dsh-typert-protocol": "workspace:*",
-    "@deepseek-ai/dsh-user-approval": "workspace:*",
-    "@deepseek-ai/dsh-util-time": "workspace:*",
-    "@deepseek-ai/dsh-permission-presets": "workspace:*",
-    "@deepseek-ai/dsh-workspace": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-agent-preset-registry": "workspace:*",
+    "@omega-ai/dsh-attachment": "workspace:*",
+    "@omega-ai/dsh-jobs": "workspace:*",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-sandbox": "workspace:*",
+    "@omega-ai/dsh-sandbox-policy": "workspace:*",
+    "@omega-ai/dsh-scope": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-session-persistence": "workspace:*",
+    "@omega-ai/dsh-session-projection": "workspace:*",
+    "@omega-ai/dsh-session-query": "workspace:*",
+    "@omega-ai/dsh-system-prompt": "workspace:*",
+    "@omega-ai/dsh-tools": "workspace:*",
+    "@omega-ai/dsh-typert-protocol": "workspace:*",
+    "@omega-ai/dsh-user-approval": "workspace:*",
+    "@omega-ai/dsh-util-time": "workspace:*",
+    "@omega-ai/dsh-permission-presets": "workspace:*",
+    "@omega-ai/dsh-workspace": "workspace:*"
   }
 }

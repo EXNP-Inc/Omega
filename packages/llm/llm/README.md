@@ -3,13 +3,13 @@ description: "The provider-neutral model-call service for users and maintainers 
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-llm
+# @omega-ai/dsh-llm
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-Use `@deepseek-ai/dsh-llm` to stream model calls through configured provider adapters, discover models, and resolve model capabilities and call defaults. Callers must keep all model-visible input reconstructable from the session log. Loop-built requests arrive deep-frozen, so extensions and adapters cannot rewrite them. Each stream is one provider attempt: provider-specific translation stays with its adapter, while the optional `@deepseek-ai/dsh-llm-retry` package re-runs failed requests. Streams always end with a terminal result, so callers can handle success, failure, and cancellation consistently.
+Use `@omega-ai/dsh-llm` to stream model calls through configured provider adapters, discover models, and resolve model capabilities and call defaults. Callers must keep all model-visible input reconstructable from the session log. Loop-built requests arrive deep-frozen, so extensions and adapters cannot rewrite them. Each stream is one provider attempt: provider-specific translation stays with its adapter, while the optional `@omega-ai/dsh-llm-retry` package re-runs failed requests. Streams always end with a terminal result, so callers can handle success, failure, and cancellation consistently.
 
 ## Table of Contents
 
@@ -31,25 +31,25 @@ Any composition that calls a model provider — an agent loop, a session-title g
 
 ### When to choose it
 
-Choose this package whenever a plugin or composition needs to call a model: it is the only supported path into provider adapters, and it keeps one vocabulary across the loop, the session log, and every consumer. Do not reach for it when you need provider-specific wire behavior (that belongs in an adapter such as `dsh-llm-deepseek` or `dsh-llm-pi-ai`) or retry execution (that belongs in `dsh-llm-retry`).
+Choose this package whenever a plugin or composition needs to call a model: it is the only supported path into provider adapters, and it keeps one vocabulary across the loop, the session log, and every consumer. Do not reach for it when you need provider-specific wire behavior (that belongs in an adapter such as `dsh-llm-omega` or `dsh-llm-pi-ai`) or retry execution (that belongs in `dsh-llm-retry`).
 
 ### Minimal composition
 
 Mount the service and at least one adapter, then select the provider by name in every request:
 
 ```yaml
-- name: '@deepseek-ai/dsh-llm'
-- name: '@deepseek-ai/dsh-llm-deepseek-api-key'
+- name: '@omega-ai/dsh-llm'
+- name: '@omega-ai/dsh-llm-omega-api-key'
   config:
-    apiKeyEnv: DEEPSEEK_API_KEY
+    apiKeyEnv: OMEGA_API_KEY
 ```
 
 A stream returns token-level chunks and always ends with one terminal `finish` chunk. `BlockAssembler` turns the chunks into content blocks and messages; `AssistantStreamAccumulator` preserves their exact timestamps and token boundaries in a compact representation that the loop embeds in one durable attempt settlement:
 
 ```text
 for await (const chunk of ctx.llm.stream({
-  provider: 'deepseek-official',
-  model: 'deepseek-v4-flash',
+  provider: 'omega-official',
+  model: 'omega-v4-flash',
   messages: [{ role: 'user', content: [{ type: 'text', text: 'Hello' }] }],
 })) {
   // chunks: block-start, text-delta, ..., usage, finish
@@ -129,11 +129,11 @@ File detection reads current content, including tool-role result content, on eve
 Read these pages when the package-level contract is not enough. They move from the shared types to the concrete adapters, the retry executor, and the measurement service.
 
 - [LLM streaming subsystem](../../../docs/subsystems/llm-streaming.md) — the message and block types, compact Assistant stream records, the `StreamChunk` protocol, and the adapter contract.
-- [llm-deepseek adapter](../llm-deepseek/README.md) — the direct DeepSeek Messages implementation.
+- [llm-omega adapter](../llm-omega/README.md) — the direct Omega Messages implementation.
 - [llm-pi-ai adapter](../llm-pi-ai/README.md) — the pi-ai-backed multi-provider implementation.
 - [llm-retry](../llm-retry/README.md) — the retry executor that re-runs failed model requests.
 - [Token meter](../token-meter/README.md) — replay-aware request and context pressure measurement.
-- [Twin LLM adapters](../../../.agents/notes/implemented/architecture/2026-06-13-twin-llm-adapters.md) — why the DeepSeek route ships two structurally different adapters.
+- [Twin LLM adapters](../../../.agents/notes/implemented/architecture/2026-06-13-twin-llm-adapters.md) — why the Omega route ships two structurally different adapters.
 - [Terminal LLM stream failures](../../../.agents/notes/implemented/architecture/2026-07-29-terminal-llm-stream-failures.md) — the service boundary between model-request outcomes and plugin failures.
 
 -----
@@ -154,7 +154,7 @@ Reasoning-effort materialization preserves the assembled request prefix. Image i
 
 These limits define where this service stops and other packages or future work begin. They are current package constraints, not a task backlog.
 
-- **No retry execution, caching, or rate limiting ships in this service** — provider registration stores the retry policy, but a stream remains a single provider attempt; `@deepseek-ai/dsh-llm-retry` executes the policy at durable agent-step boundaries.
+- **No retry execution, caching, or rate limiting ships in this service** — provider registration stores the retry policy, but a stream remains a single provider attempt; `@omega-ai/dsh-llm-retry` executes the policy at durable agent-step boundaries.
 - **`GenerateOptions` sampling is `temperature`/`maxTokens`/`stop` only** — no `tool_choice`, `top_p`, or penalty fields; the vocabulary grows when a producer lands ([dropped inert knobs](../../../.agents/notes/archived/simplification/2026-07-04-drop-inert-request-knobs.md)).
 - **Variants normally require a producer** — `prefill`, per-tool `strict`, block `cache` hints, and the `agent` message-source variant have no producer ([Agent Note](../../../.agents/notes/archived/simplification/2026-07-04-prune-producerless-vocabulary-variants.md)).
 - **`BlockAssembler` handles core block kinds only** — a plugin-added block type whose stream is never closed by `block-end` makes `blocks()` throw.

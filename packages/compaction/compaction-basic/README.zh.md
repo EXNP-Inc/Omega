@@ -3,7 +3,7 @@ description: "面向部署场景的自动会话压缩（compaction）：用于�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-compaction-basic
+# @omega-ai/dsh-compaction-basic
 
 [English](README.md) | 中文
 
@@ -36,17 +36,17 @@ kind: "package-reference"
 挂载会话存储、token 测量、可选修剪器、本后端，以及可选的按需命令：
 
 ```yaml
-- name: '@deepseek-ai/dsh-session'
-- name: '@deepseek-ai/dsh-token-meter'
-- name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
-- name: '@deepseek-ai/dsh-compaction-basic'
-- name: '@deepseek-ai/dsh-command-compact'
+- name: '@omega-ai/dsh-session'
+- name: '@omega-ai/dsh-token-meter'
+- name: '@omega-ai/dsh-compaction-tool-result-pruner'
+- name: '@omega-ai/dsh-compaction-basic'
+- name: '@omega-ai/dsh-command-compact'
 ```
 
 你可以通过观察会话越过本来会溢出的位置继续工作、以及运行 `/compact` 立即压缩一次来确认成功。如果组合缺少 LLM、会话存储或 token 测量，插件会加载失败。同一个后端可以服务上下文大小不同的模型；用按模型覆盖为每条路由设置各自的阈值与保留：
 
 ```yaml
-- name: '@deepseek-ai/dsh-compaction-basic'
+- name: '@omega-ai/dsh-compaction-basic'
   config:
     thresholdRatio: 0.8
     retainRatio: 0.16
@@ -59,7 +59,7 @@ kind: "package-reference"
 
 ### 调整压缩开始的时机
 
-所有设置都可选。设上下文窗口为 `W`、生效请求输出上限为 `O`、余量为 `B`，默认触发阈值为 `floor(min(W × 0.8, W − O − B))`，其中 `B = 65,536` tokens。逐字保留的近期历史预算仍为 `W − O` 的 16%。下表列出全部设置；生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-compaction-basic)还包含字段类型。
+所有设置都可选。设上下文窗口为 `W`、生效请求输出上限为 `O`、余量为 `B`，默认触发阈值为 `floor(min(W × 0.8, W − O − B))`，其中 `B = 65,536` tokens。逐字保留的近期历史预算仍为 `W − O` 的 16%。下表列出全部设置；生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-compaction-basic)还包含字段类型。
 
 | 字段 | 默认值 | 含义 |
 |---|---|---|
@@ -152,7 +152,7 @@ kind: "package-reference"
 - [工具结果修剪器](../compaction-tool-result-pruner/README.zh.md)——先修剪超大工具输出的可选配套工具。
 - [人类 /compact 命令](../command-compact/README.zh.md)——无需等待压力的按需压缩。
 - [Token meter](../../llm/token-meter/README.zh.md)——决定何时压缩的测量服务。
-- [生成配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-compaction-basic)——每个受支持配置字段及其源声明。
+- [生成配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-compaction-basic)——每个受支持配置字段及其源声明。
 
 -----
 
@@ -240,7 +240,7 @@ Rules:
 这些限制说明自动压缩何时不合适，或何时需要特别注意；它们是当前包约束。
 
 - **计量准确度取决于固定启发式规则**——可复用提供方用量缺失时，会回退到字符数加结构开销，而非精确的 token 化；只有在适配器声明了请求图片定价的路由上，图片出现处才携带提供方精确的视觉 token。
-- **溢出分类由适配器维护**——提供方措辞可能改变；两个 DeepSeek 适配器将可识别的上下文限制失败规范化为 `CONTEXT_WINDOW_EXCEEDED`。
+- **溢出分类由适配器维护**——提供方措辞可能改变；两个 Omega 适配器将可识别的上下文限制失败规范化为 `CONTEXT_WINDOW_EXCEEDED`。
 - **部分不可分单元与仅 envelope 溢出仍不在表层压缩范围内**——恢复无法缩减系统／工具／前缀、拆分不可分的非工具节点，或修复不可剪枝剩余部分仍超出窗口的工具单元。可选 pruner 可以缩减原本不可分工具对内的文本型工具结果主体。
 - **`compactRegion` 要求存在未结束的轮次**——在完全关闭的会话上手动调用会抛出异常（「no open turn」），而不是执行压缩。
 - **摘要失败会保留最新持久表层**——任何替换前，自动路径会记录警告，并携带完整超预算历史继续。如果剪枝已落地，后续摘要失败会从该持久剪枝表层继续。因达到 `maxTokens` 而发生的摘要截断（隐藏推理 token 可能会耗尽该额度）遵循同一规则。

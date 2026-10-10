@@ -2,33 +2,33 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import LlmRuntime, { createUserMessage, ToolCallId, HarnessError  } from '@deepseek-ai/dsh-llm'
-import SessionStore, { SessionId } from '@deepseek-ai/dsh-session'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime, { RUN_CODE_NAME, defineTool } from '@deepseek-ai/dsh-tools'
-import type { ToolExecutionResult } from '@deepseek-ai/dsh-tools'
-import AgentRegistry, { type Agent } from '@deepseek-ai/dsh-agent'
+import { Context } from '@omega-ai/cordis'
+import LlmRuntime, { createUserMessage, ToolCallId, HarnessError  } from '@omega-ai/dsh-llm'
+import SessionStore, { SessionId } from '@omega-ai/dsh-session'
+import type { SessionEvent } from '@omega-ai/dsh-session'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRuntime, { RUN_CODE_NAME, defineTool } from '@omega-ai/dsh-tools'
+import type { ToolExecutionResult } from '@omega-ai/dsh-tools'
+import AgentRegistry, { type Agent } from '@omega-ai/dsh-agent'
 
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import { LocalBashExecutor } from '@deepseek-ai/dsh-bash-local'
-import * as BashEnvPlugin from '@deepseek-ai/dsh-shell-env'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
-import * as ToolBash from '@deepseek-ai/dsh-tool-bash'
-import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
-import NodeRuntime from '@deepseek-ai/dsh-ptc-runtime-node'
-import Sandbox from '@deepseek-ai/dsh-sandbox-local'
-import SandboxPolicy from '@deepseek-ai/dsh-sandbox-policy'
-import LocalFileSystem from '@deepseek-ai/dsh-fs-local'
-import * as ToolFs from '@deepseek-ai/dsh-tool-fs'
-import * as AgentInstructions from '@deepseek-ai/dsh-agent-instructions'
-import LocalJobRegistry from '@deepseek-ai/dsh-jobs-local'
-import * as ToolJobs from '@deepseek-ai/dsh-tool-jobs'
-import CordisHostRunner from '@deepseek-ai/dsh-cordis-host-runner'
-import * as ToolCordis from '@deepseek-ai/dsh-tool-cordis'
-import * as CordisInspectProviders from '@deepseek-ai/dsh-tool-cordis/host'
+import AgentLoop from '@omega-ai/dsh-agent-loop'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import { LocalBashExecutor } from '@omega-ai/dsh-bash-local'
+import * as BashEnvPlugin from '@omega-ai/dsh-shell-env'
+import LocalSubprocessRuntime from '@omega-ai/dsh-subprocess-local'
+import * as ToolBash from '@omega-ai/dsh-tool-bash'
+import * as LlmOmega from '@omega-ai/dsh-llm-omega-api-key'
+import NodeRuntime from '@omega-ai/dsh-ptc-runtime-node'
+import Sandbox from '@omega-ai/dsh-sandbox-local'
+import SandboxPolicy from '@omega-ai/dsh-sandbox-policy'
+import LocalFileSystem from '@omega-ai/dsh-fs-local'
+import * as ToolFs from '@omega-ai/dsh-tool-fs'
+import * as AgentInstructions from '@omega-ai/dsh-agent-instructions'
+import LocalJobRegistry from '@omega-ai/dsh-jobs-local'
+import * as ToolJobs from '@omega-ai/dsh-tool-jobs'
+import CordisHostRunner from '@omega-ai/dsh-cordis-host-runner'
+import * as ToolCordis from '@omega-ai/dsh-tool-cordis'
+import * as CordisInspectProviders from '@omega-ai/dsh-tool-cordis/host'
 
 /**
  * With-key PTC mode proof: a real model receives only `run_code`, composes two
@@ -62,7 +62,7 @@ async function ptcModeHarness(cwd: string): Promise<Context> {
   await harness.plugin(ToolRuntime, { mode: 'ptc' })
   await harness.plugin(AgentRegistry)
   await harness.plugin(AgentLoop, { agents: [] })
-  await harness.plugin(LlmDeepSeek)
+  await harness.plugin(LlmOmega)
   if (harness.get('subprocess') === undefined) await harness.plugin(LocalSubprocessRuntime)
   await harness.plugin(BashEnvPlugin)
   await harness.plugin(LocalBashExecutor, { cwd, timeoutMs: 30_000 })
@@ -83,7 +83,7 @@ async function workspacePtcModeHarness(): Promise<Context> {
   await harness.plugin(ToolFs)
   await harness.plugin(AgentInstructions, { maxBytes: 65536 })
   await harness.plugin(AgentLoop, { agents: [] })
-  await harness.plugin(LlmDeepSeek, { models: [{ id: 'deepseek-v4-flash' }] })
+  await harness.plugin(LlmOmega, { models: [{ id: 'omega-v4-flash' }] })
   await mountRuntime(harness)
   return harness
 }
@@ -324,11 +324,11 @@ function waitForIdle(harness: Context, agent: Agent): Promise<void> {
   })
 }
 
-describe.skipIf(!process.env.DEEPSEEK_API_KEY)('PTC mode: real model writes a program over real tools', () => {
+describe.skipIf(!process.env.OMEGA_API_KEY)('PTC mode: real model writes a program over real tools', () => {
   it('collapses the wire tool list to [run_code], bridges sub-calls, and returns curated output', async () => {
     workdir = await mkdtemp(join(tmpdir(), 'dsh-ptc-e2e-'))
     ctx = await ptcModeHarness(workdir)
-    const agent = await ctx.agentLoop.create(SessionId('e2e-ptc'), { provider: 'deepseek-official', model: 'deepseek-v4-flash' })
+    const agent = await ctx.agentLoop.create(SessionId('e2e-ptc'), { provider: 'omega-official', model: 'omega-v4-flash' })
 
     agent.followup(createUserMessage({
       content: [{
@@ -380,7 +380,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('PTC mode: real model writes a pr
     const handle = await ctx.agents.create({
       sessionId: SessionId('e2e-ptc-workspace-session'),
       meta: { cwd: workdir },
-      agentOptions: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+      agentOptions: { provider: 'omega-official', model: 'omega-v4-flash' },
     })
 
     handle.agent.followup(createUserMessage({

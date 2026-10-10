@@ -1,13 +1,13 @@
 {
-  "name": "@deepseek-ai/dsh-jobs",
-  "description": "Background job registry (ctx.jobs) for the DeepSeek Harness — shared ids, owner isolation, polling, cancellation, and completion listeners for long-running tool work",
+  "name": "@omega-ai/dsh-jobs",
+  "description": "Background job registry (ctx.jobs) for the Omega — shared ids, owner isolation, polling, cancellation, and completion listeners for long-running tool work",
   "version": "0.2.1-alpha.1",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/jobs/jobs"
   },
   "type": "module",
@@ -36,22 +36,22 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-workspace": "workspace:*",
-    "@deepseek-ai/cordis": "workspace:~"
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-brand": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-workspace": "workspace:*",
+    "@omega-ai/cordis": "workspace:~"
   },
   "peerDependenciesMeta": {
-    "@deepseek-ai/dsh-workspace": {
+    "@omega-ai/dsh-workspace": {
       "optional": true
     }
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/dsh-session": "workspace:*",
-    "@deepseek-ai/dsh-workspace": "workspace:*",
-    "@deepseek-ai/cordis": "workspace:~"
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-brand": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-workspace": "workspace:*",
+    "@omega-ai/cordis": "workspace:~"
   }
 }

@@ -3,7 +3,7 @@ description: "The subagent delegation seam for users and maintainers choosing a 
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-subagent
+# @omega-ai/dsh-subagent
 
 English | [中文](README.zh.md)
 
@@ -32,9 +32,9 @@ This package is the contract every delegation setup shares. You enable it by mou
 Mount the service with a provider and the delegation tool. The provider registers under the name you configure (the in-process spawn backend defaults to `spawn`); the tool row names that provider so the model sees a static tool. A minimal one-shot setup:
 
 ```yaml
-- name: '@deepseek-ai/dsh-subagent'
-- name: '@deepseek-ai/dsh-subagent-spawn-in-process'
-- name: '@deepseek-ai/dsh-tool-subagent'
+- name: '@omega-ai/dsh-subagent'
+- name: '@omega-ai/dsh-subagent-spawn-in-process'
+- name: '@omega-ai/dsh-tool-subagent'
   config:
     provider: spawn
     toolName: subagent
@@ -135,7 +135,7 @@ Read these pages when the package-level contract is not enough. They move from t
 - [In-process spawn backend](../subagent-spawn-in-process/README.md) — the simplest provider to compose.
 - [Auto review](../../experimental/auto-review/README.md) — the current-session authorization mode inherited only by in-process DSH children.
 - [Out-of-process ACP backend](../subagent-acp/README.md) — children with their own runtime over the Agent Client Protocol.
-- [DeepSeek input conversion](../../llm/llm-deepseek/README.md#model-experience) — provider replay rules for saved settlement notices.
+- [Omega input conversion](../../llm/llm-omega/README.md#model-experience) — provider replay rules for saved settlement notices.
 - [tool-subagent-control README](../tool-subagent-control/README.md) — the follow-up, interrupt, and listing surface.
 
 -----

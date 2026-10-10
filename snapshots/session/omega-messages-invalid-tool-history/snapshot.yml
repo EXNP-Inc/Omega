@@ -1,0 +1,10 @@
+version: 1
+scenario: omega-messages-invalid-tool-history
+profile: headless
+composition: omega-messages-invalid-tool-history
+recording: authored
+header:
+  class: omega-messages-invalid-tool-history
+  pin: true
+  systemPromptSource: text-turn
+  toolSchemasSource: text-turn

@@ -1,7 +1,7 @@
 /** Sign-out impact follows the latest logged provider of running tasks. */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { expect, it } from 'vitest'
-import type { Agent } from '@deepseek-ai/dsh-agent'
+import type { Agent } from '@omega-ai/dsh-agent'
 import { AccountController } from '../src/index.ts'
 
 it('reports running account requests and excludes idle or unbound tasks', async () => {
@@ -14,9 +14,9 @@ it('reports running account requests and excludes idle or unbound tasks', async 
   const controller = new AccountController(ctx)
   try {
     expect(controller.hasRunningAccountTasks()).toBe(false)
-    active.push(task('running'), task('running', 'deepseek-official'), task('idle', 'deepseek-account'))
+    active.push(task('running'), task('running', 'omega-official'), task('idle', 'omega-account'))
     expect(controller.hasRunningAccountTasks()).toBe(false)
-    active.push(task('running', 'deepseek-account'))
+    active.push(task('running', 'omega-account'))
     expect(controller.hasRunningAccountTasks()).toBe(true)
     active.pop()
     expect(controller.hasRunningAccountTasks()).toBe(false)

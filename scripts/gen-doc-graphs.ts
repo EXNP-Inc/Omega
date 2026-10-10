@@ -8,9 +8,9 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, relative, resolve } from 'node:path'
 import ts from 'typescript'
-import { projectCordisCatalog } from '@deepseek-ai/dsh-typert-generator'
+import { projectCordisCatalog } from '@omega-ai/dsh-typert-generator'
 import { CORDIS_CATALOG_POLICY } from './gen-cordis-catalog.ts'
-import type { EventEntry, ServiceEntry } from '@deepseek-ai/dsh-typert-generator'
+import type { EventEntry, ServiceEntry } from '@omega-ai/dsh-typert-generator'
 import {
   collectPackageGraph,
   escapeMermaidLabel as escLabel,
@@ -185,7 +185,7 @@ const SERVICE_ROLES: ServiceRole[] = [
     title: 'Durable binary attachment storage',
     mode: 'seam',
     implementations: ['attachment-local'],
-    consumers: ['api-session-controller', 'tool-fs', 'llm-pi-ai', 'llm-deepseek'],
+    consumers: ['api-session-controller', 'tool-fs', 'llm-pi-ai', 'llm-omega'],
     note: 'The host commits accepted images before session events; provider adapters resolve authorized durable references into provider-native content.',
   },
   {
@@ -201,17 +201,17 @@ const SERVICE_ROLES: ServiceRole[] = [
     pkg: 'llm',
     title: 'LLM adapter registry',
     mode: 'seam',
-    implementations: ['llm-deepseek', 'llm-pi-ai', 'llm-replay'],
+    implementations: ['llm-omega', 'llm-pi-ai', 'llm-replay'],
     consumers: ['agent-loop', 'compaction-basic'],
     note: 'Adapters register provider implementations; the loop and compaction call the provider-neutral stream service.',
   },
   {
-    key: 'deepseekLlmApiExtensions',
-    pkg: 'deepseek-llm-api-extensions',
-    title: 'Official DeepSeek request extensions',
+    key: 'omegaLlmApiExtensions',
+    pkg: 'omega-llm-api-extensions',
+    title: 'Official Omega request extensions',
     mode: 'seam',
-    implementations: ['session-log-deepseek', 'plugin-package-inventory-deepseek'],
-    consumers: ['llm-deepseek'],
+    implementations: ['session-log-omega', 'plugin-package-inventory-omega'],
+    consumers: ['llm-omega'],
     note: 'Plugins prepare independent top-level fields; the official adapter merges them and commits their delivery state after HTTP acceptance.',
   },
   {
@@ -376,16 +376,16 @@ const SERVICE_ROLES: ServiceRole[] = [
     title: 'Credential seam',
     mode: 'seam',
     implementations: ['credentials-local'],
-    consumers: ['api-settings-controller', 'llm-deepseek', 'llm-pi-ai'],
+    consumers: ['api-settings-controller', 'llm-omega', 'llm-pi-ai'],
     note: 'Configuration carries references to secrets; providers own the values. Consumers resolve per operation, so a rotated credential reaches the very next request; the settings controller exposes value-free views and write-only storage.',
   },
   {
-    key: 'deepseekAccount',
-    pkg: 'deepseek-account',
-    title: 'DeepSeek account',
+    key: 'omegaAccount',
+    pkg: 'omega-account',
+    title: 'Omega account',
     mode: 'seam',
-    implementations: ['deepseek-account-platform'],
-    consumers: ['api-account-controller', 'llm-deepseek'],
+    implementations: ['omega-account-platform'],
+    consumers: ['api-account-controller', 'llm-omega'],
     note: 'The Host owns browser authorization and local credentials; UI consumers receive state without tokens.',
   },
   {
@@ -769,7 +769,7 @@ const SERVICE_ROLES: ServiceRole[] = [
     pkg: 'web',
     title: 'Web access provider registry',
     mode: 'seam',
-    implementations: ['web-search-exa', 'web-search-perplexity', 'web-search-deepseek', 'web-fetch-http'],
+    implementations: ['web-search-exa', 'web-search-perplexity', 'web-search-omega', 'web-fetch-http'],
     consumers: ['tool-web'],
     note: 'Search and fetch providers register into one ctx.web seam; tool-web owns the stable model-facing names.',
   },

@@ -4,21 +4,21 @@
  * compaction calls, then binds fresh live sessions to parent/child scripts by
  * first-call order. Throw and hang cases require an explicit override because
  * a session log cannot reconstruct them alone.
- * @module @deepseek-ai/dsh-llm-replay
+ * @module @omega-ai/dsh-llm-replay
  */
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { delimiter as pathDelimiter } from 'node:path'
-import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-compaction'
-import type {} from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
-import { SESSION_FORMAT_VERSION, SessionLogOffset, type SessionEvent } from '@deepseek-ai/dsh-session'
-import type { SessionLogOffset as SessionLogOffsetType } from '@deepseek-ai/dsh-session'
+import type { Context } from '@omega-ai/cordis'
+import type {} from '@omega-ai/dsh-compaction'
+import type {} from '@omega-ai/dsh-omega-llm-api-extensions'
+import { SESSION_FORMAT_VERSION, SessionLogOffset, type SessionEvent } from '@omega-ai/dsh-session'
+import type { SessionLogOffset as SessionLogOffsetType } from '@omega-ai/dsh-session'
 import {
   createSessionFormatCatalogWithChildren,
   SessionFormatUnsupportedMigrationError,
   sessionFormatCatalog,
-} from '@deepseek-ai/dsh-session-format-catalog'
+} from '@omega-ai/dsh-session-format-catalog'
 import type {
   ContentBlock,
   GenerateOptions,
@@ -33,9 +33,9 @@ import type {
   SystemPromptUpdate,
   TokenUsage,
   ToolUpdate,
-} from '@deepseek-ai/dsh-llm'
-import { LlmAdapter, LlmError, ReasoningEffortId, expandAssistantStream, offloadedImageText, requestImageHandleText, resolveRetryPolicy } from '@deepseek-ai/dsh-llm'
-import { assertNever } from '@deepseek-ai/dsh-util-values'
+} from '@omega-ai/dsh-llm'
+import { LlmAdapter, LlmError, ReasoningEffortId, expandAssistantStream, offloadedImageText, requestImageHandleText, resolveRetryPolicy } from '@omega-ai/dsh-llm'
+import { assertNever } from '@omega-ai/dsh-util-values'
 
 const PACKED_CHUNK_ROW_TYPES = new Set(['text-chunks', 'reasoning-chunks', 'tool-call-chunks'])
 
@@ -1081,8 +1081,8 @@ export function installLlmReplay(ctx: Context, config: ReplayConfig): ReplayHand
       }
       inferStartedSubagents(options.messages, liveSessionIds)
       const resolved = resolveScriptedEntry(materializeSessionTokens(entry, liveSessionIds), options.messages)
-      if (options.provider === 'deepseek-official' && providerAccepted(resolved)) {
-        const extensions = ctx.get('deepseekLlmApiExtensions')
+      if (options.provider === 'omega-official' && providerAccepted(resolved)) {
+        const extensions = ctx.get('omegaLlmApiExtensions')
         if (extensions !== undefined) {
           const signal = options.signal ?? new AbortController().signal
           const prepared = await extensions.prepare({

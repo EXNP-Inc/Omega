@@ -1,9 +1,9 @@
 /** Public contact and bonus notice options shared by Host and Client. */
-import z from '@deepseek-ai/schemastery'
+import z from '@omega-ai/schemastery'
 
 /** Questionnaire destination and bonus notice timings shared by Host and Client. */
 export interface ContactConfig {
-  /** HTTPS questionnaire URL; override for a test form. */
+  /** Questionnaire URL (HTTPS, or HTTP on a host the browser can open); override for a local form. */
   contactFormUrl: string
   /** Questionnaire source option; empty until Harness is supported by the form. */
   contactSource: string
@@ -14,7 +14,7 @@ export interface ContactConfig {
 }
 /** Validate public questionnaire options. */
 export const ContactConfigFields = {
-  contactFormUrl: z.string().pattern(/^https:\/\/[^/\s]+\//).default('https://trtgsjkv6r.feishu.cn/share/base/form/shrcnlCoGElW7MQznGy9r3YYXcg?hide_uid=1&hide_device_info=1&hide_harness_version=1'),
+  contactFormUrl: z.string().pattern(/^https?:\/\/[^/\s]+\//).default('http://127.0.0.1:8090/contact'),
   contactSource: z.string().default(''),
   bonusAckRetryDelayMs: z.number().min(1).default(1_000),
   bonusAckRetryMaxDelayMs: z.number().min(1).default(60_000),

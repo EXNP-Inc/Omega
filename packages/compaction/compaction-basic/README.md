@@ -3,7 +3,7 @@ description: "Automatic conversation condensation for deployments choosing, tuni
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-compaction-basic
+# @omega-ai/dsh-compaction-basic
 
 English | [中文](README.zh.md)
 
@@ -36,17 +36,17 @@ With the default settings you get four behaviors: automatic condensation as the 
 Mount session storage, token measurement, the optional pruner, this backend, and optionally the on-demand command:
 
 ```yaml
-- name: '@deepseek-ai/dsh-session'
-- name: '@deepseek-ai/dsh-token-meter'
-- name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
-- name: '@deepseek-ai/dsh-compaction-basic'
-- name: '@deepseek-ai/dsh-command-compact'
+- name: '@omega-ai/dsh-session'
+- name: '@omega-ai/dsh-token-meter'
+- name: '@omega-ai/dsh-compaction-tool-result-pruner'
+- name: '@omega-ai/dsh-compaction-basic'
+- name: '@omega-ai/dsh-command-compact'
 ```
 
 You can verify success by watching the conversation continue past the point where it would otherwise overflow, and by running `/compact` for an immediate condensation. If the composition lacks an LLM, session storage, or token measurement, the plugin fails to load. One backend can serve models with different context sizes; give each route its own threshold and retention with a per-model override:
 
 ```yaml
-- name: '@deepseek-ai/dsh-compaction-basic'
+- name: '@omega-ai/dsh-compaction-basic'
   config:
     thresholdRatio: 0.8
     retainRatio: 0.16
@@ -59,7 +59,7 @@ You can verify success by watching the conversation continue past the point wher
 
 ### Tuning when condensation starts
 
-All settings are optional. With context window `W`, effective request output cap `O`, and headroom `B`, the default trigger is `floor(min(W × 0.8, W − O − B))`, where `B = 65,536` tokens. Retention keeps the newest 16% of `W − O` verbatim. The table below lists every setting; the generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-compaction-basic) also includes their types.
+All settings are optional. With context window `W`, effective request output cap `O`, and headroom `B`, the default trigger is `floor(min(W × 0.8, W − O − B))`, where `B = 65,536` tokens. Retention keeps the newest 16% of `W − O` verbatim. The table below lists every setting; the generated [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-compaction-basic) also includes their types.
 
 | Field | Default | Meaning |
 |---|---|---|
@@ -152,7 +152,7 @@ Read these pages when the package-level contract is not enough; they move from t
 - [Tool-result pruner](../compaction-tool-result-pruner/README.md) — the optional companion that trims oversized tool outputs first.
 - [Human /compact command](../command-compact/README.md) — on-demand condensation without waiting for pressure.
 - [Token meter](../../llm/token-meter/README.md) — the measurement service that decides when to condense.
-- [Generated configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-compaction-basic) — every accepted config field and its source declaration.
+- [Generated configuration catalog](../../../docs/config-catalog.md#omega-aidsh-compaction-basic) — every accepted config field and its source declaration.
 
 -----
 
@@ -240,7 +240,7 @@ The replayed system prompt, tools, and shadowed-region messages match the conver
 These limits define when automatic condensation is a poor fit or needs special care; they are the current package constraints.
 
 - **Meter accuracy follows the fixed heuristic** — missing reusable provider usage falls back to character count plus structural overhead rather than exact tokenization; image occurrences carry provider-exact visual tokens only on routes whose adapter declares request-image pricing.
-- **Overflow classification is adapter-maintained** — provider wording can change; both DeepSeek adapters normalize recognized context-limit failures to `CONTEXT_WINDOW_EXCEEDED`.
+- **Overflow classification is adapter-maintained** — provider wording can change; both Omega adapters normalize recognized context-limit failures to `CONTEXT_WINDOW_EXCEEDED`.
 - **Some indivisible-unit and envelope-only overflow remains outside surface compaction** — recovery cannot shrink system/tools/prefix, split an indivisible non-tool node, or repair a tool unit whose non-prunable remainder still exceeds the window. The optional pruner can shrink text-bearing tool-result bulk inside an otherwise indivisible pair.
 - **`compactRegion` requires an open turn** — a manual call on a fully-closed session throws ("no open turn") rather than compacting.
 - **Summarization failure preserves the latest durable surface** — before any replacement, the auto path logs a warning and proceeds with full over-budget history. If pruning already landed, a later summarization failure proceeds from that durable pruned surface. Summarization truncation at `maxTokens`, which hidden reasoning tokens can consume, follows the same rule.

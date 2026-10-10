@@ -5,12 +5,12 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium, type Page } from 'playwright'
 import { expect, it } from 'vitest'
-import type { InboxState } from '@deepseek-ai/dsh-agent/types'
-import type { SessionEvent } from '@deepseek-ai/dsh-session/types'
-import { deriveReplayScript, parseSessionLog } from '@deepseek-ai/dsh-llm-replay'
+import type { InboxState } from '@omega-ai/dsh-agent/types'
+import type { SessionEvent } from '@omega-ai/dsh-session/types'
+import { deriveReplayScript, parseSessionLog } from '@omega-ai/dsh-llm-replay'
 import {
   parseRemoteStreamClientMessage, parseRemoteStreamServerMessage,
-} from '@deepseek-ai/dsh-api-gateway/stream-protocol'
+} from '@omega-ai/dsh-api-gateway/stream-protocol'
 import { launchWebScaffold, seedSession, watchConsole, webSnapshotMode } from './scaffold.ts'
 import { newEnglishPage } from './support.ts'
 

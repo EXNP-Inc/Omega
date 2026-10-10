@@ -13,7 +13,7 @@ declare global {
   }
 }
 
-const OVERLAY = fileURLToPath(new URL('./default-model.overlay.yml', import.meta.url))
+const OVERLAY = fileURLToPath(new URL('./model-menu-observer.overlay.yml', import.meta.url))
 const PROVIDERS = [
   { id: 'origin-gateway', name: 'Origin Gateway', prefix: 'Origin' },
   { id: 'amber-gateway', name: 'Amber Gateway', prefix: 'Amber' },
@@ -26,7 +26,9 @@ const PROVIDERS = [
     : { id: `${provider.prefix.toLowerCase()}-model-${index + 1}`, name: `${provider.prefix} Model ${index + 1}` }),
 }))
 const EXPECTED_GROUPS = [
-  { label: 'DeepSeek', rows: ['DeepSeek-V4-Flash', 'DeepSeek-V4-Flash-Vision-Exp'] },
+  { label: 'Omega', rows: ['Omega-V4-Flash', 'Omega-V4-Flash-Vision-Exp'] },
+  { label: 'alice', rows: ['Qwen3.8-27B'] },
+  { label: 'Mac', rows: ['Mac'] },
   ...PROVIDERS.map(provider => ({ label: provider.name, rows: provider.models.map(model => model.name) })),
 ]
 
@@ -54,7 +56,7 @@ async function assertNoRectReads(page: Page): Promise<void> {
   expect(await page.evaluate(() => window.__modelMenuRectReads)).toBe(0)
 }
 
-async function assertPinned(page: Page, viewport: Locator, index: number, count = 5): Promise<void> {
+async function assertPinned(page: Page, viewport: Locator, index: number, count = 7): Promise<void> {
   const expected = Array.from({ length: count }, (_, i) => i === index)
   await expect.poll(() => readPinned(viewport)).toEqual(expected)
   await assertNoRectReads(page)
@@ -181,7 +183,7 @@ describe.skipIf(webSnapshotMode() === 'record').each([
 
       await open()
       try {
-        expect(await viewport.locator('[role="option"], [role="menuitemradio"]').count()).toBe(30)
+        expect(await viewport.locator('[role="option"], [role="menuitemradio"]').count()).toBe(32)
         expect(await viewport.evaluate(node => node.scrollTop)).toBe(0)
         expect(await viewport.locator('[data-menu-group-heading]').evaluateAll(headings =>
           [...new Set(headings.map(heading => getComputedStyle(heading).backgroundColor))]))
@@ -196,7 +198,9 @@ describe.skipIf(webSnapshotMode() === 'record').each([
         if (entry === 'button') buttonMaterial = material
         else expect(material).toEqual(buttonMaterial)
 
-        for (const index of [2, 4, 1]) {
+        // Group indices 3-6 are the declared seven-model gateways; the
+        // bundled alice/Mac single-model groups are too short to pin-probe.
+        for (const index of [4, 6, 3]) {
           await scrollToGroup(viewport, index)
           await assertPinned(page, viewport, index)
           const height = await viewport.evaluate(node => node.clientHeight)
@@ -224,7 +228,7 @@ describe.skipIf(webSnapshotMode() === 'record').each([
             const before = await rows.evaluateAll(nodes => nodes.findIndex(node =>
               node.hasAttribute('data-highlighted') || node.getAttribute('aria-selected') === 'true'))
             await search.press(key)
-            const expected = (before + (key === 'ArrowDown' ? 1 : -1) + 30) % 30
+            const expected = (before + (key === 'ArrowDown' ? 1 : -1) + 32) % 32
             await expect.poll(() => rows.evaluateAll(nodes => nodes.findIndex(node =>
               node.hasAttribute('data-highlighted') || node.getAttribute('aria-selected') === 'true'))).toBe(expected)
             await frames(page)
@@ -269,6 +273,8 @@ describe.skipIf(webSnapshotMode() === 'record').each([
         await open()
         expect(await search.inputValue()).toBe('')
 
+        // Index 1 is the single-model alice group: too short to pin, so the
+        // third deep scroll lands on the Cedar gateway instead.
         await scrollToGroup(viewport, 3, 90)
         await assertPinned(page, viewport, 3)
         await viewport.evaluate((node) => { node.style.maxHeight = '64px' })
@@ -276,8 +282,8 @@ describe.skipIf(webSnapshotMode() === 'record').each([
         await assertPinned(page, viewport, 3)
         await scrollToGroup(viewport, 4, 100)
         await assertPinned(page, viewport, 4)
-        await scrollToGroup(viewport, 1, 100)
-        await assertPinned(page, viewport, 1)
+        await scrollToGroup(viewport, 5, 100)
+        await assertPinned(page, viewport, 5)
         await scrollToGroup(viewport, 0, 0)
         await assertPinned(page, viewport, -1)
       } finally {

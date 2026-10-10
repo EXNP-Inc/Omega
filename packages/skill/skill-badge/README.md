@@ -3,13 +3,13 @@ description: "The bundled 'powered by dsh' badge skill for users and maintainers
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-skill-badge
+# @omega-ai/dsh-skill-badge
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-Agents can load the official "powered by dsh" badge skill from this bundled provider and follow its instructions for adding attribution badges to documents, PRs, and other content produced with DeepSeek Harness. The provider has no configuration, and the shipped CLI composition includes the plugin disabled, so deployments enable it explicitly. The skill ships both Markdown snippets and a packaged PNG for systems that cannot reliably import remote images.
+Agents can load the official "powered by dsh" badge skill from this bundled provider and follow its instructions for adding attribution badges to documents, PRs, and other content produced with Omega. The provider has no configuration, and the shipped CLI composition includes the plugin disabled, so deployments enable it explicitly. The skill ships both Markdown snippets and a packaged PNG for systems that cannot reliably import remote images.
 
 ## Table of Contents
 
@@ -29,14 +29,14 @@ Enable the plugin to make the `dsh-badge` skill available in the session skill c
 
 ### When to choose it
 
-Choose this provider when content produced with DeepSeek Harness should carry official attribution badges, and the deployment wants the badge skill available to agents without storing it in a local skill directory. Skip it when the badge is irrelevant to the deployment — the plugin is disabled by default and adds nothing until enabled.
+Choose this provider when content produced with Omega should carry official attribution badges, and the deployment wants the badge skill available to agents without storing it in a local skill directory. Skip it when the badge is irrelevant to the deployment — the plugin is disabled by default and adds nothing until enabled.
 
 ### Enable the plugin
 
 The plugin has no configuration. Add its composition row to a composition; the shipped CLI composition carries the row as `disabled: true`, so enable it explicitly there.
 
 ```yaml
-- name: '@deepseek-ai/dsh-skill-badge'
+- name: '@omega-ai/dsh-skill-badge'
 ```
 
 After enabling, `dsh-badge` appears in the available skills of the session catalog. The skill covers remote Markdown badges (Shields.io-based) and a packaged PNG badge asset for targets that cannot fetch remote images reliably.

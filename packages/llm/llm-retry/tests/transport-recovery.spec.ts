@@ -1,16 +1,16 @@
-import { createUserMessage, expandAssistantStream } from '@deepseek-ai/dsh-llm'
+import { createUserMessage, expandAssistantStream } from '@omega-ai/dsh-llm'
 import { createServer } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import { mountAgentLoopTestDependencies } from '@deepseek-ai/dsh-agent-loop-testkit'
-import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
-import type { MockLlmBehavior, MockLlmServer } from '@deepseek-ai/dsh-llm-mock-server'
-import { startMockLlmServer } from '@deepseek-ai/dsh-llm-mock-server'
-import { SessionId } from '@deepseek-ai/dsh-session'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
+import { Context } from '@omega-ai/cordis'
+import type { Agent } from '@omega-ai/dsh-agent'
+import AgentLoop from '@omega-ai/dsh-agent-loop'
+import { mountAgentLoopTestDependencies } from '@omega-ai/dsh-agent-loop-testkit'
+import * as LlmOmega from '@omega-ai/dsh-llm-omega-api-key'
+import type { MockLlmBehavior, MockLlmServer } from '@omega-ai/dsh-llm-mock-server'
+import { startMockLlmServer } from '@omega-ai/dsh-llm-mock-server'
+import { SessionId } from '@omega-ai/dsh-session'
+import type { SessionEvent } from '@omega-ai/dsh-session'
 import * as Retry from '../src/index.ts'
 
 let context: Context | undefined
@@ -49,10 +49,10 @@ async function harness(
   baseURL: string,
   options: { streamIdleTimeoutMs?: number; initialDelayMs?: number } = {},
 ): Promise<Context> {
-  vi.stubEnv('DEEPSEEK_API_KEY', 'mock-key')
+  vi.stubEnv('OMEGA_API_KEY', 'mock-key')
   const ctx = new Context()
   await mountAgentLoopTestDependencies(ctx)
-  await ctx.plugin(LlmDeepSeek, {
+  await ctx.plugin(LlmOmega, {
     baseURL,
     streamIdleTimeoutMs: options.streamIdleTimeoutMs ?? 1_000,
     retryPolicy: {
@@ -97,12 +97,12 @@ async function unusedPort(): Promise<number> {
   return port
 }
 
-describe('bounded retry through the real DeepSeek HTTP/SSE adapter', () => {
+describe('bounded retry through the real Omega HTTP/SSE adapter', () => {
   it('recovers from a true refused connection after the endpoint starts during backoff', async () => {
     const port = await unusedPort()
     context = await harness(`http://127.0.0.1:${port}`, { initialDelayMs: 100 })
     const agent = await context.agentLoop.create(SessionId('wire-refused'), {
-      provider: 'deepseek-official',
+      provider: 'omega-official',
       model: 'mock-model',
     })
     let recoveryServer: Promise<MockLlmServer> | undefined
@@ -137,7 +137,7 @@ describe('bounded retry through the real DeepSeek HTTP/SSE adapter', () => {
     })
     context = await harness(server.baseURL)
     const agent = await context.agentLoop.create(SessionId(`wire-${behavior}`), {
-      provider: 'deepseek-official',
+      provider: 'omega-official',
       model: 'mock-model',
     })
 
@@ -168,7 +168,7 @@ describe('bounded retry through the real DeepSeek HTTP/SSE adapter', () => {
     })
     context = await harness(server.baseURL)
     const agent = await context.agentLoop.create(SessionId('wire-empty'), {
-      provider: 'deepseek-official',
+      provider: 'omega-official',
       model: 'mock-model',
     })
 
@@ -196,7 +196,7 @@ describe('bounded retry through the real DeepSeek HTTP/SSE adapter', () => {
     })
     context = await harness(server.baseURL)
     const agent = await context.agentLoop.create(SessionId('wire-partial-eof'), {
-      provider: 'deepseek-official',
+      provider: 'omega-official',
       model: 'mock-model',
     })
 
@@ -209,7 +209,7 @@ describe('bounded retry through the real DeepSeek HTTP/SSE adapter', () => {
     expect(agent.session.snapshotEvents().some(event => event.type === 'llm/retry')).toBe(false)
     expect(agent.session.snapshotEvents().at(-1)).toMatchObject({
       type: 'turn/end',
-      data: { reason: { kind: 'error', error: { message: 'DeepSeek Messages stream ended before message_stop', code: 'STREAM_CLOSED' } } },
+      data: { reason: { kind: 'error', error: { message: 'Omega Messages stream ended before message_stop', code: 'STREAM_CLOSED' } } },
     })
   })
 
@@ -244,7 +244,7 @@ describe('bounded retry through the real DeepSeek HTTP/SSE adapter', () => {
     context = await harness(server.baseURL, { streamIdleTimeoutMs: 1_000 })
     phase = 'creating agent'
     const agent = await context.agentLoop.create(SessionId('wire-stall'), {
-      provider: 'deepseek-official',
+      provider: 'omega-official',
       model: 'mock-model',
     })
 
@@ -265,7 +265,7 @@ describe('bounded retry through the real DeepSeek HTTP/SSE adapter', () => {
     })
     context = await harness(server.baseURL)
     const agent = await context.agentLoop.create(SessionId('wire-exhausted'), {
-      provider: 'deepseek-official',
+      provider: 'omega-official',
       model: 'mock-model',
     })
 
@@ -280,7 +280,7 @@ describe('bounded retry through the real DeepSeek HTTP/SSE adapter', () => {
       data: { reason: { kind: 'error', error: { code: 'TRANSPORT' } } },
     })
     if (end?.type === 'turn/end' && end.data.reason.kind === 'error') {
-      expect(end.data.reason.error.message).toBe('DeepSeek Messages transport failed')
+      expect(end.data.reason.error.message).toBe('Omega Messages transport failed')
     }
   })
 })

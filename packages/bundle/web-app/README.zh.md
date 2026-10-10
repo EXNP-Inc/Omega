@@ -3,7 +3,7 @@ description: "dsh 的浏览器 GUI：交互式聊天、模型与设置管理、�
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-web-app
+# @omega-ai/dsh-web-app
 
 [English](README.md) | 中文
 
@@ -40,7 +40,7 @@ dsh --profile web --no-open --port 8080
 
 启动后你会看到 `dsh web:` 行，其根 URL 携带新的进程 token。除非 `--no-open` 或 SSH 会话抑制，否则默认浏览器会打开该 URL、取得签名 cookie，再重定向到不含认证参数的同一目录。页面加载且你可以与 agent 对话，就说明成功了。两种可预期的失败：前端未构建时，启动会以构建提示停止（checkout 中运行 `pnpm run build`）；浏览器无法打开时，stderr 会打印不含凭据的诊断，但服务器会继续运行——请自行打开已打印的启动 URL。
 
-**设置 → 模型**显示 **DeepSeek**，使用 `DEEPSEEK_API_KEY`。默认模型为 `deepseek-official` / `deepseek-flash`（DeepSeek-V41-Flash）。[DeepSeek 插件](../../llm/llm-deepseek/README.zh.md#endpoint-and-wire-format)使用 Messages API。
+**设置 → 模型**显示 **Omega**，使用 `OMEGA_API_KEY`。默认模型为 `omega-official` / `omega-flash`（Omega-V41-Flash）。[Omega 插件](../../llm/llm-omega/README.zh.md#endpoint-and-wire-format)使用 Messages API。
 
 已保存的模型选择覆盖组合默认值。设置卡接受兼容 Messages 的 API 地址与凭据引用。
 
@@ -56,7 +56,7 @@ dsh --profile web --no-open --port 8080
 | `publicUrl` | 未设置 | 对外公告的 HTTP(S) 应用根；否则公告监听器的 loopback URL |
 | `trustedHosts` | `[]` | 允许从网络访问 GUI 的额外主机 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-web-app)列出了本运行时插件接受的字段及其 JSDoc。随发行版交付的组合插入 `schedule` 服务行与 `ui-schedule` 任务页面行，时钟读数与四个提醒工具则属于 `standard`、`cordis` 与 `ptc` 三个 preset。这三个 preset 的 `tool-subagent` 与 `tool-subagent-fork` 两行都 deny 这四个工具，因此被委派子 agent 的作用域不会列出它们。
+生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-web-app)列出了本运行时插件接受的字段及其 JSDoc。随发行版交付的组合插入 `schedule` 服务行与 `ui-schedule` 任务页面行，时钟读数与四个提醒工具则属于 `standard`、`cordis` 与 `ptc` 三个 preset。这三个 preset 的 `tool-subagent` 与 `tool-subagent-fork` 两行都 deny 这四个工具，因此被委派子 agent 的作用域不会列出它们。
 
 <a id="public-deployments"></a>
 ### 监听、信任与公开部署
@@ -109,7 +109,7 @@ URL 行与浏览器交接都是就绪信号：监督方一观察到该行就发�
 | [`src/public-url.ts`](src/public-url.ts) | 公告根的校验与尾斜杠归一化；供本地导入的叶子模块，不属于包 API |
 | [`src/startup.ts`](src/startup.ts) | `web-startup` 提供方：`--host`、`--port`、`--public-url`、`--trusted-host`、`--no-open`、`--help` |
 | [`cordis.patch.yml`](cordis.patch.yml) | Web patch：重述的基础值、Web 宿主行、浏览器名录、preset 注册表 |
-| [`presets/`](presets) | 每个随发行版交付的 preset（`standard`、`ptc`、`minimal`、`cordis`）各一条 `@deepseek-ai/dsh-agent-preset` 声明，各自一个补丁文件 |
+| [`presets/`](presets) | 每个随发行版交付的 preset（`standard`、`ptc`、`minimal`、`cordis`）各一条 `@omega-ai/dsh-agent-preset` 声明，各自一个补丁文件 |
 | [`tests/web-app.spec.ts`](tests/web-app.spec.ts) | dist 解析、回退席位、提示词段落、就绪宣告、公告 URL 发布 |
 | [`tests/startup.spec.ts`](tests/startup.spec.ts) | 在真实 Loader 树上的命令行解析 |
 | [`tests/public-url.spec.ts`](tests/public-url.spec.ts) | 公告根的解析与归一化 |
@@ -129,7 +129,7 @@ URL 行与浏览器交接都是就绪信号：监督方一观察到该行就发�
 - [dsh-base](../base/README.zh.md)——GUI 运行其上的共享核心。
 - [dsh-client-hmr](../../client/hmr/README.zh.md)——开发期间客户端插件变更如何重载。
 - [frontend-static](../../host/frontend-static/README.zh.md)——已构建的前端如何被服务。
-- [生成配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-web-app)——每个受支持配置字段及其源声明。
+- [生成配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-web-app)——每个受支持配置字段及其源声明。
 
 -----
 

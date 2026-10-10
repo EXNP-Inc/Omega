@@ -1,15 +1,15 @@
 // @vitest-environment jsdom
-/** First-run DeepSeek prompt behavior over the shared Models join. */
-import type { GlobalStandardProps } from '@deepseek-ai/dsh-client-ui-slots'
+/** First-run Omega prompt behavior over the shared Models join. */
+import type { GlobalStandardProps } from '@omega-ai/dsh-client-ui-slots'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import Schema from '@deepseek-ai/schemastery'
-import type { SettingsNamespaceView } from '@deepseek-ai/dsh-api-remotes/client'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
-import { bindSnapshotSelector, RemoteError } from '@deepseek-ai/dsh-client-test-runtime'
-import { DeepSeekOnboardingDialog } from '../src/client/DeepSeekOnboardingDialog.tsx'
-import type { DeepSeekOnboardingDialogProps } from '../src/client/DeepSeekOnboardingDialog.tsx'
-import { SettingsDescribeMirror } from '@deepseek-ai/dsh-client-ui-settings/src/client/settings-mirror.ts'
+import Schema from '@omega-ai/schemastery'
+import type { SettingsNamespaceView } from '@omega-ai/dsh-api-remotes/client'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
+import { bindSnapshotSelector, RemoteError } from '@omega-ai/dsh-client-test-runtime'
+import { OmegaOnboardingDialog } from '../src/client/OmegaOnboardingDialog.tsx'
+import type { OmegaOnboardingDialogProps } from '../src/client/OmegaOnboardingDialog.tsx'
+import { SettingsDescribeMirror } from '@omega-ai/dsh-client-ui-settings/src/client/settings-mirror.ts'
 import { ModelsSettingsStore } from '../src/client/store.ts'
 import { createModelsOperations } from '../src/client/operations.ts'
 import { en } from '../src/client/locales.ts'
@@ -32,7 +32,7 @@ function remoteFail(message: string) {
   return { ok: false as const, error: new RemoteError('gateway/internal', message, {}) }
 }
 
-const DeepSeekConfig = Schema.object({
+const OmegaConfig = Schema.object({
   apiKeyEnv: Schema.string().role('credential-ref'),
   baseURL: Schema.string().pattern(/^https:\/\//),
   reasoningEffort: Schema.union(['off', 'low', 'high', 'max']),
@@ -45,15 +45,15 @@ const DeepSeekConfig = Schema.object({
   })),
 })
 
-type AttentionSnapshot = Parameters<Parameters<DeepSeekOnboardingDialogProps['useSessionStatus']>[0]>[0]
+type AttentionSnapshot = Parameters<Parameters<OmegaOnboardingDialogProps['useSessionStatus']>[0]>[0]
 const noAttention: AttentionSnapshot = new Map()
-const useSessionStatus: DeepSeekOnboardingDialogProps['useSessionStatus'] = selector => selector(noAttention)
+const useSessionStatus: OmegaOnboardingDialogProps['useSessionStatus'] = selector => selector(noAttention)
 
-function deepSeekNamespace(apiKeyEnv: string | null): SettingsNamespaceView {
+function omegaNamespace(apiKeyEnv: string | null): SettingsNamespaceView {
   const value = apiKeyEnv === null ? {} : { apiKeyEnv }
   return {
-    ns: 'llm-deepseek',
-    schema: JSON.parse(JSON.stringify(DeepSeekConfig.toJSON())) as JsonValue,
+    ns: 'llm-omega',
+    schema: JSON.parse(JSON.stringify(OmegaConfig.toJSON())) as JsonValue,
     value,
     base: value,
     user: {},
@@ -83,8 +83,8 @@ function harness(options: {
   }
   let fileConfigured = false
   const configured = options.configured ?? (() => fileConfigured)
-  const apiKeyEnv = options.apiKeyEnv === undefined ? 'DEEPSEEK_API_KEY' : options.apiKeyEnv
-  const mutate = vi.fn(() => Promise.resolve(remoteOk(deepSeekNamespace(apiKeyEnv))))
+  const apiKeyEnv = options.apiKeyEnv === undefined ? 'OMEGA_API_KEY' : options.apiKeyEnv
+  const mutate = vi.fn(() => Promise.resolve(remoteOk(omegaNamespace(apiKeyEnv))))
   const set = vi.fn((_ref: string, _value: string) => {
     if (options.setFailure !== undefined) return Promise.resolve(remoteFail(options.setFailure))
     fileConfigured = true
@@ -97,16 +97,16 @@ function harness(options: {
         return Promise.resolve(remoteOk(
           options.provider === false || options.providerActive === false
             ? []
-            : [{ id: 'deepseek-official', name: 'DeepSeek' }],
+            : [{ id: 'omega-official', name: 'Omega' }],
         ))
       },
       listConfigurableProviders: () => Promise.resolve(remoteOk(
         options.provider === false
           ? []
           : [{
-            provider: 'deepseek-official',
-            displayName: 'DeepSeek',
-            settingsNs: options.providerSettingsNs ?? 'llm-deepseek',
+            provider: 'omega-official',
+            displayName: 'Omega',
+            settingsNs: options.providerSettingsNs ?? 'llm-omega',
             settingsPath: [],
           }],
       )),
@@ -116,14 +116,14 @@ function harness(options: {
       describe: () => Promise.resolve(remoteOk({
         writable: options.settingsWritable ?? true,
         hasDocument: false,
-        namespaces: options.settingsNamespace === false ? [] : [deepSeekNamespace(apiKeyEnv)],
+        namespaces: options.settingsNamespace === false ? [] : [omegaNamespace(apiKeyEnv)],
       })),
       mutate,
     },
     credentials: {
       describe: () => options.describeFailure === undefined
         ? Promise.resolve(remoteOk({
-          DEEPSEEK_API_KEY: {
+          OMEGA_API_KEY: {
             configured: configured(),
             ...configured() && options.credential?.source !== undefined
               ? { source: options.credential.source }
@@ -142,9 +142,9 @@ function harness(options: {
   const openSection = vi.fn()
   const complete = vi.fn()
   const unusedHook = (() => { throw new Error('unused standard hook') }) as never
-  const props: DeepSeekOnboardingDialogProps = {
+  const props: OmegaOnboardingDialogProps = {
     automatic: true,
-    stepId: 'deepseek-official',
+    stepId: 'omega-official',
     complete,
     openSection,
     renderSlot: (_name, _props, options) => options?.fallback,
@@ -164,17 +164,17 @@ function harness(options: {
   }
 }
 
-describe('DeepSeekOnboardingDialog', () => {
+describe('OmegaOnboardingDialog', () => {
   it('renders when the shell root is absent', async () => {
     const h = harness()
     document.getElementById('root')!.remove()
-    render(<DeepSeekOnboardingDialog {...h.props} />)
+    render(<OmegaOnboardingDialog {...h.props} />)
     expect(await screen.findByRole('dialog', { name: en.onboardingTitle })).toBeTruthy()
   })
 
   it('loads a credential-only modal, inerts the product, and focuses the key', async () => {
     const h = harness()
-    render(<DeepSeekOnboardingDialog {...h.props} />)
+    render(<OmegaOnboardingDialog {...h.props} />)
     expect(await screen.findByRole('dialog', { name: en.onboardingTitle })).toBeTruthy()
     expect(document.getElementById('root')?.inert).toBe(true)
     expect(screen.getByText(en.onboardingDescription)).toBeTruthy()
@@ -187,7 +187,7 @@ describe('DeepSeekOnboardingDialog', () => {
     const h = harness()
     const appRoot = document.getElementById('root')!
     appRoot.inert = true
-    const view = render(<DeepSeekOnboardingDialog {...h.props} />)
+    const view = render(<OmegaOnboardingDialog {...h.props} />)
     await screen.findByRole('dialog')
 
     fireEvent.keyDown(document, { key: 'Escape' })
@@ -201,7 +201,7 @@ describe('DeepSeekOnboardingDialog', () => {
 
   it('requires a non-blank key before Save and continue is available', async () => {
     const h = harness()
-    render(<DeepSeekOnboardingDialog {...h.props} />)
+    render(<OmegaOnboardingDialog {...h.props} />)
     await screen.findByRole('dialog')
     const save = screen.getByRole<HTMLButtonElement>('button', { name: en.onboardingSave })
     expect(save.disabled).toBe(true)
@@ -216,7 +216,7 @@ describe('DeepSeekOnboardingDialog', () => {
       [{ setFailure: 'credential was rejected' }, 'credential was rejected'],
     ] as const) {
       const h = harness(options)
-      const view = render(<DeepSeekOnboardingDialog {...h.props} />)
+      const view = render(<OmegaOnboardingDialog {...h.props} />)
       await screen.findByRole('dialog')
       fireEvent.change(screen.getByLabelText(en.keyInput), { target: { value: 'sk-live' } })
       fireEvent.click(screen.getByRole('button', { name: en.onboardingSave }))
@@ -231,7 +231,7 @@ describe('DeepSeekOnboardingDialog', () => {
 
   it('allows configure-later dismissal without opening settings', async () => {
     const h = harness()
-    render(<DeepSeekOnboardingDialog {...h.props} />)
+    render(<OmegaOnboardingDialog {...h.props} />)
     await screen.findByRole('dialog')
     fireEvent.click(screen.getByRole('button', { name: en.onboardingLater }))
     expect(h.complete).toHaveBeenCalledOnce()
@@ -240,7 +240,7 @@ describe('DeepSeekOnboardingDialog', () => {
     expect(h.mutate).not.toHaveBeenCalled()
   })
 
-  it('does not block the product when DeepSeek setup is unavailable', async () => {
+  it('does not block the product when Omega setup is unavailable', async () => {
     for (const h of [
       harness({ describeFailure: 'credentials service is absent' }),
       harness({ credential: { writable: false } }),
@@ -250,7 +250,7 @@ describe('DeepSeekOnboardingDialog', () => {
       harness({ settingsNamespace: false }),
       harness({ apiKeyEnv: null }),
     ]) {
-      const view = render(<DeepSeekOnboardingDialog {...h.props} />)
+      const view = render(<OmegaOnboardingDialog {...h.props} />)
       await act(async () => { await h.controller.load() })
       expect(screen.queryByRole('dialog')).toBeNull()
       await waitFor(() => { expect(h.complete).toHaveBeenCalledOnce() })
@@ -265,7 +265,7 @@ describe('DeepSeekOnboardingDialog', () => {
       harness({ providerSettingsNs: '' }),
       harness({ configured: () => true, credential: { source: 'env', writable: false } }),
     ]) {
-      const view = render(<DeepSeekOnboardingDialog {...h.props} />)
+      const view = render(<OmegaOnboardingDialog {...h.props} />)
       await act(async () => { await h.controller.load() })
       expect(screen.queryByRole('dialog')).toBeNull()
       await waitFor(() => { expect(h.complete).toHaveBeenCalledOnce() })
@@ -275,7 +275,7 @@ describe('DeepSeekOnboardingDialog', () => {
 
   it('closes when an external credential invalidation refreshes the shared join', async () => {
     const h = harness()
-    render(<DeepSeekOnboardingDialog {...h.props} />)
+    render(<OmegaOnboardingDialog {...h.props} />)
     await screen.findByRole('dialog')
     h.configure()
     await act(async () => { await h.controller.load() })
@@ -287,7 +287,7 @@ describe('DeepSeekOnboardingDialog', () => {
 it('offers account choice before reusing the existing API key editor', async () => {
   const h = harness()
   h.props.renderSlot = (_name, owner: unknown) => <button onClick={(owner as { useApiKey: () => void }).useApiKey}>Choose API key</button>
-  render(<DeepSeekOnboardingDialog {...h.props} />)
+  render(<OmegaOnboardingDialog {...h.props} />)
   await waitFor(() => { expect(screen.getByRole('button', { name: 'Choose API key' })).toBeTruthy() })
   fireEvent.click(screen.getByRole('button', { name: 'Choose API key' }))
   expect(screen.getByRole('dialog')).toBeTruthy()
@@ -298,7 +298,7 @@ it('explicit account-menu setup reuses the editor without another login choice',
   h.props.explicit = true
   const choice = vi.fn()
   h.props.renderSlot = (_name, _owner, options) => { choice(); return options?.fallback }
-  render(<DeepSeekOnboardingDialog {...h.props} />)
+  render(<OmegaOnboardingDialog {...h.props} />)
   await waitFor(() => { expect(screen.getByRole('dialog')).toBeTruthy() })
   expect(choice).not.toHaveBeenCalled()
   expect(h.complete).not.toHaveBeenCalled()
@@ -308,7 +308,7 @@ it('keeps explicit API key setup available when automatic onboarding is disabled
   const h = harness()
   h.props.automatic = false
   h.props.explicit = true
-  render(<DeepSeekOnboardingDialog {...h.props} />)
+  render(<OmegaOnboardingDialog {...h.props} />)
   await waitFor(() => { expect(screen.getByRole('dialog')).toBeTruthy() })
   expect(h.complete).not.toHaveBeenCalled()
 })

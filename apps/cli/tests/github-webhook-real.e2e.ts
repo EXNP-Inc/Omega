@@ -1,4 +1,4 @@
-/** Real CLI and DeepSeek evidence for a GitHub webhook-created Session. */
+/** Real CLI and Omega evidence for a GitHub webhook-created Session. */
 
 import type { ChildProcess } from 'node:child_process'
 import { spawn } from 'node:child_process'
@@ -327,10 +327,10 @@ async function sendGitHubDelivery(origin: string): Promise<Response> {
   const body = JSON.stringify({
     action: 'ready_for_review',
     number: 4242,
-    repository: { full_name: 'deepseek-ai/deepseek-harness' },
+    repository: { full_name: 'omega-ai/omega-harness' },
     pull_request: {
       title: 'Real CLI webhook e2e',
-      html_url: 'https://github.com/deepseek-ai/deepseek-harness/pull/4242',
+      html_url: 'https://github.com/omega-ai/omega-harness/pull/4242',
       draft: false,
       user: { login: 'octocat' },
       base: { ref: 'master', sha: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' },
@@ -350,7 +350,7 @@ async function sendGitHubDelivery(origin: string): Promise<Response> {
   })
 }
 
-describe.skipIf(!process.env.DEEPSEEK_API_KEY)('GitHub webhook through the real dsh CLI and model', () => {
+describe.skipIf(!process.env.OMEGA_API_KEY)('GitHub webhook through the real dsh CLI and model', () => {
   it('creates, attaches, prompts, and completes a Workspace Session', async () => {
     expect(existsSync(BUILT_BIN), `missing built CLI ${BUILT_BIN}; run pnpm run build:official`).toBe(true)
     const root = await mkdtemp(join(tmpdir(), 'dsh-github-webhook-real-'))
@@ -453,7 +453,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('GitHub webhook through the real 
       const completed = await eventually(
         child,
         observation.text,
-        'a real DeepSeek assistant response',
+        'a real Omega assistant response',
         async () => await history(baseUrl, sessionId),
         page => assistantText(page).includes(MARKER),
         150_000,

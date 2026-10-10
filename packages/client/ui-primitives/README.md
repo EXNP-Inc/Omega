@@ -3,7 +3,7 @@ description: "Shared React UI atoms for the dsh web client: controls, icons, mar
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-client-ui-primitives
+# @omega-ai/dsh-client-ui-primitives
 
 English | [中文](README.zh.md)
 
@@ -67,12 +67,12 @@ Check this table before writing a control in a feature package. A plugin cannot 
 | `JsonTree`, `JsonBlock` | Read-only JSON inspection. |
 | `MarkdownText`, `MarkdownDelegateProvider`, `CodeBlock` | Untrusted GFM with TeX math, owner-delegated HTTP(S) navigation, and highlighted code. `CodeBlock` accepts opt-in `lineNumbers`; copied source excludes the gutter, and `contentRef` exposes its stable source wrapper to an owner that uses it as a scrollport. Set `showHeader={false}` when the owner supplies its own language and copy toolbar. |
 | `TerminalBlock`, `ReadBlock`, `DiffBlock`, `SearchBlock`, `WebBlock` | The agent-output card matching each tool-result intent. |
-| `icons/*`, `FishLogo`, `BrandWordmark`, `ReferenceIconRegular`/`ReferenceIconMedium`, `LinkIconRegular`/`LinkIconMedium` | Glyphs and brand marks. The thinking glyph keeps an inset orbit within its 16px view box. Use `LinkIconMedium` for 14px clickable-link categories and known-site marks. |
+| `icons/*`, `OmegaLogo`, `BrandWordmark`, `ReferenceIconRegular`/`ReferenceIconMedium`, `LinkIconRegular`/`LinkIconMedium` | Glyphs and brand marks. The thinking glyph keeps an inset orbit within its 16px view box. Use `LinkIconMedium` for 14px clickable-link categories and known-site marks. |
 | `PermissionIconReadOnlyRegular`/`Medium`, `PermissionIconWorkspaceWriteRegular`/`Medium`, `PermissionIconFullAccessRegular`/`Medium` | Permission-mode glyphs for read-only, workspace-write, and full-access choices. |
 | `PluginArtworkTerminal`/`Loop`/`Subagent`/`Search`/`Default` | Fixed-palette 36×36 plugin artwork; `Terminal` supplies the light-blue prompt in plugin cards and sidebar guide entries. `Default` marks plugins without artwork of their own. Def ids are per-instance, so the same artwork repeats safely on one page. |
 | `GuideArtworkBrowser`/`Files` | Fixed-palette 36×36 browser and folder artwork for sidebar guide entries. |
 | `FileTypeIcon`, `classifyFileType`, `fileExtension` | A category-colored 28px file or folder glyph and the shared case-insensitive filename mapping behind it. Code and configuration files use detailed full-color technology glyphs; use `LinkIconMedium` for link-leading glyphs and image previews for image content. |
-| `languageForPath`, `CODE_HIGHLIGHT_EXTENSIONS`, `useCodeHighlighter` | The lazy line-token highlighter shared by code preview and diff review. The filename grammar selection is re-exported from `@deepseek-ai/dsh-util-code-language`, the single extension table also behind the read card's persisted short-id `lang` hint. |
+| `languageForPath`, `CODE_HIGHLIGHT_EXTENSIONS`, `useCodeHighlighter` | The lazy line-token highlighter shared by code preview and diff review. The filename grammar selection is re-exported from `@omega-ai/dsh-util-code-language`, the single extension table also behind the read card's persisted short-id `lang` hint. |
 
 Four pairs are easy to confuse:
 
@@ -199,7 +199,7 @@ These limits define how the atoms behave at the edges; they are current package 
 - **Known-site marks are a fixed list** — only the named hosts resolve to their own mark, and every other external host keeps the globe; recognizing an arbitrary site would require fetching its icon over the network.
 - **Streaming defers cross-boundary reference resolution** — a reference-style link or footnote whose definition sits on the other side of the incremental freeze boundary renders as literal text while the reply streams; the settled full parse at finalize resolves it.
 - **A long highlighted fence retains its complete token DOM** — streaming avoids re-parsing, re-tokenizing, and reconciling the completed prefix, but it does not discard old colors or virtualize token spans. Final DOM cardinality therefore still follows the fence's token count; nested/container fences and a pathological single long line remain on the general tail path.
-- **The fish logo is a redrawn approximation** — its font glyph has no exportable vector geometry in the local design data, so a hand-authored recreation stands in until an exact export path exists.
+- **The omega mark is font-derived** — the Ω glyph is traced from Arial Bold (its outline geometry, no rendering dependency), so the mark stays a single fillable path; retrace it only if the brand font changes.
 - **`Pill` and `Input` have no design source** — both atoms are self-defined; the sidebar search field and view-tab strip that resemble them are consumer-owned compositions, not these atoms.
 - **No `Active` `StateDot` variant** — the supported states are done, warning, ongoing, error, and idle.
 - **User-facing copy is required at the render site** — the atoms are zero-Cordis and cannot reach `ctx.locale`; each feature must supply complete localized labels through the primitive's typed props ([decision](../../../.agents/notes/implemented/architecture/2026-08-23-locale-owned-client-ui-copy.md)).

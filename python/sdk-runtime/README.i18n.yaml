@@ -2,18 +2,18 @@
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write python/sdk-runtime/README.md
-/deepseek-harness-runtime-bin:
-  en: 1ea1d8e6d2c14b02
-  zh: 8e0b9903158667a1
-/deepseek-harness-runtime-bin/installed-commands-and-artifacts:
-  en: af4e7919327e1991
-  zh: b4114823b4f1a3fa
-/deepseek-harness-runtime-bin/python-module-api:
+/omega-harness-runtime-bin:
+  en: c58908e7bd9965e6
+  zh: 9b23dee87672cd86
+/omega-harness-runtime-bin/installed-commands-and-artifacts:
+  en: 82dbc462b039fea4
+  zh: 696a95414781fef2
+/omega-harness-runtime-bin/python-module-api:
   en: a88b7574e0e00a28
   zh: 3fd4fe8c0b338e79
-/deepseek-harness-runtime-bin/packaged-profile-resolution:
+/omega-harness-runtime-bin/packaged-profile-resolution:
   en: 641c647efc49c568
   zh: a29371de9fbbebfd
-/deepseek-harness-runtime-bin/build-and-distribution:
-  en: 9a4ba11944fbfc54
-  zh: 2ae046803108df2b
+/omega-harness-runtime-bin/build-and-distribution:
+  en: a5e51510266deeff
+  zh: ffc9d3369e3c62f9

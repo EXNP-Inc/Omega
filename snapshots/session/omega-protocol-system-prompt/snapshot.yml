@@ -1,0 +1,11 @@
+version: 1
+scenario: omega-protocol-system-prompt
+profile: headless
+composition: omega-protocol-system-prompt
+recording: authored
+header:
+  class: omega-protocol-system-prompt
+  pin: true
+  promptChanges: 1
+replay:
+  override: true
