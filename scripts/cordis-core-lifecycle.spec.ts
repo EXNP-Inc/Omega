@@ -1,9 +1,9 @@
 /** Cordis lifecycle since rc.11 (vendored Core): updates retain dependency ownership and publish only current configuration. */
-import type { Awaitable } from '@deepseek-ai/cosmokit'
-import { Context, FiberState } from '@deepseek-ai/cordis'
+import type { Awaitable } from '@omega-ai/cosmokit'
+import { Context, FiberState } from '@omega-ai/cordis'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context {
     rc11Service: { alive: boolean }
     rc11View: string

@@ -1,11 +1,11 @@
 /** Runtime credential templates resolve per pass and every resolved value is redacted from diagnostics. */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context, type Fiber } from '@deepseek-ai/cordis'
-import { credentialRef } from '@deepseek-ai/dsh-credentials'
-import { Config } from '@deepseek-ai/dsh-mcp-client'
-import { probeServer } from '@deepseek-ai/dsh-mcp-client/src/probe.ts'
-import { McpTemplateBinding } from '@deepseek-ai/dsh-mcp-client/src/credentials.ts'
+import { Context, type Fiber } from '@omega-ai/cordis'
+import { credentialRef } from '@omega-ai/dsh-credentials'
+import { Config } from '@omega-ai/dsh-mcp-client'
+import { probeServer } from '@omega-ai/dsh-mcp-client/src/probe.ts'
+import { McpTemplateBinding } from '@omega-ai/dsh-mcp-client/src/credentials.ts'
 import { TestCredentials } from './credential-fixture.ts'
 import { startHttpMcpFixture } from './http-fixture.ts'
 

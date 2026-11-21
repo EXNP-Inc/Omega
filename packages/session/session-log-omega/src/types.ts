@@ -1,7 +1,7 @@
-/** Wire types for lossless incremental DeepSeek session-log upload. */
+/** Wire types for lossless incremental Omega session-log upload. */
 
-import type { SessionEvent, SessionId, SurfaceEventType } from '@deepseek-ai/dsh-session'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+import type { SessionEvent, SessionId, SurfaceEventType } from '@omega-ai/dsh-session'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
 
 /** Request identity inspected before preparing a Session-log contribution. */
 export interface SessionLogUploadRequest {
@@ -19,7 +19,7 @@ export interface SessionLogUploadRequest {
 export type SessionLogUploadExclusion = (request: SessionLogUploadRequest) => boolean
 
 /** Session header fields serialized as raw JSON primitives on the external request wire. */
-export interface DeepSeekSessionLogWireHeader {
+export interface OmegaSessionLogWireHeader {
   readonly version: number
   readonly id: string
   readonly createdAt: number
@@ -33,7 +33,7 @@ export interface DeepSeekSessionLogWireHeader {
 }
 
 /** Raw-number surface mutation serialized on the external request wire. */
-export type DeepSeekSessionLogWireSurfaceOp =
+export type OmegaSessionLogWireSurfaceOp =
   | 'append'
   | { readonly op: 'replace'; readonly startSeq: number; readonly endSeq: number }
 
@@ -42,7 +42,7 @@ export type DeepSeekSessionLogWireSurfaceOp =
  * events require an operation; system, user, and tool events may cite sources.
  * Assistant provider metadata is embedded in its data; log-only events carry neither field.
  */
-export type DeepSeekSessionLogWireEvent = {
+export type OmegaSessionLogWireEvent = {
   [K in SessionEvent['type']]: {
     readonly type: K
     readonly seq: number
@@ -50,7 +50,7 @@ export type DeepSeekSessionLogWireEvent = {
     readonly data: JsonValue
     readonly ignorable?: true
   } & (K extends SurfaceEventType ? {
-    readonly surfaceOp: DeepSeekSessionLogWireSurfaceOp
+    readonly surfaceOp: OmegaSessionLogWireSurfaceOp
   } & (K extends 'assistant/message' ? {
     readonly sourceEventSeqs?: never
   } : {
@@ -70,36 +70,36 @@ export type DeepSeekSessionLogWireEvent = {
   readonly sourceEventSeqs?: JsonValue
 }
 
-/** Versioned incremental session-log field carried by an official DeepSeek request. */
-export interface DeepSeekSessionLogExtension {
+/** Versioned incremental session-log field carried by an official Omega request. */
+export interface OmegaSessionLogExtension {
   readonly version: 1
   /** Session format generation represented by this suffix. */
   readonly sessionFormatVersion: number
-  readonly session: DeepSeekSessionLogWireHeader
+  readonly session: OmegaSessionLogWireHeader
   /** Highest sequence durably recorded as accepted before this request, or `-1`. */
   readonly afterSeq: number
   /** Highest sequence represented by {@link events}. */
   readonly throughSeq: number
   /** Complete canonical event envelopes for every sequence from `afterSeq + 1` through `throughSeq`. */
-  readonly events: readonly DeepSeekSessionLogWireEvent[]
+  readonly events: readonly OmegaSessionLogWireEvent[]
 }
 
-declare module '@deepseek-ai/dsh-deepseek-llm-api-extensions/types' {
-  interface DeepSeekLlmApiExtensionMap {
-    dsh_session_log: DeepSeekSessionLogExtension
+declare module '@omega-ai/dsh-omega-llm-api-extensions/types' {
+  interface OmegaLlmApiExtensionMap {
+    dsh_session_log: OmegaSessionLogExtension
   }
 }
 
-declare module '@deepseek-ai/dsh-session/types' {
+declare module '@omega-ai/dsh-session/types' {
   interface SessionEventMap {
     /** Records that the configured endpoint accepted one delivery through `throughSeq`. */
-    'session-log-deepseek/delivery-accepted': {
+    'session-log-omega/delivery-accepted': {
       /** Session identity the accepted delivery carried; inherited fork markers retain the parent's id. */
-      sessionId: import('@deepseek-ai/dsh-session/types').SessionId
+      sessionId: import('@omega-ai/dsh-session/types').SessionId
       /** Accepted Session format generation; absence identifies version 0. */
       sessionFormatVersion?: number
       /** Last canonical event included in the accepted request. */
-      throughSeq: import('@deepseek-ai/dsh-session/types').SessionSeq
+      throughSeq: import('@omega-ai/dsh-session/types').SessionSeq
     }
   }
 }

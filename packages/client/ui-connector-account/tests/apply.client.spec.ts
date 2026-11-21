@@ -3,10 +3,10 @@
  * that owns an account, withdrawing them with the account or the plugin.
  */
 import assert from 'node:assert/strict'
-import { Context, Service } from '@deepseek-ai/cordis'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
-import { RemoteError, type RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
+import { Context, Service } from '@omega-ai/cordis'
+import { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
+import { SlotRegistry } from '@omega-ai/dsh-client-ui-renderer/client'
+import { RemoteError, type RemoteResult } from '@omega-ai/dsh-typert-protocol'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import {
   ConnectorAccountActivationEntry, ConnectorAccountBadgeEntry, ConnectorAccountSectionEntry, ConnectorAccountToastEntry,

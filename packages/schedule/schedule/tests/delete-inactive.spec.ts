@@ -1,13 +1,13 @@
 /** Host-wide removal of every ended task shares per-row deletion's durability rules. */
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { MessageId } from '@deepseek-ai/dsh-llm/types'
+import type { SessionId } from '@omega-ai/dsh-session'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { MessageId } from '@omega-ai/dsh-llm/types'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { createAfterScheduleRecord, createEveryScheduleRecord } from '../src/domain.ts'
 import type { ScheduleId } from '../src/types.ts'
-import type { DomainFacility } from '@deepseek-ai/dsh-storage-domain'
+import type { DomainFacility } from '@omega-ai/dsh-storage-domain'
 import { scheduleDomain, scheduleTaskSchema, type ScheduleTask } from '../src/storage.ts'
-import { StorageError } from '@deepseek-ai/dsh-storage'
+import { StorageError } from '@omega-ai/dsh-storage'
 import { MemoryMediaPool } from '../../../storage/storage-domain/tests/helpers/memory-backend.ts'
 import { agentFor, gatedScheduleBackend, harness } from './harness.ts'
 

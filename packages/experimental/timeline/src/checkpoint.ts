@@ -128,7 +128,7 @@ export class Checkpoint {
         ...(tree.description ? { description: tree.description } : {}),
         elapsedMs: Math.max(0, end - tree.createdAt),
         metadata: {
-          plugin: '@deepseek-ai/dsh-timeline',
+          plugin: '@omega-ai/dsh-timeline',
           ...(pluginVersion === undefined ? {} : { pluginVersion }),
           exportedAt: new Date(now).toISOString(),
           sourceSessionId: sessionId,

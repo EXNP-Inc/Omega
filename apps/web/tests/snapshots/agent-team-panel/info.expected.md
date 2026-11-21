@@ -1,7 +1,7 @@
 ## Root
 
 - menu "Model and reasoning effort":
-  - menuitem "Model DeepSeek-V4-Flash"
+  - menuitem "Model Omega-V4-Flash"
   - menuitem "Agent teamwork Off"
 
 ## Team settings

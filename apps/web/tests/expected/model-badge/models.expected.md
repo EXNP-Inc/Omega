@@ -1,13 +1,13 @@
 - menu "模型":
-  - group "DeepSeek 账号":
-    - text: DeepSeek 账号
-    - menuitemradio "DeepSeek-V4.1-Flash 1017"
-  - group "DeepSeek":
-    - text: DeepSeek
-    - menuitemradio "DeepSeek-V4.1-Flash 新" [checked]
-    - menuitemradio "DeepSeek-V4-Pro"
-    - menuitemradio "DeepSeek model with a very long release and capability description that exceeds the selector width Preview"
+  - group "Omega 账号":
+    - text: Omega 账号
+    - menuitemradio "Omega-V4.1-Flash 1017"
+  - group "Omega":
+    - text: Omega
+    - menuitemradio "Omega-V4.1-Flash 新" [checked]
+    - menuitemradio "Omega-V4-Pro"
+    - menuitemradio "Omega model with a very long release and capability description that exceeds the selector width Preview"
     - menuitemradio "Invalid badge model"
   - group "External":
     - text: External
-    - menuitemradio "DeepSeek-V4.1-Flash"
+    - menuitemradio "Omega-V4.1-Flash"

@@ -2,7 +2,7 @@
 import { fileURLToPath } from 'node:url'
 import { chromium, type Locator } from 'playwright'
 import { expect, it } from 'vitest'
-import type { ScheduleTiming } from '@deepseek-ai/dsh-schedule/client'
+import type { ScheduleTiming } from '@omega-ai/dsh-schedule/client'
 import { captureStableAria, compareOrRefreshGolden, launchWebScaffold, watchConsole, webSnapshotMode } from './scaffold.ts'
 import { revealNavigationDrawer, writeComposerDraft } from './support.ts'
 

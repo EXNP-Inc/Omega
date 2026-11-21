@@ -1,5 +1,5 @@
 /** DOM ids that connect a Session's toggle and panel across their separate slot entries. */
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 
 /**
  * Id of a Session's panel element, which the toggle names in `aria-controls`.

@@ -6,16 +6,16 @@
  * classification, the model-friendly terminal environment, and the model-facing
  * stdout/stderr merge for background reads. Execution policy belongs in
  * `tools/pre-execute` or a sandboxing executor.
- * @module @deepseek-ai/dsh-bash-local
+ * @module @omega-ai/dsh-bash-local
  */
 
-import type { Volatile } from '@deepseek-ai/cordis'
-import { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import { ShellExecutor } from '@deepseek-ai/dsh-shell'
-import type { ShellExecRequest, ShellExecSpec, ShellExecution, ShellProcess, ShellProcessRead, ShellRunResult, CollectedOutput } from '@deepseek-ai/dsh-shell'
-import type { SubprocessCollect, SubprocessHandle, SubprocessOutputReader, SubprocessSpawnSpec } from '@deepseek-ai/dsh-subprocess'
-import { clampTimeout, deadline, MAX_TIMER_DELAY_MS, timeoutOf } from '@deepseek-ai/dsh-timeout'
+import type { Volatile } from '@omega-ai/cordis'
+import { Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
+import { ShellExecutor } from '@omega-ai/dsh-shell'
+import type { ShellExecRequest, ShellExecSpec, ShellExecution, ShellProcess, ShellProcessRead, ShellRunResult, CollectedOutput } from '@omega-ai/dsh-shell'
+import type { SubprocessCollect, SubprocessHandle, SubprocessOutputReader, SubprocessSpawnSpec } from '@omega-ai/dsh-subprocess'
+import { clampTimeout, deadline, MAX_TIMER_DELAY_MS, timeoutOf } from '@omega-ai/dsh-timeout'
 
 /**
  * Model-friendly environment overrides: disable colors, pagers, and

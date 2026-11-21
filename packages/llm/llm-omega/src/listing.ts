@@ -1,7 +1,7 @@
-/** DeepSeek `GET /models` listing: one authenticated request and per-entry decoding. */
-import { APP_IDENTITY, attributionHeaders, LlmError } from '@deepseek-ai/dsh-llm'
-import type { LlmModelBadge, LlmModelBadgeTone, ModelModality } from '@deepseek-ai/dsh-llm'
-import { timeoutOf } from '@deepseek-ai/dsh-timeout'
+/** Omega `GET /models` listing: one authenticated request and per-entry decoding. */
+import { APP_IDENTITY, attributionHeaders, LlmError } from '@omega-ai/dsh-llm'
+import type { LlmModelBadge, LlmModelBadgeTone, ModelModality } from '@omega-ai/dsh-llm'
+import { timeoutOf } from '@omega-ai/dsh-timeout'
 
 const LISTED_MODALITIES = ['text', 'image'] as const satisfies readonly ModelModality[]
 const BADGE_TONES = ['neutral', 'info', 'success', 'warning'] as const satisfies readonly LlmModelBadgeTone[]
@@ -175,7 +175,7 @@ function capabilitiesOf(entry: Fields): ListedCapabilities {
   const outputs = entry.output_modalities === undefined ? ['text'] : knownModalities(entry.output_modalities)
   if (outputs?.includes('text') !== true) return { usable: false, reason: 'declares no text output' }
   const inputs = entry.input_modalities === undefined ? ['text' as const] : knownModalities(entry.input_modalities)
-  if (inputs === undefined || inputs.length === 0) return { usable: false, reason: 'declares no input modality DeepSeek Harness supports' }
+  if (inputs === undefined || inputs.length === 0) return { usable: false, reason: 'declares no input modality Omega supports' }
   const contextWindow = capacity(entry.context_window)
   const maxOutputTokens = capacity(entry.max_output_tokens)
   if (contextWindow === false || maxOutputTokens === false) {
@@ -206,7 +206,7 @@ function capabilitiesOf(entry: Fields): ListedCapabilities {
  */
 export function parseModelListing(body: unknown): ModelListing {
   const data = fieldsOf(body)?.data
-  if (!Array.isArray(data)) throw new LlmError('DeepSeek model listing has no "data" array', 'INVALID_RESPONSE')
+  if (!Array.isArray(data)) throw new LlmError('Omega model listing has no "data" array', 'INVALID_RESPONSE')
   const rows: readonly unknown[] = data
   const entries: ListingEntry[] = []
   const seen = new Set<string>()
@@ -224,7 +224,7 @@ export function parseModelListing(body: unknown): ModelListing {
       ...badge === undefined ? {} : { badge },
     })
   }
-  if (entries.length === 0) throw new LlmError('DeepSeek model listing contains no model entry', 'INVALID_RESPONSE')
+  if (entries.length === 0) throw new LlmError('Omega model listing contains no model entry', 'INVALID_RESPONSE')
   return { entries, skipped: rows.length - entries.length }
 }
 
@@ -252,10 +252,10 @@ export async function requestModelListing(
   } catch (error) {
     const expired = timeoutOf(signal, LISTING_TIMEOUT)
     if (expired !== undefined) {
-      throw new LlmError(`DeepSeek model listing request to ${url} timed out after ${expired.timeoutMs} ms`, 'TIMEOUT', { cause: error })
+      throw new LlmError(`Omega model listing request to ${url} timed out after ${expired.timeoutMs} ms`, 'TIMEOUT', { cause: error })
     }
     throw signal.aborted
-      ? new LlmError(`DeepSeek model listing request to ${url} was aborted`, 'ABORTED', { cause: error })
+      ? new LlmError(`Omega model listing request to ${url} was aborted`, 'ABORTED', { cause: error })
       : new LlmError(`could not reach ${url}`, 'TRANSPORT', { cause: error })
   }
   if (!response.ok) throw new LlmError(`${url} answered HTTP ${response.status}`, `HTTP_${response.status}`, { status: response.status })

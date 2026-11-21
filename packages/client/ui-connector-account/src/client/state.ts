@@ -2,11 +2,11 @@
  * The page's one subscription to the registered accounts, and what only this browser knows about them: the operations
  * it started, whose authorization pages open here, and the notice to show.
  */
-import type { Context } from '@deepseek-ai/cordis'
-import type { RemoteStream } from '@deepseek-ai/dsh-api-gateway/client'
-import type { ClientRemote } from '@deepseek-ai/dsh-api-remotes/client'
-import { createSnapshotStore, type SnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { LocalizedText } from '@deepseek-ai/dsh-package-manifest'
+import type { Context } from '@omega-ai/cordis'
+import type { RemoteStream } from '@omega-ai/dsh-api-gateway/client'
+import type { ClientRemote } from '@omega-ai/dsh-api-remotes/client'
+import { createSnapshotStore, type SnapshotStore } from '@omega-ai/dsh-client-store'
+import type { LocalizedText } from '@omega-ai/dsh-package-manifest'
 import type { ConnectorAccountEntry, ConnectorAccountsView, ConnectorOperationId } from '../types.ts'
 import type { ConnectorAccountNotice, ConnectorAccountsState } from './types.ts'
 

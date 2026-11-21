@@ -1,4 +1,4 @@
-// Real-composition acceptance for DeepSeek account sign-in from a plain browser. The
+// Real-composition acceptance for Omega account sign-in from a plain browser. The
 // scaffold boots the shipped Web Loader tree, so the real account provider drives
 // auth_init, the loopback OAuth callback, and auth_exchange against a loopback Platform
 // double, while a real Chromium follows the tab the Web UI preopens.
@@ -100,7 +100,7 @@ async function mockPlatform() {
   }
 }
 
-describe.skipIf(MODE === 'record')('web e2e: DeepSeek account sign-in in a plain browser', () => {
+describe.skipIf(MODE === 'record')('web e2e: Omega account sign-in in a plain browser', () => {
   let root: string | undefined
   let scaffold: WebScaffold
   let browser: Browser

@@ -2,12 +2,12 @@
 import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import type { Context } from '@deepseek-ai/cordis'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import { JsonStorageBackend } from '@deepseek-ai/dsh-storage-json'
+import type { Context } from '@omega-ai/cordis'
+import type { SessionId } from '@omega-ai/dsh-session'
+import { JsonStorageBackend } from '@omega-ai/dsh-storage-json'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { harness, storedUnit } from './harness.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const contexts: Context[] = []
 const roots: string[] = []

@@ -2,17 +2,17 @@
  * The web search and fetch settings page: one section per capability, each
  * with a provider menu and its explanation. The selected provider's settings
  * below the menu sit in one gray panel: the result count and billing for the
- * DeepSeek Search API, billing for the DeepSeek Fetch API, and the key,
+ * Omega Search API, billing for the Omega Fetch API, and the key,
  * endpoint, and search limit for legacy Messages search. A provider with no
  * settings here shows no panel.
  */
 
 import { useRef, useState, type ReactNode } from 'react'
-import type {} from '@deepseek-ai/dsh-client-ui-plugin-manager/client'
+import type {} from '@omega-ai/dsh-client-ui-plugin-manager/client'
 import {
   Button, IconChevronDownOutlineRegular, Menu, SettingsForm, SettingsSecretField, SettingsValueField, Tag,
-} from '@deepseek-ai/dsh-client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
+} from '@omega-ai/dsh-client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@omega-ai/dsh-client-ui-slots'
 import { formLabels, type WebSearchSettingsLocaleKey } from './locales.ts'
 import styles from './WebSearchCard.module.css'
 import {
@@ -30,10 +30,10 @@ type T = WebSearchCardProps['t']
 
 /** Dictionary names of the official providers; any other provider shows its registered title or id. */
 const PROVIDER_LABELS: Record<string, WebSearchSettingsLocaleKey> = {
-  [PROVIDER_IDS.apiSearch]: 'providerDeepSeek',
+  [PROVIDER_IDS.apiSearch]: 'providerOmega',
   [PROVIDER_IDS.legacySearch]: 'providerLegacy',
   [PROVIDER_IDS.localFetch]: 'providerLocal',
-  [PROVIDER_IDS.apiFetch]: 'providerDeepSeekFetch',
+  [PROVIDER_IDS.apiFetch]: 'providerOmegaFetch',
 }
 
 /**
@@ -75,10 +75,10 @@ export function WebSearchCard(props: WebSearchCardProps) {
           section={search} disabled={menuDisabled} field="searchProvider" onSelect={props.selectProvider}
           providersFailed={state.providersFailed} onRetry={props.retryProviders}
           description={searchAuto ? t('searchAutoHint') : describe(search)}
-          hint={search.kind === 'deepseek' || searchAuto
+          hint={search.kind === 'omega' || searchAuto
             ? <a className={styles.link} href={t('searchGuideUrl')} target="_blank" rel="noopener noreferrer">{t('searchGuide')}</a>
             : search.kind === 'plugin' ? t('pluginProviderHint') : undefined} />
-        {search.kind === 'deepseek' && (
+        {search.kind === 'omega' && (
           <div className={styles.panel}>
             <SettingsValueField id="plugin-config-web-search-count" label={t('count')} hint={t('countHint')} numeric
               overriddenLabel={t('overridden')} resetLabel={t('reset')} invalidLabel={t('invalidCount')} disabled={disabled}

@@ -6,9 +6,9 @@
 import { mkdtempSync, rmSync, statSync, unlinkSync, utimesSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { ClientArtifactBaseline, ClientModuleRegistry, WebBootGraph } from '@deepseek-ai/dsh-client-modules'
+import type { ClientArtifactBaseline, ClientModuleRegistry, WebBootGraph } from '@omega-ai/dsh-client-modules'
 import { apply, Config, inject } from '../src/index.ts'
 
 const POLL_MS = 20

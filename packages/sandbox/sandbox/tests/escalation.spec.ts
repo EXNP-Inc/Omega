@@ -16,8 +16,8 @@ import {
   sandboxDenialMarker,
   sandboxPermissionsDescription,
   validateEscalationArgs,
-} from '@deepseek-ai/dsh-sandbox'
-import type { EscalationApprover, EscalationOutcome, SandboxEscalationErrorCode } from '@deepseek-ai/dsh-sandbox'
+} from '@omega-ai/dsh-sandbox'
+import type { EscalationApprover, EscalationOutcome, SandboxEscalationErrorCode } from '@omega-ai/dsh-sandbox'
 
 /** The structured identity a failed escalation records on `tool/result`. */
 const escalationError = (code: SandboxEscalationErrorCode): unknown => expect.objectContaining({ name: 'SandboxEscalationError', code })

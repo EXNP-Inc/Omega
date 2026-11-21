@@ -1,7 +1,7 @@
 /** Desktop's private credential verifier, registered as an ordinary Connection provider. */
 import { timingSafeEqual } from 'node:crypto'
-import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-client-connection'
+import type { Context } from '@omega-ai/cordis'
+import type {} from '@omega-ai/dsh-client-connection'
 
 /** Stable plugin name. */
 export const name = 'host-authentication-desktop'

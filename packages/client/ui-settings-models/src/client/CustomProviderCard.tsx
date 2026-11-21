@@ -26,11 +26,11 @@
 
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
 import { apiKeyFailure } from './apiKey.ts'
 import { ApiKeyInput } from './ApiKeyInput.tsx'
 import { EditorFooter } from './EditorFooter.tsx'
-import { validateDeepSeekModels } from './DeepSeekModelsEditor.tsx'
+import { validateOmegaModels } from './OmegaModelsEditor.tsx'
 import { ModelListEditor } from './ModelListEditor.tsx'
 import type { ModelDraft } from './ModelListEditor.tsx'
 import { validateReasoningEfforts } from './ModelReasoningEfforts.tsx'
@@ -140,7 +140,7 @@ export function CustomProviderCard(props: CustomProviderCardProps): ReactNode {
   // fallbacks; what a route cannot default is at least one model. Every row of
   // this hand-declared route edits its reasoning levels, so they are checked too.
   const reasoning = protocolReasoningLevels(protocol, reasoningLevels)
-  const modelFailure = validateDeepSeekModels(models)
+  const modelFailure = validateOmegaModels(models)
     ?? validateReasoningEfforts(models, reasoning.levelsOnly ? reasoning.levels : undefined)
   // A blank key is a legal choice only where the protocol can authenticate without one.
   const keyMissing = protocolNeedsKey(protocol) && keyDraft.trim().length === 0

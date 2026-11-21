@@ -1,15 +1,15 @@
 ---
-description: "面向启用官方 DeepSeek 请求元数据的部署，增量上传规范会话日志。"
+description: "面向启用官方 Omega 请求元数据的部署，增量上传规范会话日志。"
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-session-log-deepseek
+# @omega-ai/dsh-session-log-omega
 
 [English](README.md) | 中文
 
 ## 概述
 
-用于 DeepSeek 官方 LLM（大语言模型）API 请求的增量规范会话日志上传。该函数插件注入 `ctx.sessions` 与 `ctx.deepseekLlmApiExtensions`，并拥有 `dsh_session_log` 请求字段以及用于派生接受水位的持久 `session-log-deepseek/delivery-accepted` 事件。仅当官方 API 不得接收会话日志后缀时才禁用它。
+用于 Omega 官方 LLM（大语言模型）API 请求的增量规范会话日志上传。该函数插件注入 `ctx.sessions` 与 `ctx.omegaLlmApiExtensions`，并拥有 `dsh_session_log` 请求字段以及用于派生接受水位的持久 `session-log-omega/delivery-accepted` 事件。仅当官方 API 不得接收会话日志后缀时才禁用它。
 
 ## 目录
 
@@ -45,15 +45,15 @@ Web **设置 → 通用 → 在使用官方模型 API 时上传 Session Log** �
 <a id="upload-exclusions"></a>
 ## 上传排除条件
 
-插件可通过 `ctx.sessionLogDeepSeek.registerExclusion()` 注册同步、无副作用的判断函数。函数接收存活的 `sessionId` 与可选请求用途 `purpose`；返回 `true` 时，省略本次请求的日志字段与接受回调。任意条件匹配都会排除上传。没有条件匹配时，应用普通上传资格判断。条件抛错时省略本次日志贡献，请求扩展注册器报告首次准备失败；模型请求继续携带其他已准备字段。
+插件可通过 `ctx.sessionLogOmega.registerExclusion()` 注册同步、无副作用的判断函数。函数接收存活的 `sessionId` 与可选请求用途 `purpose`；返回 `true` 时，省略本次请求的日志字段与接受回调。任意条件匹配都会排除上传。没有条件匹配时，应用普通上传资格判断。条件抛错时省略本次日志贡献，请求扩展注册器报告首次准备失败；模型请求继续携带其他已准备字段。
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-session-log-deepseek'
+import type { Context } from '@omega-ai/cordis'
+import type {} from '@omega-ai/dsh-session-log-omega'
 
 export function apply(ctx: Context): void {
-  ctx.inject(['sessionLogDeepSeek'], (child) => {
-    child.sessionLogDeepSeek.registerExclusion(request => request.purpose === 'private-operation')
+  ctx.inject(['sessionLogOmega'], (child) => {
+    child.sessionLogOmega.registerExclusion(request => request.purpose === 'private-operation')
   })
 }
 ```
@@ -63,7 +63,7 @@ export function apply(ctx: Context): void {
 <a id="acceptance-and-retry"></a>
 ## 接受与重试
 
-DeepSeek 适配器会在 HTTP 2xx 后、消费 SSE（Server-Sent Events）正文前调用已准备贡献的 `accept()`。接受操作会追加 `session-log-deepseek/delivery-accepted`，其中包含已上传的 `throughSeq` 与 `sessionFormatVersion`；省略格式字段的记录表示 v0。下一次请求再把该事件作为新后缀的一部分上传。传输失败、非 2xx 失败，以及 DeepSeek 适配器在扩展字段序列化失败后不带扩展字段发出的请求，都不会追加接受记录，因此后续请求会重发不确定范围。并发交付可能乱序得到接受；折叠匹配记录中最大的 `throughSeq` 可以防止游标回退。
+Omega 适配器会在 HTTP 2xx 后、消费 SSE（Server-Sent Events）正文前调用已准备贡献的 `accept()`。接受操作会追加 `session-log-omega/delivery-accepted`，其中包含已上传的 `throughSeq` 与 `sessionFormatVersion`；省略格式字段的记录表示 v0。下一次请求再把该事件作为新后缀的一部分上传。传输失败、非 2xx 失败，以及 Omega 适配器在扩展字段序列化失败后不带扩展字段发出的请求，都不会追加接受记录，因此后续请求会重发不确定范围。并发交付可能乱序得到接受；折叠匹配记录中最大的 `throughSeq` 可以防止游标回退。
 
 服务端接受后、持久化水位前发生崩溃，可能让恢复后的进程重放已经接受的范围。这是至少一次交付的失败方向：不确定性会制造重复，绝不会跳过序列。普通会话检查点策略会在下一个语义检查点持久化水位；本插件不执行独立 I/O。
 
@@ -76,7 +76,7 @@ DeepSeek 适配器会在 HTTP 2xx 后、消费 SSE（Server-Sent Events）正文
 
 #### 模型看到的内容
 
-无。`dsh_session_log` 是 DeepSeek 请求中模型输入字段的同级字段，不会插入 `messages`、系统提示词或工具 schema。
+无。`dsh_session_log` 是 Omega 请求中模型输入字段的同级字段，不会插入 `messages`、系统提示词或工具 schema。
 
 #### Token 影响
 

@@ -11,10 +11,10 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import type { SessionId as sessionId, SessionId } from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-agent'
+import type { SessionId as sessionId, SessionId } from '@omega-ai/dsh-session'
+import type {} from '@omega-ai/dsh-agent'
 import { launchWebScaffold, readPersistedEvents, webSnapshotMode, type WebScaffold } from './scaffold.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const MODE = webSnapshotMode()
 const INITIAL = 'Explain event sourcing in one sentence.'

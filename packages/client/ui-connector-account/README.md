@@ -3,7 +3,7 @@ description: "Register a connector plugin's account on the Host with `ctx.connec
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-connector-account
+# @omega-ai/dsh-client-ui-connector-account
 
 English | [中文](README.zh.md)
 
@@ -32,7 +32,7 @@ A registrant's Host row registers its account once; the registrant ships no brow
 The registrant's Host row registers its account source while the registry runs, so a composition without the registry, such as a headless profile, skips the registration:
 
 ```ts ignore-check
-import type {} from '@deepseek-ai/dsh-client-ui-connector-account'
+import type {} from '@omega-ai/dsh-client-ui-connector-account'
 
 export function apply(ctx: Context): void {
   const account = new AcmeAccount(options)

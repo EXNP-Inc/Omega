@@ -1,20 +1,20 @@
 /** Anonymous text translation with optional durable provider-independent Session results. */
-import { Context, Service } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
+import { Context, Service } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
 import type { TranslationProvider, TranslationRequest, TranslationSpec } from './types.ts'
 import { TranslationError } from './error.ts'
 import { anonymousRecipe, translateText } from './provider.ts'
 import { TranslationStorage } from './storage.ts'
 import { addAbortListener } from 'node:events'
-import { assertNever } from '@deepseek-ai/dsh-util-values'
-import { availablePaidProviders, deepseekRecipe, translateWithDeepSeek } from './deepseek.ts'
+import { assertNever } from '@omega-ai/dsh-util-values'
+import { availablePaidProviders, omegaRecipe, translateWithOmega } from './omega.ts'
 import type { TranslationIdentity } from './types.ts'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 
 export type * from './types.ts'
 export { TranslationError } from './error.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context {
     /** Experimental text translator with optional durable Session reuse. */
     translator: Translator
@@ -36,9 +36,9 @@ export interface Config {
   /** Maximum anonymous JSON-body bytes or paid assembled UTF-8 translation bytes. */
   maxResponseBytes: number
   /** Deadline for native admission and complete translation output, in milliseconds. */
-  deepseekTimeoutMs: number
+  omegaTimeoutMs: number
   /** Requested output-token cap for independent native Flash translation. */
-  deepseekMaxOutputTokens: number
+  omegaMaxOutputTokens: number
 }
 
 function endpoint(value: string): string {
@@ -52,14 +52,14 @@ function endpoint(value: string): string {
 /** One Host service with explicit routing, cancellation and quiescent unload. */
 export default class Translator extends Service {
   static Config = z.object({
-    provider: z.union(['google', 'bing', 'deepseek-account', 'deepseek-official'] as const).default('bing'),
+    provider: z.union(['google', 'bing', 'omega-account', 'omega-official'] as const).default('bing'),
     googleEndpoint: z.transform(z.string(), endpoint).default('https://translate.googleapis.com/translate_a/single'),
     bingEndpoint: z.transform(z.string(), endpoint).default('https://edge.microsoft.com/translate/translatetext'),
     timeoutMs: z.natural().min(1).max(2_147_483_647).default(10_000),
     maxTextChars: z.natural().min(2).default(4_000),
     maxResponseBytes: z.natural().min(1).default(1024 * 1024),
-    deepseekTimeoutMs: z.natural().min(1).max(2_147_483_647).default(60_000),
-    deepseekMaxOutputTokens: z.natural().min(1).default(8192),
+    omegaTimeoutMs: z.natural().min(1).max(2_147_483_647).default(60_000),
+    omegaMaxOutputTokens: z.natural().min(1).default(8192),
   })
 
   private readonly lifetime = new AbortController()
@@ -103,8 +103,8 @@ export default class Translator extends Service {
     switch (provider) {
       case 'google':
       case 'bing': return { ...base, provider, ...request.sessionId === undefined ? {} : { sessionId: request.sessionId } }
-      case 'deepseek-account':
-      case 'deepseek-official': {
+      case 'omega-account':
+      case 'omega-official': {
         if (request.sessionId === undefined) throw new TranslationError('TRANSLATION_SESSION_REQUIRED', 'Paid translation requires a durable Session')
         return { ...base, provider, sessionId: request.sessionId }
       }
@@ -126,12 +126,12 @@ export default class Translator extends Service {
     const combined = this.signal(signal)
     const identity: TranslationIdentity = { provider: spec.provider, text: spec.text, sourceLanguage: spec.sourceLanguage,
       targetLanguage: spec.targetLanguage, recipe: spec.provider === 'google' || spec.provider === 'bing'
-        ? anonymousRecipe(spec.provider, this.config) : deepseekRecipe(this.config) }
+        ? anonymousRecipe(spec.provider, this.config) : omegaRecipe(this.config) }
     const inSession = (id: SessionId) => this.storage.run(id, identity, combined, async (log) => {
       switch (spec.provider) {
-        case 'deepseek-account':
-        case 'deepseek-official':
-          return translateWithDeepSeek(this.ctx, spec, this.config, combined, (work) => { this.track(work) }, log, identity)
+        case 'omega-account':
+        case 'omega-official':
+          return translateWithOmega(this.ctx, spec, this.config, combined, (work) => { this.track(work) }, log, identity)
         case 'google':
         case 'bing': {
           const requestSeq = await log.request(identity)
@@ -149,8 +149,8 @@ export default class Translator extends Service {
       switch (spec.provider) {
         case 'google':
         case 'bing': return spec.sessionId === undefined ? translateText(spec, this.config, combined) : inSession(spec.sessionId)
-        case 'deepseek-account':
-        case 'deepseek-official': return inSession(spec.sessionId)
+        case 'omega-account':
+        case 'omega-official': return inSession(spec.sessionId)
         /* v8 ignore next -- TranslationSpec has a closed provider union resolved before same-process dispatch. */
         default: return assertNever(spec)
       }

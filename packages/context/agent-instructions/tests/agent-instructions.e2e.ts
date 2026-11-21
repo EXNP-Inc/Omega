@@ -1,21 +1,21 @@
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { provideWorkingDirectoryFixture, mountAgentLoopTestDependencies } from '@deepseek-ai/dsh-agent-loop-testkit'
+import { createUserMessage } from '@omega-ai/dsh-llm'
+import { provideWorkingDirectoryFixture, mountAgentLoopTestDependencies } from '@omega-ai/dsh-agent-loop-testkit'
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
-import DeepSeekAuth from '@deepseek-ai/dsh-deepseek-auth'
-import * as AgentInstructions from '@deepseek-ai/dsh-agent-instructions'
+import { Context } from '@omega-ai/cordis'
+import type { SessionId } from '@omega-ai/dsh-session'
+import type { Agent } from '@omega-ai/dsh-agent'
+import AgentLoop from '@omega-ai/dsh-agent-loop'
+import * as LlmOmega from '@omega-ai/dsh-llm-omega-api-key'
+import OmegaAuth from '@omega-ai/dsh-omega-auth'
+import * as AgentInstructions from '@omega-ai/dsh-agent-instructions'
 import { candidateScopeKey } from '../src/render.ts'
-import LocalFileSystem from '@deepseek-ai/dsh-fs-local'
-import * as ToolFs from '@deepseek-ai/dsh-tool-fs'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import LocalFileSystem from '@omega-ai/dsh-fs-local'
+import * as ToolFs from '@omega-ai/dsh-tool-fs'
+import type { SessionEvent } from '@omega-ai/dsh-session'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const PROBE = 'banana-271828'
 const NESTED_PROBE = 'papaya-314159'
@@ -48,12 +48,12 @@ async function harness(): Promise<{ ctx: Context; agent: Agent }> {
   vi.stubEnv('DSH_AGENTS_HOME', join(workdir, 'absent-agents'))
   await ctx.plugin(AgentInstructions, { maxBytes: 65536 })
   await ctx.plugin(AgentLoop, { agents: [] })
-  await ctx.plugin(DeepSeekAuth)
-  await ctx.plugin(LlmDeepSeek, { models: [{ id: 'deepseek-v4-flash' }] })
+  await ctx.plugin(OmegaAuth)
+  await ctx.plugin(LlmOmega, { models: [{ id: 'omega-v4-flash' }] })
   const handle = await ctx.agents.create({
     sessionId: brandString<SessionId>('workspace-context-e2e-session'),
     meta: { cwd: workdir },
-    agentOptions: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+    agentOptions: { provider: 'omega-official', model: 'omega-v4-flash' },
   })
   return { ctx, agent: handle.agent }
 }
@@ -78,7 +78,7 @@ function finalText(events: readonly SessionEvent[]): string {
     .join('')
 }
 
-describe.skipIf(!process.env.DEEPSEEK_API_KEY)('workspace context e2e: real model sees AGENTS.md baseline', () => {
+describe.skipIf(!process.env.OMEGA_API_KEY)('workspace context e2e: real model sees AGENTS.md baseline', () => {
   it('obeys a probe instruction loaded from the workspace', async () => {
     const live = await harness()
 

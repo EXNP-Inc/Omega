@@ -1,24 +1,24 @@
-- id: llm-deepseek
-  name: '@deepseek-ai/dsh-llm-deepseek-api-key'
+- id: llm-omega
+  name: '@omega-ai/dsh-llm-omega-api-key'
   disabled: true
 
-- id: plugin-package-inventory-deepseek
+- id: plugin-package-inventory-omega
   disabled: true
 
 - insert:
     - id: llm-replay
-      name: '@deepseek-ai/dsh-llm-replay'
+      name: '@omega-ai/dsh-llm-replay'
       config:
         providers:
-          - id: deepseek-official
-            name: DeepSeek
+          - id: omega-official
+            name: Omega
             models:
-              - id: deepseek-v4-flash
-              - id: deepseek-v4-pro
+              - id: omega-v4-flash
+              - id: omega-v4-pro
 
 - insert:
     - id: experimental-subagent-oar-codex
-      name: '@deepseek-ai/dsh-experimental-subagent-oar'
+      name: '@omega-ai/dsh-experimental-subagent-oar'
       config:
         runtime: codex
         providerName: oar-codex
@@ -26,7 +26,7 @@
           - -c
           - sandbox_mode="workspace-write"
     - id: experimental-subagent-oar-claude
-      name: '@deepseek-ai/dsh-experimental-subagent-oar'
+      name: '@omega-ai/dsh-experimental-subagent-oar'
       config:
         runtime: claude
         providerName: oar-claude
@@ -36,7 +36,7 @@
           - --permission-prompts
           - none
     - id: tool-subagent-oar
-      name: '@deepseek-ai/dsh-experimental-tool-subagent-oar'
+      name: '@omega-ai/dsh-experimental-tool-subagent-oar'
       config:
         providers:
           codex: oar-codex

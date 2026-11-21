@@ -9,7 +9,7 @@ description: "Cordis Loader 1.0.0-rc.9 与 Include 1.2.0 按 YAML 1.2 解析、�
 
 ## 变更
 
-`@deepseek-ai/cordis-plugin-loader` 现在包含上游 Loader 1.0.0-rc.9，`@deepseek-ai/cordis-plugin-include` 包含 Include 1.2.0。受影响的是手写的 `cordis.yml`、`cordis.patch.yml` 与 overlay 文件，以及调用 Include 或 Loader 导出的代码：
+`@omega-ai/cordis-plugin-loader` 现在包含上游 Loader 1.0.0-rc.9，`@omega-ai/cordis-plugin-include` 包含 Include 1.2.0。受影响的是手写的 `cordis.yml`、`cordis.patch.yml` 与 overlay 文件，以及调用 Include 或 Loader 导出的代码：
 
 - Include 和 `parseEntryYaml` 按 YAML 1.2 core schema 解析，不再使用 js-yaml 的 JSON schema。`0b101` 这样的二进制整数现在读作字符串 `'0b101'`。空的 `!!js` 标量现在读作空表达式，求值结果为 `undefined`，不再解析失败。
 - 创建或更新条目前会校验条目选项。`name` 必须是字符串；`group` 必须是布尔值；`disabled` 必须是布尔值或 `!!js` 表达式；`group: true` 的条目必须带有 `config` 列表，空列表也要写出；`inject` 必须是字符串列表或映射；`isolate` 必须是映射，其值为 `true` 或字符串。此前能加载但含有这类值的条目现在会被拒绝，同级条目仍会启动；被拒绝的条目若是 `webserver` 等必需条目，`dsh` 会终止启动，否则输出警告。Include 文件中只要有一个条目不是映射，整个文件都会被拒绝。含 `:` 的 id 仍然可以使用。

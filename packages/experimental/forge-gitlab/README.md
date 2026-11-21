@@ -3,7 +3,7 @@ description: "Serve the experimental forge registry for GitLab hosts through the
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-forge-gitlab
+# @omega-ai/dsh-forge-gitlab
 
 English | [中文](README.zh.md)
 
@@ -28,13 +28,13 @@ Read and write GitLab.com and self-managed GitLab merge requests for `ctx.forge`
 Mount the provider after the forge registry and list every self-managed host explicitly. The Forge bundle mounts it with `gitlab.com`.
 
 ```yaml
-- name: '@deepseek-ai/dsh-experimental-forge'
-- name: '@deepseek-ai/dsh-forge-gitlab'
+- name: '@omega-ai/dsh-experimental-forge'
+- name: '@omega-ai/dsh-forge-gitlab'
   config:
     hosts: [gitlab.com, gitlab.example.com]
 ```
 
-The provider runs `glab` as a host process, even when Sessions execute commands in another execution world. Sign in once per host with `glab auth login --hostname <host>`. The child receives the host environment without `DSH_*` variables, without variables whose names contain `KEY`, `PASSWORD`, `SECRET`, or `TOKEN`, and without the variables that make `glab` choose another host, repository, or remote, such as `GITLAB_HOST`, `GITLAB_REPO`, and `GLAB_REMOTE_ALIAS`; it runs in the temporary directory, because inside a checkout `glab` resolves project paths against that checkout's remotes. Prompts, update checks, telemetry, pagers, and colors are disabled, and every request names its host with `--hostname`. Numeric limits must be positive safe integers; only `timeoutMs` is bounded by the runtime timer limit. `glabCommand`, `hosts`, `timeoutMs`, `maxOutputBytes`, `maxReviewThreads`, `maxCommits`, `statusBatchSize`, `maxConcurrentRequests`, and `maxCachedVersionBytes` are listed in the [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-forge-gitlab).
+The provider runs `glab` as a host process, even when Sessions execute commands in another execution world. Sign in once per host with `glab auth login --hostname <host>`. The child receives the host environment without `DSH_*` variables, without variables whose names contain `KEY`, `PASSWORD`, `SECRET`, or `TOKEN`, and without the variables that make `glab` choose another host, repository, or remote, such as `GITLAB_HOST`, `GITLAB_REPO`, and `GLAB_REMOTE_ALIAS`; it runs in the temporary directory, because inside a checkout `glab` resolves project paths against that checkout's remotes. Prompts, update checks, telemetry, pagers, and colors are disabled, and every request names its host with `--hostname`. Numeric limits must be positive safe integers; only `timeoutMs` is bounded by the runtime timer limit. `glabCommand`, `hosts`, `timeoutMs`, `maxOutputBytes`, `maxReviewThreads`, `maxCommits`, `statusBatchSize`, `maxConcurrentRequests`, and `maxCachedVersionBytes` are listed in the [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-forge-gitlab).
 
 The provider lists its configured hosts in lowercase as `hosts`, names itself `GitLab`, and calls change requests merge requests. It serves a remote URL in `https`, `http`, `ssh`, or `git` form, or in scp form such as `git@gitlab.com:group/sub/app.git`, when its host is configured; nested groups form the repository's owner, such as `group/sub`. HTTP(S) remotes retain custom ports in the host identity; SSH and Git transport ports are excluded. It serves merge request URLs of the form `https://<host>/<namespace>/<project>/-/merge_requests/<number>` with any trailing path, query, or fragment, and builds that form without the suffix as the canonical URL; `fileUrl` returns `https://<host>/<namespace>/<project>/-/blob/<commit>/<path>`. A readiness probe reads the REST `user` resource: success is `ready`, a refusal of the credentials is `unauthenticated` with `glab auth login --hostname <host>` as its sign-in command, and any other failure, including a `glab` that cannot start, is `unavailable`. A head lookup returns up to 20 open merge requests whose source branch is the branch and whose source project is the target project, newest first; a lookup of the project's default branch returns none.
 

@@ -7,11 +7,11 @@
  * active locale and keeps its snapshot until one of them moves.
  */
 
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
-import { resolveSlotLabel, type HostObservable } from '@deepseek-ai/dsh-client-ui-slots'
+import type { Context as ClientContext } from '@omega-ai/cordis'
+import { resolveSlotLabel, type HostObservable } from '@omega-ai/dsh-client-ui-slots'
 import type {} from './slot-contract.ts'
 // Type-only: the `settings.section` declaration whose entries this page lists.
-import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
+import type {} from '@omega-ai/dsh-client-ui-settings/client'
 
 /** One official plugin as the page lists it: its registration id and its title in the active locale. */
 export interface OfficialItem {

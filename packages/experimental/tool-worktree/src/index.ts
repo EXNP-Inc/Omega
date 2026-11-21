@@ -3,9 +3,9 @@
  * returning to the source checkout, through the shared runtime.
  */
 
-import type { Context } from '@deepseek-ai/cordis'
-import { WorktreeError } from '@deepseek-ai/dsh-experimental-worktree'
-import { defineTool, ToolContextUnavailableError } from '@deepseek-ai/dsh-tools'
+import type { Context } from '@omega-ai/cordis'
+import { WorktreeError } from '@omega-ai/dsh-experimental-worktree'
+import { defineTool, ToolContextUnavailableError } from '@omega-ai/dsh-tools'
 
 /** Cordis plugin name. */
 export const name = 'tool-worktree'

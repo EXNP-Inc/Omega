@@ -4,13 +4,13 @@
  * stop when the Session is archived with its work. Archived ancestors also
  * block later model steps, including when their Sessions have been released.
  *
- * @module @deepseek-ai/dsh-subagent
+ * @module @omega-ai/dsh-subagent
  */
 
-import type { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import type { Session, SessionId } from '@deepseek-ai/dsh-session'
-import type { SessionActivity, SessionActivityItem } from '@deepseek-ai/dsh-workspace'
+import type { Context } from '@omega-ai/cordis'
+import type { Agent } from '@omega-ai/dsh-agent'
+import type { Session, SessionId } from '@omega-ai/dsh-session'
+import type { SessionActivity, SessionActivityItem } from '@omega-ai/dsh-workspace'
 import type { SubagentIdentityProjection } from './projection-types.ts'
 
 /**

@@ -1,16 +1,16 @@
 import { getBuiltinModels } from '@earendil-works/pi-ai/providers/all'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import LlmRuntime, { LlmAdapter } from '@deepseek-ai/dsh-llm'
-import { credentialRef } from '@deepseek-ai/dsh-credentials'
-import { LocalCredentialProvider } from '@deepseek-ai/dsh-credentials-local'
+import LlmRuntime, { LlmAdapter } from '@omega-ai/dsh-llm'
+import { credentialRef } from '@omega-ai/dsh-credentials'
+import { LocalCredentialProvider } from '@omega-ai/dsh-credentials-local'
 import { liveConfig } from '../../../settings/settings/tests/live-config.ts'
-import * as LlmPiAi from '@deepseek-ai/dsh-llm-pi-ai'
+import * as LlmPiAi from '@omega-ai/dsh-llm-pi-ai'
 import { recordKeyFor } from '../src/auth.ts'
-import AuthorizationService from '@deepseek-ai/dsh-authorization'
+import AuthorizationService from '@omega-ai/dsh-authorization'
 import { assemble } from './assemble.ts'
 import { closeMockServers, mockServer, textEvents } from './mock-server.ts'
 
@@ -105,8 +105,8 @@ describe('request-level dynamic profiles', () => {
     const good = await assemble(ctx, { provider: 'openrouter', model: known.id, messages: [] })
     expect(good.message.content).toEqual([{ type: 'text', text: 'hello' }])
 
-    await configurations.get(ctx)!.update({ providers: { deepseek: { apiKeyEnv: 'PI_DYNAMIC_KEY', baseURL: server.url } } })
-    expect(ctx.llm.listProviders().map(provider => provider.id)).toEqual(['openrouter', 'deepseek'])
+    await configurations.get(ctx)!.update({ providers: { omega: { apiKeyEnv: 'PI_DYNAMIC_KEY', baseURL: server.url } } })
+    expect(ctx.llm.listProviders().map(provider => provider.id)).toEqual(['openrouter', 'omega'])
     const beforeRejected: unknown = configurations.get(ctx)!.entry.options.config
     await expect(configurations.get(ctx)!.update({ providers: { openrouter: { displayName: 'Edited' } } })).rejects.toThrow(failure)
     expect(configurations.get(ctx)!.entry.options.config).toEqual(beforeRejected)
@@ -171,12 +171,12 @@ describe('request-level dynamic profiles', () => {
       nativeAuth: { env: ['OPENAI_API_KEY'], oauth: true },
     })
     await configurations.get(ctx)!.update({
-      providers: { deepseek: { apiKeyEnv: 'PI_DYNAMIC_KEY', baseURL: server.url } },
+      providers: { omega: { apiKeyEnv: 'PI_DYNAMIC_KEY', baseURL: server.url } },
     })
-    expect(ctx.llm.listProviders().map(provider => provider.id)).toEqual(['deepseek'])
-    await expect(ctx.llm.listModels('deepseek')).resolves.not.toHaveLength(0)
+    expect(ctx.llm.listProviders().map(provider => provider.id)).toEqual(['omega'])
+    await expect(ctx.llm.listModels('omega')).resolves.not.toHaveLength(0)
 
-    const result = await assemble(ctx, { provider: 'deepseek', model: 'deepseek-flash', messages: [] })
+    const result = await assemble(ctx, { provider: 'omega', model: 'omega-flash', messages: [] })
     expect(result.message.content).toEqual([{ type: 'text', text: 'hello' }])
     expect(server.headers[0]?.authorization).toBe('Bearer pk-from-settings')
 
@@ -199,11 +199,11 @@ describe('request-level dynamic profiles', () => {
 
     expect(ctx.llm.listProviders().map(provider => provider.id)).toEqual(['openai'])
     await configurations.get(ctx)!.update({
-      providers: { deepseek: { apiKeyEnv: 'PI_LIVE_KEY', baseURL: server.url } },
+      providers: { omega: { apiKeyEnv: 'PI_LIVE_KEY', baseURL: server.url } },
     })
-    expect(ctx.llm.listProviders().map(provider => provider.id)).toEqual(['openai', 'deepseek'])
+    expect(ctx.llm.listProviders().map(provider => provider.id)).toEqual(['openai', 'omega'])
 
-    const result = await assemble(ctx, { provider: 'deepseek', model: 'deepseek-flash', messages: [] })
+    const result = await assemble(ctx, { provider: 'omega', model: 'omega-flash', messages: [] })
     expect(result.message.content).toEqual([{ type: 'text', text: 'hello' }])
     expect(server.headers[0]?.authorization).toBe('Bearer live-key')
 
@@ -211,7 +211,7 @@ describe('request-level dynamic profiles', () => {
     // composition route stays.
     await configurations.get(ctx)!.replace(initialConfigs.get(ctx)!)
     expect(ctx.llm.listProviders().map(provider => provider.id)).toEqual(['openai'])
-    const removed = await assemble(ctx, { provider: 'deepseek', model: 'deepseek-flash', messages: [] })
+    const removed = await assemble(ctx, { provider: 'omega', model: 'omega-flash', messages: [] })
     expect(removed.finish).toMatchObject({ kind: 'error', failure: { code: 'NO_ADAPTER' } })
   })
 
@@ -221,14 +221,14 @@ describe('request-level dynamic profiles', () => {
     await writeFile(join(dir, '.credentials.yaml'), 'version: 1\nrefs:\n  PI_DYNAMIC_KEY: pk-one\n', { mode: 0o600 })
     const server = await mockServer([{ events: textEvents }, { events: textEvents }])
     const ctx = await boot(dir, {
-      providers: { deepseek: { apiKeyEnv: 'PI_DYNAMIC_KEY', baseURL: server.url } },
+      providers: { omega: { apiKeyEnv: 'PI_DYNAMIC_KEY', baseURL: server.url } },
     })
 
-    await assemble(ctx, { provider: 'deepseek', model: 'deepseek-flash', messages: [] })
+    await assemble(ctx, { provider: 'omega', model: 'omega-flash', messages: [] })
     expect(server.headers[0]?.authorization).toBe('Bearer pk-one')
 
     await ctx.credentials.set(credentialRef('PI_DYNAMIC_KEY'), 'pk-two')
-    await assemble(ctx, { provider: 'deepseek', model: 'deepseek-flash', messages: [] })
+    await assemble(ctx, { provider: 'omega', model: 'omega-flash', messages: [] })
     expect(server.headers[1]?.authorization).toBe('Bearer pk-two')
   })
 

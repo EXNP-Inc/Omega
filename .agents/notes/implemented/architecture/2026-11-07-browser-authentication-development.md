@@ -19,8 +19,8 @@ The Connection plugin provides the independent nested `connection.authentication
 This complete function-plugin example receives a trusted in-process verifier and principal from its Host. Its `Config.verify` is an illustrative application input, not a new DSH API or a substitute for implementing the credential algorithm.
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
-import type { ConnectionTrustRequest, Principal } from '@deepseek-ai/dsh-client-connection'
+import type { Context } from '@omega-ai/cordis'
+import type { ConnectionTrustRequest, Principal } from '@omega-ai/dsh-client-connection'
 
 export const name = 'example-authentication'
 export const inject = ['connection', 'connection.authentication']
@@ -51,8 +51,8 @@ export function apply(ctx: Context, config: Config): void {
 The example below registers ordinary business handlers. The Host supplies `Config.upgrade`, its existing protocol implementation; it is not another framework operation. The HTTP assertion reflects this route's `required` policy, while the shared handler type also supports anonymous routes with no Peer.
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
-import type { WebUpgradeRoute } from '@deepseek-ai/dsh-host-webserver'
+import type { Context } from '@omega-ai/cordis'
+import type { WebUpgradeRoute } from '@omega-ai/dsh-host-webserver'
 
 export const name = 'example-protected-routes'
 export const inject = ['webServer']
@@ -118,7 +118,7 @@ Desktop's parent owns a fresh private credential per Host process and delivers i
 | Provider registration | Only built-in BrowserAuth supplied network identity | Ordered independent verifiers select one live Peer; scope unload, verifier failure, and cancellation are covered by [authentication tests](../../../../packages/client/connection/tests/authentication.host.spec.ts) |
 | HTTP and upgrade integration | Consumers called Connection admission | Route auth supplies the Peer once; real [Provider transport tests](../../../../packages/api/gateway/tests/authentication-provider.host.spec.ts) exercise both carriers |
 | Server isolation | Route tables were per instance; index injection was root-wide | All five events use the WebServer subject; [server](../../../../packages/host/webserver/tests/event-isolation.host.spec.ts) and [application](../../../../packages/bundle/web-app/tests/event-isolation.host.spec.ts) tests cover ordinary and global listeners and a preserved external Host |
-| Browser OAuth return | The callback validated state and PKCE | The scoped pre-route callback retains validation and accepts real cross-site navigation; [account tests](../../../../packages/account/deepseek-account/tests/account.spec.ts) retain wrong-Host and SSH-forwarding coverage, and [Chromium](../../../../apps/web/tests/account-login.e2e.ts) asserts the actual Fetch Metadata header |
+| Browser OAuth return | The callback validated state and PKCE | The scoped pre-route callback retains validation and accepts real cross-site navigation; [account tests](../../../../packages/account/omega-account/tests/account.spec.ts) retain wrong-Host and SSH-forwarding coverage, and [Chromium](../../../../apps/web/tests/account-login.e2e.ts) asserts the actual Fetch Metadata header |
 | Startup output | WebApp printed/opened one Connection-produced login URL | [Startup tests](../../../../packages/bundle/web-app/tests/startup.host.spec.ts) cover ordered entries, first eligible opening, empty lists, readiness and SSH suppression |
 | Desktop runtime consumers | A tokenized ready URL was exchanged for a Cookie | [Runtime smoke tests](../../../../apps/desktop/tests/smoke-runtime.spec.ts) use the private Cookie on the HTTP probes; [built Remote tests](../../../../packages/api/remotes/tests/built-lib.e2e.ts) collect the current Provider's entry and pass the admitted Peer |
 

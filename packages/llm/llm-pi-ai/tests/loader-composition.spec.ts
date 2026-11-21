@@ -5,19 +5,19 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import Loader, { type ModuleLoaderV2 } from '@deepseek-ai/cordis-plugin-loader'
-import Include from '@deepseek-ai/cordis-plugin-include'
-import LlmRuntime, { createMessage, createUserMessage, userAgent } from '@deepseek-ai/dsh-llm'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import AuthorizationService from '@deepseek-ai/dsh-authorization'
-import LocalCredentialProvider from '@deepseek-ai/dsh-credentials-local'
+import { Context } from '@omega-ai/cordis'
+import Loader, { type ModuleLoaderV2 } from '@omega-ai/cordis-plugin-loader'
+import Include from '@omega-ai/cordis-plugin-include'
+import LlmRuntime, { createMessage, createUserMessage, userAgent } from '@omega-ai/dsh-llm'
+import type { SessionId } from '@omega-ai/dsh-session'
+import AuthorizationService from '@omega-ai/dsh-authorization'
+import LocalCredentialProvider from '@omega-ai/dsh-credentials-local'
 import { profileComposition } from '../../../settings/settings/tests/profile-composition.ts'
-import * as LlmPiAi from '@deepseek-ai/dsh-llm-pi-ai'
+import * as LlmPiAi from '@omega-ai/dsh-llm-pi-ai'
 import { recordKeyFor } from '../src/auth.ts'
 import { assemble } from './assemble.ts'
 import { closeMockServers, mockServer, textEvents } from './mock-server.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 /** One text block, then a tool call truncated by the output-token ceiling. */
 const truncatedToolCallEvents = [
@@ -50,14 +50,14 @@ async function loadComposition(): Promise<{ ctx: Context; settingsPath: string }
     '- id: llm',
     "  name: 'test-llm-service'",
     '- id: credentials',
-    "  name: '@deepseek-ai/dsh-credentials-local'",
+    "  name: '@omega-ai/dsh-credentials-local'",
     '  config:',
     `    path: ${JSON.stringify(join(root, '.credentials.yaml'))}`,
     '    debounceMs: 10',
     '- id: authorization',
-    "  name: '@deepseek-ai/dsh-authorization'",
+    "  name: '@omega-ai/dsh-authorization'",
     '- id: llm-pi-ai',
-    "  name: '@deepseek-ai/dsh-llm-pi-ai'",
+    "  name: '@omega-ai/dsh-llm-pi-ai'",
     '',
   ].join('\n'))
 
@@ -68,9 +68,9 @@ async function loadComposition(): Promise<{ ctx: Context; settingsPath: string }
   ctx.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
     ['test-llm-service', LlmRuntime],
-    ['@deepseek-ai/dsh-credentials-local', LocalCredentialProvider],
-    ['@deepseek-ai/dsh-authorization', AuthorizationService],
-    ['@deepseek-ai/dsh-llm-pi-ai', LlmPiAi],
+    ['@omega-ai/dsh-credentials-local', LocalCredentialProvider],
+    ['@omega-ai/dsh-authorization', AuthorizationService],
+    ['@omega-ai/dsh-llm-pi-ai', LlmPiAi],
   ])
   const internal: ModuleLoaderV2 = {
     version: 'v2',
@@ -98,13 +98,13 @@ describe('llm-pi-ai real dormant composition', () => {
       return next()
     })
     await writeFile(settingsPath, [
-      '- id: llm-pi-ai', '  config:', '    providers:', '      deepseek:',
+      '- id: llm-pi-ai', '  config:', '    providers:', '      omega:',
       '        apiKeyEnv: PI_COMPOSITION_KEY', `        baseURL: ${server.url}`, '',
     ].join('\n'))
     await vi.waitFor(() => {
-      expect(ctx.llm.listProviders().map(provider => provider.id)).toEqual(['deepseek'])
+      expect(ctx.llm.listProviders().map(provider => provider.id)).toEqual(['omega'])
     }, { timeout: 5000 })
-    const result = await assemble(ctx, { model: 'deepseek-flash', messages: [], sessionId: brandString<SessionId>('loader-session') })
+    const result = await assemble(ctx, { model: 'omega-flash', messages: [], sessionId: brandString<SessionId>('loader-session') })
     expect(result.finish).toEqual({ kind: 'stop' })
     expect(server.headers[0]?.['x-request-session']).toBe('loader-session')
   })
@@ -129,16 +129,16 @@ describe('llm-pi-ai real dormant composition', () => {
       '- id: llm-pi-ai',
       '  config:',
       '    providers:',
-      '      deepseek:',
+      '      omega:',
       '        apiKeyEnv: PI_COMPOSITION_KEY',
       `        baseURL: ${server.url}`,
       '',
     ].join('\n'))
     await vi.waitFor(() => {
-      expect(ctx.llm.listProviders().map(provider => provider.id)).toEqual(['deepseek'])
+      expect(ctx.llm.listProviders().map(provider => provider.id)).toEqual(['omega'])
     }, { timeout: 5000 })
 
-    const result = await assemble(ctx, { provider: 'deepseek', model: 'deepseek-flash', messages: [] })
+    const result = await assemble(ctx, { provider: 'omega', model: 'omega-flash', messages: [] })
     expect(result.message.content).toEqual([{ type: 'text', text: 'hello' }])
     expect(server.headers[0]?.authorization).toBe('Bearer key-from-store')
   })
@@ -202,33 +202,33 @@ describe('llm-pi-ai real dormant composition', () => {
       '- id: llm-pi-ai',
       '  config:',
       '    providers:',
-      '      deepseek:',
+      '      omega:',
       '        apiKeyEnv: PI_COMPOSITION_KEY',
       `        baseURL: ${server.url}`,
       '',
     ].join('\n'))
     await vi.waitFor(() => {
-      expect(ctx.llm.listProviders().map(provider => provider.id)).toEqual(['deepseek'])
+      expect(ctx.llm.listProviders().map(provider => provider.id)).toEqual(['omega'])
     }, { timeout: 5000 })
 
     const truncated = await assemble(ctx, {
-      provider: 'deepseek',
-      model: 'deepseek-flash',
+      provider: 'omega',
+      model: 'omega-flash',
       messages: [],
     })
     expect(truncated.finish).toEqual({ kind: 'max-tokens' })
     expect(truncated.message.content).toEqual([{ type: 'text', text: 'partial' }])
     expect(truncated.message.source).toEqual({
       kind: 'model',
-      provider: 'deepseek',
-      model: 'deepseek-flash',
+      provider: 'omega',
+      model: 'omega-flash',
       replayState: {
         response: {
           kind: 'pi-ai',
           version: 2,
           api: 'openai-completions',
-          provider: 'deepseek',
-          model: 'deepseek-flash',
+          provider: 'omega',
+          model: 'omega-flash',
           stopReason: 'length',
         },
         blocks: [{ type: 'text' }],
@@ -236,8 +236,8 @@ describe('llm-pi-ai real dormant composition', () => {
     })
 
     const continued = await assemble(ctx, {
-      provider: 'deepseek',
-      model: 'deepseek-flash',
+      provider: 'omega',
+      model: 'omega-flash',
       messages: [
         truncated.message,
         createUserMessage({ content: [{ type: 'text', text: 'continue' }], source: { kind: 'user' } }),
@@ -263,13 +263,13 @@ describe('llm-pi-ai real dormant composition', () => {
       '- id: llm-pi-ai',
       '  config:',
       '    providers:',
-      '      deepseek:',
+      '      omega:',
       '        apiKeyEnv: PI_COMPOSITION_KEY',
       `        baseURL: ${server.url}`,
       '',
     ].join('\n'))
     await vi.waitFor(() => {
-      expect(ctx.llm.listProviders().map(provider => provider.id)).toEqual(['deepseek'])
+      expect(ctx.llm.listProviders().map(provider => provider.id)).toEqual(['omega'])
     }, { timeout: 5000 })
 
     // A pre-envelope session log entry: max-token assembly dropped the tool
@@ -280,14 +280,14 @@ describe('llm-pi-ai real dormant composition', () => {
       source: {
         kind: 'model',
         ...{
-          provider: 'deepseek',
-          model: 'deepseek-flash',
+          provider: 'omega',
+          model: 'omega-flash',
           replayState: {
             kind: 'pi-ai',
             version: 1,
             api: 'openai-completions',
-            provider: 'deepseek',
-            model: 'deepseek-flash',
+            provider: 'omega',
+            model: 'omega-flash',
             stopReason: 'length',
             blocks: [{ type: 'text' }, { type: 'tool-call' }],
           },
@@ -295,8 +295,8 @@ describe('llm-pi-ai real dormant composition', () => {
       },
     })
     const continued = await assemble(ctx, {
-      provider: 'deepseek',
-      model: 'deepseek-flash',
+      provider: 'omega',
+      model: 'omega-flash',
       messages: [
         poisoned,
         createUserMessage({ content: [{ type: 'text', text: 'continue' }], source: { kind: 'user' } }),

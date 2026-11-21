@@ -3,7 +3,7 @@ description: "把 CLI 应用插件的厂商 CLI 和账号注册到 Host Service 
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-cli-account
+# @omega-ai/dsh-cli-account
 
 [English](README.md) | 中文
 
@@ -29,7 +29,7 @@ CLI 应用插件的 Host 行注入 `cliAccounts` 并调用一次 `register`；�
 
 ### 何时选用
 
-在厂商 CLI 负责让用户登录并保管凭据的插件的 Host 行中注册，DSH 只负责启动命令、展示结果和持有进程。通过 MCP 接入托管服务的插件改用 MCP 管理器，由它自己负责 OAuth。Service 通过 [`@deepseek-ai/dsh-client-ui-connector-account`](../../client/ui-connector-account/README.zh.md) 的 `ctx.connectorAccounts` 显示每个账号，没有厂商 CLI 的插件直接向它注册。
+在厂商 CLI 负责让用户登录并保管凭据的插件的 Host 行中注册，DSH 只负责启动命令、展示结果和持有进程。通过 MCP 接入托管服务的插件改用 MCP 管理器，由它自己负责 OAuth。Service 通过 [`@omega-ai/dsh-client-ui-connector-account`](../../client/ui-connector-account/README.zh.md) 的 `ctx.connectorAccounts` 显示每个账号，没有厂商 CLI 的插件直接向它注册。
 
 ### 最小配置
 
@@ -37,22 +37,22 @@ CLI 应用插件的 Host 行注入 `cliAccounts` 并调用一次 `register`；�
 
 ```yaml
 - id: cli-account
-  name: '@deepseek-ai/dsh-cli-account'
+  name: '@omega-ai/dsh-cli-account'
 ```
 
 | 字段 | 默认值 | 含义 |
 |---|---|---|
 | `commandTimeoutMs` | `30000` | 不等待用户的命令的截止时间（毫秒），包括查找可执行文件；对每个已注册的 CLI 生效 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-cli-account)是每个可接受字段的完整来源。小于 1 或大于 2147483647 的值在加载时失败。
+生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-cli-account)是每个可接受字段的完整来源。小于 1 或大于 2147483647 的值在加载时失败。
 
 ### 注册 CLI 及其账号
 
 插件的 Host 行在 `inject` 中列出 `cliAccounts`，并在 `apply` 中注册：
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
-import type { CliAccountRegistration } from '@deepseek-ai/dsh-cli-account'
+import type { Context } from '@omega-ai/cordis'
+import type { CliAccountRegistration } from '@omega-ai/dsh-cli-account'
 
 interface Account { readonly state: 'unchecked' | 'out' | 'in' }
 

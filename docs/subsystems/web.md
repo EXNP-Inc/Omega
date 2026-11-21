@@ -2,7 +2,7 @@
 
 English | [中文](web.zh.md)
 
-The web access seam — a [capability seam](../../.agents/notes/implemented/architecture/2026-06-24-web-capability-seam.md) that spans **two operations** (search and fetch) on one `ctx.web` service, split across packages: Service Definition ([dsh-web](../../packages/web/web), `ctx.web` + the provider registries), Service Providers ([dsh-web-search-deepseek](../../packages/web/web-search-deepseek), [dsh-web-deepseek-api](../../packages/web/web-deepseek-api), [dsh-web-fetch-http](../../packages/web/web-fetch-http)), and Consumer ([dsh-tool-web](../../packages/web/tool-web), the `web_search`/`web_fetch` tool schemas). Web is **one optional capability**, not part of the agent-loop spine — so its vocabulary lives here, not in [core.md](core.md). A search-provider swap does not change how the model asks for a query, and a fetch-provider swap does not change how the model asks for a URL.
+The web access seam — a [capability seam](../../.agents/notes/implemented/architecture/2026-06-24-web-capability-seam.md) that spans **two operations** (search and fetch) on one `ctx.web` service, split across packages: Service Definition ([dsh-web](../../packages/web/web), `ctx.web` + the provider registries), Service Providers ([dsh-web-search-omega](../../packages/web/web-search-omega), [dsh-web-omega-api](../../packages/web/web-omega-api), [dsh-web-fetch-http](../../packages/web/web-fetch-http)), and Consumer ([dsh-tool-web](../../packages/web/tool-web), the `web_search`/`web_fetch` tool schemas). Web is **one optional capability**, not part of the agent-loop spine — so its vocabulary lives here, not in [core.md](core.md). A search-provider swap does not change how the model asks for a query, and a fetch-provider swap does not change how the model asks for a URL.
 
 Source: [`packages/web/web/src/types.ts`](../../packages/web/web/src/types.ts)
 
@@ -26,7 +26,7 @@ interface WebSearchRequest {
   /**
    * Upper bound on returned sources; the seam truncates to it. Omitted = no
    * bound. `dsh-tool-web` always sets it. A provider whose API supports a
-   * result-count control (the DeepSeek Search API's `count`) should apply it
+   * result-count control (the Omega Search API's `count`) should apply it
    * at the request layer as a cost/latency optimization; the seam enforces the
    * bound regardless.
    */
@@ -43,7 +43,7 @@ interface WebSearchRequest {
 ```ts type-equiv
 /**
  * Normalized search outcome. `content` is optional provider-generated answer
- * text or summary (DeepSeek returns none; a provider whose API generates an
+ * text or summary (Omega returns none; a provider whose API generates an
  * answer returns it here).
  * `sources[]` is the portable citation shape. `truncated` is set by the seam
  * when it cut `sources[]` down to `maxResults`.
@@ -131,9 +131,9 @@ type WebFetchBody =
 
 A provider's `available(): boolean` is a cheap LOCAL check (credential presence, parseable config) and **must not make network calls**. It is an input to execution-time selection, not a health system: `search()`/`fetch()` read it to pick a usable provider, and a selection failure surfaces as the structured `WebError` the caller routes on — which carries the branchable detail (the missing id or ambiguous candidate set) in its code and message. Registration, unlike availability, is observable before an operation runs: `listProviders()` returns every registered search and fetch provider by `id`, optional `title`, and optional localized `description`, and the payload-free `web/providers-changed` event fires after each registration or disposal; availability still shows only when an operation runs.
 
-A search or fetch provider may also implement `ready(llmProvider): Promise<boolean>`, a configuration-only check that must not make network calls: it answers whether an operation made for a model request on that chat route has a credential to send. `searchReady(llmProvider?)` and `fetchReady(llmProvider?)` ask only the provider that `search()` or `fetch()` would select, treat a provider without `ready()` as ready, and answer true when selection fails, because the operation reports that failure as a `WebError`. Readiness is not a selection input; `dsh-tool-web` makes it the activation condition of `web_search` and `web_fetch`, so a model step whose route answers false neither declares nor dispatches the tool. The DeepSeek Search and Fetch API providers use the route to choose between the account token and the API key, as the [web-deepseek-api authentication](../../packages/web/web-deepseek-api/README.md#authentication) section describes.
+A search or fetch provider may also implement `ready(llmProvider): Promise<boolean>`, a configuration-only check that must not make network calls: it answers whether an operation made for a model request on that chat route has a credential to send. `searchReady(llmProvider?)` and `fetchReady(llmProvider?)` ask only the provider that `search()` or `fetch()` would select, treat a provider without `ready()` as ready, and answer true when selection fails, because the operation reports that failure as a `WebError`. Readiness is not a selection input; `dsh-tool-web` makes it the activation condition of `web_search` and `web_fetch`, so a model step whose route answers false neither declares nor dispatches the tool. The Omega Search and Fetch API providers use the route to choose between the account token and the API key, as the [web-omega-api authentication](../../packages/web/web-omega-api/README.md#authentication) section describes.
 
-Selection never depends on registration, config, or HMR order: a capability has an explicit provider id (config `searchProvider`/`fetchProvider`, or the matching env var feeding the same field), or auto-selects when exactly one usable provider is registered; multiple usable providers with no configured id is `WEB_PROVIDER_AMBIGUOUS`, not first-wins. One fixed preference precedes that rule for search: with no configured id, a search runs `deepseek-official` (DeepSeek Messages search, which has no per-search charge) for a model request on the `deepseek-official` or `deepseek-account` route, and `deepseek-search-api` on every other route and outside a model request, whenever that provider is registered and usable. `searchReady(llmProvider)` selects the same provider as a search whose request carries that `llmProvider`. Each operation reads the configured id when it runs, so a saved settings change applies to the next search or fetch without remounting `ctx.web`.
+Selection never depends on registration, config, or HMR order: a capability has an explicit provider id (config `searchProvider`/`fetchProvider`, or the matching env var feeding the same field), or auto-selects when exactly one usable provider is registered; multiple usable providers with no configured id is `WEB_PROVIDER_AMBIGUOUS`, not first-wins. One fixed preference precedes that rule for search: with no configured id, a search runs `omega-official` (Omega Messages search, which has no per-search charge) for a model request on the `omega-official` or `omega-account` route, and `omega-search-api` on every other route and outside a model request, whenever that provider is registered and usable. `searchReady(llmProvider)` selects the same provider as a search whose request carries that `llmProvider`. Each operation reads the configured id when it runs, so a saved settings change applies to the next search or fetch without remounting `ctx.web`.
 
 ## Fetch network policy
 
@@ -168,7 +168,7 @@ Selection semantics (resolved at execution time, never order-dependent):
 - A configured id that is registered and `available()` → that provider.
 - A configured id not registered → `WEB_PROVIDER_CONFIGURED_MISSING`.
 - A configured id registered but unavailable → `WEB_PROVIDER_CONFIGURED_UNAVAILABLE`.
-- No search id configured, and the provider assigned to the route of the model request the search serves is usable → that provider: `deepseek-official` (Messages search) on the `deepseek-official` and `deepseek-account` routes, `deepseek-search-api` on every other route and outside a model request.
+- No search id configured, and the provider assigned to the route of the model request the search serves is usable → that provider: `omega-official` (Messages search) on the `omega-official` and `omega-account` routes, `omega-search-api` on every other route and outside a model request.
 - No id configured, exactly one registered usable provider → that provider.
 - No id configured, multiple usable providers → `WEB_PROVIDER_AMBIGUOUS`.
 - No id configured, no usable provider → `WEB_PROVIDER_UNAVAILABLE`.

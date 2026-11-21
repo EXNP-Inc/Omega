@@ -1,6 +1,6 @@
 /** Machine-routable shell environment failures. @module */
 
-import { HarnessError } from '@deepseek-ai/dsh-error'
+import { HarnessError } from '@omega-ai/dsh-error'
 
 /**
  * Every {@link ShellEnvError} code:

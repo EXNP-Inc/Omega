@@ -56,8 +56,8 @@ it('keeps ordered legacy Session menu rows before Archive and removes them with 
     await row.waitFor({ timeout: 20_000 })
     // Static library styles follow their module dependencies: dockkit imports primitives, so primitives install first.
     const styleOwners = await page.evaluate(() => [...document.head.querySelectorAll('style[data-plugin]')].map(style => style.getAttribute('data-plugin')))
-    const primitives = styleOwners.flatMap((owner, index) => owner === '@deepseek-ai/dsh-client-ui-primitives' ? [index] : [])
-    const dockkit = styleOwners.indexOf('@deepseek-ai/dsh-client-ui-dockkit')
+    const primitives = styleOwners.flatMap((owner, index) => owner === '@omega-ai/dsh-client-ui-primitives' ? [index] : [])
+    const dockkit = styleOwners.indexOf('@omega-ai/dsh-client-ui-dockkit')
     expect(primitives.length).toBeGreaterThan(0)
     expect(dockkit).toBeGreaterThan(Math.max(...primitives))
     const trigger = row.getByRole('button', { name: `Session actions for ${SESSION_TITLE}` })
@@ -299,7 +299,7 @@ it('synchronizes two pages, disposes effects and restores an offline page from t
 
     // Restarting the Host transport ends every plugin-events stream; each page reopens it and reconciles from the
     // new baseline, so a later change still reaches both pages.
-    const transport = [...scaffold.ctx.loader.entries()].find(entry => entry.options.name === '@deepseek-ai/dsh-client-hmr')!.fiber!
+    const transport = [...scaffold.ctx.loader.entries()].find(entry => entry.options.name === '@omega-ai/dsh-client-hmr')!.fiber!
     await transport.restart()
     await toggle()
     for (const target of [page, other]) await expect.poll(() => live(target).count(), { timeout: 20_000 }).toBe(0)
@@ -396,11 +396,11 @@ it('reports bootstrap rebuilds without remounting the settings page or navigatin
     const originalInput = await draft.elementHandle()
     let navigations = 0
     page.on('framenavigated', () => { navigations++ })
-    const clientPath = scaffold.ctx.clientModules.clientPath('@deepseek-ai/dsh-client-modules')!
+    const clientPath = scaffold.ctx.clientModules.clientPath('@omega-ai/dsh-client-modules')!
     const originalStat = await stat(clientPath)
     onTestFinished(() => utimes(clientPath, originalStat.atime, originalStat.mtime))
     await utimes(clientPath, originalStat.atime, new Date(originalStat.mtimeMs + 1_000))
-    scaffold.ctx.clientModules.rebuilt('@deepseek-ai/dsh-client-modules')
+    scaffold.ctx.clientModules.rebuilt('@omega-ai/dsh-client-modules')
     const failure = page.locator('[data-client-sync-failure]')
     await failure.getByText(/replacing bootstrap module .* requires a page reload/).waitFor()
     // The Settings dialog holding the draft covers the Plugins page, so the retry is dispatched to its button.

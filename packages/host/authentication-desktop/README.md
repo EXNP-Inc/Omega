@@ -3,7 +3,7 @@ kind: package-reference
 description: "Authenticate Desktop requests with a private, in-memory credential without exposing it to the renderer."
 ---
 
-# @deepseek-ai/dsh-host-authentication-desktop
+# @omega-ai/dsh-host-authentication-desktop
 
 English | [中文](README.zh.md)
 

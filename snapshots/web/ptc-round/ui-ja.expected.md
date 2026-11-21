@@ -35,7 +35,7 @@
 - textbox "メッセージを送信するかタスクを実行、/ コマンド、@ ファイルやセッション"
 - button "ファイルを追加またはコマンドを実行"
 - 'button "アクセスモード、現在: ワークスペース書き込み"': ワークスペース書き込み
-- button "モデルを選択、現在 DeepSeek-V4-Flash": DeepSeek-V4-Flash
+- button "モデルを選択、現在 Omega-V4-Flash": Omega-V4-Flash
 - button "メッセージを送信" [disabled]
 - button "1ターン 2ステップ · {{throughput}} tok/s": 1ターン 2ステップ{{throughput}} tok/s
 - button "17.5K tok · キャッシュヒット 52%": 17.5K tokキャッシュヒット 52%

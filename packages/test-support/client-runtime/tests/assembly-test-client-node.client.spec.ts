@@ -1,14 +1,14 @@
 /** TestClient without a DOM: the api roster boots and connects; mount is refused; flush degrades to a microtask flush. */
-import type { ClientTransportHooks } from '@deepseek-ai/dsh-client-connection/client'
-import { RemoteMock } from '@deepseek-ai/dsh-remote-mock'
+import type { ClientTransportHooks } from '@omega-ai/dsh-client-connection/client'
+import { RemoteMock } from '@omega-ai/dsh-remote-mock'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import { TestClient, remoteDefaultResponses, webApp } from '../src/assembly/index.ts'
 
 /** The Gateway client and what it injects: the Typert registry and the Connection. */
-const API_ROSTER = webApp.closure(['@deepseek-ai/dsh-api-gateway'])
-const TYPERT_ONLY = webApp.pick(['@deepseek-ai/dsh-typert-registry'])
+const API_ROSTER = webApp.closure(['@omega-ai/dsh-api-gateway'])
+const TYPERT_ONLY = webApp.pick(['@omega-ai/dsh-typert-registry'])
 /** A row on the Web client's required list, so its failure rejects the boot. */
-const RENDERER_ONLY = webApp.pick(['@deepseek-ai/dsh-client-ui-renderer'])
+const RENDERER_ONLY = webApp.pick(['@omega-ai/dsh-client-ui-renderer'])
 const globals = globalThis as { __DSH_TRANSPORT__?: ClientTransportHooks }
 
 describe('TestClient (node environment)', () => {
@@ -42,8 +42,8 @@ describe('TestClient (node environment)', () => {
 
   it('rethrows a required row that fails to apply and lets the next client boot', async () => {
     const failing = { apply(): void { throw new Error('apply boom') } }
-    await expect(TestClient.start({ roster: RENDERER_ONLY, provide: { '@deepseek-ai/dsh-client-ui-renderer': failing } }, RemoteMock.create()))
-      .rejects.toThrow('@deepseek-ai/dsh-client-ui-renderer (required): failed')
+    await expect(TestClient.start({ roster: RENDERER_ONLY, provide: { '@omega-ai/dsh-client-ui-renderer': failing } }, RemoteMock.create()))
+      .rejects.toThrow('@omega-ai/dsh-client-ui-renderer (required): failed')
     const mock = RemoteMock.create().load(remoteDefaultResponses)
     const client = await TestClient.start({ roster: API_ROSTER }, mock)
     onTestFinished(() => client.dispose())
@@ -55,13 +55,13 @@ describe('TestClient (node environment)', () => {
     onTestFinished(() => { warn.mockRestore() })
     const failing = { apply(): void { throw new Error('apply boom') } }
     await expect(TestClient.start(
-      { roster: TYPERT_ONLY, provide: { '@deepseek-ai/dsh-typert-registry': failing } },
+      { roster: TYPERT_ONLY, provide: { '@omega-ai/dsh-typert-registry': failing } },
       RemoteMock.create(),
       { awaitConnected: false },
     )).rejects.toThrow([
       'client-test-runtime: every roster entry must activate; pass allowInactiveEntries to tolerate it',
       'web boot: warning: 1 entry did not activate',
-      '@deepseek-ai/dsh-typert-registry: failed: Error: apply boom',
+      '@omega-ai/dsh-typert-registry: failed: Error: apply boom',
     ].join('\n'))
   })
 
@@ -70,17 +70,17 @@ describe('TestClient (node environment)', () => {
     onTestFinished(() => { warn.mockRestore() })
     const failing = { apply(): void { throw new Error('apply boom') } }
     const client = await TestClient.start(
-      { roster: TYPERT_ONLY, provide: { '@deepseek-ai/dsh-typert-registry': failing } },
+      { roster: TYPERT_ONLY, provide: { '@omega-ai/dsh-typert-registry': failing } },
       RemoteMock.create(),
       { awaitConnected: false, allowInactiveEntries: true },
     )
     onTestFinished(() => client.dispose())
     expect(warn).toHaveBeenCalledExactlyOnceWith(
-      'web boot: warning: 1 entry did not activate\n@deepseek-ai/dsh-typert-registry: failed: Error: apply boom',
+      'web boot: warning: 1 entry did not activate\n@omega-ai/dsh-typert-registry: failed: Error: apply boom',
     )
   })
 
-  it.each(['@deepseek-ai/dsh-api-remotes', '@deepseek-ai/dsh-api-remote-access'])(
+  it.each(['@omega-ai/dsh-api-remotes', '@omega-ai/dsh-api-remote-access'])(
     'refuses a provide entry for the %s row, whose generated Remote mount the tier replaces',
     async (name) => {
       const roster = webApp.closure([name])
@@ -91,7 +91,7 @@ describe('TestClient (node environment)', () => {
 
   it('drops the remote-access row and answers every access question with true', async () => {
     const mock = RemoteMock.create().load(remoteDefaultResponses)
-    const client = await TestClient.start({ roster: webApp.closure(['@deepseek-ai/dsh-api-remote-access']) }, mock)
+    const client = await TestClient.start({ roster: webApp.closure(['@omega-ai/dsh-api-remote-access']) }, mock)
     onTestFinished(() => client.dispose())
     expect(client.ctx.get('remoteAccess')?.source('session', 's1', 'session/fork').getSnapshot()).toBe(true)
     // The dropped row never mounts its namespace, so no access stream opens.

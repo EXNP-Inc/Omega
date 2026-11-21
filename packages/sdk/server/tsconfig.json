@@ -21,7 +21,7 @@
       "path": "../../llm/llm"
     },
     {
-      "path": "../../llm/llm-deepseek-api-key"
+      "path": "../../llm/llm-omega-api-key"
     },
     {
       "path": "../../core/agent"
@@ -60,7 +60,7 @@
       "path": "../../interaction/permission-presets"
     },
     {
-      "path": "../../account/deepseek-auth"
+      "path": "../../account/omega-auth"
     }
   ]
 }

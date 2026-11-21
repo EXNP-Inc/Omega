@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import type { ForgeLineComment } from '@deepseek-ai/dsh-experimental-forge'
+import type { ForgeLineComment } from '@omega-ai/dsh-experimental-forge'
 import { describe, expect, it } from 'vitest'
 import { textPosition } from '../src/position.ts'
 import type { VersionFile } from '../src/position.ts'

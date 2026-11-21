@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-experimental-forge",
+  "name": "@omega-ai/dsh-experimental-forge",
   "description": "Provider-neutral change request registry with shared status polling",
   "version": "0.2.2-rc.5",
   "publishConfig": {
@@ -31,18 +31,18 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/experimental/forge"
   },
   "dependencies": {
-    "@deepseek-ai/schemastery": "workspace:~",
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/dsh-timeout": "workspace:*"
+    "@omega-ai/schemastery": "workspace:~",
+    "@omega-ai/dsh-brand": "workspace:*",
+    "@omega-ai/dsh-timeout": "workspace:*"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~"
+    "@omega-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:~"
+    "@omega-ai/cordis": "workspace:~"
   }
 }

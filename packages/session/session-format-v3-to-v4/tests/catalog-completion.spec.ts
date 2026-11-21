@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { isSessionFormatJsonObject } from '@deepseek-ai/dsh-session-format'
+import { isSessionFormatJsonObject } from '@omega-ai/dsh-session-format'
 import { catalogFact, childCatalogFact, childCatalogSubject } from '../src/facts.ts'
-import type { SessionFormatEvent, SessionFormatJsonValue } from '@deepseek-ai/dsh-session-format'
+import type { SessionFormatEvent, SessionFormatJsonValue } from '@omega-ai/dsh-session-format'
 import { createSessionFormatV3ToV4, historicalChildCatalogSource, sessionFormatV3ToV4 } from '../src/index.ts'
 
 const header = { version: 3, id: 'parent', createdAt: 1, isSeeded: false, delegationDepth: 0 }
@@ -108,7 +108,7 @@ describe('V3 parent catalog completion', () => {
 
   it('refuses target delivery activation and invalid current delivery ownership', () => {
     const preceding = { type: 'feedback/record', seq: 0, time: 1, data: { text: 'prior' } }
-    const delivery = { type: 'session-log-deepseek/delivery-accepted', seq: 1, time: 1,
+    const delivery = { type: 'session-log-omega/delivery-accepted', seq: 1, time: 1,
       data: { sessionId: 'other', throughSeq: 0, sessionFormatVersion: 4 } }
     expect(() => migrate([preceding, delivery], [])).toThrow('claims target format v4')
     expect(() => migrate([preceding, { ...delivery, data: { ...delivery.data, sessionFormatVersion: 3 } }], [])).toThrow('wrong Session')
@@ -166,7 +166,7 @@ describe('V3 parent catalog completion', () => {
 
   it('validates predecessor delivery before preserving its generation identity', () => {
     const prior = { type: 'feedback/record', seq: 0, time: 1, data: { text: 'prior' } }
-    const marker = { type: 'session-log-deepseek/delivery-accepted', seq: 1, time: 1,
+    const marker = { type: 'session-log-omega/delivery-accepted', seq: 1, time: 1,
       data: { sessionId: 'ancestor', throughSeq: 0, sessionFormatVersion: 3 } }
     const seed = { type: 'session/end-seed', seq: 2, time: 2, data: { inherited: true } }
     expect(migrate([prior, marker, seed], [], true).events).toEqual([prior, marker, seed])

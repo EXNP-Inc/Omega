@@ -2,16 +2,16 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { TeamProjection, TeamTaskId, TeamTaskView as TeamTask } from '@deepseek-ai/dsh-agent-team/client'
-import type { SessionListState, SessionSummary } from '@deepseek-ai/dsh-api-session-controller/client'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import { bindSnapshotSelector, makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import { zh as commonZh } from '@deepseek-ai/dsh-client-locale/src/locales/zh.ts'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { TeamProjection, TeamTaskId, TeamTaskView as TeamTask } from '@omega-ai/dsh-agent-team/client'
+import type { SessionListState, SessionSummary } from '@omega-ai/dsh-api-session-controller/client'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import { bindSnapshotSelector, makeTranslate } from '@omega-ai/dsh-client-test-runtime'
+import { zh as commonZh } from '@omega-ai/dsh-client-locale/src/locales/zh.ts'
 import { TeamBoard, TeamProgress, type TeamBoardProps, type TeamProgressProps } from '../src/client/TeamBoard.tsx'
 import { createTeamBoardStore } from '../src/client/team-board-store.ts'
 import { en, zh } from '../src/client/locales.ts'
-import type { PanelDetailsProps, PanelFoldProps } from '@deepseek-ai/dsh-client-ui-session-panel/client'
+import type { PanelDetailsProps, PanelFoldProps } from '@omega-ai/dsh-client-ui-session-panel/client'
 
 afterEach(() => {
   cleanup()

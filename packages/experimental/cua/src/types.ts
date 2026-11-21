@@ -1,6 +1,6 @@
 /** Native application objects independent of evaluator ownership and persistence. */
-import type { Branded } from '@deepseek-ai/dsh-brand'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+import type { Branded } from '@omega-ai/dsh-brand'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
 import type { z } from 'zod'
 import type { ActionResult, CapabilitiesResult, FoundAppsResult, HoverResult, SystemPointerRequest, ShowResult, WindowsResult } from './protocol.ts'
 

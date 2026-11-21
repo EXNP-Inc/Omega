@@ -4,8 +4,8 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { PassThrough } from 'node:stream'
 import { expect, it, onTestFinished } from 'vitest'
-import type { NativeClientConfig } from '@deepseek-ai/dsh-cua/native-client'
-import type { SubprocessHandle, SubprocessOutcome } from '@deepseek-ai/dsh-subprocess'
+import type { NativeClientConfig } from '@omega-ai/dsh-cua/native-client'
+import type { SubprocessHandle, SubprocessOutcome } from '@omega-ai/dsh-subprocess'
 import { connectWindowsPipe } from '../src/native-transport.ts'
 
 const config: NativeClientConfig = { helperPath: '/fixture.exe', cwd: '/', timeoutMs: 30_000, connectTimeoutMs: 5000,

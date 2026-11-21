@@ -6,14 +6,14 @@
  */
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { RemoteHostFacts } from '@deepseek-ai/dsh-api-remotes/client'
-import type { MergeRequest } from '@deepseek-ai/dsh-experimental-forge/types'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import { bindSnapshotSelector, contextMenuHook, makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import type { ContextMenuTarget } from '@deepseek-ai/dsh-client-ui-context-menu/client'
-import type { PanelFoldProps } from '@deepseek-ai/dsh-client-ui-session-panel/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import type { RemoteHostFacts } from '@omega-ai/dsh-api-remotes/client'
+import type { MergeRequest } from '@omega-ai/dsh-experimental-forge/types'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import { bindSnapshotSelector, contextMenuHook, makeTranslate } from '@omega-ai/dsh-client-test-runtime'
+import type { ContextMenuTarget } from '@omega-ai/dsh-client-ui-context-menu/client'
+import type { PanelFoldProps } from '@omega-ai/dsh-client-ui-session-panel/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import { brandString } from '@omega-ai/dsh-brand'
 import {
   ChangeRequestsActions, ChangeRequestsSection, type ChangeRequestsActionsProps, type ChangeRequestsSectionProps,
 } from '../src/client/ChangeRequestsSection.tsx'

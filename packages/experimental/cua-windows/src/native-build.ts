@@ -2,8 +2,8 @@
 import { constants } from 'node:fs'
 import { access } from 'node:fs/promises'
 import { join } from 'node:path'
-import { buildNativeExecutable as compileExecutable, sourceNativePackage } from '@deepseek-ai/dsh-cua/native-build'
-import type { SubprocessRuntime } from '@deepseek-ai/dsh-subprocess'
+import { buildNativeExecutable as compileExecutable, sourceNativePackage } from '@omega-ai/dsh-cua/native-build'
+import type { SubprocessRuntime } from '@omega-ai/dsh-subprocess'
 
 /** Architectures supported by the Windows helper payload. */
 export type NativeArchitecture = 'arm64' | 'x64'

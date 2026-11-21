@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { expect, it } from 'vitest'
-import { readProfileManifest } from '@deepseek-ai/dsh-app-boot'
+import { readProfileManifest } from '@omega-ai/dsh-app-boot'
 import { startHttpMcpFixture } from '../../../../../../packages/mcp/mcp-client/tests/http-fixture.ts'
 
 interface Observation {
@@ -36,7 +36,7 @@ it('configures MCP on a live profile, restores it on restart, and removes its to
   await writeFile(join(bundle, 'package.json'), JSON.stringify({ name: '@test/creator-mcp', version: '1.0.0',
     dsh: { bundle: { patch: './cordis.patch.yml' } } }))
   await writeFile(join(bundle, 'cordis.patch.yml'), JSON.stringify([{ insert: [{ id: 'demo',
-    name: '@deepseek-ai/dsh-mcp-client', config: { serverName: 'demo', transport: 'streamable-http',
+    name: '@omega-ai/dsh-mcp-client', config: { serverName: 'demo', transport: 'streamable-http',
       url: mcp.url, failOnStartupError: true },
   }] }]))
   const patch = join(root, 'test.patch.yml')
@@ -47,7 +47,7 @@ it('configures MCP on a live profile, restores it on restart, and removes its to
     const child = spawn(process.execPath, [join(repo, 'apps/cli/lib/bin.js'), '--profile', 'web', '--patch', patch,
       '--port', '0', '--no-open'], { cwd: join(root, 'workspace'),
       env: { ...process.env, DSH_HOME: join(root, 'home'), DSH_AGENTS_HOME: join(root, 'agents'),
-        DSH_TELEMETRY_DISABLED: '1', DEEPSEEK_API_KEY: 'keyless-no-model-calls' },
+        DSH_TELEMETRY_DISABLED: '1', OMEGA_API_KEY: 'keyless-no-model-calls' },
       stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
     })
     let output = ''

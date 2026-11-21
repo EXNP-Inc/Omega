@@ -134,7 +134,7 @@
         "content": [
           {
             "type": "text",
-            "text": "<system-reminder>\nThe following information describes your current session:\n\nCurrent working directory: \"{{cwd}}\".\n\nCurrent DSH file policy: danger-full-access. The DSH file sandbox does not restrict file modifications by available operations.\n\nApproval prompts are disabled in this session: actions that require approval are rejected automatically — do not request sandbox escalation (do not set `sandbox_permissions`).\n</system-reminder>"
+            "text": "<system-reminder>\nThe following information describes your current session:\n\nCurrent working directory: \"{{cwd}}\".\n\nCurrent Omega file policy: danger-full-access. The Omega file sandbox does not restrict file modifications by available operations.\n\nApproval prompts are disabled in this session: actions that require approval are rejected automatically — do not request sandbox escalation (do not set `sandbox_permissions`).\n</system-reminder>"
           }
         ],
         "source": {
@@ -147,7 +147,7 @@
             },
             {
               "name": "sandbox:policy",
-              "text": "Current DSH file policy: danger-full-access. The DSH file sandbox does not restrict file modifications by available operations."
+              "text": "Current Omega file policy: danger-full-access. The Omega file sandbox does not restrict file modifications by available operations."
             },
             {
               "name": "approval:policy",
@@ -192,7 +192,7 @@
       "data": {
         "header": {
           "config": {
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "maxTokens": 256000,
             "reasoningEffort": "high"
@@ -219,7 +219,7 @@
       "seq": 15,
       "time": 0,
       "data": {
-        "provider": "deepseek-official",
+        "provider": "omega-official",
         "model": "smoke-model",
         "contextWindow": 1000000
       }
@@ -286,7 +286,7 @@
       "data": {
         "header": {
           "config": {
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "maxTokens": 256000,
             "reasoningEffort": "high"
@@ -309,7 +309,7 @@
       }
     },
     {
-      "type": "session-log-deepseek/delivery-accepted",
+      "type": "session-log-omega/delivery-accepted",
       "seq": 20,
       "time": 0,
       "data": {
@@ -337,11 +337,11 @@
           ],
           "source": {
             "kind": "model",
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "replayState": {
               "response": {
-                "kind": "deepseek-messages",
+                "kind": "omega-messages",
                 "version": 1,
                 "model": "smoke-model"
               },
@@ -426,7 +426,7 @@
               },
               "replayState": {
                 "response": {
-                  "kind": "deepseek-messages",
+                  "kind": "omega-messages",
                   "version": 1,
                   "model": "smoke-model"
                 },
@@ -538,7 +538,7 @@
       }
     },
     {
-      "type": "session-log-deepseek/delivery-accepted",
+      "type": "session-log-omega/delivery-accepted",
       "seq": 28,
       "time": 0,
       "data": {
@@ -566,11 +566,11 @@
           ],
           "source": {
             "kind": "model",
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "replayState": {
               "response": {
-                "kind": "deepseek-messages",
+                "kind": "omega-messages",
                 "version": 1,
                 "model": "smoke-model"
               },
@@ -655,7 +655,7 @@
               },
               "replayState": {
                 "response": {
-                  "kind": "deepseek-messages",
+                  "kind": "omega-messages",
                   "version": 1,
                   "model": "smoke-model"
                 },
@@ -736,7 +736,7 @@
       }
     },
     {
-      "type": "session-log-deepseek/delivery-accepted",
+      "type": "session-log-omega/delivery-accepted",
       "seq": 34,
       "time": 0,
       "data": {
@@ -764,11 +764,11 @@
           ],
           "source": {
             "kind": "model",
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "replayState": {
               "response": {
-                "kind": "deepseek-messages",
+                "kind": "omega-messages",
                 "version": 1,
                 "model": "smoke-model"
               },
@@ -853,7 +853,7 @@
               },
               "replayState": {
                 "response": {
-                  "kind": "deepseek-messages",
+                  "kind": "omega-messages",
                   "version": 1,
                   "model": "smoke-model"
                 },
@@ -946,7 +946,7 @@
       }
     },
     {
-      "type": "session-log-deepseek/delivery-accepted",
+      "type": "session-log-omega/delivery-accepted",
       "seq": 41,
       "time": 0,
       "data": {
@@ -1010,11 +1010,11 @@
           ],
           "source": {
             "kind": "model",
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "replayState": {
               "response": {
-                "kind": "deepseek-messages",
+                "kind": "omega-messages",
                 "version": 1,
                 "model": "smoke-model"
               },
@@ -1099,7 +1099,7 @@
               },
               "replayState": {
                 "response": {
-                  "kind": "deepseek-messages",
+                  "kind": "omega-messages",
                   "version": 1,
                   "model": "smoke-model"
                 },
@@ -1270,7 +1270,7 @@
       "surfaceOp": "append"
     },
     {
-      "type": "session-log-deepseek/delivery-accepted",
+      "type": "session-log-omega/delivery-accepted",
       "seq": 55,
       "time": 0,
       "data": {
@@ -1296,11 +1296,11 @@
           ],
           "source": {
             "kind": "model",
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "replayState": {
               "response": {
-                "kind": "deepseek-messages",
+                "kind": "omega-messages",
                 "version": 1,
                 "model": "smoke-model"
               },
@@ -1371,7 +1371,7 @@
               },
               "replayState": {
                 "response": {
-                  "kind": "deepseek-messages",
+                  "kind": "omega-messages",
                   "version": 1,
                   "model": "smoke-model"
                 },
@@ -1680,7 +1680,7 @@
             "content": [
               {
                 "type": "text",
-                "text": "<system-reminder>\nThe following information describes your current session:\n\nCurrent working directory: \"{{cwd}}\".\n\nCurrent DSH file policy: danger-full-access. The DSH file sandbox does not restrict file modifications by available operations.\n\nApproval prompts are disabled in this session: actions that require approval are rejected automatically — do not request sandbox escalation (do not set `sandbox_permissions`).\n</system-reminder>"
+                "text": "<system-reminder>\nThe following information describes your current session:\n\nCurrent working directory: \"{{cwd}}\".\n\nCurrent Omega file policy: danger-full-access. The Omega file sandbox does not restrict file modifications by available operations.\n\nApproval prompts are disabled in this session: actions that require approval are rejected automatically — do not request sandbox escalation (do not set `sandbox_permissions`).\n</system-reminder>"
               }
             ],
             "source": {
@@ -1693,7 +1693,7 @@
                 },
                 {
                   "name": "sandbox:policy",
-                  "text": "Current DSH file policy: danger-full-access. The DSH file sandbox does not restrict file modifications by available operations."
+                  "text": "Current Omega file policy: danger-full-access. The Omega file sandbox does not restrict file modifications by available operations."
                 },
                 {
                   "name": "approval:policy",
@@ -1750,7 +1750,7 @@
           "data": {
             "header": {
               "config": {
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "maxTokens": 256000,
                 "reasoningEffort": "high"
@@ -1783,7 +1783,7 @@
           "seq": 15,
           "time": 0,
           "data": {
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "contextWindow": 1000000
           }
@@ -1874,7 +1874,7 @@
           "data": {
             "header": {
               "config": {
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "maxTokens": 256000,
                 "reasoningEffort": "high"
@@ -1903,7 +1903,7 @@
       "payload": {
         "sessionId": "{{parent}}",
         "event": {
-          "type": "session-log-deepseek/delivery-accepted",
+          "type": "session-log-omega/delivery-accepted",
           "seq": 20,
           "time": 0,
           "data": {
@@ -1937,11 +1937,11 @@
               ],
               "source": {
                 "kind": "model",
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "replayState": {
                   "response": {
-                    "kind": "deepseek-messages",
+                    "kind": "omega-messages",
                     "version": 1,
                     "model": "smoke-model"
                   },
@@ -2026,7 +2026,7 @@
                   },
                   "replayState": {
                     "response": {
-                      "kind": "deepseek-messages",
+                      "kind": "omega-messages",
                       "version": 1,
                       "model": "smoke-model"
                     },
@@ -2180,7 +2180,7 @@
       "payload": {
         "sessionId": "{{parent}}",
         "event": {
-          "type": "session-log-deepseek/delivery-accepted",
+          "type": "session-log-omega/delivery-accepted",
           "seq": 28,
           "time": 0,
           "data": {
@@ -2214,11 +2214,11 @@
               ],
               "source": {
                 "kind": "model",
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "replayState": {
                   "response": {
-                    "kind": "deepseek-messages",
+                    "kind": "omega-messages",
                     "version": 1,
                     "model": "smoke-model"
                   },
@@ -2303,7 +2303,7 @@
                   },
                   "replayState": {
                     "response": {
-                      "kind": "deepseek-messages",
+                      "kind": "omega-messages",
                       "version": 1,
                       "model": "smoke-model"
                     },
@@ -2414,7 +2414,7 @@
       "payload": {
         "sessionId": "{{parent}}",
         "event": {
-          "type": "session-log-deepseek/delivery-accepted",
+          "type": "session-log-omega/delivery-accepted",
           "seq": 34,
           "time": 0,
           "data": {
@@ -2448,11 +2448,11 @@
               ],
               "source": {
                 "kind": "model",
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "replayState": {
                   "response": {
-                    "kind": "deepseek-messages",
+                    "kind": "omega-messages",
                     "version": 1,
                     "model": "smoke-model"
                   },
@@ -2537,7 +2537,7 @@
                   },
                   "replayState": {
                     "response": {
-                      "kind": "deepseek-messages",
+                      "kind": "omega-messages",
                       "version": 1,
                       "model": "smoke-model"
                     },
@@ -2593,7 +2593,7 @@
             "mode": "continuable",
             "provider": "spawn",
             "label": "Check direct child",
-            "agentProvider": "deepseek-official",
+            "agentProvider": "omega-official",
             "agentModel": "smoke-model",
             "agentReasoningEffort": "high"
           }
@@ -2862,7 +2862,7 @@
       "payload": {
         "sessionId": "{{parent}}",
         "event": {
-          "type": "session-log-deepseek/delivery-accepted",
+          "type": "session-log-omega/delivery-accepted",
           "seq": 41,
           "time": 0,
           "data": {
@@ -3189,7 +3189,7 @@
             "content": [
               {
                 "type": "text",
-                "text": "<system-reminder>\nThe following information describes your current session:\n\nCurrent working directory: \"{{cwd}}\".\n\nCurrent DSH file policy: danger-full-access. The DSH file sandbox does not restrict file modifications by available operations.\n\nApproval prompts are disabled in this session: actions that require approval are rejected automatically — do not request sandbox escalation (do not set `sandbox_permissions`).\n\nDelegation depth for `subagent`: current 1, maximum 1, remaining levels 0. Do not call `subagent` at this depth; carry out the work directly.\n\nYou are a delegated subagent: your permission scope was fixed when you were started and cannot be widened from inside this session — operations that require approval are rejected automatically. When the task needs access beyond that scope, do not retry the denied operation; state the limitation in your reply so the delegating agent can handle it. Messages from other agents begin with \"Agent <name> sent a message:\". Other user messages come from the human user, who reads this conversation directly. You can still message other agents to coordinate, but answer the human user in your reply.\n</system-reminder>"
+                "text": "<system-reminder>\nThe following information describes your current session:\n\nCurrent working directory: \"{{cwd}}\".\n\nCurrent Omega file policy: danger-full-access. The Omega file sandbox does not restrict file modifications by available operations.\n\nApproval prompts are disabled in this session: actions that require approval are rejected automatically — do not request sandbox escalation (do not set `sandbox_permissions`).\n\nDelegation depth for `subagent`: current 1, maximum 1, remaining levels 0. Do not call `subagent` at this depth; carry out the work directly.\n\nYou are a delegated subagent: your permission scope was fixed when you were started and cannot be widened from inside this session — operations that require approval are rejected automatically. When the task needs access beyond that scope, do not retry the denied operation; state the limitation in your reply so the delegating agent can handle it. Messages from other agents begin with \"Agent <name> sent a message:\". Other user messages come from the human user, who reads this conversation directly. You can still message other agents to coordinate, but answer the human user in your reply.\n</system-reminder>"
               }
             ],
             "source": {
@@ -3202,7 +3202,7 @@
                 },
                 {
                   "name": "sandbox:policy",
-                  "text": "Current DSH file policy: danger-full-access. The DSH file sandbox does not restrict file modifications by available operations."
+                  "text": "Current Omega file policy: danger-full-access. The Omega file sandbox does not restrict file modifications by available operations."
                 },
                 {
                   "name": "approval:policy",
@@ -3236,7 +3236,7 @@
           "data": {
             "header": {
               "config": {
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "reasoningEffort": "high",
                 "maxTokens": 256000
@@ -3268,7 +3268,7 @@
           "seq": 23,
           "time": 0,
           "data": {
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "contextWindow": 1000000
           }
@@ -3280,7 +3280,7 @@
       "payload": {
         "sessionId": "{{child-1}}",
         "event": {
-          "type": "session-log-deepseek/delivery-accepted",
+          "type": "session-log-omega/delivery-accepted",
           "seq": 24,
           "time": 0,
           "data": {
@@ -3312,11 +3312,11 @@
               ],
               "source": {
                 "kind": "model",
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "replayState": {
                   "response": {
-                    "kind": "deepseek-messages",
+                    "kind": "omega-messages",
                     "version": 1,
                     "model": "smoke-model"
                   },
@@ -3387,7 +3387,7 @@
                   },
                   "replayState": {
                     "response": {
-                      "kind": "deepseek-messages",
+                      "kind": "omega-messages",
                       "version": 1,
                       "model": "smoke-model"
                     },
@@ -3526,11 +3526,11 @@
               ],
               "source": {
                 "kind": "model",
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "replayState": {
                   "response": {
-                    "kind": "deepseek-messages",
+                    "kind": "omega-messages",
                     "version": 1,
                     "model": "smoke-model"
                   },
@@ -3615,7 +3615,7 @@
                   },
                   "replayState": {
                     "response": {
-                      "kind": "deepseek-messages",
+                      "kind": "omega-messages",
                       "version": 1,
                       "model": "smoke-model"
                     },
@@ -3686,7 +3686,7 @@
             "mode": "continuable",
             "provider": "spawn",
             "label": "advanced-exe-snapshot child 1",
-            "agentProvider": "deepseek-official",
+            "agentProvider": "omega-official",
             "agentModel": "smoke-model",
             "agentReasoningEffort": "high"
           }
@@ -4203,7 +4203,7 @@
             "content": [
               {
                 "type": "text",
-                "text": "<system-reminder>\nThe following information describes your current session:\n\nCurrent working directory: \"{{cwd}}\".\n\nCurrent DSH file policy: danger-full-access. The DSH file sandbox does not restrict file modifications by available operations.\n\nApproval prompts are disabled in this session: actions that require approval are rejected automatically — do not request sandbox escalation (do not set `sandbox_permissions`).\n\nDelegation depth for `subagent`: current 1, maximum 1, remaining levels 0. Do not call `subagent` at this depth; carry out the work directly.\n\nYou are a delegated subagent: your permission scope was fixed when you were started and cannot be widened from inside this session — operations that require approval are rejected automatically. When the task needs access beyond that scope, do not retry the denied operation; state the limitation in your reply so the delegating agent can handle it. Messages from other agents begin with \"Agent <name> sent a message:\". Other user messages come from the human user, who reads this conversation directly. You can still message other agents to coordinate, but answer the human user in your reply.\n</system-reminder>"
+                "text": "<system-reminder>\nThe following information describes your current session:\n\nCurrent working directory: \"{{cwd}}\".\n\nCurrent Omega file policy: danger-full-access. The Omega file sandbox does not restrict file modifications by available operations.\n\nApproval prompts are disabled in this session: actions that require approval are rejected automatically — do not request sandbox escalation (do not set `sandbox_permissions`).\n\nDelegation depth for `subagent`: current 1, maximum 1, remaining levels 0. Do not call `subagent` at this depth; carry out the work directly.\n\nYou are a delegated subagent: your permission scope was fixed when you were started and cannot be widened from inside this session — operations that require approval are rejected automatically. When the task needs access beyond that scope, do not retry the denied operation; state the limitation in your reply so the delegating agent can handle it. Messages from other agents begin with \"Agent <name> sent a message:\". Other user messages come from the human user, who reads this conversation directly. You can still message other agents to coordinate, but answer the human user in your reply.\n</system-reminder>"
               }
             ],
             "source": {
@@ -4216,7 +4216,7 @@
                 },
                 {
                   "name": "sandbox:policy",
-                  "text": "Current DSH file policy: danger-full-access. The DSH file sandbox does not restrict file modifications by available operations."
+                  "text": "Current Omega file policy: danger-full-access. The Omega file sandbox does not restrict file modifications by available operations."
                 },
                 {
                   "name": "approval:policy",
@@ -4250,7 +4250,7 @@
           "data": {
             "header": {
               "config": {
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "reasoningEffort": "high",
                 "maxTokens": 256000
@@ -4282,7 +4282,7 @@
           "seq": 23,
           "time": 0,
           "data": {
-            "provider": "deepseek-official",
+            "provider": "omega-official",
             "model": "smoke-model",
             "contextWindow": 1000000
           }
@@ -4294,7 +4294,7 @@
       "payload": {
         "sessionId": "{{child-2}}",
         "event": {
-          "type": "session-log-deepseek/delivery-accepted",
+          "type": "session-log-omega/delivery-accepted",
           "seq": 24,
           "time": 0,
           "data": {
@@ -4326,11 +4326,11 @@
               ],
               "source": {
                 "kind": "model",
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "replayState": {
                   "response": {
-                    "kind": "deepseek-messages",
+                    "kind": "omega-messages",
                     "version": 1,
                     "model": "smoke-model"
                   },
@@ -4401,7 +4401,7 @@
                   },
                   "replayState": {
                     "response": {
-                      "kind": "deepseek-messages",
+                      "kind": "omega-messages",
                       "version": 1,
                       "model": "smoke-model"
                     },
@@ -4630,7 +4630,7 @@
       "payload": {
         "sessionId": "{{parent}}",
         "event": {
-          "type": "session-log-deepseek/delivery-accepted",
+          "type": "session-log-omega/delivery-accepted",
           "seq": 55,
           "time": 0,
           "data": {
@@ -4662,11 +4662,11 @@
               ],
               "source": {
                 "kind": "model",
-                "provider": "deepseek-official",
+                "provider": "omega-official",
                 "model": "smoke-model",
                 "replayState": {
                   "response": {
-                    "kind": "deepseek-messages",
+                    "kind": "omega-messages",
                     "version": 1,
                     "model": "smoke-model"
                   },
@@ -4737,7 +4737,7 @@
                   },
                   "replayState": {
                     "response": {
-                      "kind": "deepseek-messages",
+                      "kind": "omega-messages",
                       "version": 1,
                       "model": "smoke-model"
                     },

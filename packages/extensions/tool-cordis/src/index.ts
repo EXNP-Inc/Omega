@@ -1,9 +1,9 @@
 /** Read-only Host and Client runtime API discovery for plugin development. */
-import type { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
-import { defineTool, ToolContextUnavailableError } from '@deepseek-ai/dsh-tools'
-import type { ToolExecution } from '@deepseek-ai/dsh-tools'
+import type { Context } from '@omega-ai/cordis'
+import type { Agent } from '@omega-ai/dsh-agent'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
+import { defineTool, ToolContextUnavailableError } from '@omega-ai/dsh-tools'
+import type { ToolExecution } from '@omega-ai/dsh-tools'
 import { presentInspectCall } from './present.ts'
 
 export const name = 'tool-cordis'

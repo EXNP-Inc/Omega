@@ -18,7 +18,7 @@ Status: implemented
 
 ### 事件
 
-`system/message` 是 `SurfaceEventType` 的成员，与 `user/message`、`assistant/message`、`tool/result` 并列（`packages/core/session/src/types.ts`）。它的载荷与 `tool/result` 对称：`{ turn, step, message }`，其中 `message` 是 `role: 'system'` 的 `SystemMessage`，一个文本块承载渲染后的提示词，source 为 `{ kind: 'plugin', plugin: '@deepseek-ai/dsh-system-prompt' }`。空的 `content` 记录「没有系统提示词」：该节点保持其 surface 位置，`deriveEventMessage` 把它投影为 `null`，因此不贡献任何协议消息。非空节点逐字投影，因此 `deriveMessages()` 在其 surface 位置返回系统消息，而原样透传 `role: 'system'` 历史消息的 DeepSeek 序列化器把它作为协议消息 0 发出。`EpochHeader` 是 `{ config, adapterDefaults?, tools? }`；`packages/core/session/src/request-header.ts` 中的 `canonicalHeader` 与 `headerEquals` 只比较 config、适配器默认值和工具。
+`system/message` 是 `SurfaceEventType` 的成员，与 `user/message`、`assistant/message`、`tool/result` 并列（`packages/core/session/src/types.ts`）。它的载荷与 `tool/result` 对称：`{ turn, step, message }`，其中 `message` 是 `role: 'system'` 的 `SystemMessage`，一个文本块承载渲染后的提示词，source 为 `{ kind: 'plugin', plugin: '@omega-ai/dsh-system-prompt' }`。空的 `content` 记录「没有系统提示词」：该节点保持其 surface 位置，`deriveEventMessage` 把它投影为 `null`，因此不贡献任何协议消息。非空节点逐字投影，因此 `deriveMessages()` 在其 surface 位置返回系统消息，而原样透传 `role: 'system'` 历史消息的 Omega 序列化器把它作为协议消息 0 发出。`EpochHeader` 是 `{ config, adapterDefaults?, tools? }`；`packages/core/session/src/request-header.ts` 中的 `canonicalHeader` 与 `headerEquals` 只比较 config、适配器默认值和工具。
 
 ### 操作
 
@@ -44,7 +44,7 @@ Status: implemented
 
 | 消费方 | 读取内容 |
 |---|---|
-| DeepSeek 序列化器（`serializeRequest`、`serializeRequestWithImages`） | `options.messages`，把 `role: 'system'` 的历史消息作为协议消息 0 透传；`GenerateOptions.system` 为标题提供方等直接单次调用方保留 |
+| Omega 序列化器（`serializeRequest`、`serializeRequestWithImages`） | `options.messages`，把 `role: 'system'` 的历史消息作为协议消息 0 透传；`GenerateOptions.system` 为标题提供方等直接单次调用方保留 |
 | `dsh-llm-pi-ai` | 开头的 system 历史消息映射为 pi-ai 的 `systemPrompt` |
 | `compaction-basic` 的 `buildSummarizationInput` | 第 0 号节点的派生消息前置于 `SummarizationInput.messages` 中的区域消息，无单独的 `system` 字段；空内容头节点不投影为消息，但仍受保护而不能被压缩 |
 | `compaction-basic` 的 `selectCompactableRange` | 锚定在首个非系统节点；第 0 号节点永不落入压缩范围 |
@@ -90,5 +90,5 @@ Status: implemented
 - `packages/core/session/tests/surface.spec.ts`（`system/message surface node` 块）钉住开头 system 角色的投影、空内容的 `null` 投影、`assertSystemHeadRewrite` 的接受与拒绝路径、更后位置系统节点不受保护，以及对 seed 中非 system 角色或非插件 source 的 `system/message` 的拒绝。
 - `packages/core/agent-loop/tests/system-prompt-projection.spec.ts` 钉住首次渲染时的追加（包括空提示词）、替换模式下后来非空提示词位于派生历史头部、提示词未变时的无操作、变更时对最新存活节点的替换、替换遮蔽了非头部系统节点之后的尾部追加，以及历史内追加与重新基线规则。
 - `packages/core/agent-loop/tests/request-reconstruction.spec.ts`（`a system-prompt change replaces surface node 0 and starts a new series under the same header`）钉住提示词替换之后跟随的 `series` header。
-- `packages/llm/llm-deepseek/tests/serialize.spec.ts`（`serializes a leading system message byte-for-byte like the same prompt passed as options.system`）钉住协议一致性。 `packages/llm/llm-pi-ai/tests/context.spec.ts` 在文本与图片路径上比较两种系统提示词来源。`packages/compaction/compaction-basic/tests/compaction-basic.spec.ts` 通过区域事务与默认摘要器钉住派生前缀、已路由工具、不携带单独 `system` 选项，以及非空或空头节点的保护。
+- `packages/llm/llm-omega/tests/serialize.spec.ts`（`serializes a leading system message byte-for-byte like the same prompt passed as options.system`）钉住协议一致性。 `packages/llm/llm-pi-ai/tests/context.spec.ts` 在文本与图片路径上比较两种系统提示词来源。`packages/compaction/compaction-basic/tests/compaction-basic.spec.ts` 通过区域事务与默认摘要器钉住派生前缀、已路由工具、不携带单独 `system` 选项，以及非空或空头节点的保护。
 - `snapshots/` 下的录制快照钉住每个随发 profile 的模型可见协议请求；渲染了提示词的录制会话在其 `session.jsonl` 中于 surface 第 0 号节点携带 `system/message` 事件，会话中途发生提示词变更的会话则携带对第 0 号节点的替换，或在历史内路由上携带追加的节点。

@@ -1,15 +1,15 @@
 ---
-description: "Shared resolution of the DeepSeek Harness home, its config, data, state, cache, and backup category paths, and the shared agent configuration root, plus tilde expansion and stable watch paths."
+description: "Shared resolution of the Omega home, its config, data, state, cache, and backup category paths, and the shared agent configuration root, plus tilde expansion and stable watch paths."
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-home-paths
+# @omega-ai/dsh-home-paths
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`@deepseek-ai/dsh-home-paths` lets package authors resolve the DeepSeek Harness data root and the shared agent configuration root their consumers read. An explicit path wins over the environment variable, which wins over the default under the operating-system home; blank environment values are ignored. Its public helpers can render a root without revealing an absolute machine path, expand only bare or current-user tilde forms, and canonicalize watch targets whose final components do not yet exist. Use it as a direct library dependency, not through `cordis.yml`.
+`@omega-ai/dsh-home-paths` lets package authors resolve the Omega data root and the shared agent configuration root their consumers read. An explicit path wins over the environment variable, which wins over the default under the operating-system home; blank environment values are ignored. Its public helpers can render a root without revealing an absolute machine path, expand only bare or current-user tilde forms, and canonicalize watch targets whose final components do not yet exist. Use it as a direct library dependency, not through `cordis.yml`.
 
 ## Table of Contents
 
@@ -29,7 +29,7 @@ Use these helpers wherever a package must agree with the rest of the harness abo
 ### Resolving the home
 
 ```ts
-import { resolveDshHome, dshHomePath, dshCachePath } from '@deepseek-ai/dsh-home-paths'
+import { resolveDshHome, dshHomePath, dshCachePath } from '@omega-ai/dsh-home-paths'
 
 const home = resolveDshHome()                // configured path, else $DSH_HOME, else ~/.dsh
 const settings = dshHomePath('settings')     // join one child onto the resolved home
@@ -44,20 +44,20 @@ An explicit configured path has the highest precedence, then `$DSH_HOME`, then t
 ### Choosing a category for a new path
 
 ```ts
-import { dshPath } from '@deepseek-ai/dsh-home-paths'
+import { dshPath } from '@omega-ai/dsh-home-paths'
 
 const index = dshPath('state', 'my-plugin', 'index.json')             // $DSH_HOME/state/my-plugin/index.json
 const models = dshPath({ category: 'cache', dshHome: '~/other-dsh' }, 'my-plugin') // ~/other-dsh/cache/my-plugin
 ```
 
-A new file under the home uses `dshPath(category, ...segments)` and passes its owner's directory name, normally the package name without the `@deepseek-ai/dsh-` prefix, as the first segment. Use `config` for files a person writes to configure the harness, `data` for records whose loss loses user work, sign-ins, or installed software, `state` for logs, indexes, ids, and other records the harness can lose without losing user work, `cache` for content it can rebuild or download again, and `backup` for backup archives, which users can delete at any time without affecting the harness. Loader `!!js` config expressions receive the same function, for example `root: !!js dshPath('data', 'my-plugin')`. `dshPath` returns an absolute path without creating directories.
+A new file under the home uses `dshPath(category, ...segments)` and passes its owner's directory name, normally the package name without the `@omega-ai/dsh-` prefix, as the first segment. Use `config` for files a person writes to configure the harness, `data` for records whose loss loses user work, sign-ins, or installed software, `state` for logs, indexes, ids, and other records the harness can lose without losing user work, `cache` for content it can rebuild or download again, and `backup` for backup archives, which users can delete at any time without affecting the harness. Loader `!!js` config expressions receive the same function, for example `root: !!js dshPath('data', 'my-plugin')`. `dshPath` returns an absolute path without creating directories.
 
 Existing entries keep their current locations: conventional top-level entries such as `sessions/`, `profiles/`, `skills/`, `AGENTS.md`, `.env`, and `.credentials.yaml` stay at the top level, and the [home path categories proposal](../../../.agents/notes/proposed/architecture/2026-11-04-dsh-home-path-categories.md) lists the category of every other existing path.
 
 ### Resolving the shared agents root
 
 ```ts
-import { resolveAgentsHome, agentsHomeDisplay } from '@deepseek-ai/dsh-home-paths'
+import { resolveAgentsHome, agentsHomeDisplay } from '@omega-ai/dsh-home-paths'
 
 const agents = resolveAgentsHome()   // configured path, else $DSH_AGENTS_HOME, else ~/.agents
 agentsHomeDisplay(agents)            // ~/.agents, or $DSH_AGENTS_HOME for any configured root

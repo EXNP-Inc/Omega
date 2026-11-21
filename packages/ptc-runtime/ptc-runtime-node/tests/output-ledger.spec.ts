@@ -1,8 +1,8 @@
-import type { AttachmentId } from '@deepseek-ai/dsh-attachment'
+import type { AttachmentId } from '@omega-ai/dsh-attachment'
 import { expect, it } from 'vitest'
-import type { PtcOutput, PtcRunResult } from '@deepseek-ai/dsh-ptc-runtime'
+import type { PtcOutput, PtcRunResult } from '@omega-ai/dsh-ptc-runtime'
 import { OutputLedger } from '../src/output-ledger.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 function bytes(result: PtcRunResult): number {
   return Buffer.byteLength(JSON.stringify(result.output.map(block => block.type === 'text' ? block.text : block)))

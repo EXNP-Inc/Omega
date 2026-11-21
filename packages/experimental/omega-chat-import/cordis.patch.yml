@@ -1,0 +1,6 @@
+# Optional Omega chat export import: the sidebar action after New session,
+# the owner-only upload route, and the limits Remote. Shipped profiles do not
+# include this layer.
+- insert:
+    - id: omega-chat-import
+      name: '@omega-ai/dsh-omega-chat-import'

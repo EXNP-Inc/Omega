@@ -60,7 +60,7 @@ describe('TextSearchIndex.search', () => {
   it('accepts a fuzzy subsequence hit only when it starts at a word start', () => {
     const items: readonly Row[] = [
       { id: 'refactor', title: 'Refactor build pipeline' },
-      { id: 'flash', title: 'DeepSeekFlash' },
+      { id: 'flash', title: 'OmegaFlash' },
       { id: 'zh', title: '插件筛选' },
     ]
     expect(ids('fab', items)).toEqual([])

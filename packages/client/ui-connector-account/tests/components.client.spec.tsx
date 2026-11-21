@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 /** The slot entries render each registrant's display from the Host with the shared copy, and buttons call the Host callbacks. */
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import type { PluginsSubject } from '@deepseek-ai/dsh-client-ui-plugin-manager/client'
-import type { LocalizedText } from '@deepseek-ai/dsh-package-manifest'
-import { RemoteError, type RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
+import { makeTranslate } from '@omega-ai/dsh-client-test-runtime'
+import type { PluginsSubject } from '@omega-ai/dsh-client-ui-plugin-manager/client'
+import type { LocalizedText } from '@omega-ai/dsh-package-manifest'
+import { RemoteError, type RemoteResult } from '@omega-ai/dsh-typert-protocol'
 import { afterEach, expect, it, onTestFinished, vi } from 'vitest'
 import {
   ConnectorAccountActivationEntry, ConnectorAccountBadgeEntry, ConnectorAccountSectionEntry, ConnectorAccountToastEntry,

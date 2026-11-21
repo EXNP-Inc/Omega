@@ -1,15 +1,15 @@
 /** Shared tasks section of the Session panel: the task rows and the progress beside the section title. */
 import { useMemo, useState } from 'react'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { TeamProjection, TeamTaskView, TeamTaskId } from '@deepseek-ai/dsh-agent-team/client'
-import type {} from '@deepseek-ai/dsh-api-session-controller/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { TeamProjection, TeamTaskView, TeamTaskId } from '@omega-ai/dsh-agent-team/client'
+import type {} from '@omega-ai/dsh-api-session-controller/client'
 import {
   HoverCard, HoverCardGroup, IconChevronDownOutlineRegular,
   StateDot, Tooltip, type StateDotState,
-} from '@deepseek-ai/dsh-client-ui-primitives'
-import type { PropsLocale, PropsRenderFactories, PropsRuntime, PropsStore } from '@deepseek-ai/dsh-client-ui-slots'
-import type {} from '@deepseek-ai/dsh-client-ui-session-panel/client'
-import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
+} from '@omega-ai/dsh-client-ui-primitives'
+import type { PropsLocale, PropsRenderFactories, PropsRuntime, PropsStore } from '@omega-ai/dsh-client-ui-slots'
+import type {} from '@omega-ai/dsh-client-ui-session-panel/client'
+import type {} from '@omega-ai/dsh-client-ui-conversation/client'
 import { NS, type TeamKey } from './locales.ts'
 import type { createTeamBoardStore } from './team-board-store.ts'
 import css from './TeamBoard.module.css'

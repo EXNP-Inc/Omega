@@ -9,9 +9,9 @@ from pathlib import Path
 
 import pytest
 
-from deepseek_harness.models import CommandExecution
-from deepseek_harness import RunResult
-from deepseek_harness.errors import JsonRpcError
+from omega_harness.models import CommandExecution
+from omega_harness import RunResult
+from omega_harness.errors import JsonRpcError
 from test_commands_runtime import (
     _Completion, _SESSION_ID, _WAIT_SECONDS, _command_pair, _native_result, _of_type,
     _read_events, _request_texts, _runtime, _wait_activity,
@@ -20,7 +20,7 @@ from test_goal_runtime import _command, _until
 from test_plan_runtime import _GUIDANCE, _effective_system
 
 
-_IMAGE_MODEL = "deepseek-flash"
+_IMAGE_MODEL = "omega-flash"
 _RED = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg=="
 _BLUE = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYPj/HwADAgH/5ncLrgAAAABJRU5ErkJggg=="
 

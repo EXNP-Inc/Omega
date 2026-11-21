@@ -1,8 +1,8 @@
 /** The review page's navigation row: its glyph, and the number of change requests that ask the user for a review. */
 
 import type { ReactNode } from 'react'
-import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
-import type {} from '@deepseek-ai/dsh-client-ui-sidebar/client'
+import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@omega-ai/dsh-client-ui-slots'
+import type {} from '@omega-ai/dsh-client-ui-sidebar/client'
 import { ChangeRequestGlyph } from '../glyphs.tsx'
 import type { NS } from '../locales.ts'
 import type { StreamSnapshot } from '../source.ts'

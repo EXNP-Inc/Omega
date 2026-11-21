@@ -1,6 +1,6 @@
 /** Canonical identities for change requests. */
 
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 import type { ChangeRequestKey, ChangeRequestRef } from './types.ts'
 
 /**

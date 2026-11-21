@@ -1,14 +1,14 @@
 - insert:
     - id: office-kit
-      name: '@deepseek-ai/dsh-office-kit'
+      name: '@omega-ai/dsh-office-kit'
       config:
         outputDirectory: !!js dshHomePath('office-kit', 'outputs')
 
     - id: tool-office
-      name: '@deepseek-ai/dsh-tool-office'
+      name: '@omega-ai/dsh-tool-office'
 
     - id: skill-office
-      name: '@deepseek-ai/dsh-skill-office'
+      name: '@omega-ai/dsh-skill-office'
       config:
         assetRoot: !!js process.cwd() + '/office-skills'
         pythonEnvironment: user

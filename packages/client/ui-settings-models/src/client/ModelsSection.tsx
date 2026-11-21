@@ -23,9 +23,9 @@
 
 import { useId, useState } from 'react'
 import type { ReactNode } from 'react'
-import { Button, IconPlusOutlineRegular, Modal, SegmentedControl } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { InjectFace, PropsRenderSlots } from '@deepseek-ai/dsh-client-ui-slots'
-import type { LlmNativeAuth, SettingsNamespaceView } from '@deepseek-ai/dsh-api-remotes/client'
+import { Button, IconPlusOutlineRegular, Modal, SegmentedControl } from '@omega-ai/dsh-client-ui-primitives'
+import type { InjectFace, PropsRenderSlots } from '@omega-ai/dsh-client-ui-slots'
+import type { LlmNativeAuth, SettingsNamespaceView } from '@omega-ai/dsh-api-remotes/client'
 // Type-only: pulls this package's SlotMap merge (the two Models child slots).
 import type {} from './slot-contract.ts'
 import { CustomProviderCard } from './CustomProviderCard.tsx'
@@ -179,7 +179,7 @@ export async function removeProviderProfile(
  * @returns whether to render the setup card.
  */
 export function needsSetup(row: ProviderRow, anyUsable: boolean): boolean {
-  if (anyUsable || row.entry.provider === 'deepseek-account') return false
+  if (anyUsable || row.entry.provider === 'omega-account') return false
   if (row.entry.settingsPath.length > 0) return false
   return row.credential?.configured !== true
 }
@@ -247,8 +247,8 @@ export function ModelsSection(props: ModelsSectionProps): ReactNode {
 function Loaded({ injected, renderSlot }: { injected: ModelsSectionFace; renderSlot: ModelsRenderSlot }): ReactNode {
   const { controller, operations, schema, t } = injected
   const snapshot = injected.useSnapshot(value => value)
-  const state = { ...snapshot, rows: snapshot.rows.map(row => row.entry.provider === 'deepseek-account'
-    ? { ...row, entry: { ...row.entry, displayName: t('deepSeekAccount') } } : row) }
+  const state = { ...snapshot, rows: snapshot.rows.map(row => row.entry.provider === 'omega-account'
+    ? { ...row, entry: { ...row.entry, displayName: t('omegaAccount') } } : row) }
   /** A new or failed surface waits for a current snapshot; background refreshes preserve its drafts. */
   const [hasReadySnapshot, setHasReadySnapshot] = useState(state.status === 'ready')
   if (state.status === 'ready' && !hasReadySnapshot) setHasReadySnapshot(true)
@@ -474,7 +474,7 @@ function Loaded({ injected, renderSlot }: { injected: ModelsSectionFace; renderS
                     ? <span className={styles['rowTag']}>{t('customTag')}</span>
                     : null}
                   {/* The store keeps the account row only while the account lists models. */}
-                  {row.entry.provider === 'deepseek-account'
+                  {row.entry.provider === 'omega-account'
                     ? (
                       <span className={styles['accountStatus']}>
                         <span className={`${styles['credentialDot']} ${styles['credentialDotConfigured']}`} aria-hidden="true" />
@@ -504,7 +504,7 @@ function Loaded({ injected, renderSlot }: { injected: ModelsSectionFace; renderS
                 </span>
                 <span className={styles['rowActions']}>
                   {/* The account catalog comes from the account listing; its model overrides live in cordis.patch.yml. */}
-                  {row.entry.provider === 'deepseek-account'
+                  {row.entry.provider === 'omega-account'
                     ? null
                     : (
                       <button

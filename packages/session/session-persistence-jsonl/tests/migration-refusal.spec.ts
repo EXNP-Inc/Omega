@@ -1,12 +1,12 @@
 /** Durable EOF refusals preserve historical generations and never fall back from the selected generation. */
 
-import { Context } from '@deepseek-ai/cordis'
-import { SESSION_FORMAT_VERSION, type SessionId } from '@deepseek-ai/dsh-session'
-import { createSessionFormatCatalogWithChildren } from '@deepseek-ai/dsh-session-format-catalog'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
-import type { SessionFormatJsonObject } from '@deepseek-ai/dsh-session-format'
-import { SessionFormatUnsupportedError, SessionPersistenceCorruptionError } from '@deepseek-ai/dsh-session-persistence'
-import * as JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
+import { Context } from '@omega-ai/cordis'
+import { SESSION_FORMAT_VERSION, type SessionId } from '@omega-ai/dsh-session'
+import { createSessionFormatCatalogWithChildren } from '@omega-ai/dsh-session-format-catalog'
+import type { SessionEvent } from '@omega-ai/dsh-session'
+import type { SessionFormatJsonObject } from '@omega-ai/dsh-session-format'
+import { SessionFormatUnsupportedError, SessionPersistenceCorruptionError } from '@omega-ai/dsh-session-persistence'
+import * as JsonlSessionPersistence from '@omega-ai/dsh-session-persistence-jsonl'
 import { createHash } from 'node:crypto'
 import { mkdir, mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -14,7 +14,7 @@ import { basename, dirname, join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { generationLogPath, type JsonlCompression } from '../src/format.ts'
 import { compressZstdFrame } from '../src/zstd.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const id = brandString<SessionId>('migration-refusal')
 const config = { provider: 'historical', model: 'historical-model' }
@@ -37,7 +37,7 @@ const releasedPrefix: readonly SessionFormatJsonObject[] = [
   ...prefix.slice(0, 2),
   { type: 'system/message', surfaceOp: 'append', data: {
     turn: 1, step: 1, message: {
-      id: 'native-system', role: 'system', source: { kind: 'plugin', plugin: '@deepseek-ai/dsh-system-prompt' },
+      id: 'native-system', role: 'system', source: { kind: 'plugin', plugin: '@omega-ai/dsh-system-prompt' },
       content: [{ type: 'text', text: 'Inspect the durable audit.' }],
     },
   } },
@@ -122,10 +122,10 @@ const migrationRefusals = [
   }))),
   {
     name: 'delivery activation claiming V3',
-    tail: { type: 'session-log-deepseek/delivery-accepted', data: {
+    tail: { type: 'session-log-omega/delivery-accepted', data: {
       sessionId: id, throughSeq: prefix.length - 1, sessionFormatVersion: 3,
     } },
-    diagnostic: '@deepseek-ai/dsh-session-format-v2-to-v3 refuses this format v2 Session: format v2 delivery marker claims target format v3',
+    diagnostic: '@omega-ai/dsh-session-format-v2-to-v3 refuses this format v2 Session: format v2 delivery marker claims target format v3',
   },
   {
     name: 'source message colliding with the generated system ID',
@@ -291,7 +291,7 @@ describe.each(modes)('EOF migration refusal ($compression, $access)', ({ compres
   })
 
   it('refuses a V3 watermark claiming V4 without publishing a successor', async () => {
-    const marker = { type: 'session-log-deepseek/delivery-accepted', data: {
+    const marker = { type: 'session-log-omega/delivery-accepted', data: {
       sessionId: id, throughSeq: 0, sessionFormatVersion: 4,
     } }
     const path = await store(3, compression, [...releasedPrefix, marker])
@@ -320,7 +320,7 @@ describe.each(modes)('EOF migration refusal ($compression, $access)', ({ compres
   })
 
   it.each([5, 99])('retains a V3 watermark claiming V%s unchanged through native reopening', async (sessionFormatVersion) => {
-    const marker = { type: 'session-log-deepseek/delivery-accepted', data: {
+    const marker = { type: 'session-log-omega/delivery-accepted', data: {
       sessionId: id, throughSeq: 0, sessionFormatVersion,
     } }
     await expectV3Conversion([...releasedPrefix, marker], (events) => {

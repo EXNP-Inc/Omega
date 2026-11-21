@@ -1,18 +1,18 @@
 // @vitest-environment jsdom
-import { contextMenuHook } from '@deepseek-ai/dsh-client-test-runtime'
+import { contextMenuHook } from '@omega-ai/dsh-client-test-runtime'
 import type { ConfigPageForm } from '../src/client/slot-contract.ts'
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import type { ChangeResult, PluginEntryId, PluginInstallRequestId, PluginUpdateResult, PluginVersion, RegistryAttempt } from '@deepseek-ai/dsh-api-remotes/client'
-import { allowAllAccess, bindSnapshotSelector, stubConfigForm } from '@deepseek-ai/dsh-client-test-runtime'
-import type { ConfigForm, ConfigFormSnapshot, SettingsMirrorSnapshot, SettingsSectionOwnerProps, SettingsSectionViewProps } from '@deepseek-ai/dsh-client-ui-settings/client'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { ClientEntryState } from '@deepseek-ai/dsh-client-modules/client'
-import { MenuItemButton } from '@deepseek-ai/dsh-client-ui-primitives'
+import { Context } from '@omega-ai/cordis'
+import { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
+import type { ChangeResult, PluginEntryId, PluginInstallRequestId, PluginUpdateResult, PluginVersion, RegistryAttempt } from '@omega-ai/dsh-api-remotes/client'
+import { allowAllAccess, bindSnapshotSelector, stubConfigForm } from '@omega-ai/dsh-client-test-runtime'
+import type { ConfigForm, ConfigFormSnapshot, SettingsMirrorSnapshot, SettingsSectionOwnerProps, SettingsSectionViewProps } from '@omega-ai/dsh-client-ui-settings/client'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import type { ClientEntryState } from '@omega-ai/dsh-client-modules/client'
+import { MenuItemButton } from '@omega-ai/dsh-client-ui-primitives'
 import { StrictMode, type ReactNode } from 'react'
-import type { LocaleSnapshot } from '@deepseek-ai/dsh-client-locale/client'
+import type { LocaleSnapshot } from '@omega-ai/dsh-client-locale/client'
 import { bundleDetailKey, type BundleDetailsState } from '../src/client/detail-store.ts'
 import { createNavigationStore } from '../src/client/navigation-store.ts'
 import { PluginManagerPage } from '../src/client/PluginManagerPage.tsx'
@@ -54,10 +54,10 @@ function row(overrides: Partial<PackageRow> = {}): PackageRow {
   return { entryId: 'include:sidebar' as PluginEntryId, rowId: 'sidebar', moduleName: 'dsh-better-sidebar', enabled: true, phase: 'active', ...overrides }
 }
 
-const INCOMPATIBLE = { name: 'dsh-late', version: '2.0.0', runtimeVersion: '0.1.0', requirements: { '@deepseek-ai/dsh': '^0.2.0', '@deepseek-ai/dsh-core': '^0.2.0' } }
+const INCOMPATIBLE = { name: 'dsh-late', version: '2.0.0', runtimeVersion: '0.1.0', requirements: { '@omega-ai/dsh': '^0.2.0', '@omega-ai/dsh-core': '^0.2.0' } }
 /** The English sentence an incompatibility of {@link INCOMPATIBLE}, optionally renamed, reads as. */
 const incompatibleText = (name = INCOMPATIBLE.name): string => en.reasonIncompatibleVersion
-  .replace('{plugin}', `${name}@2.0.0`).replace('{runtime}', '0.1.0').replace('{requirements}', '@deepseek-ai/dsh ^0.2.0, @deepseek-ai/dsh-core ^0.2.0')
+  .replace('{plugin}', `${name}@2.0.0`).replace('{runtime}', '0.1.0').replace('{requirements}', '@omega-ai/dsh ^0.2.0, @omega-ai/dsh-core ^0.2.0')
 const MIRROR = 'https://registry.npmmirror.com/'
 const OFFICIAL = 'https://registry.npmjs.org/'
 
@@ -331,7 +331,7 @@ describe('PluginManagerPage', () => {
   })
 
   it('keeps the Installed tab panel through loading and the More list out of the tabs, and returns a More plugin opened from Discover to Discover', () => {
-    const inspector = '@deepseek-ai/dsh-experimental-inspector-profile'
+    const inspector = '@omega-ai/dsh-experimental-inspector-profile'
     const { navigation, set } = renderTab({ status: 'loading', packages: [] }, {}, {
       'plugins.tab:discover': (_view, owner) => (
         <button type="button" onClick={() => { (owner as PluginTabProps).openPackage(inspector) }}>Discover open</button>
@@ -761,19 +761,19 @@ describe('PluginManagerPage', () => {
       packages: [
         pkg({ meta: { description: { en: 'A sidebar.' } } }),
         pkg({ name: 'dsh-broken', enabled: false, error: { code: 'not-bundle' } }),
-        pkg({ name: '@deepseek-ai/dsh-web-app', installed: false, removable: false }),
+        pkg({ name: '@omega-ai/dsh-web-app', installed: false, removable: false }),
         pkg({ name: 'dsh-protected', readOnlyReason: 'management-required' }),
         pkg({ name: '@acme/dsh-tool', enabled: false }),
         // Selected by the profile but not a bundle: its layer is skipped, so it reads as not running.
         pkg({ name: 'dsh-selected', installed: false, error: { code: 'not-bundle' } }),
-        pkg({ name: '@deepseek-ai/dsh-experimental-voice-input-bundle', installed: false, optional: true, removable: false, enabled: false }),
+        pkg({ name: '@omega-ai/dsh-experimental-voice-input-bundle', installed: false, optional: true, removable: false, enabled: false }),
       ],
       busy: ['dsh-protected'],
     })
     const cards = screen.getAllByRole('listitem')
     // Offered extensions precede installed bundles.
     expect(cards.map(card => card.getAttribute('data-plugin-package'))).toEqual([
-      '@deepseek-ai/dsh-experimental-voice-input-bundle', 'dsh-better-sidebar', 'dsh-broken', 'dsh-protected', '@acme/dsh-tool', 'dsh-selected',
+      '@omega-ai/dsh-experimental-voice-input-bundle', 'dsh-better-sidebar', 'dsh-broken', 'dsh-protected', '@acme/dsh-tool', 'dsh-selected',
     ])
     expect(cards.map(card => card.getAttribute('data-plugin-status'))).toEqual(['disabled', 'running', 'problem', 'running', 'disabled', 'not-running'])
     // Group titles have no counts; the official bundle retains its experimental marker.
@@ -798,37 +798,37 @@ describe('PluginManagerPage', () => {
     renderTab({
       packages: [
         ...[
-          '@deepseek-ai/dsh-base',
-          '@deepseek-ai/dsh-web-app',
-          '@deepseek-ai/dsh-headless',
-          '@deepseek-ai/dsh-sdk-app',
-          '@deepseek-ai/dsh-acp-app',
-          '@deepseek-ai/dsh-sdk-minimal',
-          '@deepseek-ai/dsh-experimental-tool-worktree',
+          '@omega-ai/dsh-base',
+          '@omega-ai/dsh-web-app',
+          '@omega-ai/dsh-headless',
+          '@omega-ai/dsh-sdk-app',
+          '@omega-ai/dsh-acp-app',
+          '@omega-ai/dsh-sdk-minimal',
+          '@omega-ai/dsh-experimental-tool-worktree',
         ].map(name => pkg({ name })),
         pkg({ name: '@acme/dsh-base', readOnlyReason: 'management-required' }),
         pkg({ name: 'dsh-better-sidebar' }),
-        pkg({ name: '@deepseek-ai/dsh-experimental-voice-input-bundle', installed: false, optional: true, removable: false }),
+        pkg({ name: '@omega-ai/dsh-experimental-voice-input-bundle', installed: false, optional: true, removable: false }),
       ],
     })
     expect(screen.getAllByRole('listitem').map(card => card.getAttribute('data-plugin-package'))).toEqual([
-      '@deepseek-ai/dsh-experimental-voice-input-bundle', '@acme/dsh-base', 'dsh-better-sidebar',
+      '@omega-ai/dsh-experimental-voice-input-bundle', '@acme/dsh-base', 'dsh-better-sidebar',
     ])
     expect(document.querySelector('[data-plugin-count]')).toBeNull()
   })
 
   it.each([false, true])('offers persistent terminals after Timeline with enabled=%s', (enabled) => {
-    const name = '@deepseek-ai/dsh-experimental-terminal-bundle'
+    const name = '@omega-ai/dsh-experimental-terminal-bundle'
     const b = renderTab({ packages: [
       pkg({ name, optional: true, installed: false, removable: false, enabled, rows: [row()] }),
-      pkg({ name: '@deepseek-ai/dsh-timeline', optional: true, installed: false, removable: false, enabled: false }),
-      pkg({ name: '@deepseek-ai/dsh-experimental-voice-input-bundle', official: true }),
+      pkg({ name: '@omega-ai/dsh-timeline', optional: true, installed: false, removable: false, enabled: false }),
+      pkg({ name: '@omega-ai/dsh-experimental-voice-input-bundle', official: true }),
     ] })
     expect(document.querySelector(`[data-plugin-package="${name}"]`) !== null).toBe(enabled)
     fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
     expect(screen.getByRole('heading', { name: en.moreTitle, level: 1 })).toBeTruthy()
     expect(Array.from(document.querySelectorAll('[data-plugin-package]'), card => card.getAttribute('data-plugin-package'))).toEqual([
-      '@deepseek-ai/dsh-experimental-voice-input-bundle', '@deepseek-ai/dsh-timeline', name,
+      '@omega-ai/dsh-experimental-voice-input-bundle', '@omega-ai/dsh-timeline', name,
     ])
     const card = document.querySelector(`[data-plugin-package="${name}"]`) as HTMLElement
     expect(within(card).getByText(en.statusBeta)).toBeTruthy()
@@ -847,8 +847,8 @@ describe('PluginManagerPage', () => {
   })
 
   it('keeps a shipped bundle out of both lists until one of its declared rows runs', () => {
-    const hidden = '@deepseek-ai/dsh-experimental-liveshare'
-    const shown = '@deepseek-ai/dsh-experimental-voice-input-bundle'
+    const hidden = '@omega-ai/dsh-experimental-liveshare'
+    const shown = '@omega-ai/dsh-experimental-voice-input-bundle'
     const offer = (rows: readonly PackageRow[]): PackageView => pkg({
       name: hidden, official: true, installed: false, optional: true, removable: false, enabled: false, listedByDefault: false, rows,
     })
@@ -888,7 +888,7 @@ describe('PluginManagerPage', () => {
   })
 
   it('does not open a default-hidden bundle by id while its card is hidden', () => {
-    const hidden = '@deepseek-ai/dsh-experimental-liveshare'
+    const hidden = '@omega-ai/dsh-experimental-liveshare'
     const b = renderTab({
       packages: [pkg({
         name: hidden, official: true, installed: false, optional: true, removable: false, enabled: false,
@@ -902,7 +902,7 @@ describe('PluginManagerPage', () => {
 
   it.each([false, true])('shows an empty list for hidden bundles with errors and installed=%s', (installed) => {
     renderTab({
-      packages: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', '@deepseek-ai/dsh-experimental-tool-worktree'].map(name => pkg({
+      packages: ['@omega-ai/dsh-base', '@omega-ai/dsh-web-app', '@omega-ai/dsh-experimental-tool-worktree'].map(name => pkg({
         name, installed, error: { code: 'operation-error', diagnostic: 'Unreadable bundle' },
       })),
     })
@@ -924,14 +924,14 @@ describe('PluginManagerPage', () => {
   it('opens an official bundle\'s page with its beta tag and no uninstall, and switches it on', () => {
     const title = 'Voice input'
     const { actions } = renderTab({
-      packages: [pkg({ name: '@deepseek-ai/dsh-experimental-voice-input-bundle', meta: { title }, installed: false, optional: true, removable: false, enabled: false })],
+      packages: [pkg({ name: '@omega-ai/dsh-experimental-voice-input-bundle', meta: { title }, installed: false, optional: true, removable: false, enabled: false })],
     })
     fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', title) }))
     const detail = document.querySelector('[data-plugin-detail]') as HTMLElement
     expect(within(detail).getByText(en.statusBeta)).toBeTruthy()
     expect(within(detail).queryByRole('button', { name: en.uninstallLabel.replace('{name}', title) })).toBeNull()
     fireEvent.click(within(detail).getByRole('switch', { name: en.enableToggle.replace('{name}', title) }))
-    expect(actions.setEnabled).toHaveBeenCalledExactlyOnceWith('@deepseek-ai/dsh-experimental-voice-input-bundle', true)
+    expect(actions.setEnabled).toHaveBeenCalledExactlyOnceWith('@omega-ai/dsh-experimental-voice-input-bundle', true)
   })
 
   it('keeps the persisted selection while marking a failed component as a problem', () => {
@@ -990,21 +990,21 @@ describe('PluginManagerPage', () => {
   it('shows Computer Use permission guidance on the experimental plugins page', () => {
     const description = 'Review application access before use.'
     const { actions } = renderTab({ packages: [pkg({
-      name: '@deepseek-ai/dsh-cua-bundle', enabled: false, optional: true, installed: false,
+      name: '@omega-ai/dsh-cua-bundle', enabled: false, optional: true, installed: false,
       meta: { title: 'Computer Use', description },
     })] })
     fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
     expect(screen.getByText(en.statusBeta)).toBeTruthy()
     expect(screen.getByText(description)).toBeTruthy()
     fireEvent.click(screen.getByRole('switch', { name: en.enableToggle.replace('{name}', 'Computer Use') }))
-    expect(actions.setEnabled).toHaveBeenCalledExactlyOnceWith('@deepseek-ai/dsh-cua-bundle', true)
+    expect(actions.setEnabled).toHaveBeenCalledExactlyOnceWith('@omega-ai/dsh-cua-bundle', true)
   })
 
   it.each([
-    ['@deepseek-ai/dsh-experimental-voice-input-bundle', true],
-    ['@deepseek-ai/dsh-experimental-auto-review', true],
-    ['@deepseek-ai/dsh-experimental-fixture-input', false],
-    ['@deepseek-ai/dsh-cua-bundle', true],
+    ['@omega-ai/dsh-experimental-voice-input-bundle', true],
+    ['@omega-ai/dsh-experimental-auto-review', true],
+    ['@omega-ai/dsh-experimental-fixture-input', false],
+    ['@omega-ai/dsh-cua-bundle', true],
     ['@acme/dsh-local-tools', false],
   ] as const)('localizes Host metadata for %s across cards, details, switches, and uninstall confirmation', (name, experimental) => {
     const meta = {
@@ -1359,16 +1359,16 @@ describe('PluginManagerPage', () => {
     }
 
     it('keeps configuration and installed plugins on the main list and shows eligible official plugins on the secondary page', () => {
-      const team = '@deepseek-ai/dsh-experimental-voice-input-bundle'
+      const team = '@omega-ai/dsh-experimental-voice-input-bundle'
       renderTab(
         { packages: [
-          pkg({ name: '@deepseek-ai/dsh-experimental-badge-skill-bundle', official: true, enabled: false }),
-          pkg({ name: '@deepseek-ai/dsh-experimental-voice-input-bundle', installed: false, optional: true, removable: false, enabled: false }),
-          pkg({ name: '@deepseek-ai/dsh-subagent-claude-code', official: true, availability: 'missing', installed: false, enabled: false }),
-          pkg({ name: '@deepseek-ai/dsh-subagent-codex', official: true, enabled: false }),
-          pkg({ name: '@deepseek-ai/dsh-experimental-tool-worktree', official: true, enabled: false }),
-          pkg({ name: '@deepseek-ai/dsh-experimental-session-search', installed: false, optional: true, enabled: false, listedByDefault: false }),
-          pkg({ name: '@deepseek-ai/dsh-experimental-ralph-bundle', installed: false, optional: true, enabled: false, listedByDefault: false }),
+          pkg({ name: '@omega-ai/dsh-experimental-badge-skill-bundle', official: true, enabled: false }),
+          pkg({ name: '@omega-ai/dsh-experimental-voice-input-bundle', installed: false, optional: true, removable: false, enabled: false }),
+          pkg({ name: '@omega-ai/dsh-subagent-claude-code', official: true, availability: 'missing', installed: false, enabled: false }),
+          pkg({ name: '@omega-ai/dsh-subagent-codex', official: true, enabled: false }),
+          pkg({ name: '@omega-ai/dsh-experimental-tool-worktree', official: true, enabled: false }),
+          pkg({ name: '@omega-ai/dsh-experimental-session-search', installed: false, optional: true, enabled: false, listedByDefault: false }),
+          pkg({ name: '@omega-ai/dsh-experimental-ralph-bundle', installed: false, optional: true, enabled: false, listedByDefault: false }),
           pkg({ name: '@acme/new-official', official: true }),
           pkg(),
         ] },
@@ -1384,7 +1384,7 @@ describe('PluginManagerPage', () => {
       expect(within(extensions).getByRole('heading', { name: en.extensionsTitle })).toBeTruthy()
       expect(within(extensions).getByRole('button', { name: en.moreAction }).textContent).toBe(en.moreAction)
       expect(within(extensions).getAllByRole('listitem').map(card => card.getAttribute('data-plugin-package')))
-        .toEqual(['@deepseek-ai/dsh-experimental-voice-input-bundle', '@acme/new-official'])
+        .toEqual(['@omega-ai/dsh-experimental-voice-input-bundle', '@acme/new-official'])
       expect(document.querySelector('[data-plugin-count]')).toBeNull()
       expect(within(basic).getByText('Limits every command.')).toBeTruthy()
       expect(within(basic).queryByRole('switch', { name: en.enableToggle.replace('{name}', 'Shell') })).toBeNull()
@@ -1398,7 +1398,7 @@ describe('PluginManagerPage', () => {
         .toEqual(['more'])
       const more = document.querySelector('[data-plugin-group="more"]') as HTMLElement
       expect(within(more).getAllByRole('listitem').map(card => card.getAttribute('data-plugin-package')))
-        .toEqual([team, '@acme/new-official', '@deepseek-ai/dsh-experimental-badge-skill-bundle', '@deepseek-ai/dsh-subagent-codex', '@deepseek-ai/dsh-subagent-claude-code'])
+        .toEqual([team, '@acme/new-official', '@omega-ai/dsh-experimental-badge-skill-bundle', '@omega-ai/dsh-subagent-codex', '@omega-ai/dsh-subagent-claude-code'])
       expect(document.querySelector('[data-plugin-package="dsh-better-sidebar"]')).toBeNull()
       fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', team) }))
       fireEvent.click(screen.getByRole('button', { name: en.backToPackage.replace('{name}', en.moreTitle) }))
@@ -1417,8 +1417,8 @@ describe('PluginManagerPage', () => {
     })
 
     it.each([false, true])('shows one forge card and hides the standalone worktree card when enabled is %s', (enabled) => {
-      const forge = '@deepseek-ai/dsh-experimental-forge-bundle'
-      const worktree = '@deepseek-ai/dsh-experimental-tool-worktree'
+      const forge = '@omega-ai/dsh-experimental-forge-bundle'
+      const worktree = '@omega-ai/dsh-experimental-tool-worktree'
       renderTab({ packages: [
         pkg({ name: forge, official: true, enabled }),
         pkg({ name: worktree, official: true, enabled }),
@@ -1431,12 +1431,12 @@ describe('PluginManagerPage', () => {
     })
 
     it.each([
-      '@deepseek-ai/dsh-experimental-session-search',
-      '@deepseek-ai/dsh-experimental-ralph-bundle',
+      '@omega-ai/dsh-experimental-session-search',
+      '@omega-ai/dsh-experimental-ralph-bundle',
       '@acme/shipped-exploration',
     ])('omits %s from default lists while retaining explicit profile selections and installations', (name) => {
       const entry = pkg({ name, installed: false, optional: true, removable: false, enabled: false, listedByDefault: false })
-      const other = pkg({ name: '@deepseek-ai/dsh-experimental-session-titles-bundle', installed: false, optional: true, enabled: false })
+      const other = pkg({ name: '@omega-ai/dsh-experimental-session-titles-bundle', installed: false, optional: true, enabled: false })
       const { actions, navigation, set, setLanguage } = renderTab({ packages: [other, entry] })
       const card = () => document.querySelector(`[data-plugin-package="${name}"]`)
       for (const dict of [en, zh]) {
@@ -1462,10 +1462,10 @@ describe('PluginManagerPage', () => {
     })
 
     it.each([en, zh])('hides unsupported CUA by default and retains installed or selected entries for management', (dict) => {
-      const name = '@deepseek-ai/dsh-cua-bundle'
+      const name = '@omega-ai/dsh-cua-bundle'
       const entry = pkg({ name, installed: false, enabled: false, optional: true, listedByDefault: false,
         error: { code: 'unsupported-platform' } })
-      const other = pkg({ name: '@deepseek-ai/dsh-experimental-session-titles-bundle', installed: false, optional: true, enabled: false })
+      const other = pkg({ name: '@omega-ai/dsh-experimental-session-titles-bundle', installed: false, optional: true, enabled: false })
       const { actions, set, setLanguage } = renderTab({ packages: [other, entry] })
       setLanguage(dict)
       const card = () => document.querySelector(`[data-plugin-package="${name}"]`)
@@ -1489,7 +1489,7 @@ describe('PluginManagerPage', () => {
     })
 
     it.each([en, zh])('keeps disabled CUA on the secondary page with experimental labels', (dict) => {
-      const name = '@deepseek-ai/dsh-cua-bundle'
+      const name = '@omega-ai/dsh-cua-bundle'
       const entry = (enabled: boolean) => pkg({ name, official: true, enabled, meta: { title: 'Computer Use' } })
       const b = renderTab({ packages: [entry(false)] })
       b.setLanguage(dict)
@@ -1517,8 +1517,8 @@ describe('PluginManagerPage', () => {
     })
 
     it.each([
-      '@deepseek-ai/dsh-experimental-session-titles-bundle',
-      '@deepseek-ai/dsh-personalized-recommendations',
+      '@omega-ai/dsh-experimental-session-titles-bundle',
+      '@omega-ai/dsh-personalized-recommendations',
     ])('returns %s details to the secondary page and retains it across React remounts', (name) => {
       const b = renderTab({ packages: [pkg({ name, official: true, enabled: false })] })
       fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
@@ -1535,11 +1535,11 @@ describe('PluginManagerPage', () => {
     })
 
     it.each([
-      '@deepseek-ai/dsh-experimental-inspector-profile',
-      '@deepseek-ai/dsh-personalized-recommendations',
+      '@omega-ai/dsh-experimental-inspector-profile',
+      '@omega-ai/dsh-personalized-recommendations',
     ])('pins enabled %s onto the main list and removes it when disabled', (first) => {
-      const team = '@deepseek-ai/dsh-experimental-voice-input-bundle'
-      const second = '@deepseek-ai/dsh-experimental-cot-translation-bundle'
+      const team = '@omega-ai/dsh-experimental-voice-input-bundle'
+      const second = '@omega-ai/dsh-experimental-cot-translation-bundle'
       const entry = (name: string, enabled: boolean): PackageView => pkg({ name, official: true, enabled })
       const b = renderTab({ packages: [entry(second, true), entry(team, true), entry(first, false)] })
       const cards = (group: 'extensions' | 'more'): (string | null)[] => {
@@ -1564,7 +1564,7 @@ describe('PluginManagerPage', () => {
     })
 
     it('returns a held-back bundle opened outside the lists to the list that shows it', () => {
-      const name = '@deepseek-ai/dsh-experimental-session-titles-bundle'
+      const name = '@omega-ai/dsh-experimental-session-titles-bundle'
       const b = renderTab({ packages: [pkg({ name, official: true, enabled: false })] })
       act(() => { b.navigation.actions.setView({ kind: 'package', name }) })
       expect(document.querySelector(`[data-plugin-detail="${name}"]`)).toBeTruthy()
@@ -1703,17 +1703,17 @@ describe('PluginManagerPage', () => {
   })
 
   it.each([
-    { locale: en, placeholder: 'for example dsh-plugin-whale-pet' },
-    { locale: zh, placeholder: '例如 dsh-plugin-whale-pet' },
+    { locale: en, placeholder: 'for example dsh-plugin-omega-pet' },
+    { locale: zh, placeholder: '例如 dsh-plugin-omega-pet' },
   ])('uses the package example in $placeholder and the install guide', ({ locale, placeholder }) => {
     const { actions, setLanguage } = renderTab({ install: { ...IDLE_INSTALL, open: true } })
     setLanguage(locale)
     expect(screen.getByPlaceholderText(placeholder)).toBeTruthy()
     expect(screen.getByText(locale.installUpgradeNotice)).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: locale.installGuideToggle }))
-    expect(screen.getByText('dsh-plugin-whale-pet')).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: locale.installGuideFillAria.replace('{example}', 'dsh-plugin-whale-pet') }))
-    expect(actions.editInstallSpec).toHaveBeenCalledExactlyOnceWith('dsh-plugin-whale-pet')
+    expect(screen.getByText('dsh-plugin-omega-pet')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: locale.installGuideFillAria.replace('{example}', 'dsh-plugin-omega-pet') }))
+    expect(actions.editInstallSpec).toHaveBeenCalledExactlyOnceWith('dsh-plugin-omega-pet')
   })
 
   it.each([
@@ -2568,7 +2568,7 @@ describe('PluginManagerPage', () => {
     const descriptor = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollIntoView')
     Object.defineProperty(Element.prototype, 'scrollIntoView', { value: scrollIntoView, configurable: true })
     try {
-      const { actions, set } = renderTab({ packages: [pkg(), pkg({ name: '@deepseek-ai/dsh-experimental-session-titles-bundle', official: true })] })
+      const { actions, set } = renderTab({ packages: [pkg(), pkg({ name: '@omega-ai/dsh-experimental-session-titles-bundle', official: true })] })
       // A package the list does not show has nothing to scroll to; the mark still times out.
       set({ highlight: 'missing' })
       expect(scrollIntoView).not.toHaveBeenCalled()
@@ -2591,14 +2591,14 @@ describe('PluginManagerPage', () => {
 
   it('highlights only the visible list and does not extend the mark when navigating or refreshing', () => {
     vi.useFakeTimers()
-    const name = '@deepseek-ai/dsh-experimental-session-titles-bundle'
+    const name = '@omega-ai/dsh-experimental-session-titles-bundle'
     const scrollIntoView = vi.fn()
     const descriptor = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollIntoView')
     Object.defineProperty(Element.prototype, 'scrollIntoView', { value: scrollIntoView, configurable: true })
     try {
       const { actions, set } = renderTab({ packages: [
         pkg({ name, official: true, enabled: false }),
-        pkg({ name: '@deepseek-ai/dsh-subagent-codex', official: true, enabled: false }),
+        pkg({ name: '@omega-ai/dsh-subagent-codex', official: true, enabled: false }),
       ] })
       expect(document.querySelector(`[data-plugin-package="${name}"]`)).toBeNull()
       set({ highlight: name })
@@ -2782,7 +2782,7 @@ it.each([false, true])('shows progress only for the changing bundle and clears i
 })
 
 it.each([false, true])('opens activation guidance details and returns to the originating list (experimental: %s)', (fromMore) => {
-  const name = fromMore ? '@deepseek-ai/dsh-experimental-session-titles-bundle' : 'dsh-better-sidebar'
+  const name = fromMore ? '@omega-ai/dsh-experimental-session-titles-bundle' : 'dsh-better-sidebar'
   const bundle = pkg({ name, official: fromMore })
   const { set, actions } = renderTab({ packages: [{ ...bundle, enabled: false }] }, { bundles: new Set([name]) }, {
     [`plugins.bundle.activation:${name}`]: (_view, owner) => <button onClick={(owner as PluginActivationOwnerProps).onOpenDetails}>Go to setup</button>,
@@ -2856,7 +2856,7 @@ it('supplies the accepted entry values and atomic mutation action to a custom pl
 })
 
 describe('on-demand Official bundles', () => {
-  const name = '@deepseek-ai/dsh-subagent-codex'
+  const name = '@omega-ai/dsh-subagent-codex'
   const title = 'Codex subagent'
   const catalog = (): PackageView => ({ name, meta: { title }, official: true, availability: 'missing', installed: false,
     optional: false, removable: false, enabled: false, rows: [],
@@ -3010,7 +3010,7 @@ describe('registry versions and updates', () => {
   const v = (version: string, more: Partial<PluginVersion> = {}): PluginVersion => ({
     version, tags: [], prerelease: false, bundle: true, ...more,
   })
-  const incompatible = (version: string) => ({ name: 'dsh-better-sidebar', version, runtimeVersion: runtime, requirements: { '@deepseek-ai/dsh': '>=0.9.0' } })
+  const incompatible = (version: string) => ({ name: 'dsh-better-sidebar', version, runtimeVersion: runtime, requirements: { '@omega-ai/dsh': '>=0.9.0' } })
   const detail = (): HTMLElement => document.querySelector('[data-plugin-detail]') as HTMLElement
   const section = (): HTMLElement => document.querySelector('[data-plugin-versions]') as HTMLElement
   const open = (navigation: ReturnType<typeof renderTab>['navigation']) => {
@@ -3042,7 +3042,7 @@ describe('registry versions and updates', () => {
     const rows = [...section().querySelectorAll('[data-plugin-version]')].map(row => row.getAttribute('data-plugin-version'))
     expect(rows).toEqual(['2.0.0', '1.4.0', '1.3.2', '1.3.1', '0.16.0'])
     const row = (version: string) => section().querySelector(`[data-plugin-version="${version}"]`) as HTMLElement
-    expect(within(row('2.0.0')).getByText('Needs @deepseek-ai/dsh >=0.9.0')).toBeTruthy()
+    expect(within(row('2.0.0')).getByText('Needs @omega-ai/dsh >=0.9.0')).toBeTruthy()
     expect(within(row('2.0.0')).queryByRole('button')).toBeNull()
     expect(within(row('1.3.1')).getByText(en.versionsNotBundle)).toBeTruthy()
     expect(within(row('1.3.2')).getByText('use 1.4.0')).toBeTruthy()
@@ -3070,7 +3070,7 @@ describe('registry versions and updates', () => {
     open(navigation)
     expect(within(section()).getByText(title)).toBeTruthy()
     expect(within(detail()).queryByRole('button', { name: /^Update to / })).toBeNull()
-    if (title === en.versionsBlocked) expect(within(section()).getByText(`2.0.0 needs @deepseek-ai/dsh >=0.9.0; this DSH is ${runtime}`)).toBeTruthy()
+    if (title === en.versionsBlocked) expect(within(section()).getByText(`2.0.0 needs @omega-ai/dsh >=0.9.0; this DSH is ${runtime}`)).toBeTruthy()
   })
 
   it('reports a refused check with the registries asked and a retry', () => {

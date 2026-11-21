@@ -1,10 +1,10 @@
 # Editing Cordis compositions
 
-Agent presets are ordinary `@deepseek-ai/dsh-agent-preset` declarations carried by bundle patches. Nothing edits a declaration in place: a preset is created or changed by installing a bundle whose patch declares or overrides it. This file states the declaration format; when it leaves a question open, read the `@deepseek-ai/dsh-agent-preset` README and source; `references/locate-docs.md` finds its package directory.
+Agent presets are ordinary `@omega-ai/dsh-agent-preset` declarations carried by bundle patches. Nothing edits a declaration in place: a preset is created or changed by installing a bundle whose patch declares or overrides it. This file states the declaration format; when it leaves a question open, read the `@omega-ai/dsh-agent-preset` README and source; `references/locate-docs.md` finds its package directory.
 
 ## Where declarations live
 
-The shipped Web presets are `presets/<id>.patch.yml` files of the `@deepseek-ai/dsh-web-app` bundle, ids `standard`, `ptc`, `minimal` and `cordis`. Installed, the bundle resolves from the dsh installation, not the profile; `references/locate-docs.md` finds its package directory, which is `packages/bundle/web-app/` in a source checkout. Read one file with the file-read tool when you need a template; `minimal.patch.yml` is the shortest. In Desktop the bundle sits inside `app.asar`; read it with the file-read tool. Read `references/composition-reference.md` for the patch dialect and `references/packages.md` for the plugin packages a preset can mount.
+The shipped Web presets are `presets/<id>.patch.yml` files of the `@omega-ai/dsh-web-app` bundle, ids `standard`, `ptc`, `minimal` and `cordis`. Installed, the bundle resolves from the dsh installation, not the profile; `references/locate-docs.md` finds its package directory, which is `packages/bundle/web-app/` in a source checkout. Read one file with the file-read tool when you need a template; `minimal.patch.yml` is the shortest. In Desktop the bundle sits inside `app.asar`; read it with the file-read tool. Read `references/composition-reference.md` for the patch dialect and `references/packages.md` for the plugin packages a preset can mount.
 
 A declaration row has these `config` fields: `id` (required, lowercase letters, digits and hyphens), `plugins` (required Cordis entry list), and optional `name`, `description` and `order` (roster position). The Loader row `id` is `preset-<id>` by convention.
 
@@ -29,7 +29,7 @@ Write a bundle directory in the workspace with exactly two files, then install i
 ```yaml
 - insert:
     - id: preset-review
-      name: '@deepseek-ai/dsh-agent-preset'
+      name: '@omega-ai/dsh-agent-preset'
       config:
         id: review
         name: Review
@@ -37,11 +37,11 @@ Write a bundle directory in the workspace with exactly two files, then install i
         order: 10
         plugins:
           - id: persona
-            name: '@deepseek-ai/dsh-persona'
+            name: '@omega-ai/dsh-persona'
             config:
               prefix: You review software changes.
           - id: tool-bash
-            name: '@deepseek-ai/dsh-tool-bash'
+            name: '@omega-ai/dsh-tool-bash'
 ```
 
 Install with `plugin_manager`, `action: install_bundle`, `target` set to the absolute bundle directory. It runs package installation and bundle selection itself; do not reproduce those steps with shell commands. Without `plugin_manager`, follow the fallback in `references/plugin-development.md`.
@@ -52,7 +52,7 @@ Override the declaration by its Loader row id instead of inserting. The override
 
 ```yaml
 - id: preset-standard
-  name: '@deepseek-ai/dsh-agent-preset'
+  name: '@omega-ai/dsh-agent-preset'
   config:
     id: standard
     order: 1

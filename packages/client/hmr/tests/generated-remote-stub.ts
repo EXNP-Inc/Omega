@@ -3,11 +3,11 @@
  * It declares the one stream endpoint the Client face mounts, so whole-client specs exercise the real
  * `$mount` path; its item schema accepts any JSON value instead of the generated frame validation.
  */
-import { createTypertRemoteInfo } from '@deepseek-ai/dsh-typert-protocol/remote-info'
+import { createTypertRemoteInfo } from '@omega-ai/dsh-typert-protocol/remote-info'
 import { z } from 'zod'
 
 export default createTypertRemoteInfo({
-  package: '@deepseek-ai/dsh-client-hmr',
+  package: '@omega-ai/dsh-client-hmr',
   methods: {
     'pluginEvents/follow': {
       service: 'pluginEvents',
@@ -17,7 +17,7 @@ export default createTypertRemoteInfo({
       cancellation: { parameter: 'signal' },
       result: {
         mode: 'strict',
-        typeSymbol: '@deepseek-ai/dsh-client-hmr/types#PluginsEventFrame',
+        typeSymbol: '@omega-ai/dsh-client-hmr/types#PluginsEventFrame',
         create: () => z.json(),
         jsonSchema: {},
       },

@@ -3,7 +3,7 @@ description: "面向 Web GUI 的工作区文件服务：有界文件读取、按
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-api-workspace-files
+# @omega-ai/dsh-api-workspace-files
 
 [English](README.md) | 中文
 
@@ -81,7 +81,7 @@ kind: "package-reference"
 | `search.timeoutMs` | `30000` | 搜索截止时间（毫秒）；到期拒绝调用 |
 | `search.stderrMaxBytes` | `65536` | 子进程 stderr 诊断保留字节上限 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-api-workspace-files)是每个可接受字段及其 JSDoc 的完备来源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-api-workspace-files)是每个可接受字段及其 JSDoc 的完备来源。
 
 ### 失败
 

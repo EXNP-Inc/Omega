@@ -4,9 +4,9 @@
  * @module
  */
 
-import type { ImageBlock } from '@deepseek-ai/dsh-llm'
-import type { PtcJsonValue } from '@deepseek-ai/dsh-ptc-runtime'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+import type { ImageBlock } from '@omega-ai/dsh-llm'
+import type { PtcJsonValue } from '@omega-ai/dsh-ptc-runtime'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
 
 /**
  * Replace each image entry whose attachment is one of the finalized result images.

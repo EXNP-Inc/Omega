@@ -1,13 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type {
   ChangeRequestRef, ForgeCommentId, ForgeFailure, ForgeReviewData, ForgeReviewId, ForgeReviewWrite, ForgeReviewWriteResult, ForgeThreadId,
-} from '@deepseek-ai/dsh-experimental-forge'
-import type { SessionId } from '@deepseek-ai/dsh-session'
+} from '@omega-ai/dsh-experimental-forge'
+import type { SessionId } from '@omega-ai/dsh-session'
 import ForgePanelController from '../src/index.ts'
 import type { ForgePanelState } from '../src/index.ts'
 import { bench, follow, git, pullUrl, repository, scratch, shellTurn } from './harness.ts'
 import type { Bench, Follower } from './harness.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const cleanups: (() => Promise<void>)[] = []
 

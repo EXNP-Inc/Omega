@@ -5,7 +5,7 @@
  * A spec names the situation it needs on the served address and the owner reads those switches
  * ({@link fixtureOptionsFromLocation}), so the query stays the one place a spec states its world.
  *
- * @module @deepseek-ai/dsh-experimental-liveshare/tests/viewer-fixture
+ * @module @omega-ai/dsh-experimental-liveshare/tests/viewer-fixture
  */
 
 import {
@@ -13,10 +13,10 @@ import {
   createSystemMessage,
   createToolResultMessage,
   createUserMessage,
-} from '@deepseek-ai/dsh-llm/message'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { RemoteAccessFrame, RemoteAccessGrant } from '@deepseek-ai/dsh-api-remote-access/client'
-import type { MessageId, ReasoningEffortId, ToolCallId } from '@deepseek-ai/dsh-llm/types'
+} from '@omega-ai/dsh-llm/message'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { RemoteAccessFrame, RemoteAccessGrant } from '@omega-ai/dsh-api-remote-access/client'
+import type { MessageId, ReasoningEffortId, ToolCallId } from '@omega-ai/dsh-llm/types'
 import type {
   AssistantMessage,
   ContentBlock,
@@ -25,18 +25,18 @@ import type {
   TokenUsage,
   ToolResultMessage,
   UserMessage,
-} from '@deepseek-ai/dsh-llm'
-import type { LlmAttemptId } from '@deepseek-ai/dsh-llm/types'
+} from '@omega-ai/dsh-llm'
+import type { LlmAttemptId } from '@omega-ai/dsh-llm/types'
 import {
   AssistantStreamAccumulator,
   expandAssistantStream,
   type AssistantStreamRecord,
-} from '@deepseek-ai/dsh-llm/assistant-stream'
-import type { AttachmentIdType, ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
-import type { RetryId } from '@deepseek-ai/dsh-llm-retry/types'
-import type { SessionTitleEventData, SessionTitleProviderId } from '@deepseek-ai/dsh-session-title/types'
-import type {} from '@deepseek-ai/dsh-agent'
-import type {} from '@deepseek-ai/dsh-tool-present/types'
+} from '@omega-ai/dsh-llm/assistant-stream'
+import type { AttachmentIdType, ImageAttachmentRef } from '@omega-ai/dsh-attachment'
+import type { RetryId } from '@omega-ai/dsh-llm-retry/types'
+import type { SessionTitleEventData, SessionTitleProviderId } from '@omega-ai/dsh-session-title/types'
+import type {} from '@omega-ai/dsh-agent'
+import type {} from '@omega-ai/dsh-tool-present/types'
 import type {
   SessionEvent,
   SessionEventMap,
@@ -45,20 +45,20 @@ import type {
   SessionSeqCursor,
   SurfaceEventType,
   SurfaceOp,
-} from '@deepseek-ai/dsh-session/types'
-import { SESSION_FORMAT_VERSION, SessionSeq } from '@deepseek-ai/dsh-session/types'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
-import type { TodoItem } from '@deepseek-ai/dsh-tool-todo/client'
-import type { CommandDefinitionId, CommandId, CommandDescriptor, CommandExecution, CommandResult } from '@deepseek-ai/dsh-commands/types'
-import type { CredentialInfo } from '@deepseek-ai/dsh-credentials/types'
-import type { DirectoryListing as FixtureDirectoryListing } from '@deepseek-ai/dsh-host-directory-picker/types'
-import type { SettingsDescribeValue, SettingsNamespaceView } from '@deepseek-ai/dsh-settings/types'
-import { deriveEventMessage, foldSurface } from '@deepseek-ai/dsh-session/surface'
+} from '@omega-ai/dsh-session/types'
+import { SESSION_FORMAT_VERSION, SessionSeq } from '@omega-ai/dsh-session/types'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
+import type { TodoItem } from '@omega-ai/dsh-tool-todo/client'
+import type { CommandDefinitionId, CommandId, CommandDescriptor, CommandExecution, CommandResult } from '@omega-ai/dsh-commands/types'
+import type { CredentialInfo } from '@omega-ai/dsh-credentials/types'
+import type { DirectoryListing as FixtureDirectoryListing } from '@omega-ai/dsh-host-directory-picker/types'
+import type { SettingsDescribeValue, SettingsNamespaceView } from '@omega-ai/dsh-settings/types'
+import { deriveEventMessage, foldSurface } from '@omega-ai/dsh-session/surface'
 import type {
   ClientConnectionRpc, ConnectionRpcFailure, ConnectionRpcResult, RpcResult,
-} from '@deepseek-ai/dsh-client-connection/client'
+} from '@omega-ai/dsh-client-connection/client'
 
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@omega-ai/dsh-llm' {
   interface MessageSourceMap {
     /** Fixture-authored context injection, namespaced as the v3-to-v4 migration names external producers. */
     'plugin:fixture': { kind: 'plugin:fixture' }
@@ -72,19 +72,19 @@ declare module '@deepseek-ai/dsh-llm' {
  * message source above) and its fabricated log stays a real discriminated
  * {@link SessionEvent} union.
  */
-declare module '@deepseek-ai/dsh-session/types' {
+declare module '@omega-ai/dsh-session/types' {
   interface SessionEventMap {
     /** Host-only title event uses the title domain's client-safe payload. */
     'session/title': SessionTitleEventData
     /** Host-only approval override, matching the current user-approval declaration. */
     'approval/policy': { policy: 'ask' | 'never'; source?: 'delegation' }
-    /** Mirrors `@deepseek-ai/dsh-permission-presets`'s durable preset intent. */
+    /** Mirrors `@omega-ai/dsh-permission-presets`'s durable preset intent. */
     'permission/preset': { preset: string }
-    /** Mirrors `@deepseek-ai/dsh-sandbox-policy`'s durable sandbox-mode switch. */
+    /** Mirrors `@omega-ai/dsh-sandbox-policy`'s durable sandbox-mode switch. */
     'sandbox/mode': { mode: string }
-    /** Mirrors `@deepseek-ai/dsh-plan-mode`'s log-only plan-mode switch. */
+    /** Mirrors `@omega-ai/dsh-plan-mode`'s log-only plan-mode switch. */
     'plan/mode': { active: boolean }
-    /** Mirrors `@deepseek-ai/dsh-goal`'s durable goal mutation. */
+    /** Mirrors `@omega-ai/dsh-goal`'s durable goal mutation. */
     'goal/change': FxGoalChange
   }
 }
@@ -609,7 +609,7 @@ const MARKDOWN_FIXTURE = [
   '| history | rendered |',
   '| streaming | stable |',
   '',
-  '[DeepSeek](https://www.deepseek.com)',
+  '[Omega](https://www.omega.com)',
   '',
   '```ts',
   'const markdown = true',
@@ -753,20 +753,20 @@ const READ_SAMPLE_TEXT = [
  * titled source without a snippet; `truncated` exercises the capped indicator.
  */
 const WEB_SEARCH_META = {
-  answer: 'DeepSeek Harness is a plugin-based agent harness on vendored Cordis where **every capability is a plugin**.',
+  answer: 'Omega is a plugin-based agent harness on vendored Cordis where **every capability is a plugin**.',
   sources: [
     {
-      url: 'https://github.com/deepseek-ai/deepseek-harness',
-      title: 'DeepSeek Harness — plugin-based agent harness',
+      url: 'https://github.com/omega-ai/omega-harness',
+      title: 'Omega — plugin-based agent harness',
       snippet: 'Everything is a plugin: session, tools, agent-loop, and LLM adapters all mount on the same Cordis context.',
       publishedAt: '2026-07-01',
     },
     {
-      url: 'https://www.deepseek.com/blog/harness-architecture',
+      url: 'https://www.omega.com/blog/harness-architecture',
       snippet: 'The capability-seam pattern splits each capability into interface, implementation, and consumer packages.',
     },
     {
-      url: 'https://docs.deepseek.com/harness/plugins',
+      url: 'https://docs.omega.com/harness/plugins',
       title: 'Writing a harness plugin',
       publishedAt: '2026-06-15',
     },
@@ -776,12 +776,12 @@ const WEB_SEARCH_META = {
 
 /** The `web_fetch` result metadata for the web-fetch turn. */
 const WEB_FETCH_META = {
-  url: 'https://www.deepseek.com/blog/harness-architecture',
+  url: 'https://www.omega.com/blog/harness-architecture',
   statusCode: 200,
   truncated: false,
 } satisfies JsonValue
 
-const DEEPSEEK_REASONING = {
+const OMEGA_REASONING = {
   efforts: [
     { id: 'off', name: 'Off' },
     { id: 'high', name: 'High' },
@@ -804,20 +804,20 @@ const OPENAI_REASONING = {
 function fixtureModelGroups(): ModelProviderGroup[] {
   return [
     {
-      id: 'deepseek-official',
-      name: 'DeepSeek',
+      id: 'omega-official',
+      name: 'Omega',
       models: [
         {
-          id: 'deepseek-v4-flash',
-          name: 'DeepSeek-V4-Flash',
+          id: 'omega-v4-flash',
+          name: 'Omega-V4-Flash',
           description: '快速响应',
-          reasoning: DEEPSEEK_REASONING,
+          reasoning: OMEGA_REASONING,
         },
         {
-          id: 'deepseek-v4-pro',
-          name: 'DeepSeek-V4-Pro',
+          id: 'omega-v4-pro',
+          name: 'Omega-V4-Pro',
           description: '复杂任务',
-          reasoning: DEEPSEEK_REASONING,
+          reasoning: OMEGA_REASONING,
         },
       ],
     },
@@ -874,7 +874,7 @@ function fixtureSettledStream(
 }
 
 /** Rendered system prompt of the fx-alpha history: surface node 0. */
-const FIXTURE_SYSTEM_PROMPT = '你是 DeepSeek Harness 的 fixture 助手。用简洁的中文回答，并在需要时调用工具。'
+const FIXTURE_SYSTEM_PROMPT = '你是 Omega 的 fixture 助手。用简洁的中文回答，并在需要时调用工具。'
 
 /** fx-alpha history script: 75 turns (~150+ messages -> 4 pages at PAGE_MESSAGES=50),
  *  mixing reasoning blocks / tool call+result / context. */
@@ -910,7 +910,7 @@ function buildAlphaLog(presented = false): SessionEvent[] {
   // Completed fixture requests retain the route capacity recorded with them.
   push({
     type: 'request/context',
-    data: { provider: 'deepseek-official', model: 'deepseek-v4-flash', contextWindow: 128_000 },
+    data: { provider: 'omega-official', model: 'omega-v4-flash', contextWindow: 128_000 },
   })
   for (let turn = 0; turn < 60; turn++) {
     push({ type: 'turn/start', data: { turn } })
@@ -1148,14 +1148,14 @@ function buildAlphaLog(presented = false): SessionEvent[] {
   toolTurn(
     70,
     'web_search',
-    '{"queries":["deepseek harness architecture"]}',
-    'Search results for deepseek harness architecture.',
+    '{"queries":["omega harness architecture"]}',
+    'Search results for omega harness architecture.',
     WEB_SEARCH_META,
   )
   toolTurn(
     71,
     'web_fetch',
-    '{"url":"https://www.deepseek.com/blog/harness-architecture"}',
+    '{"url":"https://www.omega.com/blog/harness-architecture"}',
     '# Harness architecture\n\nEverything is a plugin.',
     WEB_FETCH_META,
   )
@@ -2055,7 +2055,7 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
   const goalActivations = new Map<SessionId, 'armed' | 'disarmed'>()
   const modelSelections = new Map<SessionId, ModelSelection>(sessions.map(session => [
     session.sessionId,
-    { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+    { provider: 'omega-official', model: 'omega-v4-flash' },
   ]))
   const attachments = new Map<string, { attachment: ImageAttachmentRef; data: string }>([[
     String(FIXTURE_IMAGE_REF.attachmentId),
@@ -2064,13 +2064,13 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
   /** Credential store double: set/unset flip the describe badge, values never read back. */
   const fixtureCredentials = new Map<string, true>([
     // The assembled fixture represents an already-configured shipped
-    // DeepSeek route so unrelated GUI journeys do not enter first-run setup.
-    ['DEEPSEEK_API_KEY', true],
+    // Omega route so unrelated GUI journeys do not enter first-run setup.
+    ['OMEGA_API_KEY', true],
   ])
 
   /** Canonical fixture implementation of the generated Settings Remote contract. */
   const settingsRemotes = {
-    // Only the resolved DeepSeek address needed by first-run readiness is
+    // Only the resolved Omega address needed by first-run readiness is
     // represented here. Fixture-backed journeys do not open its Models editor;
     // real schema-driven forms ride the HTTP transport.
     describe(): RpcResult<SettingsDescribeValue> {
@@ -2080,10 +2080,10 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
           writable: true,
           hasDocument: true,
           namespaces: [{
-            ns: 'llm-deepseek',
+            ns: 'llm-omega',
             autoGenerate: true,
             schema: {},
-            value: { apiKeyEnv: 'DEEPSEEK_API_KEY' },
+            value: { apiKeyEnv: 'OMEGA_API_KEY' },
             applies: 'live',
             secrets: [{ path: ['apiKey'], set: false }],
             revision: 0,
@@ -2170,9 +2170,9 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
    * roster a GUI journey sees after writing is the text it wrote.
    */
   const fixturePresets = new Map<string, { trust: 'system' | 'user'; content: string }>([
-    ['standard', { trust: 'system', content: "- id: tool-bash\n  name: '@deepseek-ai/dsh-tool-bash'\n" }],
-    ['minimal', { trust: 'system', content: "- id: tool-web-search\n  name: '@deepseek-ai/dsh-tool-web-search'\n" }],
-    ['my-agent', { trust: 'user', content: "- id: tool-read\n  name: '@deepseek-ai/dsh-tool-read'\n" }],
+    ['standard', { trust: 'system', content: "- id: tool-bash\n  name: '@omega-ai/dsh-tool-bash'\n" }],
+    ['minimal', { trust: 'system', content: "- id: tool-web-search\n  name: '@omega-ai/dsh-tool-web-search'\n" }],
+    ['my-agent', { trust: 'user', content: "- id: tool-read\n  name: '@omega-ai/dsh-tool-read'\n" }],
   ])
   let fixtureDefaultPreset = 'standard'
   const nextTurn = new Map<SessionId, number>([[sid('fx-alpha'), 75]])
@@ -2226,7 +2226,7 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
     [FIXTURE_HOME, ['Documents', 'Downloads', '.config']],
     [`${FIXTURE_HOME}/Documents`, [
       'project', 'deepseek-iOS', 'deepseek-android', 'deepseek-platform',
-      'deepseek-web', 'deepseek-harness', 'deepseek-app', 'deepseek-landing-blog',
+      'deepseek-web', 'omega-harness', 'deepseek-app', 'deepseek-landing-blog',
     ]],
   ])
   const childrenOf = (path: string): string[] | undefined => {
@@ -2535,9 +2535,9 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
         value: [
           { name: 'compact', description: 'fixture：压缩当前会话上下文' },
           { name: 'echo', description: 'fixture：回显参数', input: { hint: 'text to echo' } },
-          { definitionId: brandString<CommandDefinitionId>('@deepseek-ai/dsh-command-goal'), name: 'goal', description: 'Set or view the goal for a long-running task', input: { hint: '<objective>', attachments: true } },
-          { definitionId: brandString<CommandDefinitionId>('@deepseek-ai/dsh-permission-presets'), name: 'permission', description: 'Switch the permission preset (sandbox mode + approval policy)', input: { hint: '<preset>' } },
-          { definitionId: brandString<CommandDefinitionId>('@deepseek-ai/dsh-plan-mode'), name: 'plan', description: 'Enter or leave plan mode', input: { hint: '[off|message]', attachments: true } },
+          { definitionId: brandString<CommandDefinitionId>('@omega-ai/dsh-command-goal'), name: 'goal', description: 'Set or view the goal for a long-running task', input: { hint: '<objective>', attachments: true } },
+          { definitionId: brandString<CommandDefinitionId>('@omega-ai/dsh-permission-presets'), name: 'permission', description: 'Switch the permission preset (sandbox mode + approval policy)', input: { hint: '<preset>' } },
+          { definitionId: brandString<CommandDefinitionId>('@omega-ai/dsh-plan-mode'), name: 'plan', description: 'Enter or leave plan mode', input: { hint: '[off|message]', attachments: true } },
         ],
       }
     },
@@ -3323,7 +3323,7 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
         sessionId: requestedId ?? sid(`fx-${nextSession++}`), updatedAt: Date.now(), running: false, blank: true, cwd,
       }
       sessions.push(created)
-      modelSelections.set(created.sessionId, { provider: 'deepseek-official', model: 'deepseek-v4-flash' })
+      modelSelections.set(created.sessionId, { provider: 'omega-official', model: 'omega-v4-flash' })
       const emitSession = (): void => {
         emitRemote('api-session/added', [created])
       }
@@ -3530,7 +3530,7 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
       // Capacity parallel of the host token-meter's request/context record:
       // log-only, appended inside the open turn, and deduplicated against the
       // route already recorded (the fixture never varies contextWindow).
-      const selection = modelSelections.get(id) ?? { provider: 'deepseek', model: 'deepseek-v4-flash' }
+      const selection = modelSelections.get(id) ?? { provider: 'omega', model: 'omega-v4-flash' }
       const previousHeader = logOf(id).findLast(event => event.type === 'request/header')
       const previousSelection = previousHeader?.type === 'request/header'
         ? {
@@ -4113,8 +4113,8 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
         case 'session/modelCatalog': return Promise.resolve({
           ok: true,
           value: {
-            default: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
-            routableProviders: ['deepseek-official', 'openai', 'acme-gateway'],
+            default: { provider: 'omega-official', model: 'omega-v4-flash' },
+            routableProviders: ['omega-official', 'openai', 'acme-gateway'],
             groups: fixtureModelGroups(),
             failures: [],
           },
@@ -4122,7 +4122,7 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
         case 'llm/listProviders': return Promise.resolve({
           ok: true,
           value: [
-            { id: 'deepseek-official', name: 'DeepSeek' },
+            { id: 'omega-official', name: 'Omega' },
             { id: 'openai', name: 'openai' },
             { id: 'acme-gateway', name: 'Acme Gateway' },
           ],
@@ -4130,7 +4130,7 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
         case 'llm/listConfigurableProviders': return Promise.resolve({
           ok: true,
           value: [
-            { provider: 'deepseek-official', displayName: 'DeepSeek', settingsNs: 'llm-deepseek', settingsPath: [] },
+            { provider: 'omega-official', displayName: 'Omega', settingsNs: 'llm-omega', settingsPath: [] },
             { provider: 'openai', displayName: 'openai', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'openai'], declared: false },
             { provider: 'anthropic', displayName: 'anthropic', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'anthropic'], declared: false },
             { provider: 'acme-gateway', displayName: 'Acme Gateway', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'acme-gateway'], declared: true },

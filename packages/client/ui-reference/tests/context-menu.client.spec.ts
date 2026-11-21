@@ -1,13 +1,13 @@
 // @vitest-environment jsdom
 /** Shared file menus insert references through the Session's real draft editor. */
 import { expect, it, onTestFinished, vi } from 'vitest'
-import { SlotTestRuntime } from '@deepseek-ai/dsh-client-test-runtime'
-import { MenuRegistry } from '@deepseek-ai/dsh-client-ui-context-menu/src/client/registry.ts'
-import { SessionInputShell } from '@deepseek-ai/dsh-client-ui-conversation/src/client/input/facade.ts'
-import { ComposerBlockRegistry } from '@deepseek-ai/dsh-client-ui-conversation/src/client/input/blocks.ts'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { ContextMenuTargetMap } from '@deepseek-ai/dsh-client-ui-context-menu/client'
+import { SlotTestRuntime } from '@omega-ai/dsh-client-test-runtime'
+import { MenuRegistry } from '@omega-ai/dsh-client-ui-context-menu/src/client/registry.ts'
+import { SessionInputShell } from '@omega-ai/dsh-client-ui-conversation/src/client/input/facade.ts'
+import { ComposerBlockRegistry } from '@omega-ai/dsh-client-ui-conversation/src/client/input/blocks.ts'
+import { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { ContextMenuTargetMap } from '@omega-ai/dsh-client-ui-context-menu/client'
 import { registerReferenceMenu } from '../src/client/context-menu.ts'
 import { en, zh } from '../src/client/locales.ts'
 

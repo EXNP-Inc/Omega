@@ -42,7 +42,7 @@ import {
   contentHasImage,
   LlmAdapter,
   LlmError,
-} from '@deepseek-ai/dsh-llm'
+} from '@omega-ai/dsh-llm'
 import type {
   GenerateOptions,
   ImageAttachmentAccess,
@@ -54,10 +54,10 @@ import type {
   ResolvedRetryPolicy,
   StreamChunk,
   ToolSchema,
-} from '@deepseek-ai/dsh-llm'
-import type { AttachmentStore, ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { idleWatchdog, timeoutOf } from '@deepseek-ai/dsh-timeout'
+} from '@omega-ai/dsh-llm'
+import type { AttachmentStore, ImageAttachmentRef } from '@omega-ai/dsh-attachment'
+import { brandString } from '@omega-ai/dsh-brand'
+import { idleWatchdog, timeoutOf } from '@omega-ai/dsh-timeout'
 import type { ResolvedPiAiProviderProfile } from './config.ts'
 import { requestImageTarget, toPiContext } from './context.ts'
 import { conversationUpdates, createModels, getSupportedThinkingLevels } from './models.ts'

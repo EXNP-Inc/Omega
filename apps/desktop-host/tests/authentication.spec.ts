@@ -1,17 +1,17 @@
 /** Desktop credential delivery and provider lifetime through the private IPC channel. */
 import { EventEmitter, once } from 'node:events'
 import { randomBytes } from 'node:crypto'
-import { Context } from '@deepseek-ai/cordis'
-import * as Connection from '@deepseek-ai/dsh-client-connection'
-import WebServer from '@deepseek-ai/dsh-host-webserver'
-import TypertRegistry from '@deepseek-ai/dsh-typert-registry'
-import TypertGateway from '@deepseek-ai/dsh-api-gateway'
-import RemoteAccess from '@deepseek-ai/dsh-api-remote-access'
+import { Context } from '@omega-ai/cordis'
+import * as Connection from '@omega-ai/dsh-client-connection'
+import WebServer from '@omega-ai/dsh-host-webserver'
+import TypertRegistry from '@omega-ai/dsh-typert-registry'
+import TypertGateway from '@omega-ai/dsh-api-gateway'
+import RemoteAccess from '@omega-ai/dsh-api-remote-access'
 import WebSocket from 'ws'
 import OperatorFixture from '../../../packages/api/gateway/tests/operator-connect-fixture.ts'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import { DesktopAuthenticationEnd, receiveDesktopSecret } from '../src/authentication.ts'
-import * as DesktopAuthentication from '@deepseek-ai/dsh-host-authentication-desktop'
+import * as DesktopAuthentication from '@omega-ai/dsh-host-authentication-desktop'
 
 class Channel extends EventEmitter {
   connected = true

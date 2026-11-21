@@ -1,5 +1,5 @@
-import { executeToolFixture } from '@deepseek-ai/dsh-tool-testkit'
-import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
+import { executeToolFixture } from '@omega-ai/dsh-tool-testkit'
+import * as NativeToolExecutor from '@omega-ai/dsh-tool-executor-native'
 import { execFile } from 'node:child_process'
 import { mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -7,23 +7,23 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { promisify } from 'node:util'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import Include from '@deepseek-ai/cordis-plugin-include'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import LocalFileSystem from '@deepseek-ai/dsh-fs-local'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import LlmRuntime, { type ToolCallId } from '@deepseek-ai/dsh-llm'
-import LocalSandbox from '@deepseek-ai/dsh-sandbox-local'
-import SandboxPolicyService from '@deepseek-ai/dsh-sandbox-policy'
-import SessionStore, { type SessionId } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
-import WorkingDirectoryService from '@deepseek-ai/dsh-working-directory'
-import WorktreeService from '@deepseek-ai/dsh-experimental-worktree'
+import { Context } from '@omega-ai/cordis'
+import Loader from '@omega-ai/cordis-plugin-loader'
+import Include from '@omega-ai/cordis-plugin-include'
+import AgentRegistry from '@omega-ai/dsh-agent'
+import AgentLoop from '@omega-ai/dsh-agent-loop'
+import LocalFileSystem from '@omega-ai/dsh-fs-local'
+import { brandString } from '@omega-ai/dsh-brand'
+import LlmRuntime, { type ToolCallId } from '@omega-ai/dsh-llm'
+import LocalSandbox from '@omega-ai/dsh-sandbox-local'
+import SandboxPolicyService from '@omega-ai/dsh-sandbox-policy'
+import SessionStore, { type SessionId } from '@omega-ai/dsh-session'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import LocalSubprocessRuntime from '@omega-ai/dsh-subprocess-local'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRuntime from '@omega-ai/dsh-tools'
+import WorkingDirectoryService from '@omega-ai/dsh-working-directory'
+import WorktreeService from '@omega-ai/dsh-experimental-worktree'
 import * as ToolWorktree from '../src/index.ts'
 
 const exec = promisify(execFile)
@@ -54,27 +54,27 @@ describe('worktree tool through real Loader composition', () => {
     const baseCommit = (await git('rev-parse', 'HEAD')).stdout.trim()
 
     const modules = new Map<string, unknown>([
-      ['@deepseek-ai/dsh-agent', AgentRegistry],
-      ['@deepseek-ai/dsh-session', SessionStore],
-      ['@deepseek-ai/dsh-session-projection', SessionProjectionRegistry],
+      ['@omega-ai/dsh-agent', AgentRegistry],
+      ['@omega-ai/dsh-session', SessionStore],
+      ['@omega-ai/dsh-session-projection', SessionProjectionRegistry],
 
-      ['@deepseek-ai/dsh-system-prompt', SystemPrompt],
-      ['@deepseek-ai/dsh-llm', LlmRuntime],
-      ['@deepseek-ai/dsh-tools', ToolRuntime],
-      ['@deepseek-ai/dsh-tool-executor-native', NativeToolExecutor],
-      ['@deepseek-ai/dsh-fs-local', LocalFileSystem],
-      ['@deepseek-ai/dsh-subprocess-local', LocalSubprocessRuntime],
-      ['@deepseek-ai/dsh-sandbox-local', LocalSandbox],
-      ['@deepseek-ai/dsh-sandbox-policy', SandboxPolicyService],
-      ['@deepseek-ai/dsh-working-directory', WorkingDirectoryService],
-      ['@deepseek-ai/dsh-experimental-worktree', WorktreeService],
-      ['@deepseek-ai/dsh-experimental-tool-worktree', ToolWorktree],
-      ['@deepseek-ai/dsh-agent-loop', AgentLoop],
+      ['@omega-ai/dsh-system-prompt', SystemPrompt],
+      ['@omega-ai/dsh-llm', LlmRuntime],
+      ['@omega-ai/dsh-tools', ToolRuntime],
+      ['@omega-ai/dsh-tool-executor-native', NativeToolExecutor],
+      ['@omega-ai/dsh-fs-local', LocalFileSystem],
+      ['@omega-ai/dsh-subprocess-local', LocalSubprocessRuntime],
+      ['@omega-ai/dsh-sandbox-local', LocalSandbox],
+      ['@omega-ai/dsh-sandbox-policy', SandboxPolicyService],
+      ['@omega-ai/dsh-working-directory', WorkingDirectoryService],
+      ['@omega-ai/dsh-experimental-worktree', WorktreeService],
+      ['@omega-ai/dsh-experimental-tool-worktree', ToolWorktree],
+      ['@omega-ai/dsh-agent-loop', AgentLoop],
     ])
     const config = [...modules.keys()].flatMap(name => [
       `- name: 'cordis:${name}'`,
-      ...name === '@deepseek-ai/dsh-sandbox-policy' ? ['  config:', '    mode: danger-full-access'] : [],
-      ...name === '@deepseek-ai/dsh-agent-loop' ? ['  config:', '    agents: []'] : [],
+      ...name === '@omega-ai/dsh-sandbox-policy' ? ['  config:', '    mode: danger-full-access'] : [],
+      ...name === '@omega-ai/dsh-agent-loop' ? ['  config:', '    agents: []'] : [],
     ]).join('\n') + '\n'
     const configPath = join(root, 'cordis.yml')
     await writeFile(configPath, config)
@@ -169,7 +169,7 @@ describe('worktree tool through real Loader composition', () => {
     expect(generated.value).toMatchObject({ baseCommit, repositoryRoot: repository, created: true })
     expect(create).toHaveBeenCalledOnce()
 
-    const entry = [...context.loader.entries()].find(candidate => candidate.options.name === 'cordis:@deepseek-ai/dsh-experimental-tool-worktree')
+    const entry = [...context.loader.entries()].find(candidate => candidate.options.name === 'cordis:@omega-ai/dsh-experimental-tool-worktree')
     await entry!.fiber!.dispose()
     expect(context.tools.schemas().some(tool => tool.name.endsWith('_worktree'))).toBe(false)
   })

@@ -2,13 +2,13 @@
 
 English | [中文](desktop-uninstall-cleanup.zh.md)
 
-Use this guide to uninstall DeepSeek Harness Desktop on macOS or Windows. Local data cleanup is optional.
+Use this guide to uninstall Omega Desktop on macOS or Windows. Local data cleanup is optional.
 
 ## 1. Uninstall the app
 
 Finish any commands using Desktop's bundled CLI. If you installed the `dsh` command through Desktop, first select **Manage dsh Command… → Remove** in the application menu. This removes Desktop's command registration without uninstalling independent CLI programs.
 
-Quit DeepSeek Harness, then uninstall it using your platform's procedure:
+Quit Omega, then uninstall it using your platform's procedure:
 
 - **macOS:** Delete the app from Applications in Finder.
 - **Windows:** Uninstall it through Settings → Apps → Installed apps on Windows 11, or Control Panel → Programs → Programs and Features.
@@ -27,16 +27,16 @@ On Windows, the uninstaller normally removes the two application-data directorie
 sh -c '
 rm -rf -- \
   "$HOME/.dsh" \
-  "$HOME/Library/Application Support/@deepseek-ai/dsh-desktop" \
-  "$HOME/Library/Logs/DeepSeek Harness" \
-  "$HOME/Library/Preferences/com.deepseek.dsh.plist" \
-  "$HOME/Library/Preferences/ByHost"/com.deepseek.dsh.ShipIt.*.plist \
-  "$HOME/Library/Caches/com.deepseek.dsh" \
-  "$HOME/Library/Caches/com.deepseek.dsh.ShipIt" \
-  "$HOME/Library/HTTPStorages/com.deepseek.dsh" \
-  "$HOME/Library/Caches/@deepseek-aidsh-desktop-updater" \
-  "$(getconf DARWIN_USER_CACHE_DIR)/com.deepseek.dsh" \
-  "$(getconf DARWIN_USER_CACHE_DIR)/com.deepseek.dsh.helper"
+  "$HOME/Library/Application Support/@omega-ai/dsh-desktop" \
+  "$HOME/Library/Logs/Omega" \
+  "$HOME/Library/Preferences/com.omega.dsh.plist" \
+  "$HOME/Library/Preferences/ByHost"/com.omega.dsh.ShipIt.*.plist \
+  "$HOME/Library/Caches/com.omega.dsh" \
+  "$HOME/Library/Caches/com.omega.dsh.ShipIt" \
+  "$HOME/Library/HTTPStorages/com.omega.dsh" \
+  "$HOME/Library/Caches/@omega-aidsh-desktop-updater" \
+  "$(getconf DARWIN_USER_CACHE_DIR)/com.omega.dsh" \
+  "$(getconf DARWIN_USER_CACHE_DIR)/com.omega.dsh.helper"
 '
 ```
 
@@ -44,8 +44,8 @@ rm -rf -- \
 $ErrorActionPreference = 'Stop'
 @(
     (Join-Path $env:USERPROFILE '.dsh'),
-    (Join-Path $env:APPDATA '@deepseek-ai\dsh-desktop'),
-    (Join-Path $env:LOCALAPPDATA '@deepseek-aidsh-desktop-updater')
+    (Join-Path $env:APPDATA '@omega-ai\dsh-desktop'),
+    (Join-Path $env:LOCALAPPDATA '@omega-aidsh-desktop-updater')
 ) | ForEach-Object {
     if (Test-Path -LiteralPath $_) {
         Remove-Item -LiteralPath $_ -Recurse -Force

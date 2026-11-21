@@ -1,6 +1,6 @@
 /** The GitHub CLI commands that bind pull requests to a Session through forge-session. */
 
-import type { ForgeCommandArguments, ForgeCommandRule, ForgeCommandSelection } from '@deepseek-ai/dsh-experimental-forge-session'
+import type { ForgeCommandArguments, ForgeCommandRule, ForgeCommandSelection } from '@omega-ai/dsh-experimental-forge-session'
 
 const REPOSITORY = /^(?:([a-z\d.-]+(?::\d+)?)\/)?([a-z\d_-]+)\/([a-z\d_.-]+)$/i
 const PULL_URL = /^(https?:\/\/[^\s/]+\/[^\s/]+\/[^\s/]+\/pull\/[1-9]\d*)(?:[/?#].*)?$/

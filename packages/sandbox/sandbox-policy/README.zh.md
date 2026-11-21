@@ -3,7 +3,7 @@ description: "面向需要在各项负责强制执行的能力之间组合、配
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-sandbox-policy
+# @omega-ai/dsh-sandbox-policy
 
 [English](README.md) | 中文
 
@@ -36,7 +36,7 @@ kind: "package-reference"
 用默认模式加载本包；故障安全默认值是 `read-only`，需要 agent（智能体）可写入工作区的部署必须显式选择 `workspace-write`。
 
 ```yaml
-- name: '@deepseek-ai/dsh-sandbox-policy'
+- name: '@omega-ai/dsh-sandbox-policy'
   config:
     mode: workspace-write
     workspaceRoot: /absolute/path/to/workspace
@@ -50,7 +50,7 @@ kind: "package-reference"
 
 会话的工作区根是它所在的目录，读取自[工作目录服务](../../session/working-directory/README.zh.md)：Host 每次移动 Session 的目录（例如进入或离开 worktree），边界都随之移动。对于关联的 Git worktree，仓库的 Git 目录位于该根之外，因此在 `workspace-write` 下写入它的 Git 命令会被拒绝，直到有授权覆盖它：部署可以通过 `additionalWritableRoots` 向所有会话授权，Host 插件可以通过 `registerWritableRoot` 向单个 live Session 授权。调用方必须显式选择该目录；策略不会读取 Git 文件或授权父检出目录。这些授权是组合中所有会话共享的部署配置，而非保存的 Session 权限。授权整个 Git 目录也允许修改钩子和配置，后续主机 Git 调用可能在沙箱之外执行它们；仅对可信任务使用此授权。使用物理绝对目录路径。执行限制的主机在每次调用时拒绝不存在的路径、非目录和符号链接目录，包括两次调用之间被替换为符号链接的目录。远端授权在远端主机上验证。
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-sandbox-policy)是每个受支持字段及其 JSDoc 的穷尽式真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-sandbox-policy)是每个受支持字段及其 JSDoc 的穷尽式真源。
 
 ### 注册会话的可写目录
 
@@ -122,25 +122,25 @@ kind: "package-reference"
 ##### 只读
 
 ```markdown
-Current DSH file policy: read-only. Any available operation enforced by the DSH file sandbox cannot modify files in the standing mode. Do not refuse a required modification from this policy alone: try an available tool normally and follow any denial and escalation guidance it returns.
+Current Omega file policy: read-only. Any available operation enforced by the Omega file sandbox cannot modify files in the standing mode. Do not refuse a required modification from this policy alone: try an available tool normally and follow any denial and escalation guidance it returns.
 ```
 
 ##### 工作区写入
 
 ```markdown
-Current DSH file policy: workspace-write. Any available operation enforced by the DSH file sandbox may modify files under the session workspace: "<workspace root>". Some platform temporary areas may also be writable.
+Current Omega file policy: workspace-write. Any available operation enforced by the Omega file sandbox may modify files under the session workspace: "<workspace root>". Some platform temporary areas may also be writable.
 ```
 
 ##### 带额外目录的工作区写入
 
 ```markdown
-Current DSH file policy: workspace-write. Any available operation enforced by the DSH file sandbox may modify files under the session workspace: "<workspace root>". Additional writable directories: ["/repo/.git"]. On Windows, these additional grants apply to file tools only, not sandboxed processes. Some platform temporary areas may also be writable.
+Current Omega file policy: workspace-write. Any available operation enforced by the Omega file sandbox may modify files under the session workspace: "<workspace root>". Additional writable directories: ["/repo/.git"]. On Windows, these additional grants apply to file tools only, not sandboxed processes. Some platform temporary areas may also be writable.
 ```
 
 ##### 完全访问
 
 ```markdown
-Current DSH file policy: danger-full-access. The DSH file sandbox does not restrict file modifications by available operations.
+Current Omega file policy: danger-full-access. The Omega file sandbox does not restrict file modifications by available operations.
 ```
 
 #### Token 影响

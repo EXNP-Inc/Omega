@@ -6,8 +6,8 @@
   en: 28fb7eb8f758fdf0
   zh: a36d6f03e331ad86
 /sessions/sessioneventmap-the-event-vocabulary:
-  en: 541354f6468e117d
-  zh: 2d7a665bad828a02
+  en: b6f947f20d8bbc75
+  zh: 78e62ae983c69c5a
 /sessions/sessioneventmap-the-event-vocabulary/the-request-header-event-request-header:
   en: 6eb931fcb2f4ab8d
   zh: d822a83384cc1fee
@@ -60,8 +60,8 @@
   en: 63b4059793255ca3
   zh: 6bc7891c320249f4
 /sessions/plugin-contributed-log-only-events:
-  en: 0a014a755b75449f
-  zh: 9d59d74490a1bcb2
+  en: 89d99705a5b43bc6
+  zh: 182a4610a93050f7
 /sessions/plugin-contributed-log-only-events/plugin-records:
   en: 15102fd0b937fbf3
   zh: 37ebf1d715db097c
@@ -72,5 +72,5 @@
   en: dd27307e0d7c893c
   zh: b77d2a749b7b641c
 /sessions/session-log-upload-exclusions:
-  en: cfe3323aade972be
-  zh: 8423b490c47c5013
+  en: 8027baafa95c41b5
+  zh: 038631e3c5778292

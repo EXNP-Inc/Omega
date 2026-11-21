@@ -1,7 +1,7 @@
 /** A connector's copy and an MCP manager stand-in shared by the account specs. */
-import type { ConnectorOperationId } from '@deepseek-ai/dsh-client-ui-connector-account/types'
-import type { McpOAuthAttemptId, McpOAuthAttemptView } from '@deepseek-ai/dsh-mcp-client/types'
-import type { McpManagedServerView } from '@deepseek-ai/dsh-mcp-manager/types'
+import type { ConnectorOperationId } from '@omega-ai/dsh-client-ui-connector-account/types'
+import type { McpOAuthAttemptId, McpOAuthAttemptView } from '@omega-ai/dsh-mcp-client/types'
+import type { McpManagedServerView } from '@omega-ai/dsh-mcp-manager/types'
 import { vi } from 'vitest'
 import type { McpAccountCopy } from '../src/types.ts'
 

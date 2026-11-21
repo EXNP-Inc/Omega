@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/upgrade-guide/v0.2.2-alpha.3/office-kit-package/guide.md
 /:
-  en: 0e3fae218b0fe86f
-  zh: 31fa1f4ac5cfffe6
-/deepseek-ai-dsh-office-kit-replaces-deepseek-ai-dsh-office-to-pdf:
-  en: e9c8bf48217b3e1c
-  zh: 710a0cd0489a65b7
-/deepseek-ai-dsh-office-kit-replaces-deepseek-ai-dsh-office-to-pdf/change:
-  en: 885088211bc994ac
-  zh: ee8192f950f2597b
-/deepseek-ai-dsh-office-kit-replaces-deepseek-ai-dsh-office-to-pdf/migration:
-  en: 9871a035772e8bbd
-  zh: 53f05c66de3ceb0e
+  en: 5bc8e4f735e5bea6
+  zh: b71bac2572e89f4a
+/omega-ai-dsh-office-kit-replaces-omega-ai-dsh-office-to-pdf:
+  en: 23dffa33f1156bb3
+  zh: 868994448bee4254
+/omega-ai-dsh-office-kit-replaces-omega-ai-dsh-office-to-pdf/change:
+  en: 662f4fbab5a89502
+  zh: 18eefceed7faf731
+/omega-ai-dsh-office-kit-replaces-omega-ai-dsh-office-to-pdf/migration:
+  en: 9a7fa2a0e45c8570
+  zh: 34ed14e9cc3b48fd

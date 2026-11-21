@@ -9,7 +9,7 @@ description: "fs-observation-policy 行随发行版禁用，write、edit 与 app
 
 ## 变更
 
-在 0.2.2-alpha.2 中，`dsh-base` 挂载了 `@deepseek-ai/dsh-fs-observation-policy`，因此所有叠加 base 的 profile 中，`write` 拒绝覆盖模型未读过的文件，`edit` 拒绝未读或被外部修改的文件，模型提示语也点名该策略。现在 `fs-observation-policy` 行以 `disabled: true` 交付：`write` 直接覆盖，`edit` 直接替换字面文本，新增的 `apply_patch` 只凭上下文匹配应用 hunk，三者均无条件执行。`write` 与 `edit` 的提示语仍要求先读，但不再引用该策略。Review 采集、沙箱围栏与 `fs/observed` 事件不变。
+在 0.2.2-alpha.2 中，`dsh-base` 挂载了 `@omega-ai/dsh-fs-observation-policy`，因此所有叠加 base 的 profile 中，`write` 拒绝覆盖模型未读过的文件，`edit` 拒绝未读或被外部修改的文件，模型提示语也点名该策略。现在 `fs-observation-policy` 行以 `disabled: true` 交付：`write` 直接覆盖，`edit` 直接替换字面文本，新增的 `apply_patch` 只凭上下文匹配应用 hunk，三者均无条件执行。`write` 与 `edit` 的提示语仍要求先读，但不再引用该策略。Review 采集、沙箱围栏与 `fs/observed` 事件不变。
 
 `dsh-base` 的 `tool-fs` 行（headless、SDK、ACP）与 Web 的 `standard` preset 现在列出 `apply_patch`（`applyPatch: true`）；Web 的 `ptc`、`cordis` preset 保持 `applyPatch: false`。
 

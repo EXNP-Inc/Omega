@@ -1,7 +1,7 @@
 # The Web account login scenario points the shipped account provider at a loopback
 # Platform double. The scenario substitutes {{origin}} after the listener binds,
 # so no port is ever committed here.
-- id: deepseek-account
+- id: omega-account
   config:
     platformOrigin: "{{origin}}"
     harnessOrigin: "{{origin}}"

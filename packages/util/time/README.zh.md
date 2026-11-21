@@ -35,7 +35,7 @@ kind: "package-library"
 ### 入口
 
 ```ts
-import { Duration, canonicalClientTimeZone, fourDigitYearEpoch, parseLocalCalendar, resolveLocalInstant } from '@deepseek-ai/dsh-util-time'
+import { Duration, canonicalClientTimeZone, fourDigitYearEpoch, parseLocalCalendar, resolveLocalInstant } from '@omega-ai/dsh-util-time'
 
 const zone = canonicalClientTimeZone('US/Eastern')            // 'America/New_York' or undefined
 const stored = fourDigitYearEpoch('2026-03-08T02:30:00.000Z') // { kind: 'accepted', epoch } or a rejection reason
@@ -109,7 +109,7 @@ Duration.fromMilliseconds(1_500).decompose() // { days: 0, hours: 0, minutes: 0,
 - **重复计算有界**——[Schedule 参考](../../../docs/subsystems/schedule.zh.md#recurrence-rules)列出共享表达式子集。解析成功返回冻结的 `rule`，提供 `expression`、`timeZone`、`next(after)` 和 `resolve(scheduledAt, acceptedAt)`；求值保留已提交发生时点并合并错过的时点。拒绝原因是 `syntax`、`time_zone`、`density` 或 `range`；无效决策时间抛出 `RangeError`。方法不读取墙钟或启动定时器。
 - **`Duration` 没有日历单位**——一天恰好是 24 小时，月没有固定长度；需要本地日历天的调用方从时区推导。
 - **`Duration` 只发布消费方会调用的部分**——`fromMilliseconds` 与 `decompose()`；某个换算、某个算术运算或 `zero` 恒等元都随第一个需要它的调用方落地，公开契约跟着调用方长，而不是长在它前面。
-- **以秒为单位的跨度仍在自行相乘**——`dsh-schedule` 的间隔与延迟字段、DeepSeek 文件存储的刷新余量都是以秒为单位的跨度，用 `* 1_000` 换算；它们都还没迁移到本库，而以秒表示的纪元不是跨度，不得构造成跨度。
+- **以秒为单位的跨度仍在自行相乘**——`dsh-schedule` 的间隔与延迟字段、Omega 文件存储的刷新余量都是以秒为单位的跨度，用 `* 1_000` 换算；它们都还没迁移到本库，而以秒表示的纪元不是跨度，不得构造成跨度。
 - **根入口加载重复计算依赖**——导入它会解析 `@js-temporal/polyfill` 和 `rrule`，只需要时区或跨度的消费方也一样。浏览器消费方必须在打包时计入这些依赖。
 
 <a id="dev-note"></a>

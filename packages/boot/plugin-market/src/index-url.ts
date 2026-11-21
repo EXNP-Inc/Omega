@@ -1,6 +1,6 @@
 /** Index source URL validation shared by `setIndexes` and the per-use check of configured sources. */
-import { parseGitMarketIndexSource } from '@deepseek-ai/dsh-plugin-market-index/source'
-import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
+import { parseGitMarketIndexSource } from '@omega-ai/dsh-plugin-market-index/source'
+import { RemoteError } from '@omega-ai/dsh-typert-protocol'
 
 /**
  * Validate and normalize one index source URL.

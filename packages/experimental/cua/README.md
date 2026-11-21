@@ -3,7 +3,7 @@ description: "Reuse Computer Use application and window objects with authorized,
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-cua
+# @omega-ai/dsh-cua
 
 English | [中文](README.zh.md)
 
@@ -29,7 +29,7 @@ Application consent supplies English, Chinese, and Japanese display text from `s
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount the [macOS provider](../cua-macos/README.md) or the [Windows provider](../cua-windows/README.md) to enable native operations on that platform. External PTC hosts import `connectCua` from `@deepseek-ai/dsh-cua/bridge` and supply the current `tools.cua` binding. Source compositions and native preparation belong to the provider.
+Mount the [macOS provider](../cua-macos/README.md) or the [Windows provider](../cua-windows/README.md) to enable native operations on that platform. External PTC hosts import `connectCua` from `@omega-ai/dsh-cua/bridge` and supply the current `tools.cua` binding. Source compositions and native preparation belong to the provider.
 
 `cua_run_code` runs TypeScript as scoped REPL statements in a separate persistent Node environment for each Agent. The global `cua` object is available before the program starts; `tools` contains only `cua`. Call ordinary tools directly outside the program. Use top-level `await` and `inspect(...values)` to display selected text and screenshots; top-level `return` is invalid. The tool accepts the same timeout and sandbox controls as `run_code`. A restarted runtime automatically recreates `cua`, but other variables and selected application objects must be created again.
 
@@ -59,7 +59,7 @@ To hold a button across calls, use `win.toggleMouse('left', 'down')`, then expli
 
 ### Permission controls
 
-The application approval card includes a **Risks** tag. Hover over it, focus it with the keyboard, or tap it to read a formatted card about background access to approved apps, each app’s automation rules and possible account restrictions, and stopping through DeepSeek Harness. Moving the pointer onto the card keeps it readable and selectable.
+The application approval card includes a **Risks** tag. Hover over it, focus it with the keyboard, or tap it to read a formatted card about background access to approved apps, each app’s automation rules and possible account restrictions, and stopping through Omega. Moving the pointer onto the card keeps it readable and selectable.
 
 On the Computer Use detail page, permission cards, component rows, and source facts use l3 borders, with 32px gaps between sections. Application badges retain their l1 borders.
 
@@ -118,7 +118,7 @@ Provider startup capabilities are fixed at installation: platform, methods, app-
 Check `methods` and `keyboard` in the result of `await cua.getCapabilities()` for the supported operations and input scopes. `pressKey(key, modifiers?)` presses and releases one key while holding the listed modifiers; `sendKeyEvent(key, direction)` sends exactly one key-down or key-up. `typeText` and `paste` deliver literal text at the provider's declared keyboard scope. Keyboard modifier names are plain strings that the provider interprets.
 
 
-Platform providers import `CuaConfigFields` from `@deepseek-ai/dsh-cua/config` to extend the shared configuration. The root Host entry exports `installCua`, `CuaConfig`, and the Typert-discovered `CuaAccess` service; its `apply()` only marks the optional Client contribution. `/client` loads the permission UI through the existing module loader. Separate Host and Client compiler projects keep React, CSS, and browser registrations out of headless imports. `/api` owns the app/window API and its types; `/bridge`, `/native-client`, and `/protocol` retain runtime and platform consumers. `/types` exports only the named types required by generated Remote declarations. The Client uses package-local types. `/typert` supplies Host reflection and `/remote` supplies generated browser descriptors and codecs; permission authority remains on the Host.
+Platform providers import `CuaConfigFields` from `@omega-ai/dsh-cua/config` to extend the shared configuration. The root Host entry exports `installCua`, `CuaConfig`, and the Typert-discovered `CuaAccess` service; its `apply()` only marks the optional Client contribution. `/client` loads the permission UI through the existing module loader. Separate Host and Client compiler projects keep React, CSS, and browser registrations out of headless imports. `/api` owns the app/window API and its types; `/bridge`, `/native-client`, and `/protocol` retain runtime and platform consumers. `/types` exports only the named types required by generated Remote declarations. The Client uses package-local types. `/typert` supplies Host reflection and `/remote` supplies generated browser descriptors and codecs; permission authority remains on the Host.
 
 The optional browser contribution mounts the native provider's permission Remote and reuses the Plugins activation and configuration slots. The four setup rows remain visible while unknown fields use placeholders; platform-specific permission guidance remains visible during queries and after grants once the platform has been identified. The default-mode form, runtime configuration, system checks, application decisions, and application icons fill in as each query completes. Application names and actions do not wait for icons; icon positions retain their space. User actions run in order without waiting for pending observation queries. Disposal waits for both actions and queries to settle before releasing the separately owned Remote mount. Known query errors and read-only settings stay visible while management operations or retries run, with their actions disabled. Query errors stay with the affected section, and activation guidance depends only on system checks. The injection layer observes Plugin Manager operations independently of the page. Bundle and row changes pause all four queries and invalidate in-flight results; settlement refreshes observations even after the page closes. Last known errors remain until a successful read. Disposal discards late results. When no native system observation is available, the controller reads the Host plugin inventory to identify an enabled Windows provider, including one that failed during helper preparation. If both reads fail, the page reports both causes and offers a retry. It projects queries into the page and setup dialog; reconnects refresh it. Page entry, focus and completed actions read the current permission store. Operation notices live in the shell overlay, so closing the page does not remove them. The provider owns permission checks, persisted decisions, and cancellation; the browser owns no authorization state.
 

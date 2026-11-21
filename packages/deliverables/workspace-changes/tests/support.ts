@@ -3,12 +3,12 @@ import { execFileSync } from 'node:child_process'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import type { Context } from '@deepseek-ai/cordis'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { type ToolCallId, createAssistantMessage, createToolResultMessage } from '@deepseek-ai/dsh-llm'
-import type { Session } from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-tools'
-import type {} from '@deepseek-ai/dsh-fs'
+import type { Context } from '@omega-ai/cordis'
+import { brandString } from '@omega-ai/dsh-brand'
+import { type ToolCallId, createAssistantMessage, createToolResultMessage } from '@omega-ai/dsh-llm'
+import type { Session } from '@omega-ai/dsh-session'
+import type {} from '@omega-ai/dsh-tools'
+import type {} from '@omega-ai/dsh-fs'
 import type { WorkspaceChangesSummary } from '../src/types.ts'
 
 let callNumber = 0
@@ -41,7 +41,7 @@ export function toolCall(session: Session, turn: number, name: string, args: unk
     stream: [], turn, step: 1,
     message: createAssistantMessage({
       content: [{ type: 'tool-call', id: callId, name, arguments: serialized }],
-      source: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+      source: { provider: 'omega-official', model: 'omega-v4-flash' },
     }),
   }, { surfaceOp: 'append' })
   const source = session.append('tool/call', { turn, step: 1, callId, name, arguments: serialized })

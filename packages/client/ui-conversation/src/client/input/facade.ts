@@ -8,14 +8,14 @@
  * Package-private; the hub alone constructs it and wires the scoped event
  * listeners onto it.
  */
-import type { Context } from '@deepseek-ai/cordis'
-import type { InboxState } from '@deepseek-ai/dsh-agent/types'
-import type { SessionSnapshot } from '@deepseek-ai/dsh-api-session-controller/client'
+import type { Context } from '@omega-ai/cordis'
+import type { InboxState } from '@omega-ai/dsh-agent/types'
+import type { SessionSnapshot } from '@omega-ai/dsh-api-session-controller/client'
 import {
   createSnapshotStore, type ObservableSnapshot, type SnapshotStore,
-} from '@deepseek-ai/dsh-client-store'
+} from '@omega-ai/dsh-client-store'
 import type { LexicalEditor } from 'lexical'
-import type { QuoteSummary } from '@deepseek-ai/dsh-client-ui-primitives'
+import type { QuoteSummary } from '@omega-ai/dsh-client-ui-primitives'
 import type {
   CommandClaim, ConsumeTokenRequest, DraftAttachmentId, DraftInitializationOptions, DraftInitializationResult,
   InputActions, InputEffect, InputNotice, InputState, InputTriggerController, PickOutcome,

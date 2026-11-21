@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 /** Assembled viewer page privacy against the production Owner reader; ordinary Session data uses a scripted Owner. */
-import type { ClientConnectionRpc, ConnectionHandle } from '@deepseek-ai/dsh-client-connection/client'
-import type {} from '@deepseek-ai/dsh-client-locale/client'
-import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
-import type {} from '@deepseek-ai/dsh-client-ui-theme/client'
+import type { ClientConnectionRpc, ConnectionHandle } from '@omega-ai/dsh-client-connection/client'
+import type {} from '@omega-ai/dsh-client-locale/client'
+import type {} from '@omega-ai/dsh-client-ui-settings/client'
+import type {} from '@omega-ai/dsh-client-ui-theme/client'
 import { act, cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import type { PrivacyOwnerModule, PrivacyOwnerReader } from './viewer-privacy-bridge.ts'
@@ -16,7 +16,7 @@ import type { ViewerInputFixture } from './viewer-input-fixture.client.ts'
 import { installViewerRelay } from './viewer-relay.client.ts'
 
 /** The generated contribution is a build artifact; the mount boundary is what this face test covers. */
-vi.mock('@deepseek-ai/dsh-experimental-liveshare/remote', () => ({ default: { package: '@deepseek-ai/dsh-experimental-liveshare', methods: {} } }))
+vi.mock('@omega-ai/dsh-experimental-liveshare/remote', () => ({ default: { package: '@omega-ai/dsh-experimental-liveshare', methods: {} } }))
 
 const blockedEndpoints = ['settings/describe', 'credentials/describe', 'agentPresets/list', 'agentPresets/read']
 const sentinels = ['SYNTHETIC_SECRET_NEVER_RETURN', 'private-provider.invalid', '/fixture/private-root', 'private-tenant']
@@ -202,7 +202,7 @@ describe('Assembled viewer page global configuration privacy', () => {
       expect([...document.querySelectorAll<HTMLImageElement>('img')].some(image =>
         image.src.startsWith('data:image/png') || image.src.startsWith('blob:'))).toBe(true)
     }, { timeout: 15_000 })
-    await waitFor(() => { expect(document.querySelector('[data-liveshare-viewer-seat="model"]')?.textContent).toMatch(/deepseek/iu) })
+    await waitFor(() => { expect(document.querySelector('[data-liveshare-viewer-seat="model"]')?.textContent).toMatch(/omega/iu) })
     await act(async () => { fireEvent.click(screen.getByRole('button', { name: earlier })) })
     await waitFor(() => { expect(document.body.textContent).toContain('问题 50') }, { timeout: 15_000 })
     expect(relay.ordinaryCalls).toEqual(expect.arrayContaining(['session/page', 'session/attachment', 'session/modelCatalog']))

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { expect, it } from 'vitest'
-import ScriptRealmRegistry, { type ScriptRealmId } from '@deepseek-ai/dsh-client-script-realm/client'
+import ScriptRealmRegistry, { type ScriptRealmId } from '@omega-ai/dsh-client-script-realm/client'
 import * as IFrame from '../src/client/index.ts'
 import { apply as hostApply } from '../src/index.ts'
 

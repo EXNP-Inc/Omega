@@ -1,0 +1,61 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/web/web-omega-api/README.md
+/:
+  en: 05cdf4593e6ecff5
+  zh: 1c53cac1a695c9dc
+/omega-ai-dsh-web-omega-api:
+  en: 81153ed2255d2a35
+  zh: 76b5bff9d02f8e87
+/omega-ai-dsh-web-omega-api/summary:
+  en: 324d77299a6d4430
+  zh: aa0cba2d4b551269
+/omega-ai-dsh-web-omega-api/table-of-contents:
+  en: 76368b6b1da79c80
+  zh: 1e8f931a56b7d34d
+/omega-ai-dsh-web-omega-api/use-this-package:
+  en: e1ed7ed033e44f46
+  zh: b3b72a8051ad6c92
+/omega-ai-dsh-web-omega-api/use-this-package/authentication:
+  en: b9ac63c49a9f6063
+  zh: 73677359ef6b9165
+/omega-ai-dsh-web-omega-api/use-this-package/results-and-failures:
+  en: cb00c9329a964bbb
+  zh: 06eb9fcb23bc92e0
+/omega-ai-dsh-web-omega-api/understand-the-implementation:
+  en: f421053e6f7a5792
+  zh: 20a56f831aabcbaf
+/omega-ai-dsh-web-omega-api/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/omega-ai-dsh-web-omega-api/model-experience/conversation-tool-results:
+  en: dfd3b61aff4a8aa8
+  zh: 06e2b6cc71f461e2
+/omega-ai-dsh-web-omega-api/model-experience/conversation-tool-results/what-the-model-sees:
+  en: 88e7c7b7ac35f149
+  zh: a72c9c428d83172a
+/omega-ai-dsh-web-omega-api/model-experience/conversation-tool-results/token-effect:
+  en: 1f33560e768d18c5
+  zh: edeedeef2662e4bb
+/omega-ai-dsh-web-omega-api/model-experience/conversation-tool-results/kv-cache-effect:
+  en: 54ed534b58469807
+  zh: c3f8f178abb86ccb
+/omega-ai-dsh-web-omega-api/model-experience/conversation-tool-list-indirectly:
+  en: ddcce72a4a4e0def
+  zh: 338aa339f5708d7d
+/omega-ai-dsh-web-omega-api/model-experience/conversation-tool-list-indirectly/what-the-model-sees:
+  en: 3b1fb6c686d294af
+  zh: 98cc7a8e99d89155
+/omega-ai-dsh-web-omega-api/model-experience/conversation-tool-list-indirectly/token-effect:
+  en: 4e75bf3d1e75e28c
+  zh: 608bfad662133716
+/omega-ai-dsh-web-omega-api/model-experience/conversation-tool-list-indirectly/kv-cache-effect:
+  en: 14f9af39f3be4fac
+  zh: 3c7139fba0f17862
+/omega-ai-dsh-web-omega-api/known-limitations-and-deferred-work:
+  en: ca45e7150c12dda7
+  zh: 30ce7b26c788adc9
+/omega-ai-dsh-web-omega-api/known-limitations-and-deferred-work/dev-note:
+  en: 0a1253c6f7b5e8b9
+  zh: 9f56528562c7c914

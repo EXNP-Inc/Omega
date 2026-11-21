@@ -1,15 +1,15 @@
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
+import AgentRegistry from '@omega-ai/dsh-agent'
+import { createUserMessage } from '@omega-ai/dsh-llm'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import LlmRuntime from '@deepseek-ai/dsh-llm'
-import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
-import DeepSeekAuth from '@deepseek-ai/dsh-deepseek-auth'
-import SessionStore, { type SessionId } from '@deepseek-ai/dsh-session'
-import SessionTitleService from '@deepseek-ai/dsh-session-title'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import * as FirstMessageTitleProvider from '@deepseek-ai/dsh-session-title-first-prompt-llm'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { Context } from '@omega-ai/cordis'
+import LlmRuntime from '@omega-ai/dsh-llm'
+import * as LlmOmega from '@omega-ai/dsh-llm-omega-api-key'
+import OmegaAuth from '@omega-ai/dsh-omega-auth'
+import SessionStore, { type SessionId } from '@omega-ai/dsh-session'
+import SessionTitleService from '@omega-ai/dsh-session-title'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import * as FirstMessageTitleProvider from '@omega-ai/dsh-session-title-first-prompt-llm'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const contexts: Context[] = []
 
@@ -17,13 +17,13 @@ afterEach(async () => {
   await Promise.all(contexts.splice(0).map(ctx => ctx.fiber.dispose()))
 })
 
-describe.skipIf(!process.env.DEEPSEEK_API_KEY)('first-prompt title provider with real DeepSeek API', () => {
+describe.skipIf(!process.env.OMEGA_API_KEY)('first-prompt title provider with real Omega API', () => {
   it('replaces the fallback with a short model title', async () => {
     const ctx = new Context()
     contexts.push(ctx)
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(DeepSeekAuth)
-    await ctx.plugin(LlmDeepSeek, { thinking: 'disabled' })
+    await ctx.plugin(OmegaAuth)
+    await ctx.plugin(LlmOmega, { thinking: 'disabled' })
     await ctx.plugin(SessionStore)
     await ctx.plugin(SessionProjectionRegistry)
     await ctx.plugin(AgentRegistry)
@@ -38,8 +38,8 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('first-prompt title provider with
       maxInputBytes: 4_096,
       maxOutputTokens: 64,
       timeoutMs: 60_000,
-      provider: 'deepseek-official',
-      model: 'deepseek-v4-flash',
+      provider: 'omega-official',
+      model: 'omega-v4-flash',
     })
     const session = ctx.sessions.create(brandString<SessionId>('real-title-provider'))
     session.append('turn/start', {
@@ -57,7 +57,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('first-prompt title provider with
       source: {
         kind: 'provider',
         provider: 'session-title-first-prompt-llm',
-        model: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        model: { provider: 'omega-official', model: 'omega-v4-flash' },
       },
     })
     expect(title?.title.length).toBeGreaterThan(0)

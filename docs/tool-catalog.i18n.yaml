@@ -9,344 +9,344 @@
   en: 6cc2cd9ced70bb09
   zh: 1c0e6cb4ba2ed637
 /tool-schema-catalog/tool-package-map:
-  en: ddb1e263463e9ecd
-  zh: 1eb008f18b500dc3
-/tool-schema-catalog/deepseek-ai-dsh-plugin-manager:
-  en: e0143916bb634762
-  zh: e0143916bb634762
-/tool-schema-catalog/deepseek-ai-dsh-plugin-manager/plugin-manager:
-  en: 8ad01461754a9c3b
-  zh: 67eb5c02a821643a
-/tool-schema-catalog/deepseek-ai-dsh-plugin-market:
-  en: 1ec7b4cbc3d98e28
-  zh: 1ec7b4cbc3d98e28
-/tool-schema-catalog/deepseek-ai-dsh-plugin-market/plugin-market:
-  en: ecb8ee73c7bc68b8
-  zh: 59af75c81d7d529d
-/tool-schema-catalog/deepseek-ai-dsh-mcp-resources:
-  en: dd78bd55ec83a539
-  zh: dd78bd55ec83a539
-/tool-schema-catalog/deepseek-ai-dsh-mcp-resources/list-mcp-resource-templates:
+  en: b8c9b602b9369d31
+  zh: 4a165105e44bccfd
+/tool-schema-catalog/omega-ai-dsh-plugin-manager:
+  en: 0484e1395d198fcf
+  zh: 0484e1395d198fcf
+/tool-schema-catalog/omega-ai-dsh-plugin-manager/plugin-manager:
+  en: 197b23b32c0bcc49
+  zh: 2062391e653103c2
+/tool-schema-catalog/omega-ai-dsh-plugin-market:
+  en: 74b5634b5584bd0f
+  zh: 74b5634b5584bd0f
+/tool-schema-catalog/omega-ai-dsh-plugin-market/plugin-market:
+  en: 17a8fb937df5ff6f
+  zh: d79f7cc68ea63bd7
+/tool-schema-catalog/omega-ai-dsh-mcp-resources:
+  en: a7791ca97bc688b8
+  zh: a7791ca97bc688b8
+/tool-schema-catalog/omega-ai-dsh-mcp-resources/list-mcp-resource-templates:
   en: 96275ece9d040944
   zh: 1fa9744642601ece
-/tool-schema-catalog/deepseek-ai-dsh-mcp-resources/list-mcp-resources:
+/tool-schema-catalog/omega-ai-dsh-mcp-resources/list-mcp-resources:
   en: bf4236607199d61e
   zh: 82f4f749dcabc89f
-/tool-schema-catalog/deepseek-ai-dsh-mcp-resources/read-mcp-resource:
-  en: 5d92c07fa062734f
-  zh: 2d6f0cb8116cf567
-/tool-schema-catalog/deepseek-ai-dsh-experimental-browser-use-stagehand-native:
-  en: 19e7df8d692b4375
-  zh: 19e7df8d692b4375
-/tool-schema-catalog/deepseek-ai-dsh-experimental-browser-use-stagehand-native/stagehand-act:
+/tool-schema-catalog/omega-ai-dsh-mcp-resources/read-mcp-resource:
+  en: d48d17ac4ff78fd2
+  zh: f0126842a4c4f065
+/tool-schema-catalog/omega-ai-dsh-experimental-browser-use-stagehand-native:
+  en: 0dc3cfe0e6db0439
+  zh: 0dc3cfe0e6db0439
+/tool-schema-catalog/omega-ai-dsh-experimental-browser-use-stagehand-native/stagehand-act:
   en: c4b27bf62c534dcc
   zh: 70c53824ed57ac23
-/tool-schema-catalog/deepseek-ai-dsh-experimental-browser-use-stagehand-native/stagehand-extract:
+/tool-schema-catalog/omega-ai-dsh-experimental-browser-use-stagehand-native/stagehand-extract:
   en: ec7462ab99848155
   zh: 632fe0249040708e
-/tool-schema-catalog/deepseek-ai-dsh-experimental-browser-use-stagehand-native/stagehand-navigate:
+/tool-schema-catalog/omega-ai-dsh-experimental-browser-use-stagehand-native/stagehand-navigate:
   en: ef97f063a037a006
   zh: 27727ccc908e007f
-/tool-schema-catalog/deepseek-ai-dsh-experimental-browser-use-stagehand-native/stagehand-observe:
+/tool-schema-catalog/omega-ai-dsh-experimental-browser-use-stagehand-native/stagehand-observe:
   en: 2068f1baa0a59e1b
   zh: 5743c7b33e2c5ccb
-/tool-schema-catalog/deepseek-ai-dsh-experimental-browser-use-stagehand-native/stagehand-screenshot:
+/tool-schema-catalog/omega-ai-dsh-experimental-browser-use-stagehand-native/stagehand-screenshot:
   en: 4910ab327694ee97
   zh: 17e79e4366cb636d
-/tool-schema-catalog/deepseek-ai-dsh-experimental-browser-use-stagehand-native/stagehand-tabs:
-  en: 095b18f9376e073d
-  zh: abd8785f8acaa555
-/tool-schema-catalog/deepseek-ai-dsh-tool-ask-user:
-  en: e713a4a11a15d13c
-  zh: e713a4a11a15d13c
-/tool-schema-catalog/deepseek-ai-dsh-tool-ask-user/ask-user-question:
-  en: 664dae29d0eae65f
-  zh: 2efa5d3f2cb31bf9
-/tool-schema-catalog/deepseek-ai-dsh-tool-executor-ptc:
-  en: 8c8643ef46fd075f
-  zh: 8c8643ef46fd075f
-/tool-schema-catalog/deepseek-ai-dsh-tool-executor-ptc/run-code:
-  en: 93d8526bbc4936d2
-  zh: 963af83582d289c5
-/tool-schema-catalog/deepseek-ai-dsh-plan-mode:
-  en: b500b530845e26a9
-  zh: b500b530845e26a9
-/tool-schema-catalog/deepseek-ai-dsh-plan-mode/exit-plan-mode:
-  en: b410483c2bd0c1a1
-  zh: a07ceea6abf1dda3
-/tool-schema-catalog/deepseek-ai-dsh-tool-bash:
-  en: 408ff0a5189bd7ec
-  zh: 408ff0a5189bd7ec
-/tool-schema-catalog/deepseek-ai-dsh-tool-bash/bash:
-  en: bd3559b76dead1ea
-  zh: 7ec2604f73b23a31
-/tool-schema-catalog/deepseek-ai-dsh-tool-office:
-  en: 8b0373f31520efe7
-  zh: 8b0373f31520efe7
-/tool-schema-catalog/deepseek-ai-dsh-tool-office/office-convert:
+/tool-schema-catalog/omega-ai-dsh-experimental-browser-use-stagehand-native/stagehand-tabs:
+  en: 09ef9200a458b8fc
+  zh: 3c2696422483f42b
+/tool-schema-catalog/omega-ai-dsh-tool-ask-user:
+  en: e1f936159deb87a0
+  zh: e1f936159deb87a0
+/tool-schema-catalog/omega-ai-dsh-tool-ask-user/ask-user-question:
+  en: 090b268c105b441a
+  zh: c717daf6a4096690
+/tool-schema-catalog/omega-ai-dsh-tool-executor-ptc:
+  en: fdd0cdda050465a9
+  zh: fdd0cdda050465a9
+/tool-schema-catalog/omega-ai-dsh-tool-executor-ptc/run-code:
+  en: 7d2f8a92c1922970
+  zh: 4ef0e0ac341932b5
+/tool-schema-catalog/omega-ai-dsh-plan-mode:
+  en: 1add9178d0e7297e
+  zh: 1add9178d0e7297e
+/tool-schema-catalog/omega-ai-dsh-plan-mode/exit-plan-mode:
+  en: 00c0b542c68b94ee
+  zh: 5f47d139d4a86771
+/tool-schema-catalog/omega-ai-dsh-tool-bash:
+  en: a8ba9b8300100864
+  zh: a8ba9b8300100864
+/tool-schema-catalog/omega-ai-dsh-tool-bash/bash:
+  en: c1e879a918509e40
+  zh: 323e5702221fc4c9
+/tool-schema-catalog/omega-ai-dsh-tool-office:
+  en: 8a47bcdcc7fa6729
+  zh: 8a47bcdcc7fa6729
+/tool-schema-catalog/omega-ai-dsh-tool-office/office-convert:
   en: e63dea0f631fbb15
   zh: c564452c0ae91632
-/tool-schema-catalog/deepseek-ai-dsh-tool-office/office-recalculate:
+/tool-schema-catalog/omega-ai-dsh-tool-office/office-recalculate:
   en: 27a0ac973b1b9387
   zh: 29b4dd44a3a6b1ef
-/tool-schema-catalog/deepseek-ai-dsh-tool-office/office-render:
-  en: b5e52a86c0a3c122
-  zh: 636810250e6a0aaf
-/tool-schema-catalog/deepseek-ai-dsh-tool-present:
-  en: f656575e6df094f6
-  zh: f656575e6df094f6
-/tool-schema-catalog/deepseek-ai-dsh-tool-present/present:
-  en: c3ab3e71f3c5fd20
-  zh: d6afeb62bac77a24
-/tool-schema-catalog/deepseek-ai-dsh-tool-pwsh:
-  en: b222fc05f3f8ee4a
-  zh: b222fc05f3f8ee4a
-/tool-schema-catalog/deepseek-ai-dsh-tool-pwsh/pwsh:
-  en: 00489572a7e8cb3e
-  zh: c0ecb3909392ee89
-/tool-schema-catalog/deepseek-ai-dsh-tool-cordis:
-  en: 76c7c62f9029b6f5
-  zh: 76c7c62f9029b6f5
-/tool-schema-catalog/deepseek-ai-dsh-tool-cordis/cordis-inspect:
-  en: f804c4e7fccc1c45
-  zh: 7538d8201ef16ed9
-/tool-schema-catalog/deepseek-ai-dsh-tool-bash-persistent:
-  en: bdd9e88c49029e05
-  zh: bdd9e88c49029e05
-/tool-schema-catalog/deepseek-ai-dsh-tool-bash-persistent/bash:
-  en: 86421501a9d65ccc
-  zh: d1dc400507952331
-/tool-schema-catalog/deepseek-ai-dsh-tool-pwsh-persistent:
-  en: 40a053607298a4c5
-  zh: 40a053607298a4c5
-/tool-schema-catalog/deepseek-ai-dsh-tool-pwsh-persistent/pwsh:
-  en: 214866b3419c8e12
-  zh: c23368fc61772d52
-/tool-schema-catalog/deepseek-ai-dsh-tool-str-replace-editor:
-  en: 591f6e54dbbc38fe
-  zh: 591f6e54dbbc38fe
-/tool-schema-catalog/deepseek-ai-dsh-tool-str-replace-editor/str-replace-editor:
-  en: 3d11196a13e69228
-  zh: 56019c74cf0633cd
-/tool-schema-catalog/deepseek-ai-dsh-tool-fs:
-  en: 07d595ce1f1a5184
-  zh: 07d595ce1f1a5184
-/tool-schema-catalog/deepseek-ai-dsh-tool-fs/apply-patch:
+/tool-schema-catalog/omega-ai-dsh-tool-office/office-render:
+  en: 4bfa32feeb302a10
+  zh: c208a69120ade696
+/tool-schema-catalog/omega-ai-dsh-tool-present:
+  en: a2f148b0d6ffa271
+  zh: a2f148b0d6ffa271
+/tool-schema-catalog/omega-ai-dsh-tool-present/present:
+  en: f68c4ba35e0b6c42
+  zh: f7741b3d4ad3e4ae
+/tool-schema-catalog/omega-ai-dsh-tool-pwsh:
+  en: 62fc61770beea485
+  zh: 62fc61770beea485
+/tool-schema-catalog/omega-ai-dsh-tool-pwsh/pwsh:
+  en: e13ba3fd3c625ca2
+  zh: fbce2ac7e9b012a6
+/tool-schema-catalog/omega-ai-dsh-tool-cordis:
+  en: b175a6daf9293a3b
+  zh: b175a6daf9293a3b
+/tool-schema-catalog/omega-ai-dsh-tool-cordis/cordis-inspect:
+  en: 5b6b48c840b21098
+  zh: 8e17a8f0cc8a7bfc
+/tool-schema-catalog/omega-ai-dsh-tool-bash-persistent:
+  en: 5ba5af5ecf0029d1
+  zh: 5ba5af5ecf0029d1
+/tool-schema-catalog/omega-ai-dsh-tool-bash-persistent/bash:
+  en: 92b8aaa0fc58197c
+  zh: 0f4ae9f5d0a0c425
+/tool-schema-catalog/omega-ai-dsh-tool-pwsh-persistent:
+  en: 2f649238206953b8
+  zh: 2f649238206953b8
+/tool-schema-catalog/omega-ai-dsh-tool-pwsh-persistent/pwsh:
+  en: ade8305086ee0c13
+  zh: 6b9d1857e599c9a2
+/tool-schema-catalog/omega-ai-dsh-tool-str-replace-editor:
+  en: 5cfac48fca896bbf
+  zh: 5cfac48fca896bbf
+/tool-schema-catalog/omega-ai-dsh-tool-str-replace-editor/str-replace-editor:
+  en: 9b330c5e2cc4f190
+  zh: f49d563118fd29dd
+/tool-schema-catalog/omega-ai-dsh-tool-fs:
+  en: b2b4d8be96ffb1b3
+  zh: b2b4d8be96ffb1b3
+/tool-schema-catalog/omega-ai-dsh-tool-fs/apply-patch:
   en: 50b4939c9a1d96ac
   zh: e733cc1156e2853c
-/tool-schema-catalog/deepseek-ai-dsh-tool-fs/edit:
+/tool-schema-catalog/omega-ai-dsh-tool-fs/edit:
   en: 5b6a252adde51af6
   zh: 7aa172a5d8b9cbd2
-/tool-schema-catalog/deepseek-ai-dsh-tool-fs/read:
+/tool-schema-catalog/omega-ai-dsh-tool-fs/read:
   en: 94bfc5b03c63baef
   zh: 339338a0e74696c3
-/tool-schema-catalog/deepseek-ai-dsh-tool-fs/read-image:
+/tool-schema-catalog/omega-ai-dsh-tool-fs/read-image:
   en: f6f7a1140066ce04
   zh: d528e01a0939795a
-/tool-schema-catalog/deepseek-ai-dsh-tool-fs/write:
-  en: 22e7c232e157a1e2
-  zh: 176da52cdd4765a9
-/tool-schema-catalog/deepseek-ai-dsh-tool-fs-search:
-  en: 703fea005ce84c50
-  zh: 703fea005ce84c50
-/tool-schema-catalog/deepseek-ai-dsh-tool-fs-search/glob:
+/tool-schema-catalog/omega-ai-dsh-tool-fs/write:
+  en: 2953dfe64101e9bf
+  zh: a1c5e7866ab4e7b6
+/tool-schema-catalog/omega-ai-dsh-tool-fs-search:
+  en: 03ddddf3ff78ed50
+  zh: 03ddddf3ff78ed50
+/tool-schema-catalog/omega-ai-dsh-tool-fs-search/glob:
   en: 3ba734ba7852cdd5
   zh: c6ce31ff2c195520
-/tool-schema-catalog/deepseek-ai-dsh-tool-fs-search/grep:
-  en: 6e1f7da62cc9a35b
-  zh: 594817b0befeea86
-/tool-schema-catalog/deepseek-ai-dsh-tool-terminal:
-  en: 77501c1b592b6a88
-  zh: 77501c1b592b6a88
-/tool-schema-catalog/deepseek-ai-dsh-tool-terminal/terminal-close:
+/tool-schema-catalog/omega-ai-dsh-tool-fs-search/grep:
+  en: a95a1fb10ba7ba25
+  zh: 6137dbba4adead40
+/tool-schema-catalog/omega-ai-dsh-tool-terminal:
+  en: dcc5de71bef24516
+  zh: dcc5de71bef24516
+/tool-schema-catalog/omega-ai-dsh-tool-terminal/terminal-close:
   en: 4da73ab1c95aadc6
   zh: 998471bc4f5af00a
-/tool-schema-catalog/deepseek-ai-dsh-tool-terminal/terminal-list:
+/tool-schema-catalog/omega-ai-dsh-tool-terminal/terminal-list:
   en: 4cde2b1d38f93e04
   zh: 2c93f43d54ec9da2
-/tool-schema-catalog/deepseek-ai-dsh-tool-terminal/terminal-open:
+/tool-schema-catalog/omega-ai-dsh-tool-terminal/terminal-open:
   en: 7051c20587ae426d
   zh: 39a6aad70d643fbc
-/tool-schema-catalog/deepseek-ai-dsh-tool-terminal/terminal-read:
+/tool-schema-catalog/omega-ai-dsh-tool-terminal/terminal-read:
   en: 833b47cca9b00b9d
   zh: 24b3db5b48f0446a
-/tool-schema-catalog/deepseek-ai-dsh-tool-terminal/terminal-send:
+/tool-schema-catalog/omega-ai-dsh-tool-terminal/terminal-send:
   en: 60a8805611533884
   zh: 50e4ac6e7f7b9b0a
-/tool-schema-catalog/deepseek-ai-dsh-tool-terminal/terminal-signal:
-  en: cc58c5bcfdc3c04e
-  zh: e673447f4afb0ae5
-/tool-schema-catalog/deepseek-ai-dsh-terminal-panel:
-  en: 45676c90640a8237
-  zh: 45676c90640a8237
-/tool-schema-catalog/deepseek-ai-dsh-terminal-panel/user-terminal-list:
+/tool-schema-catalog/omega-ai-dsh-tool-terminal/terminal-signal:
+  en: ad83a62f19182a34
+  zh: 5a493b9edc94b9a5
+/tool-schema-catalog/omega-ai-dsh-terminal-panel:
+  en: 177ca4c23ed54a31
+  zh: 177ca4c23ed54a31
+/tool-schema-catalog/omega-ai-dsh-terminal-panel/user-terminal-list:
   en: cf8134d5a4b5205e
   zh: 4c435304529c4fcd
-/tool-schema-catalog/deepseek-ai-dsh-terminal-panel/user-terminal-read:
-  en: 9eb7cfe5a529a229
-  zh: ecf550e2ad8615cb
-/tool-schema-catalog/deepseek-ai-dsh-tool-goal:
-  en: 74fff3741e7c13de
-  zh: 74fff3741e7c13de
-/tool-schema-catalog/deepseek-ai-dsh-tool-goal/create-goal:
+/tool-schema-catalog/omega-ai-dsh-terminal-panel/user-terminal-read:
+  en: 5d40df855353d4d5
+  zh: bb2a8a6a56d361f8
+/tool-schema-catalog/omega-ai-dsh-tool-goal:
+  en: 043d89b4c3bfd3e4
+  zh: 043d89b4c3bfd3e4
+/tool-schema-catalog/omega-ai-dsh-tool-goal/create-goal:
   en: 9ae877cdf8a641a3
   zh: f83c3c09e80e4190
-/tool-schema-catalog/deepseek-ai-dsh-tool-goal/get-goal:
+/tool-schema-catalog/omega-ai-dsh-tool-goal/get-goal:
   en: 0b517f13dfde11fe
   zh: b7ee7482e8ecde56
-/tool-schema-catalog/deepseek-ai-dsh-tool-goal/update-goal:
-  en: 5f8a1d6e44e57d09
-  zh: d757489fdacde22d
-/tool-schema-catalog/deepseek-ai-dsh-tool-schedule:
-  en: 9fd2eccb1ee51372
-  zh: 9fd2eccb1ee51372
-/tool-schema-catalog/deepseek-ai-dsh-tool-schedule/schedule-create:
+/tool-schema-catalog/omega-ai-dsh-tool-goal/update-goal:
+  en: 35593d21a8d54b9a
+  zh: 0f190c8efe167a0f
+/tool-schema-catalog/omega-ai-dsh-tool-schedule:
+  en: 06c7915d456dc7d4
+  zh: 06c7915d456dc7d4
+/tool-schema-catalog/omega-ai-dsh-tool-schedule/schedule-create:
   en: 7237e492f01fb8fb
   zh: 2fd2bea81919baf6
-/tool-schema-catalog/deepseek-ai-dsh-tool-schedule/schedule-edit:
+/tool-schema-catalog/omega-ai-dsh-tool-schedule/schedule-edit:
   en: 08db239b9e1c3e8f
   zh: c3860a8f20a01965
-/tool-schema-catalog/deepseek-ai-dsh-tool-schedule/schedule-list:
+/tool-schema-catalog/omega-ai-dsh-tool-schedule/schedule-list:
   en: e2c657d431fd02a8
   zh: 7651bf05938eff69
-/tool-schema-catalog/deepseek-ai-dsh-tool-schedule/schedule-view:
-  en: 008cd46ab3c05305
-  zh: 8ef5a0f40640013e
-/tool-schema-catalog/deepseek-ai-dsh-tool-lsp:
-  en: 32982123b1f0e5bc
-  zh: 32982123b1f0e5bc
-/tool-schema-catalog/deepseek-ai-dsh-tool-lsp/lsp:
-  en: 877f1dc0f69e2038
-  zh: 5dda8001fb614315
-/tool-schema-catalog/deepseek-ai-dsh-tool-ralph:
-  en: 45bd083870e2c92d
-  zh: 45bd083870e2c92d
-/tool-schema-catalog/deepseek-ai-dsh-tool-ralph/ralph:
-  en: e97552156225cf10
-  zh: 9ea32b8485e950ec
-/tool-schema-catalog/deepseek-ai-dsh-tool-skill:
-  en: 927a5ac0974b7642
-  zh: 927a5ac0974b7642
-/tool-schema-catalog/deepseek-ai-dsh-tool-skill/skill:
-  en: c1124b6642c57712
-  zh: ede0a9f1479b4ecd
-/tool-schema-catalog/deepseek-ai-dsh-tool-session-list:
-  en: 6d68942100dd76e7
-  zh: 6d68942100dd76e7
-/tool-schema-catalog/deepseek-ai-dsh-tool-session-list/list-session:
+/tool-schema-catalog/omega-ai-dsh-tool-schedule/schedule-view:
+  en: e12ba370a39c0656
+  zh: 8a844a15b5c664f4
+/tool-schema-catalog/omega-ai-dsh-tool-lsp:
+  en: 1cc5eea2cd9a864f
+  zh: 1cc5eea2cd9a864f
+/tool-schema-catalog/omega-ai-dsh-tool-lsp/lsp:
+  en: 14048dbb2a85ba7f
+  zh: 7df70f7823a5046f
+/tool-schema-catalog/omega-ai-dsh-tool-ralph:
+  en: 8b2b924b4ab2b30b
+  zh: 8b2b924b4ab2b30b
+/tool-schema-catalog/omega-ai-dsh-tool-ralph/ralph:
+  en: 3a661fff66a894f2
+  zh: bd4a403752761179
+/tool-schema-catalog/omega-ai-dsh-tool-skill:
+  en: 707dfb1379f99913
+  zh: 707dfb1379f99913
+/tool-schema-catalog/omega-ai-dsh-tool-skill/skill:
+  en: f80dfddabf976273
+  zh: a83fb34eaa562141
+/tool-schema-catalog/omega-ai-dsh-tool-session-list:
+  en: 2960cf8491b0218c
+  zh: 2960cf8491b0218c
+/tool-schema-catalog/omega-ai-dsh-tool-session-list/list-session:
   en: 8a04c79a2d8ef256
   zh: 06e93b69aa95c6e9
-/tool-schema-catalog/deepseek-ai-dsh-tool-session-list/list-workspace:
-  en: 7b1f0bed364dfcd2
-  zh: c907d8ff78f54268
-/tool-schema-catalog/deepseek-ai-dsh-tool-session-query:
-  en: eac1dff4b6d9e195
-  zh: eac1dff4b6d9e195
-/tool-schema-catalog/deepseek-ai-dsh-tool-session-query/session-event-read:
+/tool-schema-catalog/omega-ai-dsh-tool-session-list/list-workspace:
+  en: f6d251f1c9530853
+  zh: b2f391a0840233a8
+/tool-schema-catalog/omega-ai-dsh-tool-session-query:
+  en: 0883a4b3056404f8
+  zh: 0883a4b3056404f8
+/tool-schema-catalog/omega-ai-dsh-tool-session-query/session-event-read:
   en: 285bab0bd6b50949
   zh: 9c839e05237a7226
-/tool-schema-catalog/deepseek-ai-dsh-tool-session-query/session-event-search:
+/tool-schema-catalog/omega-ai-dsh-tool-session-query/session-event-search:
   en: 5cd9f05b83f5797e
   zh: dc6880566b0c5138
-/tool-schema-catalog/deepseek-ai-dsh-tool-session-query/session-event-trace:
+/tool-schema-catalog/omega-ai-dsh-tool-session-query/session-event-trace:
   en: de64e837459d7313
   zh: 60bfcb3691ab862c
-/tool-schema-catalog/deepseek-ai-dsh-tool-session-query/session-search:
+/tool-schema-catalog/omega-ai-dsh-tool-session-query/session-search:
   en: c7bc2ee2892bf0e9
   zh: 1cd6a5d6f7494ca1
-/tool-schema-catalog/deepseek-ai-dsh-tool-session-query/session-trace:
-  en: 73d2146c02eaa16a
-  zh: 34caad3065de7148
-/tool-schema-catalog/deepseek-ai-dsh-experimental-tool-subagent-oar:
-  en: 8daafae6faf7898e
-  zh: 8daafae6faf7898e
-/tool-schema-catalog/deepseek-ai-dsh-experimental-tool-subagent-oar/subagent-oar:
-  en: 4936c61a65f8cdb2
-  zh: 5a1bfbb9738a62a9
-/tool-schema-catalog/deepseek-ai-dsh-tool-subagent:
-  en: 841abe0dd5913ea7
-  zh: 841abe0dd5913ea7
-/tool-schema-catalog/deepseek-ai-dsh-tool-subagent/list-subagent-models:
+/tool-schema-catalog/omega-ai-dsh-tool-session-query/session-trace:
+  en: c7dbfe66966190d7
+  zh: 07a8c2dd472639d6
+/tool-schema-catalog/omega-ai-dsh-experimental-tool-subagent-oar:
+  en: 042dade31e395100
+  zh: 042dade31e395100
+/tool-schema-catalog/omega-ai-dsh-experimental-tool-subagent-oar/subagent-oar:
+  en: 9b20c880f4cf54e7
+  zh: 730a76043e6f07f4
+/tool-schema-catalog/omega-ai-dsh-tool-subagent:
+  en: 2bc805d45a0a415c
+  zh: 2bc805d45a0a415c
+/tool-schema-catalog/omega-ai-dsh-tool-subagent/list-subagent-models:
   en: 1fa8a23ffccd029f
   zh: 5d1b9d618976d580
-/tool-schema-catalog/deepseek-ai-dsh-tool-subagent/subagent:
-  en: 9912eeda5bc40b43
-  zh: 0cb70f9a0d923bee
-/tool-schema-catalog/deepseek-ai-dsh-tool-subagent-control:
-  en: ab82e130c3413f04
-  zh: ab82e130c3413f04
-/tool-schema-catalog/deepseek-ai-dsh-tool-subagent-control/interrupt-agent:
+/tool-schema-catalog/omega-ai-dsh-tool-subagent/subagent:
+  en: f763e5bb22fcd5ab
+  zh: 7452fecb2b454d54
+/tool-schema-catalog/omega-ai-dsh-tool-subagent-control:
+  en: a89820d8b4da737b
+  zh: a89820d8b4da737b
+/tool-schema-catalog/omega-ai-dsh-tool-subagent-control/interrupt-agent:
   en: a622b15cc2598d51
   zh: ece4b2af6a11c49c
-/tool-schema-catalog/deepseek-ai-dsh-tool-subagent-control/list-agents:
+/tool-schema-catalog/omega-ai-dsh-tool-subagent-control/list-agents:
   en: 8d50c6e19c9517ab
   zh: 6ae97d046c5915db
-/tool-schema-catalog/deepseek-ai-dsh-tool-subagent-control/send-message:
+/tool-schema-catalog/omega-ai-dsh-tool-subagent-control/send-message:
   en: b53326fedeab850d
   zh: ecb75b6ce31da009
-/tool-schema-catalog/deepseek-ai-dsh-tool-subagent-control/wait-agent:
-  en: 4b95d11b610d34ca
-  zh: 9b0d9b6012be30d8
-/tool-schema-catalog/deepseek-ai-dsh-tool-jobs:
-  en: 9be673b1604d0114
-  zh: 9be673b1604d0114
-/tool-schema-catalog/deepseek-ai-dsh-tool-jobs/job-kill:
+/tool-schema-catalog/omega-ai-dsh-tool-subagent-control/wait-agent:
+  en: 00b25184f5dda9ee
+  zh: 7d9fadfb710122a5
+/tool-schema-catalog/omega-ai-dsh-tool-jobs:
+  en: 87bdf766c720d0ca
+  zh: 87bdf766c720d0ca
+/tool-schema-catalog/omega-ai-dsh-tool-jobs/job-kill:
   en: 14294cc1988ae768
   zh: 80a9152bdc02723f
-/tool-schema-catalog/deepseek-ai-dsh-tool-jobs/job-list:
+/tool-schema-catalog/omega-ai-dsh-tool-jobs/job-list:
   en: 0c37fb1fed979d72
   zh: 5ea9d07f5a4a8a6c
-/tool-schema-catalog/deepseek-ai-dsh-tool-jobs/job-output:
-  en: 2977f731fb90d147
-  zh: 4f422613ff720055
-/tool-schema-catalog/deepseek-ai-dsh-tool-agent-team:
-  en: 3f1a9c3509853972
-  zh: 3f1a9c3509853972
-/tool-schema-catalog/deepseek-ai-dsh-tool-agent-team/team-task-create:
+/tool-schema-catalog/omega-ai-dsh-tool-jobs/job-output:
+  en: b2158c0cda7a917c
+  zh: 29f8230ac1cca4b7
+/tool-schema-catalog/omega-ai-dsh-tool-agent-team:
+  en: 751eaecc75f7802a
+  zh: 751eaecc75f7802a
+/tool-schema-catalog/omega-ai-dsh-tool-agent-team/team-task-create:
   en: ac9ed819b705b4b8
   zh: 306477d2d457369a
-/tool-schema-catalog/deepseek-ai-dsh-tool-agent-team/team-task-get:
+/tool-schema-catalog/omega-ai-dsh-tool-agent-team/team-task-get:
   en: bca1abf330638c19
   zh: 903bfa977f75c046
-/tool-schema-catalog/deepseek-ai-dsh-tool-agent-team/team-task-list:
+/tool-schema-catalog/omega-ai-dsh-tool-agent-team/team-task-list:
   en: 8001eda7e9ff6a25
   zh: 2414761029f21404
-/tool-schema-catalog/deepseek-ai-dsh-tool-agent-team/team-task-update:
-  en: 3c25013abbe19446
-  zh: 9552eaab1a25adb2
-/tool-schema-catalog/deepseek-ai-dsh-tool-todo:
-  en: dea62d26fb18ff68
-  zh: dea62d26fb18ff68
-/tool-schema-catalog/deepseek-ai-dsh-tool-todo/todo-write:
-  en: 5cc19600afcd3e98
-  zh: 3740c4a584cde8a5
-/tool-schema-catalog/deepseek-ai-dsh-experimental-tool-worktree:
-  en: d5f5679abe86e316
-  zh: d5f5679abe86e316
-/tool-schema-catalog/deepseek-ai-dsh-experimental-tool-worktree/enter-worktree:
+/tool-schema-catalog/omega-ai-dsh-tool-agent-team/team-task-update:
+  en: 8b1d9002709a708e
+  zh: dac27abfec3085c2
+/tool-schema-catalog/omega-ai-dsh-tool-todo:
+  en: c3604db2731ee5ba
+  zh: c3604db2731ee5ba
+/tool-schema-catalog/omega-ai-dsh-tool-todo/todo-write:
+  en: c18f0a5f08efc97d
+  zh: 1c96eb462248d599
+/tool-schema-catalog/omega-ai-dsh-experimental-tool-worktree:
+  en: ecb334be64a9aab1
+  zh: ecb334be64a9aab1
+/tool-schema-catalog/omega-ai-dsh-experimental-tool-worktree/enter-worktree:
   en: fb9a393b6fe3523f
   zh: 02de205e99537ef2
-/tool-schema-catalog/deepseek-ai-dsh-experimental-tool-worktree/exit-worktree:
-  en: d0e4d70d5b5f607e
-  zh: 17000fe015d8d76a
-/tool-schema-catalog/deepseek-ai-dsh-tool-workflow:
-  en: bb38a9d29f46563c
-  zh: bb38a9d29f46563c
-/tool-schema-catalog/deepseek-ai-dsh-tool-workflow/workflow:
-  en: fdd667cfe21481e8
-  zh: 88864d3b958398a4
-/tool-schema-catalog/deepseek-ai-dsh-tool-workspace-dependencies:
-  en: 96bffc40b80df4b8
-  zh: 96bffc40b80df4b8
-/tool-schema-catalog/deepseek-ai-dsh-tool-workspace-dependencies/load-workspace-dependencies:
-  en: 77b88764ff3464e9
-  zh: a9ca7eeb15ada747
-/tool-schema-catalog/deepseek-ai-dsh-tool-web:
-  en: 4b9918342d3aa931
-  zh: 4b9918342d3aa931
-/tool-schema-catalog/deepseek-ai-dsh-tool-web/web-fetch:
+/tool-schema-catalog/omega-ai-dsh-experimental-tool-worktree/exit-worktree:
+  en: c79c3ce7003b1e25
+  zh: 5478a3651f00a88c
+/tool-schema-catalog/omega-ai-dsh-tool-workflow:
+  en: 935d88cb2361bf31
+  zh: 935d88cb2361bf31
+/tool-schema-catalog/omega-ai-dsh-tool-workflow/workflow:
+  en: 0ef578559bb16ce6
+  zh: 1c00c3ba872dc1fd
+/tool-schema-catalog/omega-ai-dsh-tool-workspace-dependencies:
+  en: 03156df514f2e519
+  zh: 03156df514f2e519
+/tool-schema-catalog/omega-ai-dsh-tool-workspace-dependencies/load-workspace-dependencies:
+  en: 77cad18dfbb12f6d
+  zh: 9f44dc3d771493a9
+/tool-schema-catalog/omega-ai-dsh-tool-web:
+  en: 7b7ba88dcbe364dc
+  zh: 7b7ba88dcbe364dc
+/tool-schema-catalog/omega-ai-dsh-tool-web/web-fetch:
   en: 8673f203aea9bdf2
   zh: 4e17783ffdf34c83
-/tool-schema-catalog/deepseek-ai-dsh-tool-web/web-search:
+/tool-schema-catalog/omega-ai-dsh-tool-web/web-search:
   en: cc1ad38bf0006710
   zh: 324eacb827a09e93

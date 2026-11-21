@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "Importation des discussions Omega",
+    "description": "Téléversez une exportation ZIP des discussions du site Omega avec le bouton à côté de Nouvelle séance ; chaque conversation devient une séance dans l’espace de travail choisi.",
+    "detail": "docs/DETAIL.md"
+  }
+}

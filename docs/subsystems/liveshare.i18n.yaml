@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/liveshare.md
 /liveshare:
-  en: bcec4b0a3d28942b
-  zh: 2d3271b6abe51c75
+  en: 59e3b22ee3b54fb0
+  zh: 800792b325ef702d
 /liveshare/enabling-and-visibility:
   en: f6144f8e81359a9c
   zh: 1924869ac7475b59
@@ -21,5 +21,5 @@
   en: 89a9ba76a3d7db1e
   zh: d74f65e8d0e7346a
 /liveshare/viewer-states:
-  en: b8bcb009e419fa25
-  zh: 31c4662b52e99ea7
+  en: 6ad114c10115caaa
+  zh: 4b701f8485a43c2f

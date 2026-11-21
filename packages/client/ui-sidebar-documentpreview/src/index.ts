@@ -1,6 +1,6 @@
 /** Host Loader entry declaring the browser document preview limits; previews belong to the Client. */
-import type { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
+import type { Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
 import { EXCEL_DEFAULTS, OFFICE_DEFAULTS } from './defaults.ts'
 import type { DocumentPreviewConfig, ExcelLimits, OfficeLimits } from './types.ts'
 

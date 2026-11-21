@@ -1,19 +1,19 @@
-import { executeToolFixture } from '@deepseek-ai/dsh-tool-testkit'
+import { executeToolFixture } from '@omega-ai/dsh-tool-testkit'
 import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Browser, Locator, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import type { AgentHandle } from '@deepseek-ai/dsh-agent'
-import type { SessionAttachmentValue } from '@deepseek-ai/dsh-api-session-controller'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { type ToolCallId, createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { GenerateOptions } from '@deepseek-ai/dsh-llm'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import type { Session } from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-agent-preset-registry'
-import type {} from '@deepseek-ai/dsh-system-prompt'
+import type { AgentHandle } from '@omega-ai/dsh-agent'
+import type { SessionAttachmentValue } from '@omega-ai/dsh-api-session-controller'
+import { brandString } from '@omega-ai/dsh-brand'
+import { type ToolCallId, createUserMessage } from '@omega-ai/dsh-llm'
+import type { GenerateOptions } from '@omega-ai/dsh-llm'
+import type { SessionId } from '@omega-ai/dsh-session'
+import type { Session } from '@omega-ai/dsh-session'
+import type {} from '@omega-ai/dsh-agent-preset-registry'
+import type {} from '@omega-ai/dsh-system-prompt'
 import {
   assertFixtureInventory,
   captureStableAria,
@@ -60,7 +60,7 @@ describe('minimal agent preset', () => {
     agentHandle = await scaffold.ctx.agents.create({
       sessionId: brandString<SessionId>('minimal-preset-smoke'),
       meta: { cwd: scaffold.workspaceCwd, agentPreset: 'minimal' },
-      agentOptions: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+      agentOptions: { provider: 'omega-official', model: 'omega-v4-flash' },
       setup: agentCtx => scaffold.ctx.agentPresets.mount(agentCtx, 'minimal').then(() => undefined),
     })
     agentHandle.agent.followup(createUserMessage({
@@ -228,7 +228,7 @@ describe('minimal manual compaction', () => {
     handle = await scaffold.ctx.agents.create({
       sessionId: brandString<SessionId>('minimal-compact-smoke'),
       meta: { cwd: scaffold.workspaceCwd, agentPreset: 'minimal' },
-      agentOptions: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+      agentOptions: { provider: 'omega-official', model: 'omega-v4-flash' },
       setup: agentCtx => scaffold.ctx.agentPresets.mount(agentCtx, 'minimal').then(() => undefined),
     })
     handle.agent.followup(createUserMessage({
@@ -372,7 +372,7 @@ describe('minimal image reading', () => {
     handle = await scaffold.ctx.agents.create({
       sessionId: brandString<SessionId>('minimal-image-smoke'),
       meta: { cwd: scaffold.workspaceCwd, agentPreset: 'minimal' },
-      agentOptions: { provider: 'deepseek-official', model: 'deepseek-v4-flash-vision-exp' },
+      agentOptions: { provider: 'omega-official', model: 'omega-v4-flash-vision-exp' },
       setup: agentCtx => scaffold.ctx.agentPresets.mount(agentCtx, 'minimal').then(() => undefined),
     })
     handle.agent.followup(createUserMessage({ content: [{ type: 'text', text: prompt }], source: { kind: 'user' } }))

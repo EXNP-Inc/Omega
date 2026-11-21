@@ -10,7 +10,7 @@ Connector plugins such as Linear, Notion, and Tencent Docs register an OAuth MCP
 
 ## Decision
 
-[`@deepseek-ai/dsh-mcp-account`](../../../../packages/mcp/mcp-account/README.md) provides `ctx.mcpAccounts`. A connector's Host row registers its server name, its bundle package, and the copy that names its service; the service registers the account with `ctx.connectorAccounts` under the key `mcp:<server>`.
+[`@omega-ai/dsh-mcp-account`](../../../../packages/mcp/mcp-account/README.md) provides `ctx.mcpAccounts`. A connector's Host row registers its server name, its bundle package, and the copy that names its service; the service registers the account with `ctx.connectorAccounts` under the key `mcp:<server>`.
 
 | Part | Choice |
 |---|---|

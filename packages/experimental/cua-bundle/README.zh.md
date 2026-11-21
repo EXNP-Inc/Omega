@@ -3,7 +3,7 @@ description: "在 macOS 和 Windows 上开启可选 Computer Use 及权限页面
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-cua-bundle
+# @omega-ai/dsh-cua-bundle
 
 [English](README.md) | 中文
 

@@ -2,7 +2,7 @@
 import { createRef, useState } from 'react'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
-import { Button, ConnectionIndicator, Input, Menu, MenuItemButton, Modal, Pill } from '@deepseek-ai/dsh-client-ui-primitives'
+import { Button, ConnectionIndicator, Input, Menu, MenuItemButton, Modal, Pill } from '@omega-ai/dsh-client-ui-primitives'
 import { POINTER_GRACE_MS } from '../src/pointer-grace.ts'
 import { focusWithoutRing } from '../src/focus.ts'
 import buttonCss from '../src/Button.module.css'
@@ -21,7 +21,7 @@ describe('isMobileDevice', () => {
     { name: 'desktop-mode iPad', userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)', platform: 'MacIntel', maxTouchPoints: 5, mobile: true },
     { name: 'Mac', userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)', platform: 'MacIntel', maxTouchPoints: 0, mobile: false },
     { name: 'Windows touchscreen', userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)', platform: 'Win32', maxTouchPoints: 5, mobile: false },
-    { name: 'native networking UA', userAgent: 'DeepSeek%20Chat/0 CFNetwork/3860.400.51 Darwin/25.3.0', platform: '', maxTouchPoints: 0, mobile: false },
+    { name: 'native networking UA', userAgent: 'Omega%20Chat/0 CFNetwork/3860.400.51 Darwin/25.3.0', platform: '', maxTouchPoints: 0, mobile: false },
     { name: 'unknown UA', userAgent: 'Unrecognized/1.0', platform: '', maxTouchPoints: 0, mobile: false },
   ])('classifies $name', async ({ userAgent, platform, maxTouchPoints, mobile }) => {
     for (const [name, value] of Object.entries({ userAgent, platform, maxTouchPoints })) {
@@ -45,7 +45,7 @@ describe('isMobileDevice', () => {
     expect(first.isMobileDevice()).toBe(mobile)
 
     ua.mockReturnValue(mobile ? desktopUA : mobileUA)
-    const other = await import('@deepseek-ai/dsh-client-ui-primitives/src/focus.ts')
+    const other = await import('@omega-ai/dsh-client-ui-primitives/src/focus.ts')
     expect(other.isMobileDevice()).toBe(mobile)
     expect(ua).toHaveBeenCalledTimes(1)
 

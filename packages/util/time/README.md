@@ -35,7 +35,7 @@ Call it at the boundary that receives the zone or the wall-clock selector, befor
 ### Entry point
 
 ```ts
-import { Duration, canonicalClientTimeZone, fourDigitYearEpoch, parseLocalCalendar, resolveLocalInstant } from '@deepseek-ai/dsh-util-time'
+import { Duration, canonicalClientTimeZone, fourDigitYearEpoch, parseLocalCalendar, resolveLocalInstant } from '@omega-ai/dsh-util-time'
 
 const zone = canonicalClientTimeZone('US/Eastern')            // 'America/New_York' or undefined
 const stored = fourDigitYearEpoch('2026-03-08T02:30:00.000Z') // { kind: 'accepted', epoch } or a rejection reason
@@ -109,7 +109,7 @@ None of its own. The consumer that injects a zone- or schedule-derived line into
 - **Recurrence is bounded** — the [Schedule reference](../../../docs/subsystems/schedule.md#recurrence-rules) lists shared expression profiles. A successful parse returns a frozen `rule` with `expression`, `timeZone`, `next(after)`, and `resolve(scheduledAt, acceptedAt)`; resolution preserves a committed occurrence and coalesces missed ones. Refusals carry `syntax`, `time_zone`, `density`, or `range`; invalid decision times throw `RangeError`. No method reads the wall clock or starts a timer.
 - **`Duration` has no calendar units** — a day is exactly 24 hours and a month has no fixed length, so a caller that needs local calendar days derives them from the zone.
 - **`Duration` publishes only what a consumer calls** — `fromMilliseconds` and `decompose()`; a conversion, an arithmetic operation, or a `zero` identity lands with the caller that needs it, so the published contract grows with a caller rather than ahead of one.
-- **Seconds-unit spans still multiply** — `dsh-schedule`'s interval and delay fields and the DeepSeek file store's refresh margin are second-valued spans converted with `* 1_000`; none has moved onto this library, and an epoch expressed in seconds is not a span and must not be built into one.
+- **Seconds-unit spans still multiply** — `dsh-schedule`'s interval and delay fields and the Omega file store's refresh margin are second-valued spans converted with `* 1_000`; none has moved onto this library, and an epoch expressed in seconds is not a span and must not be built into one.
 - **The root entry loads recurrence dependencies** — importing it resolves both `@js-temporal/polyfill` and `rrule`, including for a consumer that only needs a zone or span. Browser consumers must account for those dependencies in their bundle.
 
 <a id="dev-note"></a>

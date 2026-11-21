@@ -1,16 +1,16 @@
-import OTel from '@deepseek-ai/dsh-otel'
+import OTel from '@omega-ai/dsh-otel'
 import { createServer, type Server } from 'node:http'
 import { once } from 'node:events'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { installProxyFromEnvironment } from '@deepseek-ai/dsh-http-proxy'
-import { recordFeedback } from '@deepseek-ai/dsh-command-feedback'
-import { Context } from '@deepseek-ai/cordis'
-import SessionStore, { type SessionId } from '@deepseek-ai/dsh-session'
+import { installProxyFromEnvironment } from '@omega-ai/dsh-http-proxy'
+import { recordFeedback } from '@omega-ai/dsh-command-feedback'
+import { Context } from '@omega-ai/cordis'
+import SessionStore, { type SessionId } from '@omega-ai/dsh-session'
 import OpenTelemetrySessionBackend, { SessionTelemetryMode } from '../src/index.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const seen: string[] = []
 const captures: string[] = []
@@ -75,7 +75,7 @@ function proxyEnv(): { get(name: string): { value: string } | undefined } {
 }
 
 describe('session-telemetry-otel egress', () => {
-  it.each(['mock', 'deepseek-official', 'unknown-provider', undefined])(
+  it.each(['mock', 'omega-official', 'unknown-provider', undefined])(
     'exports only explicit feedback directly for provider %s, ignoring the configured proxy',
     async (provider) => {
       seen.length = 0

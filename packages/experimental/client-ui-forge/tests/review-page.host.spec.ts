@@ -1,13 +1,13 @@
 /** The review page's Remote methods of `forgePanel`, which name a change request by URL and need no Session binding. */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Context } from '@deepseek-ai/cordis'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { changeRequestKey } from '@deepseek-ai/dsh-experimental-forge'
+import type { Context } from '@omega-ai/cordis'
+import { brandString } from '@omega-ai/dsh-brand'
+import { changeRequestKey } from '@omega-ai/dsh-experimental-forge'
 import type {
   ChangeRequestDescription, ChangeRequestKey, ChangeRequestRef, ChangeRequestSnapshot, ForgeActionFailure, ForgeFailure, ForgeProvider,
   ForgeReadiness, ForgeRepository, ForgeReviewData, ForgeReviewWrite, ForgeReviewWriteResult, ForgeThreadId, ForgeViewerFilter,
   ForgeViewerList, ForgeViewerQuery,
-} from '@deepseek-ai/dsh-experimental-forge'
+} from '@omega-ai/dsh-experimental-forge'
 import ForgePanelController from '../src/index.ts'
 import type { Config, ForgeReviewChangeRequest, ForgeReviewCountFrame, ForgeReviewFrame } from '../src/index.ts'
 import { bench, demo, pullUrl, scratch, sendPrompt, snapshot } from './harness.ts'

@@ -1,16 +1,16 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import type { SessionId } from '@deepseek-ai/dsh-session'
+import { Context } from '@omega-ai/cordis'
+import type { SessionId } from '@omega-ai/dsh-session'
 
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import { mountAgentLoopTestDependencies } from '@deepseek-ai/dsh-agent-loop-testkit'
-import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
-import SubagentRuntime from '@deepseek-ai/dsh-subagent'
-import * as Spawn from '@deepseek-ai/dsh-subagent-spawn-in-process'
+import AgentLoop from '@omega-ai/dsh-agent-loop'
+import { mountAgentLoopTestDependencies } from '@omega-ai/dsh-agent-loop-testkit'
+import * as LlmOmega from '@omega-ai/dsh-llm-omega-api-key'
+import SubagentRuntime from '@omega-ai/dsh-subagent'
+import * as Spawn from '@omega-ai/dsh-subagent-spawn-in-process'
 import PtcWorkflowEngine from '../src/index.ts'
-import DeepSeekAuth from '@deepseek-ai/dsh-deepseek-auth'
+import OmegaAuth from '@omega-ai/dsh-omega-auth'
 import { mountPtcRuntime } from './setup.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 let ctx: Context | undefined
 
@@ -24,8 +24,8 @@ async function harness(): Promise<Context> {
   await mountAgentLoopTestDependencies(built, { workingDirectory: true })
   await mountPtcRuntime(built)
   await built.plugin(AgentLoop, { agents: [] })
-  await built.plugin(DeepSeekAuth)
-  await built.plugin(LlmDeepSeek)
+  await built.plugin(OmegaAuth)
+  await built.plugin(LlmOmega)
   await built.plugin(SubagentRuntime)
   await built.plugin(Spawn, { providerName: 'spawn' })
   await built.plugin(PtcWorkflowEngine, { provider: 'spawn' })
@@ -48,12 +48,12 @@ const judged = await agent(
 )
 return { prose, containsFour: judged === null ? null : judged.containsFour }`
 
-describe.skipIf(!process.env.DEEPSEEK_API_KEY)('PTC workflow engine with-key e2e', () => {
+describe.skipIf(!process.env.OMEGA_API_KEY)('PTC workflow engine with-key e2e', () => {
   it('runs a two-phase script in the Node PTC runtime over real children, one through the structured runtime', async () => {
     ctx = await harness()
     const parentHandle = await ctx.agents.create({
       sessionId: 'wf-ptc-e2e-session' as never,
-      agentOptions: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+      agentOptions: { provider: 'omega-official', model: 'omega-v4-flash' },
     })
 
     const events: string[] = []

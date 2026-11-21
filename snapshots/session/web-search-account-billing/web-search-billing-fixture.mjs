@@ -1,12 +1,12 @@
 /**
- * Signed-in DeepSeek account stand-in and Search API endpoint for the billing snapshots. The account releases one fixed
+ * Signed-in Omega account stand-in and Search API endpoint for the billing snapshots. The account releases one fixed
  * token, and the endpoint answers only a request that carries that token and no API key. With the plugin config
  * `signOutDuringSearch: true`, the account signs out when that request arrives and the endpoint leaves it unanswered.
  */
 import { applyLoopbackServerEffect } from '../loopback-fixture-server.mjs'
 
 /** Search endpoint under the default account route origin, routed to the current loopback listener. */
-const RECORDED_ENDPOINT = 'https://api.deepseek.com/v1/tools/search'
+const RECORDED_ENDPOINT = 'https://api.omega.com/v1/tools/search'
 
 /** Token the stand-in account releases. */
 const ACCOUNT_TOKEN = 'snapshot-account-token'
@@ -26,8 +26,8 @@ function transportInput(input, transportEndpoint) {
   if (url === RECORDED_ENDPOINT) {
     return input instanceof Request ? new Request(transportEndpoint, input) : transportEndpoint
   }
-  if (url !== undefined && url.startsWith('https://api.deepseek.com/')) {
-    throw new Error(`web-search-billing-fixture: unexpected DeepSeek request: ${url}`)
+  if (url !== undefined && url.startsWith('https://api.omega.com/')) {
+    throw new Error(`web-search-billing-fixture: unexpected Omega request: ${url}`)
   }
   return input
 }
@@ -35,8 +35,8 @@ function transportInput(input, transportEndpoint) {
 /** Provide the signed-in account and start the Search endpoint; both end with the plugin fiber. */
 export async function apply(ctx, config) {
   const signedOut = new AbortController()
-  ctx.provide('deepseekAccount', {
-    resolveRequestCredential: async endpoint => endpoint.startsWith('https://api.deepseek.com/')
+  ctx.provide('omegaAccount', {
+    resolveRequestCredential: async endpoint => endpoint.startsWith('https://api.omega.com/')
       ? { headers: { 'x-dsh-auth-token': ACCOUNT_TOKEN }, revoked: signedOut.signal, reject: async () => {} }
       : undefined,
   })

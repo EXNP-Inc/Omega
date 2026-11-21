@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { DeepSeekModelDraft } from '../src/client/DeepSeekModelsEditor.tsx'
-import { validateDeepSeekModels } from '../src/client/DeepSeekModelsEditor.tsx'
+import type { OmegaModelDraft } from '../src/client/OmegaModelsEditor.tsx'
+import { validateOmegaModels } from '../src/client/OmegaModelsEditor.tsx'
 import { ModelListEditor } from '../src/client/ModelListEditor.tsx'
 import { ModelReasoningEfforts, validateReasoningEfforts } from '../src/client/ModelReasoningEfforts.tsx'
 import type { ModelsOperations } from '../src/client/operations.ts'
@@ -18,8 +18,8 @@ const DEFAULTS = { off: null, low: 'low', medium: 'medium', high: 'high' }
 const LEVELS = ['off', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max']
 
 /** Render the controlled group over local state, reporting every write. */
-function renderGroup(initial: DeepSeekModelDraft, options: { disabled?: boolean; levels?: readonly string[]; levelsOnly?: boolean } = {}) {
-  const writes: DeepSeekModelDraft[] = []
+function renderGroup(initial: OmegaModelDraft, options: { disabled?: boolean; levels?: readonly string[]; levelsOnly?: boolean } = {}) {
+  const writes: OmegaModelDraft[] = []
   function Harness() {
     const [model, setModel] = useState(initial)
     return (
@@ -272,8 +272,8 @@ describe('reasoning-level validation', () => {
     expect(validateReasoningEfforts(undefined)).toBeUndefined()
   })
 
-  it('stays out of the shared model checker that DeepSeek and catalog rows use', () => {
-    expect(validateDeepSeekModels([{ id: 'chat', reasoningEfforts: { off: null } }])).toBeUndefined()
+  it('stays out of the shared model checker that Omega and catalog rows use', () => {
+    expect(validateOmegaModels([{ id: 'chat', reasoningEfforts: { off: null } }])).toBeUndefined()
   })
 })
 
@@ -286,8 +286,8 @@ describe('reasoning levels in the model list', () => {
   }
 
   /** Render the list over local state, reporting every write. */
-  function renderList(initial: DeepSeekModelDraft[]) {
-    const writes: DeepSeekModelDraft[][] = []
+  function renderList(initial: OmegaModelDraft[]) {
+    const writes: OmegaModelDraft[][] = []
     function Harness() {
       const [models, setModels] = useState(initial)
       return (

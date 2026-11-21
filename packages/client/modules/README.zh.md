@@ -3,7 +3,7 @@ description: "面向用户与维护者的 web GUI 客户端模块系统说明：
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-modules
+# @omega-ai/dsh-client-modules
 
 [English](README.md) | 中文
 
@@ -51,7 +51,7 @@ application combo 脚本只携带每个插件的 `client.js` 入口，并在启�
 
 插件 Config 顶层的 `.volatile()` 字段会到达其浏览器面。包把 Config 接口放在 `src/types.ts` 供两个面共用，唯一的 Schemastery schema 只放在 Host 面；普通字段和所有 `role('secret')` 位置（包括 volatile 对象、字典、数组内部的位置）留在 Host。每个图行在 `config` 中携带这些值，因此它们随启动图和之后的每张图一起到达。只有 owner 的页面收到实际配置的值；其他所有 Peer（例如 LiveShare 查看端）在启动图和每个插件事件帧中收到各插件 schema 对空 Config 解析出的值，schema 拒绝空 Config 的行在这类页面上不带值。
 
-浏览器面不导出 `Config`；它的 `apply(ctx, config: SyncedConfig<Config>)` 为每个字段收到一个 `SyncedConfigRef`，二者都来自只放类型的包 [`@deepseek-ai/dsh-client-config/types`](../config/README.zh.md)。`config.field.get()` 在执行操作时读取当前冻结值，写法与 Host 相同。组件通过 hook 读取：插件在 slot `inject` 的 `hooks` 中注入引用，例如 `hooks: { fontSize: config.fontSize }`，组件调用 `useFontSize(value => value)`。每个字段都可能读到 `undefined`，插件需在每次读取时处理缺值；密钥字段是其中一种情况，因为 Host 从不下发它。变化按字段做 JSON 比较，所有变化字段都设置完后才通知订阅者，插件从不重新挂载。与 Host 每次激活重新解析 volatile 引用一样，插件每次激活都得到一个持有最新值的新 Config 对象；该激活开始拆除后（代码替换、行移除，或必需服务撤回后的卸载）不再收到新值。没有同步字段的插件收到一个空对象。`ctx.config.resolveConfigByPackage(packageName)` 返回另一个包当前激活的只读对象，没有运行中的激活时返回 `undefined`。Host 上，携带新值的图帧在插件自己的 `loader/volatile-update` 监听执行之前入队；这只在机制上排序，插件不得依赖浏览器先收到配置、后收到其他数据。导出自身 `Config` schema 的 Client 面保持 Cordis 原有配置解析；其行若同时带同步值，激活失败。
+浏览器面不导出 `Config`；它的 `apply(ctx, config: SyncedConfig<Config>)` 为每个字段收到一个 `SyncedConfigRef`，二者都来自只放类型的包 [`@omega-ai/dsh-client-config/types`](../config/README.zh.md)。`config.field.get()` 在执行操作时读取当前冻结值，写法与 Host 相同。组件通过 hook 读取：插件在 slot `inject` 的 `hooks` 中注入引用，例如 `hooks: { fontSize: config.fontSize }`，组件调用 `useFontSize(value => value)`。每个字段都可能读到 `undefined`，插件需在每次读取时处理缺值；密钥字段是其中一种情况，因为 Host 从不下发它。变化按字段做 JSON 比较，所有变化字段都设置完后才通知订阅者，插件从不重新挂载。与 Host 每次激活重新解析 volatile 引用一样，插件每次激活都得到一个持有最新值的新 Config 对象；该激活开始拆除后（代码替换、行移除，或必需服务撤回后的卸载）不再收到新值。没有同步字段的插件收到一个空对象。`ctx.config.resolveConfigByPackage(packageName)` 返回另一个包当前激活的只读对象，没有运行中的激活时返回 `undefined`。Host 上，携带新值的图帧在插件自己的 `loader/volatile-update` 监听执行之前入队；这只在机制上排序，插件不得依赖浏览器先收到配置、后收到其他数据。导出自身 `Config` schema 的 Client 面保持 Cordis 原有配置解析；其行若同时带同步值，激活失败。
 
 <a id="host-release-changes"></a>
 ### Host release 变化

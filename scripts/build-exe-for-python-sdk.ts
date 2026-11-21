@@ -28,12 +28,12 @@ const DEPLOY_ROOT_PACKAGE = 'dsh-python-runtime-closure'
 /** The sole executable entry inside the deployed closure. */
 const ENTRY_BIN = 'runtime-bootstrap.mjs'
 /** Python-visible executable basename. */
-const OUTPUT_BASENAME = 'deepseek-harness-sdk-runtime'
+const OUTPUT_BASENAME = 'omega-harness-sdk-runtime'
 /** Default Node major; SEA mode requires at least Node 22. */
 const DEFAULT_NODE_RANGE = 'node24'
 const OUT_DIR = 'dist-exe'
 /** Python package destination; created when absent. */
-const PYTHON_RUNTIME_DIR = 'python/sdk-runtime/src/deepseek_harness_runtime/runtime'
+const PYTHON_RUNTIME_DIR = 'python/sdk-runtime/src/omega_harness_runtime/runtime'
 /** The deployed closure doubles as the node-mode carrier. */
 const PYTHON_NODE_SUBDIR = 'node'
 /** Documentation excluded from the generated runtime directory. */
@@ -53,7 +53,7 @@ const ASSET_GLOBS = [
   'node_modules/**/package.json',
   'node_modules/**/*.json',
   // Plugin display metadata resolves these package-owned images at runtime.
-  'node_modules/@deepseek-ai/dsh-*/**/*.{svg,png,jpg,jpeg,webp}',
+  'node_modules/@omega-ai/dsh-*/**/*.{svg,png,jpg,jpeg,webp}',
   // Package-owned Markdown includes runtime skill instructions.
   'node_modules/**/*.md',
   'node_modules/**/*.dylib',
@@ -65,16 +65,16 @@ const ASSET_GLOBS = [
   'node_modules/**/*.yaml',
   'node_modules/**/*.yml',
   // web-app builds this path dynamically, so pkg cannot discover the static frontend.
-  'node_modules/@deepseek-ai/dsh-web-frontend/dist/**/*',
+  'node_modules/@omega-ai/dsh-web-frontend/dist/**/*',
   // The diagnosis provider extracts its PowerShell script for an external interpreter.
-  'node_modules/@deepseek-ai/dsh-sandbox-windows-acl/assets/**/*',
+  'node_modules/@omega-ai/dsh-sandbox-windows-acl/assets/**/*',
 ]
 
 /** Published source and documentation: types and maps already describe the runtime, so no load path needs them. */
 const PUBLISHED_PAYLOAD_IGNORES = [
-  '**/node_modules/@deepseek-ai/dsh/src/**',
-  '**/node_modules/@deepseek-ai/dsh-*/src/**',
-  '**/node_modules/@deepseek-ai/dsh/docs/**',
+  '**/node_modules/@omega-ai/dsh/src/**',
+  '**/node_modules/@omega-ai/dsh-*/src/**',
+  '**/node_modules/@omega-ai/dsh/docs/**',
 ]
 
 const PLATFORMS = ['linux', 'macos', 'win'] as const
@@ -378,7 +378,7 @@ class SingleExeBuild {
     try {
       await bundle({ config: false, tsconfig: false, inputOptions: { tsconfig: false }, target: 'es2024', entry: entries,
         outDir: this.staging, clean: false, format: 'esm', platform: 'node', dts: false,
-        deps: { neverBundle: [/^@deepseek-ai\//u], alwaysBundle: [/.*/u] }, shims: true, outExtensions: () => ({ js: '.mjs' }),
+        deps: { neverBundle: [/^@omega-ai\//u], alwaysBundle: [/.*/u] }, shims: true, outExtensions: () => ({ js: '.mjs' }),
         define: { 'import.meta.main': 'false' } })
     } finally {
       for (const entry of Object.values(entries)) await rm(entry, { force: true })

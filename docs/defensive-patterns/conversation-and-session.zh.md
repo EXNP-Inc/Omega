@@ -227,7 +227,7 @@ function placeProcessNode(node: ChatConversationViewNode): GroupPlacement {
 
 ```tsx
 // The business declares its kind and registers its renderer; the shared list is untouched.
-declare module '@deepseek-ai/dsh-client-ui-chat/client' {
+declare module '@omega-ai/dsh-client-ui-chat/client' {
   interface ChatNodeDataMap { handoff: HandoffData }
 }
 
@@ -308,7 +308,7 @@ export const AssistantMarkdown = memo(function AssistantMarkdown({ blocks, ...pr
 声明自己的 source kind 的生产者，把业务差异留在 payload 里：
 
 ```ts ignore-check
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@omega-ai/dsh-llm' {
   interface MessageSourceMap {
     handoff: { kind: 'handoff'; sessionId: SessionId }
   }

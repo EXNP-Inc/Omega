@@ -6,20 +6,20 @@
  * the cause each cancelled turn records.
  * @module dsh-agent-loop/tests/cancel
  */
-import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { type ToolCallId, createUserMessage, expandAssistantStream } from '@deepseek-ai/dsh-llm'
+import * as NativeToolExecutor from '@omega-ai/dsh-tool-executor-native'
+import { brandString } from '@omega-ai/dsh-brand'
+import { type ToolCallId, createUserMessage, expandAssistantStream } from '@omega-ai/dsh-llm'
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import LlmRuntime from '@deepseek-ai/dsh-llm'
-import SessionStore, { Session, type SessionId, SessionLogOffset, TurnEndReason } from '@deepseek-ai/dsh-session'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime, { TOOL_ABORTED_BEFORE_DISPATCH } from '@deepseek-ai/dsh-tools'
-import { defineContentToolFixture } from '@deepseek-ai/dsh-tool-testkit'
-import AgentRegistry, { type Agent, type AgentCancelCause } from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import { Context } from '@omega-ai/cordis'
+import LlmRuntime from '@omega-ai/dsh-llm'
+import SessionStore, { Session, type SessionId, SessionLogOffset, TurnEndReason } from '@omega-ai/dsh-session'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRuntime, { TOOL_ABORTED_BEFORE_DISPATCH } from '@omega-ai/dsh-tools'
+import { defineContentToolFixture } from '@omega-ai/dsh-tool-testkit'
+import AgentRegistry, { type Agent, type AgentCancelCause } from '@omega-ai/dsh-agent'
+import AgentLoop from '@omega-ai/dsh-agent-loop'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
 import { MockAdapter, textResponse, toolCallResponse } from './mock-adapter.ts'
 
 function driverDone(agent: Agent): Promise<void> {

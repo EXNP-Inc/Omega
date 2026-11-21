@@ -8,20 +8,20 @@ import { join, resolve } from 'node:path'
 import { homedir, tmpdir } from 'node:os'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { execa } from 'execa'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@omega-ai/cordis'
 import { afterAll, beforeAll, expect, it, onTestFinished, vi } from 'vitest'
 import {
   boot, composeEntries, initProfile, loadProfileDirectory, readProfilePatches, readProfileManifest,
   reconcileProfilePatches, PluginPackages, readPluginMeta, getDshRuntimeVersion,
   type ProfileContext, type RuntimeResolution,
-} from '@deepseek-ai/dsh-app-boot'
-import { OPTIONAL_BUNDLES, OFFICIAL_ON_DEMAND_CATALOG } from '@deepseek-ai/dsh-official-bundles'
+} from '@omega-ai/dsh-app-boot'
+import { OPTIONAL_BUNDLES, OFFICIAL_ON_DEMAND_CATALOG } from '@omega-ai/dsh-official-bundles'
 import PluginManager, { type Config, type PluginChange, type PluginInstallLogChunk, type PluginInstallProgress, type PluginInstallRequestId } from '../src/index.ts'
 import type { PluginEntryId, PluginOperation } from '../src/types.ts'
-import Hmr from '@deepseek-ai/dsh-hmr'
-import Timer from '@deepseek-ai/cordis-plugin-timer'
-import type { PatchOptions } from '@deepseek-ai/cordis-plugin-include'
-import { Group } from '@deepseek-ai/cordis-plugin-loader'
+import Hmr from '@omega-ai/dsh-hmr'
+import Timer from '@omega-ai/cordis-plugin-timer'
+import type { PatchOptions } from '@omega-ai/cordis-plugin-include'
+import { Group } from '@omega-ai/cordis-plugin-loader'
 import * as operations from '../src/operations.ts'
 import * as githubConnection from '../src/github-connection.ts'
 import * as gitTransport from '../src/git-transport.ts'
@@ -43,10 +43,10 @@ async function fixture(reload: 'live' | 'startup' = 'live', overlay = false, pre
   const anchor = sourceInstallation ? join(home, 'apps', 'cli', 'package.json') : join(home, 'package.json')
   if (sourceInstallation) {
     mkdirSync(join(home, 'apps', 'cli'), { recursive: true })
-    writeFileSync(join(home, 'package.json'), '{"name":"@deepseek-ai/dsh-root"}')
+    writeFileSync(join(home, 'package.json'), '{"name":"@omega-ai/dsh-root"}')
   }
   writeFileSync(anchor, JSON.stringify(sourceInstallation
-    ? { name: '@deepseek-ai/dsh', dependencies: { '@deepseek-ai/dsh-app-boot': 'workspace:*' } }
+    ? { name: '@omega-ai/dsh', dependencies: { '@omega-ai/dsh-app-boot': 'workspace:*' } }
     : { name: 'installation', dependencies: {} }))
   initProfile(dir, ['core', 'extra'])
   const bundle = (name: string, rows: unknown[], packageRoot = dir) => {
@@ -1020,10 +1020,10 @@ it('refuses management bundle disablement and permits repeated bundle selections
 })
 
 it.each([
-  '@deepseek-ai/dsh-host-plugin-inventory',
-  '@deepseek-ai/dsh-typert-registry',
-  '@deepseek-ai/dsh-api-remotes',
-  '@deepseek-ai/dsh-api-remote-access',
+  '@omega-ai/dsh-host-plugin-inventory',
+  '@omega-ai/dsh-typert-registry',
+  '@omega-ai/dsh-api-remotes',
+  '@omega-ai/dsh-api-remote-access',
 ])('protects the management dependency %s and its containing bundle', async (name) => {
   const { ctx, manager, bundle, profile, dir } = await fixture('startup')
   bundle('extra', [{ id: 'dependency', name, disabled: true }])
@@ -1741,7 +1741,7 @@ it.each(['live', 'startup'] as const)('requires exact risk acknowledgement and p
   const { manager, dir, ctx } = await fixture(mode, false, undefined, {}, undefined, (dir) => {
     const file = join(dir, 'node_modules', 'extra', 'package.json')
     const metadata = JSON.parse(readFileSync(file, 'utf8')) as Record<string, unknown>
-    writeFileSync(file, JSON.stringify({ ...metadata, peerDependencies: { '@deepseek-ai/dsh': '999.0.0' } }))
+    writeFileSync(file, JSON.stringify({ ...metadata, peerDependencies: { '@omega-ai/dsh': '999.0.0' } }))
   })
   const runtime = getDshRuntimeVersion()
   const managed = () => [...ctx.loader.entries()].find(entry => entry.id === 'include:managed')
@@ -1749,7 +1749,7 @@ it.each(['live', 'startup'] as const)('requires exact risk acknowledgement and p
   expect(managed()).toBeUndefined()
   expect((await manager.listBundles()).find(bundle => bundle.name === 'extra')?.error).toEqual({
     code: 'incompatible-version',
-    incompatible: [{ name: 'extra', version: '1.0.0', runtimeVersion: runtime, requirements: { '@deepseek-ai/dsh': '999.0.0' } }],
+    incompatible: [{ name: 'extra', version: '1.0.0', runtimeVersion: runtime, requirements: { '@omega-ai/dsh': '999.0.0' } }],
   })
   expect(await manager.setBundleEnabled('extra', true)).toMatchObject({ changed: false, application: 'failed' })
   expect(await manager.setVersionExemption('extra@1.0.0', runtime, true)).toMatchObject({ changed: false, application: 'failed' })
@@ -1784,7 +1784,7 @@ it.each(['dsh-x', 'dsh-x@^2.0.0'])('retains the refused package identity for %s'
   const { manager, ctx } = await fixture()
   const facts: PluginOperation[] = []
   ctx.on('plugin-manager/operation', (event) => { facts.push(event) })
-  const incompatible = [{ name: 'dsh-x', version: '2.0.0', runtimeVersion: getDshRuntimeVersion(), requirements: { '@deepseek-ai/dsh': '999.0.0' } }]
+  const incompatible = [{ name: 'dsh-x', version: '2.0.0', runtimeVersion: getDshRuntimeVersion(), requirements: { '@omega-ai/dsh': '999.0.0' } }]
   const install = vi.spyOn(operations, 'runProfilePnpm').mockResolvedValue({
     exitCode: 1, output: 'dsh: installation rejected', truncated: false, logPath: 'pnpm.log', kind: 'unknown', incompatible,
   })
@@ -1804,7 +1804,7 @@ it.each([false, true])('rechecks installed bundle peers before accepting a disab
     bundle('incompatible', [])
     const file = join(dir, 'node_modules', 'incompatible', 'package.json')
     const metadata = JSON.parse(readFileSync(file, 'utf8')) as Record<string, unknown>
-    writeFileSync(file, JSON.stringify({ ...metadata, peerDependencies: { '@deepseek-ai/dsh': '<0.0.0' } }))
+    writeFileSync(file, JSON.stringify({ ...metadata, peerDependencies: { '@omega-ai/dsh': '<0.0.0' } }))
     const profile = readProfileManifest('test', dir)
     profile.dependencies = { ...profile.dependencies, incompatible: '1.0.0' }
     writeFileSync(join(dir, 'package.json'), JSON.stringify(profile))
@@ -2042,12 +2042,12 @@ function extraRegistry(spec: string, fields: readonly string[]): object {
     }
   }
   const version = spec.slice('extra@'.length)
-  if (version === '2.0.0') return { name: 'extra', version, peerDependencies: { '@deepseek-ai/dsh': '>=999.0.0' }, dsh: BUNDLE }
+  if (version === '2.0.0') return { name: 'extra', version, peerDependencies: { '@omega-ai/dsh': '>=999.0.0' }, dsh: BUNDLE }
   if (version === '1.1.0') return { name: 'extra', version, deprecated: 'use 1.2.0', dsh: BUNDLE }
   if (version === '1.2.0-beta.1') return { name: 'extra', version }
   // An own `engines.dsh` decides compatibility alone, so its unmet peer range does not make this version incompatible.
   if (version === '1.2.0') {
-    return { name: 'extra', version, engines: { dsh: '>=0.0.0-0' }, peerDependencies: { '@deepseek-ai/dsh': '>=999.0.0' }, dsh: BUNDLE }
+    return { name: 'extra', version, engines: { dsh: '>=0.0.0-0' }, peerDependencies: { '@omega-ai/dsh': '>=999.0.0' }, dsh: BUNDLE }
   }
   return { name: 'extra', version, dsh: BUNDLE }
 }
@@ -2062,7 +2062,7 @@ it('lists newer registry versions with tags, times, deprecation, bundle declarat
     versions: [
       {
         version: '2.0.0', publishedAt: '2026-10-10T00:00:00.000Z', tags: ['latest'], prerelease: false, bundle: true,
-        incompatible: { name: 'extra', version: '2.0.0', runtimeVersion: getDshRuntimeVersion(), requirements: { '@deepseek-ai/dsh': '>=999.0.0' } },
+        incompatible: { name: 'extra', version: '2.0.0', runtimeVersion: getDshRuntimeVersion(), requirements: { '@omega-ai/dsh': '>=999.0.0' } },
       },
       { version: '1.2.0', tags: [], prerelease: false, bundle: true },
       { version: '1.2.0-beta.1', tags: ['next'], prerelease: true, bundle: false },
@@ -2099,7 +2099,7 @@ it('lists versions from the next registry while one is unreachable, and refuses 
   expect(await manager.listVersions('extra')).toMatchObject({ status: 'refused', problem: 'unknown', reason: 'pnpm view answered no versions' })
   viewAnswers((spec, fields) => fields.includes('versions') ? { versions: '1.0.0' } : extraRegistry(spec, fields))
   expect(await manager.listVersions('extra')).toMatchObject({ status: 'listed', versions: [], omitted: 0 })
-  viewAnswers((_spec, fields) => fields.includes('versions') ? { versions: ['1.1.0'] } : { name: 'extra', version: '1.1.0', peerDependencies: { '@deepseek-ai/dsh': 3 } })
+  viewAnswers((_spec, fields) => fields.includes('versions') ? { versions: ['1.1.0'] } : { name: 'extra', version: '1.1.0', peerDependencies: { '@omega-ai/dsh': 3 } })
   expect(await manager.listVersions('extra')).toMatchObject({ status: 'refused', problem: 'unknown', reason: expect.stringContaining('must be a string') as string })
 })
 
@@ -2123,7 +2123,7 @@ it('refuses to list versions of a package not installed from a registry', async 
   expect(await manager.listVersions('extra')).toEqual(refusal('extra declares no semver version'))
   // A bundle carrying plugin management cannot be removed, so it is not offered for an update.
   writeFileSync(join(dir, 'node_modules', 'extra', 'package.json'), JSON.stringify({ name: 'extra', version: '1.0.0', dsh: BUNDLE }))
-  writeFileSync(join(dir, 'node_modules', 'extra', 'cordis.patch.yml'), JSON.stringify([{ insert: [{ id: 'pm', name: '@deepseek-ai/dsh-plugin-manager' }] }]))
+  writeFileSync(join(dir, 'node_modules', 'extra', 'cordis.patch.yml'), JSON.stringify([{ insert: [{ id: 'pm', name: '@omega-ai/dsh-plugin-manager' }] }]))
   const managed = (await manager.listBundles()).find(item => item.name === 'extra')
   expect(managed).toMatchObject({ readOnlyReason: 'management-required' })
   expect(managed).not.toHaveProperty('update')
@@ -2255,7 +2255,7 @@ it('reports a reinstallation that fails too, leaving the package uninstalled', a
 it('refuses an update before changing anything when the target is not a newer compatible bundle', async () => {
   const { manager, dir, bundle } = await fixture()
   viewAnswers((spec, fields) => spec === 'extra@3.0.0' ? { exitCode: 1, stdout: '', stderr: 'ERR_PNPM_NO_MATCHING_VERSION  No matching version found for extra@3.0.0', timedOut: false }
-    : spec === 'extra@1.5.0' ? { name: 'extra', version: '1.5.0', peerDependencies: { '@deepseek-ai/dsh': 7 }, dsh: BUNDLE }
+    : spec === 'extra@1.5.0' ? { name: 'extra', version: '1.5.0', peerDependencies: { '@omega-ai/dsh': 7 }, dsh: BUNDLE }
       : extraRegistry(spec, fields))
   const pnpm = extraPnpm(dir, bundle)
   const before = readFileSync(join(dir, 'package.json'), 'utf8')

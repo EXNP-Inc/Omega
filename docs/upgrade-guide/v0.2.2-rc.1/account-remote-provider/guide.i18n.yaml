@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/upgrade-guide/v0.2.2-rc.1/account-remote-provider/guide.md
 /:
-  en: 561965d845c4ae75
-  zh: 169f6d5fe2d6d3e4
+  en: 87645a44d7a8ac84
+  zh: 62cc560ad2f08e94
 /account-service-and-remote-imports:
   en: ac80b8c714afec7b
   zh: 62e1e73b51c3ea1d
 /account-service-and-remote-imports/change:
-  en: 7839978713aa24da
-  zh: 0225e3baa4425c46
+  en: 5b5a85419703066d
+  zh: a2787d330bd57727
 /account-service-and-remote-imports/migration:
-  en: fcaddf93cb778db9
-  zh: 4921e5ef8d75ea9e
+  en: 711b9c78ca086a39
+  zh: b6504ffe59be4e63

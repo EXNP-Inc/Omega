@@ -13,8 +13,8 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { type SessionEvent } from '@deepseek-ai/dsh-session'
-import { runLoaderSmoke } from '@deepseek-ai/dsh-loader-smoke'
+import { type SessionEvent } from '@omega-ai/dsh-session'
+import { runLoaderSmoke } from '@omega-ai/dsh-loader-smoke'
 
 const fixtureDir = new URL('./fixtures/loader/', import.meta.url)
 const driver = fileURLToPath(new URL('driver.ts', fixtureDir))
@@ -192,7 +192,7 @@ describe('SDK subagent routing and diagnostics through the production profile', 
       expect(settlementText(events)).toEqual([
         'Its closing message:',
         'partial child loader answer',
-        'Subagent failure (provider: DSH SDK; stage: session-run; category: child-error)',
+        'Subagent failure (provider: Omega SDK; stage: session-run; category: child-error)',
       ])
     } finally {
       await rm(child.childHome, { recursive: true, force: true })

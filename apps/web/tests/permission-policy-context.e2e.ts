@@ -10,10 +10,10 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { canonicalPath } from '@deepseek-ai/dsh-sandbox'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
-import type { WebTerminalId } from '@deepseek-ai/dsh-api-terminal-controller/types'
-import type {} from '@deepseek-ai/dsh-api-terminal-controller'
+import { canonicalPath } from '@omega-ai/dsh-sandbox'
+import type { SessionEvent } from '@omega-ai/dsh-session'
+import type { WebTerminalId } from '@omega-ai/dsh-api-terminal-controller/types'
+import type {} from '@omega-ai/dsh-api-terminal-controller'
 import {
   assertFinalWorkspaceSnapshot, assertFixtureInventory, fixtureUserPrompts, launchWebScaffold, recordFixture,
   watchConsole, webSnapshotMode, type WebScaffold,
@@ -175,23 +175,23 @@ describe('web e2e: current sandbox policy reaches the model before tools', () =>
   it.skipIf(MODE === 'record')('records cache-safe current policy before the corresponding model behavior', async () => {
     const systems = systemPrompts(sessionEvents)
     expect(systems).toHaveLength(1)
-    expect(systems[0]).not.toContain('Current DSH file policy:')
+    expect(systems[0]).not.toContain('Current Omega file policy:')
     expect(systems[0]).not.toContain('Approval policy:')
     expect(systems[0]).not.toContain('Approval prompts are disabled in this session')
 
     const contexts = runtimeContexts(sessionEvents)
     expect(contexts).toHaveLength(4)
-    expect(contexts[0]).toContain('Current DSH file policy: read-only. Any available operation enforced by the DSH file sandbox cannot modify files in the standing mode.')
+    expect(contexts[0]).toContain('Current Omega file policy: read-only. Any available operation enforced by the Omega file sandbox cannot modify files in the standing mode.')
     expect(contexts[0]).toContain('Do not refuse a required modification from this policy alone')
     expect(contexts[0]).toContain('Approval prompts are enabled in this session')
-    expect(contexts[1]).toContain('Current DSH file policy: danger-full-access. The DSH file sandbox does not restrict file modifications by available operations.')
+    expect(contexts[1]).toContain('Current Omega file policy: danger-full-access. The Omega file sandbox does not restrict file modifications by available operations.')
     expect(contexts[1]).toContain('Approval prompts are disabled in this session')
 
     if (sessionWorkspace === undefined) throw new Error('permission-policy scenario observed no session workspace')
-    expect(contexts[2]).toContain(`Current DSH file policy: workspace-write. Any available operation enforced by the DSH file sandbox may modify files under the session workspace: ${JSON.stringify(canonicalPath(sessionWorkspace))}. Some platform temporary areas may also be writable.`)
+    expect(contexts[2]).toContain(`Current Omega file policy: workspace-write. Any available operation enforced by the Omega file sandbox may modify files under the session workspace: ${JSON.stringify(canonicalPath(sessionWorkspace))}. Some platform temporary areas may also be writable.`)
     expect(contexts[2]).toContain('Approval prompts are enabled in this session')
     expect(contexts[2]).not.toContain('Approval prompts are disabled in this session')
-    expect(contexts[3]).toContain('Current DSH file policy: read-only.')
+    expect(contexts[3]).toContain('Current Omega file policy: read-only.')
 
     const answers = assistantTexts(sessionEvents)
     expect(answers.length).toBeGreaterThanOrEqual(4)

@@ -11,10 +11,10 @@
   - paragraph: 填入各提供商的 API 密钥即可使用其模型。
   - list:
     - listitem:
-      - text: DeepSeek
+      - text: Omega
       - img "API 密钥已配置"
-      - button "编辑 DeepSeek (deepseek-official)": 编辑
-      - text: DeepSeek deepseek-official API 密钥
+      - button "编辑 Omega (omega-official)": 编辑
+      - text: Omega omega-official API 密钥
       - button "认证说明": "?"
       - textbox "API 密钥":
         - /placeholder: sk-messa••••••••••ding
@@ -22,7 +22,7 @@
       - group:
         - text: 自定义设置 API 地址
         - textbox "API 地址":
-          - /placeholder: https://api.deepseek.com/anthropic（默认使用环境 DEEPSEEK_BASE_URL）
+          - /placeholder: https://api.omega.com/anthropic（默认使用环境 OMEGA_BASE_URL）
         - text: 请填写兼容 Anthropic Messages 协议的 API 地址。
         - group "重试策略":
           - text: 重试策略
@@ -35,22 +35,30 @@
           - button "调整模型顺序 1"
           - textbox "模型 ID 1":
             - /placeholder: 模型 ID
-            - text: deepseek-flash
+            - text: omega-flash
           - button "模型选项 1"
           - button "删除模型 1"
           - textbox "显示名称 1":
             - /placeholder: 显示名称
-            - text: DeepSeek-V4.1-Flash
+            - text: Omega-V4.1-Flash
           - button "调整模型顺序 2"
           - textbox "模型 ID 2":
             - /placeholder: 模型 ID
-            - text: deepseek-v4-pro
+            - text: omega-v4-pro
           - button "模型选项 2"
           - button "删除模型 2"
           - textbox "显示名称 2":
             - /placeholder: 显示名称
-            - text: DeepSeek-V4-Pro
+            - text: Omega-V4-Pro
           - button "添加模型"
       - button "取消"
       - button "保存"
+    - listitem:
+      - text: alice 自定义
+      - img "API 密钥缺失"
+      - button "编辑 alice": 编辑
+    - listitem:
+      - text: Mac 自定义
+      - img "API 密钥缺失"
+      - button "编辑 Mac (mac)": 编辑
   - button "添加模型提供商"

@@ -1,8 +1,8 @@
 /** Registered program tools with an explicit runtime and private tool bindings. @module */
-import type { Context } from '@deepseek-ai/cordis'
-import type { PtcRuntime } from '@deepseek-ai/dsh-ptc-runtime'
-import type { ToolDefinition } from '@deepseek-ai/dsh-tools'
-import { ToolExecutionPipeline } from '@deepseek-ai/dsh-tools/pipeline'
+import type { Context } from '@omega-ai/cordis'
+import type { PtcRuntime } from '@omega-ai/dsh-ptc-runtime'
+import type { ToolDefinition } from '@omega-ai/dsh-tools'
+import { ToolExecutionPipeline } from '@omega-ai/dsh-tools/pipeline'
 import { Config } from './config.ts'
 import { PtcCalls } from './ptc-calls.ts'
 import { createRunCodeTransport, requireRuntimeLanguage } from './ptc.ts'

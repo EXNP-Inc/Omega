@@ -1,7 +1,7 @@
 /** SQLite JSON decoding preserves logical Session records. @module */
-import type { SessionHeader } from '@deepseek-ai/dsh-session'
+import type { SessionHeader } from '@omega-ai/dsh-session'
 import { describe, expect, it } from 'vitest'
-import { SESSION_FORMAT_VERSION, SessionId, SessionLogOffset } from '@deepseek-ai/dsh-session'
+import { SESSION_FORMAT_VERSION, SessionId, SessionLogOffset } from '@omega-ai/dsh-session'
 import { decodeHeader, decodeEvent, materializeHeader } from '../src/codec.ts'
 
 const header: SessionHeader = { version: SESSION_FORMAT_VERSION, id: SessionId('codec'), createdAt: 0, isSeeded: false }

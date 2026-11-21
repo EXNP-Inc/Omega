@@ -9,9 +9,9 @@ import { useState, type ReactNode } from 'react'
 import clsx from 'clsx'
 import {
   IconChevronDownOutlineRegular, IconChevronUpOutlineRegular, IconPlusOutlineRegular, IconRefreshOutlineRegular, Menu,
-} from '@deepseek-ai/dsh-client-ui-primitives'
-import type { PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
-import type { ChangeRequestCheck, ChangeRequestReviewer, ChangeRequestSnapshot } from '@deepseek-ai/dsh-experimental-forge/types'
+} from '@omega-ai/dsh-client-ui-primitives'
+import type { PropsLocale } from '@omega-ai/dsh-client-ui-slots'
+import type { ChangeRequestCheck, ChangeRequestReviewer, ChangeRequestSnapshot } from '@omega-ai/dsh-experimental-forge/types'
 import type { ForgeReviewChangeRequest } from '../../types.ts'
 import {
   ChangesRow, FinishedRow, MergeStateRow, reviewOutcome, type ChangeRequestActions,

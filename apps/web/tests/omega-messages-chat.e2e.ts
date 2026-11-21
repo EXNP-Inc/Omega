@@ -1,4 +1,4 @@
-/** Historical Messages provider replay preserves its recorded identity and DeepSeek model group. */
+/** Historical Messages provider replay preserves its recorded identity and Omega model group. */
 import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
@@ -10,11 +10,11 @@ import {
 } from './scaffold.ts'
 import { connectFreshWorkspaceZh, saveFailureShot, ZH_BROWSER_LOCALE } from './support.ts'
 
-const SNAPSHOT_DIR = fileURLToPath(new URL('../../../snapshots/web/deepseek-messages-chat', import.meta.url))
+const SNAPSHOT_DIR = fileURLToPath(new URL('../../../snapshots/web/omega-messages-chat', import.meta.url))
 const FIXTURE = join(SNAPSHOT_DIR, 'session.v3.jsonl')
 const MODE = webSnapshotMode()
 
-describe.skipIf(MODE === 'record')('web e2e: DeepSeek Messages conversation', () => {
+describe.skipIf(MODE === 'record')('web e2e: Omega Messages conversation', () => {
   let scaffold: WebScaffold
   let browser: Browser
   let page: Page
@@ -27,15 +27,15 @@ describe.skipIf(MODE === 'record')('web e2e: DeepSeek Messages conversation', ()
       replayFixture,
       paceMs: 5,
       replayProviders: [{
-        id: 'deepseek-messages', name: 'DeepSeek',
+        id: 'omega-messages', name: 'Omega',
         models: [{
-          id: 'deepseek-v4-flash', name: 'DeepSeek-V4-Flash',
+          id: 'omega-v4-flash', name: 'Omega-V4-Flash',
           contextWindow: 1_000_000, defaultMaxTokens: 256_000,
           reasoningEfforts: ['off', 'low', 'high', 'max'], defaultReasoningEffort: 'high',
         }],
       }],
     })
-    await scaffold.ctx.agentDefaultModel.saveSelection({ provider: 'deepseek-messages', model: 'deepseek-v4-flash' })
+    await scaffold.ctx.agentDefaultModel.saveSelection({ provider: 'omega-messages', model: 'omega-v4-flash' })
     browser = await chromium.launch()
     page = await browser.newPage({ viewport: { width: 1680, height: 1000 }, locale: ZH_BROWSER_LOCALE })
     tripwire = watchConsole(page)
@@ -47,14 +47,14 @@ describe.skipIf(MODE === 'record')('web e2e: DeepSeek Messages conversation', ()
     try { await browser?.close() } finally { await scaffold?.close() }
   })
 
-  it('replays the historical Messages provider while displaying DeepSeek in the model selector', async () => {
-    onTestFailed(() => saveFailureShot(page, 'web-e2e-deepseek-messages-chat'))
+  it('replays the historical Messages provider while displaying Omega in the model selector', async () => {
+    onTestFailed(() => saveFailureShot(page, 'web-e2e-omega-messages-chat'))
     const prompts = fixtureUserPrompts(await readFile(replayFixture, 'utf8'))
     expect(prompts).toHaveLength(1)
-    expect(scaffold.ctx.agentDefaultModel.currentSelection()).toEqual({ provider: 'deepseek-messages', model: 'deepseek-v4-flash' })
+    expect(scaffold.ctx.agentDefaultModel.currentSelection()).toEqual({ provider: 'omega-messages', model: 'omega-v4-flash' })
     await page.getByRole('button', { name: /^选择模型/ }).click()
     await page.getByRole('menuitem', { name: /模型/ }).click()
-    await page.getByRole('group', { name: 'DeepSeek', exact: true }).waitFor()
+    await page.getByRole('group', { name: 'Omega', exact: true }).waitFor()
     await page.getByRole('button', { name: /^选择模型/ }).click()
     const input = page.locator('[data-composer-input]').first()
     const settled = scaffold.whenTurnSettled()
@@ -62,7 +62,7 @@ describe.skipIf(MODE === 'record')('web e2e: DeepSeek Messages conversation', ()
     await input.press('Enter')
     const sessionId = await settled
     const session = scaffold.ctx.sessions.get(sessionId)!
-    expect(session.requestHeader()?.config.provider).toBe('deepseek-messages')
+    expect(session.requestHeader()?.config.provider).toBe('omega-messages')
     await page.getByText('MESSAGES_WEB_READY', { exact: true }).waitFor()
     await compareOrRefreshGolden(join(SNAPSHOT_DIR, 'ui.expected.md'),
       await captureStableAria(page, '[class*="centerCol"]', scaffold.workspaceCwd), MODE)

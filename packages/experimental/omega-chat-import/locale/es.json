@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "Importación de chats de Omega",
+    "description": "Sube un ZIP de exportación de chats del sitio web de Omega con el botón junto a Nueva sesión; cada conversación se convierte en una sesión del espacio de trabajo que elijas.",
+    "detail": "docs/DETAIL.md"
+  }
+}

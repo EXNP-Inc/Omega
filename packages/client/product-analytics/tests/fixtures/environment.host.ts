@@ -6,7 +6,7 @@ import { execFile } from 'node:child_process'
 import { totalmem, cpus, platform } from 'node:os'
 import { promisify } from 'node:util'
 import { join } from 'node:path'
-import type {} from '@deepseek-ai/dsh-client-product-analytics'
+import type {} from '@omega-ai/dsh-client-product-analytics'
 import { bootProductionProfile } from '../../../../test-support/loader-smoke/tests/fixtures/production-profile.ts'
 
 const overlay = process.argv[2]
@@ -26,7 +26,7 @@ try {
   if (address === null || typeof address === 'string') throw new Error('environment collector has no port')
   process.env.DSH_PRODUCT_TELEMETRY_TEST_ENDPOINT = `http://127.0.0.1:${address.port}/logs`
   const ctx = await bootProductionProfile({ binName: 'environment-test', profile: 'headless', overlayPaths: [overlay],
-    prepare: (root) => { root.provide('deepseekAccount', { getDeviceIdentity: async () => undefined } as never) },
+    prepare: (root) => { root.provide('omegaAccount', { getDeviceIdentity: async () => undefined } as never) },
   })
   try {
     const analytics = ctx.get('productAnalytics')

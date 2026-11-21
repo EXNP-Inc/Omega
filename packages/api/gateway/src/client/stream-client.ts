@@ -1,6 +1,6 @@
 /** Client owner for the Gateway multiplexed Remote stream socket. */
-import { RemoteError, remoteErrorOf } from '@deepseek-ai/dsh-typert-protocol'
-import type { ConnectionWebSocket } from '@deepseek-ai/dsh-client-connection/client'
+import { RemoteError, remoteErrorOf } from '@omega-ai/dsh-typert-protocol'
+import type { ConnectionWebSocket } from '@omega-ai/dsh-client-connection/client'
 
 import {
   parseRemoteStreamServerMessage,
@@ -8,8 +8,8 @@ import {
   type RemoteStreamClientMessage,
   type RemoteStreamServerMessage,
 } from '../stream-protocol.ts'
-import { Deque } from '@deepseek-ai/dsh-deque'
-import { randomUUID } from '@deepseek-ai/dsh-util-crypto'
+import { Deque } from '@omega-ai/dsh-deque'
+import { randomUUID } from '@omega-ai/dsh-util-crypto'
 
 /**
  * Retryable physical Remote stream carrier failure. {@link RemoteStream} reconnects on any error whose `code` is

@@ -8,13 +8,13 @@
  * its bootstrap export, which constructs the system and retains the same
  * exports for this package's graph row. The plugin face enrolls the module
  * system attached to its own Loader as `ctx.modules`.
- * @module @deepseek-ai/dsh-client-modules/client
+ * @module @omega-ai/dsh-client-modules/client
  */
-import type { Context } from '@deepseek-ai/cordis'
-import type { Loader } from '@deepseek-ai/cordis-plugin-loader'
+import type { Context } from '@omega-ai/cordis'
+import type { Loader } from '@omega-ai/cordis-plugin-loader'
 import { ClientModuleSystem } from './system.ts'
 import { parseBootManifest } from './manifest.ts'
-import type { SyncedConfig, SyncedConfigService } from '@deepseek-ai/dsh-client-config/types'
+import type { SyncedConfig, SyncedConfigService } from '@omega-ai/dsh-client-config/types'
 import type {
   ClientBootstrapModule, ClientModuleCreateOptions, ClientModuleLoader, ClientModuleLoaderTarget,
 } from './manifest.ts'

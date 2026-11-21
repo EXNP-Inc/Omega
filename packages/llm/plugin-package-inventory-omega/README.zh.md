@@ -1,15 +1,15 @@
 ---
-description: "面向发送官方 DeepSeek 请求的部署，说明活跃 Loader 包清单元数据。"
+description: "面向发送官方 Omega 请求的部署，说明活跃 Loader 包清单元数据。"
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-plugin-package-inventory-deepseek
+# @omega-ai/dsh-plugin-package-inventory-omega
 
 [English](README.md) | 中文
 
 ## 概述
 
-用于 DeepSeek 官方 LLM API 请求的尽力收集型活跃 Loader 插件包清单。该函数插件注入 Loader、存活 Agent 注册表与 `ctx.deepseekLlmApiExtensions`，并拥有 `dsh_plugin_packages` 字段。当官方 API 需要活动包清单进行请求诊断时，请启用它。
+用于 Omega 官方 LLM API 请求的尽力收集型活跃 Loader 插件包清单。该函数插件注入 Loader、存活 Agent 注册表与 `ctx.omegaLlmApiExtensions`，并拥有 `dsh_plugin_packages` 字段。当官方 API 需要活动包清单进行请求诊断时，请启用它。
 
 ## 目录
 
@@ -28,7 +28,7 @@ kind: "package-reference"
 |---|---:|---|
 | `enabled` | `true` | 注册 `dsh_plugin_packages` 贡献。将其设为 `false` 可省略包元数据。 |
 
-随附 profile 使用该默认值，因此只要准备成功，每个 DeepSeek 官方请求都会携带包清单。
+随附 profile 使用该默认值，因此只要准备成功，每个 Omega 官方请求都会携带包清单。
 
 <a id="collection"></a>
 ## 收集

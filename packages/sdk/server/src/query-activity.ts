@@ -1,11 +1,11 @@
 /** Observe command-admitted activity through quiescence and preserve a goal's first terminal outcome. */
 
-import { extractTextContent } from '@deepseek-ai/dsh-llm/message'
+import { extractTextContent } from '@omega-ai/dsh-llm/message'
 
-import type { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import type { GoalView } from '@deepseek-ai/dsh-goal'
-import type { CommandExecution, JsonRpcTransportPeer } from '@deepseek-ai/dsh-sdk-protocol'
+import type { Context } from '@omega-ai/cordis'
+import type { Agent } from '@omega-ai/dsh-agent'
+import type { GoalView } from '@omega-ai/dsh-goal'
+import type { CommandExecution, JsonRpcTransportPeer } from '@omega-ai/dsh-sdk-protocol'
 
 /** One command's SDK completion observer; its listeners end at completion, rejection, or shutdown. */
 export class QueryActivity {

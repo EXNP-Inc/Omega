@@ -1,8 +1,8 @@
 /** Browser conversation preferences. */
-import type {} from '@deepseek-ai/dsh-settings'
+import type {} from '@omega-ai/dsh-settings'
 
-import type { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
+import type { Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
 import type { ConversationConfig } from './types.ts'
 import { BUSY_ENTER_FIELD } from './submission-settings.ts'
 

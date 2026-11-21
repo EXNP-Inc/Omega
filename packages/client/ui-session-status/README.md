@@ -3,7 +3,7 @@ description: "Client Session status table and useSessionStatus hook over Host re
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-session-status
+# @omega-ai/dsh-client-ui-session-status
 
 English | [中文](README.zh.md)
 

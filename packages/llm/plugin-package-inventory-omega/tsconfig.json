@@ -33,7 +33,7 @@
       "path": "../../preset/agent-preset-registry"
     },
     {
-      "path": "../deepseek-llm-api-extensions"
+      "path": "../omega-llm-api-extensions"
     }
   ]
 }

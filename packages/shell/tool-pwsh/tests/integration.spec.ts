@@ -1,5 +1,5 @@
 /**
- * Integration tests: the REAL `@deepseek-ai/dsh-pwsh-local` executor plus the
+ * Integration tests: the REAL `@omega-ai/dsh-pwsh-local` executor plus the
  * `pwsh` tool, exercised through `executeToolFixture()` with a real PowerShell
  * process. These verify the world — actual commands run, stdout/stderr come
  * back, exit codes render, timeouts abort, background jobs settle through the
@@ -8,26 +8,26 @@
  * PowerShell); the fake-executor suite (tools.spec.ts) carries the coverage
  * gate.
  */
-import { executeToolFixture } from '@deepseek-ai/dsh-tool-testkit'
+import { executeToolFixture } from '@omega-ai/dsh-tool-testkit'
 
-import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
-import { provideWorkingDirectoryFixture } from '@deepseek-ai/dsh-agent-loop-testkit'
+import * as NativeToolExecutor from '@omega-ai/dsh-tool-executor-native'
+import { provideWorkingDirectoryFixture } from '@omega-ai/dsh-agent-loop-testkit'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
-import { Context } from '@deepseek-ai/cordis'
-import type { ToolCallId } from '@deepseek-ai/dsh-llm'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime, { TOOL_ABORTED } from '@deepseek-ai/dsh-tools'
-import LocalJobRegistry from '@deepseek-ai/dsh-jobs-local'
-import * as ToolJobs from '@deepseek-ai/dsh-tool-jobs'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
-import { PwshLocalExecutor, resolvePwshPath } from '@deepseek-ai/dsh-pwsh-local'
-import * as ToolPwsh from '@deepseek-ai/dsh-tool-pwsh'
-import * as BashEnvPlugin from '@deepseek-ai/dsh-shell-env'
+import { Context } from '@omega-ai/cordis'
+import type { ToolCallId } from '@omega-ai/dsh-llm'
+import { brandString } from '@omega-ai/dsh-brand'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRuntime, { TOOL_ABORTED } from '@omega-ai/dsh-tools'
+import LocalJobRegistry from '@omega-ai/dsh-jobs-local'
+import * as ToolJobs from '@omega-ai/dsh-tool-jobs'
+import LocalSubprocessRuntime from '@omega-ai/dsh-subprocess-local'
+import { PwshLocalExecutor, resolvePwshPath } from '@omega-ai/dsh-pwsh-local'
+import * as ToolPwsh from '@omega-ai/dsh-tool-pwsh'
+import * as BashEnvPlugin from '@omega-ai/dsh-shell-env'
 
 const testToolSignal = new AbortController().signal
 

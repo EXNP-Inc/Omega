@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Autenticación de solicitudes de Omega",
+    "description": "Elige la clave de API o el inicio de sesión de la cuenta para cada solicitud a Omega y proporciona los encabezados de la solicitud."
+  }
+}

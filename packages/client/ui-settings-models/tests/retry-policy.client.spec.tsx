@@ -2,9 +2,9 @@
 /** Provider retry-policy fields of the Models editor card. */
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import Schema from '@deepseek-ai/schemastery'
-import type { SettingsNamespaceView } from '@deepseek-ai/dsh-api-remotes/client'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+import Schema from '@omega-ai/schemastery'
+import type { SettingsNamespaceView } from '@omega-ai/dsh-api-remotes/client'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
 import { ProviderEditor } from '../src/client/ProviderEditor.tsx'
 import type { ModelsOperations } from '../src/client/operations.ts'
 import { en } from '../src/client/locales.ts'
@@ -34,15 +34,15 @@ const RetryPolicy = Schema.union([
 
 const json = (schema: Schema): JsonValue => JSON.parse(JSON.stringify(schema.toJSON())) as JsonValue
 
-function deepSeekNamespace(layers: { base?: JsonValue; user?: JsonValue } = {}): SettingsNamespaceView {
+function omegaNamespace(layers: { base?: JsonValue; user?: JsonValue } = {}): SettingsNamespaceView {
   return {
-    ns: 'llm-deepseek',
+    ns: 'llm-omega',
     schema: json(Schema.object({
       baseURL: Schema.string(),
       models: Schema.array(Schema.object({ id: Schema.string() })),
       retryPolicy: RetryPolicy,
     })),
-    value: { models: [{ id: 'deepseek-v4-flash' }] },
+    value: { models: [{ id: 'omega-v4-flash' }] },
     base: layers.base ?? {},
     user: layers.user ?? {},
     autoGenerate: true, applies: 'live', secrets: [], revision: 3,
@@ -90,7 +90,7 @@ const apply = () => screen.getByText<HTMLButtonElement>(en.apply)
 
 describe('retry policy fields', () => {
   it('inherits by default and writes an explicitly chosen normal policy', async () => {
-    const { writeSettings, onClose } = setup(deepSeekNamespace())
+    const { writeSettings, onClose } = setup(omegaNamespace())
     expect(mode().value).toBe('')
     expect(mode().selectedOptions[0]?.textContent).toBe(`Default (${en.retryModeNormal})`)
     expect(screen.queryByLabelText(en.retryMaxRetries)).toBeNull()
@@ -111,7 +111,7 @@ describe('retry policy fields', () => {
     fireEvent.click(apply())
 
     await waitFor(() => { expect(onClose).toHaveBeenCalledWith(true) })
-    expect(writeSettings).toHaveBeenCalledWith('llm-deepseek', [
+    expect(writeSettings).toHaveBeenCalledWith('llm-omega', [
       { op: 'set', path: ['retryPolicy', 'mode'], value: 'normal' },
       { op: 'set', path: ['retryPolicy', 'maxRetries'], value: 3 },
       { op: 'set', path: ['retryPolicy', 'retryableCodes'], value: ['RATE_LIMIT', 'SERVER'] },
@@ -129,7 +129,7 @@ describe('retry policy fields', () => {
     [en.retryInitialDelay, '20000', en.retryDelayOrder],
     [en.retryJitter, '2', en.retryValueMax.replace('{max}', '1')],
   ])('refuses %s = %s', (label, value, message) => {
-    setup(deepSeekNamespace())
+    setup(omegaNamespace())
     fireEvent.change(mode(), { target: { value: 'normal' } })
     fireEvent.change(input(label), { target: { value } })
     expect(screen.getByText(message)).toBeTruthy()
@@ -144,7 +144,7 @@ describe('retry policy fields', () => {
   })
 
   it('explains a refused stored policy beside the fields, or outside the fold while it is closed', async () => {
-    setup(deepSeekNamespace({ user: { retryPolicy: { mode: 'sometimes' } } }))
+    setup(omegaNamespace({ user: { retryPolicy: { mode: 'sometimes' } } }))
     expect(apply().disabled).toBe(true)
     expect(mode().getAttribute('aria-describedby')).toBe('route-retry-failure')
     expect(document.getElementById('route-retry-failure')?.closest('details')).toBeNull()
@@ -156,7 +156,7 @@ describe('retry policy fields', () => {
     ['the inherited mode', { mode: 'always' }, 'always'],
     ['normal mode when nothing is inherited', undefined, 'normal'],
   ])('names %s for a stored policy without a mode', async (_name, inherited, expected) => {
-    const { writeSettings } = setup(deepSeekNamespace({
+    const { writeSettings } = setup(omegaNamespace({
       ...inherited === undefined ? {} : { base: { retryPolicy: inherited } },
       user: { retryPolicy: { backoff: { maxDelayMs: 2_000 } } },
     }))
@@ -168,7 +168,7 @@ describe('retry policy fields', () => {
   })
 
   it('removes a stored policy without a mode when Default is chosen', async () => {
-    const { writeSettings } = setup(deepSeekNamespace({ user: { retryPolicy: { backoff: { maxDelayMs: 2_000 } } } }))
+    const { writeSettings } = setup(omegaNamespace({ user: { retryPolicy: { backoff: { maxDelayMs: 2_000 } } } }))
     fireEvent.change(mode(), { target: { value: '' } })
     fireEvent.click(apply())
     await waitFor(() => { expect(writeSettings).toHaveBeenCalled() })
@@ -176,7 +176,7 @@ describe('retry policy fields', () => {
   })
 
   it('unsets a cleared field so the inherited value applies again', async () => {
-    const { writeSettings } = setup(deepSeekNamespace({
+    const { writeSettings } = setup(omegaNamespace({
       base: { retryPolicy: { mode: 'normal', maxRetries: 7 } },
       user: { retryPolicy: { mode: 'normal', maxRetries: 1 } },
     }))
@@ -193,14 +193,14 @@ describe('retry policy fields', () => {
     ['a numeric code', [500], en.retryCodesInvalid],
     ['a repeated code', ['SERVER', 'SERVER'], en.retryCodesDuplicate],
   ])('refuses a stored policy with %s', (_name, codes, message) => {
-    setup(deepSeekNamespace({ user: { retryPolicy: { mode: 'normal', retryableCodes: codes } } }))
+    setup(omegaNamespace({ user: { retryPolicy: { mode: 'normal', retryableCodes: codes } } }))
     expect(screen.getByText(message)).toBeTruthy()
     expect(screen.getByRole('group', { name: en.retryCodes }).getAttribute('aria-invalid')).toBe('true')
     expect(apply().disabled).toBe(true)
   })
 
   it('picks codes from a list, keeps stored custom codes, and inherits an unchanged selection', async () => {
-    const { writeSettings } = setup(deepSeekNamespace({
+    const { writeSettings } = setup(omegaNamespace({
       base: { retryPolicy: { mode: 'normal', retryableCodes: ['SERVER', 'CUSTOM'] } },
       user: { retryPolicy: { mode: 'normal' } },
     }))
@@ -221,26 +221,26 @@ describe('retry policy fields', () => {
   })
 
   it('refuses a stored policy that is not an object', () => {
-    setup(deepSeekNamespace({ user: { retryPolicy: 'sometimes' } }))
+    setup(omegaNamespace({ user: { retryPolicy: 'sometimes' } }))
     expect(mode().value).toBe('')
     expect(apply().disabled).toBe(true)
   })
 
   it('treats a stored null policy as inheriting', () => {
-    setup(deepSeekNamespace({ user: { retryPolicy: null } }))
+    setup(omegaNamespace({ user: { retryPolicy: null } }))
     expect(mode().value).toBe('')
     expect(apply().disabled).toBe(false)
   })
 
   it('offers no retry fields on a namespace without a curated editor', () => {
-    const namespace = deepSeekNamespace({ user: { retryPolicy: { mode: 'sometimes' } } })
+    const namespace = omegaNamespace({ user: { retryPolicy: { mode: 'sometimes' } } })
     setup({ ...namespace, ns: 'llm-plain' })
     expect(screen.queryByRole('group', { name: en.retryPolicy })).toBeNull()
     expect(document.getElementById('route-retry-failure')).toBeNull()
   })
 
   it('drops an uncorrectable retry count when switching to always', async () => {
-    const { writeSettings } = setup(deepSeekNamespace())
+    const { writeSettings } = setup(omegaNamespace())
     fireEvent.change(mode(), { target: { value: 'normal' } })
     fireEvent.change(input(en.retryMaxRetries), { target: { value: 'many' } })
     fireEvent.change(input(en.retryJitter), { target: { value: '  ' } })
@@ -253,7 +253,7 @@ describe('retry policy fields', () => {
   })
 
   it('shows inherited values and removes the user policy when Default is chosen', async () => {
-    const { writeSettings } = setup(deepSeekNamespace({
+    const { writeSettings } = setup(omegaNamespace({
       base: { retryPolicy: { mode: 'always', backoff: { maxDelayMs: 2_000 } } },
       user: { retryPolicy: { mode: 'normal', maxRetries: 1 } },
     }))
@@ -286,7 +286,7 @@ describe('retry policy fields', () => {
   })
 
   it('builds modes and fields from the schema the namespace publishes', async () => {
-    const namespace = deepSeekNamespace()
+    const namespace = omegaNamespace()
     const policy = Schema.union([
       Schema.object({
         mode: Schema.const('patient').required(),
@@ -321,7 +321,7 @@ describe('retry policy fields', () => {
   })
 
   it('adds a custom code, ignores blanks and duplicates, keeps it after unchecking, and saves it', async () => {
-    const { writeSettings, onClose } = setup(deepSeekNamespace())
+    const { writeSettings, onClose } = setup(omegaNamespace())
     fireEvent.change(mode(), { target: { value: 'normal' } })
     expect(code_('STREAM_CLOSED').checked).toBe(false)
     expect(addCode().disabled).toBe(true)
@@ -358,13 +358,13 @@ describe('retry policy fields', () => {
   })
 
   it('lists a saved custom code when the editor reopens', () => {
-    setup(deepSeekNamespace({ user: { retryPolicy: { mode: 'normal', retryableCodes: ['SERVER', 'Overloaded_529'] } } }))
+    setup(omegaNamespace({ user: { retryPolicy: { mode: 'normal', retryableCodes: ['SERVER', 'Overloaded_529'] } } }))
     expect(code_('Overloaded_529').checked).toBe(true)
     expect(code_('RATE_LIMIT').checked).toBe(false)
   })
 
   it('offers only Default when the retry schema declares no mode branches', () => {
-    const namespace = deepSeekNamespace()
+    const namespace = omegaNamespace()
     const policy = Schema.union([Schema.object({ backoff: Schema.object({}) }), Schema.const(false)])
     setup({ ...namespace, schema: json(Schema.object({ retryPolicy: policy })) })
     expect(mode().options).toHaveLength(1)
@@ -374,19 +374,19 @@ describe('retry policy fields', () => {
   })
 
   it('lists no inherited codes when the inherited value is not a list', () => {
-    setup(deepSeekNamespace({ base: { retryPolicy: { mode: 'normal', retryableCodes: 'SERVER' } } }))
+    setup(omegaNamespace({ base: { retryPolicy: { mode: 'normal', retryableCodes: 'SERVER' } } }))
     fireEvent.change(mode(), { target: { value: 'normal' } })
     expect(code_('SERVER').checked).toBe(false)
   })
 
   it('refuses a stored policy whose mode is not text', () => {
-    setup(deepSeekNamespace({ user: { retryPolicy: { mode: 5 } } }))
+    setup(omegaNamespace({ user: { retryPolicy: { mode: 5 } } }))
     expect(mode().value).toBe('')
     expect(apply().disabled).toBe(true)
   })
 
   it('keeps only the fields the new mode declares when switching modes', async () => {
-    const { writeSettings } = setup(deepSeekNamespace({
+    const { writeSettings } = setup(omegaNamespace({
       user: { retryPolicy: { mode: 'normal', maxRetries: 2, backoff: { maxDelayMs: 2_000 } } },
     }))
     expect(input(en.retryMaxDelay).value).toBe('2000')
@@ -400,7 +400,7 @@ describe('retry policy fields', () => {
   })
 
   it('renders no retry fields when the namespace schema has no retry policy', () => {
-    const namespace = deepSeekNamespace()
+    const namespace = omegaNamespace()
     setup({ ...namespace, schema: json(Schema.object({ baseURL: Schema.string() })) })
     expect(screen.queryByRole('group', { name: en.retryPolicy })).toBeNull()
   })

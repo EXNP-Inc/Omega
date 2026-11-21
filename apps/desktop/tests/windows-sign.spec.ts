@@ -198,12 +198,12 @@ describe('Windows token signing', () => {
     expect(buildWindowsSigningEnvironment({
       SystemRoot: 'C:\\Windows',
       DSH_DESKTOP_WINDOWS_TOKEN_PIN: 'inherited-token-secret',
-      DEEPSEEK_API_KEY: 'api-secret',
+      OMEGA_API_KEY: 'api-secret',
       BUILD_PASSWORD: 'build-secret',
     }, {
       certificateFile: CERTIFICATE_FILE,
       signTool: 'C:\\tools\\signtool.exe',
-      path: 'C:\\release\\DeepSeek Harness.exe',
+      path: 'C:\\release\\Omega.exe',
       isNest: false,
       tokenPin: 'token-secret!',
       keyContainer: 'te-container',
@@ -213,7 +213,7 @@ describe('Windows token signing', () => {
       DSH_DESKTOP_WINDOWS_CER_FILE: CERTIFICATE_FILE,
       DSH_DESKTOP_WINDOWS_TOKEN_PIN: 'token-secret!',
       DSH_DESKTOP_WINDOWS_KEY_CONTAINER: 'te-container',
-      DSH_DESKTOP_WINDOWS_SIGN_TARGET: 'C:\\release\\DeepSeek Harness.exe',
+      DSH_DESKTOP_WINDOWS_SIGN_TARGET: 'C:\\release\\Omega.exe',
       DSH_DESKTOP_WINDOWS_SIGN_APPEND: '',
     })
   })
@@ -303,7 +303,7 @@ describe('Windows token signing', () => {
       DSH_DESKTOP_WINDOWS_CER_FILE: 'C:\\release\\server.cer',
       DSH_DESKTOP_WINDOWS_SIGNTOOL: 'C:\\tools\\signtool.exe',
       DSH_DESKTOP_WINDOWS_TOKEN_PIN: 'token-secret',
-      DEEPSEEK_API_KEY: 'api-secret',
+      OMEGA_API_KEY: 'api-secret',
       BUILD_PASSWORD: 'build-secret',
     })).toEqual({ SystemRoot: 'C:\\Windows' })
 

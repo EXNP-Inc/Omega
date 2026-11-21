@@ -1,14 +1,14 @@
 {
-  "name": "@deepseek-ai/dsh-llm-deepseek-account",
-  "description": "DeepSeek account provider authentication and discovery",
+  "name": "@omega-ai/dsh-llm-omega-account",
+  "description": "Omega account provider authentication and discovery",
   "version": "0.2.2-rc.5",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
-    "directory": "packages/llm/llm-deepseek-account"
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
+    "directory": "packages/llm/llm-omega-account"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -32,40 +32,40 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@deepseek-ai/cosmokit": "workspace:~",
-    "@deepseek-ai/schemastery": "workspace:~"
+    "@omega-ai/cosmokit": "workspace:~",
+    "@omega-ai/schemastery": "workspace:~"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-llm-deepseek": "workspace:*",
-    "@deepseek-ai/dsh-launch-environment": "workspace:*",
-    "@deepseek-ai/dsh-deepseek-account": "workspace:*",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-deepseek-auth": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-llm-omega": "workspace:*",
+    "@omega-ai/dsh-launch-environment": "workspace:*",
+    "@omega-ai/dsh-omega-account": "workspace:*",
+    "@omega-ai/cordis-plugin-loader": "workspace:~",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-omega-auth": "workspace:*"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-llm": "workspace:*",
-    "@deepseek-ai/dsh-llm-deepseek": "workspace:*",
-    "@deepseek-ai/dsh-launch-environment": "workspace:*",
-    "@deepseek-ai/dsh-deepseek-account": "workspace:*",
-    "@deepseek-ai/cordis-plugin-loader": "workspace:~",
-    "@deepseek-ai/dsh-llm-deepseek-api-key": "workspace:*",
-    "@deepseek-ai/dsh-timeout": "workspace:*",
-    "@deepseek-ai/dsh-agent": "workspace:*",
-    "@deepseek-ai/dsh-deepseek-auth": "workspace:*"
+    "@omega-ai/dsh-brand": "workspace:*",
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-llm-omega": "workspace:*",
+    "@omega-ai/dsh-launch-environment": "workspace:*",
+    "@omega-ai/dsh-omega-account": "workspace:*",
+    "@omega-ai/cordis-plugin-loader": "workspace:~",
+    "@omega-ai/dsh-llm-omega-api-key": "workspace:*",
+    "@omega-ai/dsh-timeout": "workspace:*",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-omega-auth": "workspace:*"
   },
   "peerDependenciesMeta": {
-    "@deepseek-ai/dsh-deepseek-account": {
+    "@omega-ai/dsh-omega-account": {
       "optional": true
     },
-    "@deepseek-ai/cordis-plugin-loader": {
+    "@omega-ai/cordis-plugin-loader": {
       "optional": true
     },
-    "@deepseek-ai/dsh-agent": {
+    "@omega-ai/dsh-agent": {
       "optional": true
     }
   }

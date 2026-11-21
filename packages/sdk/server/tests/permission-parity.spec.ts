@@ -3,22 +3,22 @@
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import { mountAgentLoopTestDependencies } from '@deepseek-ai/dsh-agent-loop-testkit'
-import CommandRuntime from '@deepseek-ai/dsh-commands'
-import { LlmAdapter } from '@deepseek-ai/dsh-llm'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@deepseek-ai/dsh-llm'
-import PermissionPresetService from '@deepseek-ai/dsh-permission-presets'
-import SandboxPolicyService from '@deepseek-ai/dsh-sandbox-policy'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
-import ShellExecutor from '@deepseek-ai/dsh-shell'
-import { defineTool } from '@deepseek-ai/dsh-tools'
-import { ApprovalService } from '@deepseek-ai/dsh-user-approval'
+import { Context } from '@omega-ai/cordis'
+import AgentLoop from '@omega-ai/dsh-agent-loop'
+import { mountAgentLoopTestDependencies } from '@omega-ai/dsh-agent-loop-testkit'
+import CommandRuntime from '@omega-ai/dsh-commands'
+import { LlmAdapter } from '@omega-ai/dsh-llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@omega-ai/dsh-llm'
+import PermissionPresetService from '@omega-ai/dsh-permission-presets'
+import SandboxPolicyService from '@omega-ai/dsh-sandbox-policy'
+import type { SessionId } from '@omega-ai/dsh-session'
+import type { SessionEvent } from '@omega-ai/dsh-session'
+import ShellExecutor from '@omega-ai/dsh-shell'
+import { defineTool } from '@omega-ai/dsh-tools'
+import { ApprovalService } from '@omega-ai/dsh-user-approval'
 import { expect, it } from 'vitest'
 import { HarnessSdkJsonRpcServer } from '../src/server.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 /** The model never executes tools; only the shell's declared confinement is needed. */
 class UnusedShell extends ShellExecutor {
@@ -181,7 +181,7 @@ it('preserves native permission events, unchanged defaults, and the next model r
     expect(texts).toContain('PERMISSION_READY')
     expect(sdk.approvalInputs).toHaveLength(1)
     expect(content).toEqual(expect.arrayContaining(sdk.approvalInputs.flat()))
-    expect(texts.some(text => text.includes('Current DSH file policy: read-only.'))).toBe(true)
+    expect(texts.some(text => text.includes('Current Omega file policy: read-only.'))).toBe(true)
     expect(texts).not.toContain('/permission read-only')
     expect(texts).not.toContain('preset read-only')
   } finally {

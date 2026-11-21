@@ -1,13 +1,13 @@
 /** Pending creation and durable Session listing share one identity and header policy. @module */
 import { DatabaseSync } from 'node:sqlite'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { expect, it, onTestFinished, vi } from 'vitest'
-import { SESSION_FORMAT_VERSION, SessionId, SessionSeq } from '@deepseek-ai/dsh-session'
-import type { SessionHeader } from '@deepseek-ai/dsh-session'
-import { SessionFormatUnsupportedError, SessionPersistenceCorruptionError } from '@deepseek-ai/dsh-session-persistence'
+import { SESSION_FORMAT_VERSION, SessionId, SessionSeq } from '@omega-ai/dsh-session'
+import type { SessionHeader } from '@omega-ai/dsh-session'
+import { SessionFormatUnsupportedError, SessionPersistenceCorruptionError } from '@omega-ai/dsh-session-persistence'
 import * as persistence from '../src/index.ts'
 import { SqliteStore } from '../src/sqlite.ts'
 

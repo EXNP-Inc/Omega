@@ -1,5 +1,5 @@
 /** Notification polling configuration declared on the Host and synced to the browser. */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { expect, it } from 'vitest'
 import { apply, Config } from '../src/index.ts'
 

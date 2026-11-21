@@ -6,7 +6,7 @@ English | [中文](2026-06-24-web-capability-seam.zh.md)
 
 ## Problem
 
-The harness needs model-facing web tools without binding the model contract to one vendor's API shape. Search is the immediate pressure point: search APIs return deliberately different formats (Exa returns a flat `results[]` of `{title, url, highlights, publishedDate}`, Perplexity returns a generated answer plus citations, and the DeepSeek Search API returns a flat `results[]` with snippets and summaries), and the normalized web contract must accept each of them without mirroring one vendor. The seam was designed against the Exa and Perplexity formats; neither provider ships, and a plugin can register one. Fetch is a separate operation: an anonymous public HTTP(S) fetch backend has transport, security, redirect, decoding, and size-limit concerns that are not the same as provider-backed search.
+The harness needs model-facing web tools without binding the model contract to one vendor's API shape. Search is the immediate pressure point: search APIs return deliberately different formats (Exa returns a flat `results[]` of `{title, url, highlights, publishedDate}`, Perplexity returns a generated answer plus citations, and the Omega Search API returns a flat `results[]` with snippets and summaries), and the normalized web contract must accept each of them without mirroring one vendor. The seam was designed against the Exa and Perplexity formats; neither provider ships, and a plugin can register one. Fetch is a separate operation: an anonymous public HTTP(S) fetch backend has transport, security, redirect, decoding, and size-limit concerns that are not the same as provider-backed search.
 
 The model-facing API must stay stable while backends change. A search provider swap should not change how the model asks for a query, and a fetch implementation swap should not change how the model asks for a URL. Conversely, a provider package should not expose its own model-facing tool schema just because it has extra provider-specific knobs.
 
@@ -18,9 +18,9 @@ There is also a provider-selection question. Existing `tool-bash` and `tool-fs` 
 
 Web access is a first-class capability seam following [the capability-seam Agent Note](2026-06-13-capability-seams.md):
 
-1. `@deepseek-ai/dsh-web` (`packages/web/web`) owns `ctx.web`, provider registration, provider selection, shared request/result vocabulary, and web-specific errors.
-2. Provider packages implement concrete backends and register capabilities with `ctx.web`, for example `@deepseek-ai/dsh-web-search-deepseek`, `@deepseek-ai/dsh-web-deepseek-api`, and `@deepseek-ai/dsh-web-fetch-http`.
-3. `@deepseek-ai/dsh-tool-web` (`packages/web/tool-web`) owns the model-facing `web_search` and `web_fetch` tool schemas, prompt sections, argument validation, result formatting, and tool-owned presentation over `ctx.web`.
+1. `@omega-ai/dsh-web` (`packages/web/web`) owns `ctx.web`, provider registration, provider selection, shared request/result vocabulary, and web-specific errors.
+2. Provider packages implement concrete backends and register capabilities with `ctx.web`, for example `@omega-ai/dsh-web-search-omega`, `@omega-ai/dsh-web-omega-api`, and `@omega-ai/dsh-web-fetch-http`.
+3. `@omega-ai/dsh-tool-web` (`packages/web/tool-web`) owns the model-facing `web_search` and `web_fetch` tool schemas, prompt sections, argument validation, result formatting, and tool-owned presentation over `ctx.web`.
 
 Providers do not register tools. Providers register capabilities. `dsh-tool-web` is the only owner of model-facing names, descriptions, prompt guidance, JSON schemas, and presentation.
 
@@ -43,11 +43,11 @@ The three-package Service Definition / Service Provider / Consumer split follows
 The dependency direction mirrors bash and filesystem:
 
 ```text
-@deepseek-ai/dsh-tool-web  --depends on-->  @deepseek-ai/dsh-web  <--depends on--  @deepseek-ai/dsh-web-search-deepseek
+@omega-ai/dsh-tool-web  --depends on-->  @omega-ai/dsh-web  <--depends on--  @omega-ai/dsh-web-search-omega
         consumer                                 interface                       implementation
-                                                                 <--depends on--  @deepseek-ai/dsh-web-deepseek-api
+                                                                 <--depends on--  @omega-ai/dsh-web-omega-api
                                                                                   implementation
-                                                                 <--depends on--  @deepseek-ai/dsh-web-fetch-http
+                                                                 <--depends on--  @omega-ai/dsh-web-fetch-http
                                                                                   implementation
 ```
 
@@ -55,19 +55,19 @@ At runtime, provider packages register capabilities with `ctx.web`; `tool-web` r
 
 ```mermaid
 flowchart LR
-  deepseek["@deepseek-ai/dsh-web-search-deepseek"] -->|registerSearchProvider| web["@deepseek-ai/dsh-web / ctx.web"]
-  deepseekApi["@deepseek-ai/dsh-web-deepseek-api"] -->|registerSearchProvider / registerFetchProvider| web
-  fetchLocal["@deepseek-ai/dsh-web-fetch-http"] -->|registerFetchProvider| web
-  toolWeb["@deepseek-ai/dsh-tool-web"] -->|search/fetch| web
+  omega["@omega-ai/dsh-web-search-omega"] -->|registerSearchProvider| web["@omega-ai/dsh-web / ctx.web"]
+  omegaApi["@omega-ai/dsh-web-omega-api"] -->|registerSearchProvider / registerFetchProvider| web
+  fetchLocal["@omega-ai/dsh-web-fetch-http"] -->|registerFetchProvider| web
+  toolWeb["@omega-ai/dsh-tool-web"] -->|search/fetch| web
   toolWeb -->|ctx.tools.register| webSearch["tool: web_search"]
   toolWeb -->|ctx.tools.register| webFetch["tool: web_fetch"]
 ```
 
-`@deepseek-ai/dsh-web` depends only on Cordis and low-level harness support, including the Typert protocol for its Remote method. It declares `ctx.web`, provider interfaces, request/result types, the provider availability contract, and error codes. It does not import tool, agent, session, LLM, or provider packages.
+`@omega-ai/dsh-web` depends only on Cordis and low-level harness support, including the Typert protocol for its Remote method. It declares `ctx.web`, provider interfaces, request/result types, the provider availability contract, and error codes. It does not import tool, agent, session, LLM, or provider packages.
 
 Provider packages depend on `dsh-web`, Cordis, and their credential/configuration helpers. They own credentials, endpoints, wire mapping, parsing, and `WebError` translation, using platform `fetch`. Each provider injects the shared service and registers a backend; only `dsh-web` owns the `ctx.web` key. Provider-private protocol shapes do not create dependencies on `ctx.llm` or a Cordis HTTP service.
 
-`@deepseek-ai/dsh-tool-web` depends on `@deepseek-ai/dsh-web`, `@deepseek-ai/dsh-tools`, `@deepseek-ai/dsh-system-prompt`, and Cordis. It never imports concrete provider packages.
+`@omega-ai/dsh-tool-web` depends on `@omega-ai/dsh-web`, `@omega-ai/dsh-tools`, `@omega-ai/dsh-system-prompt`, and Cordis. It never imports concrete provider packages.
 
 ## `ctx.web` contract
 
@@ -76,7 +76,7 @@ Provider packages depend on `dsh-web`, Cordis, and their credential/configuratio
 ```ts
 import type {
   WebFetchRequest, WebFetchResult, WebProviderInfo, WebProviderList, WebSearchRequest, WebSearchResult,
-} from '@deepseek-ai/dsh-web'
+} from '@omega-ai/dsh-web'
 
 interface WebSearchProvider {
   readonly id: string
@@ -132,27 +132,27 @@ The "single provider auto-selects" rule is for tests, demos, and simple deployme
 
 ```yaml
 - id: web
-  name: '@deepseek-ai/dsh-web'
+  name: '@omega-ai/dsh-web'
   config:
-    searchProvider: deepseek-search-api
+    searchProvider: omega-search-api
     fetchProvider: http
 
-- id: web-search-deepseek
-  name: '@deepseek-ai/dsh-web-search-deepseek'
+- id: web-search-omega
+  name: '@omega-ai/dsh-web-search-omega'
 
-- id: web-deepseek-api
-  name: '@deepseek-ai/dsh-web-deepseek-api'
+- id: web-omega-api
+  name: '@omega-ai/dsh-web-omega-api'
 
 - id: web-fetch-http
-  name: '@deepseek-ai/dsh-web-fetch-http'
+  name: '@omega-ai/dsh-web-fetch-http'
 
 - id: tool-web
-  name: '@deepseek-ai/dsh-tool-web'
+  name: '@omega-ai/dsh-tool-web'
 ```
 
-Operational overrides feed the same explicit selection path: `DSH_WEB_SEARCH_PROVIDER=deepseek-search-api` is equivalent to config `searchProvider: deepseek-search-api`, not a hidden priority chain inside `dsh-tool-web`.
+Operational overrides feed the same explicit selection path: `DSH_WEB_SEARCH_PROVIDER=omega-search-api` is equivalent to config `searchProvider: omega-search-api`, not a hidden priority chain inside `dsh-tool-web`.
 
-Each search or fetch reads the configured id when it runs, so a saved settings change selects another provider for the next operation without remounting `dsh-web`. The Search and Fetch menus on the Web search and fetch settings page rely on this to switch each capability's provider independently, including the [DeepSeek Search and Fetch APIs](../feature/2026-10-15-deepseek-search-fetch-api.md); the [web provider selection decision](2026-10-29-web-provider-selection.md) owns the shipped defaults.
+Each search or fetch reads the configured id when it runs, so a saved settings change selects another provider for the next operation without remounting `dsh-web`. The Search and Fetch menus on the Web search and fetch settings page rely on this to switch each capability's provider independently, including the [Omega Search and Fetch APIs](../feature/2026-10-15-omega-search-fetch-api.md); the [web provider selection decision](2026-10-29-web-provider-selection.md) owns the shipped defaults.
 
 `ctx.web.search()` and `ctx.web.fetch()` resolve the provider at execution time using the selection rules above. If the selected capability is unavailable, they throw `WebError` with a structured code such as `WEB_PROVIDER_UNAVAILABLE`, `WEB_PROVIDER_CONFIGURED_MISSING`, `WEB_PROVIDER_CONFIGURED_UNAVAILABLE`, or `WEB_PROVIDER_AMBIGUOUS`. If no provider is explicitly configured and no usable provider exists, the execution error is the generic `WEB_PROVIDER_UNAVAILABLE` case; there is deliberately no diagnostic summary of every unavailable provider.
 
@@ -168,7 +168,7 @@ The `web_search` model-facing tool is small. The only model-facing argument is:
 
 - `dsh-tool-web` owns the value and puts it on `WebSearchRequest.maxResults`.
 - `ctx.web` passes the request through to the selected provider unchanged.
-- A provider applies `maxResults` at the request layer when its API supports it (the DeepSeek Search API's `count`), as a cost/latency optimization.
+- A provider applies `maxResults` at the request layer when its API supports it (the Omega Search API's `count`), as a cost/latency optimization.
 - `ctx.web` enforces the bound on the result: if a provider returns more than `maxResults` sources — because its API has no result-count control or ignored the hint — the seam truncates `sources[]` to `maxResults` and sets `WebSearchResult.truncated` to `true` before returning. This makes the bound a single cross-provider guarantee the model-facing layer can rely on, rather than something each provider must remember to honor.
 
 The seam request carries no provider-specific controls — no Perplexity model selection, search recency, domain filters, Exa `livecrawl`, Exa `type`, regional hints, generated-answer budgets, or search depth. Such a field is added only when it has provider-neutral semantics that both the tool schema and selected providers can honor honestly.
@@ -195,9 +195,9 @@ interface WebSearchSource {
 }
 ```
 
-`content` is optional provider-generated answer text, search context, or summary. `sources[]` is the portable citation shape. A source always has a URL; title, snippet, summary, and `publishedAt` are optional because not every provider returns them. `snippet` is a short excerpt for display, and `summary` is a longer excerpt for model reading whose length the consumer bounds. `title` is not required: Perplexity-style citations may provide only URLs, and forcing adapters to invent titles would make the seam lie. `dsh-tool-web` renders a `title ?? hostname(url)`-style fallback label for display. `publishedAt` is an optional publication/crawl timestamp as an ISO-8601 string — the DeepSeek Search API returns it as a nullable `date` on each result, Exa as `publishedDate`, and Perplexity as `date`, so it is real provider data, not derived; the seam carries it as a string and leaves date parsing to the consumer.
+`content` is optional provider-generated answer text, search context, or summary. `sources[]` is the portable citation shape. A source always has a URL; title, snippet, summary, and `publishedAt` are optional because not every provider returns them. `snippet` is a short excerpt for display, and `summary` is a longer excerpt for model reading whose length the consumer bounds. `title` is not required: Perplexity-style citations may provide only URLs, and forcing adapters to invent titles would make the seam lie. `dsh-tool-web` renders a `title ?? hostname(url)`-style fallback label for display. `publishedAt` is an optional publication/crawl timestamp as an ISO-8601 string — the Omega Search API returns it as a nullable `date` on each result, Exa as `publishedDate`, and Perplexity as `date`, so it is real provider data, not derived; the seam carries it as a string and leaves date parsing to the consumer.
 
-The DeepSeek Search API provider maps each entry of the response's `results[]` into a `WebSearchSource`: `url` ← `url`, `title` ← `title`, `snippet` ← `snippet`, `summary` ← `summary`, `publishedAt` ← `date`, omitting empty values. It returns no provider-generated answer, so `content` is omitted. If a provider returns fewer structured fields than the seam supports, the adapter omits those optional fields.
+The Omega Search API provider maps each entry of the response's `results[]` into a `WebSearchSource`: `url` ← `url`, `title` ← `title`, `snippet` ← `snippet`, `summary` ← `summary`, `publishedAt` ← `date`, omitting empty values. It returns no provider-generated answer, so `content` is omitted. If a provider returns fewer structured fields than the seam supports, the adapter omits those optional fields.
 
 Full page retrieval remains the job of `web_fetch(url)`. Search snippets are discovery context, not fetched page bodies.
 
@@ -322,7 +322,7 @@ Rejected for the shipped presets. Per-call confirmation would interrupt ordinary
 
 ## Consequences
 
-**The search schema is deliberately thin.** Search APIs expose useful provider-specific controls, such as Exa's `livecrawl`, Perplexity's search recency, and the DeepSeek Search API's `localization`; a control is added only once it can be defined provider-neutrally and enforced honestly by both tool registration and provider execution.
+**The search schema is deliberately thin.** Search APIs expose useful provider-specific controls, such as Exa's `livecrawl`, Perplexity's search recency, and the Omega Search API's `localization`; a control is added only once it can be defined provider-neutrally and enforced honestly by both tool registration and provider execution.
 
 **Citations can be sparse.** A Perplexity-style citation may be only a URL. Making `title` and `snippet` optional keeps the seam truthful but means `tool-web` renders fallback labels.
 

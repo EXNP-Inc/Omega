@@ -3,13 +3,13 @@
  * text the model programs against (the `tools:sdk` prompt section). Sibling of
  * `json-schema.ts` — `schemas()` (native function calling) and this module (the generated
  * `declare const tools` API) are two projections of the same store.
- * @module @deepseek-ai/dsh-tools/src/ts-types
+ * @module @omega-ai/dsh-tools/src/ts-types
  */
 
-import type { ToolSchema } from '@deepseek-ai/dsh-llm'
-import type { PtcProgramFormat } from '@deepseek-ai/dsh-ptc-runtime'
-import { assertSupportedJsonSchema } from '@deepseek-ai/dsh-tools'
-import type { JsonSchemaNode, JsonSchemaScalar } from '@deepseek-ai/dsh-tools'
+import type { ToolSchema } from '@omega-ai/dsh-llm'
+import type { PtcProgramFormat } from '@omega-ai/dsh-ptc-runtime'
+import { assertSupportedJsonSchema } from '@omega-ai/dsh-tools'
+import type { JsonSchemaNode, JsonSchemaScalar } from '@omega-ai/dsh-tools'
 /** Internal PTC mode projection: the model-facing schema plus the canonical output schema. */
 export interface ToolSdkSchema extends Readonly<ToolSchema> {
   /** Validated canonical value returned by the tool binding. */

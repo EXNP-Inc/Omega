@@ -3,7 +3,7 @@ description: "Sign in through the default launch token and retain browser access
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-host-authentication-token
+# @omega-ai/dsh-host-authentication-token
 
 English | [中文](README.zh.md)
 

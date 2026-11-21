@@ -7,13 +7,13 @@
  * re-renders from the next describe, pushed or refetched.
  */
 
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@omega-ai/cordis'
 import type {
   CredentialInfo, LlmConfigurableProvider, LlmNativeAuth, LlmProviderInfo, SettingsNamespaceView,
-} from '@deepseek-ai/dsh-api-remotes/client'
-import type { SnapshotStore } from '@deepseek-ai/dsh-client-store'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { SettingsDescribeFace } from '@deepseek-ai/dsh-client-ui-settings/client'
+} from '@omega-ai/dsh-api-remotes/client'
+import type { SnapshotStore } from '@omega-ai/dsh-client-store'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import type { SettingsDescribeFace } from '@omega-ai/dsh-client-ui-settings/client'
 import type { SettingsSchemaOperations } from './schema-operations.ts'
 
 /**
@@ -71,8 +71,8 @@ export function joinProviderDirectory(
     })
   }
   return rows.toSorted((left, right) =>
-    (left.provider === 'deepseek-account' ? 0 : left.provider === 'deepseek-official' ? 1 : 2)
-      - (right.provider === 'deepseek-account' ? 0 : right.provider === 'deepseek-official' ? 1 : 2))
+    (left.provider === 'omega-account' ? 0 : left.provider === 'omega-official' ? 1 : 2)
+      - (right.provider === 'omega-account' ? 0 : right.provider === 'omega-official' ? 1 : 2))
 }
 
 /** One provider row the page renders. */
@@ -260,18 +260,18 @@ export class ModelsSettingsStore {
         entry,
         configured,
         removable,
-        apiKeyEnv: entry.provider === 'deepseek-account' ? undefined : apiKeyEnvOf(namespace, entry.settingsPath, this.schema),
+        apiKeyEnv: entry.provider === 'omega-account' ? undefined : apiKeyEnvOf(namespace, entry.settingsPath, this.schema),
         credential: undefined,
       }
     })
-    if (rows.some(row => row.entry.provider === 'deepseek-account')) {
+    if (rows.some(row => row.entry.provider === 'omega-account')) {
       const catalog = await this.ctx.remote.session.modelCatalog()
       for (const row of rows) {
-        if (row.entry.provider === 'deepseek-account') row.accountAvailable = catalog.ok
-          && catalog.value.groups.some(group => group.id === 'deepseek-account' && group.models.length > 0)
+        if (row.entry.provider === 'omega-account') row.accountAvailable = catalog.ok
+          && catalog.value.groups.some(group => group.id === 'omega-account' && group.models.length > 0)
       }
     }
-    const refs = [...new Set(rows.filter(row => row.entry.provider !== 'deepseek-account').flatMap(row =>
+    const refs = [...new Set(rows.filter(row => row.entry.provider !== 'omega-account').flatMap(row =>
       row.apiKeyEnv === undefined ? [deriveKeyRef(row.entry.provider), ...row.entry.nativeAuth?.env ?? []] : [row.apiKeyEnv]))]
     const credentials: Record<string, CredentialInfo> = {}
     let credentialError: string | null = null
@@ -290,8 +290,8 @@ export class ModelsSettingsStore {
       s.error = null
       s.credentialError = credentialError
       s.writable = writable
-      s.rows = rows.filter(row => row.entry.provider !== 'deepseek-account' || row.accountAvailable === true).map((row) => {
-        if (row.entry.provider === 'deepseek-account') return row
+      s.rows = rows.filter(row => row.entry.provider !== 'omega-account' || row.accountAvailable === true).map((row) => {
+        if (row.entry.provider === 'omega-account') return row
         const named = row.apiKeyEnv === undefined ? undefined : credentials[row.apiKeyEnv]
         const derived = row.apiKeyEnv !== undefined ? undefined : credentials[deriveKeyRef(row.entry.provider)]
         return {
@@ -340,7 +340,7 @@ export class ModelsSettingsStore {
  */
 export function providerUsable(row: ProviderRow): boolean {
   if (!row.entry.active) return false
-  if (row.entry.provider === 'deepseek-account') return row.accountAvailable === true
+  if (row.entry.provider === 'omega-account') return row.accountAvailable === true
   if (row.apiKeyEnv === undefined) return true
   return row.credential?.configured === true
 }
@@ -365,7 +365,7 @@ export type OnboardingReadiness =
  * Project first-run readiness from the provider/settings/credential join used
  * by the Models page. The step exists to leave the user with a model to talk
  * to, so ANY usable provider ends it; only when none exists does the official
- * DeepSeek route — the one route the prompt can offer a key field for — decide
+ * Omega route — the one route the prompt can offer a key field for — decide
  * whether prompting can help. A missing official configurable-provider
  * declaration means the adapter is not repairable by navigating to Models.
  * @param state - current shared Models join snapshot.
@@ -383,8 +383,8 @@ export function onboardingReadiness(state: ModelsSettingsState): OnboardingReadi
   }
   if (state.rows.some(providerUsable)) return { kind: 'provider-ready' }
   const row = state.rows.find(candidate =>
-    candidate.entry.provider === 'deepseek-official'
-    && candidate.entry.settingsNs === 'llm-deepseek'
+    candidate.entry.provider === 'omega-official'
+    && candidate.entry.settingsNs === 'llm-omega'
     && candidate.entry.settingsPath.length === 0)
   if (row === undefined) return { kind: 'adapter-absent' }
   if (!row.entry.active) {

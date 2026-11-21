@@ -29,6 +29,6 @@ Node bootstrap 协议从 3 升至 5。`HostMethods.invoke` 的回复现在使用
    ```
 
 2. 对数组结果，使用 `inspect([...result])` 以通用格式展示元素。更新依赖此前完整结果对象格式的预期输出。
-3. 如果实现了第三方 `PtcRuntime`，请识别绑定返回的 `@deepseek-ai/dsh-ptc-runtime` 包中的 `PtcInspectableValue`。将 `.value` 作为程序的对象或数组，并为该未修改的原值关联 `.text`，供直接 `inspect` 使用。不要暴露包装对象，也不要向程序字段添加展示元数据。
-4. 如果配置了 `launch.bootstrapPath`，请在执行环境中部署匹配版本的 `@deepseek-ai/dsh-ptc-runtime-node` bootstrap 及其依赖。使用包内构建产物 `lib/process.js`，或默认采用 REPL 的 `lib/persistent-process.js`。自定义协议实现必须处理新的回复信封和[输出抑制](../ptc-output-limit/guide.zh.md)，并声明协议 5；只改版本号并不足够。
+3. 如果实现了第三方 `PtcRuntime`，请识别绑定返回的 `@omega-ai/dsh-ptc-runtime` 包中的 `PtcInspectableValue`。将 `.value` 作为程序的对象或数组，并为该未修改的原值关联 `.text`，供直接 `inspect` 使用。不要暴露包装对象，也不要向程序字段添加展示元数据。
+4. 如果配置了 `launch.bootstrapPath`，请在执行环境中部署匹配版本的 `@omega-ai/dsh-ptc-runtime-node` bootstrap 及其依赖。使用包内构建产物 `lib/process.js`，或默认采用 REPL 的 `lib/persistent-process.js`。自定义协议实现必须处理新的回复信封和[输出抑制](../ptc-output-limit/guide.zh.md)，并声明协议 5；只改版本号并不足够。
 5. 运行上面的示例。确认第一次展示工具渲染的文件文本，后两次分别展示对象和数组数据。对于自定义提供方，还须确认字段访问和 `JSON.stringify(result)` 使用原有数据。对于自定义 bootstrap，确认 PTC 程序启动时不再报告协议不匹配。

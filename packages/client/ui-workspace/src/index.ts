@@ -4,7 +4,7 @@
  * declaration. The Host behavior is this plugin's configuration: its volatile
  * fields are the live values the browser receives through its synced Config.
  */
-import z from '@deepseek-ai/schemastery'
+import z from '@omega-ai/schemastery'
 import type { WorkspaceNavigationConfig } from './types.ts'
 
 /** Live Workspace navigation preferences; the browser receives them through its synced Config. */

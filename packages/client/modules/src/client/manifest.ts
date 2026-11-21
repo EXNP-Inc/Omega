@@ -28,18 +28,18 @@
  * composes the wire.
  */
 
-import type { SyncedConfigValues } from '@deepseek-ai/dsh-client-config/types'
-import type {} from '@deepseek-ai/cordis'
+import type { SyncedConfigValues } from '@omega-ai/dsh-client-config/types'
+import type {} from '@omega-ai/cordis'
 import type {
   DshClientManifest, ClientModuleMetaFactory,
   DshClientModuleManifest,
-} from '@deepseek-ai/dsh-package-manifest'
-import type { ScriptRealm } from '@deepseek-ai/dsh-client-script-realm/client'
-export type { ClientBundleRequire } from '@deepseek-ai/dsh-package-manifest'
+} from '@omega-ai/dsh-package-manifest'
+import type { ScriptRealm } from '@omega-ai/dsh-client-script-realm/client'
+export type { ClientBundleRequire } from '@omega-ai/dsh-package-manifest'
 import type { ClientEntries } from './entries.ts'
 import type { ClientModuleSystem } from './system.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context {
     /** The client module system the web shell builds at boot (provided by the `./client` wrapper plugin). */
     modules: ClientModuleLoader

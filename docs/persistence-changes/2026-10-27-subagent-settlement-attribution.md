@@ -52,7 +52,7 @@ New readers accept historical notices without stopReason and must not infer it f
 <a id="verification"></a>
 ## Verification
 
-Focused Vitest runs passed: continuation-messages.spec.ts (14 tests), external-activation.spec.ts (19 tests), continuation-messages-adapter.spec.ts (1 test), and continuation.spec.ts (166 tests), all under packages/subagent/subagent/tests. Command: node node_modules/vitest/vitest.mjs run followed by the listed owner paths. Coverage includes all five terminal reasons, historical attribution without inference, external cleanup failure retaining the captured execution reason, cold resume, and unchanged DeepSeek Messages wire content. Historical Session generations remain unchanged; affected current-format snapshot expectations include stopReason.
+Focused Vitest runs passed: continuation-messages.spec.ts (14 tests), external-activation.spec.ts (19 tests), continuation-messages-adapter.spec.ts (1 test), and continuation.spec.ts (166 tests), all under packages/subagent/subagent/tests. Command: node node_modules/vitest/vitest.mjs run followed by the listed owner paths. Coverage includes all five terminal reasons, historical attribution without inference, external cleanup failure retaining the captured execution reason, cold resume, and unchanged Omega Messages wire content. Historical Session generations remain unchanged; affected current-format snapshot expectations include stopReason.
 
 <a id="dev-note"></a>
 ## Dev Note

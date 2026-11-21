@@ -1,0 +1,70 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/experimental/omega-chat-import/README.md
+/:
+  en: d5ff2fa1588f6dae
+  zh: ec9e4908f5ec4ac5
+/omega-ai-dsh-omega-chat-import:
+  en: 72c9f23af55e6e98
+  zh: 0f56dd2f70732ded
+/omega-ai-dsh-omega-chat-import/summary:
+  en: d9886cbcacb7e0d5
+  zh: e063a42558347166
+/omega-ai-dsh-omega-chat-import/table-of-contents:
+  en: b563e4ec4727d0de
+  zh: 44c7102c1efbf197
+/omega-ai-dsh-omega-chat-import/use-this-package:
+  en: 9b254dc430110e52
+  zh: af99b14957f1c2e0
+/omega-ai-dsh-omega-chat-import/use-this-package/import-a-chat-export:
+  en: 50aa51d6eb0a69f1
+  zh: 63f4cd719162200e
+/omega-ai-dsh-omega-chat-import/use-this-package/configuration:
+  en: beea8ad32b34feb4
+  zh: 267e1ede6fd13b7b
+/omega-ai-dsh-omega-chat-import/use-this-package/import-results:
+  en: 4422bf882d5f1153
+  zh: 5988de5295566f06
+/omega-ai-dsh-omega-chat-import/use-this-package/failures:
+  en: 4902099a5445983d
+  zh: 32cbb073284032b9
+/omega-ai-dsh-omega-chat-import/understand-the-implementation:
+  en: 42b15ac6321706aa
+  zh: e15901d8462ec7c7
+/omega-ai-dsh-omega-chat-import/understand-the-implementation/modules:
+  en: 5ad1023996540629
+  zh: f7922a8f99786e5a
+/omega-ai-dsh-omega-chat-import/understand-the-implementation/upload:
+  en: 7df85900f83d5d75
+  zh: b9a2674c7b29b11a
+/omega-ai-dsh-omega-chat-import/understand-the-implementation/event-mapping:
+  en: 45fcab8b16001afa
+  zh: 75d1313291f19915
+/omega-ai-dsh-omega-chat-import/understand-the-implementation/writes:
+  en: 9c5d86f4f1e864f5
+  zh: 9e884134234b89c8
+/omega-ai-dsh-omega-chat-import/further-exploration:
+  en: 80ec9eaf0bd14b4d
+  zh: 03853de09a73178a
+/omega-ai-dsh-omega-chat-import/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/omega-ai-dsh-omega-chat-import/model-experience/imported-history:
+  en: 9cdfa5c1981e07c4
+  zh: 89aa74f317ed5862
+/omega-ai-dsh-omega-chat-import/model-experience/imported-history/what-the-model-sees:
+  en: 8c7f74983502dea6
+  zh: 3ce28fe38df55485
+/omega-ai-dsh-omega-chat-import/model-experience/imported-history/token-effect:
+  en: 4089ec9e1b4dff0d
+  zh: 39019590c45a13a1
+/omega-ai-dsh-omega-chat-import/model-experience/imported-history/kv-cache-effect:
+  en: e1e24cae9826663a
+  zh: dfe9c44dba9edd8d
+/omega-ai-dsh-omega-chat-import/known-limitations-and-deferred-work:
+  en: 73fe50a3fda57690
+  zh: 22f4f4b867d56b71
+/omega-ai-dsh-omega-chat-import/known-limitations-and-deferred-work/dev-note:
+  en: c4c53d6fb732e3dc
+  zh: 996c76b94af396a6

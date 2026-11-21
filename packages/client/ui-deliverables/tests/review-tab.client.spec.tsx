@@ -4,13 +4,13 @@ import { renderFileActions } from './file-actions.tsx'
 import { useSyncExternalStore } from 'react'
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { SessionListState } from '@deepseek-ai/dsh-api-session-controller/client'
-import type { TabId } from '@deepseek-ai/dsh-client-ui-dockkit'
-import type { SidebarRightTabActions } from '@deepseek-ai/dsh-client-ui-sidebar-right/client'
-import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import { fileAddressFor } from '@deepseek-ai/dsh-util-workspace-path'
-import type { WorkspaceDiffHunk } from '@deepseek-ai/dsh-workspace-changes/types'
+import type { SessionListState } from '@omega-ai/dsh-api-session-controller/client'
+import type { TabId } from '@omega-ai/dsh-client-ui-dockkit'
+import type { SidebarRightTabActions } from '@omega-ai/dsh-client-ui-sidebar-right/client'
+import { makeTranslate } from '@omega-ai/dsh-client-test-runtime'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import { fileAddressFor } from '@omega-ai/dsh-util-workspace-path'
+import type { WorkspaceDiffHunk } from '@omega-ai/dsh-workspace-changes/types'
 import {
   changesDiffUrl, changesReviewAddress, changesSummaryUrl, parseChangesReviewAddress, type ChangesDiff, type ChangesSummary,
 } from '../src/changes.ts'
@@ -24,7 +24,7 @@ import { hunkRows, MAX_RENDERED_LINES, renderedHunks, splitRows } from '../src/c
 import { changesReviewDefinition } from '../src/client/review-definition.ts'
 import { createReviewStore } from '../src/client/review-store.ts'
 import { en, zh } from '../src/client/locales.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 afterEach(() => {
   cleanup()

@@ -1,8 +1,8 @@
 // Global key and pointer injection requires an explicitly foregrounded target.
 using System.Runtime.InteropServices;
-using DeepSeek.Cua.Protocol;
+using Omega.Cua.Protocol;
 
-namespace DeepSeek.Cua.Windows;
+namespace Omega.Cua.Windows;
 
 internal static class Input
 {

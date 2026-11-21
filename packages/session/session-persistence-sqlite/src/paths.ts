@@ -2,7 +2,7 @@
 // JSONL retains a separate copy so the two backends need no shared helper exports.
 /* jscpd:ignore-start */
 import { join } from 'node:path'
-import type { SessionId } from '@deepseek-ai/dsh-session'
+import type { SessionId } from '@omega-ai/dsh-session'
 
 /**
  * Encode an arbitrary string as a single safe path segment, injectively over ALL JS (UTF-16)

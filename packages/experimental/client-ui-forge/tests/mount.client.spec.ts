@@ -4,21 +4,21 @@
  * actions and their notices, the changes view, and unload.
  */
 import assert from 'node:assert/strict'
-import { Context, Service } from '@deepseek-ai/cordis'
-import type { RemoteHostFacts } from '@deepseek-ai/dsh-api-remotes/client'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import { makeTranslate, stubConfigForm } from '@deepseek-ai/dsh-client-test-runtime'
-import type { QuoteSummary } from '@deepseek-ai/dsh-client-ui-primitives'
-import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type { SidebarRightTabDefinition, TabId } from '@deepseek-ai/dsh-client-ui-sidebar-right/client'
-import { resolveSlotLabel } from '@deepseek-ai/dsh-client-ui-slots'
+import { Context, Service } from '@omega-ai/cordis'
+import type { RemoteHostFacts } from '@omega-ai/dsh-api-remotes/client'
+import { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
+import { makeTranslate, stubConfigForm } from '@omega-ai/dsh-client-test-runtime'
+import type { QuoteSummary } from '@omega-ai/dsh-client-ui-primitives'
+import { SlotRegistry } from '@omega-ai/dsh-client-ui-renderer/client'
+import type { SidebarRightTabDefinition, TabId } from '@omega-ai/dsh-client-ui-sidebar-right/client'
+import { resolveSlotLabel } from '@omega-ai/dsh-client-ui-slots'
 import type {
   ChangeRequestDescription, ChangeRequestReviewer, ChangeRequestSnapshot, ForgeCommitList, ForgeRerunRequest, ForgeReviewData,
   ForgeReviewerCandidate, ForgeReviewRequest, ForgeReviewResult, ForgeReviewWrite, ForgeReviewWriteResult, ForgeThreadId, ForgeViewedFiles,
   ForgeViewedRequest,
-} from '@deepseek-ai/dsh-experimental-forge/types'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import { RemoteError, type RemoteResult, type TypertRemoteContribution } from '@deepseek-ai/dsh-typert-protocol'
+} from '@omega-ai/dsh-experimental-forge/types'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import { RemoteError, type RemoteResult, type TypertRemoteContribution } from '@omega-ai/dsh-typert-protocol'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ActionToast } from '../src/client/ActionToast.tsx'
 import { AttentionIndicator, type AttentionIndicatorInjected } from '../src/client/AttentionIndicator.tsx'
@@ -47,7 +47,7 @@ import { WorktreeProgress, type WorktreeProgressInjected } from '../src/client/W
 import { WorktreeSettings } from '../src/client/WorktreeSettings.tsx'
 import type { WorktreeSettingsInjected, WorktreeSettings as WorktreeSettingsFields } from '../src/client/worktree-settings-form.ts'
 import { WorktreeToggle, type WorktreeToggleInjected } from '../src/client/WorktreeToggle.tsx'
-import type { WorktreeCleanup } from '@deepseek-ai/dsh-experimental-worktree/types'
+import type { WorktreeCleanup } from '@omega-ai/dsh-experimental-worktree/types'
 import type {
   ForgeBaseBranches, ForgeChangeRequestDiff, ForgeChangeRequestStatesFrame, ForgeExtensionState, ForgeLensFrame,
   ForgeLensRequest,
@@ -56,9 +56,9 @@ import type {
 } from '../src/types.ts'
 import { entry, listState, ready, snapshot, unserved } from './client-fixtures.client.ts'
 import { description, reviewed } from './review-fixtures.client.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
-const REMOTE: TypertRemoteContribution = { package: '@deepseek-ai/dsh-experimental-client-ui-forge', descriptors: [] }
+const REMOTE: TypertRemoteContribution = { package: '@omega-ai/dsh-experimental-client-ui-forge', descriptors: [] }
 const S1 = brandString<SessionId>('s1')
 const S2 = brandString<SessionId>('s2')
 const BASES: ForgeWorktreeBases = { current: { ref: 'refs/heads/main', name: 'main' }, defaults: [], local: [], remotes: [] }

@@ -1,6 +1,6 @@
-# The replayed conversation runs on a DeepSeek model route, where an unconfigured search selects
-# legacy Messages search. This scenario exercises the DeepSeek Search API.
+# The replayed conversation runs on a Omega model route, where an unconfigured search selects
+# legacy Messages search. This scenario exercises the Omega Search API.
 - id: web
   config:
-    searchProvider: deepseek-search-api
+    searchProvider: omega-search-api
     fetchProvider: http

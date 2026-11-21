@@ -2,13 +2,13 @@
 
 [English](desktop-uninstall-cleanup.md) | 中文
 
-本指南介绍如何在 macOS 或 Windows 上卸载 DeepSeek Harness 桌面端。清理本地数据是可选操作。
+本指南介绍如何在 macOS 或 Windows 上卸载 Omega 桌面端。清理本地数据是可选操作。
 
 ## 1. 卸载应用
 
 先结束使用桌面端内置 CLI（命令行界面）的命令。如果曾通过 Desktop 安装 `dsh` 命令，请先在应用菜单中选择 **管理 dsh 命令… → 移除**。此操作移除桌面端的命令注册，不卸载独立安装的 CLI 程序。
 
-退出 DeepSeek Harness，然后按所在平台的方式卸载：
+退出 Omega，然后按所在平台的方式卸载：
 
 - **macOS：** 在 Finder 的“应用程序”中删除应用。
 - **Windows：** 在 Windows 11 的“设置 → 应用 → 已安装的应用”，或“控制面板 → 程序 → 程序和功能”中卸载。
@@ -27,16 +27,16 @@ Windows 卸载程序通常会删除脚本中列出的两个应用数据目录，
 sh -c '
 rm -rf -- \
   "$HOME/.dsh" \
-  "$HOME/Library/Application Support/@deepseek-ai/dsh-desktop" \
-  "$HOME/Library/Logs/DeepSeek Harness" \
-  "$HOME/Library/Preferences/com.deepseek.dsh.plist" \
-  "$HOME/Library/Preferences/ByHost"/com.deepseek.dsh.ShipIt.*.plist \
-  "$HOME/Library/Caches/com.deepseek.dsh" \
-  "$HOME/Library/Caches/com.deepseek.dsh.ShipIt" \
-  "$HOME/Library/HTTPStorages/com.deepseek.dsh" \
-  "$HOME/Library/Caches/@deepseek-aidsh-desktop-updater" \
-  "$(getconf DARWIN_USER_CACHE_DIR)/com.deepseek.dsh" \
-  "$(getconf DARWIN_USER_CACHE_DIR)/com.deepseek.dsh.helper"
+  "$HOME/Library/Application Support/@omega-ai/dsh-desktop" \
+  "$HOME/Library/Logs/Omega" \
+  "$HOME/Library/Preferences/com.omega.dsh.plist" \
+  "$HOME/Library/Preferences/ByHost"/com.omega.dsh.ShipIt.*.plist \
+  "$HOME/Library/Caches/com.omega.dsh" \
+  "$HOME/Library/Caches/com.omega.dsh.ShipIt" \
+  "$HOME/Library/HTTPStorages/com.omega.dsh" \
+  "$HOME/Library/Caches/@omega-aidsh-desktop-updater" \
+  "$(getconf DARWIN_USER_CACHE_DIR)/com.omega.dsh" \
+  "$(getconf DARWIN_USER_CACHE_DIR)/com.omega.dsh.helper"
 '
 ```
 
@@ -44,8 +44,8 @@ rm -rf -- \
 $ErrorActionPreference = 'Stop'
 @(
     (Join-Path $env:USERPROFILE '.dsh'),
-    (Join-Path $env:APPDATA '@deepseek-ai\dsh-desktop'),
-    (Join-Path $env:LOCALAPPDATA '@deepseek-aidsh-desktop-updater')
+    (Join-Path $env:APPDATA '@omega-ai\dsh-desktop'),
+    (Join-Path $env:LOCALAPPDATA '@omega-aidsh-desktop-updater')
 ) | ForEach-Object {
     if (Test-Path -LiteralPath $_) {
         Remove-Item -LiteralPath $_ -Recurse -Force

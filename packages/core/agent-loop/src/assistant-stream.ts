@@ -1,6 +1,6 @@
 /** Process-local assistant attempt framing and durable stream accumulation. */
 
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 import {
   AssistantStreamAccumulator,
   BlockAssembler,
@@ -11,9 +11,9 @@ import {
   type ReplayEnvelope,
   type StreamChunk,
   type TokenUsage,
-} from '@deepseek-ai/dsh-llm'
-import type { AssistantStreamFrame } from '@deepseek-ai/dsh-agent'
-import type { SessionEventMap, SessionId, SessionSeq } from '@deepseek-ai/dsh-session'
+} from '@omega-ai/dsh-llm'
+import type { AssistantStreamFrame } from '@omega-ai/dsh-agent'
+import type { SessionEventMap, SessionId, SessionSeq } from '@omega-ai/dsh-session'
 
 /** Folds one model attempt into one compact stream plus ordered transient frames. */
 export class AssistantStreamAttempt {

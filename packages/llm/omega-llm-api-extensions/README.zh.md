@@ -1,15 +1,15 @@
 ---
-description: "面向提供方插件的官方 DeepSeek 请求扩展注册表，用于贡献具有生命周期归属的顶层 API 字段。"
+description: "面向提供方插件的官方 Omega 请求扩展注册表，用于贡献具有生命周期归属的顶层 API 字段。"
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-deepseek-llm-api-extensions
+# @omega-ai/dsh-omega-llm-api-extensions
 
 [English](README.md) | 中文
 
 ## 概述
 
-用于向 DeepSeek 官方 LLM（大语言模型）API 请求添加顶层字段的提供方特定注册表。`DeepSeekLlmApiExtensionRegistry` 注册 `ctx.deepseekLlmApiExtensions`；贡献插件分别认领一个经声明合并的字段，`dsh-llm-deepseek` 则在序列化基础请求后准备当前贡献。当插件必须添加经过验证的提供方特定字段且不能修改基础适配器时，请使用它。
+用于向 Omega 官方 LLM（大语言模型）API 请求添加顶层字段的提供方特定注册表。`OmegaLlmApiExtensionRegistry` 注册 `ctx.omegaLlmApiExtensions`；贡献插件分别认领一个经声明合并的字段，`dsh-llm-omega` 则在序列化基础请求后准备当前贡献。当插件必须添加经过验证的提供方特定字段且不能修改基础适配器时，请使用它。
 
 ## 目录
 
@@ -31,12 +31,12 @@ kind: "package-reference"
 
 请求的 `purpose` 是适配器转发的生产方自定义字符串，普通对话请求则省略它。注册器转发不熟悉的用途，不替各个字段决定策略。
 
-注册表拥有字段添加与生命周期，不拥有字段语义。`@deepseek-ai/dsh-session-log-deepseek` 拥有 `dsh_session_log`；`@deepseek-ai/dsh-plugin-package-inventory-deepseek` 拥有 `dsh_plugin_packages`。提供方无关的 LLM seam 与 `llm-pi-ai` 都不消费该注册表。
+注册表拥有字段添加与生命周期，不拥有字段语义。`@omega-ai/dsh-session-log-omega` 拥有 `dsh_session_log`；`@omega-ai/dsh-plugin-package-inventory-omega` 拥有 `dsh_plugin_packages`。提供方无关的 LLM seam 与 `llm-pi-ai` 都不消费该注册表。
 
 <a id="model-experience"></a>
 ## 模型体验
 
-通过 `@deepseek-ai/dsh-llm-deepseek` 间接生效；该包在模型的 `messages`、系统提示词与工具 schema 之外发送已注册字段。
+通过 `@omega-ai/dsh-llm-omega` 间接生效；该包在模型的 `messages`、系统提示词与工具 schema 之外发送已注册字段。
 
 #### KV Cache 影响
 
@@ -46,7 +46,7 @@ kind: "package-reference"
 
 <a id="known-limitations-and-deferred-work"></a>
 
-- **仅限 DeepSeek 官方请求**——该注册表刻意不提供提供方无关的路由，也不集成 pi-ai 适配器。
+- **仅限 Omega 官方请求**——该注册表刻意不提供提供方无关的路由，也不集成 pi-ai 适配器。
 - **不约定字段顺序**——JSON 对象成员顺序取决于注册准备顺序，但接收方按名称寻址字段。
 
 

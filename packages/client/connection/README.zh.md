@@ -3,7 +3,7 @@ description: "Web GUI 的浏览器与 Host 之间的协议层：Remote RPC、带
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-connection
+# @omega-ai/dsh-client-connection
 
 [English](README.md) | 中文
 
@@ -63,7 +63,7 @@ Token 插件拥有供 API 调用方使用的 `GET /connect?token=...&interaction
 
 `ctx.connection.reconnect()` 会中断活动工作、重置序列，并立即开始 retry 1。浏览器 `offline` 会中断活动工作、发布 `disconnected` 并暂停自动尝试；下一次 `online` 转换会重置序列并从 500ms 档开始。只有 ready 项会发布 `connected`。Gateway mux 不拥有独立重试调度。
 
-可通过 Host Connection 行的 `config.recovery` 覆盖重试上限、增长因子或握手告警与取消时间；[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-client-connection)列出接受的字段。`recovery` 通过插件的[同步配置](../modules/README.zh.md#synced-plugin-configuration)送达浏览器。Host 在插件加载时校验这些值。Client 在其插件激活时读取一次，在提供 Connection 前校验，并在 Gateway 启动循环时将其作为默认值；未收到值的页面使用上述内置时序，显式传给 `start()` 的时序覆盖优先。增长因子必须是至少为一的有限数。若就绪、失败、取消或硬期限先于告警发生，该告警会被取消。修改在下次页面加载或插件重新激活时生效。
+可通过 Host Connection 行的 `config.recovery` 覆盖重试上限、增长因子或握手告警与取消时间；[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-client-connection)列出接受的字段。`recovery` 通过插件的[同步配置](../modules/README.zh.md#synced-plugin-configuration)送达浏览器。Host 在插件加载时校验这些值。Client 在其插件激活时读取一次，在提供 Connection 前校验，并在 Gateway 启动循环时将其作为默认值；未收到值的页面使用上述内置时序，显式传给 `start()` 的时序覆盖优先。增长因子必须是至少为一的有限数。若就绪、失败、取消或硬期限先于告警发生，该告警会被取消。修改在下次页面加载或插件重新激活时生效。
 
 
 <a id="model-experience"></a>

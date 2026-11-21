@@ -6,7 +6,7 @@
 import {
   InsufficientScopeError, OAuthError, OAuthErrorCode, ProtocolError, SdkError, SdkErrorCode, SdkHttpError, UnauthorizedError,
 } from '@modelcontextprotocol/client'
-import { HarnessError } from '@deepseek-ai/dsh-error'
+import { HarnessError } from '@omega-ai/dsh-error'
 import type { McpAuthorizationReason } from './types.ts'
 
 /**

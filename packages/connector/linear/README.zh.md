@@ -3,7 +3,7 @@ description: "通过共用的 MCP 管理器接入 Linear 托管的 MCP 服务器
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-linear
+# @omega-ai/dsh-linear
 
 [English](README.md) | 中文
 
@@ -30,7 +30,7 @@ Linear 插件在加载期间把 Linear 托管的 MCP 服务器 `https://mcp.line
 将本包作为 bundle 安装，例如在 Web 侧栏的**插件**页面安装，或使用 CLI：
 
 ```sh
-dsh plugin --profile web add @deepseek-ai/dsh-linear
+dsh plugin --profile web add @omega-ai/dsh-linear
 ```
 
 bundle patch 在 profile 其他层之后插入 `linear` 行。插件需要 `mcpManager` 与 `systemPrompt` 服务：[base bundle](../../bundle/base/README.zh.md) 提供 `systemPrompt`，Web 与 Desktop 组合通过 [`dsh-web-app`](../../bundle/web-app/README.zh.md) 补上 MCP 管理器。在没有 MCP 管理器的 profile（例如 `headless`）中，插件不会激活，启动时会打印一条警告，指出缺少 `mcpManager` 服务。
@@ -63,7 +63,7 @@ bundle patch 在 profile 其他层之后插入 `linear` 行。插件需要 `mcpM
 | `url` | `https://mcp.linear.app/mcp` | Linear 服务器的 Streamable HTTP MCP 端点 |
 | `toolLoading` | `on-demand` | `on-demand` 让 Linear 的工具在 agent 加载前对其隐藏；`eager` 在每次请求中发送全部工具定义 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-linear)是受支持字段的完整来源。连接与授权的预算使用管理器和 mcp-client 的默认值。已保存的 grant 与 `url` 绑定，修改后需要重新连接账号。
+生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-linear)是受支持字段的完整来源。连接与授权的预算使用管理器和 mcp-client 的默认值。已保存的 grant 与 `url` 绑定，修改后需要重新连接账号。
 
 -----
 
@@ -75,7 +75,7 @@ bundle patch 在 profile 其他层之后插入 `linear` 行。插件需要 `mcpM
 
 [`cordis.patch.yml`](cordis.patch.yml) 插入一行 id 为 `linear` 的条目，指向本包，因此本包既是 bundle，也是其唯一的一行；`config` 覆盖以该 id 为目标。Host 侧的 [`src/index.ts`](src/index.ts) 进行两项注册，二者都是插件 fiber 的 effect：`ctx.mcpManager.register('linear', …)` 以配置的 `url` 和 OAuth 凭据 key 添加一个 Streamable HTTP 条目，`ctx.systemPrompt.section()` 在 `MCP_SERVERS` 排序位置添加称呼指引。服务器名固定了 `mcp__linear__` 工具命名空间，凭据 key 固定了 grant 地址，因此重新加载或重新安装的插件会得到同样的工具和 grant。管理器在注册时校验条目；如果已配置或已注册的服务器占用了该名称或 key，插件会在添加指引之前加载失败。
 
-账号注册表运行时，插件还调用 `ctx.mcpAccounts.register({ server: 'linear', packageName: '@deepseek-ai/dsh-linear', copy })`，其中 [`src/locales.ts`](src/locales.ts) 以每种已发布语言保存指明 Linear 的文案；随后由 [`dsh-mcp-account`](../../mcp/mcp-account/README.zh.md) 把账号登记到连接器账号注册表，由注册表渲染上文所述的区块、引导、标签与 toast。没有注册表的组合（如 headless profile）加载插件时不带账号区块。
+账号注册表运行时，插件还调用 `ctx.mcpAccounts.register({ server: 'linear', packageName: '@omega-ai/dsh-linear', copy })`，其中 [`src/locales.ts`](src/locales.ts) 以每种已发布语言保存指明 Linear 的文案；随后由 [`dsh-mcp-account`](../../mcp/mcp-account/README.zh.md) 把账号登记到连接器账号注册表，由注册表渲染上文所述的区块、引导、标签与 toast。没有注册表的组合（如 headless profile）加载插件时不带账号区块。
 
 </details>
 

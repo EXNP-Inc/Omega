@@ -1,6 +1,6 @@
 /** The host's viewed marks of a diff as digests, with the reader's choices taking their place. */
 import { describe, expect, it } from 'vitest'
-import type { ForgeViewedState } from '@deepseek-ai/dsh-experimental-forge/types'
+import type { ForgeViewedState } from '@omega-ai/dsh-experimental-forge/types'
 import { hostMarksOf } from '../src/client/host-viewed.ts'
 import type { ForgeDiffFile } from '../src/types.ts'
 

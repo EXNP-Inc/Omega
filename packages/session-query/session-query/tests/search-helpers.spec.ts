@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import { createUserMessage, type ToolCallId, createMessage, createToolResultMessage } from '@deepseek-ai/dsh-llm'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { ContextFormed } from '@deepseek-ai/dsh-llm'
+import { Context } from '@omega-ai/cordis'
+import { createUserMessage, type ToolCallId, createMessage, createToolResultMessage } from '@omega-ai/dsh-llm'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { ContextFormed } from '@omega-ai/dsh-llm'
 import SessionStore, {
   SESSION_FORMAT_VERSION,
   type SessionId,
   SessionSeq,
-} from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import type { SessionEvent, SessionHeader } from '@deepseek-ai/dsh-session'
+} from '@omega-ai/dsh-session'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import type { SessionEvent, SessionHeader } from '@omega-ai/dsh-session'
 import {
   buildSessionEventRecords,
   buildSessionEventSearchDocuments,
@@ -20,10 +20,10 @@ import {
   materializeSessionEventResultFilters,
   materializeSessionResultFilters,
   type SessionQueryErrorCode,
-} from '@deepseek-ai/dsh-session-query'
+} from '@omega-ai/dsh-session-query'
 import { TestSessionQueryEngine } from './test-service.ts'
 
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@omega-ai/dsh-llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

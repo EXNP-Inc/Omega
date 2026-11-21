@@ -7,7 +7,7 @@
  * a key is entered; a blank key materializes a reference-free profile for
  * provider-native authentication);
  * the collapsed 自定义设置 area carries the per-family extras (`baseURL` and
- * `retryPolicy` for both families, DeepSeek's id/name/context-window model
+ * `retryPolicy` for both families, Omega's id/name/context-window model
  * catalog, and the display name and wire protocol of a pi-ai route the
  * adapter does not ship — the two fields the create card asked that route
  * for, editable here for the same reason).
@@ -23,13 +23,13 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import type { CredentialInfo, LlmNativeAuth, SettingsNamespaceView, SettingsPathOpView } from '@deepseek-ai/dsh-api-remotes/client'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
-import { Tooltip } from '@deepseek-ai/dsh-client-ui-primitives'
+import type { CredentialInfo, LlmNativeAuth, SettingsNamespaceView, SettingsPathOpView } from '@omega-ai/dsh-api-remotes/client'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
+import { Tooltip } from '@omega-ai/dsh-client-ui-primitives'
 import {
-  DeepSeekModelsEditor, modelDrafts, validateDeepSeekModels,
-} from './DeepSeekModelsEditor.tsx'
-import type { DeepSeekModelsValidationFailure } from './DeepSeekModelsEditor.tsx'
+  OmegaModelsEditor, modelDrafts, validateOmegaModels,
+} from './OmegaModelsEditor.tsx'
+import type { OmegaModelsValidationFailure } from './OmegaModelsEditor.tsx'
 import { apiKeyFailure } from './apiKey.ts'
 import { EditorFooter } from './EditorFooter.tsx'
 import { ModelListEditor } from './ModelListEditor.tsx'
@@ -46,7 +46,7 @@ import { RetryPolicyEditor, retryPolicyDefaults, retryPolicyFailure } from './Re
 import styles from './ModelsSection.module.css'
 
 /** Per-adapter-family curated field sets (unknown namespaces get the hint alone). */
-type EditorLayout = 'deepseek' | 'pi-ai' | 'unknown'
+type EditorLayout = 'omega' | 'pi-ai' | 'unknown'
 
 
 
@@ -160,7 +160,7 @@ export function pathOps(
 
 /** The editor layout the owning namespace selects. */
 function layoutOf(ns: string): EditorLayout {
-  if (ns === 'llm-deepseek') return 'deepseek'
+  if (ns === 'llm-omega') return 'omega'
   if (ns === 'llm-pi-ai') return 'pi-ai'
   return 'unknown'
 }
@@ -262,8 +262,8 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
   const probeApi = stringAt(draft, 'api') ?? stringAt(fallback, 'api')
   const reasoning = protocolReasoningLevels(probeApi, schemaReasoningLevels)
   const editsReasoning = reasoning.levels.length > 0
-  const validateModels = (value: unknown): DeepSeekModelsValidationFailure | ReasoningEffortsFailure | undefined =>
-    validateDeepSeekModels(value)
+  const validateModels = (value: unknown): OmegaModelsValidationFailure | ReasoningEffortsFailure | undefined =>
+    validateOmegaModels(value)
     ?? (editsReasoning ? validateReasoningEfforts(value, reasoning.levelsOnly ? reasoning.levels : undefined) : undefined)
   // Inherited models are checked too where the protocol narrows their levels:
   // switching an inherited route's protocol must not write a route its own models break.
@@ -406,9 +406,9 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
    * narrowed so the per-family branches below are total: an unknown namespace
    * renders the hint instead and never reaches this body.
    */
-  const curatedFields = (family: 'deepseek' | 'pi-ai'): ReactNode => {
+  const curatedFields = (family: 'omega' | 'pi-ai'): ReactNode => {
     // What a hand-declared route names for itself and nothing else can supply.
-    // A whole-section `llm-deepseek` profile is a composition fact with no
+    // A whole-section `llm-omega` profile is a composition fact with no
     // per-route identity for its schema to carry, hence the family test.
     const ownsIdentity = family === 'pi-ai' && props.declared === true
     const customModels = schema.getPath(draft, ['models'])
@@ -419,7 +419,7 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
     const defaultInput = schema.getPath(fallback, ['defaultInput'])
     const baseURL = stringAt(fallback, 'baseURL') ?? props.defaultBaseURL
     const endpointEnv = props.baseURLEnv ?? []
-    const endpointHint = family === 'deepseek' ? t('deepSeekEndpointHint')
+    const endpointHint = family === 'omega' ? t('omegaEndpointHint')
       : baseURL === undefined && endpointEnv.length > 0 ? t('baseUrlEnvironment').replace('{env}', () => endpointEnv.join(', ')) : undefined
     // A named reference is the only credential the adapter reads for this
     // route. Without one, a catalog route authenticates the way the directory
@@ -555,8 +555,8 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
                 className={styles['input']}
                 type="text"
                 value={stringAt(draft, 'baseURL') ?? ''}
-                placeholder={family === 'deepseek'
-                  ? t('deepSeekBaseUrl')
+                placeholder={family === 'omega'
+                  ? t('omegaBaseUrl')
                   : baseURL === undefined ? t(endpointEnv.length > 0 ? 'baseUrlConfigured' : 'baseUrlDefault')
                     : t('baseUrlPlaceholder').replace('{url}', () => baseURL)}
                 aria-describedby={endpointHint === undefined ? undefined : `${props.provider}-endpoint-hint`}
@@ -612,11 +612,11 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
                 />
               )}
             {/* Both families edit the same rows through the same contract; only
-                the extras differ — DeepSeek's inherited capacities, pi-ai's
+                the extras differ — Omega's inherited capacities, pi-ai's
                 endpoint interrogation. */}
-            {family === 'deepseek'
+            {family === 'omega'
               ? (
-                <DeepSeekModelsEditor
+                <OmegaModelsEditor
                   {...catalogProps}
                   defaultContextWindow={typeof defaultContextWindow === 'number'
                     ? defaultContextWindow

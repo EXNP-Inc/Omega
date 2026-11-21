@@ -3,7 +3,7 @@ description: "Progressive Office routing and authoring skills that direct render
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-skill-office
+# @omega-ai/dsh-skill-office
 
 English | [中文](README.zh.md)
 
@@ -29,7 +29,7 @@ The catalog lists the Office router and three authoring skills. Full instruction
 Mount the skill provider beside the skill registry and `dsh-tool-skill`. The provider supplies skill instructions; Python skills append a Python environment section. The skills direct operations to `office_render`, `office_convert`, and `office_recalculate`, so compose [`tool-office`](../../document/tool-office/README.md) beside this provider.
 
 ```yaml
-- name: '@deepseek-ai/dsh-skill-office'
+- name: '@omega-ai/dsh-skill-office'
 
 ```
 

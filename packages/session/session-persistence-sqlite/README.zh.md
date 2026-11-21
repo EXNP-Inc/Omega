@@ -3,7 +3,7 @@ description: "在 SQLite 中保存和重新打开 Session 历史，导入现有 
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-session-persistence-sqlite
+# @omega-ai/dsh-session-persistence-sqlite
 
 [English](README.md) | 中文
 
@@ -32,7 +32,7 @@ kind: "package-reference"
 在组合配置中替换 JSONL 提供者的包名，保留其根目录和旧历史编码设置：
 
 ```yaml
-- name: '@deepseek-ai/dsh-session-persistence-sqlite'
+- name: '@omega-ai/dsh-session-persistence-sqlite'
   config:
     root: './.sessions'
 ```
@@ -48,7 +48,7 @@ fork 创建先排空本进程中的父写者，再在一个事务内引用已持
 | `listConcurrency` | `3` | 旧历史元数据及路由记录的并发文件系统读取数。 |
 | `frameEvents` | `64` | 每个存储帧的最大事件数，即压缩和解码的单位。更大的帧压缩率略高，尾部读取的解码代价更大；已存帧保持写入时的大小。 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-session-persistence-sqlite)记录了所有可用字段。
+生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-session-persistence-sqlite)记录了所有可用字段。
 
 ### 打开现有历史
 

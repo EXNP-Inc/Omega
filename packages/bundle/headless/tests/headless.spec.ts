@@ -2,28 +2,28 @@
 
 import { Readable } from 'node:stream'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
+import { Context } from '@omega-ai/cordis'
+import { brandString } from '@omega-ai/dsh-brand'
+import AgentRegistry from '@omega-ai/dsh-agent'
 import type {
   Agent,
   AgentHandle,
   AssistantStreamFrame,
   CreateAgentOptions,
   ResumeAgentOptions,
-} from '@deepseek-ai/dsh-agent'
-import AgentDefaultModelConfig from '@deepseek-ai/dsh-agent-default-model'
-import { type LlmAttemptId, type ReasoningEffortId, type ToolCallId, createAssistantMessage, createToolResultMessage, createUserMessage, type MessageId, type StreamChunk } from '@deepseek-ai/dsh-llm'
-import SessionStore, { SessionLogOffset } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import SandboxPolicyService from '@deepseek-ai/dsh-sandbox-policy'
-import ApprovalService, { setApprovalPolicy, type ApprovalPolicy } from '@deepseek-ai/dsh-user-approval'
-import type { Session, SessionId, UserMessage } from '@deepseek-ai/dsh-session'
-import { SessionQueryError } from '@deepseek-ai/dsh-session-query'
-import { AgentModel, modelSelectionProjectionDefinition } from '@deepseek-ai/dsh-agent'
-import { createInboxStub, provideWorkingDirectoryFixture } from '@deepseek-ai/dsh-agent-loop-testkit'
+} from '@omega-ai/dsh-agent'
+import AgentDefaultModelConfig from '@omega-ai/dsh-agent-default-model'
+import { type LlmAttemptId, type ReasoningEffortId, type ToolCallId, createAssistantMessage, createToolResultMessage, createUserMessage, type MessageId, type StreamChunk } from '@omega-ai/dsh-llm'
+import SessionStore, { SessionLogOffset } from '@omega-ai/dsh-session'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import SandboxPolicyService from '@omega-ai/dsh-sandbox-policy'
+import ApprovalService, { setApprovalPolicy, type ApprovalPolicy } from '@omega-ai/dsh-user-approval'
+import type { Session, SessionId, UserMessage } from '@omega-ai/dsh-session'
+import { SessionQueryError } from '@omega-ai/dsh-session-query'
+import { AgentModel, modelSelectionProjectionDefinition } from '@omega-ai/dsh-agent'
+import { createInboxStub, provideWorkingDirectoryFixture } from '@omega-ai/dsh-agent-loop-testkit'
 import { apply, Config } from '../src/index.ts'
-import SubagentRuntime from '@deepseek-ai/dsh-subagent'
+import SubagentRuntime from '@omega-ai/dsh-subagent'
 import { internals } from '../src/runner-internals.ts'
 
 const originalInternals = { ...internals }

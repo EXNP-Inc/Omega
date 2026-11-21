@@ -52,7 +52,7 @@ changes:
 <a id="verification"></a>
 ## 验证
 
-定向 Vitest 运行通过：continuation-messages.spec.ts（14 个测试）、external-activation.spec.ts（19 个测试）、continuation-messages-adapter.spec.ts（1 个测试）和 continuation.spec.ts（166 个测试），均位于 packages/subagent/subagent/tests。命令为 node node_modules/vitest/vitest.mjs run，后接上述测试文件路径。覆盖全部五种终止原因、历史归属信息不作推断、外部清理失败保留已捕获的执行原因、冷恢复，以及不变的 DeepSeek Messages 线协议内容。历史 Session 代际保持不变；受影响的当前格式快照预期包含 stopReason。
+定向 Vitest 运行通过：continuation-messages.spec.ts（14 个测试）、external-activation.spec.ts（19 个测试）、continuation-messages-adapter.spec.ts（1 个测试）和 continuation.spec.ts（166 个测试），均位于 packages/subagent/subagent/tests。命令为 node node_modules/vitest/vitest.mjs run，后接上述测试文件路径。覆盖全部五种终止原因、历史归属信息不作推断、外部清理失败保留已捕获的执行原因、冷恢复，以及不变的 Omega Messages 线协议内容。历史 Session 代际保持不变；受影响的当前格式快照预期包含 stopReason。
 
 <a id="dev-note"></a>
 ## 开发备注

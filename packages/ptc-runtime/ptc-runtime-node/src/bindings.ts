@@ -1,6 +1,6 @@
 /** Validate and capture the binding names available to one program. */
-import { PtcImage, PtcInspectableValue, RESERVED_BINDING_WORDS, PtcRuntimeError, RESERVED_BINDING_GLOBALS, RESERVED_ERROR_MEMBERS } from '@deepseek-ai/dsh-ptc-runtime'
-import type { PtcBindingFunction, PtcBindingNamespace, PtcJsonValue, PtcProgramFormat, PtcRunRequest } from '@deepseek-ai/dsh-ptc-runtime'
+import { PtcImage, PtcInspectableValue, RESERVED_BINDING_WORDS, PtcRuntimeError, RESERVED_BINDING_GLOBALS, RESERVED_ERROR_MEMBERS } from '@omega-ai/dsh-ptc-runtime'
+import type { PtcBindingFunction, PtcBindingNamespace, PtcJsonValue, PtcProgramFormat, PtcRunRequest } from '@omega-ai/dsh-ptc-runtime'
 import { snapshotPtcJsonValue, encodePtcJsonWire, type PtcImageWire } from './json-wire.ts'
 import type { BindingResult } from './protocol.ts'
 import { RESERVED_PREFIX } from './evaluators/scoped-repl.ts'

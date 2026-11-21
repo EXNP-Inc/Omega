@@ -3,7 +3,7 @@ description: "会话面板的「后台任务」分栏：可展开的流式输出
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-jobs
+# @omega-ai/dsh-client-ui-jobs
 
 [English](README.md) | 中文
 

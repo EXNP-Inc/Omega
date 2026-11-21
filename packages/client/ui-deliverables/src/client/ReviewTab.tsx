@@ -3,17 +3,17 @@
  * selected file's turn-start and turn-end comparison drawn unified or side by
  * side, wrapped or scrolling, and controls to open the file itself.
  */
-import { selectSessionDirectory } from '@deepseek-ai/dsh-api-session-controller/client/directories'
+import { selectSessionDirectory } from '@omega-ai/dsh-api-session-controller/client/directories'
 import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import {
   IconChevronDownOutlineRegular, IconCompareSplitOutlineRegular, IconInspectOutlineRegular,
   IconNowrapFillRegular, IconWrapFillRegular, Menu, PathLabel, Tooltip,
-} from '@deepseek-ai/dsh-client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore } from '@deepseek-ai/dsh-client-ui-slots'
-import type { ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
-import { fileAddressFor, resolveWorkspacePath } from '@deepseek-ai/dsh-util-workspace-path'
-import type { WorkspaceChangedFile } from '@deepseek-ai/dsh-workspace-changes/types'
+} from '@omega-ai/dsh-client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore } from '@omega-ai/dsh-client-ui-slots'
+import type { ObservableSnapshot } from '@omega-ai/dsh-client-store'
+import { fileAddressFor, resolveWorkspacePath } from '@omega-ai/dsh-util-workspace-path'
+import type { WorkspaceChangedFile } from '@omega-ai/dsh-workspace-changes/types'
 import { changedFileUrl, changesDiffUrl, changesSummaryUrl, parseChangesReviewAddress } from '../changes.ts'
 import type { ChangesDiffStore } from './changes-diff.ts'
 import type { ChangesSummaryStore } from './changes-summary.ts'

@@ -1,5 +1,5 @@
 import { expect, it, vi } from 'vitest'
-import { agentEvents, type Agent, type PreStepDecision } from '@deepseek-ai/dsh-agent'
+import { agentEvents, type Agent, type PreStepDecision } from '@omega-ai/dsh-agent'
 import * as PluginRecommendations from '../src/index.ts'
 import { cardId, fixture } from './fixture.ts'
 

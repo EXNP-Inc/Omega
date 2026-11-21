@@ -3,9 +3,9 @@
  * Session created itself, and the existing checkouts it entered.
  */
 
-import { pluginRecordOf } from '@deepseek-ai/dsh-session'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
-import type { ProjectionDefinition } from '@deepseek-ai/dsh-session-projection'
+import { pluginRecordOf } from '@omega-ai/dsh-session'
+import type { SessionEvent } from '@omega-ai/dsh-session'
+import type { ProjectionDefinition } from '@omega-ai/dsh-session-projection'
 import { z } from 'zod'
 import type { CreatedWorktree, EnteredWorktree, WorktreeCreation } from './types.ts'
 
@@ -15,7 +15,7 @@ export const CREATED_RECORD = 'plugin:worktree/created'
 /** Plugin record type of an existing checkout the Session entered, written after the Session entered it. */
 export const ENTERED_RECORD = 'plugin:worktree/entered'
 
-declare module '@deepseek-ai/dsh-session/types' {
+declare module '@omega-ai/dsh-session/types' {
   interface PluginRecordMap {
     /** A checkout the worktree service created for the Session, which entered it in the same operation. */
     'plugin:worktree/created': CreatedWorktree
@@ -24,7 +24,7 @@ declare module '@deepseek-ai/dsh-session/types' {
   }
 }
 
-declare module '@deepseek-ai/dsh-session-projection/types' {
+declare module '@omega-ai/dsh-session-projection/types' {
   interface SessionProjectionMap {
     /** Checkouts recorded in the Session's log, in creation order. */
     worktree: readonly WorktreeCreation[]

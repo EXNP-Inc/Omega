@@ -1,7 +1,7 @@
 import { createServer, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { installProxyFromEnvironment } from '@deepseek-ai/dsh-http-proxy'
+import { installProxyFromEnvironment } from '@omega-ai/dsh-http-proxy'
 
 let seen: string[] = []
 let proxy: Server
@@ -35,17 +35,17 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import LlmRuntime from '@deepseek-ai/dsh-llm'
-import DeepSeekLlmApiExtensionRegistry from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
-import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
-import DeepSeekAuth from '@deepseek-ai/dsh-deepseek-auth'
+import { Context } from '@omega-ai/cordis'
+import LlmRuntime from '@omega-ai/dsh-llm'
+import OmegaLlmApiExtensionRegistry from '@omega-ai/dsh-omega-llm-api-extensions'
+import * as LlmOmega from '@omega-ai/dsh-llm-omega-api-key'
+import OmegaAuth from '@omega-ai/dsh-omega-auth'
 
 let home: string
 beforeAll(() => {
-  home = mkdtempSync(join(tmpdir(), 'dsh-deepseek-egress-'))
+  home = mkdtempSync(join(tmpdir(), 'dsh-omega-egress-'))
   vi.stubEnv('DSH_HOME', home)
-  vi.stubEnv('DEEPSEEK_API_KEY', 'probe-key')
+  vi.stubEnv('OMEGA_API_KEY', 'probe-key')
 })
 afterAll(() => {
   vi.unstubAllEnvs()
@@ -56,17 +56,17 @@ afterAll(() => {
 async function streamOnce(): Promise<void> {
   const ctx = new Context()
   await ctx.plugin(LlmRuntime)
-  await ctx.plugin(DeepSeekLlmApiExtensionRegistry)
-  await ctx.plugin(DeepSeekAuth)
-  await ctx.plugin(LlmDeepSeek, { baseURL: 'http://deepseek-probe.invalid/v1', models: [{ id: 'm' }] })
-  for await (const _chunk of ctx.llm.stream({ provider: 'deepseek-official', model: 'm', messages: [] })) {
+  await ctx.plugin(OmegaLlmApiExtensionRegistry)
+  await ctx.plugin(OmegaAuth)
+  await ctx.plugin(LlmOmega, { baseURL: 'http://omega-probe.invalid/v1', models: [{ id: 'm' }] })
+  for await (const _chunk of ctx.llm.stream({ provider: 'omega-official', model: 'm', messages: [] })) {
     // The endpoint never answers; the proxy record is the assertion.
   }
 }
 
-describe('llm-deepseek egress', () => {
+describe('llm-omega egress', () => {
   it('sends the Messages request through the proxy', async () => {
     const observed = await observe(streamOnce)
-    expect(observed.join('|')).toContain('deepseek-probe.invalid')
+    expect(observed.join('|')).toContain('omega-probe.invalid')
   })
 })

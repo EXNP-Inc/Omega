@@ -1,10 +1,10 @@
 /** Synthetic current-generation history and paced reply for browser measurements. */
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { createAssistantMessage, createSystemMessage, createUserMessage, createToolResultMessage, type ToolCallId } from '@deepseek-ai/dsh-llm'
-import type { StreamChunk } from '@deepseek-ai/dsh-llm'
-import { AssistantStreamAccumulator } from '@deepseek-ai/dsh-llm/assistant-stream'
-import { Session, type SessionId, SESSION_FORMAT_VERSION } from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-session-title'
+import { brandString } from '@omega-ai/dsh-brand'
+import { createAssistantMessage, createSystemMessage, createUserMessage, createToolResultMessage, type ToolCallId } from '@omega-ai/dsh-llm'
+import type { StreamChunk } from '@omega-ai/dsh-llm'
+import { AssistantStreamAccumulator } from '@omega-ai/dsh-llm/assistant-stream'
+import { Session, type SessionId, SESSION_FORMAT_VERSION } from '@omega-ai/dsh-session'
+import type {} from '@omega-ai/dsh-session-title'
 
 /** Closed turns in the browser history workload. */
 export const HISTORY_TURNS = 240
@@ -66,7 +66,7 @@ export function syntheticHistory(): string {
     session.append('assistant/message', {
       turn, step: 1, stream: [...stream.snapshot()],
       message: createAssistantMessage({
-        source: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { provider: 'omega-official', model: 'omega-v4-flash' },
         content: [
           { type: 'reasoning', text: reasoning },
           { type: 'text', text },

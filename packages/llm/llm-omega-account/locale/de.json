@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "DeepSeekKontomodellzugriff",
-    "description": "Verwenden Sie das angemeldete DeepSeek-Konto, um eine Verbindung zum Modelldienst herzustellen."
+    "title": "OmegaKontomodellzugriff",
+    "description": "Verwenden Sie das angemeldete Omega-Konto, um eine Verbindung zum Modelldienst herzustellen."
   }
 }

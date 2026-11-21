@@ -1,7 +1,7 @@
 /** Shared shell settings storage; reads have no side effects and fields fail independently. */
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
-import { withFileLock, writeFileAtomic } from '@deepseek-ai/dsh-atomic-write'
+import { withFileLock, writeFileAtomic } from '@omega-ai/dsh-atomic-write'
 import { z } from 'zod'
 
 const preferencesSchema = z.object({

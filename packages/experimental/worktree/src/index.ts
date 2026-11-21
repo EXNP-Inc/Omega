@@ -4,19 +4,19 @@
  * removed checkout.
  */
 
-import { Context, Service, type Volatile } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import type {} from '@deepseek-ai/dsh-fs'
-import type { SandboxExecutionPolicy } from '@deepseek-ai/dsh-sandbox'
-import type {} from '@deepseek-ai/dsh-sandbox-policy'
-import type {} from '@deepseek-ai/dsh-settings'
-import { appendPluginRecord } from '@deepseek-ai/dsh-session'
-import type { Session } from '@deepseek-ai/dsh-session'
-import type { ProjectionHandle } from '@deepseek-ai/dsh-session-projection'
-import type {} from '@deepseek-ai/dsh-working-directory'
-import { HarnessError } from '@deepseek-ai/dsh-error'
-import { MAX_TIMER_DELAY_MS } from '@deepseek-ai/dsh-timeout'
+import { Context, Service, type Volatile } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
+import type { Agent } from '@omega-ai/dsh-agent'
+import type {} from '@omega-ai/dsh-fs'
+import type { SandboxExecutionPolicy } from '@omega-ai/dsh-sandbox'
+import type {} from '@omega-ai/dsh-sandbox-policy'
+import type {} from '@omega-ai/dsh-settings'
+import { appendPluginRecord } from '@omega-ai/dsh-session'
+import type { Session } from '@omega-ai/dsh-session'
+import type { ProjectionHandle } from '@omega-ai/dsh-session-projection'
+import type {} from '@omega-ai/dsh-working-directory'
+import { HarnessError } from '@omega-ai/dsh-error'
+import { MAX_TIMER_DELAY_MS } from '@omega-ai/dsh-timeout'
 import { within, WorktreeReclamation } from './archive.ts'
 import { WorktreeError } from './error.ts'
 import { PREPARE_DIRECTORY } from './directory.ts'
@@ -80,7 +80,7 @@ const REMOTE_REFS = 'refs/remotes/'
 /** Runs one confined Git command; output with an exit code outside `allowedExitCodes` throws. */
 type GitRun = (directory: string, args: string[], allowedExitCodes?: number[], env?: NodeJS.ProcessEnv) => ReturnType<typeof runCommand>
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context {
     worktrees: WorktreeService
   }

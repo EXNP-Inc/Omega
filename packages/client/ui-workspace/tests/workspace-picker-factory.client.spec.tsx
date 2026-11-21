@@ -9,20 +9,20 @@
  * listed Workspaces, the occupancy-gated add entry, and the creation hop
  * before `onPick`.
  */
-import { syncedConfig } from '@deepseek-ai/dsh-client-test-runtime'
+import { syncedConfig } from '@omega-ai/dsh-client-test-runtime'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, screen } from '@testing-library/react'
 import { useRef, useState } from 'react'
-import type { Context } from '@deepseek-ai/cordis'
-import type { WorkspaceId, WorkspaceView } from '@deepseek-ai/dsh-api-workspace-controller/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import { Modal } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { PropsRenderFactories, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
-import { SlotTestRuntime, usePinnedBrowserLanguages } from '@deepseek-ai/dsh-client-test-runtime'
-import { apply as applyMenus, inject as injectMenus } from '@deepseek-ai/dsh-client-ui-context-menu/client'
-import { apply, inject } from '@deepseek-ai/dsh-client-ui-workspace/client'
+import type { Context } from '@omega-ai/cordis'
+import type { WorkspaceId, WorkspaceView } from '@omega-ai/dsh-api-workspace-controller/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
+import { Modal } from '@omega-ai/dsh-client-ui-primitives'
+import type { PropsRenderFactories, PropsRuntime } from '@omega-ai/dsh-client-ui-slots'
+import { SlotTestRuntime, usePinnedBrowserLanguages } from '@omega-ai/dsh-client-test-runtime'
+import { apply as applyMenus, inject as injectMenus } from '@omega-ai/dsh-client-ui-context-menu/client'
+import { apply, inject } from '@omega-ai/dsh-client-ui-workspace/client'
 
 // The service reads its initial locale from the browser; these specs assert
 // the shipped Chinese copy, so they state the browser they assume.

@@ -1,14 +1,14 @@
 /** Scripted CLI processes for CLI account specs. */
 
 import { PassThrough } from 'node:stream'
-import { SubprocessRuntime } from '@deepseek-ai/dsh-subprocess'
+import { SubprocessRuntime } from '@omega-ai/dsh-subprocess'
 import type {
   SubprocessCollectedOutputs,
   SubprocessHandle,
   SubprocessOutcome,
   SubprocessSpawnSpec,
   SubprocessTerminalEnvironment,
-} from '@deepseek-ai/dsh-subprocess'
+} from '@omega-ai/dsh-subprocess'
 
 /** The executable name every spec runs. */
 export const PROGRAM = 'fixture-cli'

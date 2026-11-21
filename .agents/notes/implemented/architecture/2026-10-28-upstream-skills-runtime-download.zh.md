@@ -6,17 +6,17 @@ Status: implemented
 
 ## 问题
 
-企业微信和腾讯会议插件索引的子指南，厂商只在自己的 GitHub 仓库里发布：企业微信 180 个文件，约 1.75 MB；腾讯会议 11 个。把它们复制进本仓库，会让副本占据每个插件的 diff 和每次上游更新，插件的 npm 包也会发布 DeepSeek 复制的其他公司内容。DeepSeek 不发布这类副本。
+企业微信和腾讯会议插件索引的子指南，厂商只在自己的 GitHub 仓库里发布：企业微信 180 个文件，约 1.75 MB；腾讯会议 11 个。把它们复制进本仓库，会让副本占据每个插件的 diff 和每次上游更新，插件的 npm 包也会发布 Omega 复制的其他公司内容。Omega 不发布这类副本。
 
 ## 决策
 
-这些插件只保留 DSH 自己编写的入口 `SKILL.md`，按仓库、提交、保留的目录、排除项、许可证文件、总大小和保留文件的摘要固定上游文件，并把两者注册到 `ctx.upstreamSkills`，即 [`@deepseek-ai/dsh-upstream-skills`](../../../../packages/connector/upstream-skills/README.zh.md) 的 Service。插件加载时，Service 从 GitHub 下载这个提交的归档，保留该目录和许可证文件，校验后发布到 `$DSH_HOME/cache/<插件>`，再列出入口技能，并把这个目录作为它的基础目录。插件在账号状态旁显示下载状态。它的检查只读取账号，并在不等待的情况下重新开始失败的下载：CLI 账号运行时一次只执行一个操作，检查若等待缓慢的 GitHub 下载，登录也会被占住。每个归档来源要在 `skillsTimeoutMs` 内送达完整归档，保留文件超过固定的大小时停止读取。插件的 `skillsDir` 为测试和离线安装指向准备好的文件，Service 的 `skillsUrls` 为所有插件替换归档主机。
+这些插件只保留 DSH 自己编写的入口 `SKILL.md`，按仓库、提交、保留的目录、排除项、许可证文件、总大小和保留文件的摘要固定上游文件，并把两者注册到 `ctx.upstreamSkills`，即 [`@omega-ai/dsh-upstream-skills`](../../../../packages/connector/upstream-skills/README.zh.md) 的 Service。插件加载时，Service 从 GitHub 下载这个提交的归档，保留该目录和许可证文件，校验后发布到 `$DSH_HOME/cache/<插件>`，再列出入口技能，并把这个目录作为它的基础目录。插件在账号状态旁显示下载状态。它的检查只读取账号，并在不等待的情况下重新开始失败的下载：CLI 账号运行时一次只执行一个操作，检查若等待缓慢的 GitHub 下载，登录也会被占住。每个归档来源要在 `skillsTimeoutMs` 内送达完整归档，保留文件超过固定的大小时停止读取。插件的 `skillsDir` 为测试和离线安装指向准备好的文件，Service 的 `skillsUrls` 为所有插件替换归档主机。
 
 ## 考虑过的替代方案
 
 **在本仓库中保留副本。** 这是之前的做法。逐字节相同的副本占据评审和上游更新，插件的 npm 包还会再次发布它们。
 
-**由 DSH 发布上游文件的包。** 它把副本移出本仓库，但仍是 DeepSeek 自己发布其他公司的内容。
+**由 DSH 发布上游文件的包。** 它把副本移出本仓库，但仍是 Omega 自己发布其他公司的内容。
 
 **厂商的 npm 包。** `@wecom/cli` 和 `@tencentcloud/tmeet` 都不包含这些技能。
 

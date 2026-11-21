@@ -3,7 +3,7 @@ description: "让智能体在侧栏中你能看到的终端里运行长时间命
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-experimental-terminal-bundle
+# @omega-ai/dsh-experimental-terminal-bundle
 
 [English](README.md) | 中文
 

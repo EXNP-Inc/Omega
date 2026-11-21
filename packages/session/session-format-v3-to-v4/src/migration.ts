@@ -1,8 +1,8 @@
 /** Append historical child facts after converting V3 source events to V4. */
 
-import { defineSessionFormatMigration, SessionFormatError, SessionFormatUnsupportedMigrationError, isSessionFormatJsonObject, sessionFormatCount } from '@deepseek-ai/dsh-session-format'
-import type { SessionFormatEvent, SessionFormatEventRun, SessionFormatJsonObject, SessionFormatJsonValue, SessionFormatMigration, SessionFormatMigrationContext, SessionFormatMigrationStage, SessionFormatMigrationStageInput } from '@deepseek-ai/dsh-session-format'
-import { assertReleasedV3Header } from '@deepseek-ai/dsh-session-format-v2-to-v3'
+import { defineSessionFormatMigration, SessionFormatError, SessionFormatUnsupportedMigrationError, isSessionFormatJsonObject, sessionFormatCount } from '@omega-ai/dsh-session-format'
+import type { SessionFormatEvent, SessionFormatEventRun, SessionFormatJsonObject, SessionFormatJsonValue, SessionFormatMigration, SessionFormatMigrationContext, SessionFormatMigrationStage, SessionFormatMigrationStageInput } from '@omega-ai/dsh-session-format'
+import { assertReleasedV3Header } from '@omega-ai/dsh-session-format-v2-to-v3'
 import { mapEventMessages, rewriteV3MessageSource } from './sources.ts'
 import { liftToolResult } from './tool-role.ts'
 import { migrateV3EventContent } from './content.ts'
@@ -13,7 +13,7 @@ import { remapV3References } from './references.ts'
 
 /** Header-only migration declaration; body restoration requires explicit child evidence. */
 export const sessionFormatV3ToV4 = defineSessionFormatMigration({
-  name: '@deepseek-ai/dsh-session-format-v3-to-v4',
+  name: '@omega-ai/dsh-session-format-v3-to-v4',
   fromVersion: 3,
   toVersion: 4,
   migrateHeader(header) {
@@ -80,7 +80,7 @@ class ReleasedV3ToV4Stage implements SessionFormatMigrationStage {
       this.catalogs.push(event.data)
     }
     const deliveryId = validateDeliveryAccepted(event, 3)
-    if (event.type === 'session-log-deepseek/delivery-accepted') {
+    if (event.type === 'session-log-omega/delivery-accepted') {
       if ((event.data as SessionFormatJsonObject)['sessionFormatVersion'] === 4) {
         throw new SessionFormatUnsupportedMigrationError('format v3 delivery marker claims target format v4')
       }

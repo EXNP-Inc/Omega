@@ -9,7 +9,7 @@ English | [中文](guide.zh.md)
 
 ## Change
 
-Creator mode offered four skills from `@deepseek-ai/dsh-agent-preset`: `cordis-plugin-development`, `editing-cordis-compositions`, `cordis-composition-reference`, and `agent-experience`. It now offers one skill, `dsh-doc`. Its former content is in files that `dsh-doc` reads on demand, under `skills/dsh-doc/references/` and `skills/dsh-doc/templates/` of that package. The old skill names no longer appear in the skill catalog, and loading one by name fails.
+Creator mode offered four skills from `@omega-ai/dsh-agent-preset`: `cordis-plugin-development`, `editing-cordis-compositions`, `cordis-composition-reference`, and `agent-experience`. It now offers one skill, `dsh-doc`. Its former content is in files that `dsh-doc` reads on demand, under `skills/dsh-doc/references/` and `skills/dsh-doc/templates/` of that package. The old skill names no longer appear in the skill catalog, and loading one by name fails.
 
 In a DSH source checkout, the documentation-writing skill `.agents/skills/dsh-doc` is now `.agents/skills/dsh-doc-writing`, named `dsh-doc-writing`.
 
@@ -18,7 +18,7 @@ This affects Creator mode users whose prompts, saved instructions, or own skills
 ## Migration
 
 1. Replace each old skill name in prompts, instructions, and skills with `dsh-doc`; for the source checkout documentation skill, use `dsh-doc-writing`.
-2. Replace file paths under `@deepseek-ai/dsh-agent-preset/skills/` as follows:
+2. Replace file paths under `@omega-ai/dsh-agent-preset/skills/` as follows:
 
    | Old path | New path |
    |---|---|

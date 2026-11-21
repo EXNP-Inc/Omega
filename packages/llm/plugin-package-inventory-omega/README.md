@@ -1,15 +1,15 @@
 ---
-description: "Active Loader package inventory metadata for deployments sending official DeepSeek requests."
+description: "Active Loader package inventory metadata for deployments sending official Omega requests."
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-plugin-package-inventory-deepseek
+# @omega-ai/dsh-plugin-package-inventory-omega
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-Best-effort active Loader-backed plugin package inventory for official DeepSeek LLM API requests. This function plugin injects the Loader, live Agent registry, and `ctx.deepseekLlmApiExtensions`, then owns the `dsh_plugin_packages` field. Enable it when the official API needs the active package list for request diagnostics.
+Best-effort active Loader-backed plugin package inventory for official Omega LLM API requests. This function plugin injects the Loader, live Agent registry, and `ctx.omegaLlmApiExtensions`, then owns the `dsh_plugin_packages` field. Enable it when the official API needs the active package list for request diagnostics.
 
 ## Table of Contents
 
@@ -28,7 +28,7 @@ Best-effort active Loader-backed plugin package inventory for official DeepSeek 
 |---|---:|---|
 | `enabled` | `true` | Register the `dsh_plugin_packages` contribution. Set it to `false` to omit package metadata. |
 
-Shipped profiles use the default, so every official DeepSeek request carries the package inventory when preparation succeeds.
+Shipped profiles use the default, so every official Omega request carries the package inventory when preparation succeeds.
 
 <a id="collection"></a>
 ## Collection

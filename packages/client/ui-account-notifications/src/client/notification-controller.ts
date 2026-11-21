@@ -15,11 +15,11 @@
  * card and active poll. Credential and connection changes end
  * that lifecycle before another begins. Signing out and unloading also clear
  * the cards; a later sign-in shows whatever the server offers.
- * @module @deepseek-ai/dsh-client-ui-account-notifications/src/client/notification-controller
+ * @module @omega-ai/dsh-client-ui-account-notifications/src/client/notification-controller
  */
 import type {
   AccountNotification, AccountNotificationBatch, AccountNotificationEvent, AccountNotificationId,
-} from '@deepseek-ai/dsh-deepseek-account/types'
+} from '@omega-ai/dsh-omega-account/types'
 
 /** Notification content currently available to the sidebar presentation. */
 export type AccountNotice = AccountNotification
@@ -148,7 +148,7 @@ export function createNotificationController(options: NotificationControllerOpti
     const requestedLocale = locale
     const responses = await Promise.allSettled(current.map(async notice => options.readContent(notice.id, requestedLocale)))
     if (scope !== scopeAtCall || generation !== contentGeneration) return
-    if (responses.some(response => response.status === 'rejected')) console.error('[deepseek-account] notification content read failed')
+    if (responses.some(response => response.status === 'rejected')) console.error('[omega-account] notification content read failed')
     const updates = responses.flatMap(response => response.status === 'fulfilled' && response.value !== null ? [response.value] : [])
     setCurrent(current.map((notice) => {
       const update = updates.find(value => value.id === notice.id)
@@ -168,7 +168,7 @@ export function createNotificationController(options: NotificationControllerOpti
     try { batch = await options.read(requestedLocale) }
     catch (_error) {
       if (poll !== pollAtRead) return
-      console.error('[deepseek-account] notification read failed; retaining cards and retrying on the next poll')
+      console.error('[omega-account] notification read failed; retaining cards and retrying on the next poll')
       batch = null
     }
     if (poll !== pollAtRead) return
@@ -199,7 +199,7 @@ export function createNotificationController(options: NotificationControllerOpti
     try { await options.reportEvent(id, event) }
     catch (_error) {
       if (scope === scopeAtReport) {
-        console.error('[deepseek-account] notification event report failed; keeping local state without retry', { event })
+        console.error('[omega-account] notification event report failed; keeping local state without retry', { event })
       }
     }
   }

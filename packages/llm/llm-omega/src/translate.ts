@@ -1,8 +1,8 @@
 /** Translate Messages events while preserving block order and cumulative usage. */
 
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { LlmError, type ToolCallId } from '@deepseek-ai/dsh-llm'
-import type { ContentBlock, FinishReason, StreamChunk, TokenUsage } from '@deepseek-ai/dsh-llm'
+import { brandString } from '@omega-ai/dsh-brand'
+import { LlmError, type ToolCallId } from '@omega-ai/dsh-llm'
+import type { ContentBlock, FinishReason, StreamChunk, TokenUsage } from '@omega-ai/dsh-llm'
 import { object, replayState } from './replay.ts'
 import type { ReplayBlock } from './replay.ts'
 
@@ -19,12 +19,12 @@ interface Block {
  * @returns the validated string.
  */
 export function string(value: unknown): string {
-  if (typeof value !== 'string') throw new LlmError('DeepSeek Messages expected a string field', 'MALFORMED_RESPONSE')
+  if (typeof value !== 'string') throw new LlmError('Omega Messages expected a string field', 'MALFORMED_RESPONSE')
   return value
 }
 
 function malformed(detail: string): never {
-  throw new LlmError(`DeepSeek Messages stream: ${detail}`, 'MALFORMED_RESPONSE')
+  throw new LlmError(`Omega Messages stream: ${detail}`, 'MALFORMED_RESPONSE')
 }
 
 function indexOf(event: Record<string, unknown>): number {
@@ -58,7 +58,7 @@ function startBlock(event: Record<string, unknown>, index: number): Block {
       if (!content.id || !content.name) return malformed('empty tool identity')
       replay = { type: 'tool-call' }
       break
-    default: throw new LlmError(`DeepSeek Messages does not support response block ${String(native.type)}`, 'UNSUPPORTED_CONTENT')
+    default: throw new LlmError(`Omega Messages does not support response block ${String(native.type)}`, 'UNSUPPORTED_CONTENT')
   }
   return { index, content, replay, closed: false, json: '' }
 }
@@ -91,7 +91,7 @@ function deltaChunk(block: Block, raw: unknown): StreamChunk | undefined {
 /** Build the failure for a `refusal` stop, keeping the provider's explanation such as blocked images. */
 function refusal(details: unknown): LlmError {
   const explanation = typeof details === 'object' && details !== null && 'explanation' in details ? details.explanation : undefined
-  return new LlmError(`DeepSeek refused to answer under its content safety review${typeof explanation === 'string' && explanation ? `: ${explanation}` : ''}`, 'CONTENT_REFUSED')
+  return new LlmError(`Omega refused to answer under its content safety review${typeof explanation === 'string' && explanation ? `: ${explanation}` : ''}`, 'CONTENT_REFUSED')
 }
 
 function stopReason(raw: unknown): FinishReason {
@@ -161,7 +161,7 @@ export async function* translate(events: AsyncIterable<Record<string, unknown>>,
         throw refused
       }
       if (reason === undefined || [...blocks.values()].some(block => !block.closed)) return malformed('message_stop without settled blocks and stop reason')
-      if (blocks.size === 0 && reason.kind === 'stop') throw new LlmError('DeepSeek Messages returned no content', 'EMPTY_RESPONSE')
+      if (blocks.size === 0 && reason.kind === 'stop') throw new LlmError('Omega Messages returned no content', 'EMPTY_RESPONSE')
       // Truncated tool JSON is retained in the stream, then pruned by the shared assembler.
       if (reason.kind !== 'max-tokens') {
         for (const { content } of blocks.values()) {
@@ -176,5 +176,5 @@ export async function* translate(events: AsyncIterable<Record<string, unknown>>,
       return
     }
   }
-  throw new LlmError('DeepSeek Messages stream ended before message_stop', 'STREAM_CLOSED')
+  throw new LlmError('Omega Messages stream ended before message_stop', 'STREAM_CLOSED')
 }

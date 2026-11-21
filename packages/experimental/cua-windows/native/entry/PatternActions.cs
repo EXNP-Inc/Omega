@@ -1,9 +1,9 @@
 // Cached observations and live dispatch share the same UIA operation definitions.
 using System.Text.Json;
 using System.Windows.Automation;
-using DeepSeek.Cua.Protocol;
+using Omega.Cua.Protocol;
 
-namespace DeepSeek.Cua.Windows;
+namespace Omega.Cua.Windows;
 
 internal sealed record PatternAction(string Name, Func<JsonElement?, Action<BasePattern>> Bind);
 internal sealed record PatternOperations(AutomationPattern Pattern, AutomationProperty Available, PatternAction[] Actions)

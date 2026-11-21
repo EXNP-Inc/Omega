@@ -1,0 +1,37 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/account/omega-account/README.md
+/:
+  en: 9dbb9bc3960a11fe
+  zh: ed58987926489d3e
+/omega-ai-dsh-omega-account:
+  en: 778ae449cfcacf8f
+  zh: af146fabf64e4d8b
+/omega-ai-dsh-omega-account/summary:
+  en: 28bcca957bf6abf4
+  zh: 4a3fc8a59f2925bc
+/omega-ai-dsh-omega-account/table-of-contents:
+  en: af856ba79fe31b8e
+  zh: 15b7d1a5d1856de2
+/omega-ai-dsh-omega-account/use-this-package:
+  en: 1230675e739a0164
+  zh: fa2e0317ae081db4
+/omega-ai-dsh-omega-account/understand-the-implementation:
+  en: 76d2da2dab100ac3
+  zh: 2c9404f27915daab
+/omega-ai-dsh-omega-account/further-exploration:
+  en: adda341390cbdb9b
+  zh: e564f30150373228
+/omega-ai-dsh-omega-account/model-experience:
+  en: ee1df7ca3467ee3f
+  zh: 84904a5148da3862
+/omega-ai-dsh-omega-account/model-experience/kv-cache-effect:
+  en: ca3015e252db0114
+  zh: ebca9253cf15e8e9
+/omega-ai-dsh-omega-account/known-limitations-and-deferred-work:
+  en: 1b26fcb10e139c27
+  zh: c419d805bf62d62d
+/omega-ai-dsh-omega-account/known-limitations-and-deferred-work/dev-note:
+  en: 473543e35f111868
+  zh: aa066ac155c221e0

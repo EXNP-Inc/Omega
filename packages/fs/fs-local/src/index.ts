@@ -1,20 +1,20 @@
 /**
  * Host-filesystem implementation of `ctx.fs`. Realpath-derived target identity makes aliases
  * share stale guards, and writes through a symlink update its target without replacing the link.
- * @module @deepseek-ai/dsh-fs-local
+ * @module @omega-ai/dsh-fs-local
  */
 
-import { applyHunks } from '@deepseek-ai/dsh-fs-patch'
-import type { PatchHunk } from '@deepseek-ai/dsh-fs-patch'
-import { Context } from '@deepseek-ai/cordis'
+import { applyHunks } from '@omega-ai/dsh-fs-patch'
+import type { PatchHunk } from '@omega-ai/dsh-fs-patch'
+import { Context } from '@omega-ai/cordis'
 import { constants as bufferConstants } from 'node:buffer'
 import { once } from 'node:events'
 import { watch } from 'chokidar'
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import z from '@deepseek-ai/schemastery'
-import { FileSystem, FsError, type FsVersion } from '@deepseek-ai/dsh-fs'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import z from '@omega-ai/schemastery'
+import { FileSystem, FsError, type FsVersion } from '@omega-ai/dsh-fs'
+import { brandString } from '@omega-ai/dsh-brand'
 import type {
   FsDeleteOutcome,
   FsMoveOutcome,
@@ -26,7 +26,7 @@ import type {
   FsTarget,
   FsWriteIntent,
   FsWriteOutcome,
-} from '@deepseek-ai/dsh-fs'
+} from '@omega-ai/dsh-fs'
 import {
   applyLiteralEdit,
   expandHomePrefix,

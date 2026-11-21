@@ -46,7 +46,7 @@ describe.skipIf(!existsSync(bin))('cua-mcp profile', { retry: 0 }, () => {
     const profileDir = join(home, 'profiles', 'cua-mcp')
     await mkdir(profileDir, { recursive: true })
     await writeFile(join(profileDir, 'package.json'), `${JSON.stringify({
-      name: 'dsh-profile-cua-mcp', private: true, dependencies: {}, dsh: { profile: { bundles: ['@deepseek-ai/dsh-cua-mcp'] } },
+      name: 'dsh-profile-cua-mcp', private: true, dependencies: {}, dsh: { profile: { bundles: ['@omega-ai/dsh-cua-mcp'] } },
     }, null, 2)}\n`)
 
     const probe = owned.probe = startProbe({ args: [bin, '--profile', 'cua-mcp', '--patch', fixturePatch], cwd: launch, env })

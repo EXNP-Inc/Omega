@@ -13,13 +13,13 @@
  * props; this module is the only place that recognizes the share-viewer
  * principal and owns the copy.
  *
- * @module @deepseek-ai/dsh-experimental-liveshare/src/client/user-origin
+ * @module @omega-ai/dsh-experimental-liveshare/src/client/user-origin
  */
 
 import type { ReactNode } from 'react'
-import type { MatchedShare, PropsLocale, PropsRuntime, SlotMap } from '@deepseek-ai/dsh-client-ui-slots'
+import type { MatchedShare, PropsLocale, PropsRuntime, SlotMap } from '@omega-ai/dsh-client-ui-slots'
 // Type-only: merges Chat's SlotMap and standard declarations into this program.
-import type {} from '@deepseek-ai/dsh-client-ui-chat/client'
+import type {} from '@omega-ai/dsh-client-ui-chat/client'
 import type { NS } from './locales.ts'
 import { useOwnerDisplay } from './owner-display.ts'
 import css from './user-origin.module.css'

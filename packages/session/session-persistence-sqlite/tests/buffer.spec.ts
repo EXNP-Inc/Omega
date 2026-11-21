@@ -1,7 +1,7 @@
 /** Shared live batching retains ordered work across backend and queue failures. @module */
 import { afterEach, expect, it, vi } from 'vitest'
-import { SessionSeq } from '@deepseek-ai/dsh-session'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
+import { SessionSeq } from '@omega-ai/dsh-session'
+import type { SessionEvent } from '@omega-ai/dsh-session'
 import { LiveWriteBuffer } from '../src/buffer.ts'
 
 const event = (seq: number): SessionEvent<'turn/start'> => ({ type: 'turn/start', seq: SessionSeq(seq), time: 0, data: { turn: seq + 1 } })

@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { afterEach, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import { syncedConfig } from '@deepseek-ai/dsh-client-test-runtime'
+import { Context } from '@omega-ai/cordis'
+import { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
+import { syncedConfig } from '@omega-ai/dsh-client-test-runtime'
 import ShortcutsService from '../src/client/index.ts'
 import { initialShortcutConfig } from '../src/protocol.ts'
 import type { DesktopKeyboardApi, DesktopShortcutsApi, ShortcutConfigSnapshot, ShortcutCommandId } from '../src/protocol.ts'

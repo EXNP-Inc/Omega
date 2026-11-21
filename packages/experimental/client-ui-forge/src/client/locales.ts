@@ -1168,7 +1168,7 @@ export const en: Record<ForgePanelKey, string> = {
   'reviewPage.chatQuotes': '{count} quotes to send',
 }
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@omega-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Forge panel tab, changes view, header button, worktree option and creation card, and action notices. */
     forgePanel: ForgePanelKey

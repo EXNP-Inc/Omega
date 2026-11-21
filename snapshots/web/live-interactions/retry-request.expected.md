@@ -3,9 +3,9 @@
 - term: Status
 - definition: Pending
 - term: Provider
-- definition: deepseek-official
+- definition: omega-official
 - term: Model
-- definition: deepseek-v4-flash
+- definition: omega-v4-flash
 - term: Tool calls
 - definition: "0"
 - term: Last attempt error
@@ -20,9 +20,9 @@
 - term: Status
 - definition: Completed
 - term: Provider
-- definition: deepseek-official
+- definition: omega-official
 - term: Model
-- definition: deepseek-v4-flash
+- definition: omega-v4-flash
 - term: Tool calls
 - definition: "0"
 - term: Last attempt error

@@ -1,8 +1,8 @@
-import * as Protocol from '@deepseek-ai/dsh-llm-deepseek'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import * as Protocol from '@omega-ai/dsh-llm-omega'
+import { brandString } from '@omega-ai/dsh-brand'
 /**
- * Real Messages round trips require credentials; tool replacement also accepts DEEPSEEK_BASE_URL.
- * System-update checks additionally require DEEPSEEK_IN_HISTORY_MODEL.
+ * Real Messages round trips require credentials; tool replacement also accepts OMEGA_BASE_URL.
+ * System-update checks additionally require OMEGA_IN_HISTORY_MODEL.
  */
 import { randomUUID } from 'node:crypto'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
@@ -11,24 +11,26 @@ import { join } from 'node:path'
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context, LoggerLevel } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import LocalAttachments from '@deepseek-ai/dsh-attachment-local'
-import DeepSeekLlmApiExtensionRegistry from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
-import LlmRuntime, { BlockAssembler, createAssistantMessage, createDeveloperMessage, createSystemMessage, createToolResultMessage, type ReasoningEffortId, type ToolCallId } from '@deepseek-ai/dsh-llm'
-import type { Message } from '@deepseek-ai/dsh-llm'
-import * as PluginPackageInventoryDeepSeek from '@deepseek-ai/dsh-plugin-package-inventory-deepseek'
-import SessionStore, { type SessionId } from '@deepseek-ai/dsh-session'
-import * as SessionLogDeepSeek from '@deepseek-ai/dsh-session-log-deepseek'
-import * as Messages from '@deepseek-ai/dsh-llm-deepseek-api-key'
-import DeepSeekAuth from '@deepseek-ai/dsh-deepseek-auth'
-import { DeepSeekFilesClient } from '../src/files-api.ts'
+import { Context, LoggerLevel } from '@omega-ai/cordis'
+import Loader from '@omega-ai/cordis-plugin-loader'
+import AgentRegistry from '@omega-ai/dsh-agent'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import LocalAttachments from '@omega-ai/dsh-attachment-local'
+import OmegaLlmApiExtensionRegistry from '@omega-ai/dsh-omega-llm-api-extensions'
+import LlmRuntime, { BlockAssembler, createAssistantMessage, createDeveloperMessage, createSystemMessage, createToolResultMessage, type ReasoningEffortId, type ToolCallId } from '@omega-ai/dsh-llm'
+import type { Message } from '@omega-ai/dsh-llm'
+import * as PluginPackageInventoryOmega from '@omega-ai/dsh-plugin-package-inventory-omega'
+import SessionStore, { type SessionId } from '@omega-ai/dsh-session'
+import * as SessionLogOmega from '@omega-ai/dsh-session-log-omega'
+import * as Messages from '@omega-ai/dsh-llm-omega-api-key'
+import OmegaAuth from '@omega-ai/dsh-omega-auth'
+import { OmegaFilesClient } from '../src/files-api.ts'
 import { MESSAGES_FILES_BETA } from '../src/messages-api.ts'
 import { assemble, options, user, sourceModuleLoader } from './helpers.ts'
 
-const IN_HISTORY_MODEL = process.env.DEEPSEEK_IN_HISTORY_MODEL
+const IN_HISTORY_MODEL = process.env.OMEGA_IN_HISTORY_MODEL
+/** Real endpoint for these round trips; the product default is the local gateway, so a real host is explicit. */
+const REAL_API_BASE = process.env.OMEGA_BASE_URL
 const cleanups: (() => Promise<unknown>)[] = []
 afterEach(async () => {
   while (cleanups.length) await cleanups.pop()!()
@@ -42,7 +44,7 @@ async function boot(models?: Messages.Options['models'], baseURL = Protocol.PUBL
   const ctx = new Context()
   cleanups.push(() => ctx.fiber.dispose())
   await ctx.plugin(LlmRuntime)
-  await ctx.plugin(DeepSeekAuth)
+  await ctx.plugin(OmegaAuth)
   await ctx.plugin(Messages, {
     baseURL,
     maxTokens: 4096,
@@ -52,10 +54,10 @@ async function boot(models?: Messages.Options['models'], baseURL = Protocol.PUBL
 }
 const tool = { name: 'lookup_value', description: 'Read the requested value. Always call this tool to obtain a value.', parameters: { type: 'object', properties: { key: { type: 'string' } }, required: ['key'] } }
 
-describe.skipIf(!process.env.DEEPSEEK_API_KEY)('DeepSeek Messages real API', () => {
+describe.skipIf(!process.env.OMEGA_API_KEY)('Omega Messages real API', () => {
   it.each(['together', 'separate', 'initially empty'])('calls a tool added to an empty set, updates=%s', async (mode) => {
-    const model = 'deepseek-flash'
-    const ctx = await boot([{ id: model, toolUpdate: 'addition-only' }], process.env.DEEPSEEK_BASE_URL ?? Protocol.PUBLIC_BASE_URL)
+    const model = 'omega-flash'
+    const ctx = await boot([{ id: model, toolUpdate: 'addition-only' }], process.env.OMEGA_BASE_URL ?? Protocol.PUBLIC_BASE_URL)
     const updates = mode === 'initially empty' ? [] : [createDeveloperMessage({ source: { kind: 'tool-registry' }, content: [
       { type: 'tool-removal', toolName: 'old_lookup' },
       ...mode !== 'together' ? [] : [{ type: 'tool-addition' as const, toolName: tool.name }],
@@ -102,22 +104,22 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('DeepSeek Messages real API', () 
     const fetchImpl = globalThis.fetch
     const uploads: string[] = []
     const bodies: string[] = []
-    const files = new DeepSeekFilesClient({
-      baseURL: Protocol.PUBLIC_BASE_URL, headers: { 'x-api-key': process.env.DEEPSEEK_API_KEY as string }, fetch: fetchImpl,
+    const files = new OmegaFilesClient({
+      baseURL: REAL_API_BASE!, headers: { 'x-api-key': process.env.OMEGA_API_KEY as string }, fetch: fetchImpl,
     })
-    const ownedFiles = new Set<Protocol.DeepSeekFileId>()
+    const ownedFiles = new Set<Protocol.OmegaFileId>()
     cleanups.push(async () => {
       for (const id of ownedFiles) await files.delete(id)
     })
     vi.stubGlobal('fetch', async (input: string | URL | Request, init?: RequestInit) => {
       const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
       const response = await fetchImpl(input, init)
-      if (url === `${Protocol.PUBLIC_BASE_URL}/v1/files` && init?.method === 'POST' && response.ok) {
+      if (url === `${REAL_API_BASE}/v1/files` && init?.method === 'POST' && response.ok) {
         const file = await response.clone().json() as { id: string }
         uploads.push(file.id)
-        ownedFiles.add(brandString<Protocol.DeepSeekFileId>(file.id))
+        ownedFiles.add(brandString<Protocol.OmegaFileId>(file.id))
       }
-      if (url === `${Protocol.PUBLIC_BASE_URL}/v1/messages`) {
+      if (url === `${REAL_API_BASE}/v1/messages`) {
         expect(new Headers(init?.headers).get('anthropic-beta')).toBe(MESSAGES_FILES_BETA)
         if (typeof init?.body !== 'string') throw new Error('expected a JSON Messages request')
         bodies.push(init.body)
@@ -127,7 +129,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('DeepSeek Messages real API', () 
     const attachment = await ctx.attachments.saveImage({ data: await readFile(new URL('fixtures/red.png', import.meta.url)), mediaType: 'image/png' })
     const message = user('What is the dominant color of this image? Reply with one English color word.')
     const request = options({
-      model: 'deepseek-flash', reasoningEffort: brandString<ReasoningEffortId>('off'),
+      model: 'omega-flash', reasoningEffort: brandString<ReasoningEffortId>('off'),
       messages: [{ ...message, content: [...message.content, { type: 'image', attachment }] }],
     })
     for (let run = 0; run < 2; run++) {
@@ -138,7 +140,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('DeepSeek Messages real API', () 
     expect(uploads).toHaveLength(1)
     expect(bodies).toHaveLength(2)
     expect(bodies.every(body => body.includes(`"file_id":"${uploads[0]}"`) && !body.includes('"type":"base64"'))).toBe(true)
-    const fileId = brandString<Protocol.DeepSeekFileId>(uploads[0]!)
+    const fileId = brandString<Protocol.OmegaFileId>(uploads[0]!)
     const retrieved = await files.retrieve(fileId)
     expect(retrieved).toMatchObject({ id: fileId, bytes: attachment.bytes })
     expect(retrieved.expiresAt).toBeUndefined()
@@ -177,19 +179,19 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('DeepSeek Messages real API', () 
     await ctx.plugin(SessionProjectionRegistry)
     await ctx.plugin(AgentRegistry)
     await ctx.plugin(SessionStore)
-    await ctx.plugin(DeepSeekLlmApiExtensionRegistry)
-    await ctx.plugin(SessionLogDeepSeek, enabled ? {} : { enabled: false })
+    await ctx.plugin(OmegaLlmApiExtensionRegistry)
+    await ctx.plugin(SessionLogOmega, enabled ? {} : { enabled: false })
     ctx.baseUrl = import.meta.url
     // Select the source module while Loader owns its active package entry.
     ctx.loader.internal = sourceModuleLoader(async (specifier) => {
       if (specifier === unversionedModule) return import(specifier)
-      if (specifier !== '@deepseek-ai/dsh-plugin-package-inventory-deepseek') throw new Error(`unexpected Loader import: ${specifier}`)
-      return PluginPackageInventoryDeepSeek
+      if (specifier !== '@omega-ai/dsh-plugin-package-inventory-omega') throw new Error(`unexpected Loader import: ${specifier}`)
+      return PluginPackageInventoryOmega
     })
-    await ctx.loader.create({ name: '@deepseek-ai/dsh-plugin-package-inventory-deepseek' })
+    await ctx.loader.create({ name: '@omega-ai/dsh-plugin-package-inventory-omega' })
     await ctx.loader.create({ name: unversionedModule })
     await ctx.loader.await()
-    const packagePath = createRequire(import.meta.url).resolve('@deepseek-ai/dsh-plugin-package-inventory-deepseek/package.json')
+    const packagePath = createRequire(import.meta.url).resolve('@omega-ai/dsh-plugin-package-inventory-omega/package.json')
     const packageIdentity = JSON.parse(await readFile(packagePath, 'utf8')) as { name: string; version: string }
     const session = ctx.sessions.create(brandString<SessionId>(`real-messages-extensions-${randomUUID()}`))
     session.append('turn/start', { turn: 1 })
@@ -199,7 +201,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('DeepSeek Messages real API', () 
     let requests = 0
     vi.stubGlobal('fetch', async (input: string | URL | Request, init?: RequestInit) => {
       const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
-      if (url !== `${Protocol.PUBLIC_BASE_URL}/v1/messages`) return fetchImpl(input, init)
+      if (url !== `${REAL_API_BASE}/v1/messages`) return fetchImpl(input, init)
       if (typeof init?.body !== 'string') throw new Error('expected a JSON Messages request')
       const body = JSON.parse(init.body) as Record<string, unknown>
       expect(body.dsh_plugin_packages).toStrictEqual({
@@ -215,19 +217,19 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('DeepSeek Messages real API', () 
           events: Array.from({ length: throughSeq - afterSeq }, (_, index) => ({ seq: afterSeq + index + 1 })),
         } })
       } else expect(body).not.toHaveProperty('dsh_session_log')
-      expect(SessionLogDeepSeek.acceptedThrough(session)).toBe(afterSeq)
+      expect(SessionLogOmega.acceptedThrough(session)).toBe(afterSeq)
       const response = await fetchImpl(input, init)
       expect(response.ok).toBe(true)
-      expect(SessionLogDeepSeek.acceptedThrough(session)).toBe(afterSeq)
+      expect(SessionLogOmega.acceptedThrough(session)).toBe(afterSeq)
       requests += 1
       return response
     })
     for (let run = 0; run < 2; run++) {
-      afterSeq = SessionLogDeepSeek.acceptedThrough(session)
+      afterSeq = SessionLogOmega.acceptedThrough(session)
       throughSeq = Number(session.seq) - 1
       const assembler = new BlockAssembler()
       for await (const chunk of ctx.llm.stream(options({ sessionId: session.id, reasoningEffort: brandString<ReasoningEffortId>('off'), messages: [user('Reply with exactly PONG.')] }))) {
-        expect(SessionLogDeepSeek.acceptedThrough(session)).toBe(enabled ? throughSeq : -1)
+        expect(SessionLogOmega.acceptedThrough(session)).toBe(enabled ? throughSeq : -1)
         assembler.push(chunk)
       }
       expect(assembler.finish.kind).toBe('stop')
@@ -235,7 +237,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('DeepSeek Messages real API', () 
       expect(requests).toBe(run + 1)
       if (run === 0) session.append('step/start', { turn: 1, step: 1 })
     }
-    expect(session.snapshotEvents().filter(event => event.type === 'session-log-deepseek/delivery-accepted')).toHaveLength(enabled ? 2 : 0)
+    expect(session.snapshotEvents().filter(event => event.type === 'session-log-omega/delivery-accepted')).toHaveLength(enabled ? 2 : 0)
   })
 
   it.each(['off', 'low', 'high', 'max'])('streams text with %s effort', async (effort) => {
@@ -278,7 +280,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('DeepSeek Messages real API', () 
       user('Do not call tools. Reply with exactly EMPTY_TEXT_RECOVERED_731.'),
     ]
     const saved = JSON.stringify(history)
-    const response = await assemble(ctx.llm.stream(options({ model: 'deepseek-flash', messages: history, tools: [tool], reasoningEffort: brandString<ReasoningEffortId>('off') })))
+    const response = await assemble(ctx.llm.stream(options({ model: 'omega-flash', messages: history, tools: [tool], reasoningEffort: brandString<ReasoningEffortId>('off') })))
     expect(response.assembler.finish.kind).toBe('stop')
     expect(response.message.content.filter(block => block.type === 'text').map(block => block.text).join('')).toContain('EMPTY_TEXT_RECOVERED_731')
     expect(JSON.stringify(history)).toBe(saved)
@@ -289,7 +291,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('DeepSeek Messages real API', () 
     const callId = brandString<ToolCallId>('historical_lookup')
     const history = [
       user('Look up the secret value.'),
-      createAssistantMessage({ source: { provider: 'deepseek-official', model: 'deepseek-v4-flash' }, content: [
+      createAssistantMessage({ source: { provider: 'omega-official', model: 'omega-v4-flash' }, content: [
         { type: 'tool-call', id: callId, name: 'lookup_value', arguments: '{"key":"the "secret""}' },
       ] }),
       createToolResultMessage({ callId, content: [{ type: 'text', text: 'Invalid arguments: expected an object' }], isError: true }),
@@ -328,7 +330,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('DeepSeek Messages real API', () 
     const calls = first.message.content.filter(block => block.type === 'tool-call')
     expect(calls).toHaveLength(1)
     const restored = JSON.parse(JSON.stringify(first.message)) as typeof first.message
-    restored.source.replayState = { response: { kind: 'deepseek-messages', version: 2 }, blocks: [] }
+    restored.source.replayState = { response: { kind: 'omega-messages', version: 2 }, blocks: [] }
     const saved = JSON.stringify(restored)
     history.push(restored, ...calls.map(call => createToolResultMessage({ callId: call.id, content: [{ type: 'text', text: 'REPLAY_RECOVERED_731' }], isError: false })))
     const second = await assemble(ctx.llm.stream({ ...request, messages: history }))

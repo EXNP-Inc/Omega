@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/upgrade-guide/v0.2.2-rc.3/client-hmr-plugin-events-stream/guide.md
 /:
-  en: fc0f253f60ad41b4
-  zh: 4b7f02f9260c672a
+  en: 6140b47095fc85e6
+  zh: 58f13ae66fbeb661
 /plugin-events-stream-and-synced-browser-configuration:
   en: 2cd6093e448761ba
   zh: 66910abc17effed8
 /plugin-events-stream-and-synced-browser-configuration/change:
-  en: e80cac04584ccb64
-  zh: 4a5df915c8c20574
+  en: 423a31e61de3e181
+  zh: b69747a09a08c178
 /plugin-events-stream-and-synced-browser-configuration/migration:
-  en: a8c0674e9b91d83c
-  zh: 557341db53da1025
+  en: 9fa2d13ad068198e
+  zh: 2ee053cb76f8ceec

@@ -1,17 +1,17 @@
 /** Completed provider arguments fail before a malformed call can enter successful history or dispatch. */
 
 import { afterEach, describe, expect, it, onTestFinished } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import LlmRuntime, { BlockAssembler, createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { StreamChunk } from '@deepseek-ai/dsh-llm'
-import { PiAiAdapter } from '@deepseek-ai/dsh-llm-pi-ai'
-import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@deepseek-ai/dsh-agent-loop-testkit'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import { defineContentToolFixture } from '@deepseek-ai/dsh-tool-testkit'
+import { Context } from '@omega-ai/cordis'
+import LlmRuntime, { BlockAssembler, createUserMessage } from '@omega-ai/dsh-llm'
+import type { StreamChunk } from '@omega-ai/dsh-llm'
+import { PiAiAdapter } from '@omega-ai/dsh-llm-pi-ai'
+import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@omega-ai/dsh-agent-loop-testkit'
+import type { SessionId } from '@omega-ai/dsh-session'
+import { defineContentToolFixture } from '@omega-ai/dsh-tool-testkit'
 import { resolveProfiles } from '../src/config.ts'
 import { memoryAuth } from './auth-double.ts'
 import { anthropicFrame, anthropicMessageStart, closeMockServers, mockServer } from './mock-server.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 afterEach(closeMockServers)
 

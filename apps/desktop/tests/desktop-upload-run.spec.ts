@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import COS from 'cos-nodejs-sdk-v5'
 import { afterEach, describe, expect, it } from 'vitest'
-import { createDesktopCos, DESKTOP_COS_REGION } from '@deepseek-ai/dsh-desktop-publisher/desktop-cos.ts'
+import { createDesktopCos, DESKTOP_COS_REGION } from '@omega-ai/dsh-desktop-publisher/desktop-cos.ts'
 import { uploadDesktopRelease } from '../scripts/desktop-upload-run.ts'
 import type { DesktopUploadPlan } from '../scripts/desktop-upload-plan.ts'
 // Repository-only fixture: deliberately excluded from the publisher runtime exports.
@@ -196,7 +196,7 @@ describe('release upload audit with the real COS SDK and an isolated loopback or
 
 it('sends the fixed-download save filename through the real COS SDK', async () => {
   const f = await fixture('production')
-  const contentDisposition = 'attachment; filename="deepseek-harness-1.2.3-rc.5-win-x64.exe"'
+  const contentDisposition = 'attachment; filename="omega-harness-1.2.3-rc.5-win-x64.exe"'
   const plan = { ...f.plan, artifacts: [{ ...f.plan.artifacts[0]!, key: 'desktop/dsh-latest-windows-x64.exe', contentDisposition }] }
   const { cos, loopback } = await transport()
   await uploadDesktopRelease(plan, cos, f.records)

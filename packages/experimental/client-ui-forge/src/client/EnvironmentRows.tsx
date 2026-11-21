@@ -4,11 +4,11 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   Button, IconBranchOutlineRegular, IconEllipsisOutlineRegular, IconFilesDiffOutlineRegular, IconWarningTriangleOutlineRegular,
   MarqueeText, Menu, StateDot, Tooltip, useHoverMarquee,
-} from '@deepseek-ai/dsh-client-ui-primitives'
-import type { HostObservable, InjectFace, PropsLocale, PropsRenderFactories, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
-import type { RemoteHostFacts } from '@deepseek-ai/dsh-api-remotes/client'
-import type {} from '@deepseek-ai/dsh-client-ui-context-menu/client'
-import type {} from '@deepseek-ai/dsh-client-ui-session-panel/client'
+} from '@omega-ai/dsh-client-ui-primitives'
+import type { HostObservable, InjectFace, PropsLocale, PropsRenderFactories, PropsRuntime } from '@omega-ai/dsh-client-ui-slots'
+import type { RemoteHostFacts } from '@omega-ai/dsh-api-remotes/client'
+import type {} from '@omega-ai/dsh-client-ui-context-menu/client'
+import type {} from '@omega-ai/dsh-client-ui-session-panel/client'
 import { checkoutLabel } from './checkout.ts'
 import type { NS } from './locales.ts'
 import type { PanelSnapshot } from './source.ts'

@@ -1,15 +1,15 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { AttachmentId, ImageVariantId } from '@deepseek-ai/dsh-attachment'
-import type { AttachmentStore, ImageAttachmentRef, ImageRequestTarget, RequestImageAttachment } from '@deepseek-ai/dsh-attachment'
-import { createToolResultMessage, createUserMessage, type ToolCallId, CONTEXT_WINDOW_EXCEEDED_CODE, EMPTY_RESPONSE_CODE, createMessage } from '@deepseek-ai/dsh-llm'
-import type { ContentBlock, StreamChunk } from '@deepseek-ai/dsh-llm'
+import type { AttachmentId, ImageVariantId } from '@omega-ai/dsh-attachment'
+import type { AttachmentStore, ImageAttachmentRef, ImageRequestTarget, RequestImageAttachment } from '@omega-ai/dsh-attachment'
+import { createToolResultMessage, createUserMessage, type ToolCallId, CONTEXT_WINDOW_EXCEEDED_CODE, EMPTY_RESPONSE_CODE, createMessage } from '@omega-ai/dsh-llm'
+import type { ContentBlock, StreamChunk } from '@omega-ai/dsh-llm'
 import type { AssistantMessage, AssistantMessageEvent, Usage } from '@earendil-works/pi-ai'
 import { transformMessages } from '@earendil-works/pi-ai/api/transform-messages'
 import { getBuiltinModels } from '@earendil-works/pi-ai/providers/all'
 import { toPiContext } from '../src/context.ts'
 import { toPiReplayState } from '../src/replay.ts'
 import { mapStopReason, mapUsage, toStreamChunks } from '../src/stream.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 function usage(input = 0, output = 0, cacheRead = 0, cacheWrite = 0): Usage {
   return {
@@ -27,8 +27,8 @@ function assistant(overrides: Partial<AssistantMessage> = {}): AssistantMessage 
     role: 'assistant',
     content: [],
     api: 'openai-completions',
-    provider: 'deepseek',
-    model: 'deepseek-v4-flash',
+    provider: 'omega',
+    model: 'omega-v4-flash',
     usage: usage(),
     stopReason: 'stop',
     timestamp: 0,
@@ -76,8 +76,8 @@ function imageContext(attachments: AttachmentStore) {
 describe('toPiContext', () => {
   it('maps system prompt, user text, and tools', () => {
     const context = toPiContext({
-      provider: 'deepseek',
-      model: 'deepseek-v4-flash',
+      provider: 'omega',
+      model: 'omega-v4-flash',
       system: 'be helpful',
       messages: [createUserMessage({
         content: [{ type: 'text', text: 'hi' }],
@@ -93,7 +93,7 @@ describe('toPiContext', () => {
   })
 
   it('omits empty tools and absent system prompt', () => {
-    const context = toPiContext({ provider: 'deepseek', model: 'm', messages: [], tools: [] })
+    const context = toPiContext({ provider: 'omega', model: 'm', messages: [], tools: [] })
     expect(context).toEqual({ messages: [] })
   })
 
@@ -193,7 +193,7 @@ describe('toPiContext', () => {
 
   it('maps assistant text/reasoning/tool-call blocks', () => {
     const context = toPiContext({
-      provider: 'deepseek',
+      provider: 'omega',
       model: 'm',
       messages: [createMessage({
         role: 'assistant',
@@ -202,7 +202,7 @@ describe('toPiContext', () => {
           { type: 'text', text: 'calling' },
           { type: 'tool-call', id: brandString<ToolCallId>('c1'), name: 'f', arguments: '{"a":1}' },
         ],
-        source: { kind: 'model', provider: 'deepseek', model: 'm' },
+        source: { kind: 'model', provider: 'omega', model: 'm' },
       })],
     })
     const message = context.messages[0] as AssistantMessage
@@ -217,11 +217,11 @@ describe('toPiContext', () => {
 
   it('marks tool-call-free assistant messages with stopReason stop', () => {
     const context = toPiContext({
-      provider: 'deepseek',
+      provider: 'omega',
       model: 'm',
       messages: [createMessage({
         role: 'assistant', content: [{ type: 'text', text: 'done' }],
-        source: { kind: 'model', provider: 'deepseek', model: 'm' },
+        source: { kind: 'model', provider: 'omega', model: 'm' },
       })],
     })
     expect((context.messages[0] as AssistantMessage).stopReason).toBe('stop')
@@ -234,25 +234,25 @@ describe('toPiContext', () => {
       messages: [createMessage({
         role: 'assistant',
         content: [{ type: 'text', text: 'done' }],
-        source: { kind: 'model', provider: 'deepseek', model: 'old-model' },
+        source: { kind: 'model', provider: 'omega', model: 'old-model' },
       })],
     })
     expect(context.messages[0]).toMatchObject({
       role: 'assistant',
       api: 'dsh-foreign',
-      provider: 'deepseek',
+      provider: 'omega',
       model: 'old-model',
     })
   })
 
   it('parses malformed tool-call arguments to {}', () => {
     const context = toPiContext({
-      provider: 'deepseek',
+      provider: 'omega',
       model: 'm',
       messages: [createMessage({
         role: 'assistant',
         content: [{ type: 'tool-call', id: brandString<ToolCallId>('c1'), name: 'f', arguments: '{broken' }],
-        source: { kind: 'model', provider: 'deepseek', model: 'm' },
+        source: { kind: 'model', provider: 'omega', model: 'm' },
       })],
     })
     const message = context.messages[0] as AssistantMessage
@@ -261,12 +261,12 @@ describe('toPiContext', () => {
 
   it('parses non-object argument JSON (arrays, scalars) to {}', () => {
     const context = toPiContext({
-      provider: 'deepseek',
+      provider: 'omega',
       model: 'm',
       messages: [createMessage({
         role: 'assistant',
         content: [{ type: 'tool-call', id: brandString<ToolCallId>('c1'), name: 'f', arguments: '[1,2]' }],
-        source: { kind: 'model', provider: 'deepseek', model: 'm' },
+        source: { kind: 'model', provider: 'omega', model: 'm' },
       })],
     })
     expect((context.messages[0] as AssistantMessage).content[0]).toMatchObject({ arguments: {} })
@@ -274,13 +274,13 @@ describe('toPiContext', () => {
 
   it('recovers toolName for tool results from the preceding assistant call', () => {
     const context = toPiContext({
-      provider: 'deepseek',
+      provider: 'omega',
       model: 'm',
       messages: [
         createMessage({
           role: 'assistant',
           content: [{ type: 'tool-call', id: brandString<ToolCallId>('c1'), name: 'get_weather', arguments: '{}' }],
-          source: { kind: 'model', provider: 'deepseek', model: 'm' },
+          source: { kind: 'model', provider: 'omega', model: 'm' },
         }),
         createToolResultMessage({
           callId: brandString<ToolCallId>('c1'),
@@ -305,7 +305,7 @@ describe('toPiContext', () => {
 
   it('labels unmatched tool results with toolName unknown and keeps isError', () => {
     const context = toPiContext({
-      provider: 'deepseek',
+      provider: 'omega',
       model: 'm',
       messages: [createToolResultMessage({ callId: brandString<ToolCallId>('zz'), content: [], isError: true })],
     })
@@ -319,7 +319,7 @@ describe('toPiContext', () => {
 
   it('preserves the leading system message ahead of user text and tool results', () => {
     const context = toPiContext({
-      provider: 'deepseek',
+      provider: 'omega',
       model: 'm',
       messages: [
         createMessage({
@@ -328,7 +328,7 @@ describe('toPiContext', () => {
         }),
         createUserMessage({
           content: [{ type: 'text', text: 'note' }],
-          source: { kind: 'model', provider: 'deepseek', model: 'm' },
+          source: { kind: 'model', provider: 'omega', model: 'm' },
         }),
         createToolResultMessage({
           callId: brandString<ToolCallId>('c1'),
@@ -343,7 +343,7 @@ describe('toPiContext', () => {
 
   it('skips plugin-added (unknown) blocks in assistant content', () => {
     const context = toPiContext({
-      provider: 'deepseek',
+      provider: 'omega',
       model: 'm',
       messages: [createMessage({
         role: 'assistant',
@@ -351,7 +351,7 @@ describe('toPiContext', () => {
           { type: 'chart', data: 'x' } as unknown as ContentBlock,
           { type: 'text', text: 'visible' },
         ],
-        source: { kind: 'model', provider: 'deepseek', model: 'm' },
+        source: { kind: 'model', provider: 'omega', model: 'm' },
       })],
     })
     expect((context.messages[0] as AssistantMessage).content).toEqual([{ type: 'text', text: 'visible' }])
@@ -479,7 +479,7 @@ describe('toPiContext', () => {
       ],
     }))
     const context = toPiContext({
-      provider: 'deepseek',
+      provider: 'omega',
       model: 'new-model',
       messages: [createMessage({
         role: 'assistant',
@@ -490,7 +490,7 @@ describe('toPiContext', () => {
         ],
         source: {
           kind: 'model',
-          ...{ provider: 'deepseek', model: 'deepseek-v4-flash', replayState: state },
+          ...{ provider: 'omega', model: 'omega-v4-flash', replayState: state },
         },
       })],
     })
@@ -512,7 +512,7 @@ describe('toPiContext', () => {
   it('degrades unsupported replay-state versions to provider-neutral history', () => {
     const onDegrade = vi.fn()
     const context = toPiContext({
-      provider: 'deepseek',
+      provider: 'omega',
       model: 'm',
       messages: [createMessage({
         role: 'assistant',
@@ -520,7 +520,7 @@ describe('toPiContext', () => {
         source: {
           kind: 'model',
           ...{
-            provider: 'deepseek',
+            provider: 'omega',
             model: 'old',
             replayState: { response: { kind: 'pi-ai', version: 3 }, blocks: [] },
           },
@@ -530,7 +530,7 @@ describe('toPiContext', () => {
     expect(context.messages[0]).toMatchObject({
       role: 'assistant',
       api: 'dsh-foreign',
-      provider: 'deepseek',
+      provider: 'omega',
       model: 'old',
       content: [{ type: 'text', text: 'done' }],
     })
@@ -540,7 +540,7 @@ describe('toPiContext', () => {
   it('degrades the flat pre-envelope replay state a legacy session log carries', () => {
     const onDegrade = vi.fn()
     const context = toPiContext({
-      provider: 'deepseek',
+      provider: 'omega',
       model: 'm',
       messages: [createMessage({
         role: 'assistant',
@@ -548,14 +548,14 @@ describe('toPiContext', () => {
         source: {
           kind: 'model',
           ...{
-            provider: 'deepseek',
-            model: 'deepseek-v4-flash',
+            provider: 'omega',
+            model: 'omega-v4-flash',
             replayState: {
               kind: 'pi-ai',
               version: 1,
               api: 'openai-completions',
-              provider: 'deepseek',
-              model: 'deepseek-v4-flash',
+              provider: 'omega',
+              model: 'omega-v4-flash',
               stopReason: 'stop',
               blocks: [{ type: 'text' }],
             },
@@ -571,14 +571,14 @@ describe('toPiContext', () => {
     const onDegrade = vi.fn()
     const state = toPiReplayState(assistant({ content: [{ type: 'text', text: 'done' }] }))
     const context = toPiContext({
-      provider: 'deepseek',
+      provider: 'omega',
       model: 'm',
       messages: [createMessage({
         role: 'assistant',
         content: [{ type: 'reasoning', text: 'done' }],
         source: {
           kind: 'model',
-          ...{ provider: 'deepseek', model: 'deepseek-v4-flash', replayState: state },
+          ...{ provider: 'omega', model: 'omega-v4-flash', replayState: state },
         },
       })],
     }, undefined, onDegrade)
@@ -594,22 +594,22 @@ describe('toPiContext', () => {
     const onDegrade = vi.fn()
     const state = toPiReplayState(assistant())
     const context = toPiContext({
-      provider: 'deepseek',
+      provider: 'omega',
       model: 'm',
       messages: [createMessage({
         role: 'assistant',
         content: [{ type: 'text', text: 'done' }],
         source: {
           kind: 'model',
-          ...{ provider: 'deepseek', model: 'deepseek-v4-flash', replayState: state },
+          ...{ provider: 'omega', model: 'omega-v4-flash', replayState: state },
         },
       })],
     }, undefined, onDegrade)
     expect(context.messages[0]).toMatchObject({
       role: 'assistant',
       api: 'dsh-foreign',
-      provider: 'deepseek',
-      model: 'deepseek-v4-flash',
+      provider: 'omega',
+      model: 'omega-v4-flash',
       content: [{ type: 'text', text: 'done' }],
       stopReason: 'stop',
     })
@@ -620,8 +620,8 @@ describe('toPiContext', () => {
     kind: 'pi-ai',
     version: 2,
     api: 'openai-completions',
-    provider: 'deepseek',
-    model: 'deepseek-v4-flash',
+    provider: 'omega',
+    model: 'omega-v4-flash',
     stopReason: 'stop',
   }
   const validReplay = { response: validResponse, blocks: [{ type: 'text' }] }
@@ -630,14 +630,14 @@ describe('toPiContext', () => {
   function expectDegraded(replayState: unknown, message: string): void {
     const onDegrade = vi.fn()
     const context = toPiContext({
-      provider: 'deepseek',
+      provider: 'omega',
       model: 'next-model',
       messages: [createMessage({
         role: 'assistant',
         content: [{ type: 'text', text: 'done' }],
         source: {
           kind: 'model',
-          ...{ provider: 'deepseek', model: 'deepseek-v4-flash', replayState },
+          ...{ provider: 'omega', model: 'omega-v4-flash', replayState },
         },
       })],
     }, undefined, onDegrade)
@@ -651,7 +651,7 @@ describe('toPiContext', () => {
 
   it.each([
     ['provider', { ...validReplay, response: { ...validResponse, provider: 'openai' } }],
-    ['model', { ...validReplay, response: { ...validResponse, model: 'deepseek-v4-pro' } }],
+    ['model', { ...validReplay, response: { ...validResponse, model: 'omega-v4-pro' } }],
   ])('degrades replay metadata whose %s differs from assistant source', (field, replayState) => {
     expectDegraded(replayState, `${field} does not match assistant source`)
   })
@@ -756,8 +756,8 @@ describe('toStreamChunks', () => {
             kind: 'pi-ai',
             version: 2,
             api: 'openai-completions',
-            provider: 'deepseek',
-            model: 'deepseek-v4-flash',
+            provider: 'omega',
+            model: 'omega-v4-flash',
             stopReason: 'stop',
           },
           blocks: [{ type: 'text' }],
@@ -807,8 +807,8 @@ describe('toStreamChunks', () => {
             kind: 'pi-ai',
             version: 2,
             api: 'openai-completions',
-            provider: 'deepseek',
-            model: 'deepseek-v4-flash',
+            provider: 'omega',
+            model: 'omega-v4-flash',
             stopReason: 'toolUse',
           },
           blocks: [{ type: 'tool-call' }],
@@ -868,11 +868,11 @@ describe('mapStopReason / mapUsage', () => {
     ['toolUse', { kind: 'tool-calls' }],
     ['pending', {
       kind: 'error',
-      failure: { message: 'pi-ai stream for model "deepseek-v4-flash" ended pending', code: 'PI_AI_ERROR' },
+      failure: { message: 'pi-ai stream for model "omega-v4-flash" ended pending', code: 'PI_AI_ERROR' },
     }],
     ['deferred', {
       kind: 'error',
-      failure: { message: 'pi-ai deferred response for model "deepseek-v4-flash" is not supported', code: 'PI_AI_ERROR' },
+      failure: { message: 'pi-ai deferred response for model "omega-v4-flash" is not supported', code: 'PI_AI_ERROR' },
     }],
     ['aborted', { kind: 'aborted', failure: { message: 'pi-ai stream aborted', code: 'ABORTED' } }],
   ] as const)('maps %s', (stopReason, expected) => {
@@ -883,7 +883,7 @@ describe('mapStopReason / mapUsage', () => {
     expect(mapStopReason(assistant({ stopReason: 'stop' }))).toEqual({
       kind: 'error',
       failure: {
-        message: 'model "deepseek-v4-flash" returned a completed response with no content',
+        message: 'model "omega-v4-flash" returned a completed response with no content',
         code: EMPTY_RESPONSE_CODE,
       },
     })
@@ -990,7 +990,7 @@ describe('mapStopReason / mapUsage', () => {
     expect(mapStopReason(silent, 100)).toEqual({
       kind: 'error',
       failure: {
-        message: 'pi-ai detected context overflow for model "deepseek-v4-flash"',
+        message: 'pi-ai detected context overflow for model "omega-v4-flash"',
         code: CONTEXT_WINDOW_EXCEEDED_CODE,
       },
     })

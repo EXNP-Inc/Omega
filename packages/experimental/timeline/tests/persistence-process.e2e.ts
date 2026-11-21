@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { SessionId } from '@deepseek-ai/dsh-session'
+import { SessionId } from '@omega-ai/dsh-session'
 import { Adapter, setup } from './fixture.ts'
 
 describe('Timeline persistence across built Host processes', () => {

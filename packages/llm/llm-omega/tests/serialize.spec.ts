@@ -1,10 +1,10 @@
 /** Request conversion and durable replay validation. */
 import { describe, expect, it, vi } from 'vitest'
-import { createDeveloperMessage, createUserMessage, createAssistantMessage, createMessage, createSystemMessage, createToolResultMessage, type ReasoningEffortId, type ToolCallId } from '@deepseek-ai/dsh-llm'
-import type { ContentBlock, GenerateOptions, ImageBlock, Message, RequestMessage, RequestUserInput } from '@deepseek-ai/dsh-llm'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { AttachmentId, ImageVariantId } from '@deepseek-ai/dsh-attachment/types'
-import type { ImageAttachmentRef, RequestImageAttachment } from '@deepseek-ai/dsh-attachment'
+import { createDeveloperMessage, createUserMessage, createAssistantMessage, createMessage, createSystemMessage, createToolResultMessage, type ReasoningEffortId, type ToolCallId } from '@omega-ai/dsh-llm'
+import type { ContentBlock, GenerateOptions, ImageBlock, Message, RequestMessage, RequestUserInput } from '@omega-ai/dsh-llm'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { AttachmentId, ImageVariantId } from '@omega-ai/dsh-attachment/types'
+import type { ImageAttachmentRef, RequestImageAttachment } from '@omega-ai/dsh-attachment'
 import { resolveAdapterOptions } from '../src/config.ts'
 import { modelInfo } from '../src/model-info.ts'
 import type { Options as Config } from '../src/config.ts'
@@ -15,7 +15,7 @@ import { MODEL, options, user, requestImageStore } from './helpers.ts'
 
 const connection = resolveAdapterOptions({})
 const call = (id = 'a'): ContentBlock => ({ type: 'tool-call', id: brandString<ToolCallId>(id), name: 'read', arguments: '{"path":"a"}' })
-const assistant = (content: ContentBlock[]) => createAssistantMessage({ content, source: { provider: 'deepseek-official', model: MODEL } })
+const assistant = (content: ContentBlock[]) => createAssistantMessage({ content, source: { provider: 'omega-official', model: MODEL } })
 const result = (id = 'a', content: ContentBlock[] = [{ type: 'text', text: 'result' }]) => createToolResultMessage({ callId: brandString<ToolCallId>(id), content, isError: false })
 const body = (messages: RequestMessage[] = [user()], overrides: Partial<GenerateOptions> = {}) => serialize(
   options({ messages, ...overrides }), connection, messages, new Map(), () => undefined,
@@ -30,7 +30,7 @@ describe('Messages request conversion', () => {
       { type: 'text', text: '' }, { type: 'reasoning', text: 'reason' }, call(id), { type: 'text', text: '' },
     ]
     const message = createAssistantMessage({ content, source: {
-      provider: 'deepseek-official', model: MODEL,
+      provider: 'omega-official', model: MODEL,
       replayState: replayState(MODEL, [{ type: 'text' }, { type: 'reasoning', signature: 'signed' }, { type: 'tool-call' }, { type: 'text' }]),
     } })
     const request = body([user(), assistant([{ type: 'text', text: '' }]), message, result(id)])
@@ -197,7 +197,7 @@ describe('Messages request conversion', () => {
       for (const messages of [history, [...history, assistant([{ type: 'text', text: 'next answer' }])]]) {
         expect(() => nativeBody(messages)).toThrow(expect.objectContaining({
           code: 'UNSUPPORTED_CONTENT',
-          message: 'DeepSeek Messages cannot represent system update without a preceding user or tool-result turn',
+          message: 'Omega Messages cannot represent system update without a preceding user or tool-result turn',
         }))
       }
       expect(JSON.stringify(history)).toBe(saved)
@@ -372,7 +372,7 @@ describe('Messages request conversion', () => {
 
   it('preserves own signed thinking, omits absent signatures and validates durable metadata', () => {
     const content: ContentBlock[] = [{ type: 'reasoning', text: '' }, { type: 'text', text: 'answer' }]
-    const source = { provider: 'deepseek-official', model: MODEL, replayState: replayState(MODEL, [{ type: 'reasoning', signature: 'signed' }, { type: 'text' }]) }
+    const source = { provider: 'omega-official', model: MODEL, replayState: replayState(MODEL, [{ type: 'reasoning', signature: 'signed' }, { type: 'text' }]) }
     const message = createAssistantMessage({ content, source })
     expect(body([user(), message, user()]).messages[1]?.content).toEqual([{ type: 'thinking', thinking: '', signature: 'signed' }, { type: 'text', text: 'answer' }])
     expect(body([assistant([{ type: 'reasoning', text: 'foreign thought' }])]).messages[0]?.content).toEqual([{ type: 'thinking', thinking: 'foreign thought' }])
@@ -385,15 +385,15 @@ describe('Messages request conversion', () => {
     [],
     { response: null, blocks: [] },
     { response: { kind: 'other', version: 1 }, blocks: [] },
-    { response: { kind: 'deepseek-messages', version: 2 }, blocks: [] },
-    { response: { kind: 'deepseek-messages', version: 1, model: 'wrong' }, blocks: [] },
-    { response: { kind: 'deepseek-messages', version: 1, model: MODEL }, blocks: [] },
-    { response: { kind: 'deepseek-messages', version: 1, model: MODEL }, blocks: null },
-    { response: { kind: 'deepseek-messages', version: 1, model: MODEL }, blocks: [null] },
-    { response: { kind: 'deepseek-messages', version: 1, model: MODEL }, blocks: [{ type: 'tool-call' }] },
-    { response: { kind: 'deepseek-messages', version: 1, model: MODEL }, blocks: [{ type: 'reasoning', signature: 3 }] },
+    { response: { kind: 'omega-messages', version: 2 }, blocks: [] },
+    { response: { kind: 'omega-messages', version: 1, model: 'wrong' }, blocks: [] },
+    { response: { kind: 'omega-messages', version: 1, model: MODEL }, blocks: [] },
+    { response: { kind: 'omega-messages', version: 1, model: MODEL }, blocks: null },
+    { response: { kind: 'omega-messages', version: 1, model: MODEL }, blocks: [null] },
+    { response: { kind: 'omega-messages', version: 1, model: MODEL }, blocks: [{ type: 'tool-call' }] },
+    { response: { kind: 'omega-messages', version: 1, model: MODEL }, blocks: [{ type: 'reasoning', signature: 3 }] },
   ].map(state => ({ state })))('degrades unusable replay state with a diagnostic %#', ({ state }) => {
-    const message = createAssistantMessage({ content: [{ type: 'reasoning', text: 'think' }], source: { provider: 'deepseek-official', model: MODEL, replayState: state } })
+    const message = createAssistantMessage({ content: [{ type: 'reasoning', text: 'think' }], source: { provider: 'omega-official', model: MODEL, replayState: state } })
     const onDegrade = vi.fn()
     expect(readReplay(message, MODEL, onDegrade)).toBeUndefined()
     expect(onDegrade).toHaveBeenCalledExactlyOnceWith(expect.any(String))
@@ -403,7 +403,7 @@ describe('Messages request conversion', () => {
   it.each([MODEL, 'different-model'])('keeps durable content when replay degrades for %s', async (model) => {
     const message = createAssistantMessage({
       content: [{ type: 'reasoning', text: 'Read the file.' }, { type: 'text', text: 'Checking a.' }, call()],
-      source: { provider: 'deepseek-official', model: MODEL, replayState: replayState(MODEL, [
+      source: { provider: 'omega-official', model: MODEL, replayState: replayState(MODEL, [
         { type: 'reasoning', signature: 'do-not-send' }, { type: 'text', signature: 'invalid-for-text' }, { type: 'tool-call' },
       ]) },
     })
@@ -412,7 +412,7 @@ describe('Messages request conversion', () => {
     const messages = [user(), restored, result()]
     const onDegrade = vi.fn()
     const request = serialize(options({ model }), connection, messages, new Map(), () => undefined, onDegrade)
-    expect(onDegrade).toHaveBeenCalledExactlyOnceWith('DeepSeek Messages replay: invalid signature')
+    expect(onDegrade).toHaveBeenCalledExactlyOnceWith('Omega Messages replay: invalid signature')
     await expect(JSON.stringify(request.messages, null, 2) + '\n').toMatchFileSnapshot('expected/degraded-replay.json')
     expect(JSON.stringify(restored)).toBe(saved)
   })
@@ -420,7 +420,7 @@ describe('Messages request conversion', () => {
   it('keeps valid cross-model and foreign history quiet and propagates diagnostic failures', () => {
     const onDegrade = vi.fn()
     const message = createAssistantMessage({ content: [{ type: 'reasoning', text: 'think' }], source: {
-      provider: 'deepseek-official', model: MODEL, replayState: replayState(MODEL, [{ type: 'reasoning', signature: '' }]),
+      provider: 'omega-official', model: MODEL, replayState: replayState(MODEL, [{ type: 'reasoning', signature: '' }]),
     } })
     expect(readReplay(message, MODEL, onDegrade)).toEqual([{ type: 'reasoning', signature: '' }])
     expect(readReplay(message, 'different-model', onDegrade)).toBeUndefined()
@@ -433,7 +433,7 @@ describe('Messages request conversion', () => {
 
   it.each([1, 2])('uses empty historical tool input with replay version %s', (version) => {
     const message = createAssistantMessage({ content: [{ type: 'tool-call', id: brandString<ToolCallId>('a'), name: 'read', arguments: '{' }], source: {
-      provider: 'deepseek-official', model: MODEL, replayState: { response: { kind: 'deepseek-messages', version, model: MODEL }, blocks: [{ type: 'tool-call' }] },
+      provider: 'omega-official', model: MODEL, replayState: { response: { kind: 'omega-messages', version, model: MODEL }, blocks: [{ type: 'tool-call' }] },
     } })
     const saved = JSON.stringify(message)
     const onDegrade = vi.fn()
@@ -446,18 +446,21 @@ describe('Messages request conversion', () => {
 
 describe('validated configuration', () => {
   it('advertises exact model metadata and allows unlisted text models', () => {
-    expect(modelInfo(connection, 'deepseek-official', MODEL)).toMatchObject({ context: { contextWindow: 1_000_000 }, defaultMaxTokens: 256_000, reasoning: { efforts: [{ id: 'off' }, { id: 'low' }, { id: 'high' }, { id: 'max' }], defaultEffort: 'high' } })
-    expect(modelInfo(connection, 'deepseek-official', 'custom').inputModalities).toEqual(['text'])
-    expect(modelInfo(connection, 'deepseek-official', MODEL).systemPromptUpdate).toBeUndefined()
-    expect(modelInfo(connection, 'deepseek-official', 'custom').systemPromptUpdate).toBeUndefined()
-    expect(modelInfo(capable, 'deepseek-official', MODEL).systemPromptUpdate).toBe('in-history')
-    expect(modelInfo(capable, 'deepseek-official', 'custom').systemPromptUpdate).toBeUndefined()
-    expect(modelInfo(connection, 'deepseek-official', MODEL).toolUpdate).toBeUndefined()
-    expect(modelInfo(connection, 'deepseek-official', 'deepseek-flash').toolUpdate).toBe('addition-only')
+    expect(modelInfo(connection, 'omega-official', MODEL)).toMatchObject({ context: { contextWindow: 1_000_000 }, defaultMaxTokens: 256_000, reasoning: { efforts: [{ id: 'off' }, { id: 'low' }, { id: 'high' }, { id: 'max' }], defaultEffort: 'high' } })
+    expect(modelInfo(connection, 'omega-official', 'custom').inputModalities).toEqual(['text'])
+    expect(modelInfo(connection, 'omega-official', MODEL).systemPromptUpdate).toBeUndefined()
+    expect(modelInfo(connection, 'omega-official', 'custom').systemPromptUpdate).toBeUndefined()
+    expect(modelInfo(capable, 'omega-official', MODEL).systemPromptUpdate).toBe('in-history')
+    expect(modelInfo(capable, 'omega-official', 'custom').systemPromptUpdate).toBeUndefined()
+    expect(modelInfo(connection, 'omega-official', MODEL).toolUpdate).toBeUndefined()
+    // The built-in catalog is empty, so unlisted omega-flash resolves to the fallback shape; inject it to drive the addition-only path.
+    expect(modelInfo(connection, 'omega-official', 'omega-flash').toolUpdate).toBeUndefined()
+    const additionOnly = resolveAdapterOptions({ models: [{ id: 'omega-flash', toolUpdate: 'addition-only' }] })
+    expect(modelInfo(additionOnly, 'omega-official', 'omega-flash').toolUpdate).toBe('addition-only')
     const inHistoryTools = resolveAdapterOptions({ models: [{ id: MODEL, toolUpdate: 'in-history' }] })
-    expect(modelInfo(inHistoryTools, 'deepseek-official', MODEL).toolUpdate).toBe('in-history')
-    expect(modelInfo(inHistoryTools, 'deepseek-official', 'custom').toolUpdate).toBeUndefined()
-    expect(modelInfo(resolveAdapterOptions({ thinking: 'disabled' }), 'deepseek-official', MODEL).reasoning?.efforts).toMatchObject([{ id: 'off', name: 'Off' }])
+    expect(modelInfo(inHistoryTools, 'omega-official', MODEL).toolUpdate).toBe('in-history')
+    expect(modelInfo(inHistoryTools, 'omega-official', 'custom').toolUpdate).toBeUndefined()
+    expect(modelInfo(resolveAdapterOptions({ thinking: 'disabled' }), 'omega-official', MODEL).reasoning?.efforts).toMatchObject([{ id: 'off', name: 'Off' }])
     expect(resolveAdapterOptions({ baseURL: 'https://example.com/anthropic///' }).baseURL).toBe('https://example.com/anthropic///')
   })
   it.each([
@@ -479,25 +482,28 @@ describe('Messages images', () => {
   const image: ImageBlock = { type: 'image', attachment: ref }
   const version: RequestImageAttachment = { attachment: ref, variantId: brandString<ImageVariantId>(`sha256:${'b'.repeat(64)}`), mediaType: 'image/png', bytes: 3, data: Uint8Array.of(1, 2, 3), width: 1, height: 1, depth: 'uchar', space: 'srgb', hasAlpha: false }
   const access = () => ({ readonlyPath: '/workspace/image.png' })
-  const model = 'deepseek-flash'
+  const model = 'omega-flash'
   // Only the read operation is consumed by image preparation; the transport is mocked, not durable content.
   const attachments = requestImageStore(async () => version)
   const signal = new AbortController().signal
+  // The catalog ships empty, so the image tests supply the vision capability they exercise.
+  const vision = resolveAdapterOptions({ models: [{ id: model, inputModalities: ['text', 'image'] }] })
   it('keeps image bytes inside tool results and deduplicates normalization', async () => {
     const history = [assistant([call()]), result('a', [image, image])]
-    const prepared = await prepareImages(history, connection, model, attachments, access, signal)
+    const prepared = await prepareImages(history, vision, model, attachments, access, signal)
     expect(prepared.versions.size).toBe(1)
-    const request = serialize(options({ model }), connection, prepared.messages, prepared.versions, access)
+    const request = serialize(options({ model }), vision, prepared.messages, prepared.versions, access)
     expect(request.messages[1]?.content[0]).toMatchObject({ type: 'tool_result', content: [
       { type: 'text', text: expect.stringContaining('/workspace/image.png') as string }, { type: 'image', source: { type: 'base64', media_type: 'image/png', data: 'AQID' } },
       { type: 'text' }, { type: 'image' },
     ] })
-    expect(imagePricing(connection, model, access).priceImages([image])[0]?.visualTokens).toBeGreaterThan(0)
+    expect(imagePricing(vision, model, access).priceImages([image])[0]?.visualTokens).toBeGreaterThan(0)
     expect(imagePricing(connection, MODEL, access).priceImages([image])[0]?.visualTokens).toBe(0)
   })
   it('requires logged offload at exact encoded bytes and preserves durable references', async () => {
     const config = resolveAdapterOptions({
       maxInlineRequestImageBytes: 4, inlineImageOffloadByteQuantum: 1, maxImagesPerRequest: 2, imageOffloadCountQuantum: 1,
+      models: [{ id: model, inputModalities: ['text', 'image'] }],
     })
     const offloadFailure: unknown = expect.objectContaining({ code: 'IMAGE_OFFLOAD_REQUIRED', offloadImages: 1 })
     const history = [result('a', [image, image])]

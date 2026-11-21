@@ -1,23 +1,23 @@
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import type { Agent, AgentStatus } from '@deepseek-ai/dsh-agent'
-import CommandRuntime from '@deepseek-ai/dsh-commands'
-import SessionStore, { foldSurface, Session, type SessionId } from '@deepseek-ai/dsh-session'
-import * as commandFeedback from '@deepseek-ai/dsh-command-feedback'
-import type { FeedbackRecord } from '@deepseek-ai/dsh-command-feedback/types'
-import { remoteMethods } from '@deepseek-ai/dsh-typert-protocol'
-import { unsupportedModel, unsupportedInbox } from '@deepseek-ai/dsh-agent-loop-testkit'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { Context } from '@omega-ai/cordis'
+import Loader from '@omega-ai/cordis-plugin-loader'
+import AgentRegistry from '@omega-ai/dsh-agent'
+import type { Agent, AgentStatus } from '@omega-ai/dsh-agent'
+import CommandRuntime from '@omega-ai/dsh-commands'
+import SessionStore, { foldSurface, Session, type SessionId } from '@omega-ai/dsh-session'
+import * as commandFeedback from '@omega-ai/dsh-command-feedback'
+import type { FeedbackRecord } from '@omega-ai/dsh-command-feedback/types'
+import { remoteMethods } from '@omega-ai/dsh-typert-protocol'
+import { unsupportedModel, unsupportedInbox } from '@omega-ai/dsh-agent-loop-testkit'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const { USER_ID, getOrCreateAnonymousUserId } = vi.hoisted(() => {
   const USER_ID = '01234567-89ab-4cde-8f01-23456789abcd'
   return { USER_ID, getOrCreateAnonymousUserId: vi.fn(() => USER_ID) }
 })
 
-vi.mock('@deepseek-ai/dsh-anonymous-user-id', () => ({
+vi.mock('@omega-ai/dsh-anonymous-user-id', () => ({
   getOrCreateAnonymousUserId,
 }))
 
@@ -89,7 +89,7 @@ function feedbackTexts(session: Session): (string | undefined)[] {
   return feedbackRecords(session).map(record => record.text)
 }
 
-describe('@deepseek-ai/dsh-command-feedback registration', () => {
+describe('@omega-ai/dsh-command-feedback registration', () => {
   it('registers one global command with Loader-safe exports and disposes it', async () => {
     const test = await harness()
     expect(commandFeedback.name).toBe('command-feedback')
@@ -99,7 +99,7 @@ describe('@deepseek-ai/dsh-command-feedback registration', () => {
     expect(loader.unwrapExports(commandFeedback)).toBe(commandFeedback)
 
     expect(test.ctx.commands.list(test.agent)).toContainEqual({
-      definitionId: '@deepseek-ai/dsh-command-feedback',
+      definitionId: '@omega-ai/dsh-command-feedback',
       name: 'feedback',
       description: 'Record feedback about this session',
       input: { hint: '<text>' },

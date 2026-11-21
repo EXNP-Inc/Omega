@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
-import { syncedConfig } from '@deepseek-ai/dsh-client-test-runtime'
+import { syncedConfig } from '@omega-ai/dsh-client-test-runtime'
 import type { MenuAction } from '../src/client/types.ts'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import { Context } from '@deepseek-ai/cordis'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import { Context } from '@omega-ai/cordis'
 import { afterEach, expect, it, vi } from 'vitest'
-import type { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
+import type { SlotRegistry } from '@omega-ai/dsh-client-ui-renderer/client'
 import type { MenuOverlayInjected } from '../src/client/View.tsx'
 import type { ContextMenuButtonInjected } from '../src/client/Button.tsx'
 import { apply, inject } from '../src/client/index.ts'
@@ -13,7 +13,7 @@ import type { createMenuStore } from '../src/client/store.ts'
 
 afterEach(() => { vi.useRealTimers() })
 
-declare module '@deepseek-ai/dsh-client-ui-context-menu/client' {
+declare module '@omega-ai/dsh-client-ui-context-menu/client' {
   interface ContextMenuTargetMap { pluginDocument: { readonly id: string } }
 }
 

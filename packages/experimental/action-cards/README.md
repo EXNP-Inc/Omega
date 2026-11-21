@@ -3,7 +3,7 @@ description: "Shared Host service of optional action cards: cards read from acti
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-action-cards
+# @omega-ai/dsh-action-cards
 
 English | [中文](README.zh.md)
 

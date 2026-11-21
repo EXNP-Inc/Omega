@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
 import type {
   ISessions, SessionListState, SessionReference, SessionSummary,
-} from '@deepseek-ai/dsh-api-session-controller/client'
-import type { IWorkspaces, WorkspaceSnapshot } from '@deepseek-ai/dsh-api-workspace-controller/client'
-import type { SessionStatus, SessionStatusSnapshot } from '@deepseek-ai/dsh-client-ui-session-status/client'
-import type { SessionPendingInteraction } from '@deepseek-ai/dsh-client-ui-session/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import { brandString } from '@deepseek-ai/dsh-brand'
+} from '@omega-ai/dsh-api-session-controller/client'
+import type { IWorkspaces, WorkspaceSnapshot } from '@omega-ai/dsh-api-workspace-controller/client'
+import type { SessionStatus, SessionStatusSnapshot } from '@omega-ai/dsh-client-ui-session-status/client'
+import type { SessionPendingInteraction } from '@omega-ai/dsh-client-ui-session/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import { brandString } from '@omega-ai/dsh-brand'
 import { RecentSessionViews } from '../src/client/recent-views.ts'
 
 const sid = (id: string): SessionId => brandString<SessionId>(id)

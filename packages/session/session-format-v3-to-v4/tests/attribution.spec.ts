@@ -1,11 +1,11 @@
 /** Unknown producer attribution survives the native codec and detached Session reader. */
 import { describe, expect, it } from 'vitest'
-import { Session, type SessionId, SessionLogOffset } from '@deepseek-ai/dsh-session'
-import type { SessionEvent, SessionHeader } from '@deepseek-ai/dsh-session'
-import { SessionFormatEventCollector } from '@deepseek-ai/dsh-session-format'
-import type { SessionFormatEvent } from '@deepseek-ai/dsh-session-format'
+import { Session, type SessionId, SessionLogOffset } from '@omega-ai/dsh-session'
+import type { SessionEvent, SessionHeader } from '@omega-ai/dsh-session'
+import { SessionFormatEventCollector } from '@omega-ai/dsh-session-format'
+import type { SessionFormatEvent } from '@omega-ai/dsh-session-format'
 import { releasedV4SessionFormatCodec as codec, restoreReleasedV4Artifact } from '../src/index.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const header = { version: 4, id: 'unknown-attribution', createdAt: 1, isSeeded: false, delegationDepth: 0 }
 

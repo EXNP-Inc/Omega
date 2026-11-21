@@ -3,7 +3,7 @@
  * `.env`, install the fail-loud Loader guards, resolve the config path (snapshot-aware), load the
  * optional user patch layers from the Harness home (`~/.dsh`), expose its path resolver to
  * config expressions, and drive the Cordis Loader against a leaf `cordis.yml` until the tree settles.
- * @module @deepseek-ai/dsh-app-boot
+ * @module @omega-ai/dsh-app-boot
  */
 
 import { pathToFileURL } from 'node:url'
@@ -12,14 +12,14 @@ import { inspect, parseEnv } from 'node:util'
 import { captureStartupComposition, type StartupCompositionDiagnostic } from './startup-diagnostics.ts'
 export type { StartupCompositionDiagnostic, StartupPluginState, StartupServiceState } from './startup-diagnostics.ts'
 import { basename, dirname, isAbsolute, resolve } from 'node:path'
-import { Context, type Fiber, type FiberState } from '@deepseek-ai/cordis'
+import { Context, type Fiber, type FiberState } from '@omega-ai/cordis'
 import Loader, {
   EntryTree, EntryValidationError, formatIssues, relocate, validateOptions, type Entry, type EntryGroup, type EntryOptions,
-} from '@deepseek-ai/cordis-plugin-loader'
-import Include, { applyEntryPatches, parseEntryYaml, stringifyEntryYaml, type PatchOptions } from '@deepseek-ai/cordis-plugin-include'
-import Group from '@deepseek-ai/cordis-plugin-group'
-import { dshHomePath, dshPath, resolveDshHome } from '@deepseek-ai/dsh-home-paths'
-import { createLaunchEnvironmentSnapshot, type LaunchEnvironmentSnapshot } from '@deepseek-ai/dsh-launch-environment'
+} from '@omega-ai/cordis-plugin-loader'
+import Include, { applyEntryPatches, parseEntryYaml, stringifyEntryYaml, type PatchOptions } from '@omega-ai/cordis-plugin-include'
+import Group from '@omega-ai/cordis-plugin-group'
+import { dshHomePath, dshPath, resolveDshHome } from '@omega-ai/dsh-home-paths'
+import { createLaunchEnvironmentSnapshot, type LaunchEnvironmentSnapshot } from '@omega-ai/dsh-launch-environment'
 export { readBundlePatches, readProfilePatches, resolveTelemetryPatch, type ProfileContext, type ProfilePnpmInvocation } from './profile-context.ts'
 export { sanitizeProfile } from './profile-sanitize.ts'
 export { getDshRuntimeVersion, evaluatePluginCompatibility, pluginCompatibilityWarning, type PluginCompatibility } from './plugin-compatibility.ts'
@@ -41,7 +41,7 @@ export {
   type ProfilePluginLocation, type ProfilePluginDependency, type ProfilePluginInventory, type ProfilePluginReconciliation,
 } from './profile-plugins.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context {
     /** Harness-home path resolver available to Loader `!!js` config expressions. */
     dshHomePath?: typeof dshHomePath
@@ -150,7 +150,7 @@ const BOOTSTRAP_NAMES = new Set([
   'GIT_CONFIG_GLOBAL', 'GIT_CONFIG_SYSTEM', 'GIT_CONFIG_COUNT',
   'EDITOR', 'VISUAL', 'PAGER', 'BROWSER',
   // Network reach and trust.
-  'DEEPSEEK_BASE_URL', 'DEEPSEEK_SEARCH_BASE_URL',
+  'OMEGA_BASE_URL', 'OMEGA_SEARCH_BASE_URL',
   'SSL_CERT_FILE', 'SSL_CERT_DIR',
   'HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY', 'NO_PROXY',
   'REQUESTS_CA_BUNDLE', 'CURL_CA_BUNDLE',
@@ -164,14 +164,14 @@ const BOOTSTRAP_PREFIXES = ['DSH_', 'XDG_', 'DYLD_', 'BASH_FUNC_']
 const HOME_LAYER_PROXY_NAMES = new Set(['HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY', 'NO_PROXY'])
 
 /**
- * DeepSeek endpoint names the Harness-home `.env` may set only as spelled here: their consumers look them up by
+ * Omega endpoint names the Harness-home `.env` may set only as spelled here: their consumers look them up by
  * exact name on POSIX, so another spelling would load without effect.
  */
-const HOME_LAYER_ENDPOINT_NAMES = new Set(['DEEPSEEK_BASE_URL', 'DEEPSEEK_SEARCH_BASE_URL'])
+const HOME_LAYER_ENDPOINT_NAMES = new Set(['OMEGA_BASE_URL', 'OMEGA_SEARCH_BASE_URL'])
 
 /**
  * Whether the Harness-home `.env` alone may set a bootstrap-only name. Each such name chooses where requests go: a
- * proxy for every request, a DeepSeek endpoint for the model or search requests that carry the user's credential.
+ * proxy for every request, a Omega endpoint for the model or search requests that carry the user's credential.
  * The invoking directory's file arrives with a clone and keeps refusing them. The home file is the user's own, and
  * the profile patches beside it can already set these endpoints as plugin `baseURL` fields; `DSH_HOME` is itself
  * bootstrap-only, so no `.env` can relocate this exemption. The CA and TLS names in the same group stay refused
@@ -521,7 +521,7 @@ async function resume(ctx: Context, invalidated: readonly Entry[]): Promise<void
 
 /**
  * Load an optional patch-list file: a top-level YAML array of loader patch
- * entries (`@deepseek-ai/cordis-plugin-include`'s `PatchOptions`): id-targeted config
+ * entries (`@omega-ai/cordis-plugin-include`'s `PatchOptions`): id-targeted config
  * overrides and `insert` lists, with `!!js` expressions allowed. A missing
  * file means "no layer"; an unreadable, unparsable, or non-array file throws —
  * a present patch file that cannot apply is a misconfiguration and must fail
@@ -574,7 +574,7 @@ function anchorInsertedPluginNames(patches: PatchOptions[], file: string): Patch
 }
 /**
  * Parse one loader patch list: a top-level YAML array of
- * `@deepseek-ai/cordis-plugin-include` `PatchOptions` (id-targeted config overrides and
+ * `@omega-ai/cordis-plugin-include` `PatchOptions` (id-targeted config overrides and
  * `insert` lists, `!!js` expressions allowed). Every invalid field or value throws,
  * because a patch file that cannot be applied at all is a misconfiguration; a
  * single patch whose target row is absent stays a per-entry Loader warning, so
@@ -779,7 +779,7 @@ export async function mountRootInclude(
     }
   // `cordis:group` alongside it: a group row is how a composition gives one
   // `isolate` realm to a provider and its consumers together, and an agent
-  // preset living outside this workspace cannot resolve `@deepseek-ai/cordis-plugin-group`
+  // preset living outside this workspace cannot resolve `@omega-ai/cordis-plugin-group`
   // by name. Both builtins load through the ambient module pipeline, so neither
   // depends on the included tree's own specifier resolution.
   ctx.loader.builtins.group = Group

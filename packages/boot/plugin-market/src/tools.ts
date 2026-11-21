@@ -1,8 +1,8 @@
 /** Agent-facing read-only listing of configured plugin market indexes. */
-import { assertNever } from '@deepseek-ai/dsh-util-values'
-import type { Context } from '@deepseek-ai/cordis'
-import type { LocalizedText } from '@deepseek-ai/dsh-package-manifest'
-import { defineTool, ToolArgsError } from '@deepseek-ai/dsh-tools'
+import { assertNever } from '@omega-ai/dsh-util-values'
+import type { Context } from '@omega-ai/cordis'
+import type { LocalizedText } from '@omega-ai/dsh-package-manifest'
+import { defineTool, ToolArgsError } from '@omega-ai/dsh-tools'
 import type { MarketListingVersion } from './index.ts'
 import { PluginMarketError, pluginMarketToolError } from './error.ts'
 import { normalizeIndexUrl } from './index-url.ts'

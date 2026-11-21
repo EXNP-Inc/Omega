@@ -1,32 +1,32 @@
 /** MCP admission, token retention, recovery files, and PTC forwarding together. */
-import { executeToolFixture, executeModelToolFixture } from '@deepseek-ai/dsh-tool-testkit'
-import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
-import * as PtcToolExecutor from '@deepseek-ai/dsh-tool-executor-ptc'
+import { executeToolFixture, executeModelToolFixture } from '@omega-ai/dsh-tool-testkit'
+import * as NativeToolExecutor from '@omega-ai/dsh-tool-executor-native'
+import * as PtcToolExecutor from '@omega-ai/dsh-tool-executor-ptc'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import { provideWorkingDirectoryFixture } from '@deepseek-ai/dsh-agent-loop-testkit'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import AttachmentStore from '@deepseek-ai/dsh-attachment'
-import type { AttachmentId } from '@deepseek-ai/dsh-attachment/types'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { ImageAttachmentRef, SaveImageAttachment, StoredImageAttachment } from '@deepseek-ai/dsh-attachment'
-import FileSystem from '@deepseek-ai/dsh-fs-local'
-import { LlmAdapter, LlmRuntime, type ToolCallId } from '@deepseek-ai/dsh-llm'
-import type { GenerateOptions, StreamChunk, ImageBlock, LlmImageRequestPricing, LlmResolvedModelInfo } from '@deepseek-ai/dsh-llm'
-import { deepSeekImageTokens } from '@deepseek-ai/dsh-llm-deepseek'
-import { estimateContent } from '@deepseek-ai/dsh-token-meter/estimate'
-import { createMcpToolDefinition } from '@deepseek-ai/dsh-mcp-client'
-import { Session, type SessionId } from '@deepseek-ai/dsh-session'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
-import { defineContentToolFixture } from '@deepseek-ai/dsh-tool-testkit'
-import LocalSpillStore from '@deepseek-ai/dsh-spill-local'
-import { PtcInspectableValue, PtcRuntime } from '@deepseek-ai/dsh-ptc-runtime'
-import type { PtcRunRequest, PtcRunSpec, PtcRunResult } from '@deepseek-ai/dsh-ptc-runtime'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+import { Context } from '@omega-ai/cordis'
+import { provideWorkingDirectoryFixture } from '@omega-ai/dsh-agent-loop-testkit'
+import type { Agent } from '@omega-ai/dsh-agent'
+import AttachmentStore from '@omega-ai/dsh-attachment'
+import type { AttachmentId } from '@omega-ai/dsh-attachment/types'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { ImageAttachmentRef, SaveImageAttachment, StoredImageAttachment } from '@omega-ai/dsh-attachment'
+import FileSystem from '@omega-ai/dsh-fs-local'
+import { LlmAdapter, LlmRuntime, type ToolCallId } from '@omega-ai/dsh-llm'
+import type { GenerateOptions, StreamChunk, ImageBlock, LlmImageRequestPricing, LlmResolvedModelInfo } from '@omega-ai/dsh-llm'
+import { omegaImageTokens } from '@omega-ai/dsh-llm-omega'
+import { estimateContent } from '@omega-ai/dsh-token-meter/estimate'
+import { createMcpToolDefinition } from '@omega-ai/dsh-mcp-client'
+import { Session, type SessionId } from '@omega-ai/dsh-session'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRuntime from '@omega-ai/dsh-tools'
+import { defineContentToolFixture } from '@omega-ai/dsh-tool-testkit'
+import LocalSpillStore from '@omega-ai/dsh-spill-local'
+import { PtcInspectableValue, PtcRuntime } from '@omega-ai/dsh-ptc-runtime'
+import type { PtcRunRequest, PtcRunSpec, PtcRunResult } from '@omega-ai/dsh-ptc-runtime'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
 import * as SpillPolicy from '../src/index.ts'
 
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAADElEQVQImWNgZGIGAAAOAAeCcsnOAAAAAElFTkSuQmCC', 'base64')
@@ -62,7 +62,7 @@ class VisionAdapter extends LlmAdapter {
   }
   override imageRequestPricing(): LlmImageRequestPricing {
     return { priceImages: images => images.map(({ attachment }) => ({
-      visualTokens: deepSeekImageTokens(attachment.width, attachment.height), text: '',
+      visualTokens: omegaImageTokens(attachment.width, attachment.height), text: '',
     })) }
   }
   stream(_options: GenerateOptions): AsyncIterable<StreamChunk> { throw new Error('fixture does not stream') }
@@ -127,7 +127,7 @@ describe('multimodal spill', () => {
     expect(paths).toHaveLength(2)
     for (const path of paths) expect(await readFile(path)).toEqual(PNG)
     const visual = result.content.filter((block): block is ImageBlock => block.type === 'image')
-      .reduce((total, block) => total + deepSeekImageTokens(block.attachment.width, block.attachment.height) + 4, 0)
+      .reduce((total, block) => total + omegaImageTokens(block.attachment.width, block.attachment.height) + 4, 0)
     expect(visual + estimateContent(result.content.filter(block => block.type === 'text'))).toBeLessThanOrEqual(1000)
   })
 

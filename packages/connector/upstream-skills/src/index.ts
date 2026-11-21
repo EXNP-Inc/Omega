@@ -2,26 +2,26 @@
  * Upstream skills of CLI app plugins: the Host Service `ctx.upstreamSkills` downloads the files that a plugin's entry
  * skill indexes from one directory of the vendor's GitHub repository at a pinned commit, verifies them, publishes them
  * in the DSH cache, and lists the entry skill over them once they are there.
- * @module @deepseek-ai/dsh-upstream-skills
+ * @module @omega-ai/dsh-upstream-skills
  */
 
 import { randomUUID } from 'node:crypto'
 import { readFileSync, statSync } from 'node:fs'
 import { mkdir, rename, rm } from 'node:fs/promises'
 import { basename, dirname, join, resolve } from 'node:path'
-import { Service, type Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import { dshCachePath } from '@deepseek-ai/dsh-home-paths'
-import { BUNDLED_SKILL_RANK, isSkillName } from '@deepseek-ai/dsh-skill'
-import type { SkillCandidate, SkillDefinition, SkillProvider, SkillProviderControl } from '@deepseek-ai/dsh-skill'
-import { MAX_TIMER_DELAY_MS } from '@deepseek-ai/dsh-timeout'
+import { Service, type Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
+import { dshCachePath } from '@omega-ai/dsh-home-paths'
+import { BUNDLED_SKILL_RANK, isSkillName } from '@omega-ai/dsh-skill'
+import type { SkillCandidate, SkillDefinition, SkillProvider, SkillProviderControl } from '@omega-ai/dsh-skill'
+import { MAX_TIMER_DELAY_MS } from '@omega-ai/dsh-timeout'
 import { parse as parseYaml } from 'yaml'
 import { downloadSkillSet, writeFiles } from './archive.ts'
 import type { UpstreamSkillsHandle, UpstreamSkillsRegistration, UpstreamSkillsState } from './types.ts'
 
 export type * from './types.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context {
     /** The upstream skills CLI app plugins register. */
     upstreamSkills: UpstreamSkills

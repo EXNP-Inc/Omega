@@ -2,16 +2,16 @@
 import type { ReactNode } from 'react'
 import { cleanup, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@omega-ai/cordis'
 import type {
   ISessions, SessionListState, SessionReference, SessionSnapshot,
-} from '@deepseek-ai/dsh-api-session-controller/client'
-import type { ResourceProvider } from '@deepseek-ai/dsh-client-resources/client'
-import { sessionSnapshot } from '@deepseek-ai/dsh-client-test-runtime'
-import type { ConversationViewsProps } from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type { SidebarRightTabDefinition } from '@deepseek-ai/dsh-client-ui-sidebar-right/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { SubagentAddress } from '@deepseek-ai/dsh-subagent/client'
+} from '@omega-ai/dsh-api-session-controller/client'
+import type { ResourceProvider } from '@omega-ai/dsh-client-resources/client'
+import { sessionSnapshot } from '@omega-ai/dsh-client-test-runtime'
+import type { ConversationViewsProps } from '@omega-ai/dsh-client-ui-conversation/client'
+import type { SidebarRightTabDefinition } from '@omega-ai/dsh-client-ui-sidebar-right/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { SubagentAddress } from '@omega-ai/dsh-subagent/client'
 import {
   ConversationSlotPanel, FixedChatConversationView, parseSubagentChatAddress,
   registerSidebarChat, subagentChatAddress, SUBAGENT_CHAT_ID, type SidebarChatTabProps,

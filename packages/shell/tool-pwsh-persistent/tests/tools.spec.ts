@@ -1,14 +1,14 @@
-import { executeToolFixture } from '@deepseek-ai/dsh-tool-testkit'
-import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import { executeToolFixture } from '@omega-ai/dsh-tool-testkit'
+import * as NativeToolExecutor from '@omega-ai/dsh-tool-executor-native'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { unsupportedModel, provideWorkingDirectoryFixture, unsupportedInbox } from '@deepseek-ai/dsh-agent-loop-testkit'
-import { Context } from '@deepseek-ai/cordis'
-import type { ToolCallId } from '@deepseek-ai/dsh-llm'
-import { SESSION_FORMAT_VERSION, Session, type SessionId } from '@deepseek-ai/dsh-session'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import TerminalSessionService from '@deepseek-ai/dsh-terminal'
+import { unsupportedModel, provideWorkingDirectoryFixture, unsupportedInbox } from '@omega-ai/dsh-agent-loop-testkit'
+import { Context } from '@omega-ai/cordis'
+import type { ToolCallId } from '@omega-ai/dsh-llm'
+import { SESSION_FORMAT_VERSION, Session, type SessionId } from '@omega-ai/dsh-session'
+import AgentRegistry from '@omega-ai/dsh-agent'
+import type { Agent } from '@omega-ai/dsh-agent'
+import TerminalSessionService from '@omega-ai/dsh-terminal'
 import type {
   TerminalBackend,
   TerminalBackendSession,
@@ -18,11 +18,11 @@ import type {
   TerminalSessionStatus,
   TerminalSignal,
   TerminalWaitReason,
-} from '@deepseek-ai/dsh-terminal'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRegistry from '@deepseek-ai/dsh-tools'
-import * as ToolPwshPersistent from '@deepseek-ai/dsh-tool-pwsh-persistent'
-import { brandString } from '@deepseek-ai/dsh-brand'
+} from '@omega-ai/dsh-terminal'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRegistry from '@omega-ai/dsh-tools'
+import * as ToolPwshPersistent from '@omega-ai/dsh-tool-pwsh-persistent'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const contexts: Context[] = []
 let callNumber = 0

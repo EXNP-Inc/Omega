@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
-import type { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { scopeOf, scopeParentOf } from '@deepseek-ai/dsh-scope'
+import type { Context } from '@omega-ai/cordis'
+import type { Agent } from '@omega-ai/dsh-agent'
+import { scopeOf, scopeParentOf } from '@omega-ai/dsh-scope'
 import type { TimelineStorage } from './storage.ts'
 
 const planningTools = ['timeline_tree', 'timeline_tasks', 'timeline_pull', 'timeline_read', 'timeline_reply']

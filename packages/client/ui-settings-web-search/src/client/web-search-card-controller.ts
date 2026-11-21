@@ -1,8 +1,8 @@
 /**
  * The web search and fetch page's staged form over three settings namespaces:
  * `web`, whose `searchProvider` and `fetchProvider` the two provider menus
- * write, `web-deepseek-api` for the DeepSeek Search and Fetch APIs, and
- * `web-search-deepseek` for legacy Messages search.
+ * write, `web-omega-api` for the Omega Search and Fetch APIs, and
+ * `web-search-omega` for legacy Messages search.
  *
  * A selection equal to the deployment's composed value clears the override
  * instead of storing a copy of it, and while the deployment composes no
@@ -12,45 +12,45 @@
  * in registration order, plus a selected id the Host no longer registers. A
  * failed read is reported on the page with a retry.
  *
- * The DeepSeek Search and Fetch APIs take no credential values here: each
+ * The Omega Search and Fetch APIs take no credential values here: each
  * has a billing menu, written to `searchBilling` or `fetchBilling`, that
- * chooses which DeepSeek credential it sends. Their own endpoint fields are
+ * chooses which Omega credential it sends. Their own endpoint fields are
  * YAML-only: the page reads them to report that they override billing and
  * never writes them. Legacy Messages search keeps its key control.
  *
  * The legacy key's literal never rides a response, so the page learns only
  * whether one is configured and writes it through the credentials domain,
- * addressed by the reference `web-search-deepseek.apiKeyEnv` names. A key
+ * addressed by the reference `web-search-omega.apiKeyEnv` names. A key
  * draft belongs to the reference its control addressed when it was typed: it
  * is dropped when that reference changes or the page stops showing the
  * control, and a save writes it under that reference. The key is still staged
  * with the rest of the form, so one save covers everything the page shows.
  */
 
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { Context as ClientContext } from '@omega-ai/cordis'
 // Type-only: pulls the ctx.remote merge into this program.
-import type {} from '@deepseek-ai/dsh-api-remotes/client'
-import type { WebProviderInfo, WebProviderList as ProviderList } from '@deepseek-ai/dsh-web/types'
-import { createSnapshotStore, type SnapshotStore } from '@deepseek-ai/dsh-client-store'
+import type {} from '@omega-ai/dsh-api-remotes/client'
+import type { WebProviderInfo, WebProviderList as ProviderList } from '@omega-ai/dsh-web/types'
+import { createSnapshotStore, type SnapshotStore } from '@omega-ai/dsh-client-store'
 import {
   SettingsFormModel, settingsNumberField, settingsTextField,
   type SettingsFieldState, type SettingsFormActions, type SettingsFormShell, type SettingsFormScope,
-} from '@deepseek-ai/dsh-client-ui-primitives'
+} from '@omega-ai/dsh-client-ui-primitives'
 
 /**
  * Namespaces this page edits. Spelled here rather than imported: a client
  * package must not depend on a Host package.
  */
-export const WEB_SEARCH_NS = 'web-search-deepseek'
-/** Namespace of the DeepSeek Search and Fetch API providers. */
-export const WEB_API_NS = 'web-deepseek-api'
+export const WEB_SEARCH_NS = 'web-search-omega'
+/** Namespace of the Omega Search and Fetch API providers. */
+export const WEB_API_NS = 'web-omega-api'
 /** Namespace of the web service's provider selection. */
 export const WEB_NS = 'web'
 
 /** Provider ids of the official providers whose settings this page edits. */
 export const PROVIDER_IDS = {
-  apiSearch: 'deepseek-search-api',
-  legacySearch: 'deepseek-official',
+  apiSearch: 'omega-search-api',
+  legacySearch: 'omega-official',
   localFetch: 'http',
   apiFetch: 'deepseek-fetch-api',
 } as const
@@ -65,7 +65,7 @@ const MENU_ORDER = {
 } as const satisfies Record<keyof ProviderList, readonly string[]>
 
 /** Credential reference legacy Messages search resolves when its section names none. */
-const DEFAULT_API_KEY_REF = 'DEEPSEEK_API_KEY'
+const DEFAULT_API_KEY_REF = 'OMEGA_API_KEY'
 
 /** Form field the credential control stages under. */
 const API_KEY_FIELD = 'legacyApiKey'
@@ -97,7 +97,7 @@ export interface WebLegacySettings {
   maxUses?: number
 }
 
-/** Credential a DeepSeek Search or Fetch API capability sends, as `web-deepseek-api` names it. */
+/** Credential a Omega Search or Fetch API capability sends, as `web-omega-api` names it. */
 export type WebBilling = 'auto' | 'account' | 'api-key'
 
 /** The Search and Fetch API fields this page edits. */
@@ -144,9 +144,9 @@ export interface WebProviderOption {
 }
 
 /** What the Search section shows for its selected provider. */
-export type WebSearchKind = 'deepseek' | 'legacy' | 'plugin' | 'none'
+export type WebSearchKind = 'omega' | 'legacy' | 'plugin' | 'none'
 /** What the Fetch section shows for its selected provider. */
-export type WebFetchKind = 'local' | 'deepseek' | 'plugin' | 'none'
+export type WebFetchKind = 'local' | 'omega' | 'plugin' | 'none'
 
 /** The legacy key control. */
 export interface WebApiKeyState extends SettingsFieldState {
@@ -154,7 +154,7 @@ export interface WebApiKeyState extends SettingsFieldState {
   configured: boolean
   /** Whether the credentials domain accepts a write for it; false disables the control. */
   writable: boolean
-  /** The credential reference the control writes: `web-search-deepseek.apiKeyEnv`, or its default. */
+  /** The credential reference the control writes: `web-search-omega.apiKeyEnv`, or its default. */
   ref: string
 }
 
@@ -184,11 +184,11 @@ export interface WebSearchCardState extends SettingsFormShell {
   search: WebProviderSectionState<WebSearchKind>
   /** The Fetch section. */
   fetch: WebProviderSectionState<WebFetchKind>
-  /** Search API results per search, shown in the Search section while it selects the DeepSeek Search API. */
+  /** Search API results per search, shown in the Search section while it selects the Omega Search API. */
   count: SettingsFieldState
-  /** Search API billing, present only while the Search section selects the DeepSeek Search API. */
+  /** Search API billing, present only while the Search section selects the Omega Search API. */
   searchBilling: WebBillingState | undefined
-  /** Fetch API billing, present only while the Fetch section selects the DeepSeek Fetch API. */
+  /** Fetch API billing, present only while the Fetch section selects the Omega Fetch API. */
   fetchBilling: WebBillingState | undefined
   /** Legacy Messages endpoint. */
   messagesBaseURL: SettingsFieldState
@@ -218,7 +218,7 @@ export interface WebSearchCardFace extends Pick<SettingsFormActions, 'save' | 'd
   resolveText: (text: NonNullable<WebProviderOption['description']>) => string
 }
 
-/** A capability whose DeepSeek API has a billing menu. */
+/** A capability whose Omega API has a billing menu. */
 type WebBillingCapability = 'search' | 'fetch'
 
 /** Billing values the Host accepts. */
@@ -380,7 +380,7 @@ export class WebSearchCardController {
   private searchKind(): WebSearchKind {
     const id = this.selected('searchProvider')
     if (id === '' || !this.registered('search', id)) return 'none'
-    if (id === PROVIDER_IDS.apiSearch) return this.api.shell().available ? 'deepseek' : 'none'
+    if (id === PROVIDER_IDS.apiSearch) return this.api.shell().available ? 'omega' : 'none'
     if (id === PROVIDER_IDS.legacySearch) return this.legacy.shell().available ? 'legacy' : 'none'
     return this.providers === undefined ? 'none' : 'plugin'
   }
@@ -389,7 +389,7 @@ export class WebSearchCardController {
     const id = this.selected('fetchProvider')
     if (id === '' || !this.registered('fetch', id)) return 'none'
     if (id === PROVIDER_IDS.localFetch) return 'local'
-    if (id === PROVIDER_IDS.apiFetch) return this.api.shell().available ? 'deepseek' : 'none'
+    if (id === PROVIDER_IDS.apiFetch) return this.api.shell().available ? 'omega' : 'none'
     return this.providers === undefined ? 'none' : 'plugin'
   }
 
@@ -461,8 +461,8 @@ export class WebSearchCardController {
         auto: base?.fetchProvider === undefined,
       },
       count: this.api.field('count'),
-      searchBilling: this.searchKind() === 'deepseek' ? this.billing('search') : undefined,
-      fetchBilling: this.fetchKind() === 'deepseek' ? this.billing('fetch') : undefined,
+      searchBilling: this.searchKind() === 'omega' ? this.billing('search') : undefined,
+      fetchBilling: this.fetchKind() === 'omega' ? this.billing('fetch') : undefined,
       messagesBaseURL: this.legacy.field('baseURL'),
       maxUses: this.legacy.field('maxUses'),
       legacyKey: this.keyShown() ? { ...this.selection.field(API_KEY_FIELD), ...this.credential } : undefined,

@@ -1,14 +1,14 @@
 /** Deterministic Messages image preparation for Files references and bounded inline fallback. */
 
-import type { AttachmentStore, ImageAttachmentRef, RequestImageAttachment } from '@deepseek-ai/dsh-attachment'
-import { contentHasImage, IMAGE_OFFLOAD_REQUIRED_CODE, LlmError, offloadedImageText, projectOffloadedImages, requiredImageOffload } from '@deepseek-ai/dsh-llm'
-import type { ContentBlock, ImageAttachmentAccessResolver, RequestMessage } from '@deepseek-ai/dsh-llm'
-import type { DeepSeekConnectionOptions as Connection } from './types.ts'
+import type { AttachmentStore, ImageAttachmentRef, RequestImageAttachment } from '@omega-ai/dsh-attachment'
+import { contentHasImage, IMAGE_OFFLOAD_REQUIRED_CODE, LlmError, offloadedImageText, projectOffloadedImages, requiredImageOffload } from '@omega-ai/dsh-llm'
+import type { ContentBlock, ImageAttachmentAccessResolver, RequestMessage } from '@omega-ai/dsh-llm'
+import type { OmegaConnectionOptions as Connection } from './types.ts'
 import { resolveRequestImageTarget } from './request-pricing.ts'
-import type { DeepSeekFileId } from './file-id.ts'
+import type { OmegaFileId } from './file-id.ts'
 import type { RequestFiles } from './request-files.ts'
 
-export { deepSeekImageRequestPricing as imagePricing } from './request-pricing.ts'
+export { omegaImageRequestPricing as imagePricing } from './request-pricing.ts'
 
 function bounds(connection: Connection, representation: 'raw' | 'base64') {
   return {
@@ -44,10 +44,10 @@ export async function prepareImages(
   if (!messages.some(message => contentHasImage(message.content))) return { messages, versions }
   const model = connection.models.find(entry => entry.id === modelId)
   if (model?.inputModalities?.includes('image') !== true || attachments === undefined) {
-    throw new LlmError('DeepSeek Messages image input requires a vision model and attachment service', 'UNSUPPORTED_CONTENT')
+    throw new LlmError('Omega Messages image input requires a vision model and attachment service', 'UNSUPPORTED_CONTENT')
   }
   if (messages.some(message => message.role !== 'user' && message.role !== 'tool' && contentHasImage(message.content))) {
-    throw new LlmError('DeepSeek Messages supports images only in user messages and tool results', 'UNSUPPORTED_CONTENT')
+    throw new LlmError('Omega Messages supports images only in user messages and tool results', 'UNSUPPORTED_CONTENT')
   }
   for (const message of messages) {
     for (const ref of imageRefs(message.content)) {
@@ -83,7 +83,7 @@ function assertImagesFit(
     block => (versions.get(block.attachment.attachmentId) as RequestImageAttachment).bytes)
   if (offloadImages > 0) {
     throw new LlmError(
-      `DeepSeek Messages ${representation} request images exceed the route budget; ${offloadImages} more oldest occurrence(s) must be offloaded.`,
+      `Omega Messages ${representation} request images exceed the route budget; ${offloadImages} more oldest occurrence(s) must be offloaded.`,
       IMAGE_OFFLOAD_REQUIRED_CODE,
       { offloadImages },
     )
@@ -98,13 +98,13 @@ function assertImagesFit(
  */
 export async function prepareFileIds(
   messages: readonly RequestMessage[], versions: ReadonlyMap<ImageAttachmentRef['attachmentId'], RequestImageAttachment>, files: RequestFiles,
-): Promise<Map<ImageAttachmentRef['attachmentId'], DeepSeekFileId>> {
+): Promise<Map<ImageAttachmentRef['attachmentId'], OmegaFileId>> {
   const ids = await files.resolveAll(versions)
   for (const [index, message] of messages.entries()) {
     let image = 0
     for (const ref of imageRefs(message.content)) {
       const version = versions.get(ref.attachmentId) as RequestImageAttachment
-      files.record(version, ids.get(ref.attachmentId) as DeepSeekFileId, { message: index + 1, image: ++image })
+      files.record(version, ids.get(ref.attachmentId) as OmegaFileId, { message: index + 1, image: ++image })
     }
   }
   return ids

@@ -3,19 +3,19 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { expect, it } from 'vitest'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { SubagentPromptRequestId } from '@deepseek-ai/dsh-subagent'
-import { createUserMessage, type ContentBlock } from '@deepseek-ai/dsh-llm'
-import { parseSessionLog, prepareSessionSnapshotFixtureForComparison } from '@deepseek-ai/dsh-llm-replay'
-import type { Session } from '@deepseek-ai/dsh-session'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { SubagentPromptRequestId } from '@omega-ai/dsh-subagent'
+import { createUserMessage, type ContentBlock } from '@omega-ai/dsh-llm'
+import { parseSessionLog, prepareSessionSnapshotFixtureForComparison } from '@omega-ai/dsh-llm-replay'
+import type { Session } from '@omega-ai/dsh-session'
 import {
   fixtureContext, normalizeSessionSnapshots, normalizedSystemPrompts, normalizedToolSchemas,
   formatSystemPromptSnapshot, parseToolSchemasSnapshot, redactSessionSnapshotIds, refreshFixtureReplacements,
   scrubSessionSnapshot, stabilizeFixtureMessageIds, stabilizeRefreshLog, tokenizeSessionFixtureCwd,
-} from '@deepseek-ai/dsh-session-snapshot'
-import type {} from '@deepseek-ai/dsh-api-session-controller'
-import type {} from '@deepseek-ai/dsh-schedule'
-import type {} from '@deepseek-ai/dsh-subagent'
+} from '@omega-ai/dsh-session-snapshot'
+import type {} from '@omega-ai/dsh-api-session-controller'
+import type {} from '@omega-ai/dsh-schedule'
+import type {} from '@omega-ai/dsh-subagent'
 import {
   fixtureUserPrompts, launchWebScaffold, normalizeWebSessionVolatiles, rawSessionLog, readPersistedEvents,
   recordedSessionFixturePath, selectedSessionFixture, webSnapshotMode,

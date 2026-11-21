@@ -1,14 +1,14 @@
 /** A listed catalog: version gating, this build's model knowledge, and deployment overrides. */
 import semver from 'semver'
-import { APP_IDENTITY, LlmError } from '@deepseek-ai/dsh-llm'
-import type { LlmModelBadge } from '@deepseek-ai/dsh-llm'
-import { assertNever } from '@deepseek-ai/dsh-util-values'
+import { APP_IDENTITY, LlmError } from '@omega-ai/dsh-llm'
+import type { LlmModelBadge } from '@omega-ai/dsh-llm'
+import { assertNever } from '@omega-ai/dsh-util-values'
 import { resolveAdapterOptions } from './config.ts'
 import type { ListedFacts, ListingEntry } from './listing.ts'
-import type { DeepSeekCatalogModel } from './types.ts'
+import type { OmegaCatalogModel } from './types.ts'
 
 /** Field overrides for one model; unset fields and empty lists inherit the underlying entry. */
-export type ModelOverride = Omit<DeepSeekCatalogModel, 'id'>
+export type ModelOverride = Omit<OmegaCatalogModel, 'id'>
 
 /** Why this build refuses one listed model before network I/O. */
 export type CatalogRefusal =
@@ -20,7 +20,7 @@ export interface ListedCatalogInput {
   /** Entries of the last successful listing, or `undefined` before one succeeds. */
   readonly listing: readonly ListingEntry[] | undefined
   /** Validated models this build supports, carrying its client-side knowledge. */
-  readonly supported: readonly DeepSeekCatalogModel[]
+  readonly supported: readonly OmegaCatalogModel[]
   /** Overrides by model id, holding only the fields each one declares. */
   readonly overrides: Readonly<Record<string, ModelOverride>>
   /** Route output cap that a listed output capability bounds. */
@@ -32,9 +32,9 @@ export interface ListedCatalogInput {
 /** One resolved listed catalog. */
 export interface ListedCatalog {
   /** Selectable models in listing order, or this build's models when no listing succeeded. */
-  readonly offered: readonly DeepSeekCatalogModel[]
+  readonly offered: readonly OmegaCatalogModel[]
   /** Entries request resolution consults: offered models, then supported models the listing does not offer. */
-  readonly resolution: readonly DeepSeekCatalogModel[]
+  readonly resolution: readonly OmegaCatalogModel[]
   /** Listed models refused before network I/O, by id. */
   readonly refusals: ReadonlyMap<string, CatalogRefusal>
   /** Listed badges of offered models, by id. */
@@ -46,8 +46,8 @@ export interface ListedCatalog {
 }
 
 /** Replace fields of an entry; a text-only result drops the image limits it inherited. */
-function layered(model: DeepSeekCatalogModel, layer: ModelOverride): DeepSeekCatalogModel {
-  const merged: DeepSeekCatalogModel = { ...model, ...layer }
+function layered(model: OmegaCatalogModel, layer: ModelOverride): OmegaCatalogModel {
+  const merged: OmegaCatalogModel = { ...model, ...layer }
   if (merged.inputModalities?.includes('image') !== true) {
     if (layer.imagePixelBudget === undefined) delete merged.imagePixelBudget
     if (layer.imageMaxBytes === undefined) delete merged.imageMaxBytes
@@ -56,9 +56,9 @@ function layered(model: DeepSeekCatalogModel, layer: ModelOverride): DeepSeekCat
 }
 
 /** Layer one usable listing entry over this build's entry for the same id; a declared `leading-only` mode removes the inherited one. */
-function listed(base: DeepSeekCatalogModel, entry: ListingEntry, facts: ListedFacts, routeMaxTokens: number): DeepSeekCatalogModel {
+function listed(base: OmegaCatalogModel, entry: ListingEntry, facts: ListedFacts, routeMaxTokens: number): OmegaCatalogModel {
   const { systemPromptUpdate, toolUpdate, ...rest } = base
-  const inherited: DeepSeekCatalogModel = {
+  const inherited: OmegaCatalogModel = {
     ...rest,
     ...systemPromptUpdate === undefined || facts.systemPromptUpdate === 'leading-only' ? {} : { systemPromptUpdate },
     ...toolUpdate === undefined || facts.toolUpdate === 'leading-only' ? {} : { toolUpdate },
@@ -104,7 +104,7 @@ export function resolveListedCatalog(input: ListedCatalogInput): ListedCatalog {
   const supported = new Map(input.supported.map(model => [model.id, model]))
   const problems: string[] = []
   const overrideErrors: string[] = []
-  const withOverride = (model: DeepSeekCatalogModel): DeepSeekCatalogModel => {
+  const withOverride = (model: OmegaCatalogModel): OmegaCatalogModel => {
     const override = input.overrides[model.id]
     if (override === undefined) return model
     const candidate = layered(model, override)
@@ -120,7 +120,7 @@ export function resolveListedCatalog(input: ListedCatalogInput): ListedCatalog {
     const resolution = resolveAdapterOptions({ models: input.supported.map(withOverride) }).models
     return { offered: resolution, resolution, refusals: new Map(), badges: new Map(), problems, overrideErrors }
   }
-  const offered: DeepSeekCatalogModel[] = []
+  const offered: OmegaCatalogModel[] = []
   const refusals = new Map<string, CatalogRefusal>()
   const badges = new Map<string, LlmModelBadge>()
   for (const entry of input.listing) {
@@ -174,11 +174,11 @@ export function refuseListedModel(model: string, refusal: CatalogRefusal | undef
   switch (refusal.kind) {
     case 'upgrade-required':
       throw new LlmError(
-        `DeepSeek model "${model}" requires DeepSeek Harness ${refusal.requiredVersion} or later; current version is ${APP_IDENTITY.version}`,
+        `Omega model "${model}" requires Omega ${refusal.requiredVersion} or later; current version is ${APP_IDENTITY.version}`,
         'CLIENT_UPGRADE_REQUIRED',
       )
     case 'unsupported':
-      throw new LlmError(`DeepSeek model "${model}" is not supported by DeepSeek Harness; current version is ${APP_IDENTITY.version}`, 'MODEL_UNSUPPORTED')
+      throw new LlmError(`Omega model "${model}" is not supported by Omega; current version is ${APP_IDENTITY.version}`, 'MODEL_UNSUPPORTED')
     /* v8 ignore next 2 -- catalog resolution produces only the closed refusal union */
     default:
       assertNever(refusal, 'listed catalog refusal')

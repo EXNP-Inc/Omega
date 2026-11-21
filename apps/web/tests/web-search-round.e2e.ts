@@ -1,6 +1,6 @@
-// Web e2e scenario for the DeepSeek Search API, selected for a conversation
-// on a DeepSeek model route. A real browser drives
-// `web_search`; the model stream is replayed while the real DeepSeek provider
+// Web e2e scenario for the Omega Search API, selected for a conversation
+// on a Omega model route. A real browser drives
+// `web_search`; the model stream is replayed while the real Omega provider
 // calls a deterministic local Search API endpoint through the real
 // credentials service.
 import { readFile } from 'node:fs/promises'
@@ -10,9 +10,9 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { credentialRef } from '@deepseek-ai/dsh-credentials'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
-import { WEB_SEARCH_MAX_RESULTS } from '@deepseek-ai/dsh-tool-web'
+import { credentialRef } from '@omega-ai/dsh-credentials'
+import type { SessionEvent } from '@omega-ai/dsh-session'
+import { WEB_SEARCH_MAX_RESULTS } from '@omega-ai/dsh-tool-web'
 import {
   assertFixtureInventory, captureStableAria, compareOrRefreshGolden, fixtureUserPrompts,
   launchWebScaffold, recordFixture, watchConsole, webSnapshotMode, type WebScaffold,
@@ -23,7 +23,7 @@ const SNAPSHOT_DIR = fileURLToPath(new URL('../../../snapshots/web/web-search-ro
 const FIXTURE = fileURLToPath(new URL('../../../snapshots/web/web-search-round/session.v3.jsonl', import.meta.url))
 const UI_EXPECTED = fileURLToPath(new URL('../../../snapshots/web/web-search-round/ui.expected.md', import.meta.url))
 const MODE = webSnapshotMode()
-const QUERIES = ['DeepSeek Harness snapshot search', 'DeepSeek Harness multi-query search'] as const
+const QUERIES = ['Omega snapshot search', 'Omega multi-query search'] as const
 const PROMPT = `Use web_search once with queries ${JSON.stringify(QUERIES)}. Then reply exactly SEARCH_DONE and stop.`
 const SEARCH_CREDENTIAL_REF = credentialRef('DSH_WEB_SEARCH_E2E_KEY')
 const SEARCH_CREDENTIAL = 'snapshot-search-key'
@@ -98,7 +98,7 @@ function requestQuery(body: unknown): unknown {
   return typeof body === 'object' && body !== null && 'query' in body ? body.query : undefined
 }
 
-/** Start the deterministic DeepSeek Search double used by the real provider. */
+/** Start the deterministic Omega Search double used by the real provider. */
 async function startSearchServer(captured: CapturedSearchRequest[]): Promise<{ server: Server; baseURL: string }> {
   const server = createServer((request, response) => {
     let body = ''
@@ -158,7 +158,7 @@ describe('web e2e: Search API web search', () => {
         .map(path => fileURLToPath(new URL(path, import.meta.url))),
       compareReplaySession: true,
       // Own YAML endpoint settings pin Search to the local endpoint and a dedicated key.
-      deepSeekWebApi: {
+      omegaWebApi: {
         baseURL: `${search.baseURL}/api/v1/tools`,
         apiKeyEnv: SEARCH_CREDENTIAL_REF,
       },
@@ -213,7 +213,7 @@ describe('web e2e: Search API web search', () => {
         query, count: WEB_SEARCH_MAX_RESULTS, need_content: false, ori_question: Array.from(PROMPT).slice(0, 128).join(''),
       })
     }
-    expect(sessionEvents.filter(event => event.type === 'web/deepseek-search-llm-request')).toEqual([])
+    expect(sessionEvents.filter(event => event.type === 'web/omega-search-llm-request')).toEqual([])
 
     const searchCall = sessionEvents.find(
       (event): event is Extract<SessionEvent, { type: 'tool/call' }> =>

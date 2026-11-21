@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { allowAllAccess, bindSnapshotSelector, contextMenuHook, makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import type { ScheduleId, ScheduleCatalogEntry, ScheduleRecord } from '@deepseek-ai/dsh-schedule/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { SessionListState } from '@deepseek-ai/dsh-api-session-controller/client'
-import type { WorkspaceId, WorkspaceSnapshot } from '@deepseek-ai/dsh-api-workspace-controller/client'
-import { RRule } from '@deepseek-ai/dsh-util-time'
+import { allowAllAccess, bindSnapshotSelector, contextMenuHook, makeTranslate } from '@omega-ai/dsh-client-test-runtime'
+import type { ScheduleId, ScheduleCatalogEntry, ScheduleRecord } from '@omega-ai/dsh-schedule/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { SessionListState } from '@omega-ai/dsh-api-session-controller/client'
+import type { WorkspaceId, WorkspaceSnapshot } from '@omega-ai/dsh-api-workspace-controller/client'
+import { RRule } from '@omega-ai/dsh-util-time'
 import { TaskManagerPage, type TaskManagerPageProps } from '../src/client/TaskManagerPage.tsx'
 import type { HostTaskActions } from '../src/client/TaskDetail.tsx'
 import type { TaskCreateOutcome } from '../src/client/TaskDetail.tsx'
@@ -20,7 +20,7 @@ import { formatAvailableAt, formatScheduleFrequency, orderScheduleRecords, zoneL
 import { en, zh, ja, es, fr, de, ru, pt } from '../src/client/task-manager-locales.ts'
 import { pinSystemZone } from './zone-fixture.ts'
 import css from '../src/client/TaskManagerPage.module.css'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const targetSession = 'existing-session' as SessionId
 const task: ScheduleCatalogEntry = { kind: 'rrule',
@@ -1691,7 +1691,7 @@ describe('time zone menu', () => {
 })
 
 /** Read the authoritative RRULE selected by a form submission. */
-function rruleOf(timing: import('@deepseek-ai/dsh-schedule/client').ScheduleTiming | undefined): string {
+function rruleOf(timing: import('@omega-ai/dsh-schedule/client').ScheduleTiming | undefined): string {
   if (timing?.kind !== 'rrule') throw new Error('expected RRULE timing')
   return timing.rrule
 }

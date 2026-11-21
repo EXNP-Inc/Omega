@@ -1,8 +1,8 @@
 /** Account sign-out policy over the latest logged request route of each running Agent. */
-import type { Context } from '@deepseek-ai/cordis'
-import { LlmError } from '@deepseek-ai/dsh-llm'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import type {} from '@deepseek-ai/dsh-deepseek-account'
+import type { Context } from '@omega-ai/cordis'
+import { LlmError } from '@omega-ai/dsh-llm'
+import type { Agent } from '@omega-ai/dsh-agent'
+import type {} from '@omega-ai/dsh-omega-account'
 
 /** Whether a running Agent's latest bound request used the account route `provider`. */
 function isRunningAccountTask(agent: Pick<Agent, 'status' | 'session'>, provider: string): boolean {
@@ -17,7 +17,7 @@ function isRunningAccountTask(agent: Pick<Agent, 'status' | 'session'>, provider
 export function cancelAccountTasks(ctx: Context, provider: string): void {
   for (const agent of ctx.get('agents')?.list() ?? []) {
     if (isRunningAccountTask(agent, provider)) {
-      agent.cancel({ kind: 'hook', reason: 'deepseek-account/signed-out' }, { keepInbox: true })
+      agent.cancel({ kind: 'hook', reason: 'omega-account/signed-out' }, { keepInbox: true })
     }
   }
 }
@@ -36,14 +36,14 @@ export function installAccountTaskCancellation(ctx: Context, provider: string): 
   ctx.inject(['agents'], (scope) => {
     scope.on('agent/error', ({ error }) => {
       if (error instanceof LlmError && error.code === 'ACCOUNT_SIGN_IN_REQUIRED') {
-        scope.emit('deepseek-account/model-sign-in-required')
+        scope.emit('omega-account/model-sign-in-required')
       }
     })
-    scope.on('deepseek-account/signed-out', () => { cancelAccountTasks(scope, provider) })
-    scope.inject(['deepseekAccount'], (reporting) => {
-      reporting.effect(() => reporting.deepseekAccount.registerRunningTaskReport(
+    scope.on('omega-account/signed-out', () => { cancelAccountTasks(scope, provider) })
+    scope.inject(['omegaAccount'], (reporting) => {
+      reporting.effect(() => reporting.omegaAccount.registerRunningTaskReport(
         () => reporting.agents.list().some(agent => isRunningAccountTask(agent, provider)),
-      ), 'llm-deepseek-account: running task report')
+      ), 'llm-omega-account: running task report')
     })
   })
 }

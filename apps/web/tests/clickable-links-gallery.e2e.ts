@@ -21,11 +21,11 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { type ToolCallId, createAssistantMessage, createToolResultMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
-import { SESSION_FORMAT_VERSION, Session, type SessionId } from '@deepseek-ai/dsh-session'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
-import type {} from '@deepseek-ai/dsh-session-title'
+import { brandString } from '@omega-ai/dsh-brand'
+import { type ToolCallId, createAssistantMessage, createToolResultMessage, createUserMessage } from '@omega-ai/dsh-llm'
+import { SESSION_FORMAT_VERSION, Session, type SessionId } from '@omega-ai/dsh-session'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
+import type {} from '@omega-ai/dsh-session-title'
 import {
   assertFixtureInventory,
   captureStableAria,
@@ -239,7 +239,7 @@ function galleryFixture(imageUrl: string): string {
         name: call.name,
         arguments: call.argsJson,
       })),
-      source: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+      source: { provider: 'omega-official', model: 'omega-v4-flash' },
     }),
   }, { surfaceOp: 'append' })
   for (const call of calls) {
@@ -294,7 +294,7 @@ function galleryFixture(imageUrl: string): string {
         '',
         '[^1]: Footnote references stay inert superscripts.',
       ].join('\n')),
-      source: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+      source: { provider: 'omega-official', model: 'omega-v4-flash' },
     }),
   }, { surfaceOp: 'append' })
   session.append('step/end', { turn: 1, step: 2 })
@@ -498,7 +498,7 @@ describe('web e2e: clickable links gallery', () => {
     // The link language itself — ARIA records none of it, so pin the computed
     // styles: link-blue 500-weight text, no underline at rest, dotted underline
     // on hover, and a leading currentColor glyph. Light theme, so the link
-    // alias resolves to deepseek-500.
+    // alias resolves to omega-500.
     const LINK_BLUE = 'rgb(65, 118, 230)'
     const styleOf = async (target: ReturnType<Page['locator']>, property: string): Promise<string> =>
       target.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property)

@@ -4,10 +4,10 @@
  * A submission is accepted only where the plugin and every named endpoint are still offered. The
  * result is what the share record carries: absent when nothing is exposed, so an old record without
  * the field keeps meaning "none".
- * @module @deepseek-ai/dsh-experimental-liveshare/src/host/viewer-capability-selection
+ * @module @omega-ai/dsh-experimental-liveshare/src/host/viewer-capability-selection
  */
 
-import type { RemoteAccessEndpoint } from '@deepseek-ai/dsh-api-remote-access/types'
+import type { RemoteAccessEndpoint } from '@omega-ai/dsh-api-remote-access/types'
 import type { ShareablePluginCatalog, ViewerPluginPolicy } from './viewer-capability-types.ts'
 import { isRecord } from './wire-json.ts'
 

@@ -1,0 +1,16 @@
+# Bilingual-pair consistency record for guide.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/upgrade-guide/v0.2.1-alpha.2/omega-account-identity-watch/guide.md
+/:
+  en: 10933e3fa6d53cf7
+  zh: 2ed0054fec2b1143
+/explicitly-subscribe-to-account-identity-changes:
+  en: 92b894ba0cd73924
+  zh: 6a420f9510eab071
+/explicitly-subscribe-to-account-identity-changes/change:
+  en: 1cf942765c174608
+  zh: 241ce4c6b3a57428
+/explicitly-subscribe-to-account-identity-changes/migration:
+  en: c5cf75625beaa515
+  zh: 3923d8d6e8699115

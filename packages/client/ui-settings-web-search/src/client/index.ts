@@ -1,24 +1,24 @@
 /**
  * The web search and fetch settings page, browser half: one provider menu per
  * capability, which writes the `web` provider selection, the Search API result
- * count over the `web-deepseek-api` namespace, and legacy Messages search's
- * key, endpoint, and search limit over `web-search-deepseek`. The page
+ * count over the `web-omega-api` namespace, and legacy Messages search's
+ * key, endpoint, and search limit over `web-search-omega`. The page
  * registers into the Plugins page's `plugins.item` slot while the Host serves
  * `web`; a provider's own controls appear only while the Host serves its
  * namespace.
  */
 
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
-import type {} from '@deepseek-ai/dsh-client-locale/client'
+import type {} from '@omega-ai/dsh-client-locale/client'
 // Type-only: the ctx.configForms Context merge. Cross-plugin collaboration
 // goes through the service, never a value import (client bundle purity gate).
-import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
+import type {} from '@omega-ai/dsh-client-ui-settings/client'
 // Type-only: the Plugins page's SlotMap merge (the 'plugins.item' entry).
-import type {} from '@deepseek-ai/dsh-client-ui-plugin-manager/client'
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
+import type {} from '@omega-ai/dsh-client-ui-plugin-manager/client'
+import type {} from '@omega-ai/dsh-client-ui-renderer/client'
 // Type-only: the ctx.remote Context merge and the forwarded-event key face.
-import type {} from '@deepseek-ai/dsh-api-remotes/client'
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type {} from '@omega-ai/dsh-api-remotes/client'
+import type { Context as ClientContext } from '@omega-ai/cordis'
 import { WebSearchCard } from './WebSearchCard.tsx'
 import { WEB_API_NS, WEB_NS, WEB_SEARCH_NS, WebSearchCardController } from './web-search-card-controller.ts'
 import { en, ja, es, fr, de, ru, pt, zh, type WebSearchSettingsLocaleKey } from './locales.ts'
@@ -29,7 +29,7 @@ export type {
 } from './web-search-card-controller.ts'
 export type { WebSearchSettingsLocaleKey } from './locales.ts'
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@omega-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Web search and fetch settings page copy. */
     'settings.webSearch': WebSearchSettingsLocaleKey

@@ -1,16 +1,16 @@
 /** Initial and incremental tool definitions survive current-format restoration and forks. */
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { createDeveloperMessage } from '@deepseek-ai/dsh-llm'
-import type { ToolAdditionBlock, ToolSchema } from '@deepseek-ai/dsh-llm'
-import { Session, type SessionId, SessionLogOffset } from '@deepseek-ai/dsh-session'
-import type { SessionEvent, SessionHeader } from '@deepseek-ai/dsh-session'
-import { buildForkSeed } from '@deepseek-ai/dsh-session/fork'
-import { createSessionFormatCatalog } from '@deepseek-ai/dsh-session-format'
-import { restoreReleasedV4Artifact } from '@deepseek-ai/dsh-session-format-v3-to-v4'
+import { createDeveloperMessage } from '@omega-ai/dsh-llm'
+import type { ToolAdditionBlock, ToolSchema } from '@omega-ai/dsh-llm'
+import { Session, type SessionId, SessionLogOffset } from '@omega-ai/dsh-session'
+import type { SessionEvent, SessionHeader } from '@omega-ai/dsh-session'
+import { buildForkSeed } from '@omega-ai/dsh-session/fork'
+import { createSessionFormatCatalog } from '@omega-ai/dsh-session-format'
+import { restoreReleasedV4Artifact } from '@omega-ai/dsh-session-format-v3-to-v4'
 import { sessionFormatCatalogOptions } from '../src/generated.ts'
-import type { SessionFormatEvent } from '@deepseek-ai/dsh-session-format'
+import type { SessionFormatEvent } from '@omega-ai/dsh-session-format'
 import { sessionFormatCatalog } from '../src/index.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 function restore(session: Session): Session {
   const header = { ...session.header, delegationDepth: 0 }

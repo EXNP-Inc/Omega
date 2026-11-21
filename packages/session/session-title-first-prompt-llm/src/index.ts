@@ -1,17 +1,17 @@
 /** First-human-message model provider for `ctx.sessionTitle`. */
 
 /* jscpd:ignore-start -- both shipped providers import the same shared packages. */
-import type { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import { extractTextContent } from '@deepseek-ai/dsh-llm/message'
-import { type LlmResolvedModelInfo, type ReasoningEffortId } from '@deepseek-ai/dsh-llm'
-import { assertNever } from '@deepseek-ai/dsh-util-values'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { SessionTitleProviderId } from '@deepseek-ai/dsh-session-title/types'
+import type { Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
+import { extractTextContent } from '@omega-ai/dsh-llm/message'
+import { type LlmResolvedModelInfo, type ReasoningEffortId } from '@omega-ai/dsh-llm'
+import { assertNever } from '@omega-ai/dsh-util-values'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { SessionTitleProviderId } from '@omega-ai/dsh-session-title/types'
 import {
   normalizeSessionTitle,
   type SessionTitleUserMessage,
-} from '@deepseek-ai/dsh-session-title'
+} from '@omega-ai/dsh-session-title'
 import {
   executeSessionTitleLlm,
   resolveSessionTitleLlmConfig,
@@ -19,7 +19,7 @@ import {
   type ResolvedSessionTitleLlmConfig,
   type SessionTitleLlmConfig,
   type SessionTitleLlmResponse,
-} from '@deepseek-ai/dsh-session-title-llm'
+} from '@omega-ai/dsh-session-title-llm'
 /* jscpd:ignore-end */
 
 export const name = 'session-title-first-prompt-llm'

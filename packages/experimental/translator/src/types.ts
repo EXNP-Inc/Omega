@@ -1,11 +1,11 @@
 /** Provider-independent inputs to the experimental translation service. */
-import type { SessionId, SessionSeq } from '@deepseek-ai/dsh-session/types'
+import type { SessionId, SessionSeq } from '@omega-ai/dsh-session/types'
 
 /** Anonymous browser endpoint selected for one translation. */
 export type AnonymousTranslationProvider = 'google' | 'bing'
 
-/** Explicit native DeepSeek credential route selected for paid translation. */
-export type PaidTranslationProvider = 'deepseek-account' | 'deepseek-official'
+/** Explicit native Omega credential route selected for paid translation. */
+export type PaidTranslationProvider = 'omega-account' | 'omega-official'
 
 /** Explicit anonymous endpoint or native paid model route. */
 export type TranslationProvider = AnonymousTranslationProvider | PaidTranslationProvider
@@ -77,7 +77,7 @@ export interface TranslationResultRecord {
   readonly text: string
 }
 
-declare module '@deepseek-ai/dsh-session/types' {
+declare module '@omega-ai/dsh-session/types' {
   interface PluginRecordMap {
     /** Provider-independent translation input, retained before dispatch. */
     'plugin:translator/request': TranslationRequestRecord

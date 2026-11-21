@@ -7,8 +7,8 @@ import os
 from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from pathlib import Path
 
-from deepseek_harness import ApprovalRequestParams, DeepSeekHarness
-from deepseek_harness_runtime import download_primary_runtime
+from omega_harness import ApprovalRequestParams, OmegaHarness
+from omega_harness_runtime import download_primary_runtime
 
 
 def main() -> None:
@@ -22,7 +22,7 @@ def main() -> None:
     if os.environ.get("DSH_PRIMARY_RUNTIME") is None:
         download_primary_runtime()
     with ThreadPoolExecutor(max_workers=2) as worker:
-        harness = DeepSeekHarness(dsh_home=str(args.dsh_home.resolve()), cwd=str(args.workspace.resolve()),
+        harness = OmegaHarness(dsh_home=str(args.dsh_home.resolve()), cwd=str(args.workspace.resolve()),
                                   dsh_bin=None if args.dsh_bin is None else str(args.dsh_bin.resolve()),
                                   approval_requests=True,
                                   env={"DSH_PERMISSION_MODE": "workspace-write"})

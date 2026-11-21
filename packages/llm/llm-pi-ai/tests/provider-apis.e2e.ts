@@ -1,8 +1,8 @@
 import { readFile } from 'node:fs/promises'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import { AttachmentStore } from '@deepseek-ai/dsh-attachment'
-import type { AttachmentId, ImageVariantId } from '@deepseek-ai/dsh-attachment/types'
+import { Context } from '@omega-ai/cordis'
+import { AttachmentStore } from '@omega-ai/dsh-attachment'
+import type { AttachmentId, ImageVariantId } from '@omega-ai/dsh-attachment/types'
 import type {
   ImageAttachmentLimits,
   ImageAttachmentRef,
@@ -10,11 +10,11 @@ import type {
   RequestImageAttachment,
   SaveImageAttachment,
   StoredImageAttachment,
-} from '@deepseek-ai/dsh-attachment'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import LlmRuntime, { createToolResultMessage, createUserMessage, type ToolCallId } from '@deepseek-ai/dsh-llm'
-import type { Message, ToolSchema } from '@deepseek-ai/dsh-llm'
-import * as LlmPiAi from '@deepseek-ai/dsh-llm-pi-ai'
+} from '@omega-ai/dsh-attachment'
+import { brandString } from '@omega-ai/dsh-brand'
+import LlmRuntime, { createToolResultMessage, createUserMessage, type ToolCallId } from '@omega-ai/dsh-llm'
+import type { Message, ToolSchema } from '@omega-ai/dsh-llm'
+import * as LlmPiAi from '@omega-ai/dsh-llm-pi-ai'
 import type { PiAiReplayResponse } from '../src/replay.ts'
 import { assemble, type AssembledResult } from './assemble.ts'
 
@@ -29,8 +29,8 @@ interface ProviderCase {
 
 const openAIBaseURL = process.env.DSH_PI_AI_OPENAI_BASE_URL
 const azureOpenAIKey = process.env.AZURE_OPENAI_API_KEY
-// Strictly ANTHROPIC_*: the DeepSeek endpoint does not serve the anthropic-messages
-// protocol, so falling back to DEEPSEEK_API_KEY turns the keyless skip into a 404.
+// Strictly ANTHROPIC_*: the Omega endpoint does not serve the anthropic-messages
+// protocol, so falling back to OMEGA_API_KEY turns the keyless skip into a 404.
 const anthropicApiKey = process.env.ANTHROPIC_API_KEY
 const anthropicBaseURL = process.env.DSH_PI_AI_ANTHROPIC_BASE_URL
 
@@ -123,7 +123,7 @@ afterEach(async () => {
 function ask(text: string): Message[] {
   return [createUserMessage({
     content: [{ type: 'text', text }],
-    source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+    source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
   })]
 }
 
@@ -251,7 +251,7 @@ for (const profile of providerCases) {
                 },
                 { type: 'image', attachment: ref },
               ],
-              source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+              source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
             })],
             maxTokens: 256,
           })

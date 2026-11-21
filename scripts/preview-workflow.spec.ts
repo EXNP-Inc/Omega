@@ -48,8 +48,8 @@ describe('PR preview workflow', () => {
     const commands = preview.steps.map(step => step.run)
     expect(commands).toContain('pnpm install --frozen-lockfile')
     expect(commands).toContain('pnpm run build')
-    expect(commands).toContain('pnpm --filter @deepseek-ai/dsh-web-frontend run build:preview')
-    expect(commands.indexOf('pnpm run build')).toBeLessThan(commands.indexOf('pnpm --filter @deepseek-ai/dsh-web-frontend run build:preview'))
+    expect(commands).toContain('pnpm --filter @omega-ai/dsh-web-frontend run build:preview')
+    expect(commands.indexOf('pnpm run build')).toBeLessThan(commands.indexOf('pnpm --filter @omega-ai/dsh-web-frontend run build:preview'))
     // The complete build also runs the aggregate type checks the required
     // consumers dropped.
     expect(commands).not.toContain('pnpm run build:check')

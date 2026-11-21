@@ -8,7 +8,7 @@ English | [中文](2026-10-08-mcp-on-demand-tool-loading.zh.md)
 
 A connected MCP server sends every tool definition with every request. Notion's hosted server advertises 46 tools whose definitions total about 214,500 characters; one tool's input schema alone is about 83,000 characters. A Notion plugin that only registers the server therefore costs that context on every request, before the model uses a single Notion tool.
 
-The existing `ToolSchema.deferLoading` marker does not solve this. Only routes that declare `toolUpdate` honor it, and the default `deepseek-flash` entry is the only catalog route that does. The marker keeps a prefix reusable; it does not reduce context.
+The existing `ToolSchema.deferLoading` marker does not solve this. Only routes that declare `toolUpdate` honor it, and the default `omega-flash` entry is the only catalog route that does. The marker keeps a prefix reusable; it does not reduce context.
 
 ## Decision
 

@@ -1,4 +1,4 @@
-import type { ChangeRequestCheck, ChangeRequestSnapshot, ForgeCheckId, ForgeFailure } from '@deepseek-ai/dsh-experimental-forge'
+import type { ChangeRequestCheck, ChangeRequestSnapshot, ForgeCheckId, ForgeFailure } from '@omega-ai/dsh-experimental-forge'
 import { describe, expect, it } from 'vitest'
 import { GitLabApi } from '../src/api.ts'
 import type { GlabOutput } from '../src/glab.ts'

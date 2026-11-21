@@ -3,7 +3,7 @@ description: "用于在无提供方密钥的情况下测试 LLM（大语言模�
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-llm-mock-server
+# @omega-ai/dsh-llm-mock-server
 
 [English](README.md) | 中文
 
@@ -39,11 +39,11 @@ pnpm run mock:llm \
   --partial-text "discard this half"
 ```
 
-将发布的 DeepSeek 适配器指向服务器；它会向服务器 `/v1` 根路径下的 `/messages` 发送请求：
+将发布的 Omega 适配器指向服务器；它会向服务器 `/v1` 根路径下的 `/messages` 发送请求：
 
 ```sh
-DEEPSEEK_BASE_URL=http://127.0.0.1:8000/v1 \
-DEEPSEEK_API_KEY=mock-key \
+OMEGA_BASE_URL=http://127.0.0.1:8000/v1 \
+OMEGA_API_KEY=mock-key \
 pnpm dsh --profile headless "test provider recovery"
 ```
 

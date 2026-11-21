@@ -26,7 +26,7 @@ Parse a complete Codex-style patch into ordered file operations with `parsePatch
 Operations and hunks contain only JSON-serializable values, and parsing retains repeated paths in input order as unresolved strings.
 
 ```ts
-import { applyHunks, parsePatch } from '@deepseek-ai/dsh-fs-patch'
+import { applyHunks, parsePatch } from '@omega-ai/dsh-fs-patch'
 
 const operations = parsePatch('*** Begin Patch\n*** Update File: hello.txt\n-hello\n+hi\n*** End Patch')
 const operation = operations[0]
@@ -42,7 +42,7 @@ Malformed input throws `PatchParseError` with a one-based `lineNumber` and a cor
 <a id="compatibility"></a>
 ## Compatibility
 
-The reference is [OpenAI Codex rust-v0.158.0](https://github.com/openai/codex/tree/rust-v0.158.0/codex-rs/apply-patch/src): `parser.rs` and `streaming_parser.rs` for syntax, and `seek_sequence.rs` and `file_update.rs` for matching and `NormalizeToLf` reconstruction. `text_file.rs` documents the separate line-preserving representation. The [parser tests](tests/parse.spec.ts) and [text tests](tests/apply.spec.ts) adapt selected upstream cases, including `file_update_tests.rs` and `lib.rs`. The [LICENSE](LICENSE) retains OpenAI attribution and Apache-2.0 terms alongside the MIT license for DeepSeek contributions.
+The reference is [OpenAI Codex rust-v0.158.0](https://github.com/openai/codex/tree/rust-v0.158.0/codex-rs/apply-patch/src): `parser.rs` and `streaming_parser.rs` for syntax, and `seek_sequence.rs` and `file_update.rs` for matching and `NormalizeToLf` reconstruction. `text_file.rs` documents the separate line-preserving representation. The [parser tests](tests/parse.spec.ts) and [text tests](tests/apply.spec.ts) adapt selected upstream cases, including `file_update_tests.rs` and `lib.rs`. The [LICENSE](LICENSE) retains OpenAI attribution and Apache-2.0 terms alongside the MIT license for Omega contributions.
 
 ### Parsing
 

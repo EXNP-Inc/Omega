@@ -1,7 +1,7 @@
 # The replay catalog supplies the account route without account authentication or network I/O.
-- id: llm-deepseek-account
+- id: llm-omega-account
   disabled: true
 - id: agent-default-model
   config:
-    provider: deepseek-official
-    model: deepseek-flash
+    provider: omega-official
+    model: omega-flash

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { SessionFormatEventCollector } from '@deepseek-ai/dsh-session-format'
-import type { SessionFormatEvent, SessionFormatJsonObject, SessionFormatJsonValue } from '@deepseek-ai/dsh-session-format'
+import { SessionFormatEventCollector } from '@omega-ai/dsh-session-format'
+import type { SessionFormatEvent, SessionFormatJsonObject, SessionFormatJsonValue } from '@omega-ai/dsh-session-format'
 import { migrateV3Content, migrateV3EventContent } from '../src/content.ts'
 import { createSessionFormatV3ToV4, releasedV4SessionFormatCodec } from '../src/index.ts'
 import { assertV4MessageSources } from '../src/message-sources.ts'
@@ -194,7 +194,7 @@ describe('unknown V3 event identities', () => {
 
   it('leaves incomplete delivery payloads for generation validation', () => {
     for (const data of [null, {}, { sessionFormatVersion: '4' }]) {
-      const row = event('session-log-deepseek/delivery-accepted', data)
+      const row = event('session-log-omega/delivery-accepted', data)
       expect(namespaceV3OpaqueEvent(row)).toBe(row)
     }
   })

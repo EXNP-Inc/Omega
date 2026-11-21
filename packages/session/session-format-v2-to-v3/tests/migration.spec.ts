@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { createSessionFormatCatalog, SessionFormatEventCollector } from '@deepseek-ai/dsh-session-format'
-import type { SessionFormatArtifact, SessionFormatEvent, SessionFormatHeader, SessionFormatJsonObject } from '@deepseek-ai/dsh-session-format'
-import { releasedV0SessionFormatCodec, releasedV1SessionFormatCodec, sessionFormatV0ToV1 } from '@deepseek-ai/dsh-session-format-v0-to-v1'
-import { sessionFormatV1ToV2 } from '@deepseek-ai/dsh-session-format-v1-to-v2'
+import { createSessionFormatCatalog, SessionFormatEventCollector } from '@omega-ai/dsh-session-format'
+import type { SessionFormatArtifact, SessionFormatEvent, SessionFormatHeader, SessionFormatJsonObject } from '@omega-ai/dsh-session-format'
+import { releasedV0SessionFormatCodec, releasedV1SessionFormatCodec, sessionFormatV0ToV1 } from '@omega-ai/dsh-session-format-v0-to-v1'
+import { sessionFormatV1ToV2 } from '@omega-ai/dsh-session-format-v1-to-v2'
 import { assertReleasedV3Header, releasedV2SessionFormatCodec, releasedV3SessionFormatCodec, restoreReleasedV3Artifact, sessionFormatV2ToV3 } from '../src/index.ts'
 
 function deepFreeze<T>(value: T): T {
@@ -125,7 +125,7 @@ describe('streaming V2 system prompt migration', () => {
   })
 
   it.each([undefined, 0, 1, 2])('preserves delivery generation coordinates (%s) and validates ownership before promotion', (version) => {
-    const marker = event('session-log-deepseek/delivery-accepted', { sessionId: header.id, throughSeq: 1, ...(version === undefined ? {} : { sessionFormatVersion: version }) })
+    const marker = event('session-log-omega/delivery-accepted', { sessionId: header.id, throughSeq: 1, ...(version === undefined ? {} : { sessionFormatVersion: version }) })
     const target = migrate([...opening(), marker])
     expect(target.events.at(-1)?.data).toEqual(marker.data)
     expect(() => migrate([...opening(), { ...marker, data: { ...marker.data as SessionFormatJsonObject, sessionId: 'foreign', sessionFormatVersion: 2 } }])).toThrow(/wrong Session/)
@@ -133,7 +133,7 @@ describe('streaming V2 system prompt migration', () => {
 
   it('derives unknown seeded cuts after insertion and isolates simultaneous stages', () => {
     const source = { ...header, isSeeded: true, parentSession: 'parent' }
-    const events = dense([...opening(), event('request/header', request('seed')), event('session-log-deepseek/delivery-accepted', { sessionId: 'parent', throughSeq: 1, sessionFormatVersion: 2 }), event('session/end-seed', { inherited: true })])
+    const events = dense([...opening(), event('request/header', request('seed')), event('session-log-omega/delivery-accepted', { sessionId: 'parent', throughSeq: 1, sessionFormatVersion: 2 }), event('session/end-seed', { inherited: true })])
     const a = stage(source, undefined)
     const b = stage()
     expect(a.value.headerInheritedEventCount).toBeUndefined()
@@ -215,7 +215,7 @@ describe('streaming V2 system prompt migration', () => {
   it('rejects invalid references, future generation claims, and unclassified message content', () => {
     expect(() => migrate([...opening(), { ...event('user/message', user(), 'append'), sourceEventSeqs: [99] }])).toThrow(/earlier/)
     expect(() => migrate([...opening(), event('system/message', {})])).toThrow(/unclassified/)
-    expect(() => migrate([...opening(), event('session-log-deepseek/delivery-accepted', { sessionId: header.id, throughSeq: 1, sessionFormatVersion: 3 })])).toThrow(/format v3|between/)
+    expect(() => migrate([...opening(), event('session-log-omega/delivery-accepted', { sessionId: header.id, throughSeq: 1, sessionFormatVersion: 3 })])).toThrow(/format v3|between/)
     expect(() => migrate([...opening(), event('user/message', { ...user(), content: [{ type: 'future-block', seq: 1 }] }, 'append')])).toThrow(/unclassified message content/)
   })
 

@@ -8,7 +8,7 @@
  *
  * Each group also carries the registering package and that package's localized plugin titles, so the
  * share dialog can show a product name instead of a wire namespace.
- * @module @deepseek-ai/dsh-experimental-liveshare/src/host/shareable-catalog
+ * @module @omega-ai/dsh-experimental-liveshare/src/host/shareable-catalog
  */
 
 import { createRequire } from 'node:module'

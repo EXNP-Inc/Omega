@@ -37,27 +37,27 @@
  * the row's Session identity; a Session binding would activate and retain
  * every listed Session.
  */
-import type { ContextMenuTarget } from '@deepseek-ai/dsh-client-ui-context-menu/client'
+import type { ContextMenuTarget } from '@omega-ai/dsh-client-ui-context-menu/client'
 import type {
   FactoryComponentPropsOf, HostObservable, InjectFace, PropsHooks, PropsLocale, PropsRenderFactories, PropsRenderSlots,
   PropsRuntime, PropsStore, SlotHookFactory,
-} from '@deepseek-ai/dsh-client-ui-slots'
+} from '@omega-ai/dsh-client-ui-slots'
 // Type-only: pull the owner SlotMap merges into programs that resolve the
 // runtime shares below.
-import type {} from '@deepseek-ai/dsh-client-ui-sidebar/client'
-import type { EmptyWorkspaceOwnerProps } from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type {} from '@deepseek-ai/dsh-client-ui-layout/client'
-import type { SessionSearchResultItem } from '@deepseek-ai/dsh-api-session-controller/client'
-import type { RemoteHostFacts } from '@deepseek-ai/dsh-api-remotes/client'
-import type { SessionActivity, WorkspaceId, WorkspaceView } from '@deepseek-ai/dsh-api-workspace-controller/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { ShortcutCatalogEntry } from '@deepseek-ai/dsh-client-shortcuts/client'
+import type {} from '@omega-ai/dsh-client-ui-sidebar/client'
+import type { EmptyWorkspaceOwnerProps } from '@omega-ai/dsh-client-ui-conversation/client'
+import type {} from '@omega-ai/dsh-client-ui-layout/client'
+import type { SessionSearchResultItem } from '@omega-ai/dsh-api-session-controller/client'
+import type { RemoteHostFacts } from '@omega-ai/dsh-api-remotes/client'
+import type { SessionActivity, WorkspaceId, WorkspaceView } from '@omega-ai/dsh-api-workspace-controller/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { ShortcutCatalogEntry } from '@omega-ai/dsh-client-shortcuts/client'
 import type { WorkspaceShortcutState } from '../shortcuts.ts'
 import type { StartSessionOptions } from '../navigation.ts'
 import type {} from './toast.ts'
 import type { createWorkspaceViewStore } from '../stores.ts'
 
-declare module '@deepseek-ai/dsh-client-ui-context-menu/client' {
+declare module '@omega-ai/dsh-client-ui-context-menu/client' {
   interface ContextMenuTargetMap {
     /** Registered Workspace header; path and title belong to the clicked row. */
     workspace: { readonly workspaceId: WorkspaceId; readonly path: string; readonly displayTitle: string }
@@ -135,7 +135,7 @@ export interface SessionRowTrailingOwnerProps {
   readonly sessionId: SessionId
 }
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@omega-ai/dsh-client-ui-slots' {
   interface SlotMap {
     /** Directory-flow hole under the conversation empty-state picker (declared by the WorkspacePicker entry). */
     'conversation.hero.workspace.directoryFlow': { kind: 'single'; scope: 'root'; owner: DirectoryFlowOwnerProps }

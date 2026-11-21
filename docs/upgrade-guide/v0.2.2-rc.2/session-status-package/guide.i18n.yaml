@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/upgrade-guide/v0.2.2-rc.2/session-status-package/guide.md
 /:
-  en: 3ac349a835a29b14
-  zh: 2c0d4c7e3cfb59ca
-/session-status-moves-to-deepseek-ai-dsh-client-ui-session-status-and-completion-reminders-follow-host-reading-records:
-  en: fb71a29f84e6d36d
-  zh: 5f46ad954c473f7e
-/session-status-moves-to-deepseek-ai-dsh-client-ui-session-status-and-completion-reminders-follow-host-reading-records/change:
-  en: ec4737fe7f5e4839
-  zh: e68a22fe18216760
-/session-status-moves-to-deepseek-ai-dsh-client-ui-session-status-and-completion-reminders-follow-host-reading-records/migration:
-  en: 20d2b7a2809ffc2d
-  zh: 9ca5578f94130755
+  en: 9fca3eb57a1b3461
+  zh: 767a7eb26b2943b6
+/session-status-moves-to-omega-ai-dsh-client-ui-session-status-and-completion-reminders-follow-host-reading-records:
+  en: ab26fa9f988e64b7
+  zh: 90d1cd6cab66be3a
+/session-status-moves-to-omega-ai-dsh-client-ui-session-status-and-completion-reminders-follow-host-reading-records/change:
+  en: 6d84e7edf22848ea
+  zh: d17a4c584912bd67
+/session-status-moves-to-omega-ai-dsh-client-ui-session-status-and-completion-reminders-follow-host-reading-records/migration:
+  en: 15011e302c64bbb9
+  zh: dd0d96d4727aca11

@@ -1,8 +1,8 @@
-import { Context } from '@deepseek-ai/cordis'
-import { ConnectionAuthentication, HostConnectionService } from '@deepseek-ai/dsh-client-connection'
-import { SESSION_FORMAT_VERSION } from '@deepseek-ai/dsh-session'
-import type { SessionHeader, SessionId } from '@deepseek-ai/dsh-session'
-import type { SessionHandle } from '@deepseek-ai/dsh-session-persistence'
+import { Context } from '@omega-ai/cordis'
+import { ConnectionAuthentication, HostConnectionService } from '@omega-ai/dsh-client-connection'
+import { SESSION_FORMAT_VERSION } from '@omega-ai/dsh-session'
+import type { SessionHeader, SessionId } from '@omega-ai/dsh-session'
+import type { SessionHandle } from '@omega-ai/dsh-session-persistence'
 import { strFromU8, unzipSync } from 'fflate'
 import { describe, expect, it } from 'vitest'
 import {

@@ -7,13 +7,13 @@
  * fatal close, and exposes managed-range termination through the handle so the
  * instance owns teardown; platform mechanics live in the subprocess
  * Service Provider.
- * @module @deepseek-ai/dsh-lsp-stdio/connection
+ * @module @omega-ai/dsh-lsp-stdio/connection
  */
 
 import type { Writable } from 'node:stream'
-import { LspError } from '@deepseek-ai/dsh-lsp'
-import { HarnessError } from '@deepseek-ai/dsh-error'
-import type { SubprocessHandle, SubprocessSpawnSpec } from '@deepseek-ai/dsh-subprocess'
+import { LspError } from '@omega-ai/dsh-lsp'
+import { HarnessError } from '@omega-ai/dsh-error'
+import type { SubprocessHandle, SubprocessSpawnSpec } from '@omega-ai/dsh-subprocess'
 import { encodeMessage, MessageDecoder } from './framing.ts'
 
 /** How to launch the server and answer its config requests. */

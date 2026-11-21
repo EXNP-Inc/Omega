@@ -1,18 +1,18 @@
 /** Native browser ownership through real Agent, Session, and ToolRuntime services. */
-import { executeToolFixture } from '@deepseek-ai/dsh-tool-testkit'
+import { executeToolFixture } from '@omega-ai/dsh-tool-testkit'
 
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { StagehandDrainError } from '../src/native.ts'
 import type { NativeBrowserConfig } from '../src/native.ts'
-import { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@deepseek-ai/dsh-agent-loop-testkit'
-import BrowserUseRegistry from '@deepseek-ai/dsh-browser-use'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { BrowserUseProviderName } from '@deepseek-ai/dsh-browser-use/types'
-import { LlmAdapter, type ToolCallId, createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { StreamChunk } from '@deepseek-ai/dsh-llm'
-import type { SessionId } from '@deepseek-ai/dsh-session'
+import { Context } from '@omega-ai/cordis'
+import type { Agent } from '@omega-ai/dsh-agent'
+import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@omega-ai/dsh-agent-loop-testkit'
+import BrowserUseRegistry from '@omega-ai/dsh-browser-use'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { BrowserUseProviderName } from '@omega-ai/dsh-browser-use/types'
+import { LlmAdapter, type ToolCallId, createUserMessage } from '@omega-ai/dsh-llm'
+import type { StreamChunk } from '@omega-ai/dsh-llm'
+import type { SessionId } from '@omega-ai/dsh-session'
 import * as Provider from '../src/index.ts'
 import { fixture, nativeModel, resetFixture } from './fixtures/stagehand.ts'
 
@@ -384,7 +384,7 @@ it.each([
   undefined,
   { modelName: 'openai/gpt-5.4-mini' },
   { modelName: 'openai/gpt-5.4-mini', apiKey: ' ' },
-  { modelName: 'deepseek/deepseek-chat', apiKey: 'fixture' },
+  { modelName: 'omega/omega-chat', apiKey: 'fixture' },
   { modelName: 'openai/gpt-5.4-mini', apiKey: 'fixture', baseURL: 'https://fixture' },
 ])('rejects unsupported native model configuration before browser acquisition: %j', async (model) => {
   await expect(ctx.plugin(Provider, { mode: 'launch', model } as Provider.Config)).rejects.toThrow()

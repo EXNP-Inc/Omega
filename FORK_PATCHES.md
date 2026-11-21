@@ -1,9 +1,9 @@
 # Fork patch ledger — DeepSeek harness to Omega
 
 This repository is a branded fork of the DeepSeek harness (upstream organization
-`deepseek-harness`; fork point is the `0.2.1-alpha.1` release, PR #5648).
-Everything below the three rebrand commits is upstream history; the rebrand
-commits and everything above them is fork-owned.
+`deepseek-harness`; fork point is the `0.2.2-rc.5` release, upstream commit
+`2e39e70496`, merged as `191b24a3b3`). Everything below the rebrand commits is
+upstream history; the rebrand commits and everything above them is fork-owned.
 
 When merging or rebasing upstream, re-apply the fork patch set (section 2) and
 run the regeneration and verification chains (sections 3–4). The gates are the
@@ -17,24 +17,30 @@ debt (section 5).
 | Upstream | `deepseek-harness` harness repository (the "DSH" product) |
 | Fork | `EXNP-Inc/Omega`, remote `origin`, branch `master` |
 | External engine | `@deepseek-ai/libreoffice-kit` and its five platform engines (`-wasm`, `-darwin-arm64`, `-darwin-x64`, `-win32-arm64`, `-win32-x64`) are published upstream packages — never renamed (2.1) |
-| Rebrand commits | three commits above the fork point, found with `git log --oneline --grep='rebrand(harness)'` and `git log --oneline --grep='config(bundle): point shipped'` |
+| Rebrand commits | one `rebrand(harness)` commit above each upstream merge, found with `git log --oneline --grep='rebrand(harness)'` |
 
-Rebrand commits, in order:
+Rebrand history: the first merge (fork point `0.2.1-alpha.1`, PR #5648) landed
+the original three rebrand commits (bulk scope rename, pi-ai bundle pointers,
+user-visible DSH naming); the 0.2.2-rc.5 merge (`191b24a3b3`) re-applied that
+patch set plus the new rc.5-specific items below as one `rebrand(harness)`
+commit (single parent `191b24a3b3`):
 
-1. `rebrand(harness): rename DeepSeek surfaces to Omega and ship local-only
-   defaults` — bulk rename: package scope `@deepseek-ai/*` to `@omega-ai/*`
-   (328 packages including the vendor rescope), product surfaces to Omega
-   (provider id `omega-official`, `llm-omega`, client logos/wordmark, i18n),
-   all WAN defaults to the local gateway `127.0.0.1:8090`, bundled pi-ai
-   profiles `alice`/`mac` registered, web dashboard port `3080` to `4080`.
-2. `config(bundle): point shipped alice/mac pi-ai defaults at the LAN model
-   host` — alice/mac `baseURL` at `192.168.10.210:8001|8002/v1`.
-3. `rebrand(harness): user-visible DSH naming to Omega across UI, CLI, docs,
-   and fixtures` — user-visible product naming `DSH` to `Omega` (locale en/zh,
-   CLI text, docs, model-facing tool descriptions and the sandbox-policy
-   runtime context), over-rename corrections (external libreoffice-kit names,
-   verifier rules, fingerprint pins), and every fixture/golden pinning renamed
-   output.
+- Package scope `@deepseek-ai/*` to `@omega-ai/*` across every pulled file,
+  including the rc.5-new packages; user-visible naming to Omega; all WAN
+  defaults to the local gateway `127.0.0.1:8090`.
+- **Client branding** (2.5): the Ω logo/wordmark and the running-indicator
+  ω APNG ship through the rc.5 hashed client-asset pipeline; the fork's old
+  `FishLogo` and running-whale APNG are deleted, and the fork's base64
+  inlining plugin is not carried (the rc.5 pipeline supersedes it).
+- **llm-omega test re-derivation** (2.4): the rc.5 test lanes of `llm-omega`,
+  `llm-omega-account`, and `llm-omega-api-key` are re-derived from the
+  upstream 2-model bundled catalog to the fork's empty-catalog, 8090-endpoint
+  binding (16 test files, 804 tests green).
+- **pi-ai external surface** (2.1): the installed `@earendil-works/pi-ai`
+  keeps its literal `deepseek` provider vocabulary in the harness's
+  `llm-pi-ai` sources, tests, and the Web worker `pi-ai.ts` stub — never
+  renamed; only the `@deepseek-ai` scope is rescoped there.
+- The `0.2.1-alpha.1`-era items (2.2–2.4) re-apply unchanged.
 
 ## 2. Fork patch set (re-apply on every upstream pull)
 
@@ -51,6 +57,14 @@ Rebrand commits, in order:
   `scripts/libreoffice-packages.mjs`, `scripts/verify-default-product-isolation.ts`
   (`EXTERNAL_ENGINE_PREFIX` rule), and the kit row in
   `THIRD_PARTY_NOTICES.md` (regenerate the file, do not hand-edit).
+- **Exception:** the installed `@earendil-works/pi-ai` package keeps its
+  literal `deepseek` provider vocabulary — `deepseek`/`DeepSeek` in the
+  `BuiltinProvider` and thinking-format unions, `DEEPSEEK_API_KEY`,
+  `api.deepseek.com`, `deepseek/*` model ids, and the "DeepSeek" display
+  name — across `packages/llm/llm-pi-ai` sources and tests and the Web
+  worker `pi-ai.ts` cosmetic stub. Only the `@deepseek-ai` scope is rescoped
+  there. Renaming these breaks the installed dependency contract and the
+  `gen-provider-data --check` pin.
 
 ### 2.2 User-visible naming: `DSH` to `Omega`
 
@@ -94,6 +108,7 @@ Never rename:
 | pi-ai provider `alice` | `http://192.168.10.210:8001/v1`, `openai-responses`, key env `ALICE_API_KEY`, model `qwen3.8-27b` (text+image), reasoning `xhigh` | `packages/bundle/base/cordis.patch.yml` |
 | pi-ai provider `mac` | `http://192.168.10.210:8002/v1`, key env `MAC_API_KEY`, model `qwen3.8-27b-lite` (text), reasoning `xhigh` | `packages/bundle/base/cordis.patch.yml` |
 | Agent default model | `mac/qwen3.8-27b-lite` at `xhigh` | bundled pi-ai defaults |
+| Model listing endpoint | `GET /models` at the origin of `baseURL` (gateway default: `http://127.0.0.1:8090/models`); both the official and the account route are listing-only | `packages/llm/llm-omega/src/listing.ts` (`modelListingURL`) |
 | Upstream default models | none — the omega catalog ships empty; every WAN endpoint defaults to the local gateway; explicit user config always wins | — |
 
 `192.168.10.210` is a shipped default that assumes LAN routing to the model
@@ -106,6 +121,33 @@ the only site that changes.
   platform package is `@omega-ai/dsh-omega-account-platform`.
 - Test fixtures use `omega-official` / `omega-v4-flash` as model-visible mock
   values; keep them aligned when upstream changes the mock shape.
+- **The omega catalog ships empty** (`packages/llm/llm-omega/src/models.ts`,
+  `DEFAULT_MODELS = []`). `isBuiltInCatalog([])` is `true`; the official
+  route serves its models from the gateway listing (`GET /models` at the
+  origin of `baseURL`, i.e. `http://127.0.0.1:8090/models`), and the account
+  route is listing-only. A listed row without `client_requirements` is
+  offered only if its id is in the (empty) build catalog, so it is refused
+  `unsupported`; a row whose `min_version` the client satisfies is offered
+  (or refused `upgrade-required` above the client version) and, when absent
+  from the build catalog, layered over a bare `{ id }` stub carrying only
+  the declared listing facts. Keep upstream default models out of the
+  shipped catalog on every pull.
+- **llm-omega test re-derivation (rc.5):** the rc.5 test lanes of
+  `llm-omega`, `llm-omega-account`, and `llm-omega-api-key` (16 files, 804
+  tests) were re-derived from the upstream 2-model bundled catalog to this
+  empty-catalog / 8090-endpoint binding: bundled-catalog tests expect `[]`;
+  vision and image tests inject
+  `models: [{ id, inputModalities: ['text','image'] }]` because the catalog
+  ships empty; unlisted models assert the fallback shape (`name` = id,
+  `contextWindow` 1 000 000, `defaultMaxTokens` 256 000, text-only, no
+  protocol modes); listed rows offered in tests carry
+  `client_requirements['omega-harness'].min_version`; and listing endpoints
+  are the origin plus `/models`. The only `llm-omega` source change in this
+  re-derivation is the request-id header rename in
+  `packages/llm/llm-omega/src/transport.ts` (`x-omega-request-id`). Other
+  packages that consume the catalog or the gateway (for example `llm-pi-ai`,
+  `web-search-omega`, and the translator's omega providers) are re-derived on
+  a separate lane; until then they stay red as recorded in section 5.
 
 ## 3. Regeneration chain (run after re-applying the renames)
 
@@ -168,11 +210,25 @@ Fixture and golden maintenance when upstream changes model-visible output:
 
 ## 5. Known red debt (do not chase during an upstream pull)
 
+The 0.2.2-rc.5 pull (`191b24a3b3`) surfaced the rows below. The re-derivation
+lanes (`llm-pi-ai`, `web-search-omega`, translator) are the same
+empty-catalog/8090 class as the completed `llm-omega` lane (2.4) and are the
+next work, not debt to ignore; the rest are host/environmental or
+re-record-once goldens.
+
 | Failure | Lane | Cause | Action |
 |---|---|---|---|
+| `llm-pi-ai` (adapter, dynamic-config, egress, loader-composition, login, native-auth, request-headers) — ~30 tests | unit | provider `omega` resolves no models under the empty catalog; rc.5 tests still expect the upstream bundled models | re-derive to the empty catalog (next lane) |
+| `web-search-omega` `omega.spec` x7 | unit | account-route tests expect `https://api.omega.com/...`; fork source resolves the gateway `http://127.0.0.1:8090/anthropic/v1` | re-derive the account-route expectations to the 8090 gateway (next lane) |
+| `translator` `omega.spec` / `audit.spec` ~14 | unit | omega-official / omega-account native Flash providers unresolved under the empty catalog | re-derive to the catalog binding (next lane) |
+| `ui-sidebar` sidebar-snapshot x3, `ui-primitives` icons (BrandWordmark), `ui-brand-official` browser-plugin, `ui-chat` turn-usage-panel, `ui-plugin-manager` components, `desktop-publication-preflight` | gui/unit | fork rebrand changed the rendered Ω mark/wordmark and product text; recorded goldens still hold the upstream values | re-record the goldens after the rebrand (`vitest run -u` + diff-review), then green |
+| `desktop` windows-sign / windows-asar-unpack / macos-runtime; `office-kit` anchors / engine-package / kit-lookup | unit | Windows `.cmd` CRLF assertions and the `@deepseek-ai/libreoffice-kit-{wasm,engine}` fixtures are not present on this Linux host | environmental — green on the platform/CI host that installs the engines |
+| `ptc-runtime-node` imports / imports-process / scoped-repl / vm-script | unit | rc.5 uses Node-24-only `import.source` and node-addons resolution; this host runs Node 22 | environmental — green on the Node ≥ 24 CI host |
+| `task-manager-page` x2 | gui/unit | asserts the device zone differs from `America/New_York`; fails on any US-Eastern host (this host is `America/Toronto`) | pin the device zone in the test — owner call |
+| `gen-dependency-catalog`, `lint-rule-fingerprint`, `persistence-developer`, `release/families`, `release/verify-packed-install` | unit | npm-resolution sha256 pins and the release package catalog track the live npm registry / rc.5 package list | environmental — regenerate/re-pin on a full host, or owner decision |
+| `ui-settings-account` contact-url, `text-search` fuzzy `flash`, `website` table-filter `LLM-DEEPSEEK` | unit | rc.5 re-derivation residue (not in the 3 `llm-omega` packages) | re-derive with the next lane |
 | `verify-persistence-changes` | doc-sync | deepseek to omega event renames against the frozen v4 persistence baseline | owner decision |
 | 13 replay failures (3 sdk, 10 headless) | `test:snapshot` | fixtures record `SANDBOX_UNAVAILABLE` denials; the working host sandbox runs the commands instead | re-record from a host where the sandbox backend is unavailable, or owner decision |
-| `task-manager-page` x2 | gui/unit | asserts the device zone differs from `America/New_York`; fails on any US-Eastern host (this host is `America/Toronto`) | pin the device zone in the test — owner call |
 | `ui-trajectory` `client-bundle` | gui/unit | fails at the fork tip before any pull (rebrand-era) | owner attention |
 | `agent-preset` `skills.spec` x2 | unit | untracked local `graphify` skill install (46856 bytes > 8192 pruner threshold) | owner's install |
 | `workspace-files/changes`, `skill-office/checkers` | unit, full run only | load-dependent timeouts; both green focused | re-run focused when they fail |
@@ -205,7 +261,13 @@ Anything else red after the pull is a regression to fix or report, not debt.
    endpoints, defaults) to every pulled file: new packages take the
    `@omega-ai` scope, new user-visible strings take the `Omega` naming, new
    WAN endpoints default to the local gateway, and new upstream default
-   models stay out of the shipped catalog.
+   models stay out of the shipped catalog. Keep the omega catalog empty
+   (`DEFAULT_MODELS = []`): re-derive the catalog-consuming test lanes
+   (`llm-omega`, `llm-omega-account`, `llm-omega-api-key`, and any new
+   catalog or gateway consumer) to the empty-catalog / 8090-endpoint binding
+   (2.4) rather than re-populating the catalog, and re-point any pulled
+   test that pins an `api.omega.com` / `api.deepseek.com` endpoint at the
+   local gateway.
 4. Run the section 3 regeneration chain, then the section 4 verification
    chain.
 5. Triage the remaining red against the section 5 table.

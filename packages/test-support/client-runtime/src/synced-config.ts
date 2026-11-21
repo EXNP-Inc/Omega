@@ -1,6 +1,6 @@
 /** Synced Config objects for specs that mount a Client plugin face directly instead of through the page entry controller. */
-import type { SyncedConfig, SyncedConfigValues } from '@deepseek-ai/dsh-client-config/types'
-import { SyncedConfigEntry } from '@deepseek-ai/dsh-client-modules/src/client/synced-config.ts'
+import type { SyncedConfig, SyncedConfigValues } from '@omega-ai/dsh-client-config/types'
+import { SyncedConfigEntry } from '@omega-ai/dsh-client-modules/src/client/synced-config.ts'
 
 /**
  * Build the object a plugin activation receives as its `apply` config, holding fixed values.

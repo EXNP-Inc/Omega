@@ -27,8 +27,8 @@ import {
 } from '../src/fsio.ts'
 import type { LocalTarget } from '../src/fsio.ts'
 import { copyFileDaclWin32, readFileDaclWin32 } from '../src/win32.ts'
-import { FsError, type FsTargetKey } from '@deepseek-ai/dsh-fs'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { FsError, type FsTargetKey } from '@omega-ai/dsh-fs'
+import { brandString } from '@omega-ai/dsh-brand'
 
 let dir: string
 beforeEach(async () => {

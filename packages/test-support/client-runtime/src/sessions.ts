@@ -1,32 +1,32 @@
 /** Test-owned Session Controller faces over declarative fixtures. */
-import type { Context } from '@deepseek-ai/cordis'
-import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
+import type { Context } from '@omega-ai/cordis'
+import type { ImageAttachmentRef } from '@omega-ai/dsh-attachment'
 import {
   createScope, MutableSessionEventSource, scopeOf, SESSION_SEARCH_RESULT_LIMIT,
-} from '@deepseek-ai/dsh-api-session-controller/client'
+} from '@omega-ai/dsh-api-session-controller/client'
 import type {
   AgentContext, ISessions, ProjectionsFace, SessionBinding, SessionFace, SessionListState,
   SessionEventLikeEntry, SessionLiveEventEntry, SessionSearchResultItem,
   SessionReference, SessionReferenceSource, SessionRetainFacet, SessionRetainInfo, SessionRetainOptions,
   SessionSnapshot, SessionSummary, SessionTarget, SubmissionHandle,
-} from '@deepseek-ai/dsh-api-session-controller/client'
-import { scopeIdentityOf } from '@deepseek-ai/dsh-api-session-controller/src/client/scope.ts'
+} from '@omega-ai/dsh-api-session-controller/client'
+import { scopeIdentityOf } from '@omega-ai/dsh-api-session-controller/src/client/scope.ts'
 import {
   EMPTY_RETAIN_INFO,
   heldFacets,
   shiftRetention,
-} from '@deepseek-ai/dsh-api-session-controller/src/client/sessions/facets.ts'
-import type { SessionRequestId } from '@deepseek-ai/dsh-api-session-controller/types'
-import type { SubagentAddress } from '@deepseek-ai/dsh-subagent/client'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { ObservableSnapshot, SnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+} from '@omega-ai/dsh-api-session-controller/src/client/sessions/facets.ts'
+import type { SessionRequestId } from '@omega-ai/dsh-api-session-controller/types'
+import type { SubagentAddress } from '@omega-ai/dsh-subagent/client'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import type { ObservableSnapshot, SnapshotStore } from '@omega-ai/dsh-client-store'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import { sessionSnapshot } from './fixtures.ts'
 import type {
   SessionFixture, SessionFixtureSnapshot, Stabilizer,
 } from './fixtures.ts'
 
-declare module '@deepseek-ai/dsh-api-session-controller/client' {
+declare module '@omega-ai/dsh-api-session-controller/client' {
   interface SessionReferenceSourceMap {
     testFixture: unknown
     testView: unknown

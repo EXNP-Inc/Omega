@@ -3,4 +3,4 @@
       name: ../../../packages/session-query/tool-session-list/tests/fixtures/session-list-seed.ts
 
     - id: tool-session-list
-      name: '@deepseek-ai/dsh-tool-session-list'
+      name: '@omega-ai/dsh-tool-session-list'

@@ -15,7 +15,7 @@ description: "ForgeProvider 必须列出所服务的主机并给出名称，Forg
 
 `ForgeReviewData` 新增必需的 `reviewEvents`，即托管平台允许当前用户在提交的评审中记录的结论。评审对话框只提供这些结论，取代它原先内置的规则：拉取请求的作者只能评论。
 
-受影响的是第三方提供方，以及构造这些值的代码。所有类型都来自 `@deepseek-ai/dsh-experimental-forge`。GitHub 提供方按其 `hosts` 设置填写 `hosts`，`label` 为 `'GitHub'`，`changeRequestNoun` 为 `'pull-request'`，`gh` 未登录时给出 `signIn`，拉取请求的作者只得到 `['comment']`。
+受影响的是第三方提供方，以及构造这些值的代码。所有类型都来自 `@omega-ai/dsh-experimental-forge`。GitHub 提供方按其 `hosts` 设置填写 `hosts`，`label` 为 `'GitHub'`，`changeRequestNoun` 为 `'pull-request'`，`gh` 未登录时给出 `signIn`，拉取请求的作者只得到 `['comment']`。
 
 ## 迁移
 

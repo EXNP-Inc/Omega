@@ -1,8 +1,8 @@
 /** Recovery of a committed SQLite Session whose routing record failed to publish. @module */
 import { readdir } from 'node:fs/promises'
 import { basename, join } from 'node:path'
-import { SESSION_FORMAT_VERSION, SessionId, SessionSeq } from '@deepseek-ai/dsh-session'
-import type { SessionEvent, SessionHeader } from '@deepseek-ai/dsh-session'
+import { SESSION_FORMAT_VERSION, SessionId, SessionSeq } from '@omega-ai/dsh-session'
+import type { SessionEvent, SessionHeader } from '@omega-ai/dsh-session'
 import { expect, it, vi } from 'vitest'
 import { SqliteStore, SqliteSessionHandle } from '../src/sqlite.ts'
 import { routeOf } from './fixtures/store.ts'

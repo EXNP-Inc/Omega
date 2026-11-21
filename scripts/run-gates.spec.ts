@@ -638,7 +638,7 @@ describe('gate graph validation', () => {
       const install = gates.find(gate => gate.id === 'electron-install')
       expect(install).toMatchObject({
         command: process.execPath,
-        args: ['/private/pnpm.cjs', '--filter', '@deepseek-ai/dsh-desktop', 'exec', 'install-electron'],
+        args: ['/private/pnpm.cjs', '--filter', '@omega-ai/dsh-desktop', 'exec', 'install-electron'],
         env: { ELECTRON_GET_USE_PROXY: '1' },
         retries: 2,
         retryDelayMs: 15000,

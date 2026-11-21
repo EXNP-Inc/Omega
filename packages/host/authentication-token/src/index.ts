@@ -1,10 +1,10 @@
 /** Default token authentication, HTTP exchanges, and entry URL contribution. */
-import { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import type {} from '@deepseek-ai/dsh-credentials'
-import { CONNECT_PATH } from '@deepseek-ai/dsh-client-connection'
-import type { ConnectionTrustRequest, PeerScope } from '@deepseek-ai/dsh-client-connection'
-import type {} from '@deepseek-ai/dsh-host-webserver'
+import { Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
+import type {} from '@omega-ai/dsh-credentials'
+import { CONNECT_PATH } from '@omega-ai/dsh-client-connection'
+import type { ConnectionTrustRequest, PeerScope } from '@omega-ai/dsh-client-connection'
+import type {} from '@omega-ai/dsh-host-webserver'
 import { BrowserAuth } from './browser-auth.ts'
 
 /** Stable plugin name. */

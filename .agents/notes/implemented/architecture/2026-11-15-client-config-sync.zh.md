@@ -22,7 +22,7 @@ Host 上的插件配置可以实时更新：Loader 在只有 volatile 字段变�
 |---|---|
 | 一套 Config | 插件只有一份配置类型，放在包的 `src/types.ts` 并由 Host 与 Client 两面共用；schema 只在 Host 面。浏览器不导出 `Config`，也不做配置校验 |
 | 只同步 volatile | 浏览器只接收 Host schema 中声明为 volatile 的字段 |
-| 剔除密钥 | volatile 字段内的 `role('secret')` 字段（包括 volatile 对象、数组、字典内部）在 Host 上剔除，不下发。该逻辑在 `client/modules` Host 面独立实现，不依赖 `@deepseek-ai/dsh-settings` |
+| 剔除密钥 | volatile 字段内的 `role('secret')` 字段（包括 volatile 对象、数组、字典内部）在 Host 上剔除，不下发。该逻辑在 `client/modules` Host 面独立实现，不依赖 `@omega-ai/dsh-settings` |
 | 插件自身支持热更新 | 同步配置的变化永远不重新挂载前端插件；插件在操作时读取引用，或把引用作为可订阅数据源交给组件 |
 | 相等即无事 | 每层都按 deep equal 比较，值相等时不推送、不写入、不通知；重连收到的完整快照与当前值相等时不产生任何刷新 |
 | 不同步的内容 | Host 专用普通字段、密钥、按浏览器区分的偏好不进入此链路；主题等在页面 HTML 预注入以避免首屏闪烁的值保持原状 |
@@ -31,7 +31,7 @@ Host 上的插件配置可以实时更新：Loader 在只有 volatile 字段变�
 
 ```ts ignore-check
 // src/types.ts — shared by both faces; types only
-import type { Volatile } from '@deepseek-ai/cordis'
+import type { Volatile } from '@omega-ai/cordis'
 
 /** Plugin configuration shared by the Host and Client faces. */
 export interface Config {
@@ -58,7 +58,7 @@ export const Config: z<Config> = z.object({
 
 ```ts ignore-check
 // src/client/index.ts — Client face; no Config export
-import type { SyncedConfig } from '@deepseek-ai/dsh-client-config/types'
+import type { SyncedConfig } from '@omega-ai/dsh-client-config/types'
 import type { Config } from '../types.ts'
 
 export function apply(ctx: Context, config: SyncedConfig<Config>): void {
@@ -79,7 +79,7 @@ export function DemoBody({ useInteractiveByDefault, tooLarge }: InjectFace<DemoB
 }
 ```
 
-只放类型的包 `@deepseek-ai/dsh-client-config/types` 导出的类型；插件依赖它而不依赖启动最早的 Client Modules 包，由 Client Modules 实现：
+只放类型的包 `@omega-ai/dsh-client-config/types` 导出的类型；插件依赖它而不依赖启动最早的 Client Modules 包，由 Client Modules 实现：
 
 ```ts ignore-check
 /** One synced field: Host-aligned `get()`, and directly an observable source for an injected hook. */
@@ -98,7 +98,7 @@ export type SyncedConfig<C> = {
 
 ### 归属
 
-运行时归属仍在 `client/modules`；唯一新增的包是只放类型的 `@deepseek-ai/dsh-client-config`（两个面的 `apply` 都为空）。`client/modules` 本来就跟踪 Loader 条目、组合插件图并在浏览器创建条目，同步配置是条目的输入，由它一并负责：
+运行时归属仍在 `client/modules`；唯一新增的包是只放类型的 `@omega-ai/dsh-client-config`（两个面的 `apply` 都为空）。`client/modules` 本来就跟踪 Loader 条目、组合插件图并在浏览器创建条目，同步配置是条目的输入，由它一并负责：
 
 | 面 | 职责 |
 |---|---|
@@ -144,7 +144,7 @@ Host 插件更新配置后再向浏览器推送其他数据时，浏览器应先
 
 ### 下发
 
-首屏值随 `__DSH_BOOT__` 的图行下发；之后随插件事件流的 `baseline` 与 `graph` 帧下发，不另设配置帧。插件图的线类型由 `@deepseek-ai/dsh-client-modules/types` 导出。只有 owner 收到实际配置的值；其他所有 Peer（例如 LiveShare 查看端）在启动图和每个插件事件帧中收到各插件 schema 对空 Config 解析出的值，因此 Host schema 仍是默认值的唯一来源，owner 实际配置的值留在 Host；schema 拒绝空 Config 的行在这类页面上不带值。Remote access 策略只决定 Peer 能否跟随插件图。
+首屏值随 `__DSH_BOOT__` 的图行下发；之后随插件事件流的 `baseline` 与 `graph` 帧下发，不另设配置帧。插件图的线类型由 `@omega-ai/dsh-client-modules/types` 导出。只有 owner 收到实际配置的值；其他所有 Peer（例如 LiveShare 查看端）在启动图和每个插件事件帧中收到各插件 schema 对空 Config 解析出的值，因此 Host schema 仍是默认值的唯一来源，owner 实际配置的值留在 Host；schema 拒绝空 Config 的行在这类页面上不带值。Remote access 策略只决定 Peer 能否跟随插件图。
 
 ### 推送通道
 
@@ -194,13 +194,13 @@ Host 插件更新配置后再向浏览器推送其他数据时，浏览器应先
 | 经 `api-remotes` 挂载 `pluginEvents` | `api-remotes` 的替换失败会切断插件更新通道 |
 | 为 connection 与 gateway 增加「替换需刷新页面」声明 | 新增 manifest 字段与界面分支；接受替换失败时刷新页面 |
 | renderer 提供统一的 `useConfig` 框架 hook | 新增框架级 hook；手动注入 `hooks` 已满足组件取值 |
-| 复用 `@deepseek-ai/dsh-settings` 的投影与剔除函数 | settings 架构尚待在本机制之后统一调整，先不建立依赖 |
+| 复用 `@omega-ai/dsh-settings` 的投影与剔除函数 | settings 架构尚待在本机制之后统一调整，先不建立依赖 |
 | 引用只保留 `ObservableSnapshot` | 与 Host volatile 引用的 `get()` 写法不一致 |
 | 每个包一个页面级配置对象 | 替换期间正在退出的旧实例仍会收到新配置，与 Host 不一致 |
 | 修改 vendored Loader 发出提交事件以保证 Host 入队顺序 | prepend 监听已能满足，不需要 vendor 改动 |
 | 另开一条配置专用推送通道 | 与插件图通道重复鉴权、重连与快照语义 |
 | 独立 `client/config` 运行时包提供公开写入的配置服务 | 任何插件都能改写别的插件的配置；条目还需按包名等待该服务 |
-| 插件从 `@deepseek-ai/dsh-client-modules/types` 导入类型 | 让每个使用配置的插件都依赖启动最早的模块系统包，并暴露实现类 |
+| 插件从 `@omega-ai/dsh-client-modules/types` 导入类型 | 让每个使用配置的插件都依赖启动最早的模块系统包，并暴露实现类 |
 | 浏览器也发 `loader/volatile-update` | 字段引用的 `subscribe` 已足够，事件需要深入 Cordis 的过滤机制 |
 
 ## Consequences

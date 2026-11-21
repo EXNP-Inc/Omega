@@ -128,7 +128,7 @@ it('loads fingerprinting and selection under plain Node with no node_modules dir
   expect(output.trim()).toBe('function function')
 })
 
-const repository = 'deepseek-harness/deepseek-harness'
+const repository = 'omega-harness/omega-harness'
 
 function producerSnapshot(root: string) {
   const git = (...args: string[]): string => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: 'pipe' })

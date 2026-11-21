@@ -1,10 +1,10 @@
 /** Explicit browser authorization whose callback, flow, and in-flight work share one owner. */
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto'
-import type { Context } from '@deepseek-ai/cordis'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { AuthorizationSession } from '@deepseek-ai/dsh-authorization'
-import type { CredentialKey } from '@deepseek-ai/dsh-credentials'
-import type WebServer from '@deepseek-ai/dsh-host-webserver'
+import type { Context } from '@omega-ai/cordis'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { AuthorizationSession } from '@omega-ai/dsh-authorization'
+import type { CredentialKey } from '@omega-ai/dsh-credentials'
+import type WebServer from '@omega-ai/dsh-host-webserver'
 import { auth, exchangeAuthorization, extractWWWAuthenticateParams, OAuthError, OAuthErrorCode, validateAuthorizationResponseIssuer } from '@modelcontextprotocol/client'
 import type { OAuthClientProvider, OAuthDiscoveryState, StoredOAuthClientInformation } from '@modelcontextprotocol/client'
 import { McpTemplateBinding } from './credentials.ts'
@@ -248,7 +248,7 @@ export class McpOAuthAuthorization {
       const issuerKey = (issuer: string) => this.credentials.clientKey(serverUrl, issuer, redirectUri)
       const provider: OAuthClientProvider = {
         redirectUrl: redirectUri,
-        clientMetadata: { client_name: 'DeepSeek Harness', redirect_uris: [redirectUri],
+        clientMetadata: { client_name: 'Omega', redirect_uris: [redirectUri],
           grant_types: ['authorization_code', 'refresh_token'], response_types: ['code'], token_endpoint_auth_method: 'none',
           ...this.config.oauth.scope === undefined ? {} : { scope: this.config.oauth.scope },
         },

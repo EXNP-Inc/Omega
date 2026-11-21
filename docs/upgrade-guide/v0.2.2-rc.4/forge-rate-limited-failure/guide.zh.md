@@ -9,7 +9,7 @@ description: "ForgeFailure.code 新增 rate-limited，forge-github 在 GitHub �
 
 ## 变更
 
-`@deepseek-ai/dsh-experimental-forge` 的 `ForgeFailure['code']` 新增 `'rate-limited'`：托管平台按限流拒绝了读取，限额重置之后再读才会成功。[forge-github](../../../../packages/experimental/forge-github/README.zh.md#use-this-package) 遇到 GraphQL `RATE_LIMITED` 错误、HTTP 429，或提到主限流、次级限流的消息时返回它，此前这些情况都报告为 `unavailable`。状态轮询、检查读取、评审读取、diff、文件读取、登录用户的列表与描述读取都可能返回它。
+`@omega-ai/dsh-experimental-forge` 的 `ForgeFailure['code']` 新增 `'rate-limited'`：托管平台按限流拒绝了读取，限额重置之后再读才会成功。[forge-github](../../../../packages/experimental/forge-github/README.zh.md#use-this-package) 遇到 GraphQL `RATE_LIMITED` 错误、HTTP 429，或提到主限流、次级限流的消息时返回它，此前这些情况都报告为 `unavailable`。状态轮询、检查读取、评审读取、diff、文件读取、登录用户的列表与描述读取都可能返回它。
 
 受影响的是对 `ForgeFailure['code']` 做穷尽 switch 的第三方插件：以 `assertNever` 结尾、或声明了 `Record<ForgeFailure['code'], …>` 的代码会编译失败；把文档列出的代码之外的值都当作不可能出现的代码也会受影响。从不返回 `rate-limited` 的提供方无需修改。
 

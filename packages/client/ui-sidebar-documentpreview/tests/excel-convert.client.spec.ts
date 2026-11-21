@@ -16,7 +16,7 @@ describe('Excel conversion', () => {
     expect(sheets.map(sheet => sheet.name)).toEqual(['季度预算', '公式与格式', '隐藏页'])
     const first = sheets[0]!
     const cell = (r: number, c: number) => first.celldata!.find(value => value.r === r && value.c === c)!.v
-    expect(cell(0, 0)).toMatchObject({ v: 'DeepSeek · 项目预算', bl: 1, fs: 18, fc: '#FFFFFF', bg: '#3B5CCC', ht: 0, vt: 0, mc: { r: 0, c: 0, rs: 1, cs: 4 } })
+    expect(cell(0, 0)).toMatchObject({ v: 'Omega · 项目预算', bl: 1, fs: 18, fc: '#FFFFFF', bg: '#3B5CCC', ht: 0, vt: 0, mc: { r: 0, c: 0, rs: 1, cs: 4 } })
     expect(cell(0, 1)).toMatchObject({ mc: { r: 0, c: 0 } })
     expect(cell(0, 1)).not.toHaveProperty('v')
     expect(cell(2, 3)).toMatchObject({ f: '=C3/B3', v: 0.8, m: '80.0%', ct: { fa: '0.0%', t: 'n' } })

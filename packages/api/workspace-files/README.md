@@ -3,7 +3,7 @@ description: "Workspace file service for the web GUI: bounded reads and target-s
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-api-workspace-files
+# @omega-ai/dsh-api-workspace-files
 
 English | [中文](README.zh.md)
 
@@ -81,7 +81,7 @@ Each call obtains `subprocess` on demand and runs packaged `rg --files --sort=pa
 | `search.timeoutMs` | `30000` | Search deadline in milliseconds; expiry rejects |
 | `search.stderrMaxBytes` | `65536` | Retained process stderr diagnostic byte cap |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-api-workspace-files) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-api-workspace-files) is the exhaustive source for every accepted field and its JSDoc.
 
 ### Failures
 

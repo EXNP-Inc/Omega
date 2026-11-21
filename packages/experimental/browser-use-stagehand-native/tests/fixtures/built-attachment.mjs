@@ -1,14 +1,14 @@
 /** Plain-Node smoke of the published provider and its independently configured attachment Worker. */
-import { Context } from '@deepseek-ai/cordis'
-import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@deepseek-ai/dsh-agent-loop-testkit'
-import BrowserUseRegistry from '@deepseek-ai/dsh-browser-use'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { executeModelToolFixture } from '@deepseek-ai/dsh-tool-testkit'
+import { Context } from '@omega-ai/cordis'
+import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@omega-ai/dsh-agent-loop-testkit'
+import BrowserUseRegistry from '@omega-ai/dsh-browser-use'
+import { brandString } from '@omega-ai/dsh-brand'
+import { executeModelToolFixture } from '@omega-ai/dsh-tool-testkit'
 import * as Provider from '../../lib/index.js'
 
-/** @type {(value: string) => import('@deepseek-ai/dsh-llm').ToolCallId} */
+/** @type {(value: string) => import('@omega-ai/dsh-llm').ToolCallId} */
 const toolCallId = brandString
-/** @type {(value: string) => import('@deepseek-ai/dsh-session/types').SessionId} */
+/** @type {(value: string) => import('@omega-ai/dsh-session/types').SessionId} */
 const sessionId = brandString
 
 const [endpoint, url] = process.argv.slice(2)

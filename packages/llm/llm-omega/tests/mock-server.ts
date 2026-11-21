@@ -28,7 +28,7 @@ export async function closeMockServers(): Promise<void> {
 
 /** A minimal complete text generation, reused by request-shape assertions. */
 export const textEvents = [
-  { type: 'message_start', message: { id: 'msg_1', model: 'deepseek-v4-flash', usage: { input_tokens: 3, output_tokens: 0 } } },
+  { type: 'message_start', message: { id: 'msg_1', model: 'omega-v4-flash', usage: { input_tokens: 3, output_tokens: 0 } } },
   { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
   { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'hello' } },
   { type: 'content_block_stop', index: 0 },

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import WebRuntime, {
   WebError,
   type WebFetchProvider,
@@ -7,7 +7,7 @@ import WebRuntime, {
   type WebSearchProvider,
   type WebSearchRequest,
   type WebSearchResult,
-} from '@deepseek-ai/dsh-web'
+} from '@omega-ai/dsh-web'
 
 /** A scripted search provider for contract tests. */
 function makeSearchProvider(
@@ -198,46 +198,46 @@ describe('WebRuntime execution resolution', () => {
     await expect(b.web.search({ query: 'q' })).resolves.toMatchObject({ content: 'perplexity' })
   })
 
-  describe('with both DeepSeek search providers and none configured', () => {
+  describe('with both Omega search providers and none configured', () => {
     /** Mount the seam with Messages search and the Search API registered. */
-    async function mountDeepSeek(
+    async function mountOmega(
       usable: { messages?: boolean; api?: boolean } = {}, config: Parameters<typeof mountWeb>[0] = {},
     ): Promise<WebRuntime> {
       const { web } = await mountWeb(config)
-      web.registerSearchProvider(makeSearchProvider('deepseek-search-api', usable.api ?? available, () => Promise.resolve(searchResult('api'))))
-      web.registerSearchProvider(makeSearchProvider('deepseek-official', usable.messages ?? available, () => Promise.resolve(searchResult('messages'))))
+      web.registerSearchProvider(makeSearchProvider('omega-search-api', usable.api ?? available, () => Promise.resolve(searchResult('api'))))
+      web.registerSearchProvider(makeSearchProvider('omega-official', usable.messages ?? available, () => Promise.resolve(searchResult('messages'))))
       return web
     }
 
-    it.each(['deepseek-official', 'deepseek-account'])('runs Messages search for a model request on the %s route', async (llmProvider) => {
-      const web = await mountDeepSeek()
+    it.each(['omega-official', 'omega-account'])('runs Messages search for a model request on the %s route', async (llmProvider) => {
+      const web = await mountOmega()
       await expect(web.search({ query: 'q', llmProvider })).resolves.toMatchObject({ content: 'messages' })
     })
 
     it.each([['another route', 'openai'], ['a search that serves no model request', undefined]])(
       'runs the Search API for %s', async (_label, llmProvider) => {
-        const web = await mountDeepSeek()
+        const web = await mountOmega()
         await expect(web.search({ query: 'q', ...llmProvider === undefined ? {} : { llmProvider } })).resolves.toMatchObject({ content: 'api' })
       },
     )
 
     it('runs the one usable provider when the preferred one is unavailable', async () => {
-      await expect((await mountDeepSeek({ messages: unavailable })).search({ query: 'q', llmProvider: 'deepseek-official' }))
+      await expect((await mountOmega({ messages: unavailable })).search({ query: 'q', llmProvider: 'omega-official' }))
         .resolves.toMatchObject({ content: 'api' })
-      await expect((await mountDeepSeek({ api: unavailable })).search({ query: 'q', llmProvider: 'openai' }))
+      await expect((await mountOmega({ api: unavailable })).search({ query: 'q', llmProvider: 'openai' }))
         .resolves.toMatchObject({ content: 'messages' })
     })
 
     it('runs the configured provider on every route', async () => {
-      const web = await mountDeepSeek({}, { searchProvider: 'deepseek-search-api' })
-      await expect(web.search({ query: 'q', llmProvider: 'deepseek-official' })).resolves.toMatchObject({ content: 'api' })
+      const web = await mountOmega({}, { searchProvider: 'omega-search-api' })
+      await expect(web.search({ query: 'q', llmProvider: 'omega-official' })).resolves.toMatchObject({ content: 'api' })
     })
 
     it('still fails as ambiguous when the preferred provider is not registered', async () => {
       const { web } = await mountWeb()
-      web.registerSearchProvider(makeSearchProvider('deepseek-search-api', available, () => Promise.resolve(searchResult('api'))))
+      web.registerSearchProvider(makeSearchProvider('omega-search-api', available, () => Promise.resolve(searchResult('api'))))
       web.registerSearchProvider(makeSearchProvider('exa', available, () => Promise.resolve(searchResult('exa'))))
-      await expect(web.search({ query: 'q', llmProvider: 'deepseek-official' })).rejects.toThrow(expect.objectContaining({ code: 'WEB_PROVIDER_AMBIGUOUS' }))
+      await expect(web.search({ query: 'q', llmProvider: 'omega-official' })).rejects.toThrow(expect.objectContaining({ code: 'WEB_PROVIDER_AMBIGUOUS' }))
       await expect(web.search({ query: 'q', llmProvider: 'openai' })).resolves.toMatchObject({ content: 'api' })
     })
   })
@@ -279,20 +279,20 @@ describe('WebRuntime search readiness', () => {
   }
 
   it('answers from the selected provider and passes it the request route', async () => {
-    const { web } = await mountWeb({ searchProvider: 'deepseek' })
+    const { web } = await mountWeb({ searchProvider: 'omega' })
     const asked: (string | undefined)[] = []
-    web.registerSearchProvider(readyProvider('deepseek', available, false, asked))
-    await expect(web.searchReady('deepseek-official')).resolves.toBe(false)
-    expect(asked).toEqual(['deepseek-official'])
+    web.registerSearchProvider(readyProvider('omega', available, false, asked))
+    await expect(web.searchReady('omega-official')).resolves.toBe(false)
+    expect(asked).toEqual(['omega-official'])
   })
 
   it('does not ask a provider that search() would not select', async () => {
     const { web } = await mountWeb({ searchProvider: 'exa' })
-    const deepseekAsked: (string | undefined)[] = []
+    const omegaAsked: (string | undefined)[] = []
     web.registerSearchProvider(readyProvider('exa', available, true))
-    web.registerSearchProvider(readyProvider('deepseek', available, false, deepseekAsked))
-    await expect(web.searchReady('deepseek-official')).resolves.toBe(true)
-    expect(deepseekAsked).toEqual([])
+    web.registerSearchProvider(readyProvider('omega', available, false, omegaAsked))
+    await expect(web.searchReady('omega-official')).resolves.toBe(true)
+    expect(omegaAsked).toEqual([])
   })
 
   it('asks the single usable provider when none is configured', async () => {
@@ -306,19 +306,19 @@ describe('WebRuntime search readiness', () => {
     const { web } = await mountWeb()
     const legacyAsked: (string | undefined)[] = []
     const apiAsked: (string | undefined)[] = []
-    web.registerSearchProvider(readyProvider('deepseek-official', available, false, legacyAsked))
-    web.registerSearchProvider(readyProvider('deepseek-search-api', available, true, apiAsked))
-    await expect(web.searchReady('deepseek-official')).resolves.toBe(false)
+    web.registerSearchProvider(readyProvider('omega-official', available, false, legacyAsked))
+    web.registerSearchProvider(readyProvider('omega-search-api', available, true, apiAsked))
+    await expect(web.searchReady('omega-official')).resolves.toBe(false)
     await expect(web.searchReady('other')).resolves.toBe(true)
     await expect(web.searchReady(undefined)).resolves.toBe(true)
-    expect(legacyAsked).toEqual(['deepseek-official'])
+    expect(legacyAsked).toEqual(['omega-official'])
     expect(apiAsked).toEqual(['other', undefined])
   })
 
   it('treats a selected provider without ready() as ready', async () => {
     const { web } = await mountWeb()
     web.registerSearchProvider(makeSearchProvider('plain', available, () => Promise.resolve(searchResult('plain'))))
-    await expect(web.searchReady('deepseek-official')).resolves.toBe(true)
+    await expect(web.searchReady('omega-official')).resolves.toBe(true)
   })
 
   it.each([
@@ -329,7 +329,7 @@ describe('WebRuntime search readiness', () => {
   ] as const)('answers true when %s, leaving search() to report the failure', async (_label, config, providers) => {
     const { web } = await mountWeb(config)
     for (const provider of providers) web.registerSearchProvider(provider)
-    await expect(web.searchReady('deepseek-official')).resolves.toBe(true)
+    await expect(web.searchReady('omega-official')).resolves.toBe(true)
     await expect(web.search({ query: 'q' })).rejects.toBeInstanceOf(WebError)
   })
 })
@@ -397,26 +397,26 @@ describe('WebRuntime fetch readiness', () => {
   }
 
   it('answers from the provider fetch() selects and passes it the request route', async () => {
-    const { web } = await mountWeb({ fetchProvider: 'deepseek' })
+    const { web } = await mountWeb({ fetchProvider: 'omega' })
     const asked: (string | undefined)[] = []
     const httpAsked: (string | undefined)[] = []
-    web.registerFetchProvider(readyFetchProvider('deepseek', available, false, asked))
+    web.registerFetchProvider(readyFetchProvider('omega', available, false, asked))
     web.registerFetchProvider(readyFetchProvider('http', available, true, httpAsked))
-    await expect(web.fetchReady('deepseek-official')).resolves.toBe(false)
-    expect(asked).toEqual(['deepseek-official'])
+    await expect(web.fetchReady('omega-official')).resolves.toBe(false)
+    expect(asked).toEqual(['omega-official'])
     expect(httpAsked).toEqual([])
   })
 
   it('treats a selected provider without ready() as ready', async () => {
     const { web } = await mountWeb()
     web.registerFetchProvider(makeFetchProvider('http', available, fetchResult('http')))
-    await expect(web.fetchReady('deepseek-official')).resolves.toBe(true)
+    await expect(web.fetchReady('omega-official')).resolves.toBe(true)
   })
 
   it('answers true when no provider qualifies, leaving fetch() to report the failure', async () => {
     const { web } = await mountWeb({ fetchProvider: 'down' })
     web.registerFetchProvider(readyFetchProvider('down', unavailable, false))
-    await expect(web.fetchReady('deepseek-official')).resolves.toBe(true)
+    await expect(web.fetchReady('omega-official')).resolves.toBe(true)
     await expect(web.fetch({ url: 'https://example.com' })).rejects.toMatchObject({ code: 'WEB_PROVIDER_CONFIGURED_UNAVAILABLE' })
   })
 })

@@ -1,23 +1,23 @@
-import { FsError } from '@deepseek-ai/dsh-fs'
-import { executeToolFixture } from '@deepseek-ai/dsh-tool-testkit'
-import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
+import { FsError } from '@omega-ai/dsh-fs'
+import { executeToolFixture } from '@omega-ai/dsh-tool-testkit'
+import * as NativeToolExecutor from '@omega-ai/dsh-tool-executor-native'
 import { chmod, mkdtemp, mkdir, rm, stat, symlink, utimes, writeFile } from 'node:fs/promises'
-import { provideWorkingDirectoryFixture } from '@deepseek-ai/dsh-agent-loop-testkit'
+import { provideWorkingDirectoryFixture } from '@omega-ai/dsh-agent-loop-testkit'
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { tmpdir } from 'node:os'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import type { Config as AgentInstructionsConfig } from '@deepseek-ai/dsh-agent-instructions'
-import * as AgentInstructions from '@deepseek-ai/dsh-agent-instructions'
-import LlmRuntime, { createUserMessage, type ToolCallId, type Message, type MessageSource, type StreamChunk } from '@deepseek-ai/dsh-llm'
-import type { ContextFormed } from '@deepseek-ai/dsh-llm'
-import SessionStore, { type SessionId, SessionSeq, type SessionEvent, type SurfaceIntent, type UserMessage } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import AgentRegistry, { agentEvents, type Agent } from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import { FileSystem, type FsTargetKey, type FsVersion } from '@deepseek-ai/dsh-fs'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { Context } from '@omega-ai/cordis'
+import Loader from '@omega-ai/cordis-plugin-loader'
+import type { Config as AgentInstructionsConfig } from '@omega-ai/dsh-agent-instructions'
+import * as AgentInstructions from '@omega-ai/dsh-agent-instructions'
+import LlmRuntime, { createUserMessage, type ToolCallId, type Message, type MessageSource, type StreamChunk } from '@omega-ai/dsh-llm'
+import type { ContextFormed } from '@omega-ai/dsh-llm'
+import SessionStore, { type SessionId, SessionSeq, type SessionEvent, type SurfaceIntent, type UserMessage } from '@omega-ai/dsh-session'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import AgentRegistry, { agentEvents, type Agent } from '@omega-ai/dsh-agent'
+import AgentLoop from '@omega-ai/dsh-agent-loop'
+import { FileSystem, type FsTargetKey, type FsVersion } from '@omega-ai/dsh-fs'
+import { brandString } from '@omega-ai/dsh-brand'
 import type {
   FsDirEntry,
   FsEditOutcome,
@@ -27,21 +27,21 @@ import type {
   FsTarget,
   FsWriteIntent,
   FsWriteOutcome,
-} from '@deepseek-ai/dsh-fs'
-import LocalFileSystem from '@deepseek-ai/dsh-fs-local'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
-import { defineContentToolFixture } from '@deepseek-ai/dsh-tool-testkit'
+} from '@omega-ai/dsh-fs'
+import LocalFileSystem from '@omega-ai/dsh-fs-local'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRuntime from '@omega-ai/dsh-tools'
+import { defineContentToolFixture } from '@omega-ai/dsh-tool-testkit'
 import type {
   ToolExecution,
   ToolExecutionToken,
-} from '@deepseek-ai/dsh-tools'
-import * as ToolFs from '@deepseek-ai/dsh-tool-fs'
+} from '@omega-ai/dsh-tools'
+import * as ToolFs from '@omega-ai/dsh-tool-fs'
 import {
   discoverBaselineInstructionFiles,
   loadBaselineInstructions,
   renderAgentInstructions,
-} from '@deepseek-ai/dsh-agent-instructions'
+} from '@omega-ai/dsh-agent-instructions'
 import {
   applyInstructionVersionUpdates,
   baselineInstructionState,
@@ -62,9 +62,9 @@ import { MockAdapter, textResponse, toolCallResponse } from '../../../core/agent
 import {
   mountAgentLoopTestDependencies,
   mountAgentLoopTestHarness,
-} from '@deepseek-ai/dsh-agent-loop-testkit'
+} from '@omega-ai/dsh-agent-loop-testkit'
 
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@omega-ai/dsh-llm' {
   interface MessageSourceMap {
     'downstream': { kind: 'downstream' } & ContextFormed
     'other': { kind: 'other' } & ContextFormed
@@ -863,7 +863,7 @@ describe('workspace context instruction discovery', () => {
       vi.stubEnv('DSH_AGENTS_HOME', '')
       vi.resetModules()
       vi.doMock('node:os', () => ({ homedir: () => home }))
-      const isolated = await import('@deepseek-ai/dsh-agent-instructions')
+      const isolated = await import('@omega-ai/dsh-agent-instructions')
       const files = await isolated.discoverBaselineInstructionFiles({ cwd: root })
 
       expect(files.map(file => file.displayPath)).toEqual(['~/.agents/AGENTS.md'])
@@ -886,7 +886,7 @@ describe('workspace context instruction discovery', () => {
       vi.stubEnv('DSH_HOME', '')
       vi.resetModules()
       vi.doMock('node:os', () => ({ homedir: () => home }))
-      const isolated = await import('@deepseek-ai/dsh-agent-instructions')
+      const isolated = await import('@omega-ai/dsh-agent-instructions')
       const files = await isolated.discoverBaselineInstructionFiles({ cwd: root })
 
       expect(files.map(file => file.displayPath)).toEqual(['~/.dsh/AGENTS.md'])
@@ -907,7 +907,7 @@ describe('workspace context instruction discovery', () => {
 
       vi.resetModules()
       vi.doMock('node:os', () => ({ homedir: () => home }))
-      const isolated = await import('@deepseek-ai/dsh-agent-instructions')
+      const isolated = await import('@omega-ai/dsh-agent-instructions')
       pinHarnessHome('~/.dsh')
       const files = await isolated.discoverBaselineInstructionFiles({ cwd: root })
 
@@ -4174,7 +4174,7 @@ describe('workspace context request injection', () => {
           },
         }
       })
-      const isolated = await import('@deepseek-ai/dsh-agent-instructions')
+      const isolated = await import('@omega-ai/dsh-agent-instructions')
       pinHarnessHome(home)
       await isolated.loadBaselineInstructions({ cwd: root, maxBytes: 65536 })
       observedStats.clear()
@@ -4210,7 +4210,7 @@ describe('workspace context request injection', () => {
           },
         }
       })
-      const isolated = await import('@deepseek-ai/dsh-agent-instructions')
+      const isolated = await import('@omega-ai/dsh-agent-instructions')
 
       pinHarnessHome(home)
       const rendered = await isolated.loadBaselineInstructions({ cwd: root, maxBytes: 65536 })
@@ -4249,7 +4249,7 @@ describe('workspace context request injection', () => {
           },
         }
       })
-      const isolated = await import('@deepseek-ai/dsh-agent-instructions')
+      const isolated = await import('@omega-ai/dsh-agent-instructions')
 
       pinHarnessHome(home)
       await expect(isolated.loadBaselineInstructions({ cwd, maxBytes: 65536 }))

@@ -1,15 +1,15 @@
 ---
-description: "DeepSeek Harness 主目录、其 config、data、state、cache 与 backup 类别路径以及共享 agent 配置根目录的共享解析，以及波浪号展开与稳定监听路径。"
+description: "Omega 主目录、其 config、data、state、cache 与 backup 类别路径以及共享 agent 配置根目录的共享解析，以及波浪号展开与稳定监听路径。"
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-home-paths
+# @omega-ai/dsh-home-paths
 
 [English](README.md) | 中文
 
 ## 概述
 
-`@deepseek-ai/dsh-home-paths` 让包作者能够解析 DeepSeek Harness 数据根目录，以及其消费方读取的共享 agent 配置根目录。显式路径优先于环境变量，后者优先于操作系统主目录下的默认值；空白环境变量会被忽略。其公开辅助函数可以在不暴露机器绝对路径的情况下显示根目录，仅展开单独或当前用户的波浪号形式，并规范化最终路径段尚不存在的监听目标。请把它作为库依赖直接使用，不要通过 `cordis.yml` 加载。
+`@omega-ai/dsh-home-paths` 让包作者能够解析 Omega 数据根目录，以及其消费方读取的共享 agent 配置根目录。显式路径优先于环境变量，后者优先于操作系统主目录下的默认值；空白环境变量会被忽略。其公开辅助函数可以在不暴露机器绝对路径的情况下显示根目录，仅展开单独或当前用户的波浪号形式，并规范化最终路径段尚不存在的监听目标。请把它作为库依赖直接使用，不要通过 `cordis.yml` 加载。
 
 ## 目录
 
@@ -29,7 +29,7 @@ kind: "package-library"
 ### 解析主目录
 
 ```ts
-import { resolveDshHome, dshHomePath, dshCachePath } from '@deepseek-ai/dsh-home-paths'
+import { resolveDshHome, dshHomePath, dshCachePath } from '@omega-ai/dsh-home-paths'
 
 const home = resolveDshHome()                // configured path, else $DSH_HOME, else ~/.dsh
 const settings = dshHomePath('settings')     // join one child onto the resolved home
@@ -44,20 +44,20 @@ const cache = dshCachePath('models')         // $DSH_HOME/cache/models, default 
 ### 为新路径选择类别
 
 ```ts
-import { dshPath } from '@deepseek-ai/dsh-home-paths'
+import { dshPath } from '@omega-ai/dsh-home-paths'
 
 const index = dshPath('state', 'my-plugin', 'index.json')             // $DSH_HOME/state/my-plugin/index.json
 const models = dshPath({ category: 'cache', dshHome: '~/other-dsh' }, 'my-plugin') // ~/other-dsh/cache/my-plugin
 ```
 
-主目录下的新文件使用 `dshPath(category, ...segments)`，并把负责方的目录名作为第一个路径段传入，该目录名通常是去掉 `@deepseek-ai/dsh-` 前缀的包名。`config` 用于用户为配置 harness 而编写的文件；`data` 用于丢失后会导致用户工作成果、登录信息或已安装软件丢失的记录；`state` 用于日志、索引、id，以及 harness 丢失后不会导致用户工作成果丢失的其他记录；`cache` 用于 harness 可以重新构建或重新下载的内容，`backup` 用于备份压缩包，用户可以随时删除，不影响 harness 运行。Loader `!!js` 配置表达式也可以使用同一个函数，例如 `root: !!js dshPath('data', 'my-plugin')`。`dshPath` 返回绝对路径，不会创建目录。
+主目录下的新文件使用 `dshPath(category, ...segments)`，并把负责方的目录名作为第一个路径段传入，该目录名通常是去掉 `@omega-ai/dsh-` 前缀的包名。`config` 用于用户为配置 harness 而编写的文件；`data` 用于丢失后会导致用户工作成果、登录信息或已安装软件丢失的记录；`state` 用于日志、索引、id，以及 harness 丢失后不会导致用户工作成果丢失的其他记录；`cache` 用于 harness 可以重新构建或重新下载的内容，`backup` 用于备份压缩包，用户可以随时删除，不影响 harness 运行。Loader `!!js` 配置表达式也可以使用同一个函数，例如 `root: !!js dshPath('data', 'my-plugin')`。`dshPath` 返回绝对路径，不会创建目录。
 
 现有条目保留当前位置：`sessions/`、`profiles/`、`skills/`、`AGENTS.md`、`.env` 和 `.credentials.yaml` 等约定的顶层条目保留在顶层，其他每个现有路径所属的类别由 [home 路径类别提案](../../../.agents/notes/proposed/architecture/2026-11-04-dsh-home-path-categories.zh.md)列出。
 
 ### 解析共享 agents 根目录
 
 ```ts
-import { resolveAgentsHome, agentsHomeDisplay } from '@deepseek-ai/dsh-home-paths'
+import { resolveAgentsHome, agentsHomeDisplay } from '@omega-ai/dsh-home-paths'
 
 const agents = resolveAgentsHome()   // configured path, else $DSH_AGENTS_HOME, else ~/.agents
 agentsHomeDisplay(agents)            // ~/.agents, or $DSH_AGENTS_HOME for any configured root

@@ -23,14 +23,14 @@ from typing import Callable, Iterator, TypeVar
 import pytest
 from pydantic import BaseModel
 
-from deepseek_harness.models import CommandExecution
-from deepseek_harness import DeepSeekHarness, Notification, RunResult, Session
-from deepseek_harness.client import UserQuestionHandler
+from omega_harness.models import CommandExecution
+from omega_harness import OmegaHarness, Notification, RunResult, Session
+from omega_harness.client import UserQuestionHandler
 
 
 _WAIT_SECONDS = 30
 _SESSION_ID = "commands-runtime"
-_MODEL = "deepseek-v4-flash"
+_MODEL = "omega-v4-flash"
 _HISTORY_MARKER = "DSH_COMMANDS_OLD_USER_INPUT"
 _FIRST_REPLY = "SDK_COMPACT_READY"
 _CHECKPOINT = "## Primary Request and Intent\n- DSH_COMMANDS_CHECKPOINT: retain the earlier task."
@@ -243,7 +243,7 @@ def _dsh_bin() -> str | None:
 
 @dataclass
 class _Runtime:
-    harness: DeepSeekHarness
+    harness: OmegaHarness
     model: _ModelServer
     workers: ThreadPoolExecutor
     logs: Path
@@ -286,7 +286,7 @@ def _runtime(
     patches = (patch,) if capture_patch is None else (patch, capture_patch.resolve())
     dsh_bin = _dsh_bin()
     with _ModelServer(completions) as model_server, ThreadPoolExecutor(max_workers=2) as workers:
-        harness = DeepSeekHarness(
+        harness = OmegaHarness(
             cwd=str(workspace), runtime_cwd=str(workspace), dsh_home=str(home),
             dsh_bin=dsh_bin, profile="sdk", patches=tuple(str(item) for item in patches), model=model,
             base_url=model_server.url, api_key="keyless-commands-runtime",
@@ -463,7 +463,7 @@ def run_compaction_scenario(tmp_path: Path, *, capture_patch: Path | None = None
         summary = summaries[0]
         assert summary["seq"] == execution.result.source_event_seq
         assert summary["data"]["llmStreamCall"] is True
-        assert summary["data"]["provider"] == "deepseek-official"
+        assert summary["data"]["provider"] == "omega-official"
         assert summary["data"]["model"] == _MODEL
         for event in [starts[0], summary, ends[0]]:
             assert event["data"]["sourceCommandId"] == execution.command_id
@@ -563,7 +563,7 @@ def _assert_request_permission(request: dict, sandbox: str, approval: str) -> No
         if text.startswith("<system-reminder>\nThe following information describes your current session")
     ]
     assert contexts, "model request has no runtime-context snapshot"
-    assert f"Current DSH file policy: {sandbox}." in contexts[-1]
+    assert f"Current Omega file policy: {sandbox}." in contexts[-1]
     assert (_ASK_POLICY if approval == "ask" else _NEVER_POLICY) in contexts[-1]
 
 

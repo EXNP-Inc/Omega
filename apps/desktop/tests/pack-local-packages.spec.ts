@@ -31,7 +31,7 @@ function fixture(profile: 'local' | 'official' = 'local'): string {
   write(root, 'package.json', JSON.stringify({ name: 'desktop-pack-fixture', version: '1.2.3', private: true }))
   write(root, 'pnpm-workspace.yaml', 'packages:\n  - packages/*/*\n')
   write(root, 'packages/client/probe/package.json', JSON.stringify({
-    name: '@deepseek-ai/dsh-probe', version: '1.2.3', files: ['lib', 'src'],
+    name: '@omega-ai/dsh-probe', version: '1.2.3', files: ['lib', 'src'],
   }))
   write(root, 'packages/client/probe/lib/index.js', 'export const probe = true\n')
   write(root, 'packages/client/probe/lib/client.js', 'export const client = true\n')
@@ -76,9 +76,9 @@ it('packs local client artifacts without a release publication record', async ()
   const root = fixture()
   const result = await pack(root)
   expect(result.code, result.output).toBe(0)
-  expect(readdirSync(join(root, 'packed'))).toEqual(['deepseek-ai-dsh-probe-1.2.3.tgz'])
-  expect(packedIdentity(join(root, 'packed/deepseek-ai-dsh-probe-1.2.3.tgz')))
-    .toEqual({ name: '@deepseek-ai/dsh-probe', version: '1.2.3' })
+  expect(readdirSync(join(root, 'packed'))).toEqual(['omega-ai-dsh-probe-1.2.3.tgz'])
+  expect(packedIdentity(join(root, 'packed/omega-ai-dsh-probe-1.2.3.tgz')))
+    .toEqual({ name: '@omega-ai/dsh-probe', version: '1.2.3' })
   expect(existsSync(join(root, 'packed', PUBLISH_ORDER_FILE))).toBe(false)
 }, testTimeout)
 
@@ -104,16 +104,16 @@ it('rejects local client artifacts in the release packing command', async () => 
 it('validates local tarball contents before reporting success', async () => {
   const root = fixture()
   write(root, 'pnpm-workspace.yaml', 'packages:\n  - packages/*/*\n  - apps/*\n')
-  write(root, 'apps/cli/package.json', JSON.stringify({ name: '@deepseek-ai/dsh', version: '1.2.3', files: ['lib', 'src'] }))
+  write(root, 'apps/cli/package.json', JSON.stringify({ name: '@omega-ai/dsh', version: '1.2.3', files: ['lib', 'src'] }))
   write(root, 'apps/cli/lib/index.js', 'export const cli = true\n')
   write(root, 'apps/cli/src/bin.ts', 'export const bin = true\n')
   for (const name of ['subagent-claude-code', 'subagent-codex']) {
-    write(root, `packages/subagent/${name}/package.json`, JSON.stringify({ name: `@deepseek-ai/dsh-${name}`, version: '1.2.3', files: ['lib'] }))
+    write(root, `packages/subagent/${name}/package.json`, JSON.stringify({ name: `@omega-ai/dsh-${name}`, version: '1.2.3', files: ['lib'] }))
     write(root, `packages/subagent/${name}/lib/index.js`, 'export const bundle = true\n')
   }
   const result = await pack(root)
   expect(result.code).not.toBe(0)
-  expect(result.output).toContain('@deepseek-ai/dsh packed no documentation')
+  expect(result.output).toContain('@omega-ai/dsh packed no documentation')
 }, testTimeout)
 
 it('rejects an invalid local pack concurrency before replacing packages', async () => {

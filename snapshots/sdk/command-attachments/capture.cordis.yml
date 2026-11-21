@@ -2,9 +2,9 @@
   config:
     providers:
       - id: snapshot-command-images
-        name: DeepSeek
+        name: Omega
         models:
-          - id: deepseek-flash
+          - id: omega-flash
             inputModalities: [text, image]
 
 - insert:

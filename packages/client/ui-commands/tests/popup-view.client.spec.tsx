@@ -10,15 +10,15 @@
  * retry button, the highlighted row scrolls into view, and the card height
  * clamps to the space above the composer.
  */
-import * as uiPrimitives from '@deepseek-ai/dsh-client-ui-primitives'
+import * as uiPrimitives from '@omega-ai/dsh-client-ui-primitives'
 import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import type { SelectOption } from '../src/client/contract.ts'
 import type { PopupSpec, TokenSegment } from '../src/client/popup.ts'
 import { PopupSelectController } from '../src/client/popup.ts'
 import { PopupSelectView } from '../src/client/PopupSelectView.tsx'
-import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import { zh as commonZh } from '@deepseek-ai/dsh-client-locale/src/locales/zh.ts'
+import { makeTranslate } from '@omega-ai/dsh-client-test-runtime'
+import { zh as commonZh } from '@omega-ai/dsh-client-locale/src/locales/zh.ts'
 import { zh } from '../src/client/locales.ts'
 
 // The framework-injected t seat, stubbed over the zh dictionaries (the default locale).
@@ -84,7 +84,7 @@ describe('PopupSelectView', () => {
     const alpha = { name: 'alpha', label: 'Alpha provider' }
     const beta = { name: 'beta', label: 'Beta provider' }
     const options: SelectOption[] = [
-      { id: 'a-deep', label: 'DeepSeek Flash', group: alpha },
+      { id: 'a-deep', label: 'Omega Flash', group: alpha },
       { id: 'b-flash', label: 'Flash Beta', group: beta },
       { id: 'a-prefix', label: 'Flash Lite', group: alpha, active: true },
       { id: 'other', label: 'Unmatched', group: { name: 'other', label: 'Other provider' } },
@@ -93,9 +93,9 @@ describe('PopupSelectView', () => {
     const { search } = await mountOpen({ options: () => Promise.resolve(options), onSelect })
     expect(screen.getAllByRole('group').map(group => group.querySelector('[data-menu-group-heading]')?.textContent))
       .toEqual(['Alpha provider', 'Beta provider', 'Other provider'])
-    expect(rowLabels()).toEqual(['DeepSeek Flash', 'Flash Lite', 'Flash Beta', 'Unmatched'])
+    expect(rowLabels()).toEqual(['Omega Flash', 'Flash Lite', 'Flash Beta', 'Unmatched'])
     fireEvent.change(search, { target: { value: 'flash' } })
-    expect(rowLabels()).toEqual(['Flash Lite', 'DeepSeek Flash', 'Flash Beta'])
+    expect(rowLabels()).toEqual(['Flash Lite', 'Omega Flash', 'Flash Beta'])
     expect(screen.queryByRole('group', { name: 'Other provider' })).toBeNull()
     expect(document.activeElement).toBe(search)
     fireEvent.keyDown(search, { key: 'ArrowUp' })
@@ -159,7 +159,7 @@ describe('PopupSelectView', () => {
       })
     }
     vi.resetModules()
-    const detection = await import('@deepseek-ai/dsh-client-ui-primitives/src/focus.ts')
+    const detection = await import('@omega-ai/dsh-client-ui-primitives/src/focus.ts')
     const device = vi.spyOn(uiPrimitives, 'isMobileDevice').mockImplementation(detection.isMobileDevice)
     onTestFinished(() => { device.mockRestore() })
     const { popup, search } = await mountOpen()

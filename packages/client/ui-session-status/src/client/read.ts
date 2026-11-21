@@ -1,10 +1,10 @@
 /** Host reading records installed under the Session status table: the access-gated stream and acknowledgements. */
-import type { Context } from '@deepseek-ai/cordis'
-import { RemoteSnapshotStream, type RemoteStreamCarrierFailure } from '@deepseek-ai/dsh-api-gateway/client'
+import type { Context } from '@omega-ai/cordis'
+import { RemoteSnapshotStream, type RemoteStreamCarrierFailure } from '@omega-ai/dsh-api-gateway/client'
 // Type-only: declares the `remoteAccess` Client service.
-import type {} from '@deepseek-ai/dsh-api-remote-access/client'
+import type {} from '@omega-ai/dsh-api-remote-access/client'
 // Type-only: declares the `sessions` Controller service.
-import type {} from '@deepseek-ai/dsh-api-session-controller/client'
+import type {} from '@omega-ai/dsh-api-session-controller/client'
 import type { SessionReadFrame } from '../types.ts'
 import { installReadingAcknowledgements } from './acknowledge.ts'
 import type { UiSessionStatus } from './status.ts'

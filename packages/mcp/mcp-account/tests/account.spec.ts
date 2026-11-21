@@ -1,8 +1,8 @@
 /** One server's account follows the MCP manager, runs the page's operations through it, and shows the shared section. */
-import { Context } from '@deepseek-ai/cordis'
-import type { McpOAuthAttemptView } from '@deepseek-ai/dsh-mcp-client/types'
-import type { McpManagedServerStatus, McpManagedServerView } from '@deepseek-ai/dsh-mcp-manager/types'
-import type { LocalizedText } from '@deepseek-ai/dsh-package-manifest'
+import { Context } from '@omega-ai/cordis'
+import type { McpOAuthAttemptView } from '@omega-ai/dsh-mcp-client/types'
+import type { McpManagedServerStatus, McpManagedServerView } from '@omega-ai/dsh-mcp-manager/types'
+import type { LocalizedText } from '@omega-ai/dsh-package-manifest'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import { present, sectionCopy, ServerAccount, type McpAccountView } from '../src/account.ts'
 import { ATTEMPT, COPY, fakeManager, OPERATION } from './fixture.ts'

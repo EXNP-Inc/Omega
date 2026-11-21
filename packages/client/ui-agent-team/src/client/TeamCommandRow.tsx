@@ -1,9 +1,9 @@
 /** Read-only historical /team failures and fallback output. */
 import { useState } from 'react'
-import { DisclosureRow, IconUsersOutlineRegular, TextShimmer } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
-import type {} from '@deepseek-ai/dsh-client-ui-chat/client'
-import { assertNever } from '@deepseek-ai/dsh-util-values'
+import { DisclosureRow, IconUsersOutlineRegular, TextShimmer } from '@omega-ai/dsh-client-ui-primitives'
+import type { PropsLocale, PropsRuntime } from '@omega-ai/dsh-client-ui-slots'
+import type {} from '@omega-ai/dsh-client-ui-chat/client'
+import { assertNever } from '@omega-ai/dsh-util-values'
 import type { NS } from './locales.ts'
 import css from './TeamCommandRow.module.css'
 

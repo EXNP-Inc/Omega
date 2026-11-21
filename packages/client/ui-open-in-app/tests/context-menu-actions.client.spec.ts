@@ -1,21 +1,21 @@
 // @vitest-environment jsdom
 /** Original-byte actions and feedback survive the menu that initiated them. */
 import { Blob as NodeBlob } from 'node:buffer'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { afterEach, expect, it, onTestFinished, vi } from 'vitest'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import { MenuRegistry } from '@deepseek-ai/dsh-client-ui-context-menu/src/client/registry.ts'
-import type { ContextMenus, ContextMenuTarget } from '@deepseek-ai/dsh-client-ui-context-menu/client'
-import type { RemoteResult } from '@deepseek-ai/dsh-api-remotes/client'
-import type { SessionWorkspacePathApplication } from '@deepseek-ai/dsh-api-session-controller/types'
-import type { FileActionSource, FileSaveResult } from '@deepseek-ai/dsh-client-ui-file-actions/client'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import type { SessionId } from '@omega-ai/dsh-session'
+import { MenuRegistry } from '@omega-ai/dsh-client-ui-context-menu/src/client/registry.ts'
+import type { ContextMenus, ContextMenuTarget } from '@omega-ai/dsh-client-ui-context-menu/client'
+import type { RemoteResult } from '@omega-ai/dsh-api-remotes/client'
+import type { SessionWorkspacePathApplication } from '@omega-ai/dsh-api-session-controller/types'
+import type { FileActionSource, FileSaveResult } from '@omega-ai/dsh-client-ui-file-actions/client'
 import { OpenInAppPathController } from '../src/client/open-path.ts'
 import { OpenInAppController } from '../src/client/controller.ts'
-import { registerFileMenus } from '@deepseek-ai/dsh-client-ui-file-actions/src/client/context-menus.tsx'
+import { registerFileMenus } from '@omega-ai/dsh-client-ui-file-actions/src/client/context-menus.tsx'
 import { registerContextMenus } from '../src/client/context-menus.tsx'
 import type { OpenInAppToastSource } from '../src/client/open-toast.tsx'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const sessionId = brandString<SessionId>('menu-actions')
 type Applications = readonly SessionWorkspacePathApplication[]

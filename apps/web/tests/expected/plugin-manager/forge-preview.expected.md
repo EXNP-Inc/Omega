@@ -4,7 +4,7 @@
 - heading "变更请求与工作树" [level=3]
 - text: v{{version}} 实验性
 - paragraph:
-  - code: "@deepseek-ai/dsh-experimental-forge-bundle"
+  - code: "@omega-ai/dsh-experimental-forge-bundle"
 - paragraph: 在会话侧栏集中跟踪关联的代码变更请求，支持 GitHub PR 以及 GitLab MR：查看检查状态、评审意见与代码差异，并把修改建议交给智能体继续处理。也可查看本地改动，用独立工作树隔离任务。GitHub 功能需要本机安装 gh 并登录。GitLab 合并请求需要本机安装 glab 并登录。
 - region "详细介绍":
   - paragraph:
@@ -15,37 +15,37 @@
   - listitem:
     - text: 工作树服务 创建命名的 Git 工作树，并切换当前会话的工作目录。
     - code: worktree
-    - code: "@deepseek-ai/dsh-experimental-worktree"
+    - code: "@omega-ai/dsh-experimental-worktree"
     - text: 已关闭
   - listitem:
     - text: Git 工作树 要求在新分支上工作时，智能体会创建单独的 Git 工作树并在其中继续，你当前的工作树保持原样。
     - code: tool-worktree
-    - code: "@deepseek-ai/dsh-experimental-tool-worktree"
+    - code: "@omega-ai/dsh-experimental-tool-worktree"
     - text: 已关闭
   - listitem:
     - text: 变更请求 通过一个与提供方无关的服务注册代码托管提供方，并轮询变更请求状态。
     - code: forge
-    - code: "@deepseek-ai/dsh-experimental-forge"
+    - code: "@omega-ai/dsh-experimental-forge"
     - text: 已关闭
   - listitem:
     - text: GitHub 变更请求 通过宿主上的 GitHub CLI 为 forge 注册表读取 GitHub 变更请求。
     - code: forge-github
-    - code: "@deepseek-ai/dsh-experimental-forge-github"
+    - code: "@omega-ai/dsh-experimental-forge-github"
     - text: 已关闭
   - listitem:
     - text: GitLab 变更请求 通过宿主上的 GitLab CLI 为 forge 注册表读写 GitLab 合并请求。
     - code: forge-gitlab
-    - code: "@deepseek-ai/dsh-forge-gitlab"
+    - code: "@omega-ai/dsh-forge-gitlab"
     - text: 已关闭
   - listitem:
     - text: 会话变更请求 把变更请求绑定到创建、推送或跟踪它们的会话，并监听其状态。
     - code: forge-session
-    - code: "@deepseek-ai/dsh-experimental-forge-session"
+    - code: "@omega-ai/dsh-experimental-forge-session"
     - text: 已关闭
   - listitem:
     - text: 变更请求面板 在会话面板中显示会话的变更请求，并让新会话可以在工作树中开始。
     - code: forge-panel
-    - code: "@deepseek-ai/dsh-experimental-client-ui-forge"
+    - code: "@omega-ai/dsh-experimental-client-ui-forge"
     - text: 已关闭
 - heading "来源信息" [level=4]
 - term: 代码来源

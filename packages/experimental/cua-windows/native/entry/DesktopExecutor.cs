@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.Json;
-using DeepSeek.Cua.Protocol;
+using Omega.Cua.Protocol;
 
-namespace DeepSeek.Cua.Windows;
+namespace Omega.Cua.Windows;
 
 internal sealed class ClientState
 {

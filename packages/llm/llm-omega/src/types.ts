@@ -1,15 +1,15 @@
-/** Model catalog and request-local dependencies for DeepSeek Messages. */
+/** Model catalog and request-local dependencies for Omega Messages. */
 import type {
   ImageAttachmentAccess, LlmError, LlmModelInfo, ModelModality, ResolvedRetryPolicy,
   SystemPromptUpdate, ToolUpdate,
-} from '@deepseek-ai/dsh-llm'
-import type { AttachmentStore, ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
-import type { AnonymousUserId } from '@deepseek-ai/dsh-anonymous-user-id'
-import type { DeepSeekLlmApiExtensionRequest, PreparedDeepSeekLlmApiExtensions } from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
-import type { DeepSeekFileStore, DeepSeekFilePolicy } from './file-store.ts'
+} from '@omega-ai/dsh-llm'
+import type { AttachmentStore, ImageAttachmentRef } from '@omega-ai/dsh-attachment'
+import type { AnonymousUserId } from '@omega-ai/dsh-anonymous-user-id'
+import type { OmegaLlmApiExtensionRequest, PreparedOmegaLlmApiExtensions } from '@omega-ai/dsh-omega-llm-api-extensions'
+import type { OmegaFileStore, OmegaFilePolicy } from './file-store.ts'
 
 /** One optional model entry advertised by the direct-fetch adapter. */
-export interface DeepSeekCatalogModel {
+export interface OmegaCatalogModel {
   /** Wire model id accepted by the configured endpoint. */
   id: string
   /** Selector label; defaults to {@link id}. */
@@ -18,7 +18,7 @@ export interface DeepSeekCatalogModel {
   description?: string
   /** Known combined request/response context capacity; omitted when deployment metadata is unavailable. */
   contextWindow?: number
-  /** Per-request output cap for this model; omission falls back to the profile's {@link DeepSeekConnectionOptions.maxTokens}. */
+  /** Per-request output cap for this model; omission falls back to the profile's {@link OmegaConnectionOptions.maxTokens}. */
   maxTokens?: number
   /** Accepted request modalities; omission is text-only. */
   inputModalities?: ModelModality[]
@@ -51,7 +51,7 @@ export interface DeepSeekCatalogModel {
  * shape; the adapter trusts it and re-reads it per operation, which is what
  * makes a configuration change reach the next request without re-registration.
  */
-export interface DeepSeekConnectionOptions {
+export interface OmegaConnectionOptions {
   /** Messages API root; custom paths remain unchanged. */
   baseURL: string
   /** Request defaults applied to every call (thinking mode, effort). */
@@ -61,7 +61,7 @@ export interface DeepSeekConnectionOptions {
   /** Positive context capacity used when the selected model has no exact value. */
   defaultContextWindow: number
   /** Advisory models exposed to discovery consumers; requests remain unrestricted. */
-  models: readonly DeepSeekCatalogModel[]
+  models: readonly OmegaCatalogModel[]
   /** Maximum provider idle time while one stream read is outstanding. */
   streamIdleTimeoutMs: number
   /** Maximum accumulated file-referenced image bytes in one request. */
@@ -79,7 +79,7 @@ export interface DeepSeekConnectionOptions {
   /** Maximum duration of one request-image Files API resolution. */
   filesApiTimeoutMs: number
   /** Upload expiry, refresh, and quota-recovery policy. */
-  filePolicy: DeepSeekFilePolicy
+  filePolicy: OmegaFilePolicy
   /** Provider-owned model-request retry policy, already resolved. */
   retryPolicy: ResolvedRetryPolicy
 }
@@ -88,7 +88,7 @@ export interface DeepSeekConnectionOptions {
  * Authentication the provider plugin releases for one request and its file operations, with the request-failure
  * classification bound to that credential.
  */
-export interface DeepSeekRequestAuth {
+export interface OmegaRequestAuth {
   /** Request headers carrying the credential. */
   readonly headers: Readonly<Record<string, string>>
   /**
@@ -104,8 +104,8 @@ export interface DeepSeekRequestAuth {
   onRequestError?: (error: unknown) => Promise<unknown>
 }
 
-/** Constructor options for {@link DeepSeekAdapter}: the operation-local resolution hooks the plugin owns. */
-export interface DeepSeekAdapterOptions<Connection extends DeepSeekConnectionOptions = DeepSeekConnectionOptions> {
+/** Constructor options for {@link OmegaAdapter}: the operation-local resolution hooks the plugin owns. */
+export interface OmegaAdapterOptions<Connection extends OmegaConnectionOptions = OmegaConnectionOptions> {
   /** Report unusable native Messages replay metadata without exposing content or signatures. */
   onReplayDegrade?: (detail: { provider: string; model: string; reason: string }) => void
   /** Report extension fields omitted from one request because the merged request failed to serialize. */
@@ -131,7 +131,7 @@ export interface DeepSeekAdapterOptions<Connection extends DeepSeekConnectionOpt
    * snapshot, or `undefined` when the route has no credential for it; never
    * re-read the endpoint. Model requests pass the connection's own base URL.
    */
-  resolveAuth: (connection: Connection, endpoint: string) => Promise<DeepSeekRequestAuth | undefined>
+  resolveAuth: (connection: Connection, endpoint: string) => Promise<OmegaRequestAuth | undefined>
   /**
    * The failure a model request reports when {@link resolveAuth} releases no
    * credential for the route's own endpoint; omission reports `MISSING_CREDENTIAL`.
@@ -144,9 +144,9 @@ export interface DeepSeekAdapterOptions<Connection extends DeepSeekConnectionOpt
   /** Bridge one attachment reference into the current model-tool execution world. */
   resolveImageAccess?: (attachments: AttachmentStore, ref: ImageAttachmentRef) => ImageAttachmentAccess | undefined
   /** Resolve the process-wide upload reuse store. */
-  resolveFiles?: () => DeepSeekFileStore
+  resolveFiles?: () => OmegaFileStore
   /** Prepare the official API's plugin-contributed top-level fields for one exact wire request. */
-  prepareExtensions: (request: DeepSeekLlmApiExtensionRequest) => Promise<PreparedDeepSeekLlmApiExtensions>
+  prepareExtensions: (request: OmegaLlmApiExtensionRequest) => Promise<PreparedOmegaLlmApiExtensions>
 }
 
 

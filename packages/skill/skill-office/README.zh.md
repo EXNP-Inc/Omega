@@ -3,7 +3,7 @@ description: "渐进加载的 Office 路由与创作技能，将渲染、转换�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-skill-office
+# @omega-ai/dsh-skill-office
 
 [English](README.md) | 中文
 
@@ -29,7 +29,7 @@ kind: "package-reference"
 在技能注册表和 `dsh-tool-skill` 旁挂载技能提供者。提供者负责技能说明；加载时，Python 技能追加 Python 环境说明。技能把操作交给 `office_render`、`office_convert` 和 `office_recalculate`，因此需在本提供者旁组合 [`tool-office`](../../document/tool-office/README.zh.md)。
 
 ```yaml
-- name: '@deepseek-ai/dsh-skill-office'
+- name: '@omega-ai/dsh-skill-office'
 
 ```
 

@@ -1,7 +1,7 @@
 /** Original-text Session candidates with explicit wire spelling and longest known labels. */
-import type { UserTextRule, UserTextNode } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { UserTextRule, UserTextNode } from '@omega-ai/dsh-client-ui-conversation/client'
 
-declare module '@deepseek-ai/dsh-client-ui-conversation/client' {
+declare module '@omega-ai/dsh-client-ui-conversation/client' {
   interface UserTextDataMap {
     session: { readonly label: string }
   }

@@ -1,17 +1,17 @@
-import { setSandboxMode } from '@deepseek-ai/dsh-sandbox-policy'
+import { setSandboxMode } from '@omega-ai/dsh-sandbox-policy'
 /** Actual request admission follows directory and permission changes made after assembly. */
 import { mkdtemp, mkdir, realpath, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { Session, type SessionId } from '@deepseek-ai/dsh-session'
-import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@deepseek-ai/dsh-agent-loop-testkit'
-import SandboxPolicy from '@deepseek-ai/dsh-sandbox-policy'
-import ApprovalService from '@deepseek-ai/dsh-user-approval'
+import { Context } from '@omega-ai/cordis'
+import { createUserMessage } from '@omega-ai/dsh-llm'
+import { Session, type SessionId } from '@omega-ai/dsh-session'
+import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@omega-ai/dsh-agent-loop-testkit'
+import SandboxPolicy from '@omega-ai/dsh-sandbox-policy'
+import ApprovalService from '@omega-ai/dsh-user-approval'
 import { describe, expect, it, vi } from 'vitest'
 import { MockAdapter, textResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 describe.each(['pre-step', 'prepareCall'] as const)('%s context changes', (phase) => {
   it.each([false, true])('admits current directory and permissions with optional context=%s', async (optional) => {
@@ -61,9 +61,9 @@ describe.each(['pre-step', 'prepareCall'] as const)('%s context changes', (phase
       const body = snapshots.flatMap(message => message.content).map(block => block.type === 'text' ? block.text : '').join('')
       expect(body).toContain(`Current working directory: ${JSON.stringify(selected)}.`)
       expect(body).not.toContain(`Current working directory: ${JSON.stringify(root)}.`)
-      expect(body.includes('Current DSH file policy: danger-full-access')).toBe(optional)
+      expect(body.includes('Current Omega file policy: danger-full-access')).toBe(optional)
       expect(body.includes('Approval prompts are enabled in this session')).toBe(optional)
-      expect(body).not.toContain('Current DSH file policy: read-only')
+      expect(body).not.toContain('Current Omega file policy: read-only')
       expect(body).not.toContain('Approval prompts are disabled')
       expect(ctx.workingDirectory.get(agent.session)).toBe(selected)
       expect(agent.session.header.cwd).toBe(root)

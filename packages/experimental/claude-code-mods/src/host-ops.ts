@@ -8,27 +8,27 @@
  * @module
  */
 
-import type { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
+import type { Context } from '@omega-ai/cordis'
+import type { Agent } from '@omega-ai/dsh-agent'
 // Type-only: activate the `ctx.get('subprocess')` Context declaration.
-import type {} from '@deepseek-ai/dsh-subprocess'
-import type { CommandDefinition } from '@deepseek-ai/dsh-commands'
-import type { FileSystem, FsTarget } from '@deepseek-ai/dsh-fs'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { HarnessError } from '@deepseek-ai/dsh-error'
-import { createUserMessage, type ToolCallId } from '@deepseek-ai/dsh-llm'
-import { extractTextContent } from '@deepseek-ai/dsh-llm/message'
-import type { ContentBlock, Message } from '@deepseek-ai/dsh-llm'
-import { scopeOf } from '@deepseek-ai/dsh-scope'
-import type { WorkingDirectoryService } from '@deepseek-ai/dsh-working-directory'
-import type {} from '@deepseek-ai/dsh-token-meter'
-import { defineDomain, domainTable } from '@deepseek-ai/dsh-storage-domain'
-import type { Domain } from '@deepseek-ai/dsh-storage-domain'
-import { assertObjectJsonSchema } from '@deepseek-ai/dsh-tools'
-import type { ToolDefinition, ToolExecutionResult } from '@deepseek-ai/dsh-tools'
-import type { AskUserQuestionOption } from '@deepseek-ai/dsh-user-questions'
-import { randomUUID } from '@deepseek-ai/dsh-util-crypto'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+import type {} from '@omega-ai/dsh-subprocess'
+import type { CommandDefinition } from '@omega-ai/dsh-commands'
+import type { FileSystem, FsTarget } from '@omega-ai/dsh-fs'
+import { brandString } from '@omega-ai/dsh-brand'
+import { HarnessError } from '@omega-ai/dsh-error'
+import { createUserMessage, type ToolCallId } from '@omega-ai/dsh-llm'
+import { extractTextContent } from '@omega-ai/dsh-llm/message'
+import type { ContentBlock, Message } from '@omega-ai/dsh-llm'
+import { scopeOf } from '@omega-ai/dsh-scope'
+import type { WorkingDirectoryService } from '@omega-ai/dsh-working-directory'
+import type {} from '@omega-ai/dsh-token-meter'
+import { defineDomain, domainTable } from '@omega-ai/dsh-storage-domain'
+import type { Domain } from '@omega-ai/dsh-storage-domain'
+import { assertObjectJsonSchema } from '@omega-ai/dsh-tools'
+import type { ToolDefinition, ToolExecutionResult } from '@omega-ai/dsh-tools'
+import type { AskUserQuestionOption } from '@omega-ai/dsh-user-questions'
+import { randomUUID } from '@omega-ai/dsh-util-crypto'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
 import { record, requireString, stringify } from './values.ts'
 import { z as zod } from 'zod'
 import type { LoadedMod } from './chain.ts'
@@ -45,7 +45,7 @@ export interface AgentBinding {
 }
 
 /** The mods API version string `$.session.version()` reports. */
-export const MODS_API_VERSION: SessionVersion = Object.freeze({ version: 'claude-code-mods/0.1', engine: 'deepseek-harness' })
+export const MODS_API_VERSION: SessionVersion = Object.freeze({ version: 'claude-code-mods/0.1', engine: 'omega-harness' })
 
 /** Largest file `$.fs.read` returns and `$.fs.write` accepts, Claude Code's own limit. */
 export const FS_MAX_BYTES = 4 * 1024 * 1024

@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from deepseek_harness import DeepSeekHarness
+from omega_harness import OmegaHarness
 
 
 _EXAMPLE = Path(__file__).resolve().parents[1] / "examples/goal.py"
@@ -67,17 +67,17 @@ for line in sys.stdin:
         raise AssertionError(method)
 ''', encoding="utf-8")
     example = runpy.run_path(str(_EXAMPLE))
-    harnesses: list[DeepSeekHarness] = []
+    harnesses: list[OmegaHarness] = []
 
-    def configured_harness(**options: object) -> DeepSeekHarness:
-        harness = DeepSeekHarness(
+    def configured_harness(**options: object) -> OmegaHarness:
+        harness = OmegaHarness(
             **options, _launch_args=(sys.executable, str(peer), pending, str(observed)),
             initialize_timeout_seconds=10, shutdown_timeout_seconds=10,
         )
         harnesses.append(harness)
         return harness
 
-    monkeypatch.setitem(example["main"].__globals__, "DeepSeekHarness", configured_harness)
+    monkeypatch.setitem(example["main"].__globals__, "OmegaHarness", configured_harness)
     if pending == "interrupt":
         entered = threading.Event()
         display = example["display"]

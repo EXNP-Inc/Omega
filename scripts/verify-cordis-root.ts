@@ -3,7 +3,7 @@
  *
  * A read names the root symbol through a Cordis value binding: `Context.root` or `symbols.root`,
  * their `['root']` forms, or `root` destructured from either in a declaration, a parameter default,
- * or an assignment. A binding comes from `@deepseek-ai/cordis` or one of its subpaths through a
+ * or an assignment. A binding comes from `@omega-ai/cordis` or one of its subpaths through a
  * static import, including renamed and namespace imports, or through a destructured or namespace
  * `import()` or `require()` result. References resolve through the file's own scopes, so a local
  * that shadows the import is not a binding. Any string literal whose value is exactly `cordis.root`,
@@ -36,7 +36,7 @@ import {
 const root = resolve(import.meta.dirname, '..')
 
 /** Package that exports the Cordis `Context` class and the `symbols` table. */
-const CORDIS_MODULE = '@deepseek-ai/cordis'
+const CORDIS_MODULE = '@omega-ai/cordis'
 
 /** Global symbol key of `Context.root`. */
 const ROOT_SYMBOL_KEY = 'cordis.root'

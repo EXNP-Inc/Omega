@@ -1,30 +1,30 @@
-import { syncedConfig } from '@deepseek-ai/dsh-client-test-runtime'
+import { syncedConfig } from '@omega-ai/dsh-client-test-runtime'
 import type { AssistantNodeInjected } from '../src/client/chat/AssistantNodeView.tsx'
-import type { MessageId } from '@deepseek-ai/dsh-llm/types'
-import { apply as applyMenus, inject as injectMenus } from '@deepseek-ai/dsh-client-ui-context-menu/client'
+import type { MessageId } from '@omega-ai/dsh-llm/types'
+import { apply as applyMenus, inject as injectMenus } from '@omega-ai/dsh-client-ui-context-menu/client'
 // @vitest-environment jsdom
 /** Chat inject factories exercised over independently mounted Conversation and Chat plugins. */
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
 import { describe, expect, it, vi } from 'vitest'
-import type { AttachmentId } from '@deepseek-ai/dsh-attachment/types'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { ISession, SessionReference } from '@deepseek-ai/dsh-api-session-controller/client'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
+import type { AttachmentId } from '@omega-ai/dsh-attachment/types'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { ISession, SessionReference } from '@omega-ai/dsh-api-session-controller/client'
+import { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
 import {
   SlotTestRuntime, stubConfigForm, usePinnedBrowserLanguages,
-} from '@deepseek-ai/dsh-client-test-runtime'
-import type { SessionBehaviorOverrides } from '@deepseek-ai/dsh-client-test-runtime'
-import type { ClientRemote } from '@deepseek-ai/dsh-api-remotes/client'
-import type { ConnectionHandle } from '@deepseek-ai/dsh-client-connection/client'
+} from '@omega-ai/dsh-client-test-runtime'
+import type { SessionBehaviorOverrides } from '@omega-ai/dsh-client-test-runtime'
+import type { ClientRemote } from '@omega-ai/dsh-api-remotes/client'
+import type { ConnectionHandle } from '@omega-ai/dsh-client-connection/client'
 import {
   apply as applyConversation, inject as injectConversation,
   type GroupKey,
-} from '@deepseek-ai/dsh-client-ui-conversation/client'
+} from '@omega-ai/dsh-client-ui-conversation/client'
 import {
   apply as applyChat, inject as injectChat, type ChatFlowDataInjected, type ChatViewInjected,
-} from '@deepseek-ai/dsh-client-ui-chat/client'
-import { SessionSeq, type SessionId } from '@deepseek-ai/dsh-session/types'
-import type { WorkspaceId } from '@deepseek-ai/dsh-workspace/types'
+} from '@omega-ai/dsh-client-ui-chat/client'
+import { SessionSeq, type SessionId } from '@omega-ai/dsh-session/types'
+import type { WorkspaceId } from '@omega-ai/dsh-workspace/types'
 import { createChatStore } from '../src/client/stores.ts'
 import { CHAT_SETTINGS_NAMESPACE, type ChatSettings } from '../src/chat-settings.ts'
 import type { LinkOpeningRowInjected } from '../src/client/settings/LinkOpeningRow.tsx'

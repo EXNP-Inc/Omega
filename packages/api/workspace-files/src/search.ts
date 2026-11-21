@@ -1,7 +1,7 @@
 /** Workspace-relative name and path discovery through packaged ripgrep. */
-import { readRipgrepLines, spawnRipgrep, type RipgrepLinesResult } from '@deepseek-ai/dsh-util-ripgrep'
-import type { SubprocessRuntime } from '@deepseek-ai/dsh-subprocess'
-import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
+import { readRipgrepLines, spawnRipgrep, type RipgrepLinesResult } from '@omega-ai/dsh-util-ripgrep'
+import type { SubprocessRuntime } from '@omega-ai/dsh-subprocess'
+import { RemoteError } from '@omega-ai/dsh-typert-protocol'
 import type { WorkspaceFileSearchMatch, WorkspaceFileSearchResult } from './types.ts'
 
 /** Deployment budgets on one search's results, listed files and process. */

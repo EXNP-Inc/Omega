@@ -1,15 +1,15 @@
-# DeepSeek Harness Python SDK
+# Omega Python SDK
 
 [English](README.md) | 中文
 
-用于以子进程方式驱动 DeepSeek Harness 的 Python 包。客户端 SDK 通过 stdio 使用按行分隔的 JSON-RPC 与内置运行时通信。
+用于以子进程方式驱动 Omega 的 Python 包。客户端 SDK 通过 stdio 使用按行分隔的 JSON-RPC 与内置运行时通信。
 
 ## 包
 
 | 目录 | 分发名／模块 | 职责 |
 |---|---|---|
-| [sdk](sdk/README.zh.md) | `deepseek-harness-sdk` / `deepseek_harness` | 高层轮次 API 与低层 JSON-RPC 客户端 |
-| [sdk-runtime](sdk-runtime/README.zh.md) | `deepseek-harness-runtime-bin` / `deepseek_harness_runtime` | 内置 `dsh` CLI（命令行界面）可执行程序与原生伴随文件 |
+| [sdk](sdk/README.zh.md) | `omega-harness-sdk` / `omega_harness` | 高层轮次 API 与低层 JSON-RPC 客户端 |
+| [sdk-runtime](sdk-runtime/README.zh.md) | `omega-harness-runtime-bin` / `omega_harness_runtime` | 内置 `dsh` CLI（命令行界面）可执行程序与原生伴随文件 |
 
 ## 行为
 

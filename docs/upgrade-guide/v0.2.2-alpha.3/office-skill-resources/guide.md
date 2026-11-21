@@ -9,7 +9,7 @@ English | [中文](guide.zh.md)
 
 ## Change
 
-The Web and SDK profiles no longer set `assetRoot` on the `skill-office` row, so [`@deepseek-ai/dsh-skill-office`](../../../../packages/skill/skill-office/README.md) reads the Office skills from its packaged `assets/` in every deployment:
+The Web and SDK profiles no longer set `assetRoot` on the `skill-office` row, so [`@omega-ai/dsh-skill-office`](../../../../packages/skill/skill-office/README.md) reads the Office skills from its packaged `assets/` in every deployment:
 
 | Removed | Replacement |
 |---|---|

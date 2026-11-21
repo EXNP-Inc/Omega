@@ -1,5 +1,5 @@
 /** The copy every connector's account section shares; each connector's own text comes with its registration. */
-import type { LocalizedText } from '@deepseek-ai/dsh-package-manifest'
+import type { LocalizedText } from '@omega-ai/dsh-package-manifest'
 
 /** Chinese dictionary and key source. */
 const zh = {

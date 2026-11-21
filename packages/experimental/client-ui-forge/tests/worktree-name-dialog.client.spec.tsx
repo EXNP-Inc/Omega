@@ -2,7 +2,7 @@
 /** Naming dialog of a worktree branch: the starting text, the rules checked while typing, the Host's refusals, and the retry mode. */
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
+import { makeTranslate } from '@omega-ai/dsh-client-test-runtime'
 import { en } from '../src/client/locales.ts'
 import { WorktreeNameDialog, type WorktreeNameDialogProps } from '../src/client/WorktreeNameDialog.tsx'
 

@@ -3,7 +3,7 @@ description: "List Workspace and Session metadata through optional read-only too
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-tool-session-list
+# @omega-ai/dsh-tool-session-list
 
 English | [中文](README.zh.md)
 
@@ -36,16 +36,16 @@ The plugin requires `tools`, `sessions`, `sessionQuery`, `workspaceRegistry`, an
 ```yaml
 - insert:
     - id: workspace-registry
-      name: '@deepseek-ai/dsh-workspace'
+      name: '@omega-ai/dsh-workspace'
     - id: tool-session-list
-      name: '@deepseek-ai/dsh-tool-session-list'
+      name: '@omega-ai/dsh-tool-session-list'
 ```
 
 When the composition already mounts `workspaceRegistry`, add only the tool row. Workspace initialization follows the [registry's existing history bootstrap](../../workspace/workspace/README.md); listing calls do not create or attach sessions or change registry records.
 
 ### Listing behavior
 
-Both tools return an array directly. The [tool catalog](../../../docs/tool-catalog.md#deepseek-aidsh-tool-session-list) defines arguments. Pagination follows filtering and ordering; each call defaults to 20 entries, accepts at most 100, and starts at offset zero. Increase the offset by the number of returned entries to continue; an empty array ends the traversal.
+Both tools return an array directly. The [tool catalog](../../../docs/tool-catalog.md#omega-aidsh-tool-session-list) defines arguments. Pagination follows filtering and ordering; each call defaults to 20 entries, accepts at most 100, and starts at offset zero. Increase the offset by the number of returned entries to continue; an empty array ends the traversal.
 
 `list_workspace` preserves registry order and includes workspaces with no sessions. `list_session` never returns subagent sessions. It includes unarchived sessions by default, including sessions outside every Workspace when no `workspace_id` is supplied. Explicit Workspace selection uses recorded membership, not a matching working directory. Archival matches each Session's own ID.
 
@@ -93,7 +93,7 @@ A Workspace selection reads `Workspace.getSessionHeaders()`; an unscoped call us
 
 #### What the model sees
 
-The [tool catalog](../../../docs/tool-catalog.md#deepseek-aidsh-tool-session-list) owns the `list_workspace` and `list_session` schemas. Each result renders as a JSON array. The plugin adds no separate system-prompt section.
+The [tool catalog](../../../docs/tool-catalog.md#omega-aidsh-tool-session-list) owns the `list_workspace` and `list_session` schemas. Each result renders as a JSON array. The plugin adds no separate system-prompt section.
 
 #### Token effect
 

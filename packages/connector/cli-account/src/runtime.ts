@@ -1,11 +1,11 @@
 /** One CLI plugin's account operations: one at a time, Host-owned, with a credential-free view that observers reread after each change. */
 
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@deepseek-ai/cordis'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import type { Context } from '@omega-ai/cordis'
+import { brandString } from '@omega-ai/dsh-brand'
 import type {
   ConnectorAccountSource, ConnectorOperation, ConnectorOperationId, ConnectorOperationResult,
-} from '@deepseek-ai/dsh-client-ui-connector-account/types'
+} from '@omega-ai/dsh-client-ui-connector-account/types'
 import type { CliCommandExecutor, CliCommandResult, CliRunOptions } from './executor.ts'
 import type { CliAccountRegistration, CliAccountView, CliCommandFailure, CliOperationControl } from './types.ts'
 

@@ -9,10 +9,10 @@
  * unconfirmed pair starts its own Host request when first subscribed; nothing
  * bounds how many are outstanding at once.
  */
-import type { UserTextNodeProps } from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type { WorkspaceFileStat } from '@deepseek-ai/dsh-api-remotes/client'
-import type { HostObservable } from '@deepseek-ai/dsh-client-ui-slots'
-import type { RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
+import type { UserTextNodeProps } from '@omega-ai/dsh-client-ui-conversation/client'
+import type { WorkspaceFileStat } from '@omega-ai/dsh-api-remotes/client'
+import type { HostObservable } from '@omega-ai/dsh-client-ui-slots'
+import type { RemoteResult } from '@omega-ai/dsh-typert-protocol'
 
 /** Session whose filesystem resolves a mention. */
 export type MentionSessionId = UserTextNodeProps<'file'>['sessionId']

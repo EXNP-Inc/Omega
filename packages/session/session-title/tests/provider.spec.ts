@@ -1,18 +1,18 @@
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import { Context } from '@deepseek-ai/cordis'
+import AgentRegistry from '@omega-ai/dsh-agent'
+import { Context } from '@omega-ai/cordis'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import LlmRuntime, { createUserMessage, markAgentLoopRequest } from '@deepseek-ai/dsh-llm'
-import { deepFreeze } from '@deepseek-ai/dsh-util-values'
-import SessionStore, { type SessionId, SessionSeq } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { SessionTitleProviderId } from '@deepseek-ai/dsh-session-title/types'
+import LlmRuntime, { createUserMessage, markAgentLoopRequest } from '@omega-ai/dsh-llm'
+import { deepFreeze } from '@omega-ai/dsh-util-values'
+import SessionStore, { type SessionId, SessionSeq } from '@omega-ai/dsh-session'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { SessionTitleProviderId } from '@omega-ai/dsh-session-title/types'
 import SessionTitleService, {
   type SessionTitleProvider,
   type SessionTitleProviderRequest,
   type SessionTitleProviderResult,
   type SessionTitleSnapshot,
-} from '@deepseek-ai/dsh-session-title'
+} from '@omega-ai/dsh-session-title'
 
 const CONFIG = {
   fallbackMaxWords: 5,

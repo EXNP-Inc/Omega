@@ -1,11 +1,11 @@
-# Live-recording patch for a deterministic failed DeepSeek search request. No search provider is
-# configured: the conversation runs on a DeepSeek model route, where a search selects Messages search.
+# Live-recording patch for a deterministic failed Omega search request. No search provider is
+# configured: the conversation runs on a Omega model route, where a search selects Messages search.
 - insert:
     - id: web-search-error-fixture
       name: './web-search-error-fixture.mjs'
 
-- id: web-search-deepseek
-  name: '@deepseek-ai/dsh-web-search-deepseek'
+- id: web-search-omega
+  name: '@omega-ai/dsh-web-search-omega'
   config:
     apiKey: snapshot-key
     # The fixture maps this recorded authority to its OS-assigned listener.

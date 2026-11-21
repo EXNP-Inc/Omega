@@ -1,6 +1,6 @@
 /** Model and UI rendering for persistent terminal tool results. */
 
-import { TextRetainer } from '@deepseek-ai/dsh-output-retention'
+import { TextRetainer } from '@omega-ai/dsh-output-retention'
 
 interface RenderedSessionStatusRunning {
   kind: 'running'

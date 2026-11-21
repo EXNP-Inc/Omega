@@ -3,11 +3,11 @@
  * while forge-session runs, the `glab` commands that bind merge requests to a Session.
  */
 
-import type { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import type {} from '@deepseek-ai/dsh-experimental-forge'
-import type {} from '@deepseek-ai/dsh-experimental-forge-session'
-import { MAX_TIMER_DELAY_MS } from '@deepseek-ai/dsh-timeout'
+import type { Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
+import type {} from '@omega-ai/dsh-experimental-forge'
+import type {} from '@omega-ai/dsh-experimental-forge-session'
+import { MAX_TIMER_DELAY_MS } from '@omega-ai/dsh-timeout'
 import { GLAB_COMMANDS } from './commands.ts'
 import { glabRunner } from './glab.ts'
 import { GitLabProvider } from './provider.ts'

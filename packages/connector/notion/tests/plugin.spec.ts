@@ -1,18 +1,18 @@
 /** Notion plugin over a real MCP manager profile and a loopback OAuth MCP server. */
 
 import { expect, it, vi } from 'vitest'
-import type { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import ConnectorAccounts from '@deepseek-ai/dsh-client-ui-connector-account'
-import type { ConnectorAccountsView } from '@deepseek-ai/dsh-client-ui-connector-account/types'
-import McpAccounts from '@deepseek-ai/dsh-mcp-account'
-import { parseCredentialKey } from '@deepseek-ai/dsh-credentials'
-import { ToolCallId } from '@deepseek-ai/dsh-llm'
-import { executeToolFixture } from '@deepseek-ai/dsh-tool-testkit'
-import type { McpManagedServerStatus } from '@deepseek-ai/dsh-mcp-manager'
-import McpResources from '@deepseek-ai/dsh-mcp-resources'
-import { createScope } from '@deepseek-ai/dsh-scope'
-import { renderPrompt } from '@deepseek-ai/dsh-system-prompt'
+import type { Context } from '@omega-ai/cordis'
+import type { Agent } from '@omega-ai/dsh-agent'
+import ConnectorAccounts from '@omega-ai/dsh-client-ui-connector-account'
+import type { ConnectorAccountsView } from '@omega-ai/dsh-client-ui-connector-account/types'
+import McpAccounts from '@omega-ai/dsh-mcp-account'
+import { parseCredentialKey } from '@omega-ai/dsh-credentials'
+import { ToolCallId } from '@omega-ai/dsh-llm'
+import { executeToolFixture } from '@omega-ai/dsh-tool-testkit'
+import type { McpManagedServerStatus } from '@omega-ai/dsh-mcp-manager'
+import McpResources from '@omega-ai/dsh-mcp-resources'
+import { createScope } from '@omega-ai/dsh-scope'
+import { renderPrompt } from '@omega-ai/dsh-system-prompt'
 import { callback, oauthWorld, phase } from '../../../mcp/mcp-client/tests/oauth-fixture.ts'
 import { managerProfile } from '../../../mcp/mcp-manager/tests/profile-fixture.ts'
 import { COPY } from '../src/locales.ts'
@@ -125,7 +125,7 @@ it('shows the Notion account on the Plugins page while the account registry runs
   const shown = await until(stream, view => view.accounts[0]?.display.phase === 'disconnected')
   expect(shown.accounts).toHaveLength(1)
   expect(shown.accounts[0]).toMatchObject({
-    key: 'mcp:notion', packageName: '@deepseek-ai/dsh-notion',
+    key: 'mcp:notion', packageName: '@omega-ai/dsh-notion',
     copy: { title: COPY.title, activation: { connect: COPY.connect } }, display: { phase: 'disconnected' },
   })
   await plugin.dispose()

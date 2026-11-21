@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Authentification des requêtes Omega",
+    "description": "Choisit la clé API ou la connexion au compte pour chaque requête envoyée à Omega et fournit les en-têtes de la requête."
+  }
+}

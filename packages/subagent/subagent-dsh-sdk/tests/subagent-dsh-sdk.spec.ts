@@ -9,24 +9,24 @@ import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-direc
 
 import { startExternalActivation } from '../../subagent/tests/external-activation-helpers.ts'
 import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import SubagentRuntime from '@deepseek-ai/dsh-subagent'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import type { Agent, AgentOptions } from '@deepseek-ai/dsh-agent'
+import SubagentRuntime from '@omega-ai/dsh-subagent'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import type { Agent, AgentOptions } from '@omega-ai/dsh-agent'
 import {
-  DeepSeekHarness,
+  OmegaHarness,
   HarnessClient,
   SdkProtocolError,
-} from '@deepseek-ai/dsh-sdk-client'
-import { createProcessDeepSeekHarness } from '../../../sdk/client/src/api.ts'
+} from '@omega-ai/dsh-sdk-client'
+import { createProcessOmegaHarness } from '../../../sdk/client/src/api.ts'
 import type { RuntimeProcessOptions } from '../../../sdk/client/src/launch.ts'
-import type { DeepSeekHarnessOptions } from '@deepseek-ai/dsh-sdk-client'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { ReasoningEffortId } from '@deepseek-ai/dsh-llm/types'
+import type { OmegaHarnessOptions } from '@omega-ai/dsh-sdk-client'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { ReasoningEffortId } from '@omega-ai/dsh-llm/types'
 import * as sdk from '../src/index.ts'
 import {
   DEFAULT_DISPOSE_EOF_GRACE_MS,
@@ -44,7 +44,7 @@ const existingPatch = fileURLToPath(new URL(
   import.meta.url,
 ))
 const defaultCreateHarness = runInternals.createHarness.bind(runInternals)
-let createdHarnessOptions: DeepSeekHarnessOptions[] = []
+let createdHarnessOptions: OmegaHarnessOptions[] = []
 
 beforeEach(() => {
   createdHarnessOptions = []
@@ -62,7 +62,7 @@ beforeEach(() => {
       ...options.disposeEofGraceMs === undefined ? {} : { disposeEofGraceMs: options.disposeEofGraceMs },
       ...options.disposeGraceMs === undefined ? {} : { disposeGraceMs: options.disposeGraceMs },
     }
-    return createProcessDeepSeekHarness(runtime, options)
+    return createProcessOmegaHarness(runtime, options)
   }
 })
 
@@ -110,7 +110,7 @@ function text(blocks: readonly { type: string; text?: string }[]): string {
 }
 
 function expectedFailure(fields: string): string {
-  return `Subagent failure (provider: DSH SDK; ${fields})`
+  return `Subagent failure (provider: Omega SDK; ${fields})`
 }
 
 /**
@@ -158,7 +158,7 @@ describe('sdkChildOutcome', () => {
 describe('dsh-subagent-dsh-sdk provider', () => {
   it('constructs the production dsh-backed harness lazily', async () => {
     const harness = defaultCreateHarness({})
-    expect(harness).toBeInstanceOf((await import('@deepseek-ai/dsh-sdk-client')).DeepSeekHarness)
+    expect(harness).toBeInstanceOf((await import('@omega-ai/dsh-sdk-client')).OmegaHarness)
     await harness.close()
   })
 
@@ -294,15 +294,15 @@ describe('dsh-subagent-dsh-sdk provider', () => {
     process.env.DSH_TEST_AMBIENT_SECRET_KEY = 'leak-me-not'
     try {
       const ctx = await setup({
-        FAKE_ECHO_ENV: 'DSH_TEST_AMBIENT_SECRET_KEY,DEEPSEEK_API_KEY',
-        DEEPSEEK_API_KEY: 'explicit-child-key',
+        FAKE_ECHO_ENV: 'DSH_TEST_AMBIENT_SECRET_KEY,OMEGA_API_KEY',
+        OMEGA_API_KEY: 'explicit-child-key',
         FAKE_TEXT: 'done',
       })
       const run = await startExternalActivation(ctx, 'dsh-sdk', request())
       const result = await run.result
       const answer = text(result.output)
       expect(answer).toContain('DSH_TEST_AMBIENT_SECRET_KEY=\n')
-      expect(answer).toContain('DEEPSEEK_API_KEY=explicit-child-key')
+      expect(answer).toContain('OMEGA_API_KEY=explicit-child-key')
       await run.dispose()
       await ctx.fiber.dispose()
     } finally {
@@ -416,7 +416,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
 
   it('reports only safe shutdown facts when cancelled startup rollback fails', async () => {
     const rawCleanup = 'cancelled shutdown leaked SECRET_TOKEN'
-    const spy = vi.spyOn(DeepSeekHarness.prototype, 'close').mockImplementation(async function (this: DeepSeekHarness) {
+    const spy = vi.spyOn(OmegaHarness.prototype, 'close').mockImplementation(async function (this: OmegaHarness) {
       spy.mockRestore()
       await this.close()
       throw new Error(rawCleanup)
@@ -450,8 +450,8 @@ describe('dsh-subagent-dsh-sdk provider', () => {
 
   it('keeps an initialize failure authoritative when a later abort flag is already set', async () => {
     const rawFailure = new SdkProtocolError('scripted initialize rejection')
-    const start = vi.spyOn(DeepSeekHarness.prototype, 'start').mockRejectedValue(rawFailure)
-    const close = vi.spyOn(DeepSeekHarness.prototype, 'close').mockResolvedValue()
+    const start = vi.spyOn(OmegaHarness.prototype, 'start').mockRejectedValue(rawFailure)
+    const close = vi.spyOn(OmegaHarness.prototype, 'close').mockResolvedValue()
     try {
       const controller = new AbortController()
       const pending = startSdkRun(request('p', controller.signal), {
@@ -816,7 +816,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
   it('wraps a shutdown rejection with safe facts after the runtime is reaped', async () => {
     const rawCleanup = 'shutdown failed at /private/path SECRET_TOKEN'
     const ctx = await setup()
-    const spy = vi.spyOn(DeepSeekHarness.prototype, 'close').mockImplementation(async function (this: DeepSeekHarness) {
+    const spy = vi.spyOn(OmegaHarness.prototype, 'close').mockImplementation(async function (this: OmegaHarness) {
       spy.mockRestore()
       await this.close()
       throw new Error(rawCleanup)

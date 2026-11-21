@@ -10,8 +10,8 @@ import sys
 import threading
 from pathlib import Path
 
-from deepseek_harness import DeepSeekHarness, Notification, UserQuestionRequest
-from deepseek_harness.api import final_response
+from omega_harness import OmegaHarness, Notification, UserQuestionRequest
+from omega_harness.api import final_response
 
 
 class _PlanReviews:
@@ -153,12 +153,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dsh-home", required=True, type=Path)
     parser.add_argument("--workspace", type=Path, default=Path.cwd())
-    parser.add_argument("--model", default=os.environ.get("DSH_MODEL", "deepseek-v4-flash"))
+    parser.add_argument("--model", default=os.environ.get("DSH_MODEL", "omega-v4-flash"))
     parser.add_argument("task", help="Task to plan; implementation waits for your approval")
     args = parser.parse_args()
     if not args.task.strip():
         parser.error("task must be non-blank")
-    with _PlanReviews() as reviews, DeepSeekHarness(
+    with _PlanReviews() as reviews, OmegaHarness(
         dsh_home=str(args.dsh_home.resolve()), cwd=str(args.workspace.resolve()),
         profile="sdk", model=args.model, on_user_question=reviews.answer,
         env={"DSH_PERMISSION_MODE": "workspace-write"},

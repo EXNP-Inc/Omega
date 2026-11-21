@@ -1,15 +1,15 @@
 /** Threshold-free, built-runtime measurements of historical catalog reads as the corpus grows. */
 
-import { Context } from '@deepseek-ai/cordis'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import * as JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
+import { Context } from '@omega-ai/cordis'
+import type { SessionId } from '@omega-ai/dsh-session'
+import * as JsonlSessionPersistence from '@omega-ai/dsh-session-persistence-jsonl'
 import { spawnSync } from 'node:child_process'
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import { fileURLToPath } from 'node:url'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const CHILDREN = 4
 const CHILD_EVENTS = 1_000

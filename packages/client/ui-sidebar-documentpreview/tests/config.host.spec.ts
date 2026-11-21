@@ -1,5 +1,5 @@
 /** The Host entry declares the browser preview limits as synced Config and serves nothing itself. */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { expect, it, onTestFinished } from 'vitest'
 import * as host from '../src/index.ts'
 import { EXCEL_DEFAULTS, OFFICE_DEFAULTS } from '../src/defaults.ts'

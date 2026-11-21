@@ -2,12 +2,12 @@ import { describe, expect, it } from 'vitest'
 import { mkdtemp, realpath, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
-import FsLocal from '@deepseek-ai/dsh-fs-local'
-import { PtcRuntime, type PtcRunRequest, type PtcRunResult, type PtcRunSpec } from '@deepseek-ai/dsh-ptc-runtime'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { Session, type SessionId, SessionSeq } from '@deepseek-ai/dsh-session'
-import { renderPrompt } from '@deepseek-ai/dsh-system-prompt'
+import { Context } from '@omega-ai/cordis'
+import FsLocal from '@omega-ai/dsh-fs-local'
+import { PtcRuntime, type PtcRunRequest, type PtcRunResult, type PtcRunSpec } from '@omega-ai/dsh-ptc-runtime'
+import { createUserMessage } from '@omega-ai/dsh-llm'
+import { Session, type SessionId, SessionSeq } from '@omega-ai/dsh-session'
+import { renderPrompt } from '@omega-ai/dsh-system-prompt'
 import {
   createInboxStub,
   mountAgentLoopTestDependencies,
@@ -15,7 +15,7 @@ import {
   unsupportedInbox,
   unsupportedModel,
 } from '../src/index.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 function message(text: string) {
   return createUserMessage({ content: [{ type: 'text', text }], source: { kind: 'user' } })

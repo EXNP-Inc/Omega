@@ -2,15 +2,15 @@
 - id: llm-replay
   config:
     providers:
-      - id: deepseek-official
-        name: DeepSeek
+      - id: omega-official
+        name: Omega
         models:
-          - id: deepseek-v4-flash-vision-exp
+          - id: omega-v4-flash-vision-exp
             inputModalities: [text, image]
 
 - insert:
     - id: computer-use
-      name: '@deepseek-ai/dsh-computer-use'
+      name: '@omega-ai/dsh-computer-use'
     - id: cua-run-code-fixture
       name: '../../session/cua-run-code/provider.mjs'
       config:

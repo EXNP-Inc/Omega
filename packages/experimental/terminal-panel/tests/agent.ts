@@ -1,9 +1,9 @@
 /** Typed Agent fixtures whose Session header decides top-level or subagent origin. */
-import type { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { unsupportedInbox, unsupportedModel } from '@deepseek-ai/dsh-agent-loop-testkit'
-import { SESSION_FORMAT_VERSION, Session, type SessionId } from '@deepseek-ai/dsh-session'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import type { Context } from '@omega-ai/cordis'
+import type { Agent } from '@omega-ai/dsh-agent'
+import { unsupportedInbox, unsupportedModel } from '@omega-ai/dsh-agent-loop-testkit'
+import { SESSION_FORMAT_VERSION, Session, type SessionId } from '@omega-ai/dsh-session'
+import { brandString } from '@omega-ai/dsh-brand'
 
 /**
  * Build an Agent whose behavior beyond its identity, context and Session is unused.

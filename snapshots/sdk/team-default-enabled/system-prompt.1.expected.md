@@ -1,6 +1,6 @@
-You are an AI agent powered by DeepSeek Harness.
+You are an AI agent powered by Omega.
 
-You are a coding agent powered by the deepseek-v4-flash model.
+You are a coding agent powered by the omega-v4-flash model.
 
 Agent Teams is available in this session.
 

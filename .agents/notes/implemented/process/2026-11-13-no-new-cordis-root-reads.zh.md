@@ -12,7 +12,7 @@ Status: implemented
 
 ## 决定
 
-第一方 JavaScript 和 TypeScript（包括测试、fixture 和脚本）禁止新增对 Cordis 根上下文的读取。[检查器](../../../../scripts/verify-cordis-root.ts)通过 `pnpm run verify-cordis-root` 运行，使用 TypeScript 语法树，并对每个文件单独建立类型检查器。读取指通过 `Context` 或 `symbols` 的 Cordis 值绑定访问根符号：`.root`、`['root']`，或在声明、参数默认值或赋值中解构出的 `root`。绑定来自 `@deepseek-ai/cordis` 或其子路径，可以是静态导入（包括重命名、默认、命名空间和 `import =` 形式），也可以是解构或整体接收的 `import()` 或 `require()` 结果；遮蔽导入的局部变量不是绑定。值恰为 `cordis.root` 的任何字符串字面量也算读取，即 `Symbol.for('cordis.root')` 背后的键。类型位置、接口、类型别名、ambient 声明、注释、其他字符串以及嵌入模板中的源码文本不算读取。
+第一方 JavaScript 和 TypeScript（包括测试、fixture 和脚本）禁止新增对 Cordis 根上下文的读取。[检查器](../../../../scripts/verify-cordis-root.ts)通过 `pnpm run verify-cordis-root` 运行，使用 TypeScript 语法树，并对每个文件单独建立类型检查器。读取指通过 `Context` 或 `symbols` 的 Cordis 值绑定访问根符号：`.root`、`['root']`，或在声明、参数默认值或赋值中解构出的 `root`。绑定来自 `@omega-ai/cordis` 或其子路径，可以是静态导入（包括重命名、默认、命名空间和 `import =` 形式），也可以是解构或整体接收的 `import()` 或 `require()` 结果；遮蔽导入的局部变量不是绑定。值恰为 `cordis.root` 的任何字符串字面量也算读取，即 `Symbol.for('cordis.root')` 背后的键。类型位置、接口、类型别名、ambient 声明、注释、其他字符串以及嵌入模板中的源码文本不算读取。
 
 现有读取使用 `scripts/cordis-root.baseline.json` 中的精确基线记录，由[共享清单模块](../../../../scripts/baseline-inventory.ts)按 [unknown 类型断言清单](2026-09-19-no-unknown-casts.zh.md)的规则维护：基线修改只能删除条目或减少次数，`--prune` 删除已失效的条目并在存在新读取时拒绝写入，且没有任何命令可以添加放行。读取的指纹覆盖以根符号为键的元素访问的 token，因此把已记录的读取换到另一个接收者上会产生新的检查发现。
 

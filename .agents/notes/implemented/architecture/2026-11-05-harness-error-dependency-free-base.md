@@ -12,7 +12,7 @@ The tool registry records a failed result's `error.name` and `error.code` only w
 
 ## Decision
 
-`HarnessError` lives in `@deepseek-ai/dsh-error` (`packages/util/error`), a package with no dependencies that contains only the base class. `dsh-llm` depends on it and re-exports the same class from its entry, so existing `import { HarnessError } from '@deepseek-ai/dsh-llm'` statements keep working and both import paths name one constructor, which keeps `instanceof` checks consistent. LLM-specific failure codes and helpers such as `isHarnessError` stay in `dsh-llm`.
+`HarnessError` lives in `@omega-ai/dsh-error` (`packages/util/error`), a package with no dependencies that contains only the base class. `dsh-llm` depends on it and re-exports the same class from its entry, so existing `import { HarnessError } from '@omega-ai/dsh-llm'` statements keep working and both import paths name one constructor, which keeps `instanceof` checks consistent. LLM-specific failure codes and helpers such as `isHarnessError` stay in `dsh-llm`.
 
 New code imports `HarnessError` from `dsh-error` when the importing package does not otherwise need `dsh-llm`, so a package that needs only the base takes no dependency on the LLM runtime. Packages below `dsh-llm`, such as `dsh-attachment`, can extend the base without a cycle.
 

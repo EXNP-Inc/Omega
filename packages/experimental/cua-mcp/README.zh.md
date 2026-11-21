@@ -3,7 +3,7 @@ description: "通过 cua-mcp profile 以 stdio 向 Codex、Claude Code 等 MCP �
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-cua-mcp
+# @omega-ai/dsh-cua-mcp
 
 [English](README.md) | 中文
 
@@ -32,13 +32,13 @@ kind: "package-bundle"
 
 ```sh
 mkdir -p "${DSH_HOME:-$HOME/.dsh}/profiles/cua-mcp"
-printf '%s\n' '{ "name": "dsh-profile-cua-mcp", "private": true, "dependencies": {}, "dsh": { "profile": { "bundles": ["@deepseek-ai/dsh-cua-mcp"] } } }' > "${DSH_HOME:-$HOME/.dsh}/profiles/cua-mcp/package.json"
+printf '%s\n' '{ "name": "dsh-profile-cua-mcp", "private": true, "dependencies": {}, "dsh": { "profile": { "bundles": ["@omega-ai/dsh-cua-mcp"] } } }' > "${DSH_HOME:-$HOME/.dsh}/profiles/cua-mcp/package.json"
 ```
 
 Python runtime wheel 自带同一份安装：在 harness 以 `DSH_HOME` 传入的 home 下写入同样的 manifest，然后把它的可执行程序用作 stdio 命令：
 
 ```python
-from deepseek_harness_runtime import resolve_bundled_launch_args
+from omega_harness_runtime import resolve_bundled_launch_args
 
 command = [*resolve_bundled_launch_args(), "--profile", "cua-mcp"]  # the MCP stdio command
 ```

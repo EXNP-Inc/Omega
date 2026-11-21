@@ -1,8 +1,8 @@
 /** Copy of one changes view that names the change request's code host and what the host calls a change request. */
 
 import { useMemo } from 'react'
-import type { ForgeDescription } from '@deepseek-ai/dsh-experimental-forge/types'
-import type { TranslateNS } from '@deepseek-ai/dsh-client-ui-slots'
+import type { ForgeDescription } from '@omega-ai/dsh-experimental-forge/types'
+import type { TranslateNS } from '@omega-ai/dsh-client-ui-slots'
 import type { NS } from './locales.ts'
 
 /** The `forge` and `noun` parameters of copy that names the code host; a type alias so it passes as notice parameters. */

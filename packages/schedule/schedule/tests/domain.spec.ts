@@ -14,7 +14,7 @@ import {
   resolveEveryOccurrence,
 } from '../src/domain.ts'
 import type { LocalAtInput, ScheduleId } from '../src/types.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 describe('Host task record decoding', () => {
   const id = brandString<ScheduleId>('stored')

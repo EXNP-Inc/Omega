@@ -7,12 +7,12 @@
  * the process machinery itself (spawn, env scrub, managed-range teardown)
  * belongs to the `dsh-subprocess` seam.
  *
- * @module @deepseek-ai/dsh-subagent/out-of-process
+ * @module @omega-ai/dsh-subagent/out-of-process
  */
 
 import { accessSync, constants, statSync } from 'node:fs'
 import { isAbsolute } from 'node:path'
-import type { ContentBlock } from '@deepseek-ai/dsh-llm'
+import type { ContentBlock } from '@omega-ai/dsh-llm'
 import { SubagentError } from './error.ts'
 import type { SubagentCapabilities, SubagentResult, SubagentRun, SubagentStopReason } from './types.ts'
 

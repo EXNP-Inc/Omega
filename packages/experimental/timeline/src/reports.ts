@@ -1,9 +1,9 @@
 // Scheduler and auxiliary-call mechanism adapted from kermanx/dsh-progress-check (MIT).
 import assert from 'node:assert/strict'
-import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/cordis-plugin-loader'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import type { GenerateOptions } from '@deepseek-ai/dsh-llm'
+import type { Context } from '@omega-ai/cordis'
+import type {} from '@omega-ai/cordis-plugin-loader'
+import type { Agent } from '@omega-ai/dsh-agent'
+import type { GenerateOptions } from '@omega-ai/dsh-llm'
 import { newId, reportId } from './records.ts'
 import type { IntervalReport, StoredRequest } from './records.ts'
 import type { Config } from './config.ts'

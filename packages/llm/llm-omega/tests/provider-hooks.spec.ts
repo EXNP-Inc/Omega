@@ -1,10 +1,10 @@
-/** Provider-owned connection readiness and model admission on the shared DeepSeek adapter. */
+/** Provider-owned connection readiness and model admission on the shared Omega adapter. */
 import { afterEach, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import LlmRuntime, { LlmError } from '@deepseek-ai/dsh-llm'
-import type { AnonymousUserId } from '@deepseek-ai/dsh-anonymous-user-id'
-import { DeepSeekAdapter, registerDeepSeekProvider, resolveAdapterOptions } from '../src/index.ts'
-import type { DeepSeekAdapterOptions, DeepSeekCatalogModel } from '../src/index.ts'
+import { Context } from '@omega-ai/cordis'
+import LlmRuntime, { LlmError } from '@omega-ai/dsh-llm'
+import type { AnonymousUserId } from '@omega-ai/dsh-anonymous-user-id'
+import { OmegaAdapter, registerOmegaProvider, resolveAdapterOptions } from '../src/index.ts'
+import type { OmegaAdapterOptions, OmegaCatalogModel } from '../src/index.ts'
 import { options as request, prepareExtensions } from './helpers.ts'
 
 const contexts: Context[] = []
@@ -12,9 +12,9 @@ afterEach(async () => {
   for (const ctx of contexts.splice(0)) await ctx.fiber.dispose()
 })
 
-const endpoint = (models: DeepSeekCatalogModel[] = []) => resolveAdapterOptions({ baseURL: 'http://127.0.0.1:1', models })
+const endpoint = (models: OmegaCatalogModel[] = []) => resolveAdapterOptions({ baseURL: 'http://127.0.0.1:1', models })
 
-async function route(hooks: Pick<DeepSeekAdapterOptions, 'connect' | 'admit'>) {
+async function route(hooks: Pick<OmegaAdapterOptions, 'connect' | 'admit'>) {
   const ctx = new Context()
   contexts.push(ctx)
   await ctx.plugin(LlmRuntime)
@@ -22,7 +22,7 @@ async function route(hooks: Pick<DeepSeekAdapterOptions, 'connect' | 'admit'>) {
     name: 'fixture-route',
     inject: ['llm'],
     apply: (child: Context) => {
-      registerDeepSeekProvider(child, 'fixture-route', {
+      registerOmegaProvider(child, 'fixture-route', {
         options: () => endpoint(), resolveAuth: () => Promise.resolve({ headers: { 'x-api-key': 'fixture-key' } }), ...hooks,
       })
     },
@@ -57,7 +57,7 @@ it('refuses a model before a prepared call exists', async () => {
 })
 
 it('refuses a model on a direct adapter stream', () => {
-  const adapter = new DeepSeekAdapter({
+  const adapter = new OmegaAdapter({
     options: () => endpoint(),
     resolveAuth: () => Promise.resolve({ headers: { 'x-api-key': 'fixture-key' } }),
     resolveUserId: () => 'fixture-user' as AnonymousUserId,

@@ -13,7 +13,7 @@
  *
  * See packages/test-support/session-snapshot/README.md.
  *
- * @module @deepseek-ai/dsh-session-snapshot/harness
+ * @module @omega-ai/dsh-session-snapshot/harness
  */
 
 import { cp, mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
@@ -35,7 +35,7 @@ import {
   type AgentUnderTest,
   type LaunchedAcpTestAgent,
 } from './launcher.ts'
-import { clearedProxyEnv } from '@deepseek-ai/dsh-http-proxy'
+import { clearedProxyEnv } from '@omega-ai/dsh-http-proxy'
 import {
   assertPersistedSessionVersion,
   latestPersistedSessionPaths,
@@ -49,10 +49,10 @@ const WAIT_POLL_INTERVAL_MS = 10
 
 /**
  * Credential environment every keyless replay layers under its scenario environment. Shipped
- * profiles offer `web_search` only while a DeepSeek search key is configured and recordings ran
+ * profiles offer `web_search` only while a Omega search key is configured and recordings ran
  * with a real key, so a replay supplies a placeholder instead of whatever the runner exports.
  */
-export const REPLAY_CREDENTIAL_ENV: Readonly<Record<string, string>> = { DEEPSEEK_API_KEY: 'snapshot-replay-key' }
+export const REPLAY_CREDENTIAL_ENV: Readonly<Record<string, string>> = { OMEGA_API_KEY: 'snapshot-replay-key' }
 
 /**
  * One step of a scenario's deterministic input script (`input.json`). The

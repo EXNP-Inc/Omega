@@ -1,20 +1,20 @@
 /**
- * Shared filesystem path helpers for DeepSeek Harness user data.
+ * Shared filesystem path helpers for Omega user data.
  *
- * @module @deepseek-ai/dsh-home-paths
+ * @module @omega-ai/dsh-home-paths
  */
 
 import { opendir, realpath } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { basename, dirname, join, resolve } from 'node:path'
 
-/** Directory name for the default DeepSeek Harness home under the OS home. */
+/** Directory name for the default Omega home under the OS home. */
 export const DSH_HOME_DIR_NAME = '.dsh'
 
-/** Stable user-facing display form for the default DeepSeek Harness home. */
+/** Stable user-facing display form for the default Omega home. */
 export const DEFAULT_DSH_HOME_DISPLAY = `~/${DSH_HOME_DIR_NAME}`
 
-/** Environment variable that overrides the default DeepSeek Harness home. */
+/** Environment variable that overrides the default Omega home. */
 export const DSH_HOME_ENV = 'DSH_HOME'
 
 /** Directory name for the default shared agent configuration root under the OS home. */
@@ -64,7 +64,7 @@ export async function canonicalizeWatchPath(path: string): Promise<string> {
 }
 
 /**
- * Resolve the default DeepSeek Harness home using Node's platform path rules.
+ * Resolve the default Omega home using Node's platform path rules.
  * @returns the absolute default harness home path.
  */
 export function defaultDshHome(): string {
@@ -122,7 +122,7 @@ function rootDisplay(resolvedRoot: string, defaultRoot: string, defaultLabel: st
 }
 
 /**
- * Resolve the single-root DeepSeek Harness home.
+ * Resolve the single-root Omega home.
  *
  * Precedence, highest first: an explicit configured path, `$DSH_HOME`, then
  * `~/.dsh`. The harness keeps all user data under one root. An empty or
@@ -141,7 +141,7 @@ export function resolveDshHome(configured?: string, env: Record<string, string |
  *
  * Precedence, highest first: an explicit configured path, `$DSH_AGENTS_HOME`,
  * then `~/.agents`. The root holds configuration shared with other agent tools,
- * so it stays independent of the DeepSeek Harness home. An empty or
+ * so it stays independent of the Omega home. An empty or
  * whitespace-only `$DSH_AGENTS_HOME` is treated as unset, so a blank override
  * never resolves the root to the current working directory.
  * @param configured - explicit shared-root override, which has highest precedence.
@@ -153,7 +153,7 @@ export function resolveAgentsHome(configured?: string, env: Record<string, strin
 }
 
 /**
- * Join path segments onto the resolved DeepSeek Harness home. It addresses the
+ * Join path segments onto the resolved Omega home. It addresses the
  * existing top-level entries; a new path uses {@link dshPath} with its category.
  * @param segments - path segments appended to the Harness home; an empty list returns the home itself.
  * @returns the normalized absolute joined path.
@@ -203,7 +203,7 @@ export interface DshPathLocation {
 /**
  * Join path segments onto one category directory of the Harness home without
  * creating it. An owner passes its own directory name, normally its package
- * name without the `@deepseek-ai/dsh-` prefix, as the first segment.
+ * name without the `@omega-ai/dsh-` prefix, as the first segment.
  * @param location - category under the resolved home, or a category with an explicit home override.
  * @param segments - path segments appended to the category directory; an empty list returns the directory itself.
  * @returns the normalized absolute path.

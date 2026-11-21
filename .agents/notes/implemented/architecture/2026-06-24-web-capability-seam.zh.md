@@ -6,7 +6,7 @@ Status: implemented
 
 ## 问题
 
-harness 需要面向模型的 web 工具，但不能将模型约定绑定到某一家厂商的 API 形状上。搜索是当前的压力点：各搜索 API 返回刻意不同的格式（Exa 返回扁平的 `results[]`，每项包含 `{title, url, highlights, publishedDate}`；Perplexity 返回一段生成式回答加引用列表；DeepSeek Search API 返回带 snippet 与摘要的扁平 `results[]`），归一化的 web 约定必须能接纳每一种格式，而不是镜像某一家厂商。seam 是以 Exa 和 Perplexity 的格式为参照设计的；这两个提供方都不随附，插件可以注册它们。Fetch 是另一项独立操作：匿名公开 HTTP(S) fetch 后端涉及传输、安全、重定向、解码和大小限制等关注点，与提供方支撑的搜索并不相同。
+harness 需要面向模型的 web 工具，但不能将模型约定绑定到某一家厂商的 API 形状上。搜索是当前的压力点：各搜索 API 返回刻意不同的格式（Exa 返回扁平的 `results[]`，每项包含 `{title, url, highlights, publishedDate}`；Perplexity 返回一段生成式回答加引用列表；Omega Search API 返回带 snippet 与摘要的扁平 `results[]`），归一化的 web 约定必须能接纳每一种格式，而不是镜像某一家厂商。seam 是以 Exa 和 Perplexity 的格式为参照设计的；这两个提供方都不随附，插件可以注册它们。Fetch 是另一项独立操作：匿名公开 HTTP(S) fetch 后端涉及传输、安全、重定向、解码和大小限制等关注点，与提供方支撑的搜索并不相同。
 
 面向模型的 API 必须保持稳定，而后端可以更换。更换搜索提供方不应改变模型发起查询的方式；更换 fetch 实现不应改变模型请求 URL 的方式。反过来，提供方包也不应仅仅因为自己有额外的提供方特有旋钮就暴露自己的面向模型工具 schema。
 
@@ -18,9 +18,9 @@ harness 需要面向模型的 web 工具，但不能将模型约定绑定到某�
 
 Web 访问是一个一等能力 seam，遵循[能力 seam Agent Note](2026-06-13-capability-seams.zh.md)：
 
-1. `@deepseek-ai/dsh-web`（`packages/web/web`）拥有 `ctx.web`、提供方注册、提供方选择、共享的请求/结果词汇，以及 web 特有的错误。
-2. 提供方包实现具体后端并向 `ctx.web` 注册能力，例如 `@deepseek-ai/dsh-web-search-deepseek`、`@deepseek-ai/dsh-web-deepseek-api` 和 `@deepseek-ai/dsh-web-fetch-http`。
-3. `@deepseek-ai/dsh-tool-web`（`packages/web/tool-web`）拥有面向模型的 `web_search` 和 `web_fetch` 工具 schema、提示词段落、参数校验、结果格式化，以及通过 `ctx.web` 实现的工具展示。
+1. `@omega-ai/dsh-web`（`packages/web/web`）拥有 `ctx.web`、提供方注册、提供方选择、共享的请求/结果词汇，以及 web 特有的错误。
+2. 提供方包实现具体后端并向 `ctx.web` 注册能力，例如 `@omega-ai/dsh-web-search-omega`、`@omega-ai/dsh-web-omega-api` 和 `@omega-ai/dsh-web-fetch-http`。
+3. `@omega-ai/dsh-tool-web`（`packages/web/tool-web`）拥有面向模型的 `web_search` 和 `web_fetch` 工具 schema、提示词段落、参数校验、结果格式化，以及通过 `ctx.web` 实现的工具展示。
 
 提供方不注册工具。提供方注册能力。`dsh-tool-web` 是面向模型的名称、描述、提示词引导、JSON Schema、展示的唯一所有者。
 
@@ -43,11 +43,11 @@ Web 访问是一个一等能力 seam，遵循[能力 seam Agent Note](2026-06-13
 依赖方向与 bash 和 filesystem 一致：
 
 ```text
-@deepseek-ai/dsh-tool-web  --depends on-->  @deepseek-ai/dsh-web  <--depends on--  @deepseek-ai/dsh-web-search-deepseek
+@omega-ai/dsh-tool-web  --depends on-->  @omega-ai/dsh-web  <--depends on--  @omega-ai/dsh-web-search-omega
         consumer                                 interface                       implementation
-                                                                 <--depends on--  @deepseek-ai/dsh-web-deepseek-api
+                                                                 <--depends on--  @omega-ai/dsh-web-omega-api
                                                                                   implementation
-                                                                 <--depends on--  @deepseek-ai/dsh-web-fetch-http
+                                                                 <--depends on--  @omega-ai/dsh-web-fetch-http
                                                                                   implementation
 ```
 
@@ -55,19 +55,19 @@ Web 访问是一个一等能力 seam，遵循[能力 seam Agent Note](2026-06-13
 
 ```mermaid
 flowchart LR
-  deepseek["@deepseek-ai/dsh-web-search-deepseek"] -->|registerSearchProvider| web["@deepseek-ai/dsh-web / ctx.web"]
-  deepseekApi["@deepseek-ai/dsh-web-deepseek-api"] -->|registerSearchProvider / registerFetchProvider| web
-  fetchLocal["@deepseek-ai/dsh-web-fetch-http"] -->|registerFetchProvider| web
-  toolWeb["@deepseek-ai/dsh-tool-web"] -->|search/fetch| web
+  omega["@omega-ai/dsh-web-search-omega"] -->|registerSearchProvider| web["@omega-ai/dsh-web / ctx.web"]
+  omegaApi["@omega-ai/dsh-web-omega-api"] -->|registerSearchProvider / registerFetchProvider| web
+  fetchLocal["@omega-ai/dsh-web-fetch-http"] -->|registerFetchProvider| web
+  toolWeb["@omega-ai/dsh-tool-web"] -->|search/fetch| web
   toolWeb -->|ctx.tools.register| webSearch["tool: web_search"]
   toolWeb -->|ctx.tools.register| webFetch["tool: web_fetch"]
 ```
 
-`@deepseek-ai/dsh-web` 仅依赖 Cordis 和底层 harness 支持，其中包括其 Remote 方法所用的 Typert 协议。它声明 `ctx.web`、提供方接口、请求/结果类型、提供方可用性约定和错误码。它不导入工具、agent（智能体）、会话、LLM 或提供方包。
+`@omega-ai/dsh-web` 仅依赖 Cordis 和底层 harness 支持，其中包括其 Remote 方法所用的 Typert 协议。它声明 `ctx.web`、提供方接口、请求/结果类型、提供方可用性约定和错误码。它不导入工具、agent（智能体）、会话、LLM 或提供方包。
 
 提供方包依赖 `dsh-web`、Cordis 及其凭据和配置函数。它们拥有凭证、端点、协议格式映射、解析和 `WebError` 转换，使用平台 `fetch`。每个提供方注入共享服务并注册后端；只有 `dsh-web` 拥有 `ctx.web` 键。提供方私有的协议形状不会产生对 `ctx.llm` 或 Cordis HTTP 服务的依赖。
 
-`@deepseek-ai/dsh-tool-web` 依赖 `@deepseek-ai/dsh-web`、`@deepseek-ai/dsh-tools`、`@deepseek-ai/dsh-system-prompt` 和 Cordis。它从不导入具体的提供方包。
+`@omega-ai/dsh-tool-web` 依赖 `@omega-ai/dsh-web`、`@omega-ai/dsh-tools`、`@omega-ai/dsh-system-prompt` 和 Cordis。它从不导入具体的提供方包。
 
 ## `ctx.web` 约定
 
@@ -76,7 +76,7 @@ flowchart LR
 ```ts
 import type {
   WebFetchRequest, WebFetchResult, WebProviderInfo, WebProviderList, WebSearchRequest, WebSearchResult,
-} from '@deepseek-ai/dsh-web'
+} from '@omega-ai/dsh-web'
 
 interface WebSearchProvider {
   readonly id: string
@@ -132,27 +132,27 @@ interface WebRuntime {
 
 ```yaml
 - id: web
-  name: '@deepseek-ai/dsh-web'
+  name: '@omega-ai/dsh-web'
   config:
-    searchProvider: deepseek-search-api
+    searchProvider: omega-search-api
     fetchProvider: http
 
-- id: web-search-deepseek
-  name: '@deepseek-ai/dsh-web-search-deepseek'
+- id: web-search-omega
+  name: '@omega-ai/dsh-web-search-omega'
 
-- id: web-deepseek-api
-  name: '@deepseek-ai/dsh-web-deepseek-api'
+- id: web-omega-api
+  name: '@omega-ai/dsh-web-omega-api'
 
 - id: web-fetch-http
-  name: '@deepseek-ai/dsh-web-fetch-http'
+  name: '@omega-ai/dsh-web-fetch-http'
 
 - id: tool-web
-  name: '@deepseek-ai/dsh-tool-web'
+  name: '@omega-ai/dsh-tool-web'
 ```
 
-运维覆盖走同一条显式选择路径：`DSH_WEB_SEARCH_PROVIDER=deepseek-search-api` 等同于配置 `searchProvider: deepseek-search-api`，而非 `dsh-tool-web` 内部的隐式优先级链。
+运维覆盖走同一条显式选择路径：`DSH_WEB_SEARCH_PROVIDER=omega-search-api` 等同于配置 `searchProvider: omega-search-api`，而非 `dsh-tool-web` 内部的隐式优先级链。
 
-每次搜索或抓取在执行时读取配置的 id，因此保存的设置变更无需重新挂载 `dsh-web` 即可让下一次操作选用新提供方。「网页搜索与获取」设置页的 Search 和 Fetch 下拉框借此分别切换各能力的提供方（包括 [DeepSeek Search 与 Fetch API](../feature/2026-10-15-deepseek-search-fetch-api.zh.md)）；[Web 提供方选择决策](2026-10-29-web-provider-selection.zh.md)负责内置默认值。
+每次搜索或抓取在执行时读取配置的 id，因此保存的设置变更无需重新挂载 `dsh-web` 即可让下一次操作选用新提供方。「网页搜索与获取」设置页的 Search 和 Fetch 下拉框借此分别切换各能力的提供方（包括 [Omega Search 与 Fetch API](../feature/2026-10-15-omega-search-fetch-api.zh.md)）；[Web 提供方选择决策](2026-10-29-web-provider-selection.zh.md)负责内置默认值。
 
 `ctx.web.search()` 和 `ctx.web.fetch()` 在执行时按上述选择规则解析提供方。如果选定的能力不可用，它们抛出带有结构化代码的 `WebError`，如 `WEB_PROVIDER_UNAVAILABLE`、`WEB_PROVIDER_CONFIGURED_MISSING`、`WEB_PROVIDER_CONFIGURED_UNAVAILABLE` 或 `WEB_PROVIDER_AMBIGUOUS`。如果未显式配置提供方且不存在可用提供方，执行错误是通用的 `WEB_PROVIDER_UNAVAILABLE` 情况；刻意不提供对每个不可用提供方的诊断汇总。
 
@@ -168,7 +168,7 @@ interface WebRuntime {
 
 - `dsh-tool-web` 拥有该值并将其放在 `WebSearchRequest.maxResults` 上。
 - `ctx.web` 将请求原样传递给选定的提供方。
-- 当提供方的 API 支持结果数量控制时（DeepSeek Search API 的 `count`），提供方在请求层应用 `maxResults`，作为成本/延迟优化。
+- 当提供方的 API 支持结果数量控制时（Omega Search API 的 `count`），提供方在请求层应用 `maxResults`，作为成本/延迟优化。
 - `ctx.web` 在结果上强制执行上限：如果提供方返回的 source 数量超过 `maxResults`——因为其 API 没有结果数量控制或忽略了提示——seam 将 `sources[]` 截断到 `maxResults` 并在返回前将 `WebSearchResult.truncated` 设为 `true`。这使上限成为面向模型层可以依赖的单一跨提供方保证，而非每个提供方都必须记得遵守的东西。
 
 seam 请求不携带提供方特有的控制——没有 Perplexity 模型选择、搜索时效性、域名过滤器、Exa `livecrawl`、Exa `type`、区域提示、生成式回答预算或搜索深度。只有当某个字段具有提供方无关的语义，且工具 schema 和选定的提供方都能诚实地遵守时，才会添加。
@@ -195,9 +195,9 @@ interface WebSearchSource {
 }
 ```
 
-`content` 是可选的提供方生成的回答文本、搜索上下文或摘要。`sources[]` 是可移植的引用结构。source 必有 URL；title、snippet、summary 和 `publishedAt` 可选，因为并非每个提供方都返回它们。`snippet` 是用于展示的短摘录，`summary` 是供模型阅读的较长摘录，其长度由消费方限制。`title` 不是必填：Perplexity 风格的引用可能只提供 URL，强制适配器编造标题会让 seam 说谎。`dsh-tool-web` 渲染 `title ?? hostname(url)` 风格的回退标签用于展示。`publishedAt` 是可选的发布/抓取时间戳，为 ISO-8601 字符串——DeepSeek Search API 在每条结果上以可为 null 的 `date` 返回它，Exa 以 `publishedDate` 返回，Perplexity 以 `date` 返回，因此它是真实的提供方数据而非派生值；seam 以字符串形式传递，日期解析留给消费方。
+`content` 是可选的提供方生成的回答文本、搜索上下文或摘要。`sources[]` 是可移植的引用结构。source 必有 URL；title、snippet、summary 和 `publishedAt` 可选，因为并非每个提供方都返回它们。`snippet` 是用于展示的短摘录，`summary` 是供模型阅读的较长摘录，其长度由消费方限制。`title` 不是必填：Perplexity 风格的引用可能只提供 URL，强制适配器编造标题会让 seam 说谎。`dsh-tool-web` 渲染 `title ?? hostname(url)` 风格的回退标签用于展示。`publishedAt` 是可选的发布/抓取时间戳，为 ISO-8601 字符串——Omega Search API 在每条结果上以可为 null 的 `date` 返回它，Exa 以 `publishedDate` 返回，Perplexity 以 `date` 返回，因此它是真实的提供方数据而非派生值；seam 以字符串形式传递，日期解析留给消费方。
 
-DeepSeek Search API 提供方将响应 `results[]` 的每一项映射为 `WebSearchSource`：`url` ← `url`、`title` ← `title`、`snippet` ← `snippet`、`summary` ← `summary`、`publishedAt` ← `date`，空值省略。它不返回提供方生成的回答，因此 `content` 省略。如果提供方返回的结构化字段少于 seam 支持的，适配器省略那些可选字段。
+Omega Search API 提供方将响应 `results[]` 的每一项映射为 `WebSearchSource`：`url` ← `url`、`title` ← `title`、`snippet` ← `snippet`、`summary` ← `summary`、`publishedAt` ← `date`，空值省略。它不返回提供方生成的回答，因此 `content` 省略。如果提供方返回的结构化字段少于 seam 支持的，适配器省略那些可选字段。
 
 完整页面获取仍是 `web_fetch(url)` 的职责。搜索 snippet 是发现上下文，不是获取到的页面正文。
 
@@ -323,7 +323,7 @@ fetch 提供方的资源控制：
 
 ## 后果
 
-**搜索 schema 刻意精简。** 各搜索 API 暴露了有用的提供方特有控制，例如 Exa 的 `livecrawl`、Perplexity 的搜索时效性和 DeepSeek Search API 的 `localization`；只有当某个控制能以提供方无关的方式定义、且工具注册和提供方执行都能诚实遵守时，才会添加。
+**搜索 schema 刻意精简。** 各搜索 API 暴露了有用的提供方特有控制，例如 Exa 的 `livecrawl`、Perplexity 的搜索时效性和 Omega Search API 的 `localization`；只有当某个控制能以提供方无关的方式定义、且工具注册和提供方执行都能诚实遵守时，才会添加。
 
 **引用可能稀疏。** 一条 Perplexity 风格的引用可能只有 URL。将 `title` 和 `snippet` 设为可选使 seam 保持诚实，但意味着 `tool-web` 需要渲染回退标签。
 

@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-experimental-forge-bundle",
+  "name": "@omega-ai/dsh-experimental-forge-bundle",
   "description": "Experimental change request panel and worktree option for Sessions in Git repositories",
   "version": "0.2.2-rc.5",
   "icon": "./icon.svg",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/experimental/forge-bundle"
   },
   "type": "module",
@@ -37,19 +37,19 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@deepseek-ai/dsh-experimental-client-ui-forge": "workspace:*",
-    "@deepseek-ai/dsh-experimental-forge": "workspace:*",
-    "@deepseek-ai/dsh-experimental-forge-github": "workspace:*",
-    "@deepseek-ai/dsh-experimental-forge-session": "workspace:*",
-    "@deepseek-ai/dsh-experimental-tool-worktree": "workspace:*",
-    "@deepseek-ai/dsh-experimental-worktree": "workspace:*",
-    "@deepseek-ai/dsh-forge-gitlab": "workspace:*"
+    "@omega-ai/dsh-experimental-client-ui-forge": "workspace:*",
+    "@omega-ai/dsh-experimental-forge": "workspace:*",
+    "@omega-ai/dsh-experimental-forge-github": "workspace:*",
+    "@omega-ai/dsh-experimental-forge-session": "workspace:*",
+    "@omega-ai/dsh-experimental-tool-worktree": "workspace:*",
+    "@omega-ai/dsh-experimental-worktree": "workspace:*",
+    "@omega-ai/dsh-forge-gitlab": "workspace:*"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~"
+    "@omega-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:~"
+    "@omega-ai/cordis": "workspace:~"
   },
   "dsh": {
     "bundle": {

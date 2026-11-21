@@ -1,8 +1,8 @@
 /** Prepare plugin-contributed request fields and commit their delivery after HTTP acceptance. */
 
-import { errorChain, LlmError } from '@deepseek-ai/dsh-llm'
-import type { DeepSeekLlmApiExtensionRequest, PreparedDeepSeekLlmApiExtensions } from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
-import type { DeepSeekAdapterOptions } from './types.ts'
+import { errorChain, LlmError } from '@omega-ai/dsh-llm'
+import type { OmegaLlmApiExtensionRequest, PreparedOmegaLlmApiExtensions } from '@omega-ai/dsh-omega-llm-api-extensions'
+import type { OmegaAdapterOptions } from './types.ts'
 
 /**
  * Merge contributions without replacing Messages fields. A rejected preparation or
@@ -19,22 +19,22 @@ import type { DeepSeekAdapterOptions } from './types.ts'
  * @returns HTTP payload and a commit to invoke only after a successful HTTP response.
  */
 export async function prepareRequestExtensions(
-  body: DeepSeekLlmApiExtensionRequest['body'],
-  options: Omit<DeepSeekLlmApiExtensionRequest, 'body'>,
-  prepare: DeepSeekAdapterOptions['prepareExtensions'],
+  body: OmegaLlmApiExtensionRequest['body'],
+  options: Omit<OmegaLlmApiExtensionRequest, 'body'>,
+  prepare: OmegaAdapterOptions['prepareExtensions'],
   onOmitted: (fields: readonly string[], error: unknown) => void,
   onUnaccepted: (error: unknown) => void,
 ): Promise<{ payload: string; accept(): Promise<void> }> {
-  let extensions: PreparedDeepSeekLlmApiExtensions
+  let extensions: PreparedOmegaLlmApiExtensions
   try {
     extensions = await prepare({ body, ...options })
   } catch (error) {
-    throw new LlmError(`DeepSeek request extension preparation failed: ${errorChain(error)}`, 'REQUEST_EXTENSION', { cause: error })
+    throw new LlmError(`Omega request extension preparation failed: ${errorChain(error)}`, 'REQUEST_EXTENSION', { cause: error })
   }
   const fields = Object.keys(extensions.fields)
   for (const field of fields) {
     if (Object.hasOwn(body, field)) {
-      throw new LlmError(`DeepSeek request extension field ${JSON.stringify(field)} collides with the base request`, 'REQUEST_EXTENSION')
+      throw new LlmError(`Omega request extension field ${JSON.stringify(field)} collides with the base request`, 'REQUEST_EXTENSION')
     }
   }
   let payload: string

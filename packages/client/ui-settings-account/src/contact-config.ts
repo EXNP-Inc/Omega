@@ -1,16 +1,16 @@
 /** Public contact options shared by Host and Client. */
-import z from '@deepseek-ai/schemastery'
+import z from '@omega-ai/schemastery'
 
 /** Questionnaire destination shared by Host and Client. */
 export interface ContactConfig {
-  /** HTTPS questionnaire URL; override for a test form. */
+  /** Questionnaire URL (HTTPS, or HTTP on a host the browser can open); override for a local form. */
   contactFormUrl: string
   /** Questionnaire source option; empty until Harness is supported by the form. */
   contactSource: string
 }
 /** Validate public questionnaire options. */
 export const ContactConfigFields = {
-  contactFormUrl: z.string().pattern(/^https:\/\/[^/\s]+\//).default('https://trtgsjkv6r.feishu.cn/share/base/form/shrcnlCoGElW7MQznGy9r3YYXcg?hide_uid=1&hide_device_info=1&hide_harness_version=1'),
+  contactFormUrl: z.string().pattern(/^https?:\/\/[^/\s]+\//).default('http://127.0.0.1:8090/contact'),
   contactSource: z.string().default(''),
 }
 /** Validate public questionnaire options. */

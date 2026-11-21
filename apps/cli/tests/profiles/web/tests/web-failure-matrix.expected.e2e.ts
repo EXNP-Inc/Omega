@@ -7,7 +7,7 @@ import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { execa } from 'execa'
 import { describe, expect, it } from 'vitest'
-import { FiberState } from '@deepseek-ai/cordis'
+import { FiberState } from '@omega-ai/cordis'
 
 const repoRoot = fileURLToPath(new URL('../../../../../../', import.meta.url))
 const bin = join(repoRoot, 'apps/cli/lib/bin.js')
@@ -117,7 +117,7 @@ function fixture() {
 function start(f: ReturnType<typeof fixture>, extra: string[] = [], nodeArgs: string[] = []) {
   const child = execa(process.execPath, [...nodeArgs, bin, '--profile', 'web', '--patch', f.watcher, ...extra, '--no-open', '--port', '0'], {
     cwd: f.root,
-    env: { ...process.env, DSH_HOME: f.home, DSH_AGENTS_HOME: join(f.root, '.agents'), DSH_TELEMETRY_DISABLED: '1', DEEPSEEK_API_KEY: 'keyless-matrix-no-call', NODE_NO_WARNINGS: '1' },
+    env: { ...process.env, DSH_HOME: f.home, DSH_AGENTS_HOME: join(f.root, '.agents'), DSH_TELEMETRY_DISABLED: '1', OMEGA_API_KEY: 'keyless-matrix-no-call', NODE_NO_WARNINGS: '1' },
     input: '', reject: false, timeout: 110_000, killSignal: 'SIGKILL',
   })
   let stdout = ''
@@ -225,7 +225,7 @@ describe.skipIf(!built)('Web process failure matrix', () => {
       const result = await app.child
       exit(result, 1)
       expect(result.stderr).toContain('dsh: startup failed: 1 required plugin did not activate')
-      expect(result.stderr).toContain('  web-runtime (required)\n    Package: @deepseek-ai/dsh-web-app')
+      expect(result.stderr).toContain('  web-runtime (required)\n    Package: @omega-ai/dsh-web-app')
       expect(result.stderr).toContain(`bind address "${host}" carries an interface zone id`)
       expect(result.stderr).toContain('pass --public-url')
       expect(result.stdout).not.toContain('dsh web: http')

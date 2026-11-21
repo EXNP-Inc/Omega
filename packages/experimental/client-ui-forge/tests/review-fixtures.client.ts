@@ -3,7 +3,7 @@
 import type {
   ChangeRequestDescription, ChangeRequestKey, ChangeRequestSnapshot, ChangeRequestSummary, ForgeDescription, ForgeFailure,
   ForgeViewerFilter,
-} from '@deepseek-ai/dsh-experimental-forge/types'
+} from '@omega-ai/dsh-experimental-forge/types'
 import { vi } from 'vitest'
 import type { HostStream } from '../src/client/source.ts'
 import type { ForgeReviewChangeRequest, ForgeReviewFrame, ForgeReviewHost, ForgeReviewList } from '../src/types.ts'

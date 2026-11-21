@@ -6,7 +6,7 @@ Status: proposed
 
 ## Problem
 
-DSH 的所有公开 API 都处于预稳定（pre-stable）阶段：根目录 `AGENTS.md` 要求 API 变化时同步更新每个消费方。这条规则在仓库内部可行，但外部插件现在从 npm 和插件市场安装，作者无法判断哪些 API 可以依赖。所有发布的包共用一个锁步版本，包版本无法说明哪个 API 变了。唯一的兼容检查是 [plugin-compatibility.ts](../../../../packages/boot/app-boot/src/plugin-compatibility.ts) 中的 `evaluatePluginCompatibility`，它把插件的 `engines.dsh` 范围（没有时改用 `@deepseek-ai/dsh` 和 `@deepseek-ai/dsh-*` peer 范围）与整个运行时版本比较；`workspace:` peer 范围视为当前运行版本。
+DSH 的所有公开 API 都处于预稳定（pre-stable）阶段：根目录 `AGENTS.md` 要求 API 变化时同步更新每个消费方。这条规则在仓库内部可行，但外部插件现在从 npm 和插件市场安装，作者无法判断哪些 API 可以依赖。所有发布的包共用一个锁步版本，包版本无法说明哪个 API 变了。唯一的兼容检查是 [plugin-compatibility.ts](../../../../packages/boot/app-boot/src/plugin-compatibility.ts) 中的 `evaluatePluginCompatibility`，它把插件的 `engines.dsh` 范围（没有时改用 `@omega-ai/dsh` 和 `@omega-ai/dsh-*` peer 范围）与整个运行时版本比较；`workspace:` peer 范围视为当前运行版本。
 
 源码中没有区分 stable 与 unstable API 的标记。导出不带 `@public`、`@beta`、`@stable` 或 `@since` 标签；`@internal` 出现约十次且含义不一，不带日期的 `@deprecated` 出现约十几次。唯一严格的兼容规则针对数据格式（[Session 格式状态](../../../../docs/session-format-status.zh.md)、SQLite schema 版本、持久化类型变更确认）和 [upgrade guide](../../../skills/dsh-create-upgrade-guide/SKILL.md)。
 

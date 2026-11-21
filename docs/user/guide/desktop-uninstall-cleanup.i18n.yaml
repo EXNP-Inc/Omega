@@ -3,11 +3,11 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/user/guide/desktop-uninstall-cleanup.md
 /uninstall-dsh-desktop:
-  en: bbd616011b211905
-  zh: 93b6146e97d9bb88
+  en: 5f4d36f9288ca70d
+  zh: aebefccdddd643e2
 /uninstall-dsh-desktop/1-uninstall-the-app:
-  en: 6ba6b5bc4153c3cd
-  zh: 36712b216d118155
+  en: ebeb0aabd4f32d3b
+  zh: a1afd9f231fa5c77
 /uninstall-dsh-desktop/2-clean-up-local-data:
   en: 459985c888cb631c
   zh: 30771182f880e27b

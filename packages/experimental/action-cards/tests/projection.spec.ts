@@ -1,10 +1,10 @@
 import { expect, it } from 'vitest'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { createAssistantMessage, createUserMessage, type ContentBlock } from '@deepseek-ai/dsh-llm'
+import { brandString } from '@omega-ai/dsh-brand'
+import { createAssistantMessage, createUserMessage, type ContentBlock } from '@omega-ai/dsh-llm'
 import {
   appendPluginRecord, Session, SESSION_FORMAT_VERSION, type SessionId, SessionLogOffset, SessionSeq, type SessionEvent, type SessionHeader,
-} from '@deepseek-ai/dsh-session'
-import type { PluginRecordMap } from '@deepseek-ai/dsh-session/types'
+} from '@omega-ai/dsh-session'
+import type { PluginRecordMap } from '@omega-ai/dsh-session/types'
 import { actionCardProjection, type ActionCardState } from '../src/projection.ts'
 import type { ActionCardId } from '../src/types.ts'
 

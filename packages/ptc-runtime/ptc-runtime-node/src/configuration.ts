@@ -1,7 +1,7 @@
 /** Pure configuration changes for Node PTC profile editors. */
-import type { PtcProgramFormat } from '@deepseek-ai/dsh-ptc-runtime'
+import type { PtcProgramFormat } from '@omega-ai/dsh-ptc-runtime'
 import type { Config } from './config.ts'
-import { assertNever } from '@deepseek-ai/dsh-util-values'
+import { assertNever } from '@omega-ai/dsh-util-values'
 
 /** `replScoped` written for retained function bodies and REPL statements; the Node provider also uses it when `replScoped` is omitted. */
 const SCOPED_REPL_BY_DEFAULT: boolean = true

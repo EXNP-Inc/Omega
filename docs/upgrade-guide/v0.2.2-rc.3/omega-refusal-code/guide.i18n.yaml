@@ -1,0 +1,16 @@
+# Bilingual-pair consistency record for guide.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/upgrade-guide/v0.2.2-rc.3/omega-refusal-code/guide.md
+/:
+  en: 050b63ff1b7abe40
+  zh: 21ee352c04c36468
+/omega-content-refusal-error-code:
+  en: ab89eec8719b4a6c
+  zh: 6f570ef6efa59261
+/omega-content-refusal-error-code/change:
+  en: 90c8a5fdd65c7c6e
+  zh: 74a182d02c7ca8c0
+/omega-content-refusal-error-code/migration:
+  en: 3ff56b094c294f34
+  zh: e8ce9baca41700bf

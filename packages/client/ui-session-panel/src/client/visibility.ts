@@ -1,6 +1,6 @@
 /** Session panel visibility: the persisted docking preference, the transient overlay, the dock probes, and the presentation. */
-import { createSnapshotStore, type ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { createSnapshotStore, type ObservableSnapshot } from '@omega-ai/dsh-client-store'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import type { SessionPanelDockable, SessionPanelPresentation, SessionPanelProbes, SessionPanelVisibility } from './slots.ts'
 
 /** localStorage key of the docking preference. */

@@ -1,5 +1,5 @@
-import { Context } from '@deepseek-ai/cordis'
-import type { ConnectorOperationId } from '@deepseek-ai/dsh-client-ui-connector-account/types'
+import { Context } from '@omega-ai/cordis'
+import type { ConnectorOperationId } from '@omega-ai/dsh-client-ui-connector-account/types'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CliCommandExecutor } from '../src/executor.ts'
 import { CliAccountRuntime, failureDetails } from '../src/runtime.ts'

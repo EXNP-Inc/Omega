@@ -2,18 +2,18 @@
  * Connector account surfaces, Host half. CLI app plugins and MCP connectors register their accounts with
  * `ctx.connectorAccounts`; the Plugins page follows every registered account through the `connectorAccounts` Remote and
  * starts or cancels operations through it, so the browser never learns how an account connects.
- * @module @deepseek-ai/dsh-client-ui-connector-account
+ * @module @omega-ai/dsh-client-ui-connector-account
  */
 
-import type { Context } from '@deepseek-ai/cordis'
-import { Remote, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
+import type { Context } from '@omega-ai/cordis'
+import { Remote, TypertRemoteService } from '@omega-ai/dsh-typert-protocol'
 import type {
   AnyConnectorAccountView, ConnectorAccountEntry, ConnectorAccountRegistration, ConnectorAccountsView, ConnectorOperationId,
 } from './types.ts'
 
 export type * from './types.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context {
     /** Connector accounts on the Plugins page. */
     connectorAccounts: ConnectorAccounts

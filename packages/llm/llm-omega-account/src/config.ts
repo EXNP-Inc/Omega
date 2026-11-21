@@ -1,15 +1,15 @@
 /** Account route configuration: Messages settings, the model-listing endpoint, and per-model overrides. */
-import type { Volatile } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import { isVolatile } from '@deepseek-ai/cosmokit'
-import type { LaunchEnvironmentSnapshot } from '@deepseek-ai/dsh-launch-environment'
+import type { Volatile } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
+import { isVolatile } from '@omega-ai/cosmokit'
+import type { LaunchEnvironmentSnapshot } from '@omega-ai/dsh-launch-environment'
 import {
-  catalogModelFields, deepSeekConfigFields, modelListingConfigFields, modelListingURL, resolveAdapterOptions, resolveListingTiming,
-} from '@deepseek-ai/dsh-llm-deepseek'
+  catalogModelFields, omegaConfigFields, modelListingConfigFields, modelListingURL, resolveAdapterOptions, resolveListingTiming,
+} from '@omega-ai/dsh-llm-omega'
 import type {
   Config as ProtocolConfig, ListingSettings, ModelListingConfig, ModelListingOptions, ModelOverride, Options as ProtocolOptions,
-  ResolvedDeepSeekOptions,
-} from '@deepseek-ai/dsh-llm-deepseek'
+  ResolvedOmegaOptions,
+} from '@omega-ai/dsh-llm-omega'
 
 /** Account route configuration; authentication comes exclusively from the account service. */
 export interface Config extends Omit<ProtocolConfig, 'models'>, ModelListingConfig {
@@ -17,7 +17,7 @@ export interface Config extends Omit<ProtocolConfig, 'models'>, ModelListingConf
   modelOverrides: Volatile<Record<string, ModelOverride>>
 }
 
-const { models: _protocolCatalog, ...protocolFields } = deepSeekConfigFields
+const { models: _protocolCatalog, ...protocolFields } = omegaConfigFields
 
 const modelOverride: z<ModelOverride> = z.object({
   ...catalogModelFields,
@@ -39,7 +39,7 @@ export type AccountOptions = Omit<ProtocolOptions, 'models'> & ModelListingOptio
 /** One validated configuration generation of the account route. */
 export interface ResolvedAccountOptions {
   /** Messages settings; request resolution replaces `models` with the resolved account catalog. */
-  readonly protocol: ResolvedDeepSeekOptions
+  readonly protocol: ResolvedOmegaOptions
   /** Listing endpoint and cache timing. */
   readonly catalog: ListingSettings
   /** Overrides by model id, holding only the fields each one declares. */
@@ -57,8 +57,8 @@ export function plainAccountOptions(config: Config): AccountOptions {
 
 /** Keep an override's declared fields: parsed configuration carries unset fields as `undefined` and unset arrays as `[]`. */
 function resolveOverride(id: string, override: Readonly<Record<string, unknown>>): ModelOverride {
-  if (id.length === 0) throw new Error('llm-deepseek-account: modelOverrides keys must be non-empty model ids')
-  if (Object.hasOwn(override, 'id')) throw new Error(`llm-deepseek-account: modelOverrides.${id} sets "id", which is its key`)
+  if (id.length === 0) throw new Error('llm-omega-account: modelOverrides keys must be non-empty model ids')
+  if (Object.hasOwn(override, 'id')) throw new Error(`llm-omega-account: modelOverrides.${id} sets "id", which is its key`)
   const declared: ModelOverride = {}
   for (const [key, value] of Object.entries(override)) {
     if (value === undefined || (Array.isArray(value) && value.length === 0)) continue
@@ -69,7 +69,7 @@ function resolveOverride(id: string, override: Readonly<Record<string, unknown>>
     // so an image-capable stand-in checks each declared field here.
     resolveAdapterOptions({ models: [{ inputModalities: ['text', 'image'], ...declared, id }] })
   } catch (error) {
-    throw new Error(`llm-deepseek-account: modelOverrides.${id} is invalid: ${String(error)}`, { cause: error })
+    throw new Error(`llm-omega-account: modelOverrides.${id} is invalid: ${String(error)}`, { cause: error })
   }
   return declared
 }
@@ -83,11 +83,11 @@ function resolveOverride(id: string, override: Readonly<Record<string, unknown>>
  */
 export function resolveAccountOptions(options: AccountOptions, environment?: LaunchEnvironmentSnapshot): ResolvedAccountOptions {
   if (Object.hasOwn(options, 'models')) {
-    throw new Error('llm-deepseek-account: models is no longer configurable; the account /models listing supplies the catalog. '
+    throw new Error('llm-omega-account: models is no longer configurable; the account /models listing supplies the catalog. '
       + 'Remove models from this entry and adjust single models with modelOverrides.<model id>')
   }
   const { modelsTimeoutMs: _timeout, modelsMaxAgeMs: _maxAge, modelOverrides = {}, ...protocolOptions } = options
-  const timing = resolveListingTiming(options, 'llm-deepseek-account')
+  const timing = resolveListingTiming(options, 'llm-omega-account')
   const protocol = resolveAdapterOptions(protocolOptions, environment)
   return {
     protocol,

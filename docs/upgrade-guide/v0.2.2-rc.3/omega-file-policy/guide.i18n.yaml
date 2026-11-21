@@ -1,0 +1,16 @@
+# Bilingual-pair consistency record for guide.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/upgrade-guide/v0.2.2-rc.3/omega-file-policy/guide.md
+/:
+  en: 62b6011ba06c3489
+  zh: 9737ca353039fa23
+/resolve-the-file-policy-for-omegafilestore:
+  en: c83c882f16faaf93
+  zh: d00b877660495cbf
+/resolve-the-file-policy-for-omegafilestore/change:
+  en: 753d785d4a06d439
+  zh: 4b8a898860bddac3
+/resolve-the-file-policy-for-omegafilestore/migration:
+  en: d283e56073a0b9ee
+  zh: 47fb85679b5c13b3

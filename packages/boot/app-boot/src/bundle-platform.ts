@@ -1,5 +1,5 @@
 /** Host operating-system admission for optional bundle layers. */
-import { isWsl, type HostEnvironmentFacts } from '@deepseek-ai/dsh-native-command'
+import { isWsl, type HostEnvironmentFacts } from '@omega-ai/dsh-native-command'
 
 const NODE_PLATFORMS: readonly string[] = Object.freeze([
   'aix', 'android', 'darwin', 'freebsd', 'haiku', 'linux', 'openbsd', 'sunos', 'win32', 'cygwin', 'netbsd',

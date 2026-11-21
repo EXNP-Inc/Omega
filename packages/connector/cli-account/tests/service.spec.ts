@@ -1,8 +1,8 @@
 /** `ctx.cliAccounts` registers a plugin's CLI and account in one call and withdraws both when that plugin unloads. */
-import { Context } from '@deepseek-ai/cordis'
-import ConnectorAccounts from '@deepseek-ai/dsh-client-ui-connector-account'
-import type { ConnectorAccountEntry } from '@deepseek-ai/dsh-client-ui-connector-account/types'
-import SystemPrompt, { renderContextSections } from '@deepseek-ai/dsh-system-prompt'
+import { Context } from '@omega-ai/cordis'
+import ConnectorAccounts from '@omega-ai/dsh-client-ui-connector-account'
+import type { ConnectorAccountEntry } from '@omega-ai/dsh-client-ui-connector-account/types'
+import SystemPrompt, { renderContextSections } from '@omega-ai/dsh-system-prompt'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import { cliPathContextText } from '../src/context.ts'
 import CliAccounts, { type CliAccountHandle, type CliAccountRegistration } from '../src/index.ts'

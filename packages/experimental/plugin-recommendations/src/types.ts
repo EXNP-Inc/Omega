@@ -1,6 +1,6 @@
 /** Fields, recorded data and catalog text of `enable_official_plugin` cards. */
-import type { ManagementError } from '@deepseek-ai/dsh-plugin-manager/types'
-import type { LocalizedText } from '@deepseek-ai/dsh-package-manifest'
+import type { ManagementError } from '@omega-ai/dsh-plugin-manager/types'
+import type { LocalizedText } from '@omega-ai/dsh-package-manifest'
 
 /** Card fields the skill asks the model to write in `details`. */
 export interface PluginDetails {

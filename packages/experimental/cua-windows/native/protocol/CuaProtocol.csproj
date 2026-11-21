@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="JsonSchema.Net" Version="9.4.0" />
-    <EmbeddedResource Include="../protocol.schema.json" LogicalName="DeepSeek.Cua.NativeRequestSchema.json" />
+    <EmbeddedResource Include="../protocol.schema.json" LogicalName="Omega.Cua.NativeRequestSchema.json" />
   </ItemGroup>
 
 </Project>

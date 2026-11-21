@@ -4,16 +4,16 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium, type Browser, type BrowserContext } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { createAssistantMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import { createSettlementMessage } from '@deepseek-ai/dsh-subagent/src/continuation-messages.ts'
-import type { SubagentStopReason } from '@deepseek-ai/dsh-subagent'
+import { createAssistantMessage, createUserMessage } from '@omega-ai/dsh-llm'
+import type { SessionId } from '@omega-ai/dsh-session'
+import { createSettlementMessage } from '@omega-ai/dsh-subagent/src/continuation-messages.ts'
+import type { SubagentStopReason } from '@omega-ai/dsh-subagent'
 import {
   acknowledgeReloadConnectionLoss, assertFixtureInventory, captureStableAria, compareOrRefreshGolden,
   launchWebScaffold, watchConsole, webSnapshotMode,
 } from './scaffold.ts'
 import { connectFreshWorkspace, connectFreshWorkspaceZh } from './support.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const DIR = fileURLToPath(new URL('./expected/subagent-result-notice/', import.meta.url))
 const MODE = webSnapshotMode()

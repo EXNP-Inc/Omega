@@ -62,7 +62,7 @@ it.skipIf(process.platform !== 'win32' || process.env.DSH_EXAMPLE_MODE !== 'lib'
   try {
     const source = join(root, 'source')
     await mkdir(join(source, 'docs', 'upgrade-guide'), { recursive: true })
-    await writeFile(join(source, 'package.json'), '{"name":"@deepseek-ai/dsh"}\n')
+    await writeFile(join(source, 'package.json'), '{"name":"@omega-ai/dsh"}\n')
     await writeFile(join(source, 'docs', 'upgrade-guide', 'README.md'), '# 升级指南\n\n第二行\n第三行\n')
     const archive = join(root, '安装 目录', 'app.asar')
     await mkdir(join(archive, '..'))

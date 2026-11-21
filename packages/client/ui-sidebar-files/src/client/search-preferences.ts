@@ -10,8 +10,8 @@
  * holds whatever an earlier build or the reader wrote: each entry is read
  * through {@link readSearchPreferences} rather than trusted.
  */
-import type { SnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { HostObservable } from '@deepseek-ai/dsh-client-ui-slots'
+import type { SnapshotStore } from '@omega-ai/dsh-client-store'
+import type { HostObservable } from '@omega-ai/dsh-client-ui-slots'
 import {
   changedSearchPreferences, defaultSearchPreferences, readSearchPreferences, type WorkspaceSearchPreferences,
 } from './search-rules.ts'

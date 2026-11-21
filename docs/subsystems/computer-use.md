@@ -2,7 +2,7 @@
 
 English | [中文](computer-use.zh.md)
 
-Computer use lets a model observe and operate the local desktop through a configured provider. The shared DSH capability is called **computer use**; **Cua Driver** names the upstream implementation.
+Computer use lets a model observe and operate the local desktop through a configured provider. The shared Omega capability is called **computer use**; **Cua Driver** names the upstream implementation.
 
 [Computer Use](../../packages/experimental/cua-bundle/README.md) is an optional experimental bundle for macOS and Windows.
 
@@ -40,7 +40,7 @@ The two Cua Driver providers are public experimental npm packages. Mount one exp
 
 A provider retains its registration while it shuts down its tools and owned resources. Startup failure releases the attempted registration. The MCP provider keeps its registration during reconnects.
 
-One registered provider does not reserve a desktop for a Session. Callers coordinate complete observe, act, and verify workflows across Sessions and separate DSH processes. A cancelled call cannot undo input that the desktop already received.
+One registered provider does not reserve a desktop for a Session. Callers coordinate complete observe, act, and verify workflows across Sessions and separate Omega processes. A cancelled call cannot undo input that the desktop already received.
 
 ## Results and platform requirements
 

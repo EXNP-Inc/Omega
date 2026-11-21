@@ -11,18 +11,18 @@ from .models import CommandExecution, JsonObject, Notification, ResumeSessionOpt
 
 
 @dataclass(slots=True)
-class DeepSeekHarnessConfig:
-    """Configuration for launching the local DeepSeek Harness SDK runtime.
+class OmegaHarnessConfig:
+    """Configuration for launching the local Omega SDK runtime.
 
     The runtime inherits the caller's environment by default, so existing
-    DEEPSEEK_API_KEY and DEEPSEEK_BASE_URL settings keep working. Use ``env`` to
+    OMEGA_API_KEY and OMEGA_BASE_URL settings keep working. Use ``env`` to
     intentionally override or inject variables for a subprocess.
     These values are startup input, not a live Session state mirror; Session
     commands do not rewrite this object.
     """
 
-    provider: str = "deepseek-official"
-    model: str = "deepseek-v4-flash"
+    provider: str = "omega-official"
+    model: str = "omega-v4-flash"
     reasoning_effort: str | None = None
     max_tokens: int | None = None
     cwd: str | None = None
@@ -99,8 +99,8 @@ class _RunActivity:
         )
 
 
-class DeepSeekHarness:
-    """Reusable synchronous SDK for running DeepSeek Harness agent turns.
+class OmegaHarness:
+    """Reusable synchronous SDK for running Omega agent turns.
 
     The runtime subprocess starts lazily and remains owned by this instance
     across calls to :meth:`run`. Use the instance as a context manager, or call
@@ -109,22 +109,22 @@ class DeepSeekHarness:
 
     def __init__(
         self,
-        config: DeepSeekHarnessConfig | None = None,
+        config: OmegaHarnessConfig | None = None,
         *,
         _launch_args: tuple[str, ...] | None = None,
         **kwargs: object,
     ) -> None:
         if config is not None and kwargs:
-            raise TypeError("pass either DeepSeekHarnessConfig or keyword options, not both")
-        self.config = config or DeepSeekHarnessConfig(**kwargs)
+            raise TypeError("pass either OmegaHarnessConfig or keyword options, not both")
+        self.config = config or OmegaHarnessConfig(**kwargs)
         cwd = str(Path(self.config.cwd or Path.cwd()).resolve())
         runtime_cwd = str(Path(self.config.runtime_cwd).resolve()) if self.config.runtime_cwd is not None else cwd
         self._cwd = cwd
         env = dict(self.config.env)
         if self.config.base_url is not None:
-            env["DEEPSEEK_BASE_URL"] = self.config.base_url
+            env["OMEGA_BASE_URL"] = self.config.base_url
         if self.config.api_key is not None:
-            env["DEEPSEEK_API_KEY"] = self.config.api_key
+            env["OMEGA_API_KEY"] = self.config.api_key
 
         self._client = HarnessClient(
             HarnessConfig(
@@ -143,7 +143,7 @@ class DeepSeekHarness:
         )
         self._initialized = False
 
-    def __enter__(self) -> "DeepSeekHarness":
+    def __enter__(self) -> "OmegaHarness":
         self.start()
         return self
 
@@ -199,7 +199,7 @@ class DeepSeekHarness:
 
 
 class Session:
-    def __init__(self, harness: DeepSeekHarness, session_id: str) -> None:
+    def __init__(self, harness: OmegaHarness, session_id: str) -> None:
         self.harness = harness
         self.id = session_id
 

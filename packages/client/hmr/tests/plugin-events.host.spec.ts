@@ -1,7 +1,7 @@
 /** The plugin-events Remote stream opens each generation with a complete baseline and then forwards ordered increments. */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { afterEach, expect, it } from 'vitest'
-import type { ClientModuleRegistry, WebBootGraph } from '@deepseek-ai/dsh-client-modules'
+import type { ClientModuleRegistry, WebBootGraph } from '@omega-ai/dsh-client-modules'
 import { PluginEvents } from '../src/plugin-events.ts'
 import type { PluginsEventFrame } from '../src/types.ts'
 

@@ -60,7 +60,7 @@ Weighed against that, telemetry is the one outbound channel whose loss costs the
 
 **Document `NODE_USE_ENV_PROXY=1` and stop.** Rejected at adoption on the three measurements above: invisible to `$DSH_HOME/.env`, absent on the Node 22.19 floor, and bypassed by `web-fetch-http` regardless. The environment-snapshot and explicit-dispatcher limitations remain on the current runtime floor.
 
-**Thread a policy value to every call site.** DeepSeek-Reasonix does this across 98 sites, buying a per-provider opt-out. Rejected: that opt-out exists for a need this harness does not have, and nine sites changed by hand means the tenth is forgotten — Pi's changelog records OAuth and Bedrock as two separate after-the-fact fixes of exactly that kind. The isolation argument for it is real, and is answered instead by handling worker threads explicitly and by proving disposal restores the previous dispatcher.
+**Thread a policy value to every call site.** Omega-Reasonix does this across 98 sites, buying a per-provider opt-out. Rejected: that opt-out exists for a need this harness does not have, and nine sites changed by hand means the tenth is forgotten — Pi's changelog records OAuth and Bedrock as two separate after-the-fact fixes of exactly that kind. The isolation argument for it is real, and is answered instead by handling worker threads explicitly and by proving disposal restores the previous dispatcher.
 
 **`http.setGlobalProxyFromEnv()`.** Node's own programmatic switch covers `fetch` and `node:http` together and returns a restore function — the shape `ctx.effect()` wants. Unusable: `added: v24.14.0`, with nothing on the 22 line. Worth revisiting if `engines` ever rises past it.
 

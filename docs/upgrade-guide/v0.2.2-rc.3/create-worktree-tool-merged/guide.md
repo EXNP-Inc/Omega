@@ -8,7 +8,7 @@ English | [中文](guide.zh.md)
 
 ## Change
 
-The experimental package `@deepseek-ai/dsh-experimental-tool-worktree` no longer registers the model tool `create_worktree`. Its replacement `enter_worktree({ name?, from? })` moves the Session into a worktree in the pool of the checkout it is in, `.agents/worktrees/` by default:
+The experimental package `@omega-ai/dsh-experimental-tool-worktree` no longer registers the model tool `create_worktree`. Its replacement `enter_worktree({ name?, from? })` moves the Session into a worktree in the pool of the checkout it is in, `.agents/worktrees/` by default:
 
 - When the pool holds a registered worktree named `name`, the call enters it and changes neither Git state nor files. `create_worktree` failed for an existing name.
 - Otherwise the call creates a new branch and checkout from `from`, HEAD by default, and enters it, as `create_worktree` did. Omitting `name` creates one with a generated name.

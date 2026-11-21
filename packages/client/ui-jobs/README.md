@@ -3,7 +3,7 @@ description: "The Session panel's background-jobs section: expandable streaming 
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-jobs
+# @omega-ai/dsh-client-ui-jobs
 
 English | [中文](README.zh.md)
 

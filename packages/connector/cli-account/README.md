@@ -3,7 +3,7 @@ description: "Register a CLI app plugin's vendor CLI and account with the Host S
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-cli-account
+# @omega-ai/dsh-cli-account
 
 English | [中文](README.zh.md)
 
@@ -29,7 +29,7 @@ A CLI app plugin's Host row injects `cliAccounts` and calls `register` once; the
 
 ### When to choose it
 
-Register from the Host row of a plugin whose vendor CLI signs the user in and keeps the credentials, so DSH only starts commands, shows their results, and owns their processes. A plugin that connects a hosted service over MCP uses the MCP manager instead, which owns OAuth itself. The Service shows each account through `ctx.connectorAccounts` from [`@deepseek-ai/dsh-client-ui-connector-account`](../../client/ui-connector-account/README.md), which a plugin without a vendor CLI registers with directly.
+Register from the Host row of a plugin whose vendor CLI signs the user in and keeps the credentials, so DSH only starts commands, shows their results, and owns their processes. A plugin that connects a hosted service over MCP uses the MCP manager instead, which owns OAuth itself. The Service shows each account through `ctx.connectorAccounts` from [`@omega-ai/dsh-client-ui-connector-account`](../../client/ui-connector-account/README.md), which a plugin without a vendor CLI registers with directly.
 
 ### Minimal configuration
 
@@ -37,22 +37,22 @@ The [base bundle](../../bundle/base/cordis.patch.yml) loads the Service in every
 
 ```yaml
 - id: cli-account
-  name: '@deepseek-ai/dsh-cli-account'
+  name: '@omega-ai/dsh-cli-account'
 ```
 
 | Field | Default | Meaning |
 |---|---|---|
 | `commandTimeoutMs` | `30000` | Deadline in milliseconds for a command that does not wait for the user, including executable lookup; it applies to every registered CLI |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-cli-account) is the exhaustive source for every accepted field. A value below 1 or above 2147483647 fails at load.
+The generated [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-cli-account) is the exhaustive source for every accepted field. A value below 1 or above 2147483647 fails at load.
 
 ### Register a CLI and its account
 
 The plugin's Host row lists `cliAccounts` in `inject` and registers from `apply`:
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
-import type { CliAccountRegistration } from '@deepseek-ai/dsh-cli-account'
+import type { Context } from '@omega-ai/cordis'
+import type { CliAccountRegistration } from '@omega-ai/dsh-cli-account'
 
 interface Account { readonly state: 'unchecked' | 'out' | 'in' }
 

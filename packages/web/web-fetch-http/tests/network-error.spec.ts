@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { HttpFetchProvider } from '@deepseek-ai/dsh-web-fetch-http'
+import { HttpFetchProvider } from '@omega-ai/dsh-web-fetch-http'
 
 const failure = vi.hoisted((): { value: unknown } => ({ value: undefined }))
 

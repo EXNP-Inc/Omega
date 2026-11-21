@@ -1,6 +1,6 @@
-import type {} from '@deepseek-ai/dsh-client-ui-slots'
+import type {} from '@omega-ai/dsh-client-ui-slots'
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@omega-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap {
     timeline: TimelineKey
   }

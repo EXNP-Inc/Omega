@@ -1,15 +1,15 @@
 /**
- * Official-DeepSeek first-run step. Readiness comes from the same
+ * Official-Omega first-run step. Readiness comes from the same
  * provider/settings/credential join as the Models page: any provider the user
  * can already talk to ends the step, and only a user with none is offered the
- * official DeepSeek route. The step reuses that page's credential editor in
+ * official Omega route. The step reuses that page's credential editor in
  * the onboarding plugin's shared modal, so the key is entered once.
  */
-import type { TrackProductEvent } from '@deepseek-ai/dsh-client-product-analytics/client'
+import type { TrackProductEvent } from '@omega-ai/dsh-client-product-analytics/client'
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import type { ObservableSnapshot, SnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { InjectFace, PropsRuntime, PropsRenderSlots } from '@deepseek-ai/dsh-client-ui-slots'
+import type { ObservableSnapshot, SnapshotStore } from '@omega-ai/dsh-client-store'
+import type { InjectFace, PropsRuntime, PropsRenderSlots } from '@omega-ai/dsh-client-ui-slots'
 import type { ModelsSettingsState, ModelsSettingsStore } from './store.ts'
 import { onboardingReadiness } from './store.ts'
 import type { ModelsOperations } from './operations.ts'
@@ -18,10 +18,10 @@ import { ProviderEditor } from './ProviderEditor.tsx'
 import type {} from './slot-contract.ts'
 import type { en } from './locales.ts'
 import { OnboardingModal } from './OnboardingModal.tsx'
-import styles from './DeepSeekOnboardingDialog.module.css'
+import styles from './OmegaOnboardingDialog.module.css'
 
-/** Registration-side dependencies of {@link DeepSeekOnboardingDialog}. */
-export interface DeepSeekOnboardingInjected {
+/** Registration-side dependencies of {@link OmegaOnboardingDialog}. */
+export interface OmegaOnboardingInjected {
   /** Desktop-only event collection. */
   track?: TrackProductEvent
   hooks: {
@@ -44,21 +44,21 @@ export interface DeepSeekOnboardingInjected {
 }
 
 /** Slot owner props plus the feature's injected dependencies. */
-export type DeepSeekOnboardingDialogProps =
-  PropsRuntime<'settings.onboarding'> & PropsRenderSlots<'settings.models.sign-in'> & InjectFace<DeepSeekOnboardingInjected>
+export type OmegaOnboardingDialogProps =
+  PropsRuntime<'settings.onboarding'> & PropsRenderSlots<'settings.models.sign-in'> & InjectFace<OmegaOnboardingInjected>
 
 /* v8 ignore next 3 -- closed-union defaults only defend future source widening */
 function assertNever(_value: never): never {
-  throw new Error('unexpected DeepSeek onboarding state')
+  throw new Error('unexpected Omega onboarding state')
 }
 
 /**
- * Prompt a first-run user for the official DeepSeek credential while no
+ * Prompt a first-run user for the official Omega credential while no
  * provider can serve requests and that credential is writable.
  * @param props - settings-shell owner state and Models feature dependencies.
  * @returns the onboarding modal or null when onboarding needs no intervention.
  */
-export function DeepSeekOnboardingDialog(props: DeepSeekOnboardingDialogProps): ReactNode {
+export function OmegaOnboardingDialog(props: OmegaOnboardingDialogProps): ReactNode {
   const { complete, controller, useModels, useAutomatic, operations, schema, t, renderSlot, explicit = false } = props
   const [apiKey, setApiKey] = useState(explicit)
   const automaticOnMount = useAutomatic(value => value)
@@ -97,10 +97,10 @@ export function DeepSeekOnboardingDialog(props: DeepSeekOnboardingDialogProps): 
   }
 
   const row = state.rows.find(candidate =>
-    candidate.entry.provider === 'deepseek-official'
-    && candidate.entry.settingsNs === 'llm-deepseek'
+    candidate.entry.provider === 'omega-official'
+    && candidate.entry.settingsNs === 'llm-omega'
     && candidate.entry.settingsPath.length === 0)
-  const namespace = state.namespaces.get('llm-deepseek')
+  const namespace = state.namespaces.get('llm-omega')
   /* v8 ignore next 2 -- credential-missing is derived only from this exact joined row. */
   if (row === undefined || namespace === undefined) return null
 

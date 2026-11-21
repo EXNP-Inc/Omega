@@ -2,10 +2,10 @@
 export const inject = ['llm', 'agents']
 export function apply(ctx) {
   ctx.on('llm/stream', async function* (request, next) {
-    if (request.provider !== 'deepseek-account') { yield* next(); return }
+    if (request.provider !== 'omega-account') { yield* next(); return }
     yield { type: 'block-start', index: 0, blockType: 'text' }
     yield { type: 'text-delta', index: 0, text: 'Before sign-out' }
-    ctx.emit('deepseek-account/signed-out')
+    ctx.emit('omega-account/signed-out')
     request.signal.throwIfAborted()
   })
 }

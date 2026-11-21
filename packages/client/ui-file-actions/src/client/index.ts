@@ -1,18 +1,18 @@
 /** Original-file actions independent of menu or image component ownership. */
-import { IconCopyOutlineRegular, IconDownloadOutlineRegular, IconSaveOutlineRegular } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
+import { IconCopyOutlineRegular, IconDownloadOutlineRegular, IconSaveOutlineRegular } from '@omega-ai/dsh-client-ui-primitives'
+import type { Context } from '@omega-ai/cordis'
+import type {} from '@omega-ai/dsh-client-ui-renderer/client'
 import type { DesktopFileActions, FileActions } from '../types.ts'
-import type {} from '@deepseek-ai/dsh-client-locale/client'
+import type {} from '@omega-ai/dsh-client-locale/client'
 import { registerFileMenus } from './context-menus.tsx'
 import { zh, en, ja, es, fr, de, ru, pt, type FileActionKey } from './locales.ts'
 import { BrowserFileActions } from './files.ts'
 
 export type { FileActions, FileActionSource, FileSaveResult } from '../types.ts'
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context { /** Original-file saving and image clipboard commands. */ fileActions: FileActions }
 }
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@omega-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Original-file action labels and feedback. */
     fileActions: FileActionKey

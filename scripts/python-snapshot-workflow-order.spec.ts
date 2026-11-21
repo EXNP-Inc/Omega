@@ -1,18 +1,18 @@
 import { getEventListeners } from 'node:events'
-import { Context } from '@deepseek-ai/cordis'
-import { agentEvents, type Agent, type PreStepDecision } from '@deepseek-ai/dsh-agent'
-import { createToolResultMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { ToolCallId } from '@deepseek-ai/dsh-llm/types'
-import SessionStore, { type SessionId } from '@deepseek-ai/dsh-session'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { WorkflowRunId } from '@deepseek-ai/dsh-workflow/types'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import { mountAgentLoopTestDependencies } from '@deepseek-ai/dsh-agent-loop-testkit'
-import SubagentRuntime from '@deepseek-ai/dsh-subagent'
-import * as spawn from '@deepseek-ai/dsh-subagent-spawn-in-process'
+import { Context } from '@omega-ai/cordis'
+import { agentEvents, type Agent, type PreStepDecision } from '@omega-ai/dsh-agent'
+import { createToolResultMessage, createUserMessage } from '@omega-ai/dsh-llm'
+import type { ToolCallId } from '@omega-ai/dsh-llm/types'
+import SessionStore, { type SessionId } from '@omega-ai/dsh-session'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { WorkflowRunId } from '@omega-ai/dsh-workflow/types'
+import AgentLoop from '@omega-ai/dsh-agent-loop'
+import { mountAgentLoopTestDependencies } from '@omega-ai/dsh-agent-loop-testkit'
+import SubagentRuntime from '@omega-ai/dsh-subagent'
+import * as spawn from '@omega-ai/dsh-subagent-spawn-in-process'
 import { MockAdapter, textResponse } from '../packages/core/agent-loop/tests/mock-adapter.ts'
-import type {} from '@deepseek-ai/dsh-tool-workflow/types'
-import type {} from '@deepseek-ai/dsh-session-log-deepseek'
+import type {} from '@omega-ai/dsh-tool-workflow/types'
+import type {} from '@omega-ai/dsh-session-log-omega'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 // @ts-expect-error Scenario plugins are runtime JavaScript without declaration artifacts.
 import * as fixtureModule from './fixtures/python-snapshot-workflow-order.mjs'
@@ -126,7 +126,7 @@ describe('advanced Python snapshot workflow ordering', () => {
     h.parent.append('step/start', { turn: 1, step: 2 })
     await Promise.resolve()
     expect(h.next).not.toHaveBeenCalled()
-    h.parent.append('session-log-deepseek/delivery-accepted', {
+    h.parent.append('session-log-omega/delivery-accepted', {
       sessionId: h.parent.id, sessionFormatVersion: h.parent.header.version, throughSeq: result.seq,
     })
     expect(await pending).toBe(h.decision)

@@ -10,7 +10,7 @@ export async function excelFixture(): Promise<Uint8Array<ArrayBuffer>> {
   const sheet = workbook.addWorksheet('季度预算', { views: [{ state: 'frozen', xSplit: 1, ySplit: 2 }] })
   sheet.columns = [{ width: 24 }, { width: 18 }, { width: 18 }, { width: 18 }]
   sheet.mergeCells('A1:D1')
-  sheet.getCell('A1').value = 'DeepSeek · 项目预算'
+  sheet.getCell('A1').value = 'Omega · 项目预算'
   sheet.getCell('A1').font = { name: 'Arial', size: 18, bold: true, color: { argb: 'FFFFFFFF' } }
   sheet.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF3B5CCC' } }
   sheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' }

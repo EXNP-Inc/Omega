@@ -28,21 +28,21 @@
  * source onto the open Session's active tasks.
  */
 
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-client-locale/client'
-import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type {} from '@deepseek-ai/dsh-client-ui-session/client'
-import type {} from '@deepseek-ai/dsh-client-ui-sidebar/client'
-import type {} from '@deepseek-ai/dsh-client-ui-sidebar-right/client'
-import type {} from '@deepseek-ai/dsh-client-ui-tool/client'
-import type {} from '@deepseek-ai/dsh-client-ui-workspace/client'
-import type {} from '@deepseek-ai/dsh-api-remote-access/client'
-import type { MainPanelId } from '@deepseek-ai/dsh-client-ui-layout/client'
-import type { RemoteFailure, RemoteResult } from '@deepseek-ai/dsh-api-remotes/client'
-import type {} from '@deepseek-ai/dsh-client-connection/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { ScheduleId, ScheduleCatalogEntry, ScheduleDeleteResult } from '@deepseek-ai/dsh-schedule/client'
+import type { Context as ClientContext } from '@omega-ai/cordis'
+import type {} from '@omega-ai/dsh-client-locale/client'
+import type {} from '@omega-ai/dsh-client-ui-conversation/client'
+import type {} from '@omega-ai/dsh-client-ui-renderer/client'
+import type {} from '@omega-ai/dsh-client-ui-session/client'
+import type {} from '@omega-ai/dsh-client-ui-sidebar/client'
+import type {} from '@omega-ai/dsh-client-ui-sidebar-right/client'
+import type {} from '@omega-ai/dsh-client-ui-tool/client'
+import type {} from '@omega-ai/dsh-client-ui-workspace/client'
+import type {} from '@omega-ai/dsh-api-remote-access/client'
+import type { MainPanelId } from '@omega-ai/dsh-client-ui-layout/client'
+import type { RemoteFailure, RemoteResult } from '@omega-ai/dsh-api-remotes/client'
+import type {} from '@omega-ai/dsh-client-connection/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { ScheduleId, ScheduleCatalogEntry, ScheduleDeleteResult } from '@omega-ai/dsh-schedule/client'
 import { createCatalogSource, type CatalogDeleteOutcome } from './catalog-source.ts'
 import { createClearEnded } from './clear-ended.ts'
 import { createDeleteToastSource, ScheduleDeleteToast } from './DeleteToast.tsx'
@@ -66,7 +66,7 @@ import { en as managerEn, ja as managerJa, es as managerEs, fr as managerFr, de 
 const MANAGER_NS = 'schedule.manager'
 const PANEL_ID = 'schedules' as MainPanelId
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@omega-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Active Schedule catalog copy. */
     'schedule.catalog': ScheduleCatalogKey

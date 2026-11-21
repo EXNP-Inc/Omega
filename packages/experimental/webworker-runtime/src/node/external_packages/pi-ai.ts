@@ -36,7 +36,7 @@ export const builtinModels = notImplementedFail(MODULE, 'builtinModels')
  */
 const BUILTIN_PROVIDER_IDS: readonly string[] = [
   'amazon-bedrock', 'ant-ling', 'anthropic', 'azure', 'baseten', 'cerebras',
-  'cloudflare-ai-gateway', 'cloudflare-workers-ai', 'deepseek', 'fireworks', 'github-copilot',
+  'cloudflare-ai-gateway', 'cloudflare-workers-ai', 'omega', 'fireworks', 'github-copilot',
   'google', 'google-vertex', 'groq', 'huggingface', 'kimi-coding', 'minimax', 'minimax-cn',
   'mistral', 'moonshotai', 'moonshotai-cn', 'nvidia', 'openai', 'openai-codex', 'opencode',
   'opencode-go', 'openrouter', 'qwen-token-plan', 'qwen-token-plan-cn',

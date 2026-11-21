@@ -5,45 +5,45 @@
 /:
   en: dca7dd27c5f2c369
   zh: 00d34e3837bed75a
-/deepseek-ai-dsh-creation-recommendations:
-  en: f2cefc8c9ad1d38f
-  zh: 9d3a5dc7ac8e2329
-/deepseek-ai-dsh-creation-recommendations/summary:
+/omega-ai-dsh-creation-recommendations:
+  en: 178872893f1d571d
+  zh: 3d54c17a8220e693
+/omega-ai-dsh-creation-recommendations/summary:
   en: b5b132020dabe3d9
   zh: 02bfe0e8a42d59e2
-/deepseek-ai-dsh-creation-recommendations/table-of-contents:
+/omega-ai-dsh-creation-recommendations/table-of-contents:
   en: d152484eb41ac6b4
   zh: b00dddf4c88f0a45
-/deepseek-ai-dsh-creation-recommendations/use-this-package:
+/omega-ai-dsh-creation-recommendations/use-this-package:
   en: 49347686c8ef3e7d
   zh: e53e488457484733
-/deepseek-ai-dsh-creation-recommendations/use-this-package/outcomes-and-recovery:
+/omega-ai-dsh-creation-recommendations/use-this-package/outcomes-and-recovery:
   en: ef56aa8be0dd0c22
   zh: 5c11787ca743e794
-/deepseek-ai-dsh-creation-recommendations/understand-the-implementation:
+/omega-ai-dsh-creation-recommendations/understand-the-implementation:
   en: 956daf85c8458f2e
   zh: d1e45c9649fa0143
-/deepseek-ai-dsh-creation-recommendations/further-exploration:
+/omega-ai-dsh-creation-recommendations/further-exploration:
   en: c67fa848305b1d0d
   zh: cc0a6f689bc95406
-/deepseek-ai-dsh-creation-recommendations/model-experience:
+/omega-ai-dsh-creation-recommendations/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/deepseek-ai-dsh-creation-recommendations/model-experience/creation-recommendations:
+/omega-ai-dsh-creation-recommendations/model-experience/creation-recommendations:
   en: b950fbe9f29693d4
   zh: 2dd7edb2d1c72941
-/deepseek-ai-dsh-creation-recommendations/model-experience/creation-recommendations/what-the-model-sees:
+/omega-ai-dsh-creation-recommendations/model-experience/creation-recommendations/what-the-model-sees:
   en: bdb53330bde969cd
   zh: 9f32c2da09b8c181
-/deepseek-ai-dsh-creation-recommendations/model-experience/creation-recommendations/token-effect:
+/omega-ai-dsh-creation-recommendations/model-experience/creation-recommendations/token-effect:
   en: e0a4dd761a484d46
   zh: 7b01a334324530e2
-/deepseek-ai-dsh-creation-recommendations/model-experience/creation-recommendations/kv-cache-effect:
+/omega-ai-dsh-creation-recommendations/model-experience/creation-recommendations/kv-cache-effect:
   en: 5ac2da1f3fe26cf3
   zh: bc3023b931c2458d
-/deepseek-ai-dsh-creation-recommendations/known-limitations-and-deferred-work:
+/omega-ai-dsh-creation-recommendations/known-limitations-and-deferred-work:
   en: f259b5a6e0326cb5
   zh: 682760d7d3df42de
-/deepseek-ai-dsh-creation-recommendations/known-limitations-and-deferred-work/dev-note:
+/omega-ai-dsh-creation-recommendations/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 8ec3e73528ddb1a6

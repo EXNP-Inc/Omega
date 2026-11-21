@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup } from '@testing-library/react'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { useLayoutEffect } from 'react'
-import { createClientModuleSystem, type ClientModuleLoader, type ClientModuleLoaderTarget } from '@deepseek-ai/dsh-client-modules/client'
+import { createClientModuleSystem, type ClientModuleLoader, type ClientModuleLoaderTarget } from '@omega-ai/dsh-client-modules/client'
 import { SlotRegistry } from '../src/client/registry.ts'
 import type { SlotScopeAdapter, StandardSourceBinding } from '../src/client/index.ts'
-import { apply as nodeApply } from '@deepseek-ai/dsh-client-ui-renderer'
+import { apply as nodeApply } from '@omega-ai/dsh-client-ui-renderer'
 import * as UiRenderer from '../src/client/index.ts'
 
 const mounted: (() => void)[] = []

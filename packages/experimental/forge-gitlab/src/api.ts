@@ -1,6 +1,6 @@
 /** GitLab REST and GraphQL reads and writes through `glab api`, with failures mapped to forge codes. */
 
-import type { ForgeActionFailure, ForgeFailure } from '@deepseek-ai/dsh-experimental-forge'
+import type { ForgeActionFailure, ForgeFailure } from '@omega-ai/dsh-experimental-forge'
 import { z } from 'zod'
 import { GlabOutputLimitError, GlabTimeoutError, GlabUnavailableError } from './glab.ts'
 import type { GlabOutput, GlabRunner } from './glab.ts'

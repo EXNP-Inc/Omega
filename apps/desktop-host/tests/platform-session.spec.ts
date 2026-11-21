@@ -1,5 +1,5 @@
-import { Context, Service } from '@deepseek-ai/cordis'
-import type { DeepSeekAccount, AccountView, AccountUpdate, PlatformSession } from '@deepseek-ai/dsh-deepseek-account'
+import { Context, Service } from '@omega-ai/cordis'
+import type { OmegaAccount, AccountView, AccountUpdate, PlatformSession } from '@omega-ai/dsh-omega-account'
 import { expect, it } from 'vitest'
 import { installPlatformSessionPublisher } from '../src/platform-session.ts'
 
@@ -8,8 +8,8 @@ const state: AccountView = {
   links: { usageUrl: 'https://platform.example/usage', topUpUrl: 'https://platform.example/top_up' },
 }
 
-class Account extends Service implements Pick<DeepSeekAccount, 'getPlatformSession' | 'watch'> {
-  constructor(ctx: Context) { super(ctx, 'deepseekAccount') }
+class Account extends Service implements Pick<OmegaAccount, 'getPlatformSession' | 'watch'> {
+  constructor(ctx: Context) { super(ctx, 'omegaAccount') }
   fail = false
   identityChangesRequested = false
   ended = Promise.withResolvers<undefined>()
@@ -40,9 +40,9 @@ it('clears removed credentials and publishes the replacement provider session', 
   try {
     const first = await ctx.plugin(Account)
     await delivered.promise
-    expect(ctx.deepseekAccount).toBeInstanceOf(Account)
-    if (!(ctx.deepseekAccount instanceof Account)) throw new Error('missing account fixture')
-    expect(ctx.deepseekAccount.identityChangesRequested).toBe(true)
+    expect(ctx.omegaAccount).toBeInstanceOf(Account)
+    if (!(ctx.omegaAccount instanceof Account)) throw new Error('missing account fixture')
+    expect(ctx.omegaAccount.identityChangesRequested).toBe(true)
     expect(sessions.at(-1)?.token).toBe('test')
     await first.dispose()
     expect(sessions.at(-1)).toBeNull()
@@ -64,7 +64,7 @@ it.each([false, true])('clears credentials when the account stream ends (failure
   installPlatformSessionPublisher(ctx, (session) => { if (session === null) cleared.resolve(undefined) })
   try {
     await ctx.plugin(Account)
-    const account = ctx.get('deepseekAccount')
+    const account = ctx.get('omegaAccount')
     expect(account).toBeInstanceOf(Account)
     if (!(account instanceof Account)) throw new Error('missing account fixture')
     await account.reading.promise
@@ -88,7 +88,7 @@ it('suppresses a credential read that completes during provider disposal', async
       const account = new Account(scope)
       account.read = () => pending.promise
     })
-    const account = ctx.deepseekAccount
+    const account = ctx.omegaAccount
     if (!(account instanceof Account)) throw new Error('missing account fixture')
     await account.reading.promise
     const disposed = provider.dispose()

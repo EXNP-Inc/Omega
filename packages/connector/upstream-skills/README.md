@@ -3,7 +3,7 @@ description: "Register a CLI app plugin's entry skill with the Host Service `ctx
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-upstream-skills
+# @omega-ai/dsh-upstream-skills
 
 English | [中文](README.zh.md)
 
@@ -37,7 +37,7 @@ The [base bundle](../../bundle/base/cordis.patch.yml) loads the Service in every
 
 ```yaml
 - id: upstream-skills
-  name: '@deepseek-ai/dsh-upstream-skills'
+  name: '@omega-ai/dsh-upstream-skills'
 ```
 
 | Field | Default | Meaning |
@@ -45,7 +45,7 @@ The [base bundle](../../bundle/base/cordis.patch.yml) loads the Service in every
 | `skillsUrls` | `['https://codeload.github.com']` | HTTPS archive download prefixes, without a query, fragment, or credentials, tried in order; they apply to every registered plugin |
 | `skillsTimeoutMs` | `120000` | Whole milliseconds one prefix may take to deliver the whole archive before the next is tried; it applies to every registered plugin |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-upstream-skills) is the exhaustive source for every accepted field. An empty `skillsUrls`, a prefix that does not parse as such a URL, or a `skillsTimeoutMs` below 1 or above 2147483647 fails at load.
+The generated [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-upstream-skills) is the exhaustive source for every accepted field. An empty `skillsUrls`, a prefix that does not parse as such a URL, or a `skillsTimeoutMs` below 1 or above 2147483647 fails at load.
 
 ### Register an entry skill
 
@@ -53,8 +53,8 @@ The plugin's Host row lists `upstreamSkills` in `inject`, pins the upstream file
 
 ```ts
 import { fileURLToPath } from 'node:url'
-import type { Context } from '@deepseek-ai/cordis'
-import type { UpstreamSkillSet } from '@deepseek-ai/dsh-upstream-skills'
+import type { Context } from '@omega-ai/cordis'
+import type { UpstreamSkillSet } from '@omega-ai/dsh-upstream-skills'
 
 const VENDOR_SKILLS: UpstreamSkillSet = {
   repository: 'vendor/vendor-cli',

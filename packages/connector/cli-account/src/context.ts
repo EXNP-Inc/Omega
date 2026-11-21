@@ -1,8 +1,8 @@
 /** Runtime context that tells the model the absolute path of an app plugin's CLI. */
 
 import { posix, win32 } from 'node:path'
-import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-system-prompt'
+import type { Context } from '@omega-ai/cordis'
+import type {} from '@omega-ai/dsh-system-prompt'
 
 /** What one app plugin states about its CLI. */
 export interface CliPathContext {

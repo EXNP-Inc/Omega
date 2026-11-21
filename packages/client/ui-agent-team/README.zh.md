@@ -3,7 +3,7 @@ description: "在 Web 会话面板的「共享任务」分栏中查看共享任�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-agent-team
+# @omega-ai/dsh-client-ui-agent-team
 
 [English](README.md) | 中文
 

@@ -2,17 +2,17 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react'
 import type {
   SessionListState, SessionProjectionMap, SessionProjectionSnapshot, SessionSummary,
-} from '@deepseek-ai/dsh-api-session-controller/client'
-import type { SessionStatusSnapshot } from '@deepseek-ai/dsh-client-ui-session-status/client'
-import type { SubagentAddress } from '@deepseek-ai/dsh-subagent/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+} from '@omega-ai/dsh-api-session-controller/client'
+import type { SessionStatusSnapshot } from '@omega-ai/dsh-client-ui-session-status/client'
+import type { SubagentAddress } from '@omega-ai/dsh-subagent/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import {
   HoverCard, IconCheckOutlineRegular, IconChevronRightOutlineRegular, IconRefreshOutlineRegular, StateDot, Tooltip,
-} from '@deepseek-ai/dsh-client-ui-primitives'
-import type { PanelDetailsProps } from '@deepseek-ai/dsh-client-ui-session-panel/client'
-import type { TranslateNS } from '@deepseek-ai/dsh-client-ui-slots'
+} from '@omega-ai/dsh-client-ui-primitives'
+import type { PanelDetailsProps } from '@omega-ai/dsh-client-ui-session-panel/client'
+import type { TranslateNS } from '@omega-ai/dsh-client-ui-slots'
 import type { NS } from './locales.ts'
-import type {} from '@deepseek-ai/dsh-token-meter/client'
+import type {} from '@omega-ai/dsh-token-meter/client'
 import css from './SubagentCatalog.module.css'
 
 /** One Session's direct subagents with their live activity. */

@@ -10,7 +10,7 @@ Connector plugins show an account section on the Plugins page. CLI app plugins k
 
 ## Decision
 
-[`@deepseek-ai/dsh-client-ui-connector-account`](../../../../packages/client/ui-connector-account/README.md) provides one Host registry, `ctx.connectorAccounts`, one `connectorAccounts` Remote, and one browser half for every connector kind.
+[`@omega-ai/dsh-client-ui-connector-account`](../../../../packages/client/ui-connector-account/README.md) provides one Host registry, `ctx.connectorAccounts`, one `connectorAccounts` Remote, and one browser half for every connector kind.
 
 | Part | Contract |
 |---|---|

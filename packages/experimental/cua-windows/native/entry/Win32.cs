@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace DeepSeek.Cua.Windows;
+namespace Omega.Cua.Windows;
 
 internal static class Win32
 {

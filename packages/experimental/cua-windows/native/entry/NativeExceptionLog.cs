@@ -2,7 +2,7 @@
 using System.Runtime.ExceptionServices;
 using System.Text;
 
-namespace DeepSeek.Cua.Windows;
+namespace Omega.Cua.Windows;
 
 internal sealed class NativeExceptionLog : IDisposable
 {

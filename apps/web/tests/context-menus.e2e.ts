@@ -4,13 +4,13 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium, type Browser, type Locator, type Page } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed, vi } from 'vitest'
-import { createLaunchEnvironmentSnapshot } from '@deepseek-ai/dsh-launch-environment'
-import { createAssistantMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
-import { SESSION_FORMAT_VERSION, Session, type SessionId } from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-session-title'
+import { createLaunchEnvironmentSnapshot } from '@omega-ai/dsh-launch-environment'
+import { createAssistantMessage, createUserMessage } from '@omega-ai/dsh-llm'
+import { SESSION_FORMAT_VERSION, Session, type SessionId } from '@omega-ai/dsh-session'
+import type {} from '@omega-ai/dsh-session-title'
 import { launchWebScaffold, seedSession, watchConsole, type WebScaffold } from './scaffold.ts'
 import { saveFailureShot } from './support.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const GIF = Buffer.from('R0lGODdhMAAgAIEAAEtu5gAAAAAAAAAAACwAAAAAMAAgAEAIQQABCBxIsKDBgwgTKlzIsKHDhxAjSpxIsaLFixgzatzIsaPHjyBDihxJsqTJkyhTqlzJsqXLlzBjypxJs6bNmQEBADs=', 'base64')
 async function menuLabels(menu: Locator): Promise<string[]> {
@@ -28,7 +28,7 @@ function fixture(title: string): string {
   session.append('step/start', { turn: 1, step: 1 })
   session.append('assistant/message', { stream: [], turn: 1, step: 1, message: createAssistantMessage({
     content: [{ type: 'text', text: '[First file](first.txt#L2) [Second file](second.txt) [Website](https://example.com/path?q=1#fragment)\n\n![Original](original.gif) ![Remote](https://images.example/original.gif)\n\nCONTEXT_MENU_READY' }],
-    source: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+    source: { provider: 'omega-official', model: 'omega-v4-flash' },
   }) }, { surfaceOp: 'append' })
   session.append('step/end', { turn: 1, step: 1 })
   session.append('turn/end', { turn: 1, reason: { kind: 'completed' } })

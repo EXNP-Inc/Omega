@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using DeepSeek.Cua.Protocol;
+using Omega.Cua.Protocol;
 using global::Windows.Graphics.Capture;
 using global::Windows.Graphics.DirectX;
 using global::Windows.Graphics.DirectX.Direct3D11;
@@ -9,7 +9,7 @@ using global::Windows.Graphics.Imaging;
 using global::Windows.Storage.Streams;
 using WinRT;
 
-namespace DeepSeek.Cua.Windows;
+namespace Omega.Cua.Windows;
 
 internal sealed class WindowCapture
 {

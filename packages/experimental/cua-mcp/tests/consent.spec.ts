@@ -1,7 +1,7 @@
 /** Consent answering: unattended approval of the connection's Agent, or an elicitation round trip. */
 import { describe, expect, it, vi } from 'vitest'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { UserQuestionError, type AskUserQuestionItem } from '@deepseek-ai/dsh-user-questions'
+import type { Agent } from '@omega-ai/dsh-agent'
+import { UserQuestionError, type AskUserQuestionItem } from '@omega-ai/dsh-user-questions'
 import { approveAll, CONSENT_MODES, createConsentAnswerer, elicitAnswer, type ElicitationClient } from '../src/consent.ts'
 
 const approval: AskUserQuestionItem = {

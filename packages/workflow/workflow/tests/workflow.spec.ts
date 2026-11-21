@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 import type { WorkflowRunId } from '../src/types.ts'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import WorkflowEngineDefault, {
   isFatalWorkflowError,
   WorkflowError,

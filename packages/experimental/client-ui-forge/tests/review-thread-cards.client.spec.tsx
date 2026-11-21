@@ -2,9 +2,9 @@
 /** Host review thread cards, the outdated section, and the thread list rendered on their own. */
 import { act, cleanup, fireEvent, render, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import type { ForgeReviewThread, ForgeThreadId } from '@deepseek-ai/dsh-experimental-forge/types'
-import { RemoteError, type RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
+import { makeTranslate } from '@omega-ai/dsh-client-test-runtime'
+import type { ForgeReviewThread, ForgeThreadId } from '@omega-ai/dsh-experimental-forge/types'
+import { RemoteError, type RemoteResult } from '@omega-ai/dsh-typert-protocol'
 import { en } from '../src/client/locales.ts'
 import { hostCopy } from './client-fixtures.client.ts'
 import { Avatar, OutdatedThreads, ThreadCard, type ThreadActions, type ThreadWrites } from '../src/client/ReviewThreads.tsx'

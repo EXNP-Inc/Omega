@@ -1,13 +1,13 @@
 /** Test-only explicit initial selection and model switch after the first step's tool call. */
 
-const SELECTED = { provider: 'deepseek-official', model: 'deepseek-v4-pro', reasoningEffort: 'max' }
+const SELECTED = { provider: 'omega-official', model: 'omega-v4-pro', reasoningEffort: 'max' }
 
 export const name = 'model-switch-driver'
 export const inject = ['tools']
 
 /**
  * Record an explicit initial choice and a switch after `todo_write`.
- * @param {import('@deepseek-ai/cordis').Context} ctx - composition context.
+ * @param {import('@omega-ai/cordis').Context} ctx - composition context.
  */
 export function apply(ctx) {
   ctx.on('agent/created', ({ agent }) => {

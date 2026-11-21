@@ -4,9 +4,9 @@
  */
 
 import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
-import { Button, StateDot } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
-import type { RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
+import { Button, StateDot } from '@omega-ai/dsh-client-ui-primitives'
+import type { PropsLocale } from '@omega-ai/dsh-client-ui-slots'
+import type { RemoteResult } from '@omega-ai/dsh-typert-protocol'
 import type { NS } from './locales.ts'
 
 /** Milliseconds between the last keystroke of a search and the listing it reads. */

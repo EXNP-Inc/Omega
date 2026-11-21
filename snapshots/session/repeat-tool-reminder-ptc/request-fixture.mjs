@@ -6,7 +6,7 @@ export const inject = ['llm']
 
 /**
  * Check every request against the configured model-direct repeat thresholds.
- * @param {import('@deepseek-ai/cordis').Context} ctx - isolated snapshot Host.
+ * @param {import('@omega-ai/cordis').Context} ctx - isolated snapshot Host.
  */
 export function apply(ctx) {
   const expected = [[], [], [], ['run_code × 3'], ['run_code × 3'], ['run_code × 3', 'run_code × 5']]

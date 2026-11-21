@@ -1,0 +1,37 @@
+# Bilingual-pair consistency record for 2026-10-15-omega-search-fetch-api.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-10-15-omega-search-fetch-api.md
+/agent-note-direct-omega-search-and-fetch-apis:
+  en: dd97594e1a0fa0bc
+  zh: 8592fb8fec9ec018
+/agent-note-direct-omega-search-and-fetch-apis/problem:
+  en: 0895830d3a94673a
+  zh: 9c59b572916fa68f
+/agent-note-direct-omega-search-and-fetch-apis/decision:
+  en: 43fb6f8ea1e6f41a
+  zh: f312f45ae795ba87
+/agent-note-direct-omega-search-and-fetch-apis/decision/protocol-selection-and-deployment:
+  en: 6d308a5fd0331b88
+  zh: 39308aaf52385e0b
+/agent-note-direct-omega-search-and-fetch-apis/decision/search-results-and-model-input:
+  en: ad7b3e4fbe528cf2
+  zh: 8ab8779bfdaaa4fa
+/agent-note-direct-omega-search-and-fetch-apis/decision/fetch-metadata-and-ownership:
+  en: 7339c0187d579765
+  zh: 091aa47d702a5987
+/agent-note-direct-omega-search-and-fetch-apis/decision/default-migration:
+  en: 91dd180b6ac98054
+  zh: 9b063924fa109c3a
+/agent-note-direct-omega-search-and-fetch-apis/decision/legacy-messages-search:
+  en: c2465d7ed38a9646
+  zh: f4a56ed7a0a4ecd9
+/agent-note-direct-omega-search-and-fetch-apis/alternatives-considered:
+  en: a27bcd927ff7801b
+  zh: 3c426cc36f687d78
+/agent-note-direct-omega-search-and-fetch-apis/consequences:
+  en: 7ec21c5b1124e5f8
+  zh: af769dbdb4face9f
+/agent-note-direct-omega-search-and-fetch-apis/verification-and-remaining-api-adoption:
+  en: b74f9318a2b28fc0
+  zh: a461495d0c3c3e44

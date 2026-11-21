@@ -1,12 +1,12 @@
 /** Direct Messages transport with one cancellable lifecycle per model request. */
 
-import { attributionHeaders, LlmAdapter, LlmError } from '@deepseek-ai/dsh-llm'
-import type { GenerateOptions, ImageAttachmentAccessResolver, PreparedAdapterCall, StreamChunk } from '@deepseek-ai/dsh-llm'
-import type { DeepSeekLlmApiExtensionRequest, DeepSeekLlmApiJson } from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
-import { idleWatchdog, timeoutOf } from '@deepseek-ai/dsh-timeout'
+import { attributionHeaders, LlmAdapter, LlmError } from '@omega-ai/dsh-llm'
+import type { GenerateOptions, ImageAttachmentAccessResolver, PreparedAdapterCall, StreamChunk } from '@omega-ai/dsh-llm'
+import type { OmegaLlmApiExtensionRequest, OmegaLlmApiJson } from '@omega-ai/dsh-omega-llm-api-extensions'
+import { idleWatchdog, timeoutOf } from '@omega-ai/dsh-timeout'
 import { modelInfo } from './model-info.ts'
-import type { DeepSeekAdapterOptions, DeepSeekConnectionOptions as Connection } from './types.ts'
-import { DeepSeekFileStore } from './file-store.ts'
+import type { OmegaAdapterOptions, OmegaConnectionOptions as Connection } from './types.ts'
+import { OmegaFileStore } from './file-store.ts'
 import { MESSAGES_FILES_BETA, MESSAGES_TOOL_CHANGES_BETA, messagesApiRoot } from './messages-api.ts'
 import { FileResolutionFailure, RequestFiles } from './request-files.ts'
 import { prepareRequestExtensions } from './request-extensions.ts'
@@ -15,23 +15,23 @@ import { serialize } from './serialize.ts'
 import { parseSse } from './sse.ts'
 import { translate } from './translate.ts'
 import { providerError, providerErrorDetail } from './transport.ts'
-import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
+import type { ImageAttachmentRef } from '@omega-ai/dsh-attachment'
 import { resolveRequestImageTarget } from './request-pricing.ts'
 
-/** DeepSeek provider using Messages content and native thinking replay. */
-export class DeepSeekAdapter<C extends Connection = Connection> extends LlmAdapter {
-  private readonly files: DeepSeekFileStore
+/** Omega provider using Messages content and native thinking replay. */
+export class OmegaAdapter<C extends Connection = Connection> extends LlmAdapter {
+  private readonly files: OmegaFileStore
   private readonly imageAccess: ImageAttachmentAccessResolver = (ref) => {
     const attachments = this.dependencies.resolveAttachments?.()
     return attachments === undefined ? undefined : this.dependencies.resolveImageAccess?.(attachments, ref)
   }
 
-  constructor(private readonly dependencies: DeepSeekAdapterOptions<C>) {
+  constructor(private readonly dependencies: OmegaAdapterOptions<C>) {
     super()
-    this.files = dependencies.resolveFiles?.() ?? new DeepSeekFileStore()
+    this.files = dependencies.resolveFiles?.() ?? new OmegaFileStore()
   }
 
-  override providerInfo(provider: string) { return { id: provider, name: this.dependencies.providerName ?? 'DeepSeek' } }
+  override providerInfo(provider: string) { return { id: provider, name: this.dependencies.providerName ?? 'Omega' } }
   override providerRetryPolicy(_provider: string) { return this.dependencies.options().retryPolicy }
   override async listModels(provider: string) {
     return this.dependencies.discoverModels?.(provider) ?? []
@@ -44,7 +44,7 @@ export class DeepSeekAdapter<C extends Connection = Connection> extends LlmAdapt
   }
   override imageRequestTarget(_provider: string, model: string, image: ImageAttachmentRef) {
     const entry = this.dependencies.options().models.find(entry => entry.id === model)
-    if (entry === undefined) throw new LlmError(`DeepSeek model "${model}" has no declared image projection`, 'UNKNOWN_MODEL')
+    if (entry === undefined) throw new LlmError(`Omega model "${model}" has no declared image projection`, 'UNKNOWN_MODEL')
     return resolveRequestImageTarget(entry, image)
   }
   override async prepareCall(provider: string, model: string, signal?: AbortSignal): Promise<PreparedAdapterCall> {
@@ -64,7 +64,7 @@ export class DeepSeekAdapter<C extends Connection = Connection> extends LlmAdapt
 
   private missingCredential(connection: C, provider: string): LlmError {
     return this.dependencies.missingCredential?.(connection, provider)
-      ?? new LlmError(`llm-deepseek: no credential for provider route "${provider}"`, 'MISSING_CREDENTIAL')
+      ?? new LlmError(`llm-omega: no credential for provider route "${provider}"`, 'MISSING_CREDENTIAL')
   }
 
   private async * generate(options: GenerateOptions<string>, connection: C): AsyncGenerator<StreamChunk> {
@@ -79,10 +79,10 @@ export class DeepSeekAdapter<C extends Connection = Connection> extends LlmAdapt
         yield next.value
       }
     } catch (error) {
-      if (timeoutOf(watchdog.signal, 'MESSAGES_IDLE') !== undefined) throw new LlmError('DeepSeek Messages stream idle timeout', 'TIMEOUT', { cause: error })
-      if (options.signal?.aborted) throw new LlmError('DeepSeek Messages request aborted', 'ABORTED', { cause: error })
+      if (timeoutOf(watchdog.signal, 'MESSAGES_IDLE') !== undefined) throw new LlmError('Omega Messages stream idle timeout', 'TIMEOUT', { cause: error })
+      if (options.signal?.aborted) throw new LlmError('Omega Messages request aborted', 'ABORTED', { cause: error })
       if (error instanceof LlmError) throw error
-      throw new LlmError('DeepSeek Messages transport failed', 'TRANSPORT', { cause: error })
+      throw new LlmError('Omega Messages transport failed', 'TRANSPORT', { cause: error })
     } finally {
       consumer.abort()
       // The abort above owns the socket teardown. A demand the deadline abandoned
@@ -127,13 +127,13 @@ export class DeepSeekAdapter<C extends Connection = Connection> extends LlmAdapt
         const body = serialize(options, connection, history, versions, this.imageAccess, (reason) => {
           this.dependencies.onReplayDegrade?.({ provider: options.provider, model: options.model, reason })
         }, fileIds)
-        const requestIdentity: Omit<DeepSeekLlmApiExtensionRequest, 'body'> = {
+        const requestIdentity: Omit<OmegaLlmApiExtensionRequest, 'body'> = {
           signal: live,
           ...options.sessionId === undefined ? {} : { sessionId: String(options.sessionId) },
           ...options.purpose === undefined ? {} : { purpose: options.purpose },
         }
         const extensions = await prepareRequestExtensions(
-          body as Readonly<Record<string, DeepSeekLlmApiJson>>, requestIdentity,
+          body as Readonly<Record<string, OmegaLlmApiJson>>, requestIdentity,
           this.dependencies.prepareExtensions, (fields, error) => {
             this.dependencies.onExtensionsOmitted?.({ provider: options.provider, model: options.model, fields, error })
           }, (error) => {
@@ -155,9 +155,9 @@ export class DeepSeekAdapter<C extends Connection = Connection> extends LlmAdapt
             ...auth.headers,
             'anthropic-version': '2023-06-01',
             ...betas.length === 0 ? {} : { 'anthropic-beta': betas.join(',') },
-            'x-deepseek-harness-user-id': this.dependencies.resolveUserId(),
-            ...options.sessionId === undefined ? {} : { 'x-deepseek-harness-session-id': String(options.sessionId) },
-            ...requestIdentity.purpose === 'compaction' ? { 'x-deepseek-harness-compact': '1' } : {},
+            'x-omega-harness-user-id': this.dependencies.resolveUserId(),
+            ...options.sessionId === undefined ? {} : { 'x-omega-harness-session-id': String(options.sessionId) },
+            ...requestIdentity.purpose === 'compaction' ? { 'x-omega-harness-compact': '1' } : {},
           },
         })
         if (!response.ok) {
@@ -173,7 +173,7 @@ export class DeepSeekAdapter<C extends Connection = Connection> extends LlmAdapt
           throw LlmError.fromFailure({ ...failure.failure, message }, { cause: new Error(text) })
         }
         await extensions.accept()
-        if (response.body === null) throw new LlmError('DeepSeek Messages returned no response body', 'EMPTY_RESPONSE')
+        if (response.body === null) throw new LlmError('Omega Messages returned no response body', 'EMPTY_RESPONSE')
         yield* translate(parseSse(response.body, activity), options.model)
         return
       }

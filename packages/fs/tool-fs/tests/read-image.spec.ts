@@ -5,32 +5,32 @@
  * commit + image-block rendering, attachment admission failures, and the
  * regression that `read` keeps its text-only contract.
  */
-import { ToolExecutionPipeline } from '@deepseek-ai/dsh-tools/pipeline'
-import { executeToolFixture, executeModelToolFixture } from '@deepseek-ai/dsh-tool-testkit'
+import { ToolExecutionPipeline } from '@omega-ai/dsh-tools/pipeline'
+import { executeToolFixture, executeModelToolFixture } from '@omega-ai/dsh-tool-testkit'
 
-import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
-import * as PtcToolExecutor from '@deepseek-ai/dsh-tool-executor-ptc'
-import { provideWorkingDirectoryFixture } from '@deepseek-ai/dsh-agent-loop-testkit'
+import * as NativeToolExecutor from '@omega-ai/dsh-tool-executor-native'
+import * as PtcToolExecutor from '@omega-ai/dsh-tool-executor-ptc'
+import { provideWorkingDirectoryFixture } from '@omega-ai/dsh-agent-loop-testkit'
 import { afterEach, beforeEach, describe, expect, it, onTestFinished } from 'vitest'
 import { mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
-import { PtcImage, PtcRuntime } from '@deepseek-ai/dsh-ptc-runtime'
-import type { PtcRunRequest, PtcRunResult } from '@deepseek-ai/dsh-ptc-runtime'
-import { type ToolCallId, LlmAdapter, LlmRuntime } from '@deepseek-ai/dsh-llm'
-import type { GenerateOptions, LlmModelInfo, LlmResolvedModelInfo, Message, StreamChunk } from '@deepseek-ai/dsh-llm'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime, { RUN_CODE_NAME } from '@deepseek-ai/dsh-tools'
-import type { PostToolDecision } from '@deepseek-ai/dsh-tools'
-import LocalFileSystem from '@deepseek-ai/dsh-fs-local'
-import * as FsPolicy from '@deepseek-ai/dsh-fs-observation-policy'
-import LocalAttachmentStore from '@deepseek-ai/dsh-attachment-local'
-import { AttachmentError, type AttachmentId, AttachmentStore } from '@deepseek-ai/dsh-attachment'
-import { FsError } from '@deepseek-ai/dsh-fs'
-import type { ImageAttachmentLimits, ImageAttachmentRef, SaveImageAttachment, StoredImageAttachment } from '@deepseek-ai/dsh-attachment'
-import * as ToolFs from '@deepseek-ai/dsh-tool-fs'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { Context } from '@omega-ai/cordis'
+import { PtcImage, PtcRuntime } from '@omega-ai/dsh-ptc-runtime'
+import type { PtcRunRequest, PtcRunResult } from '@omega-ai/dsh-ptc-runtime'
+import { type ToolCallId, LlmAdapter, LlmRuntime } from '@omega-ai/dsh-llm'
+import type { GenerateOptions, LlmModelInfo, LlmResolvedModelInfo, Message, StreamChunk } from '@omega-ai/dsh-llm'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRuntime, { RUN_CODE_NAME } from '@omega-ai/dsh-tools'
+import type { PostToolDecision } from '@omega-ai/dsh-tools'
+import LocalFileSystem from '@omega-ai/dsh-fs-local'
+import * as FsPolicy from '@omega-ai/dsh-fs-observation-policy'
+import LocalAttachmentStore from '@omega-ai/dsh-attachment-local'
+import { AttachmentError, type AttachmentId, AttachmentStore } from '@omega-ai/dsh-attachment'
+import { FsError } from '@omega-ai/dsh-fs'
+import type { ImageAttachmentLimits, ImageAttachmentRef, SaveImageAttachment, StoredImageAttachment } from '@omega-ai/dsh-attachment'
+import * as ToolFs from '@omega-ai/dsh-tool-fs'
+import { brandString } from '@omega-ai/dsh-brand'
 import {
   applyReadImageTool,
   formatImageReadOutput,
@@ -78,7 +78,7 @@ class CatalogAdapter extends LlmAdapter {
 
 /** In-process PTC mode seam fake that invokes the real registry bindings. */
 class FakeRuntime extends PtcRuntime {
-  resolve(request: import('@deepseek-ai/dsh-ptc-runtime').PtcRunRequest): import('@deepseek-ai/dsh-ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+  resolve(request: import('@omega-ai/dsh-ptc-runtime').PtcRunRequest): import('@omega-ai/dsh-ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
   readonly language = 'typescript'
   readonly isolation = 'fake'

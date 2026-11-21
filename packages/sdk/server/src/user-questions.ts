@@ -1,9 +1,9 @@
 /** Native SDK adapter for the shared user-questions seam. */
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { UserQuestionError, type AskUserQuestionRequest } from '@deepseek-ai/dsh-user-questions'
-import type { JsonRpcTransportPeer, SdkUserQuestionAnswer, SdkUserQuestionRequest } from '@deepseek-ai/dsh-sdk-protocol'
+import type { Context } from '@omega-ai/cordis'
+import type { Agent } from '@omega-ai/dsh-agent'
+import { UserQuestionError, type AskUserQuestionRequest } from '@omega-ai/dsh-user-questions'
+import type { JsonRpcTransportPeer, SdkUserQuestionAnswer, SdkUserQuestionRequest } from '@omega-ai/dsh-sdk-protocol'
 
 /** Owns question forwarding and cancellation for one SDK transport. */
 export class SdkUserQuestionBridge {

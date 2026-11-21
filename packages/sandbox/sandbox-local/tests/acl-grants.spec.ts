@@ -9,11 +9,11 @@ import { chmodSync, existsSync, mkdtempSync, realpathSync, rmSync } from 'node:f
 import { tmpdir } from 'node:os'
 import { basename, join } from 'node:path'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import type { SandboxPolicy } from '@deepseek-ai/dsh-sandbox'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import { LocalSandboxProvider } from '@deepseek-ai/dsh-sandbox-local'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { Context } from '@omega-ai/cordis'
+import type { SandboxPolicy } from '@omega-ai/dsh-sandbox'
+import type { SessionId } from '@omega-ai/dsh-session'
+import { LocalSandboxProvider } from '@omega-ai/dsh-sandbox-local'
+import { brandString } from '@omega-ai/dsh-brand'
 
 /** Cross-file state shared with the vi.mock factory (hoisting contract). */
 const mockState = vi.hoisted(() => ({
@@ -26,7 +26,7 @@ const mockState = vi.hoisted(() => ({
   disposeFailure: undefined as Error | undefined,
 }))
 
-vi.mock('@deepseek-ai/dsh-sandbox-windows-acl', () => {
+vi.mock('@omega-ai/dsh-sandbox-windows-acl', () => {
   class MockAclWriteGrant {
     readonly writeSid: string
     readonly added: Array<{ path: string; standing: boolean }> = []

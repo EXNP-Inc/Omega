@@ -1,9 +1,9 @@
 import { createRequire } from 'node:module'
-import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
-import { Context } from '@deepseek-ai/cordis'
-import { CordisInspectRegistryService } from '@deepseek-ai/dsh-cordis-host-runner'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRegistry from '@deepseek-ai/dsh-tools'
+import * as NativeToolExecutor from '@omega-ai/dsh-tool-executor-native'
+import { Context } from '@omega-ai/cordis'
+import { CordisInspectRegistryService } from '@omega-ai/dsh-cordis-host-runner'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRegistry from '@omega-ai/dsh-tools'
 import { describe, expect, it } from 'vitest'
 import * as CordisInspectProviders from '../src/host.ts'
 import * as CordisInspectTools from '../src/index.ts'
@@ -43,7 +43,7 @@ describe('the cordis-inspect-providers host entry', () => {
     await ctx.plugin(CordisInspectProviders)
     const agent = { ctx } as never
     const signal = new AbortController().signal
-    expect(await ctx.cordisInspect.query('host', 'Runtime', 'getVersion', undefined, agent, signal)).toEqual({ version: (createRequire(import.meta.url)('@deepseek-ai/dsh-app-boot/package.json') as { version: string }).version })
+    expect(await ctx.cordisInspect.query('host', 'Runtime', 'getVersion', undefined, agent, signal)).toEqual({ version: (createRequire(import.meta.url)('@omega-ai/dsh-app-boot/package.json') as { version: string }).version })
     await ctx.fiber.dispose()
   })
 

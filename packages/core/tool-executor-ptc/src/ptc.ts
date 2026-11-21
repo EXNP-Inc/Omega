@@ -8,34 +8,34 @@
 
 import { isDeepStrictEqual } from 'node:util'
 import type { PtcDispatchLog } from './runtime-types.ts'
-import { symbols, type Context } from '@deepseek-ai/cordis'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { extractTextContent } from '@deepseek-ai/dsh-llm/message'
-import { createUserMessage, HarnessError, resolveImageAttachmentAccess } from '@deepseek-ai/dsh-llm'
+import { symbols, type Context } from '@omega-ai/cordis'
+import { brandString } from '@omega-ai/dsh-brand'
+import { extractTextContent } from '@omega-ai/dsh-llm/message'
+import { createUserMessage, HarnessError, resolveImageAttachmentAccess } from '@omega-ai/dsh-llm'
 
-import type { ContentBlock, ToolCallId, ToolSchema } from '@deepseek-ai/dsh-llm'
-import { PtcImage, PtcInspectableValue } from '@deepseek-ai/dsh-ptc-runtime'
-import type { PtcJsonValue, PtcOutput } from '@deepseek-ai/dsh-ptc-runtime'
-import type { PtcBindingFunction, PtcRunResult, PtcRunSandbox, PtcRuntime } from '@deepseek-ai/dsh-ptc-runtime'
-import { approveEscalation, ESCALATION_TARGETS, validateEscalationArgs } from '@deepseek-ai/dsh-sandbox'
-import type { SandboxExecutionPolicy } from '@deepseek-ai/dsh-sandbox'
-import type {} from '@deepseek-ai/dsh-user-approval'
-import type {} from '@deepseek-ai/dsh-working-directory'
-import type {} from '@deepseek-ai/dsh-sandbox-policy'
-import { deepFreeze, snapshotJsonValue, type JsonValue } from '@deepseek-ai/dsh-util-values'
+import type { ContentBlock, ToolCallId, ToolSchema } from '@omega-ai/dsh-llm'
+import { PtcImage, PtcInspectableValue } from '@omega-ai/dsh-ptc-runtime'
+import type { PtcJsonValue, PtcOutput } from '@omega-ai/dsh-ptc-runtime'
+import type { PtcBindingFunction, PtcRunResult, PtcRunSandbox, PtcRuntime } from '@omega-ai/dsh-ptc-runtime'
+import { approveEscalation, ESCALATION_TARGETS, validateEscalationArgs } from '@omega-ai/dsh-sandbox'
+import type { SandboxExecutionPolicy } from '@omega-ai/dsh-sandbox'
+import type {} from '@omega-ai/dsh-user-approval'
+import type {} from '@omega-ai/dsh-working-directory'
+import type {} from '@omega-ai/dsh-sandbox-policy'
+import { deepFreeze, snapshotJsonValue, type JsonValue } from '@omega-ai/dsh-util-values'
 import {
   defineTool, parameterSchemaSpecToJsonSchema, projectToolSchema, RUN_CODE_NAME, TOOL_ABORTED, ToolArgsError,
   ToolContextUnavailableError,
-} from '@deepseek-ai/dsh-tools'
-import type { ToolExecutionPipeline } from '@deepseek-ai/dsh-tools/pipeline'
-import { toolErrorMessage } from '@deepseek-ai/dsh-tools/pipeline'
-import { scopeTarget } from '@deepseek-ai/dsh-scope'
+} from '@omega-ai/dsh-tools'
+import type { ToolExecutionPipeline } from '@omega-ai/dsh-tools/pipeline'
+import { toolErrorMessage } from '@omega-ai/dsh-tools/pipeline'
+import { scopeTarget } from '@omega-ai/dsh-scope'
 import type { PtcCalls } from './ptc-calls.ts'
 import { CodeRunFailedError, ToolCallLimitExceededError } from './errors.ts'
 import { substituteProgramImages } from './program-images.ts'
 import type { Config } from './config.ts'
 import type { RunCodeToolOptions } from './run-code.ts'
-import type { ToolDefinition, ToolExecution, ToolExecutionFailure, ToolExecutionResult, ToolRunContext } from '@deepseek-ai/dsh-tools'
+import type { ToolDefinition, ToolExecution, ToolExecutionFailure, ToolExecutionResult, ToolRunContext } from '@omega-ai/dsh-tools'
 import type {} from './types.ts'
 
 /** The model-facing name of the PTC mode tool. */
@@ -77,7 +77,7 @@ const TYPESCRIPT_FUNCTION_FLAVOR = runCodeFlavor('TypeScript', TYPESCRIPT_OUTPUT
 export function requirePtcRuntime(ctx: Context): PtcRuntime {
   const runtime = ctx.get('ptcRuntime')
   if (runtime === undefined) {
-    throw new ToolContextUnavailableError('dsh-tools: mode "ptc" requires a PTC runtime — load a ctx.ptcRuntime implementation (e.g. @deepseek-ai/dsh-ptc-runtime-node) or load @deepseek-ai/dsh-tool-executor-native')
+    throw new ToolContextUnavailableError('dsh-tools: mode "ptc" requires a PTC runtime — load a ctx.ptcRuntime implementation (e.g. @omega-ai/dsh-ptc-runtime-node) or load @omega-ai/dsh-tool-executor-native')
   }
   return requireRuntimeLanguage(runtime)
 }

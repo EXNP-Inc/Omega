@@ -7,20 +7,20 @@
  * remote-access snapshot owner itself and renders the real slot tree, so the Workspace access Hooks
  * are the renderer's bindings over one non-owner snapshot.
  */
-import { syncedConfig } from '@deepseek-ai/dsh-client-test-runtime'
+import { syncedConfig } from '@omega-ai/dsh-client-test-runtime'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, screen } from '@testing-library/react'
-import type { AccessEffect, RemoteEndpoint, TypertResourceKind } from '@deepseek-ai/dsh-api-remote-access/client'
-import { ClientAccessState } from '@deepseek-ai/dsh-api-remote-access/src/client/state.ts'
-import { whenAllowed } from '@deepseek-ai/dsh-api-remote-access/src/client/when-allowed.ts'
-import type { WorkspaceId } from '@deepseek-ai/dsh-api-workspace-controller/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import type { PropsRenderSlots } from '@deepseek-ai/dsh-client-ui-slots'
-import { allowAllAccessPlugin, SlotTestRuntime, usePinnedBrowserLanguages } from '@deepseek-ai/dsh-client-test-runtime'
-import { apply as applyMenus, inject as injectMenus } from '@deepseek-ai/dsh-client-ui-context-menu/client'
-import { apply, inject } from '@deepseek-ai/dsh-client-ui-workspace/client'
+import type { AccessEffect, RemoteEndpoint, TypertResourceKind } from '@omega-ai/dsh-api-remote-access/client'
+import { ClientAccessState } from '@omega-ai/dsh-api-remote-access/src/client/state.ts'
+import { whenAllowed } from '@omega-ai/dsh-api-remote-access/src/client/when-allowed.ts'
+import type { WorkspaceId } from '@omega-ai/dsh-api-workspace-controller/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
+import type { PropsRenderSlots } from '@omega-ai/dsh-client-ui-slots'
+import { allowAllAccessPlugin, SlotTestRuntime, usePinnedBrowserLanguages } from '@omega-ai/dsh-client-test-runtime'
+import { apply as applyMenus, inject as injectMenus } from '@omega-ai/dsh-client-ui-context-menu/client'
+import { apply, inject } from '@omega-ai/dsh-client-ui-workspace/client'
 import { SECTION_HOOK_CONTEXT, SECTION_INJECT } from './section-scroller.client.ts'
 
 usePinnedBrowserLanguages('zh-CN')

@@ -1,5 +1,5 @@
 /** Cancellation-owned queue for a reading-state follow generation. */
-import { Deque } from '@deepseek-ai/dsh-deque'
+import { Deque } from '@omega-ai/dsh-deque'
 import type { SessionReadFrame } from './types.ts'
 
 type ChangedFrame = Extract<SessionReadFrame, { type: 'changed' }>

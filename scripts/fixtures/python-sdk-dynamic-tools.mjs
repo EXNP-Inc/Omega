@@ -2,7 +2,7 @@
 export const name = 'python-sdk-dynamic-tools'
 export const inject = ['tools']
 
-/** @param {import('@deepseek-ai/cordis').Context} ctx - Scenario-owned tool registry. */
+/** @param {import('@omega-ai/cordis').Context} ctx - Scenario-owned tool registry. */
 export function apply(ctx) {
   let active = false
   ctx.tools.register({
@@ -14,7 +14,7 @@ export function apply(ctx) {
       render(_args, value) { return [{ type: 'text', text: value }] },
     },
     async execute() { return 'pong' },
-  }, { when: async ({ modelSelection }) => active && modelSelection.provider === 'deepseek-official' })
+  }, { when: async ({ modelSelection }) => active && modelSelection.provider === 'omega-official' })
   ctx.on('tools/post-execute', async (exec, result, next) => {
     const downstream = await next()
     if (result.isError) return downstream

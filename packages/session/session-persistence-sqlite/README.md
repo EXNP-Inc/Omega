@@ -3,7 +3,7 @@ description: "Save and reopen Session histories in SQLite, import existing JSONL
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-session-persistence-sqlite
+# @omega-ai/dsh-session-persistence-sqlite
 
 English | [中文](README.zh.md)
 
@@ -32,7 +32,7 @@ Mount this provider for the storage root whose Sessions should use SQLite.
 Replace the JSONL provider's package name in your composition, preserving its root and legacy encoding settings:
 
 ```yaml
-- name: '@deepseek-ai/dsh-session-persistence-sqlite'
+- name: '@omega-ai/dsh-session-persistence-sqlite'
   config:
     root: './.sessions'
 ```
@@ -48,7 +48,7 @@ The database lives at `<root>/.segments/sessions.sqlite`. Application callers co
 | `listConcurrency` | `3` | Concurrent filesystem reads for legacy metadata and routing records. |
 | `frameEvents` | `64` | Maximum events per stored frame, the unit of compression and of decoding. Larger frames compress slightly better and cost more to decode for a tail read; stored frames keep their written size. |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-session-persistence-sqlite) documents all accepted fields.
+The generated [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-session-persistence-sqlite) documents all accepted fields.
 
 ### Opening existing history
 

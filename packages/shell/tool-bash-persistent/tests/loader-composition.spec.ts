@@ -1,29 +1,29 @@
-import { executeToolFixture } from '@deepseek-ai/dsh-tool-testkit'
-import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
+import { executeToolFixture } from '@omega-ai/dsh-tool-testkit'
+import * as NativeToolExecutor from '@omega-ai/dsh-tool-executor-native'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
-import { unsupportedModel, provideWorkingDirectoryFixture, unsupportedInbox } from '@deepseek-ai/dsh-agent-loop-testkit'
+import { unsupportedModel, provideWorkingDirectoryFixture, unsupportedInbox } from '@omega-ai/dsh-agent-loop-testkit'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import Include from '@deepseek-ai/cordis-plugin-include'
-import type { ToolCallId } from '@deepseek-ai/dsh-llm'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { SESSION_FORMAT_VERSION, Session, type SessionId } from '@deepseek-ai/dsh-session'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import TerminalSessionService from '@deepseek-ai/dsh-terminal'
-import * as TerminalLocal from '@deepseek-ai/dsh-terminal-bash'
-import SandboxProvider from '@deepseek-ai/dsh-sandbox'
-import type { ConfinedArgv, SandboxPolicy } from '@deepseek-ai/dsh-sandbox'
-import SandboxPolicyService from '@deepseek-ai/dsh-sandbox-policy'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
-import * as ToolBashPersistent from '@deepseek-ai/dsh-tool-bash-persistent'
+import { Context } from '@omega-ai/cordis'
+import Loader from '@omega-ai/cordis-plugin-loader'
+import Include from '@omega-ai/cordis-plugin-include'
+import type { ToolCallId } from '@omega-ai/dsh-llm'
+import { brandString } from '@omega-ai/dsh-brand'
+import { SESSION_FORMAT_VERSION, Session, type SessionId } from '@omega-ai/dsh-session'
+import AgentRegistry from '@omega-ai/dsh-agent'
+import type { Agent } from '@omega-ai/dsh-agent'
+import TerminalSessionService from '@omega-ai/dsh-terminal'
+import * as TerminalLocal from '@omega-ai/dsh-terminal-bash'
+import SandboxProvider from '@omega-ai/dsh-sandbox'
+import type { ConfinedArgv, SandboxPolicy } from '@omega-ai/dsh-sandbox'
+import SandboxPolicyService from '@omega-ai/dsh-sandbox-policy'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import LocalSubprocessRuntime from '@omega-ai/dsh-subprocess-local'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRuntime from '@omega-ai/dsh-tools'
+import * as ToolBashPersistent from '@omega-ai/dsh-tool-bash-persistent'
 
 let root: string | undefined
 let context: Context | undefined
@@ -78,19 +78,19 @@ suite('persistent Bash through a real cordis.yml Loader composition', () => {
     root = await mkdtemp(join(tmpdir(), 'dsh-persistent-bash-loader-'))
     const configPath = join(root, 'cordis.yml')
     await writeFile(configPath, [
-      "- name: '@deepseek-ai/dsh-agent'",
-      "- name: '@deepseek-ai/dsh-system-prompt'",
-      "- name: '@deepseek-ai/dsh-tools'",
-      "- name: '@deepseek-ai/dsh-tool-executor-native'",
-      "- name: '@deepseek-ai/dsh-terminal'",
-      "- name: '@deepseek-ai/dsh-test-sandbox'",
-      "- name: '@deepseek-ai/dsh-session-projection'",
-      "- name: '@deepseek-ai/dsh-sandbox-policy'",
+      "- name: '@omega-ai/dsh-agent'",
+      "- name: '@omega-ai/dsh-system-prompt'",
+      "- name: '@omega-ai/dsh-tools'",
+      "- name: '@omega-ai/dsh-tool-executor-native'",
+      "- name: '@omega-ai/dsh-terminal'",
+      "- name: '@omega-ai/dsh-test-sandbox'",
+      "- name: '@omega-ai/dsh-session-projection'",
+      "- name: '@omega-ai/dsh-sandbox-policy'",
       '  config:',
       '    mode: danger-full-access',
       `    workspaceRoot: ${JSON.stringify(root)}`,
-      "- name: '@deepseek-ai/dsh-subprocess-local'",
-      "- name: '@deepseek-ai/dsh-terminal-bash'",
+      "- name: '@omega-ai/dsh-subprocess-local'",
+      "- name: '@omega-ai/dsh-terminal-bash'",
       '  config:',
       '    pollIntervalMs: 10',
       '    exactProbeAfterMs: 20',
@@ -102,7 +102,7 @@ suite('persistent Bash through a real cordis.yml Loader composition', () => {
       '    scrollbackLines: 20000',
       '    timeoutMs: 2000',
       '    disposeGraceMs: 500',
-      "- name: '@deepseek-ai/dsh-tool-bash-persistent'",
+      "- name: '@omega-ai/dsh-tool-bash-persistent'",
       '  config:',
       '    timeoutMs: 5000',
       '',
@@ -115,17 +115,17 @@ suite('persistent Bash through a real cordis.yml Loader composition', () => {
     await context.plugin(Loader)
     context.loader.builtins.include = Include
     const modules = new Map<string, unknown>([
-      ['@deepseek-ai/dsh-agent', AgentRegistry],
-      ['@deepseek-ai/dsh-system-prompt', SystemPrompt],
-      ['@deepseek-ai/dsh-tools', ToolRuntime],
-      ['@deepseek-ai/dsh-tool-executor-native', NativeToolExecutor],
-      ['@deepseek-ai/dsh-terminal', TerminalSessionService],
-      ['@deepseek-ai/dsh-test-sandbox', PassthroughSandbox],
-      ['@deepseek-ai/dsh-session-projection', SessionProjectionRegistry],
-      ['@deepseek-ai/dsh-sandbox-policy', SandboxPolicyService],
-      ['@deepseek-ai/dsh-subprocess-local', LocalSubprocessRuntime],
-      ['@deepseek-ai/dsh-terminal-bash', TerminalLocal],
-      ['@deepseek-ai/dsh-tool-bash-persistent', ToolBashPersistent],
+      ['@omega-ai/dsh-agent', AgentRegistry],
+      ['@omega-ai/dsh-system-prompt', SystemPrompt],
+      ['@omega-ai/dsh-tools', ToolRuntime],
+      ['@omega-ai/dsh-tool-executor-native', NativeToolExecutor],
+      ['@omega-ai/dsh-terminal', TerminalSessionService],
+      ['@omega-ai/dsh-test-sandbox', PassthroughSandbox],
+      ['@omega-ai/dsh-session-projection', SessionProjectionRegistry],
+      ['@omega-ai/dsh-sandbox-policy', SandboxPolicyService],
+      ['@omega-ai/dsh-subprocess-local', LocalSubprocessRuntime],
+      ['@omega-ai/dsh-terminal-bash', TerminalLocal],
+      ['@omega-ai/dsh-tool-bash-persistent', ToolBashPersistent],
     ])
     context.loader.internal = {
       version: 'v2',

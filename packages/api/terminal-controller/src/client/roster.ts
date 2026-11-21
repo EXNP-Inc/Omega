@@ -1,6 +1,6 @@
 /** One reference-counted terminal roster stream per watched Session. */
-import { RemoteStreamCarrierError, type ClientRemote } from '@deepseek-ai/dsh-api-gateway/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { RemoteStreamCarrierError, type ClientRemote } from '@omega-ai/dsh-api-gateway/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import type { TerminalRemote } from './model.ts'
 import type { WebTerminalInfo } from '../types.ts'
 

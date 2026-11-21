@@ -1,9 +1,9 @@
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
 import { describe, expect, it, vi } from 'vitest'
 import { MenuRegistry } from '../src/client/registry.ts'
-import type { MenuAction } from '@deepseek-ai/dsh-client-ui-context-menu/client'
+import type { MenuAction } from '@omega-ai/dsh-client-ui-context-menu/client'
 
-declare module '@deepseek-ai/dsh-client-ui-context-menu/client' {
+declare module '@omega-ai/dsh-client-ui-context-menu/client' {
   interface ContextMenuTargetMap { extension: { readonly id: string }; registryHeader: { readonly id: string } }
 }
 const target = { kind: 'extension' as const, value: { id: 'clicked' } }

@@ -16,10 +16,10 @@ import { fileURLToPath } from 'node:url'
 import {
   parseRemoteStreamServerMessage,
   type RemoteStreamServerMessage,
-} from '@deepseek-ai/dsh-api-gateway/src/stream-protocol.ts'
+} from '@omega-ai/dsh-api-gateway/src/stream-protocol.ts'
 import { execa } from 'execa'
 import { expect, onTestFinished } from 'vitest'
-import { resolveExampleLaunch } from '@deepseek-ai/dsh-loader-smoke'
+import { resolveExampleLaunch } from '@omega-ai/dsh-loader-smoke'
 import { WebSocket } from 'ws'
 
 const dshBinScript = fileURLToPath(new URL('../../../../apps/cli/src/bin.ts', import.meta.url))
@@ -397,11 +397,11 @@ export async function bootWebOwner(options: WebOwnerOptions = {}): Promise<WebOw
     private: true,
     dependencies: Object.fromEntries(extraBundles.map(bundle => [bundle, 'workspace:^'])),
     dsh: {
-      profile: { bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', ...extraBundles] },
+      profile: { bundles: ['@omega-ai/dsh-base', '@omega-ai/dsh-web-app', ...extraBundles] },
     },
   }, undefined, 2) + '\n')
   if (options.existingCwd === undefined) await writeFile(join(profileDir, 'cordis.patch.yml'), [
-    '- id: llm-deepseek',
+    '- id: llm-omega',
     '  disabled: true',
     '- id: session-persistence-jsonl',
     '  config:',
@@ -426,7 +426,7 @@ export async function bootWebOwner(options: WebOwnerOptions = {}): Promise<WebOw
       DSH_HOME: home,
       DSH_AGENTS_HOME: join(cwd, '.agents'),
       DSH_TELEMETRY_DISABLED: '1',
-      DEEPSEEK_API_KEY: '',
+      OMEGA_API_KEY: '',
       // Diagnostic only: the fixture appends one line per adapter call to this temp file.
       BASE_LLM_LOG: join(cwd, 'base-llm.log'),
       // Diagnostic only: proves the loader activated the fixture plugin at all.

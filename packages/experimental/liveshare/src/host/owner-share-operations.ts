@@ -4,15 +4,15 @@
  * Each method owns one operation's business order; the Remote service exposes it without a second
  * implementation. Failures are thrown as `RemoteError` values with a `liveshareShares/` code, which
  * the Gateway carries to the Client unchanged.
- * @module @deepseek-ai/dsh-experimental-liveshare/src/host/share-operations-impl
+ * @module @omega-ai/dsh-experimental-liveshare/src/host/share-operations-impl
  */
 
 import { randomBytes } from 'node:crypto'
 import { base64Url } from './base64-url.ts'
-import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
-import { isJsonValue, type JsonValue } from '@deepseek-ai/dsh-util-values'
-import type { ShareRpcActor } from '@deepseek-ai/dsh-experimental-liveshare-protocol'
-import type { Workspace } from '@deepseek-ai/dsh-workspace/types'
+import { RemoteError } from '@omega-ai/dsh-typert-protocol'
+import { isJsonValue, type JsonValue } from '@omega-ai/dsh-util-values'
+import type { ShareRpcActor } from '@omega-ai/dsh-experimental-liveshare-protocol'
+import type { Workspace } from '@omega-ai/dsh-workspace/types'
 import type {
   AddShareSessionsRequest,
   OwnerRelayState,

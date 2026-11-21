@@ -9,7 +9,7 @@ description: "删除「设置 → 内置插件」、它的两个包和 `settings
 
 ## 变更
 
-「设置 → 内置插件」及其包 `@deepseek-ai/dsh-client-ui-settings-plugins` 和 `@deepseek-ai/dsh-client-ui-settings-plugin-inventory` 已删除，`settings.plugins.tab` slot 和 `SettingsPluginsTabOwnerProps` 也一并删除。「设置 → 插件管理」改为打开插件页面。`settings.section` 条目仍显示在设置中。当模块与注册包相同的已列出 bundle 行、或该 bundle 本身没有注册自己的 `plugins.row.config` 或 `plugins.bundle.config` 时，插件页面也会在该行或该 bundle 页面上显示这个条目；在插件页面上，条目的 `close` 回到打开它的视图，而不是关闭设置。两处都通过 `settings.section.view` Factory 渲染条目，该 Factory 由 ui-settings-general 注册并声明 `settings.section`。
+「设置 → 内置插件」及其包 `@omega-ai/dsh-client-ui-settings-plugins` 和 `@omega-ai/dsh-client-ui-settings-plugin-inventory` 已删除，`settings.plugins.tab` slot 和 `SettingsPluginsTabOwnerProps` 也一并删除。「设置 → 插件管理」改为打开插件页面。`settings.section` 条目仍显示在设置中。当模块与注册包相同的已列出 bundle 行、或该 bundle 本身没有注册自己的 `plugins.row.config` 或 `plugins.bundle.config` 时，插件页面也会在该行或该 bundle 页面上显示这个条目；在插件页面上，条目的 `close` 回到打开它的视图，而不是关闭设置。两处都通过 `settings.section.view` Factory 渲染条目，该 Factory 由 ui-settings-general 注册并声明 `settings.section`。
 
 ## 迁移
 

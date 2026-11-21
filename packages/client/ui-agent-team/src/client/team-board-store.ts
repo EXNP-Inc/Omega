@@ -4,7 +4,7 @@
  * own while its scope is retained, across hiding and showing the panel.
  */
 
-import { defineStore, type EngineStoreHandle } from '@deepseek-ai/dsh-client-store'
+import { defineStore, type EngineStoreHandle } from '@omega-ai/dsh-client-store'
 
 /** The fold of one Session's shared tasks list. */
 export interface TeamBoardState {

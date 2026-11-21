@@ -2,8 +2,8 @@
 
 import type { IncomingMessage } from 'node:http'
 import type { Duplex } from 'node:stream'
-import { Deque } from '@deepseek-ai/dsh-deque'
-import { RemoteError, remoteErrorOf, type PeerScope, type RemoteUplinkWindow } from '@deepseek-ai/dsh-typert-protocol'
+import { Deque } from '@omega-ai/dsh-deque'
+import { RemoteError, remoteErrorOf, type PeerScope, type RemoteUplinkWindow } from '@omega-ai/dsh-typert-protocol'
 import WebSocket, { WebSocketServer, type RawData } from 'ws'
 import {
   parseRemoteStreamClientMessage,

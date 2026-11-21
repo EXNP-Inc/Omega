@@ -2,14 +2,14 @@
  * Service Definition for the web access capability seam (`ctx.web`): registries and provider-selecting execution for search and
  * fetch. Duplicate ids are rejected. At execution time, a configured provider must exist and
  * be usable; without one, exactly one usable provider is required, except that a search prefers the
- * usable DeepSeek provider assigned to the route of the model request it serves, so selection never
+ * usable Omega provider assigned to the route of the model request it serves, so selection never
  * depends on registration order.
- * @module @deepseek-ai/dsh-web
+ * @module @omega-ai/dsh-web
  */
 
-import { Context, type Volatile } from '@deepseek-ai/cordis'
-import { Remote, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
-import z from '@deepseek-ai/schemastery'
+import { Context, type Volatile } from '@omega-ai/cordis'
+import { Remote, TypertRemoteService } from '@omega-ai/dsh-typert-protocol'
+import z from '@omega-ai/schemastery'
 import type {
   WebFetchProvider,
   WebFetchRequest,
@@ -38,7 +38,7 @@ export type {
   WebSearchSource,
 } from './types.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context {
     web: WebRuntime
   }
@@ -54,17 +54,17 @@ interface Selection<P> {
   readonly preferredId?: string
 }
 
-/** Provider routes of the DeepSeek API-key and account models. */
-const DEEPSEEK_MODEL_ROUTES: ReadonlySet<string> = new Set(['deepseek-official', 'deepseek-account'])
+/** Provider routes of the Omega API-key and account models. */
+const OMEGA_MODEL_ROUTES: ReadonlySet<string> = new Set(['omega-official', 'omega-account'])
 
 /**
- * Search provider preferred for a model request on a DeepSeek model route while none is configured: DeepSeek
- * Messages search, which DeepSeek serves without a per-search charge.
+ * Search provider preferred for a model request on a Omega model route while none is configured: Omega
+ * Messages search, which Omega serves without a per-search charge.
  */
-const DEEPSEEK_ROUTE_SEARCH_PROVIDER = 'deepseek-official'
+const OMEGA_ROUTE_SEARCH_PROVIDER = 'omega-official'
 
 /** Search provider preferred on every other route and outside a model request while none is configured. */
-const OTHER_ROUTE_SEARCH_PROVIDER = 'deepseek-search-api'
+const OTHER_ROUTE_SEARCH_PROVIDER = 'omega-search-api'
 
 /**
  * Config for the web seam. `searchProvider` / `fetchProvider` pin which provider
@@ -76,7 +76,7 @@ const OTHER_ROUTE_SEARCH_PROVIDER = 'deepseek-search-api'
  */
 export interface WebRuntimeConfig {
   /**
-   * Explicit search provider id. Omitted = the usable DeepSeek provider assigned to the route of the model
+   * Explicit search provider id. Omitted = the usable Omega provider assigned to the route of the model
    * request, and otherwise auto-select when exactly one usable.
    */
   readonly searchProvider: Volatile<string | undefined>
@@ -94,8 +94,8 @@ export interface WebRuntimeConfig {
  * - A configured id registered but unavailable →
  *   `WEB_PROVIDER_CONFIGURED_UNAVAILABLE`.
  * - No search id configured, and the provider assigned to the route of the model request
- *   the search serves is usable → that provider: `deepseek-official` (Messages search) on the
- *   `deepseek-official` and `deepseek-account` routes, `deepseek-search-api` on every other
+ *   the search serves is usable → that provider: `omega-official` (Messages search) on the
+ *   `omega-official` and `omega-account` routes, `omega-search-api` on every other
  *   route and outside a model request.
  * - No id configured, exactly one registered usable provider → that provider.
  * - No id configured, multiple usable providers → `WEB_PROVIDER_AMBIGUOUS`.
@@ -228,8 +228,8 @@ export class WebRuntime extends TypertRemoteService {
    */
   private selectSearchProvider(llmProvider: string | undefined): WebSearchProvider {
     const configuredId = this.config.searchProvider.get() ?? this.searchProviderEnv
-    const preferredId = llmProvider !== undefined && DEEPSEEK_MODEL_ROUTES.has(llmProvider)
-      ? DEEPSEEK_ROUTE_SEARCH_PROVIDER
+    const preferredId = llmProvider !== undefined && OMEGA_MODEL_ROUTES.has(llmProvider)
+      ? OMEGA_ROUTE_SEARCH_PROVIDER
       : OTHER_ROUTE_SEARCH_PROVIDER
     return resolveProvider({
       providers: this.searchProviders,

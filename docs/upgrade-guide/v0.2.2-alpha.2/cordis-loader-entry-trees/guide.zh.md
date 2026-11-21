@@ -9,7 +9,7 @@ description: "Loader 条目树通过 commit(change) 报告变更，Include 通�
 
 ## 变更
 
-`@deepseek-ai/cordis-plugin-loader` 跟随 Loader 1.0.0-rc.8，`@deepseek-ai/cordis-plugin-include` 跟随 Include 1.1.1。受影响的是 `cordis.yml` 与 patch 文件、继承 `EntryTree` 的代码，以及调用 `applyEntryPatches` 或依赖 Include 写盘的代码。
+`@omega-ai/cordis-plugin-loader` 跟随 Loader 1.0.0-rc.8，`@omega-ai/cordis-plugin-include` 跟随 Include 1.1.1。受影响的是 `cordis.yml` 与 patch 文件、继承 `EntryTree` 的代码，以及调用 `applyEntryPatches` 或依赖 Include 写盘的代码。
 
 - 移除了 `EntryTree.write()`。子类改为实现 `commit(change: EntryChange)`，它会同步收到每一次创建、更新、移动、删除和显式 Fiber 保存。内存树实现为空操作。
 - `applyEntryPatches(data, patches, warn)` 总是返回克隆后的条目，没有 patch 时也一样，插入行同样会被克隆。调用方不能再通过结果修改输入。

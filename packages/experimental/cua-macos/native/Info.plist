@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleIdentifier</key>
-    <string>com.deepseek.harness.computer-use</string>
+    <string>com.omega.harness.computer-use</string>
     <key>CFBundleExecutable</key>
     <string>dsh-cua-native</string>
     <key>CFBundleName</key>

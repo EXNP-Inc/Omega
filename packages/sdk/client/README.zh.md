@@ -1,15 +1,15 @@
 ---
-description: "面向以子进程方式启动 DeepSeek Harness 运行时、并通过 stdio JSON-RPC 驱动 agent（智能体）轮次的调用方的 TypeScript SDK 客户端：DeepSeekHarness 运行 API 与低层 HarnessClient。"
+description: "面向以子进程方式启动 Omega 运行时、并通过 stdio JSON-RPC 驱动 agent（智能体）轮次的调用方的 TypeScript SDK 客户端：OmegaHarness 运行 API 与低层 HarnessClient。"
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-sdk-client
+# @omega-ai/dsh-sdk-client
 
 [English](README.md) | 中文
 
 ## 概述
 
-`dsh-sdk-client` 让 TypeScript 程序通过 stdio JSON-RPC 驱动完整的 DeepSeek Harness 运行时。使用 `run()` 运行普通文本、支持的 slash 命令和图片内容块，通过 `onNotification` 观察其通知。`HarnessClient` 提供直接协议访问。调用方可以提供 `dshBin`；否则客户端解析同版本的 `@deepseek-ai/dsh` 可执行文件。客户端持有子进程，报告类型化错误，并在 `close()` 或 `await using` 时回收进程。
+`dsh-sdk-client` 让 TypeScript 程序通过 stdio JSON-RPC 驱动完整的 Omega 运行时。使用 `run()` 运行普通文本、支持的 slash 命令和图片内容块，通过 `onNotification` 观察其通知。`HarnessClient` 提供直接协议访问。调用方可以提供 `dshBin`；否则客户端解析同版本的 `@omega-ai/dsh` 可执行文件。客户端持有子进程，报告类型化错误，并在 `close()` 或 `await using` 时回收进程。
 
 ## 目录
 
@@ -25,7 +25,7 @@ kind: "package-library"
 <a id="use-this-package"></a>
 ## 使用本包
 
-当 TypeScript 代码需要从另一进程驱动完整 Harness 运行时、且你能显式指名运行时可执行文件时，使用本客户端。常用路径极简：用启动规格构造 `DeepSeekHarness`，运行提示词，然后关闭它，使子进程总能被回收。
+当 TypeScript 代码需要从另一进程驱动完整 Harness 运行时、且你能显式指名运行时可执行文件时，使用本客户端。常用路径极简：用启动规格构造 `OmegaHarness`，运行提示词，然后关闭它，使子进程总能被回收。
 
 若由客户端处理审批，先调用 `harness.client.start()`，安装 `harness.client.onRequest(handler)`，再调用 `harness.start()`，并在 Harness 选项中设置 `approvalRequests: true`。处理器接收 `approval/request` 参数，返回 `{ outcome: "allowed-once" | "rejected" | "cancelled" }`；处理器拒绝时返回 JSON-RPC 错误，运行时拒绝放行该审批。替换客户端时需要为新实例安装处理器；已关闭的客户端不能重启。原生问答仍由 `onUserQuestion` 回调处理。启用审批但未安装附加请求处理器时，服务端请求收到未知请求错误，审批以 `unavailable` 拒绝放行。未启用时保留现有审批应答链。请求字段与取消规则见[协议](../protocol/README.zh.md)。
 
@@ -34,11 +34,11 @@ kind: "package-library"
 ```ts
 import { createInterface } from 'node:readline/promises'
 import { stdin, stdout } from 'node:process'
-import { DeepSeekHarness } from '@deepseek-ai/dsh-sdk-client'
+import { OmegaHarness } from '@omega-ai/dsh-sdk-client'
 
 const terminal = createInterface({ input: stdin, output: stdout })
 try {
-  await using harness = new DeepSeekHarness({
+  await using harness = new OmegaHarness({
     dshHome: '/absolute/path/to/isolated-dsh-home', approvalRequests: true,
   })
   harness.client.start()
@@ -59,21 +59,21 @@ try {
 
 `HarnessSession.getWorkingDirectory()` 读取有效目录；`setWorkingDirectory(path)` 修改目录并返回校验后的绝对路径。两个方法都可创建未知 Session，而不启动模型轮次。相对路径以 Session 当前目录解析。起始目录元数据与已有进程保持不变；`workspace-write` 边界移到新目录。`HarnessClient` 提供同名方法，并以 `sessionId` 作为首个参数。
 
-### 用 DeepSeekHarness 运行 agent 轮次
+### 用 OmegaHarness 运行 agent 轮次
 
-下面的示例在运行时导入 `brandString`。请在应用中直接声明 `@deepseek-ai/dsh-brand` 依赖，不要依赖 SDK 的传递依赖；仅测试使用时可以放入开发依赖。
+下面的示例在运行时导入 `brandString`。请在应用中直接声明 `@omega-ai/dsh-brand` 依赖，不要依赖 SDK 的传递依赖；仅测试使用时可以放入开发依赖。
 
 ```ts
-import { DeepSeekHarness } from '@deepseek-ai/dsh-sdk-client'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { ReasoningEffortId } from '@deepseek-ai/dsh-llm/types'
+import { OmegaHarness } from '@omega-ai/dsh-sdk-client'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { ReasoningEffortId } from '@omega-ai/dsh-llm/types'
 
-await using harness = new DeepSeekHarness({
+await using harness = new OmegaHarness({
   profile: 'sdk',
   dshHome: '/absolute/path/to/dsh-home',
   patches: ['./automation.cordis.yml'],
-  provider: 'deepseek-official',
-  model: 'deepseek-v4-flash',
+  provider: 'omega-official',
+  model: 'omega-v4-flash',
   reasoningEffort: brandString<ReasoningEffortId>('max'),
   maxTokens: 49_152,
 })
@@ -90,9 +90,9 @@ console.log(result.finalResponse)
 先选择支持图片输入的模型。通过现有内容块数组同时提交命令和图片，例如 `session.run([{ type: 'text', text: '/plan Analyze this image.' }, { type: 'image', data: imageBase64, mimeType: 'image/png' }])`；`harness.run()` 接受相同输入。计划输入和目标创建、编辑接受图片；`/plan off`、目标控制、压缩和权限命令按[原生附件规则](../server/README.zh.md#command-input)拒绝图片。原生命令输入支持编码栅格图片，不支持一般文件上传或客户端提供的附件引用。
 
 ```ts
-import { DeepSeekHarness } from '@deepseek-ai/dsh-sdk-client'
+import { OmegaHarness } from '@omega-ai/dsh-sdk-client'
 
-await using harness = new DeepSeekHarness({ profile: 'sdk', dshHome: '/absolute/path/to/dsh-home' })
+await using harness = new OmegaHarness({ profile: 'sdk', dshHome: '/absolute/path/to/dsh-home' })
 const session = harness.session()
 const result = await session.run('/compact')
 console.log(result.finalResponse)
@@ -117,7 +117,7 @@ console.log(result.finalResponse)
 <a id="native-user-questions"></a>
 ### 原生用户问答
 
-向 `DeepSeekHarness` 或 `HarnessClient` 传入 `onUserQuestion`，即可通过原生 SDK 协议回答内建的 `ask_user_question` 工具。回调接收 `{ requestId, sessionId, questions }` 与 `{ signal }`；返回 `{ answers: [{ id, selected, custom? }] }`，每个问题 id 对应一项。也可返回 `{ cancelled: true }` 表示用户关闭问题。关闭计划审查会结束原生轮次，并保持计划模式。应用自行提供 UI 或模拟用户策略。SDK 在初始化时自动声明此回调，也能在其他请求待决时接收答案。`HarnessClient.initialize()` 会在需要时启动进程，无需显式调用 `start()`。
+向 `OmegaHarness` 或 `HarnessClient` 传入 `onUserQuestion`，即可通过原生 SDK 协议回答内建的 `ask_user_question` 工具。回调接收 `{ requestId, sessionId, questions }` 与 `{ signal }`；返回 `{ answers: [{ id, selected, custom? }] }`，每个问题 id 对应一项。也可返回 `{ cancelled: true }` 表示用户关闭问题。关闭计划审查会结束原生轮次，并保持计划模式。应用自行提供 UI 或模拟用户策略。SDK 在初始化时自动声明此回调，也能在其他请求待决时接收答案。`HarnessClient.initialize()` 会在需要时启动进程，无需显式调用 `start()`。
 
 运行时取消问题、断开连接或客户端关闭时，应响应 signal 释放宿主工作。SDK 停止等待已取消的回调，并忽略晚到答案。回调抛错会报告提供方错误；缺失或格式错误的答案均不构成批准。未提供回调时，原生进程内回答方仍可用，缺少回答方则报告 `NO_PROVIDER`。
 
@@ -133,13 +133,13 @@ console.log(result.finalResponse)
 
 ### 设计理念
 
-客户端是同一协议上的两层：`DeepSeekHarness`（自有运行）叠加在 `HarnessClient`（协议客户端）之上，与 Python SDK 的分层一致。两种 SDK 都通过公开 `run()` 接收提示词或命令，请求构造与响应校验保留在内部辅助函数中。它运行在任何 harness 上下文之外，因此直接 spawn 运行时而非经由 `dsh-subprocess` 服务——即该 seam 记录的 SDK 托管传输例外——其关闭阶梯也位于本包。运行时对上下文内每个会话都发通知；会话树范围限定是客户端对 `subagent.started` 血缘边的过滤。
+客户端是同一协议上的两层：`OmegaHarness`（自有运行）叠加在 `HarnessClient`（协议客户端）之上，与 Python SDK 的分层一致。两种 SDK 都通过公开 `run()` 接收提示词或命令，请求构造与响应校验保留在内部辅助函数中。它运行在任何 harness 上下文之外，因此直接 spawn 运行时而非经由 `dsh-subprocess` 服务——即该 seam 记录的 SDK 托管传输例外——其关闭阶梯也位于本包。运行时对上下文内每个会话都发通知；会话树范围限定是客户端对 `subagent.started` 血缘边的过滤。
 
 ### 源码地图
 
 | 文件 | 职责 |
 |---|---|
-| [`src/api.ts`](src/api.ts) | `DeepSeekHarness` + `HarnessSession`：统一输入路由、自有活动区间与命令结果 |
+| [`src/api.ts`](src/api.ts) | `OmegaHarness` + `HarnessSession`：统一输入路由、自有活动区间与命令结果 |
 | [`src/client.ts`](src/client.ts) | `HarnessClient`：spawn、握手、请求、订阅扇出、类型化错误 |
 | [`src/dispose.ts`](src/dispose.ts) | 私有关闭阶梯：stdin EOF → SIGTERM → SIGKILL 直到真正退出 |
 | [`src/types.ts`](src/types.ts) | 启动与超时选项、通知、`RunResult` |
@@ -186,7 +186,7 @@ console.log(result.finalResponse)
 
 这些限制说明本客户端何时不合适或需要特别注意。它们是当前包约束，不是与其他 SDK 客户端的对比或任务积压。
 
-- **无捆绑运行时解析**——客户端解析同版本 `@deepseek-ai/dsh` 包（或调用方提供的 `dshBin`）；打包可执行文件的发现留在 Python 侧，直到出现 TypeScript 发行版消费方。
+- **无捆绑运行时解析**——客户端解析同版本 `@omega-ai/dsh` 包（或调用方提供的 `dshBin`）；打包可执行文件的发现留在 Python 侧，直到出现 TypeScript 发行版消费方。
 - **无运行时取消请求**——RPC 超时或观察回调失败会结束本地等待，不会停止运行时工作。停止运行时工作需要关闭 harness（见[协议限制](../protocol/README.zh.md#known-limitations-and-deferred-work)）。
 - **无独占模型响应**——提示词结果涵盖从回执到 idle 的活动，可能包含 steering 或其他排队工作。并发调用观察 Session 的实际事件流；命令结果不独占后续 turn。
 - **回调必须释放自己的资源**——SDK 通过 `AbortSignal` 发出取消；忽略它的应用工作可能在 SDK 停止等待答案后继续运行。

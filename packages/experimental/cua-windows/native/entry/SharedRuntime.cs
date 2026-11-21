@@ -5,9 +5,9 @@ using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Text;
 using System.Text.Json;
-using DeepSeek.Cua.Protocol;
+using Omega.Cua.Protocol;
 
-namespace DeepSeek.Cua.Windows;
+namespace Omega.Cua.Windows;
 
 internal static class SharedRuntime
 {

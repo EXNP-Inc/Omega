@@ -2,30 +2,30 @@
  * JSON-RPC methods and notifications for out-of-process harness SDKs.
  * The surrounding context owns plugins, persistence, and configured adapters.
  *
- * @module @deepseek-ai/dsh-sdk-jsonrpc-server/server
+ * @module @omega-ai/dsh-sdk-jsonrpc-server/server
  */
 
-import type {} from '@deepseek-ai/dsh-fs'
-import type { Context } from '@deepseek-ai/cordis'
+import type {} from '@omega-ai/dsh-fs'
+import type { Context } from '@omega-ai/cordis'
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { resolve } from 'node:path'
 import { QueryActivity } from './query-activity.ts'
 import { SdkUserQuestionBridge } from './user-questions.ts'
 import { queryCommand } from './query-input.ts'
 import { queryCommandImages, queryContent } from './query-content.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { Agent, AgentHandle } from '@deepseek-ai/dsh-agent'
-import { admitEncodedImages, type EncodedImageAttachment, type ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
-import { createUserMessage, type ReasoningEffortId, type ContentBlock, type LlmRuntime } from '@deepseek-ai/dsh-llm'
-import type { SessionId, SessionLogOffset } from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-working-directory'
-import type {} from '@deepseek-ai/dsh-user-approval'
-import type {} from '@deepseek-ai/dsh-permission-presets'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { Agent, AgentHandle } from '@omega-ai/dsh-agent'
+import { admitEncodedImages, type EncodedImageAttachment, type ImageAttachmentRef } from '@omega-ai/dsh-attachment'
+import { createUserMessage, type ReasoningEffortId, type ContentBlock, type LlmRuntime } from '@omega-ai/dsh-llm'
+import type { SessionId, SessionLogOffset } from '@omega-ai/dsh-session'
+import type {} from '@omega-ai/dsh-working-directory'
+import type {} from '@omega-ai/dsh-user-approval'
+import type {} from '@omega-ai/dsh-permission-presets'
 
-import type {} from '@deepseek-ai/dsh-schedule'
-import type { SubagentRunEndInfo } from '@deepseek-ai/dsh-subagent'
-import DeepSeekAuth from '@deepseek-ai/dsh-deepseek-auth'
-import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
+import type {} from '@omega-ai/dsh-schedule'
+import type { SubagentRunEndInfo } from '@omega-ai/dsh-subagent'
+import OmegaAuth from '@omega-ai/dsh-omega-auth'
+import * as LlmOmega from '@omega-ai/dsh-llm-omega-api-key'
 import type {
   ApprovalRequestParams,
   CommandExecution,
@@ -45,7 +45,7 @@ import type {
   SdkEncodedImageBlock,
   SubagentFinishedNotification,
   SubagentStartedNotification,
-} from '@deepseek-ai/dsh-sdk-protocol'
+} from '@omega-ai/dsh-sdk-protocol'
 
 interface SessionRecord {
   handle: AgentHandle
@@ -91,9 +91,9 @@ function successStatus(reason: string, options: HarnessSdkJsonRpcServerOptions):
  */
 export class HarnessSdkJsonRpcServer {
   private cwd = process.cwd()
-  private provider = 'deepseek-official'
-  private model = 'deepseek-official'
-  private reasoningEffort: ReasoningEffortId | undefined
+  private provider = 'mac'
+  private model = 'qwen3.8-27b-lite'
+  private reasoningEffort: ReturnType<typeof ReasoningEffortId> | undefined
   private maxTokens: number | undefined
   private llmFiber: { dispose(): Promise<void> } | undefined
   private authFiber: { dispose(): Promise<void> } | undefined
@@ -212,7 +212,7 @@ export class HarnessSdkJsonRpcServer {
   }
 
   /**
-   * Validate and configure the SDK route, mounting the DeepSeek fallback only when unowned.
+   * Validate and configure the SDK route, mounting the Omega fallback only when unowned.
    * @param params - SDK handshake parameters.
    * @returns server identity for the handshake.
    */
@@ -235,11 +235,11 @@ export class HarnessSdkJsonRpcServer {
       ? undefined
       : brandString<ReasoningEffortId>(params.reasoningEffort)
     if (!this.hasAdapterFor(provider)) {
-      if (provider !== 'deepseek-official') throw new Error(`no adapter registered for provider "${provider}"`)
-      // The route requires the DeepSeek authentication service; a composition without one gets it with the fallback route.
-      if (this.ctx.get('deepseekAuth') === undefined) this.authFiber = await this.ctx.plugin(DeepSeekAuth)
+      if (provider !== 'omega-official') throw new Error(`no adapter registered for provider "${provider}"`)
+      // The route requires the Omega authentication service; a composition without one gets it with the fallback route.
+      if (this.ctx.get('omegaAuth') === undefined) this.authFiber = await this.ctx.plugin(OmegaAuth)
       try {
-        this.llmFiber = await this.ctx.plugin(LlmDeepSeek)
+        this.llmFiber = await this.ctx.plugin(LlmOmega)
       } catch (error: unknown) {
         // Without the route nothing here uses the authentication service this call mounted.
         const mounted = this.authFiber
@@ -265,7 +265,7 @@ export class HarnessSdkJsonRpcServer {
     this.userQuestions.enabled = params.capabilities?.userQuestions === true
     this.initialized = true
     this.initialization.resolve()
-    return { serverInfo: { name: 'deepseek-harness-sdk-runtime', version: '0.0.1' } }
+    return { serverInfo: { name: 'omega-harness-sdk-runtime', version: '0.0.1' } }
   }
 
   /**
@@ -567,7 +567,7 @@ export class HarnessSdkJsonRpcServer {
       case 'shutdown':
         return this.shutdown()
       default:
-        throw new Error(`unknown DeepSeek Harness SDK runtime method: ${method}`)
+        throw new Error(`unknown Omega SDK runtime method: ${method}`)
     }
   }
 
@@ -603,7 +603,7 @@ export class HarnessSdkJsonRpcServer {
     // No preset composition: this server's compositions keep the model-facing
     // rows in the host plane, so this agent reads them from the global layer. A
     // deployment that configures a roster has to join one here first
-    // (@deepseek-ai/dsh-agent-preset-registry README, "Composing a child agent").
+    // (@omega-ai/dsh-agent-preset-registry README, "Composing a child agent").
     const agentOptions = {
       provider: this.provider,
       model: this.model,

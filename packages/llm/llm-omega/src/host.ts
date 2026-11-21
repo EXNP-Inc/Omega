@@ -1,13 +1,13 @@
-/** Shared Host wiring for the DeepSeek protocol adapter. */
-import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-settings'
-import type {} from '@deepseek-ai/cordis-plugin-loader'
-import type {} from '@deepseek-ai/dsh-fs'
-import { resolveImageAttachmentAccess } from '@deepseek-ai/dsh-llm'
-import { getOrCreateAnonymousUserId, type AnonymousUserId } from '@deepseek-ai/dsh-anonymous-user-id'
-import { deepEqualJson } from '@deepseek-ai/dsh-util-values'
-import { DeepSeekAdapter } from './adapter.ts'
-import type { DeepSeekAdapterOptions, DeepSeekConnectionOptions } from './types.ts'
+/** Shared Host wiring for the Omega protocol adapter. */
+import type { Context } from '@omega-ai/cordis'
+import type {} from '@omega-ai/dsh-settings'
+import type {} from '@omega-ai/cordis-plugin-loader'
+import type {} from '@omega-ai/dsh-fs'
+import { resolveImageAttachmentAccess } from '@omega-ai/dsh-llm'
+import { getOrCreateAnonymousUserId, type AnonymousUserId } from '@omega-ai/dsh-anonymous-user-id'
+import { deepEqualJson } from '@omega-ai/dsh-util-values'
+import { OmegaAdapter } from './adapter.ts'
+import type { OmegaAdapterOptions, OmegaConnectionOptions } from './types.ts'
 import { requestModelListing } from './listing.ts'
 import { ModelListingCache, type ListingCacheDependencies } from './listing-cache.ts'
 
@@ -43,8 +43,8 @@ export function createModelListingCache(
  * @param provider - exact route owned by this plugin.
  * @param dependencies - provider-owned discovery, credential, and configuration callbacks.
  */
-export function registerDeepSeekProvider<C extends DeepSeekConnectionOptions>(
-  ctx: Context, provider: string, dependencies: Pick<DeepSeekAdapterOptions<C>,
+export function registerOmegaProvider<C extends OmegaConnectionOptions>(
+  ctx: Context, provider: string, dependencies: Pick<OmegaAdapterOptions<C>,
   'options' | 'resolveAuth' | 'missingCredential' | 'providerName' | 'discoverModels' | 'connect' | 'admit'>): void {
   ctx.inject(['settings'], (child) => { child.effect(() => child.settings.configure({ auto: false }, ctx.fiber)) })
   let userId: AnonymousUserId | undefined
@@ -52,32 +52,32 @@ export function registerDeepSeekProvider<C extends DeepSeekConnectionOptions>(
   const degradedReplays = new Set<string>()
   const omittedRoutes = new Set<string>()
   const unacceptedRoutes = new Set<string>()
-  const adapter = new DeepSeekAdapter({
+  const adapter = new OmegaAdapter({
     ...dependencies,
     resolveUserId: () => userId ??= getOrCreateAnonymousUserId(),
     onReplayDegrade: ({ provider, model, reason }) => {
       const key = `${provider}/${model}\u0000${reason}`
       if (degradedReplays.has(key)) return
       degradedReplays.add(key)
-      ctx.logger.warn(`llm-deepseek: unusable Messages replay state on assistant history for route "${provider}/${model}"; sending provider-neutral content (${reason})`)
+      ctx.logger.warn(`llm-omega: unusable Messages replay state on assistant history for route "${provider}/${model}"; sending provider-neutral content (${reason})`)
     },
     onExtensionsOmitted: ({ provider, model, fields, error }) => {
       const route = `${provider}/${model}`
       if (omittedRoutes.has(route)) return
       omittedRoutes.add(route)
-      ctx.logger.warn(`llm-deepseek: sending route "${route}" without request extension fields ${fields.join(', ')} because they failed to serialize: %o`, error)
+      ctx.logger.warn(`llm-omega: sending route "${route}" without request extension fields ${fields.join(', ')} because they failed to serialize: %o`, error)
     },
     onExtensionsUnaccepted: ({ provider, model, error }) => {
       const route = `${provider}/${model}`
       if (unacceptedRoutes.has(route)) return
       unacceptedRoutes.add(route)
-      ctx.logger.warn(`llm-deepseek: route "${route}" request extension acceptance failed; contributors resend on a later request: %o`, error)
+      ctx.logger.warn(`llm-omega: route "${route}" request extension acceptance failed; contributors resend on a later request: %o`, error)
     },
     resolveAttachments: () => ctx.get('attachments'),
     resolveImageAccess: (attachments, ref) => resolveImageAttachmentAccess(
       attachments, hostPath => ctx.get('fs')?.processPathFromHostPath(hostPath), ref,
     ),
-    prepareExtensions: request => ctx.get('deepseekLlmApiExtensions')?.prepare(request)
+    prepareExtensions: request => ctx.get('omegaLlmApiExtensions')?.prepare(request)
       ?? Promise.resolve({ fields: {}, accept: () => Promise.resolve() }),
   })
   const registration = ctx.llm.registerAdapter([provider], adapter)

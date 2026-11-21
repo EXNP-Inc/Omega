@@ -1,14 +1,14 @@
-/** Plugin configuration and complete request-local resolution for DeepSeek. */
-import type { Volatile } from '@deepseek-ai/cordis'
+/** Plugin configuration and complete request-local resolution for Omega. */
+import type { Volatile } from '@omega-ai/cordis'
 
-import z from '@deepseek-ai/schemastery'
-import { isVolatile } from '@deepseek-ai/cosmokit'
-import { deepEqualJson } from '@deepseek-ai/dsh-util-values'
-import { resolveRetryPolicy, RetryPolicySchema } from '@deepseek-ai/dsh-llm'
-import type { ModelModality, RetryPolicyConfig } from '@deepseek-ai/dsh-llm'
-import type { LaunchEnvironmentSnapshot } from '@deepseek-ai/dsh-launch-environment'
-import { MAX_TIMER_DELAY_MS } from '@deepseek-ai/dsh-timeout'
-import type { DeepSeekCatalogModel, DeepSeekConnectionOptions } from './types.ts'
+import z from '@omega-ai/schemastery'
+import { isVolatile } from '@omega-ai/cosmokit'
+import { deepEqualJson } from '@omega-ai/dsh-util-values'
+import { resolveRetryPolicy, RetryPolicySchema } from '@omega-ai/dsh-llm'
+import type { ModelModality, RetryPolicyConfig } from '@omega-ai/dsh-llm'
+import type { LaunchEnvironmentSnapshot } from '@omega-ai/dsh-launch-environment'
+import { MAX_TIMER_DELAY_MS } from '@omega-ai/dsh-timeout'
+import type { OmegaCatalogModel, OmegaConnectionOptions } from './types.ts'
 import { DEFAULT_MODELS } from './models.ts'
 import { MAX_FILE_UPLOAD_CONCURRENCY, MAX_FILE_UPLOAD_RETRIES, DEFAULT_FILE_UPLOAD_RETRY_DELAY_MS, DEFAULT_STREAM_IDLE_TIMEOUT_MS, DEFAULT_CONTEXT_WINDOW, DEFAULT_MAX_TOKENS, DEFAULT_MAX_INLINE_REQUEST_IMAGE_BYTES, DEFAULT_IMAGE_OFFLOAD_BYTE_QUANTUM, DEFAULT_INLINE_IMAGE_OFFLOAD_BYTE_QUANTUM, DEFAULT_IMAGE_OFFLOAD_COUNT_QUANTUM, DEFAULT_FILE_EXPIRY_SECONDS, DEFAULT_FILE_REFRESH_MARGIN_SECONDS, DEFAULT_FILE_QUOTA_CLEANUP_BATCH, DEFAULT_FILES_API_TIMEOUT_MS } from './defaults.ts'
 import { DEFAULT_MAX_IMAGES_PER_REQUEST, DEFAULT_MAX_REQUEST_FILES_BYTES, DEFAULT_REQUEST_IMAGE_MAX_BYTES } from './request-pricing.ts'
@@ -17,7 +17,7 @@ const MODEL_MODALITIES = ['text', 'image'] as const satisfies readonly ModelModa
 
 /** Shared Messages request configuration, without provider credential selection. */
 export interface Config {
-  /** Endpoint base; falls back to $DEEPSEEK_BASE_URL from a trusted environment layer, then the public API. */
+  /** Endpoint base; falls back to $OMEGA_BASE_URL from a trusted environment layer, then the public API. */
   baseURL: Volatile<string | undefined>
   /** Deployment thinking policy; `disabled` limits every conversation request to `off`. */
   thinking: Volatile<'enabled' | 'disabled' | undefined>
@@ -28,7 +28,7 @@ export interface Config {
   /** Positive context capacity used when the selected model has no exact value (default 1,000,000). */
   defaultContextWindow: Volatile<number>
   /** Advisory models shown by discovery consumers; defaults to V4.1 Flash and V4 Pro. */
-  models: Volatile<DeepSeekCatalogModel[]>
+  models: Volatile<OmegaCatalogModel[]>
   /** Maximum provider idle time while one stream read is outstanding (default five minutes). */
   streamIdleTimeoutMs: Volatile<number>
   /** Maximum accumulated file-referenced image bytes per chat request (default 128 MiB). */
@@ -88,14 +88,14 @@ export const catalogModelFields = {
   toolUpdate: z.union(['in-history', 'addition-only'] as const),
 }
 
-const catalogModel: z<DeepSeekCatalogModel> = z.object({
+const catalogModel: z<OmegaCatalogModel> = z.object({
   id: z.string().required(),
   ...catalogModelFields,
   inputModalities: z.array(z.union(MODEL_MODALITIES)).min(1).default(['text']),
 })
 
 /** Shared schema fields for Messages protocol options. */
-export const deepSeekConfigFields = {
+export const omegaConfigFields = {
   baseURL: z.string().volatile(),
   thinking: z.union(['enabled', 'disabled']).volatile(),
   reasoningEffort: z.union(['off', 'low', 'high', 'max']).volatile(),
@@ -119,16 +119,16 @@ export const deepSeekConfigFields = {
   retryPolicy: RetryPolicySchema.volatile(),
 }
 
-export const Config = z.object(deepSeekConfigFields)
+export const Config = z.object(omegaConfigFields)
 
-/** Public API default; the internal endpoint comes from $DEEPSEEK_BASE_URL. */
-export const PUBLIC_BASE_URL = 'https://api.deepseek.com/anthropic'
+/** Local-gateway default endpoint; row config or $OMEGA_BASE_URL overrides it. */
+export const PUBLIC_BASE_URL = 'http://127.0.0.1:8090/anthropic'
 
 /** Environment variable naming this provider's endpoint, honored only from trusted layers. */
-const BASE_URL_ENV = 'DEEPSEEK_BASE_URL'
+const BASE_URL_ENV = 'OMEGA_BASE_URL'
 
 /** Complete protocol settings captured for one request operation. */
-export type ResolvedDeepSeekOptions = DeepSeekConnectionOptions
+export type ResolvedOmegaOptions = OmegaConnectionOptions
 
 /**
  * Whether a resolved catalog is the built-in one, which is what a `models`
@@ -136,68 +136,68 @@ export type ResolvedDeepSeekOptions = DeepSeekConnectionOptions
  * @param models - catalog resolved by {@link resolveAdapterOptions}.
  * @returns whether `models` equals the resolved built-in catalog, entry by entry and in order.
  */
-export function isBuiltInCatalog(models: readonly DeepSeekCatalogModel[]): boolean {
+export function isBuiltInCatalog(models: readonly OmegaCatalogModel[]): boolean {
   return deepEqualJson(models, resolveModels(DEFAULT_MODELS))
 }
 
 /** Resolve, validate, and detach the advisory model catalog. */
-function resolveModels(models: readonly DeepSeekCatalogModel[] | undefined): DeepSeekCatalogModel[] {
+function resolveModels(models: readonly OmegaCatalogModel[] | undefined): OmegaCatalogModel[] {
   const seen = new Set<string>()
   return (models ?? DEFAULT_MODELS).map((model) => {
     if (Object.hasOwn(model, 'imageDetail')) {
-      throw new Error('llm-deepseek: catalog model imageDetail is no longer supported; use imagePixelBudget')
+      throw new Error('llm-omega: catalog model imageDetail is no longer supported; use imagePixelBudget')
     }
-    if (model.id.length === 0) throw new Error('llm-deepseek: catalog model ids must be non-empty')
+    if (model.id.length === 0) throw new Error('llm-omega: catalog model ids must be non-empty')
     if (model.name !== undefined && model.name.length === 0) {
-      throw new Error(`llm-deepseek: catalog model "${model.id}" has an empty name`)
+      throw new Error(`llm-omega: catalog model "${model.id}" has an empty name`)
     }
     if (model.contextWindow !== undefined
       && (!Number.isInteger(model.contextWindow) || model.contextWindow <= 0)) {
       throw new Error(
-        `llm-deepseek: catalog model "${model.id}" contextWindow must be a positive integer`,
+        `llm-omega: catalog model "${model.id}" contextWindow must be a positive integer`,
       )
     }
     if (model.maxTokens !== undefined
       && (!Number.isInteger(model.maxTokens) || model.maxTokens <= 0)) {
       throw new Error(
-        `llm-deepseek: catalog model "${model.id}" maxTokens must be a positive integer`,
+        `llm-omega: catalog model "${model.id}" maxTokens must be a positive integer`,
       )
     }
     const inputModalities = model.inputModalities ?? ['text']
     if (inputModalities.length === 0) {
-      throw new Error(`llm-deepseek: catalog model "${model.id}" inputModalities must not be empty`)
+      throw new Error(`llm-omega: catalog model "${model.id}" inputModalities must not be empty`)
     }
     if (inputModalities.some(modality => !MODEL_MODALITIES.includes(modality))) {
       throw new Error(
-        `llm-deepseek: catalog model "${model.id}" inputModalities must contain only "text" and "image"`,
+        `llm-omega: catalog model "${model.id}" inputModalities must contain only "text" and "image"`,
       )
     }
     if (new Set(inputModalities).size !== inputModalities.length) {
-      throw new Error(`llm-deepseek: catalog model "${model.id}" inputModalities must not contain duplicates`)
+      throw new Error(`llm-omega: catalog model "${model.id}" inputModalities must not contain duplicates`)
     }
     const hasImage = inputModalities.includes('image')
     if (!hasImage && (model.imagePixelBudget !== undefined || model.imageMaxBytes !== undefined)) {
-      throw new Error(`llm-deepseek: text-only catalog model "${model.id}" cannot declare image request limits`)
+      throw new Error(`llm-omega: text-only catalog model "${model.id}" cannot declare image request limits`)
     }
     if (model.imagePixelBudget !== undefined
       && model.imagePixelBudget !== 'low'
       && (!Number.isSafeInteger(model.imagePixelBudget) || model.imagePixelBudget <= 0)) {
-      throw new Error(`llm-deepseek: catalog model "${model.id}" imagePixelBudget must be "low" or a positive safe integer`)
+      throw new Error(`llm-omega: catalog model "${model.id}" imagePixelBudget must be "low" or a positive safe integer`)
     }
     if (model.imageMaxBytes !== undefined
       && (!Number.isSafeInteger(model.imageMaxBytes) || model.imageMaxBytes <= 0)) {
-      throw new Error(`llm-deepseek: catalog model "${model.id}" imageMaxBytes must be a positive safe integer`)
+      throw new Error(`llm-omega: catalog model "${model.id}" imageMaxBytes must be a positive safe integer`)
     }
     // Widened: a dynamic config update reaches this check without schema validation.
     const systemPromptUpdate: string | undefined = model.systemPromptUpdate
     if (systemPromptUpdate !== undefined && systemPromptUpdate !== 'in-history') {
-      throw new Error(`llm-deepseek: catalog model "${model.id}" systemPromptUpdate must be "in-history" when present`)
+      throw new Error(`llm-omega: catalog model "${model.id}" systemPromptUpdate must be "in-history" when present`)
     }
     const toolUpdate: string | undefined = model.toolUpdate
     if (toolUpdate !== undefined && toolUpdate !== 'in-history' && toolUpdate !== 'addition-only') {
-      throw new Error(`llm-deepseek: catalog model "${model.id}" toolUpdate must be "in-history" or "addition-only" when present`)
+      throw new Error(`llm-omega: catalog model "${model.id}" toolUpdate must be "in-history" or "addition-only" when present`)
     }
-    if (seen.has(model.id)) throw new Error(`llm-deepseek: duplicate catalog model "${model.id}"`)
+    if (seen.has(model.id)) throw new Error(`llm-omega: duplicate catalog model "${model.id}"`)
     seen.add(model.id)
     return {
       id: model.id,
@@ -231,108 +231,108 @@ function resolveModels(models: readonly DeepSeekCatalogModel[] | undefined): Dee
  * @returns validated protocol settings; `models` holds one resolved entry per
  * input model in input order, or the built-in catalog when `models` is absent.
  */
-export function resolveAdapterOptions(config: Options, environment?: LaunchEnvironmentSnapshot): ResolvedDeepSeekOptions {
+export function resolveAdapterOptions(config: Options, environment?: LaunchEnvironmentSnapshot): ResolvedOmegaOptions {
   // Settings updates can reach this resolver without schema validation.
   if (Object.hasOwn(config, 'protocol')) {
-    throw new Error('llm-deepseek: protocol is not configurable; remove it and use a Messages-compatible baseURL')
+    throw new Error('llm-omega: protocol is not configurable; remove it and use a Messages-compatible baseURL')
   }
   if (config.thinking === 'disabled'
     && config.reasoningEffort !== undefined
     && config.reasoningEffort !== 'off') {
-    throw new Error('llm-deepseek: only reasoningEffort "off" can be configured when thinking is disabled')
+    throw new Error('llm-omega: only reasoningEffort "off" can be configured when thinking is disabled')
   }
   if (config.defaultContextWindow !== undefined
     && (!Number.isInteger(config.defaultContextWindow) || config.defaultContextWindow <= 0)) {
-    throw new Error('llm-deepseek: defaultContextWindow must be a positive integer')
+    throw new Error('llm-omega: defaultContextWindow must be a positive integer')
   }
   if (config.maxTokens !== undefined
     && (!Number.isSafeInteger(config.maxTokens) || config.maxTokens <= 0)) {
-    throw new Error('llm-deepseek: maxTokens must be a positive safe integer')
+    throw new Error('llm-omega: maxTokens must be a positive safe integer')
   }
   const streamIdleTimeoutMs = config.streamIdleTimeoutMs ?? DEFAULT_STREAM_IDLE_TIMEOUT_MS
   if (!Number.isFinite(streamIdleTimeoutMs)
     || streamIdleTimeoutMs <= 0
     || streamIdleTimeoutMs > MAX_TIMER_DELAY_MS) {
     throw new Error(
-      `llm-deepseek: streamIdleTimeoutMs must be a positive finite number no greater than ${MAX_TIMER_DELAY_MS}`,
+      `llm-omega: streamIdleTimeoutMs must be a positive finite number no greater than ${MAX_TIMER_DELAY_MS}`,
     )
   }
   const maxRequestFilesBytes = config.maxRequestFilesBytes ?? DEFAULT_MAX_REQUEST_FILES_BYTES
   if (!Number.isSafeInteger(maxRequestFilesBytes) || maxRequestFilesBytes <= 0) {
-    throw new Error('llm-deepseek: maxRequestFilesBytes must be a positive safe integer')
+    throw new Error('llm-omega: maxRequestFilesBytes must be a positive safe integer')
   }
   const maxInlineRequestImageBytes = config.maxInlineRequestImageBytes ?? DEFAULT_MAX_INLINE_REQUEST_IMAGE_BYTES
   if (!Number.isSafeInteger(maxInlineRequestImageBytes) || maxInlineRequestImageBytes <= 0) {
-    throw new Error('llm-deepseek: maxInlineRequestImageBytes must be a positive safe integer')
+    throw new Error('llm-omega: maxInlineRequestImageBytes must be a positive safe integer')
   }
   const maxImagesPerRequest = config.maxImagesPerRequest ?? DEFAULT_MAX_IMAGES_PER_REQUEST
   if (!Number.isSafeInteger(maxImagesPerRequest) || maxImagesPerRequest <= 0) {
-    throw new Error('llm-deepseek: maxImagesPerRequest must be a positive safe integer')
+    throw new Error('llm-omega: maxImagesPerRequest must be a positive safe integer')
   }
   const imageOffloadByteQuantum = config.imageOffloadByteQuantum ?? DEFAULT_IMAGE_OFFLOAD_BYTE_QUANTUM
   if (!Number.isSafeInteger(imageOffloadByteQuantum) || imageOffloadByteQuantum <= 0) {
-    throw new Error('llm-deepseek: imageOffloadByteQuantum must be a positive safe integer')
+    throw new Error('llm-omega: imageOffloadByteQuantum must be a positive safe integer')
   }
   if (imageOffloadByteQuantum > maxRequestFilesBytes) {
-    throw new Error('llm-deepseek: imageOffloadByteQuantum must not exceed maxRequestFilesBytes')
+    throw new Error('llm-omega: imageOffloadByteQuantum must not exceed maxRequestFilesBytes')
   }
   const inlineImageOffloadByteQuantum = config.inlineImageOffloadByteQuantum
     ?? DEFAULT_INLINE_IMAGE_OFFLOAD_BYTE_QUANTUM
   if (!Number.isSafeInteger(inlineImageOffloadByteQuantum) || inlineImageOffloadByteQuantum <= 0) {
-    throw new Error('llm-deepseek: inlineImageOffloadByteQuantum must be a positive safe integer')
+    throw new Error('llm-omega: inlineImageOffloadByteQuantum must be a positive safe integer')
   }
   if (inlineImageOffloadByteQuantum > maxInlineRequestImageBytes) {
-    throw new Error('llm-deepseek: inlineImageOffloadByteQuantum must not exceed maxInlineRequestImageBytes')
+    throw new Error('llm-omega: inlineImageOffloadByteQuantum must not exceed maxInlineRequestImageBytes')
   }
   const imageOffloadCountQuantum = config.imageOffloadCountQuantum ?? DEFAULT_IMAGE_OFFLOAD_COUNT_QUANTUM
   if (!Number.isSafeInteger(imageOffloadCountQuantum) || imageOffloadCountQuantum <= 0) {
-    throw new Error('llm-deepseek: imageOffloadCountQuantum must be a positive safe integer')
+    throw new Error('llm-omega: imageOffloadCountQuantum must be a positive safe integer')
   }
   if (imageOffloadCountQuantum > maxImagesPerRequest) {
-    throw new Error('llm-deepseek: imageOffloadCountQuantum must not exceed maxImagesPerRequest')
+    throw new Error('llm-omega: imageOffloadCountQuantum must not exceed maxImagesPerRequest')
   }
   const fileUploadConcurrency = config.fileUploadConcurrency ?? MAX_FILE_UPLOAD_CONCURRENCY
   if (!Number.isInteger(fileUploadConcurrency) || fileUploadConcurrency < 1 || fileUploadConcurrency > MAX_FILE_UPLOAD_CONCURRENCY) {
-    throw new Error(`llm-deepseek: fileUploadConcurrency must be an integer from 1 through ${MAX_FILE_UPLOAD_CONCURRENCY}`)
+    throw new Error(`llm-omega: fileUploadConcurrency must be an integer from 1 through ${MAX_FILE_UPLOAD_CONCURRENCY}`)
   }
   const fileUploadMaxRetries = config.fileUploadMaxRetries ?? MAX_FILE_UPLOAD_RETRIES
   if (!Number.isInteger(fileUploadMaxRetries) || fileUploadMaxRetries < 0 || fileUploadMaxRetries > MAX_FILE_UPLOAD_RETRIES) {
-    throw new Error(`llm-deepseek: fileUploadMaxRetries must be an integer from 0 through ${MAX_FILE_UPLOAD_RETRIES}`)
+    throw new Error(`llm-omega: fileUploadMaxRetries must be an integer from 0 through ${MAX_FILE_UPLOAD_RETRIES}`)
   }
   const fileUploadRetryDelayMs = config.fileUploadRetryDelayMs ?? DEFAULT_FILE_UPLOAD_RETRY_DELAY_MS
   if (!Number.isInteger(fileUploadRetryDelayMs) || fileUploadRetryDelayMs < 1 || fileUploadRetryDelayMs > MAX_TIMER_DELAY_MS) {
-    throw new Error(`llm-deepseek: fileUploadRetryDelayMs must be an integer from 1 through ${MAX_TIMER_DELAY_MS}`)
+    throw new Error(`llm-omega: fileUploadRetryDelayMs must be an integer from 1 through ${MAX_TIMER_DELAY_MS}`)
   }
   const filesApiTimeoutMs = config.filesApiTimeoutMs ?? DEFAULT_FILES_API_TIMEOUT_MS
   if (!Number.isFinite(filesApiTimeoutMs)
     || filesApiTimeoutMs <= 0
     || filesApiTimeoutMs > MAX_TIMER_DELAY_MS) {
     throw new Error(
-      `llm-deepseek: filesApiTimeoutMs must be a positive finite number no greater than ${MAX_TIMER_DELAY_MS}`,
+      `llm-omega: filesApiTimeoutMs must be a positive finite number no greater than ${MAX_TIMER_DELAY_MS}`,
     )
   }
   const fileExpiresAfterSeconds = config.fileExpiresAfterSeconds ?? DEFAULT_FILE_EXPIRY_SECONDS
   if (!Number.isSafeInteger(fileExpiresAfterSeconds)
     || fileExpiresAfterSeconds < 3_600
     || fileExpiresAfterSeconds > 2_592_000) {
-    throw new Error('llm-deepseek: fileExpiresAfterSeconds must be an integer from 3600 through 2592000')
+    throw new Error('llm-omega: fileExpiresAfterSeconds must be an integer from 3600 through 2592000')
   }
   const fileRefreshMarginSeconds = config.fileRefreshMarginSeconds ?? DEFAULT_FILE_REFRESH_MARGIN_SECONDS
   if (!Number.isSafeInteger(fileRefreshMarginSeconds)
     || fileRefreshMarginSeconds < 0
     || fileRefreshMarginSeconds >= fileExpiresAfterSeconds) {
-    throw new Error('llm-deepseek: fileRefreshMarginSeconds must be a non-negative integer below fileExpiresAfterSeconds')
+    throw new Error('llm-omega: fileRefreshMarginSeconds must be a non-negative integer below fileExpiresAfterSeconds')
   }
   const fileQuotaCleanupBatch = config.fileQuotaCleanupBatch ?? DEFAULT_FILE_QUOTA_CLEANUP_BATCH
   if (!Number.isSafeInteger(fileQuotaCleanupBatch)
     || fileQuotaCleanupBatch < 1
     || fileQuotaCleanupBatch > 1_000) {
-    throw new Error('llm-deepseek: fileQuotaCleanupBatch must be an integer from 1 through 1000')
+    throw new Error('llm-omega: fileQuotaCleanupBatch must be an integer from 1 through 1000')
   }
   const baseURL = config.baseURL ?? environment?.get(BASE_URL_ENV)?.value ?? PUBLIC_BASE_URL
   const parsed = new URL(baseURL)
   if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password || parsed.search || parsed.hash) {
-    throw new Error('llm-deepseek: Messages baseURL must be an HTTP(S) root without credentials, query, or fragment')
+    throw new Error('llm-omega: Messages baseURL must be an HTTP(S) root without credentials, query, or fragment')
   }
   return {
     baseURL,
@@ -360,6 +360,6 @@ export function resolveAdapterOptions(config: Options, environment?: LaunchEnvir
       uploadMaxRetries: fileUploadMaxRetries,
       uploadRetryDelayMs: fileUploadRetryDelayMs,
     },
-    retryPolicy: resolveRetryPolicy(config.retryPolicy, 'llm-deepseek: retryPolicy'),
+    retryPolicy: resolveRetryPolicy(config.retryPolicy, 'llm-omega: retryPolicy'),
   }
 }

@@ -1,15 +1,15 @@
-/** Input-type declarations shared by the DeepSeek and pi-ai catalog editors. */
+/** Input-type declarations shared by the Omega and pi-ai catalog editors. */
 
 import type { ReactNode } from 'react'
-import { Checkbox } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { DeepSeekModelDraft } from './DeepSeekModelsEditor.tsx'
+import { Checkbox } from '@omega-ai/dsh-client-ui-primitives'
+import type { OmegaModelDraft } from './OmegaModelsEditor.tsx'
 import type { ModelsKey } from './locales.ts'
 import styles from './ModelsSection.module.css'
 
 /** Props of {@link ModelInputTypes}. */
 interface ModelInputTypesProps {
   /** Effective model row, including fields outside the curated editor. */
-  model: DeepSeekModelDraft
+  model: OmegaModelDraft
   /** Adapter-owned field; pi-ai inherits capabilities when absent or empty. */
   field: 'inputModalities' | 'input'
   /** One-based row position for the accessible group label. */
@@ -21,7 +21,7 @@ interface ModelInputTypesProps {
   /** Section copy. */
   t: (key: ModelsKey) => string
   /** Replace this row, preserving unrelated configuration. */
-  onChange: (model: DeepSeekModelDraft) => void
+  onChange: (model: OmegaModelDraft) => void
 }
 
 /**
@@ -46,7 +46,7 @@ export function ModelInputTypes({ model, field, position, disabled, fallback, t,
               const nextSelected = (['text', 'image'] as const).filter(value =>
                 value === modality ? checked : selected.includes(value))
               const next = { ...model, [field]: nextSelected }
-              // DeepSeek rejects image request limits on a text-only model.
+              // Omega rejects image request limits on a text-only model.
               if (field === 'inputModalities' && !nextSelected.includes('image')) {
                 Reflect.deleteProperty(next, 'imagePixelBudget')
                 Reflect.deleteProperty(next, 'imageMaxBytes')

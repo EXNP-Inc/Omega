@@ -1,11 +1,11 @@
 /** File references contributed to the shared file menu. */
-import type { Context } from '@deepseek-ai/cordis'
-import { sessionDirectory } from '@deepseek-ai/dsh-api-session-controller/client/directories'
-import type { ContextMenuTargetMap } from '@deepseek-ai/dsh-client-ui-context-menu/client'
-import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
-import { IconPlusOutlineRegular } from '@deepseek-ai/dsh-client-ui-primitives'
-import { formatFileMention } from '@deepseek-ai/dsh-file-reference/grammar'
-import { resolveWorkspacePath, workspaceTitleOf } from '@deepseek-ai/dsh-util-workspace-path'
+import type { Context } from '@omega-ai/cordis'
+import { sessionDirectory } from '@omega-ai/dsh-api-session-controller/client/directories'
+import type { ContextMenuTargetMap } from '@omega-ai/dsh-client-ui-context-menu/client'
+import type {} from '@omega-ai/dsh-client-ui-conversation/client'
+import { IconPlusOutlineRegular } from '@omega-ai/dsh-client-ui-primitives'
+import { formatFileMention } from '@omega-ai/dsh-file-reference/grammar'
+import { resolveWorkspacePath, workspaceTitleOf } from '@omega-ai/dsh-util-workspace-path'
 import type { ReferenceKey } from './locales.ts'
 
 /**

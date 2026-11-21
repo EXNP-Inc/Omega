@@ -2,14 +2,14 @@
 import { EventEmitter, once } from 'node:events'
 import { createServer, request as httpRequest } from 'node:http'
 import { PassThrough, Readable } from 'node:stream'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { Context } from '@deepseek-ai/cordis'
+import { brandString } from '@omega-ai/dsh-brand'
+import { Context } from '@omega-ai/cordis'
 import { describe, expect, it, vi } from 'vitest'
 import type { AddressInfo } from 'node:net'
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import type { AttachmentStore } from '@deepseek-ai/dsh-attachment'
-import type { CredentialProvider } from '@deepseek-ai/dsh-credentials'
-import type { IndexInjection, WebServer, WebRoute, WebUpgradeRoute } from '@deepseek-ai/dsh-host-webserver'
+import type { AttachmentStore } from '@omega-ai/dsh-attachment'
+import type { CredentialProvider } from '@omega-ai/dsh-credentials'
+import type { IndexInjection, WebServer, WebRoute, WebUpgradeRoute } from '@omega-ai/dsh-host-webserver'
 import {
   API_PATH,
   Config,
@@ -23,8 +23,8 @@ import {
 } from '../src/index.ts'
 import { DEFAULT_MAX_REQUEST_BODY_BYTES } from '../src/http-bridge.ts'
 import { provideBrowserCredentials } from './browser-credentials.ts'
-import * as Token from '@deepseek-ai/dsh-host-authentication-token'
-import { BrowserAuth } from '@deepseek-ai/dsh-host-authentication-token/src/browser-auth.ts'
+import * as Token from '@omega-ai/dsh-host-authentication-token'
+import { BrowserAuth } from '@omega-ai/dsh-host-authentication-token/src/browser-auth.ts'
 
 /** The Peer an index render speaks for; this listener reads no field of it. */
 const PAGE_PEER = { principal: { kind: 'owner' } } as Parameters<WebServer['renderIndex']>[1]

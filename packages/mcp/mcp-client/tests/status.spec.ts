@@ -5,11 +5,11 @@
  * Isolated file so vi.mock of the MCP SDK doesn't pollute other test suites.
  */
 import { describe, expect, it, vi, beforeEach, onTestFinished } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import type { Transport } from '@modelcontextprotocol/client'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
-import type { Config, McpConnectionStatus } from '@deepseek-ai/dsh-mcp-client'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRuntime from '@omega-ai/dsh-tools'
+import type { Config, McpConnectionStatus } from '@omega-ai/dsh-mcp-client'
 
 const { mockConnect, mockClose, mockListTools, mockSetNotificationHandler, MockClient, instances } = vi.hoisted(() => {
   const mockConnect = vi.fn<(_options?: { signal?: AbortSignal }) => Promise<void>>()
@@ -64,10 +64,10 @@ vi.mock('@modelcontextprotocol/client/stdio', () => ({
   }),
 }))
 
-import * as McpClient from '@deepseek-ai/dsh-mcp-client/src/index.ts'
-import { Config as ConfigSchema, apply } from '@deepseek-ai/dsh-mcp-client/src/index.ts'
-import { connectionStatusIn as connectionStatusOf } from '@deepseek-ai/dsh-mcp-client/src/status.ts'
-import { McpStatusCell } from '@deepseek-ai/dsh-mcp-client/src/status.ts'
+import * as McpClient from '@omega-ai/dsh-mcp-client/src/index.ts'
+import { Config as ConfigSchema, apply } from '@omega-ai/dsh-mcp-client/src/index.ts'
+import { connectionStatusIn as connectionStatusOf } from '@omega-ai/dsh-mcp-client/src/status.ts'
+import { McpStatusCell } from '@omega-ai/dsh-mcp-client/src/status.ts'
 
 async function mountRegistry(): Promise<Context> {
   const ctx = new Context()

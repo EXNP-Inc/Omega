@@ -8,9 +8,9 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, relative, resolve } from 'node:path'
 import ts from 'typescript'
-import { projectCordisCatalog } from '@deepseek-ai/dsh-typert-generator'
+import { projectCordisCatalog } from '@omega-ai/dsh-typert-generator'
 import { CORDIS_CATALOG_POLICY } from './gen-cordis-catalog.ts'
-import type { EventEntry, ServiceEntry } from '@deepseek-ai/dsh-typert-generator'
+import type { EventEntry, ServiceEntry } from '@omega-ai/dsh-typert-generator'
 import {
   collectPackageGraph,
   escapeMermaidLabel as escLabel,
@@ -124,11 +124,11 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Reads the current catalog text of an official plugin card and enables the plugin through the profile plugin manager after a click.',
   },
   {
-    key: 'deepseekChatImport',
-    pkg: 'deepseek-chat-import',
-    title: 'DeepSeek chat export import',
+    key: 'omegaChatImport',
+    pkg: 'omega-chat-import',
+    title: 'Omega chat export import',
     mode: 'service',
-    note: 'Serves the owner-only upload route that imports each conversation of a DeepSeek chat export as a Session, and the upload limits the browser checks first.',
+    note: 'Serves the owner-only upload route that imports each conversation of a Omega chat export as a Session, and the upload limits the browser checks first.',
   },
   {
     key: 'headlessStartup',
@@ -314,7 +314,7 @@ const SERVICE_ROLES: ServiceRole[] = [
     title: 'Durable binary attachment storage',
     mode: 'seam',
     implementations: ['attachment-local'],
-    consumers: ['api-session-controller', 'tool-fs', 'llm-pi-ai', 'llm-deepseek'],
+    consumers: ['api-session-controller', 'tool-fs', 'llm-pi-ai', 'llm-omega'],
     note: 'The host commits accepted images before session events; provider adapters resolve authorized durable references into provider-native content.',
   },
   {
@@ -330,25 +330,25 @@ const SERVICE_ROLES: ServiceRole[] = [
     pkg: 'llm',
     title: 'LLM adapter registry',
     mode: 'seam',
-    implementations: ['llm-deepseek', 'llm-pi-ai', 'llm-replay'],
+    implementations: ['llm-omega', 'llm-pi-ai', 'llm-replay'],
     consumers: ['agent-loop', 'compaction-basic'],
     note: 'Adapters register provider implementations; the loop and compaction call the provider-neutral stream service.',
   },
   {
-    key: 'sessionLogDeepSeek',
-    pkg: 'session-log-deepseek',
+    key: 'sessionLogOmega',
+    pkg: 'session-log-omega',
     title: 'Session-log upload policy',
     mode: 'core',
     implementations: [],
     note: 'Plugins register caller-owned exclusions before the canonical Session-log request contribution is prepared; unmatched requests use normal upload eligibility.',
   },
   {
-    key: 'deepseekLlmApiExtensions',
-    pkg: 'deepseek-llm-api-extensions',
-    title: 'Official DeepSeek request extensions',
+    key: 'omegaLlmApiExtensions',
+    pkg: 'omega-llm-api-extensions',
+    title: 'Official Omega request extensions',
     mode: 'seam',
-    implementations: ['session-log-deepseek', 'plugin-package-inventory-deepseek'],
-    consumers: ['llm-deepseek'],
+    implementations: ['session-log-omega', 'plugin-package-inventory-omega'],
+    consumers: ['llm-omega'],
     note: 'Plugins prepare independent top-level fields; the official adapter merges them and commits their delivery state after HTTP acceptance.',
   },
   {
@@ -529,26 +529,26 @@ const SERVICE_ROLES: ServiceRole[] = [
     title: 'Credential seam',
     mode: 'seam',
     implementations: ['credentials-local'],
-    consumers: ['api-settings-controller', 'deepseek-auth', 'llm-pi-ai'],
+    consumers: ['api-settings-controller', 'omega-auth', 'llm-pi-ai'],
     note: 'Configuration carries references to secrets; providers own the values. Consumers resolve per operation, so a rotated credential reaches the very next request; the settings controller exposes value-free views and write-only storage.',
   },
   {
-    key: 'deepseekAccount',
-    pkg: 'deepseek-account',
-    title: 'DeepSeek account',
+    key: 'omegaAccount',
+    pkg: 'omega-account',
+    title: 'Omega account',
     mode: 'service',
     implementations: [],
-    consumers: ['deepseek-auth', 'llm-deepseek-account'],
-    note: 'The Host owns browser authorization and local credentials and releases per-request credentials to DeepSeek request authentication; the account model route registers its running-task report, and UI consumers receive state without tokens.',
+    consumers: ['omega-auth', 'llm-omega-account'],
+    note: 'The Host owns browser authorization and local credentials and releases per-request credentials to Omega request authentication; the account model route registers its running-task report, and UI consumers receive state without tokens.',
   },
   {
-    key: 'deepseekAuth',
-    pkg: 'deepseek-auth',
-    title: 'DeepSeek request authentication',
+    key: 'omegaAuth',
+    pkg: 'omega-auth',
+    title: 'Omega request authentication',
     mode: 'service',
     implementations: [],
-    consumers: ['llm-deepseek-account', 'llm-deepseek-api-key', 'web-deepseek-api', 'web-search-deepseek'],
-    note: 'Every DeepSeek API consumer names the credential kinds its API accepts; the service orders the API key and the account sign-in by billing, binds each to its deployment, and releases request headers.',
+    consumers: ['llm-omega-account', 'llm-omega-api-key', 'web-omega-api', 'web-search-omega'],
+    note: 'Every Omega API consumer names the credential kinds its API accepts; the service orders the API key and the account sign-in by billing, binds each to its deployment, and releases request headers.',
   },
   {
     key: 'authorization',
@@ -960,7 +960,7 @@ const SERVICE_ROLES: ServiceRole[] = [
     pkg: 'web',
     title: 'Web access provider registry',
     mode: 'seam',
-    implementations: ['web-search-deepseek', 'web-deepseek-api', 'web-fetch-http'],
+    implementations: ['web-search-omega', 'web-omega-api', 'web-fetch-http'],
     consumers: ['tool-web'],
     note: 'Search and fetch providers register into one ctx.web seam; tool-web owns the stable model-facing names.',
   },

@@ -3,13 +3,13 @@
  * of `dsh-tool-bash`'s background adaptation: the terminal
  * outcome the registry records and the pull sources it pumps.
  *
- * @module @deepseek-ai/dsh-tool-pwsh/background
+ * @module @omega-ai/dsh-tool-pwsh/background
  */
 
-import type { SandboxMode } from '@deepseek-ai/dsh-sandbox'
-import { escalationHintMarker, sandboxDenialMarker } from '@deepseek-ai/dsh-sandbox'
-import type { ShellProcess, ShellSandboxInfo } from '@deepseek-ai/dsh-shell'
-import type { JobChunk, JobHooks, JobOutcome, JobOutputSource } from '@deepseek-ai/dsh-jobs'
+import type { SandboxMode } from '@omega-ai/dsh-sandbox'
+import { escalationHintMarker, sandboxDenialMarker } from '@omega-ai/dsh-sandbox'
+import type { ShellProcess, ShellSandboxInfo } from '@omega-ai/dsh-shell'
+import type { JobChunk, JobHooks, JobOutcome, JobOutputSource } from '@omega-ai/dsh-jobs'
 
 /** Job hooks plus the original error of a job that failed before its process produced an outcome. */
 export interface ProcessJobHooks extends JobHooks {

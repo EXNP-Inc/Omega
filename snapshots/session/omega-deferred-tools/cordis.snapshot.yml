@@ -1,0 +1,18 @@
+- id: llm-omega
+  disabled: true
+
+- insert:
+    - id: llm-replay
+      name: '@omega-ai/dsh-llm-replay'
+      config:
+        providers:
+          - id: omega-official
+            name: Omega
+            models:
+              - id: omega-v4-flash
+                toolUpdate: addition-only
+                defaultMaxTokens: 256000
+                reasoningEfforts: [off, low, high, max]
+                defaultReasoningEffort: high
+    - id: messages-deferred-tools-snapshot
+      name: '../../../packages/llm/llm-omega/tests/fixtures/deferred-tools.ts'

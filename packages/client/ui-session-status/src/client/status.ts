@@ -1,15 +1,15 @@
 /** Client Session status table: running state, the effective pending interaction, and shared reading reminders. */
-import { Service, type Context } from '@deepseek-ai/cordis'
-import type { ISessions, SessionBinding, SessionListState, SessionSummary } from '@deepseek-ai/dsh-api-session-controller/client'
-import type {} from '@deepseek-ai/dsh-api-remotes/client'
-import { notifySubscribers } from '@deepseek-ai/dsh-client-store'
-import type { HostObservable, SnapshotSelectorHook } from '@deepseek-ai/dsh-client-ui-slots'
+import { Service, type Context } from '@omega-ai/cordis'
+import type { ISessions, SessionBinding, SessionListState, SessionSummary } from '@omega-ai/dsh-api-session-controller/client'
+import type {} from '@omega-ai/dsh-api-remotes/client'
+import { notifySubscribers } from '@omega-ai/dsh-client-store'
+import type { HostObservable, SnapshotSelectorHook } from '@omega-ai/dsh-client-ui-slots'
 // Type-only service merge for ctx.slots.
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type { SessionPendingInteraction } from '@deepseek-ai/dsh-client-ui-session/client'
+import type {} from '@omega-ai/dsh-client-ui-renderer/client'
+import type { SessionPendingInteraction } from '@omega-ai/dsh-client-ui-session/client'
 // Retains ui-session's Context and Slot prop declarations for every consumer of this face.
-export type {} from '@deepseek-ai/dsh-client-ui-session/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+export type {} from '@omega-ai/dsh-client-ui-session/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import { SessionReadModel } from './model.ts'
 
 /** Independent UI status facts for one Session identity. */
@@ -32,13 +32,13 @@ export type SessionStatusSnapshot = ReadonlyMap<SessionId, SessionStatus>
 /** Selector hook over the unified Session UI status snapshot. */
 export type UseSessionStatus = SnapshotSelectorHook<SessionStatusSnapshot>
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@omega-ai/dsh-client-ui-slots' {
   interface GlobalStandardProps {
     useSessionStatus: UseSessionStatus
   }
 }
 
-declare module '@deepseek-ai/dsh-client-ui-session/client' {
+declare module '@omega-ai/dsh-client-ui-session/client' {
   interface UiSessionService {
     /** Session status table; a plugin that reads it injects `uiSession.sessionStatus`. */
     readonly sessionStatus: UiSessionStatus

@@ -48,7 +48,7 @@ function packedRelease(versions: readonly string[]): { directory: string; packag
   const directory = mkdtempSync(join(tmpdir(), 'dsh-publish-channel-'))
   onTestFinished(() => { rmSync(directory, { recursive: true, force: true }) })
   const packages = versions.map((version, index) => {
-    const name = `@deepseek-ai/release-fixture-${String(index)}`
+    const name = `@omega-ai/release-fixture-${String(index)}`
     const path = join(directory, `${String(index)}.tgz`)
     const bytes = Buffer.from(`${name}@${version}\n`)
     writeFileSync(path, bytes)
@@ -317,7 +317,7 @@ describe('release publication channels', () => {
 
 it('verifies helper sources from the repository root when publication is invoked from a subdirectory', async () => {
   const fixture = packedRelease(['1.0.0'])
-  vi.mocked(packedIdentity).mockReturnValue({ name: '@deepseek-ai/dsh-cua-macos', version: '1.0.0' })
+  vi.mocked(packedIdentity).mockReturnValue({ name: '@omega-ai/dsh-cua-macos', version: '1.0.0' })
   vi.mocked(verifyCuaHelperTarball).mockResolvedValue(undefined)
   registry()
   const root = resolve(import.meta.dirname, '../..')

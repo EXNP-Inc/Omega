@@ -9,7 +9,7 @@ description: "个性化推荐的卡片改由回答里的 action-card 代码块�
 
 ## 变更
 
-实验性的个性化推荐 Bundle 过去通过 `propose_action` 工具提出卡片。现在模型在最终回答末尾写一个围栏代码块，语言为 `action-card`，内容仍是 `action`、`title`、`brief` 与 `details`，`@deepseek-ai/dsh-action-cards` 从日志里的回答读出卡片。该工具不再声明，服务也不再有 `queuedMessageLimit` 配置字段：profile 的 `cordis.patch.yml` 里 `id: action-cards` 下留下的值会被忽略。
+实验性的个性化推荐 Bundle 过去通过 `propose_action` 工具提出卡片。现在模型在最终回答末尾写一个围栏代码块，语言为 `action-card`，内容仍是 `action`、`title`、`brief` 与 `details`，`@omega-ai/dsh-action-cards` 从日志里的回答读出卡片。该工具不再声明，服务也不再有 `queuedMessageLimit` 配置字段：profile 的 `cordis.patch.yml` 里 `id: action-cards` 下留下的值会被忽略。
 
 对注册卡片种类或调用该服务的插件：
 

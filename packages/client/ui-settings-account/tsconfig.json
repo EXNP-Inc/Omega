@@ -36,7 +36,7 @@
       "path": "../ui-theme/tsconfig.client.json"
     },
     {
-      "path": "../../account/deepseek-account"
+      "path": "../../account/omega-account"
     },
     {
       "path": "../ui-settings-models"

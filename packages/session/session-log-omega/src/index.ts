@@ -1,16 +1,16 @@
 /**
- * Incremental session-log contribution for official DeepSeek LLM API requests.
+ * Incremental session-log contribution for official Omega LLM API requests.
  * Accepted sequence watermarks live in the canonical log, so restart recovery
  * can conservatively resend uncertain tails without maintaining another store.
- * @module @deepseek-ai/dsh-session-log-deepseek
+ * @module @omega-ai/dsh-session-log-omega
  */
 
 import { Buffer } from 'node:buffer'
-import { Service, type Context, type Volatile } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type {} from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
-import { KNOWN_SESSION_EVENT_TYPES, SessionLogOffset, SessionSeq } from '@deepseek-ai/dsh-session'
+import { Service, type Context, type Volatile } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
+import { brandString } from '@omega-ai/dsh-brand'
+import type {} from '@omega-ai/dsh-omega-llm-api-extensions'
+import { KNOWN_SESSION_EVENT_TYPES, SessionLogOffset, SessionSeq } from '@omega-ai/dsh-session'
 import type {
   Session,
   SessionEvent,
@@ -19,33 +19,33 @@ import type {
   SessionSeq as SessionSeqType,
   SessionSeqCursor,
   SurfaceOp,
-} from '@deepseek-ai/dsh-session'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+} from '@omega-ai/dsh-session'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
 import type {
-  DeepSeekSessionLogExtension,
-  DeepSeekSessionLogWireEvent,
-  DeepSeekSessionLogWireHeader,
-  DeepSeekSessionLogWireSurfaceOp,
+  OmegaSessionLogExtension,
+  OmegaSessionLogWireEvent,
+  OmegaSessionLogWireHeader,
+  OmegaSessionLogWireSurfaceOp,
   SessionLogUploadExclusion,
   SessionLogUploadRequest,
 } from './types.ts'
 
 export type * from './types.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context {
-    sessionLogDeepSeek: SessionLogDeepSeekService
+    sessionLogOmega: SessionLogOmegaService
   }
 }
 
 /** Cordis plugin name. */
-export const name = 'session-log-deepseek'
+export const name = 'session-log-omega'
 /** Services required to resolve sessions and contribute the provider request field. */
-export const inject = ['deepseekLlmApiExtensions', 'sessions']
+export const inject = ['omegaLlmApiExtensions', 'sessions']
 
 /** Session-log request contribution configuration. */
 export interface Config {
-  /** Contribute `dsh_session_log` to official DeepSeek requests. Defaults to `true`. */
+  /** Contribute `dsh_session_log` to official Omega requests. Defaults to `true`. */
   enabled: Volatile<boolean>
   /**
    * Largest serialized `dsh_session_log` field, in UTF-8 bytes, that one request carries.
@@ -71,7 +71,7 @@ const acceptanceFolds = new WeakMap<Session, AcceptanceFold>()
 const blockedWarnings = new WeakMap<Session, SessionSeqType>()
 
 /** Translate logical Session metadata to raw external request fields. */
-function wireHeader(session: Session): DeepSeekSessionLogWireHeader {
+function wireHeader(session: Session): OmegaSessionLogWireHeader {
   const header = session.header
   return {
     version: header.version,
@@ -87,7 +87,7 @@ function wireHeader(session: Session): DeepSeekSessionLogWireHeader {
 }
 
 /** Translate compile-time sequence brands to raw numeric request fields. */
-function wireEvent(event: SessionEvent): DeepSeekSessionLogWireEvent {
+function wireEvent(event: SessionEvent): OmegaSessionLogWireEvent {
   const common = {
     seq: Number(event.seq),
     time: event.time,
@@ -122,7 +122,7 @@ function wireEvent(event: SessionEvent): DeepSeekSessionLogWireEvent {
   }
 }
 
-function wireSurfaceOp(op: SurfaceOp): DeepSeekSessionLogWireSurfaceOp {
+function wireSurfaceOp(op: SurfaceOp): OmegaSessionLogWireSurfaceOp {
   return op === 'append'
     ? op
     : { op: 'replace', startSeq: Number(op.startSeq), endSeq: Number(op.endSeq) }
@@ -132,7 +132,7 @@ function wireSurfaceOp(op: SurfaceOp): DeepSeekSessionLogWireSurfaceOp {
  * UTF-8 length of one value's JSON text as the request body encodes it.
  * @returns `Infinity` when the value fails to serialize, which counts as exceeding every limit.
  */
-function jsonBytes(value: DeepSeekSessionLogExtension | DeepSeekSessionLogWireEvent): number {
+function jsonBytes(value: OmegaSessionLogExtension | OmegaSessionLogWireEvent): number {
   let text: string
   try {
     text = JSON.stringify(value)
@@ -157,25 +157,25 @@ export function acceptedThrough(session: Session): SessionSeqCursor {
     // oxlint-disable-next-line typescript/no-deprecated -- Existing Session history read; migration deferred.
     const event = session.eventAt(SessionSeq(index))
     if (event === undefined) {
-      throw new Error(`session-log-deepseek: missing event ${String(index)} below captured length ${String(length)}`)
+      throw new Error(`session-log-omega: missing event ${String(index)} below captured length ${String(length)}`)
     }
-    if (event.type !== 'session-log-deepseek/delivery-accepted') continue
+    if (event.type !== 'session-log-omega/delivery-accepted') continue
     const acceptedFormatVersion = event.data.sessionFormatVersion ?? 0
     if (!Number.isSafeInteger(acceptedFormatVersion)
       || acceptedFormatVersion < 0
       || Object.is(acceptedFormatVersion, -0)) {
-      throw new Error(`session-log-deepseek: malformed acceptance format version at seq ${event.seq}`)
+      throw new Error(`session-log-omega: malformed acceptance format version at seq ${event.seq}`)
     }
     if (acceptedFormatVersion !== session.header.version) continue
     let acceptedSeq: SessionSeqType
     try {
       acceptedSeq = SessionSeq(event.data.throughSeq)
     } catch {
-      throw new Error(`session-log-deepseek: malformed acceptance watermark at seq ${event.seq}`)
+      throw new Error(`session-log-omega: malformed acceptance watermark at seq ${event.seq}`)
     }
     if (typeof event.data.sessionId !== 'string' || event.data.sessionId.length === 0
       || acceptedSeq >= event.seq) {
-      throw new Error(`session-log-deepseek: malformed acceptance watermark at seq ${event.seq}`)
+      throw new Error(`session-log-omega: malformed acceptance watermark at seq ${event.seq}`)
     }
     if (event.data.sessionId !== session.id) continue
     if (acceptedSeq > throughSeq) throughSeq = acceptedSeq
@@ -185,15 +185,15 @@ export function acceptedThrough(session: Session): SessionSeqCursor {
 }
 
 /** Incremental Session-log contributor with caller-owned upload exclusions. */
-export class SessionLogDeepSeekService extends Service {
+export class SessionLogOmegaService extends Service {
   static inject = inject
 
   private readonly exclusions = new Set<{ readonly exclude: SessionLogUploadExclusion }>()
 
   constructor(ctx: Context, config: Config) {
-    super(ctx, 'sessionLogDeepSeek')
+    super(ctx, 'sessionLogOmega')
     const { maxBytes } = config
-    ctx.deepseekLlmApiExtensions.register('dsh_session_log', {
+    ctx.omegaLlmApiExtensions.register('dsh_session_log', {
       prepare: (request) => {
         if (!config.enabled.get()) return undefined
         // TODO: Define an explicit wire result for direct or stale-session calls if they become a supported product path.
@@ -219,7 +219,7 @@ export class SessionLogDeepSeekService extends Service {
         } as const
         // Field bytes without events or throughSeq digits; each candidate prefix adds its own.
         let bytes = jsonBytes({ ...envelope, throughSeq: 0, events: [] }) - 1
-        const events: DeepSeekSessionLogWireEvent[] = []
+        const events: OmegaSessionLogWireEvent[] = []
         // Field bytes with the last examined event; when none fits, the first event's own field size.
         let candidateBytes = 0
         for (const event of pending) {
@@ -237,20 +237,20 @@ export class SessionLogDeepSeekService extends Service {
             blockedWarnings.set(session, first.seq)
             const seq = String(first.seq)
             ctx.logger.warn(Number.isFinite(candidateBytes)
-              ? `session-log-deepseek: event ${seq} of session "${session.id}" needs a ${String(candidateBytes)}-byte`
+              ? `session-log-omega: event ${seq} of session "${session.id}" needs a ${String(candidateBytes)}-byte`
                 + ` dsh_session_log field, above maxBytes ${String(maxBytes)}; this session's upload stays at event ${seq}`
                 + ' until maxBytes admits it'
-              : `session-log-deepseek: event ${seq} of session "${session.id}" is too large to serialize into a dsh_session_log field;`
+              : `session-log-omega: event ${seq} of session "${session.id}" is too large to serialize into a dsh_session_log field;`
                 + ` this session's upload stays at event ${seq}`)
           }
           return undefined
         }
         const throughSeq = last.seq
-        const value: DeepSeekSessionLogExtension = { ...envelope, throughSeq: Number(throughSeq), events }
+        const value: OmegaSessionLogExtension = { ...envelope, throughSeq: Number(throughSeq), events }
         return {
           value,
           accept: () => {
-            session.append('session-log-deepseek/delivery-accepted', {
+            session.append('session-log-omega/delivery-accepted', {
               sessionId: session.id,
               sessionFormatVersion: session.header.version,
               throughSeq,
@@ -276,16 +276,16 @@ export class SessionLogDeepSeekService extends Service {
     return this.ctx.effect(() => {
       exclusions.add(entry)
       return () => { exclusions.delete(entry) }
-    }, 'sessionLogDeepSeek.registerExclusion()')
+    }, 'sessionLogOmega.registerExclusion()')
   }
 }
 
 /**
  * Register the incremental request contribution; enablement is read for each request.
- * @param ctx - plugin context carrying Sessions and the DeepSeek request-extension registry.
+ * @param ctx - plugin context carrying Sessions and the Omega request-extension registry.
  * @param config - validated configuration.
  * @returns fulfillment after the upload service is mounted.
  */
 export async function apply(ctx: Context, config: Config): Promise<void> {
-  await ctx.plugin(SessionLogDeepSeekService, config)
+  await ctx.plugin(SessionLogOmegaService, config)
 }

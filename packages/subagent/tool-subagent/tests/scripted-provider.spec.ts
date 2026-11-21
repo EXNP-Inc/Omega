@@ -1,12 +1,12 @@
 import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import { type Agent } from '@deepseek-ai/dsh-agent'
-import SubagentRuntime, { type ResolvedSubagentStartRequest } from '@deepseek-ai/dsh-subagent'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import type { SessionId } from '@deepseek-ai/dsh-session'
+import { Context } from '@omega-ai/cordis'
+import { type Agent } from '@omega-ai/dsh-agent'
+import SubagentRuntime, { type ResolvedSubagentStartRequest } from '@omega-ai/dsh-subagent'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import type { SessionId } from '@omega-ai/dsh-session'
 import * as scripted from './scripted-provider.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 /** A minimal parent; the scripted provider only reads its id. */
 function fakeParent(id = 'parent-1'): Agent {

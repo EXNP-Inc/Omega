@@ -9,7 +9,7 @@ English | [中文](dsh-v0.0.1-rc.1.zh.md)
 
 ## Summary
 
-This is the earliest available DSH alpha/rc tag and establishes the historical baseline: 42 persistence roots and writer format 0.
+This is the earliest available Omega alpha/rc tag and establishes the historical baseline: 42 persistence roots and writer format 0.
 
 ## Table of Contents
 
@@ -172,7 +172,7 @@ changes:
   - root: event:user/message
     before: null
     after: c4b5e355b7c7ce538ccb1210b5c042d4bbfe33dd57a910ccd34c7afa11cde648
-  - root: event:web/deepseek-search-llm-request
+  - root: event:web/omega-search-llm-request
     before: null
     after: 0c5c79711e02bd8faed288bb89a39c77af15ad28010a0ee3d5c98adb1e5c3fe5
 ```

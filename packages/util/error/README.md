@@ -3,7 +3,7 @@ description: "Dependency-free HarnessError base class whose stable code lets too
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-error
+# @omega-ai/dsh-error
 
 English | [中文](README.zh.md)
 
@@ -26,14 +26,14 @@ English | [中文](README.zh.md)
 Extend `HarnessError` with one class per owning package or domain and give each failure a stable `UPPER_SNAKE_CASE` code:
 
 ```ts
-import { HarnessError } from '@deepseek-ai/dsh-error'
+import { HarnessError } from '@omega-ai/dsh-error'
 
 export class ArchiveError extends HarnessError {}
 
 throw new ArchiveError('archive entry is missing', 'ARCHIVE_ENTRY_NOT_FOUND')
 ```
 
-Assign `this.name` a string literal in a subclass constructor when a bundler could rename the class, because `name` is persisted. Import the class from `@deepseek-ai/dsh-error` or from its `@deepseek-ai/dsh-llm` re-export; both name the same class, so `instanceof` checks agree. The [error class and code guide](../../../.agents/skills/dsh-error-handling/references/error-codes.md) defines class choice, naming, and code conventions.
+Assign `this.name` a string literal in a subclass constructor when a bundler could rename the class, because `name` is persisted. Import the class from `@omega-ai/dsh-error` or from its `@omega-ai/dsh-llm` re-export; both name the same class, so `instanceof` checks agree. The [error class and code guide](../../../.agents/skills/dsh-error-handling/references/error-codes.md) defines class choice, naming, and code conventions.
 
 -----
 

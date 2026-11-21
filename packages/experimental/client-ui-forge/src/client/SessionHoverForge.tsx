@@ -5,10 +5,10 @@
  */
 
 import type { ReactNode } from 'react'
-import { IconBranchOutlineRegular } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
+import { IconBranchOutlineRegular } from '@omega-ai/dsh-client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@omega-ai/dsh-client-ui-slots'
 // Type-only: pulls the ui-workspace SlotMap merge (the Session row seats).
-import type {} from '@deepseek-ai/dsh-client-ui-workspace/client'
+import type {} from '@omega-ai/dsh-client-ui-workspace/client'
 import { branchLabel } from '../branch-name.ts'
 import { ChangeRequestGlyph } from './glyphs.tsx'
 import type { NS } from './locales.ts'

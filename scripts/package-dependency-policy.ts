@@ -5,44 +5,44 @@ const CLIENT_FACE_INCLUDE: readonly string[] = []
 
 /** Packages exempted from automatic Client/Host treatment despite declaring `dsh.client`. */
 const CLIENT_FACE_EXCLUDE: readonly string[] = [
-  '@deepseek-ai/dsh-api-session-controller',
-  '@deepseek-ai/dsh-api-workspace-controller',
+  '@omega-ai/dsh-api-session-controller',
+  '@omega-ai/dsh-api-workspace-controller',
 ]
 
 /** Host-only packages whose peer relays are deliberately flattened. */
 const HOST_DEPENDENCY_PACKAGES: readonly string[] = [
-  '@deepseek-ai/dsh-llm',
-  '@deepseek-ai/dsh-session',
+  '@omega-ai/dsh-llm',
+  '@omega-ai/dsh-session',
 ]
 
 /** Required Cordis services whose Host imports are type-only. */
 const REQUIRED_SERVICE_PEERS = {
-  '@deepseek-ai/dsh-api-terminal-controller': ['@deepseek-ai/dsh-subprocess'],
+  '@omega-ai/dsh-api-terminal-controller': ['@omega-ai/dsh-subprocess'],
 } as const satisfies Readonly<Record<string, readonly string[]>>
 
 /** Development-only package relationships not represented by source imports. */
 const CONFIGURATION_ONLY_DEV_DEPENDENCIES = {
-  '@deepseek-ai/dsh-client-locale': ['@deepseek-ai/dsh-api-remotes'],
-  '@deepseek-ai/dsh-client-ui-conversation': [
-    '@deepseek-ai/dsh-api-remotes',
-    '@deepseek-ai/dsh-client-ui-workspace',
+  '@omega-ai/dsh-client-locale': ['@omega-ai/dsh-api-remotes'],
+  '@omega-ai/dsh-client-ui-conversation': [
+    '@omega-ai/dsh-api-remotes',
+    '@omega-ai/dsh-client-ui-workspace',
   ],
-  '@deepseek-ai/dsh-client-ui-model-selection': ['@deepseek-ai/dsh-client-ui-input-trigger'],
-  '@deepseek-ai/dsh-client-ui-sidebar': ['@deepseek-ai/dsh-client-ui-workspace'],
-  '@deepseek-ai/dsh-client-ui-subagent': ['@deepseek-ai/dsh-client-ui-input-trigger'],
-  '@deepseek-ai/dsh-client-ui-theme': ['@deepseek-ai/dsh-api-remotes'],
-  '@deepseek-ai/dsh-client-ui-tool': ['@deepseek-ai/dsh-api-remotes'],
+  '@omega-ai/dsh-client-ui-model-selection': ['@omega-ai/dsh-client-ui-input-trigger'],
+  '@omega-ai/dsh-client-ui-sidebar': ['@omega-ai/dsh-client-ui-workspace'],
+  '@omega-ai/dsh-client-ui-subagent': ['@omega-ai/dsh-client-ui-input-trigger'],
+  '@omega-ai/dsh-client-ui-theme': ['@omega-ai/dsh-api-remotes'],
+  '@omega-ai/dsh-client-ui-tool': ['@omega-ai/dsh-api-remotes'],
 } as const satisfies Readonly<Record<string, readonly string[]>>
 
 /** Workspace packages whose complete runtime surface is safe across duplicate installations. */
 const DUPLICATE_SAFE_PACKAGES: readonly string[] = [
-  '@deepseek-ai/dsh-brand',
-  '@deepseek-ai/dsh-lazy-require',
-  '@deepseek-ai/dsh-typert-protocol',
-  '@deepseek-ai/dsh-util-code-language',
-  '@deepseek-ai/dsh-util-crypto',
-  '@deepseek-ai/dsh-util-text-search',
-  '@deepseek-ai/dsh-util-values',
+  '@omega-ai/dsh-brand',
+  '@omega-ai/dsh-lazy-require',
+  '@omega-ai/dsh-typert-protocol',
+  '@omega-ai/dsh-util-code-language',
+  '@omega-ai/dsh-util-crypto',
+  '@omega-ai/dsh-util-text-search',
+  '@omega-ai/dsh-util-values',
 ]
 
 /**
@@ -52,61 +52,61 @@ const DUPLICATE_SAFE_PACKAGES: readonly string[] = [
  * prominent heading in the pull request description.
  */
 const SAFE_HOST_DEPENDENCY_EXPORTS = {
-  '@deepseek-ai/dsh-atomic-write': ['withFileLock', 'writeFileAtomic'],
-  '@deepseek-ai/dsh-deque': ['Deque'],
+  '@omega-ai/dsh-atomic-write': ['withFileLock', 'writeFileAtomic'],
+  '@omega-ai/dsh-deque': ['Deque'],
   // Builds a dispatcher from the resolved proxy policy; the caller owns and closes it.
-  '@deepseek-ai/dsh-http-proxy': ['createRouteDispatcher'],
+  '@omega-ai/dsh-http-proxy': ['createRouteDispatcher'],
   // The Liveshare wire codec and identity helpers are stateless functions over caller-owned values.
-  '@deepseek-ai/dsh-experimental-liveshare-protocol': [
+  '@omega-ai/dsh-experimental-liveshare-protocol': [
     'LIVESHARE_CAPABILITIES', 'LIVESHARE_PROTOCOL_VERSION', 'parseRelayFrame', 'parseShareAccessState',
     'parseTunnelWorkerCommand', 'parseTunnelWorkerEvent', 'rawText', 'sendFrame', 'unsupportedFrameRefusal',
     'viewerRequestFields', 'identityFromKey', 'identityKeyOf',
   ],
   // The shipped profile templates are plain data; a consumer reads their bundle names only.
-  '@deepseek-ai/dsh-official-bundles': ['PROFILE_TEMPLATES'],
+  '@omega-ai/dsh-official-bundles': ['PROFILE_TEMPLATES'],
   // Messages and assembled blocks are plain data. Each caller owns its assembler.
-  '@deepseek-ai/dsh-llm': ['BlockAssembler', 'callConfigEquals', 'createUserMessage'],
-  '@deepseek-ai/dsh-session-format': ['sessionFormatLogFilename'],
-  '@deepseek-ai/dsh-storage-domain': ['defineDomain'],
-  '@deepseek-ai/dsh-timeout': ['MAX_TIMER_DELAY_MS'],
+  '@omega-ai/dsh-llm': ['BlockAssembler', 'callConfigEquals', 'createUserMessage'],
+  '@omega-ai/dsh-session-format': ['sessionFormatLogFilename'],
+  '@omega-ai/dsh-storage-domain': ['defineDomain'],
+  '@omega-ai/dsh-timeout': ['MAX_TIMER_DELAY_MS'],
   // Both operate only on the caller's subprocess service and handle; the module memoizes only the binary path.
-  '@deepseek-ai/dsh-util-ripgrep': ['readRipgrepLines', 'spawnRipgrep'],
-  '@deepseek-ai/schemastery': ['default'],
+  '@omega-ai/dsh-util-ripgrep': ['readRipgrepLines', 'spawnRipgrep'],
+  '@omega-ai/schemastery': ['default'],
 } as const satisfies HostDependencyExports
 
 /** Runtime exports that require every consumer to resolve the provider's shared peer instance. */
 const PEER_REQUIRED_HOST_EXPORTS = {
   // Profile settings must match the installed Node provider's configuration schema.
-  '@deepseek-ai/dsh-ptc-runtime-node/configuration': ['resolvePersistentExecution'],
+  '@omega-ai/dsh-ptc-runtime-node/configuration': ['resolvePersistentExecution'],
   // CUA mounts the installed provider and shares executor error classes with PTC.
-  '@deepseek-ai/dsh-ptc-runtime-node': ['default'],
-  '@deepseek-ai/dsh-tool-executor-ptc/run-code': ['RunCodeConfig', 'createRunCodeTool'],
+  '@omega-ai/dsh-ptc-runtime-node': ['default'],
+  '@omega-ai/dsh-tool-executor-ptc/run-code': ['RunCodeConfig', 'createRunCodeTool'],
   // CUA checks UserQuestionError and preserves AttachmentError from image admission; longEdgeDimensions is pure
   // arithmetic that rides the same peer.
-  '@deepseek-ai/dsh-attachment': ['admitEncodedImages', 'longEdgeDimensions'],
-  '@deepseek-ai/dsh-user-questions': ['UserQuestionError'],
+  '@omega-ai/dsh-attachment': ['admitEncodedImages', 'longEdgeDimensions'],
+  '@omega-ai/dsh-user-questions': ['UserQuestionError'],
   // The tool registry and every subclass rely on `instanceof` against one HarnessError class.
-  '@deepseek-ai/dsh-error': ['HarnessError'],
+  '@omega-ai/dsh-error': ['HarnessError'],
   // `instanceof` checks need the translator's own class instance.
-  '@deepseek-ai/dsh-experimental-translator': ['TranslationError'],
+  '@omega-ai/dsh-experimental-translator': ['TranslationError'],
   // Stateless; a safe classification would turn the forge panel's forge and worktree peers into dependencies.
-  '@deepseek-ai/dsh-experimental-forge': ['changeRequestKey'],
-  '@deepseek-ai/dsh-experimental-worktree': ['generatedWorktreeName', 'CREATED_RECORD', 'createdWorktreeSchema'],
+  '@omega-ai/dsh-experimental-forge': ['changeRequestKey'],
+  '@omega-ai/dsh-experimental-worktree': ['generatedWorktreeName', 'CREATED_RECORD', 'createdWorktreeSchema'],
   // The forge panel matches ctx.fs failures with `instanceof FsError`.
-  '@deepseek-ai/dsh-fs': ['FsError'],
-  '@deepseek-ai/dsh-scope': ['carrierKeyOf', 'createScope', 'scopeOf', 'scopeParentOf', 'scopeTarget'],
+  '@omega-ai/dsh-fs': ['FsError'],
+  '@omega-ai/dsh-scope': ['carrierKeyOf', 'createScope', 'scopeOf', 'scopeParentOf', 'scopeTarget'],
   // appendPluginRecord writes through the Session class's private log; pluginRecordOf is stateless.
-  // The DeepSeek chat importer validates its seed with the installed Session class before storing it.
-  '@deepseek-ai/dsh-session': ['SESSION_FORMAT_VERSION', 'Session', 'appendPluginRecord', 'pluginRecordOf'],
-  '@deepseek-ai/dsh-session-persistence': ['SessionPersistenceNotFoundError'],
+  // The Omega chat importer validates its seed with the installed Session class before storing it.
+  '@omega-ai/dsh-session': ['SESSION_FORMAT_VERSION', 'Session', 'appendPluginRecord', 'pluginRecordOf'],
+  '@omega-ai/dsh-session-persistence': ['SessionPersistenceNotFoundError'],
   // Imported titles follow the installed title service's normalization.
-  '@deepseek-ai/dsh-session-title': ['normalizeSessionTitle'],
+  '@omega-ai/dsh-session-title': ['normalizeSessionTitle'],
   // Error classes have instance identity; CUA and Liveshare throw the registry's own copy so `instanceof` against it matches.
-  '@deepseek-ai/dsh-tools': ['defineTool', 'ToolArgsError', 'ToolContextUnavailableError'],
+  '@omega-ai/dsh-tools': ['defineTool', 'ToolArgsError', 'ToolContextUnavailableError'],
   // Readers recognize a deadline's TimeoutReason only by `instanceof` against their own copy.
-  '@deepseek-ai/dsh-timeout': ['deadline', 'timeoutOf'],
+  '@omega-ai/dsh-timeout': ['deadline', 'timeoutOf'],
   // Imported web tool results must render exactly like the installed web tools' results and cards.
-  '@deepseek-ai/dsh-tool-web': ['fetchMetaFromValue', 'formatFetchOutput', 'formatSearchOutput', 'searchMetaFromValue'],
+  '@omega-ai/dsh-tool-web': ['fetchMetaFromValue', 'formatFetchOutput', 'formatSearchOutput', 'searchMetaFromValue'],
 } as const satisfies HostDependencyExports
 
 /** Exact import specifier to reviewed runtime exports. */

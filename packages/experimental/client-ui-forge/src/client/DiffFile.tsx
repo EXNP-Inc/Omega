@@ -14,8 +14,8 @@ import {
   IconPlusOutlineRegular,
   Tag, Tooltip,
   languageForPath, Menu, MenuItemButton, useCodeHighlighter, type CodeHighlighter, type HighlightSpan,
-} from '@deepseek-ai/dsh-client-ui-primitives'
-import type { PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
+} from '@omega-ai/dsh-client-ui-primitives'
+import type { PropsLocale } from '@omega-ai/dsh-client-ui-slots'
 import type { ForgeDiffFile } from '../types.ts'
 import {
   drawnLines, EXPAND_STEP, hidesLine, segmentsOf, splitRows,

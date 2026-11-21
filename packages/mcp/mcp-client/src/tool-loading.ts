@@ -6,11 +6,11 @@
  * @module
  */
 
-import type { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { truncateWithoutSplittingSurrogatePair } from '@deepseek-ai/dsh-output-retention'
-import { createScope, type Scope, type ScopeKey } from '@deepseek-ai/dsh-scope'
-import { defineTool, type ToolDefinition } from '@deepseek-ai/dsh-tools'
+import type { Context } from '@omega-ai/cordis'
+import type { Agent } from '@omega-ai/dsh-agent'
+import { truncateWithoutSplittingSurrogatePair } from '@omega-ai/dsh-output-retention'
+import { createScope, type Scope, type ScopeKey } from '@omega-ai/dsh-scope'
+import { defineTool, type ToolDefinition } from '@omega-ai/dsh-tools'
 import { publicToolName } from './tools.ts'
 
 /** Raw name of the loader tool inside the server's `mcp__<serverName>__` namespace. */

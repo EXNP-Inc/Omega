@@ -31,7 +31,7 @@ function callArguments(call: ToolCall): Record<string, unknown> {
   return JSON.parse(call.arguments) as Record<string, unknown>
 }
 
-it.skipIf(!process.env.DEEPSEEK_API_KEY || process.platform === 'win32')(`agent exports a PDF with office_convert in the ${carrier} carrier without Node on PATH`, async () => {
+it.skipIf(!process.env.OMEGA_API_KEY || process.platform === 'win32')(`agent exports a PDF with office_convert in the ${carrier} carrier without Node on PATH`, async () => {
   const root = await mkdtemp(join(tmpdir(), 'dsh office export '))
   try {
     const source = zipSync({
@@ -42,7 +42,7 @@ it.skipIf(!process.env.DEEPSEEK_API_KEY || process.platform === 'win32')(`agent 
     await writeFile(join(root, 'input.docx'), source)
     const patch = join(root, 'office.patch.yml')
     await writeFile(patch, JSON.stringify([
-      ...(process.env.DSH_OFFICE_TEST_API === 'openai-completions' ? [{ id: 'llm-deepseek', disabled: true }, { id: 'llm-pi-ai', config: { providers: { 'office-test': { api: 'openai-completions', apiKeyEnv: 'DEEPSEEK_API_KEY', baseURL: process.env.DEEPSEEK_BASE_URL, compat: { thinkingFormat: 'deepseek' }, models: [{ id: process.env.MODEL_NAME ?? 'deepseek-v4-flash', contextWindow: 128000, maxTokens: 8000 }] } } } }] : []),
+      ...(process.env.DSH_OFFICE_TEST_API === 'openai-completions' ? [{ id: 'llm-omega', disabled: true }, { id: 'llm-pi-ai', config: { providers: { 'office-test': { api: 'openai-completions', apiKeyEnv: 'OMEGA_API_KEY', baseURL: process.env.OMEGA_BASE_URL, compat: { thinkingFormat: 'omega' }, models: [{ id: process.env.MODEL_NAME ?? 'omega-v4-flash', contextWindow: 128000, maxTokens: 8000 }] } } } }] : []),
       { id: 'session-persistence-jsonl', config: { root: join(root, 'sessions'), compression: 'none' } },
     ]))
     // A private POSIX tool directory also excludes /usr/bin/node on Linux.
@@ -92,7 +92,7 @@ it.skipIf(!process.env.DEEPSEEK_API_KEY || process.platform === 'win32')(`agent 
       }
     })
     try {
-      send(1, 'initialize', { cwd: root, provider: process.env.DSH_OFFICE_TEST_API === 'openai-completions' ? 'office-test' : 'deepseek-official', model: process.env.MODEL_NAME ?? 'deepseek-v4-flash', maxTokens: 8000 })
+      send(1, 'initialize', { cwd: root, provider: process.env.DSH_OFFICE_TEST_API === 'openai-completions' ? 'office-test' : 'omega-official', model: process.env.MODEL_NAME ?? 'omega-v4-flash', maxTokens: 8000 })
       const result = await child
       const diagnostic = `${result.stderr}\n${result.stdout}`
       expect(protocolError, diagnostic).toBeUndefined()

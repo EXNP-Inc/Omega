@@ -7,13 +7,13 @@
  * and face — and that every registration is gone after dispose, which is what
  * makes a reload safe.
  */
-import type { ClientRemote } from '@deepseek-ai/dsh-api-remotes/client'
-import { RemoteError, syncedConfig } from '@deepseek-ai/dsh-client-test-runtime'
-import type { SyncedConfigValues } from '@deepseek-ai/dsh-client-config/types'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
+import type { ClientRemote } from '@omega-ai/dsh-api-remotes/client'
+import { RemoteError, syncedConfig } from '@omega-ai/dsh-client-test-runtime'
+import type { SyncedConfigValues } from '@omega-ai/dsh-client-config/types'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import { SidebarRightTabRegistry } from '@deepseek-ai/dsh-client-ui-sidebar-right/src/client/tab-registry.ts'
+import { Context } from '@omega-ai/cordis'
+import { SidebarRightTabRegistry } from '@omega-ai/dsh-client-ui-sidebar-right/src/client/tab-registry.ts'
 import { TEXTPREVIEW_ID, TEXTPREVIEW_KIND } from '../src/client/definition.ts'
 import { apply, inject } from '../src/client/index.ts'
 import { OfficeFontAction } from '../src/client/office/OfficeFontAction.tsx'
@@ -51,7 +51,7 @@ interface Recorded {
 
 async function boot(values: SyncedConfigValues = { office: OFFICE_DEFAULTS, excel: EXCEL_DEFAULTS }) {
   const ctx = new Context()
-  ctx.provide('fileDrag', { actions: { prepare: async () => ({ start: () => true, release: () => {} }), reportFailure: () => {} }, read: () => undefined } satisfies import('@deepseek-ai/cordis').Context['fileDrag'])
+  ctx.provide('fileDrag', { actions: { prepare: async () => ({ start: () => true, release: () => {} }), reportFailure: () => {} }, read: () => undefined } satisfies import('@omega-ai/cordis').Context['fileDrag'])
   ctx.provide('contextMenus', { open: vi.fn() } as never)
   ctx.provide('resources', createResources())
   ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) } } as never)
@@ -102,11 +102,11 @@ describe('ui-sidebar-documentpreview apply', () => {
       ['sidebar.right.tab.document', HTML_BODY_ID, 'documentHtml', HtmlBody],
       ['sidebar.right.tab.document', IMAGE_BODY_ID, 'sidebarImage', ImageBody],
       ['sidebar.right.tab.document', PDF_BODY_ID, 'sidebarPdf', LazyPdfBody],
-      ['sidebar.right.tab.document.action', '@deepseek-ai/dsh-client-ui-sidebar-documentpreview/office', 'sidebarOffice', OfficeFontAction],
-      ['sidebar.right.tab.document', '@deepseek-ai/dsh-client-ui-sidebar-documentpreview/office', 'sidebarOffice', OfficeBody],
-      ['sidebar.right.tab.document.office.pdf', '@deepseek-ai/dsh-client-ui-sidebar-documentpreview/office', 'sidebarPdf', LazyPdfBody],
-      ['sidebar.right.tab.document', '@deepseek-ai/dsh-client-ui-sidebar-documentpreview/excel', 'sidebarExcel', LazyExcelBody],
-      ['sidebar.right.tab.document', '@deepseek-ai/dsh-client-ui-sidebar-documentpreview/code', 'sidebarCodePreview', CodeBody],
+      ['sidebar.right.tab.document.action', '@omega-ai/dsh-client-ui-sidebar-documentpreview/office', 'sidebarOffice', OfficeFontAction],
+      ['sidebar.right.tab.document', '@omega-ai/dsh-client-ui-sidebar-documentpreview/office', 'sidebarOffice', OfficeBody],
+      ['sidebar.right.tab.document.office.pdf', '@omega-ai/dsh-client-ui-sidebar-documentpreview/office', 'sidebarPdf', LazyPdfBody],
+      ['sidebar.right.tab.document', '@omega-ai/dsh-client-ui-sidebar-documentpreview/excel', 'sidebarExcel', LazyExcelBody],
+      ['sidebar.right.tab.document', '@omega-ai/dsh-client-ui-sidebar-documentpreview/code', 'sidebarCodePreview', CodeBody],
     ])
     expect(Object.keys(registered[0]!.children!)).toEqual([
       'sidebar.right.tab.document', 'sidebar.right.tab.document.actions',
@@ -117,7 +117,7 @@ describe('ui-sidebar-documentpreview apply', () => {
   })
 
   it('hands the synced Excel limits to the spreadsheet body, and the schema defaults while none arrived', async () => {
-    const excel = '@deepseek-ai/dsh-client-ui-sidebar-documentpreview/excel'
+    const excel = '@omega-ai/dsh-client-ui-sidebar-documentpreview/excel'
     const limits = { ...EXCEL_DEFAULTS, maxCells: 7 }
     const synced = await boot({ office: { ...OFFICE_DEFAULTS, maxReaders: 2 }, excel: limits })
     const injected = synced.registered.find(entry => entry.key === excel)?.inject as () => unknown
@@ -140,7 +140,7 @@ describe('ui-sidebar-documentpreview apply', () => {
     const { ctx } = await boot()
     const previews = ctx.get('documentPreviews')
     if (previews === undefined) throw new Error('documentPreviews was not provided')
-    const sharedHighlighter = '@deepseek-ai/dsh-client-ui-sidebar-documentpreview/code'
+    const sharedHighlighter = '@omega-ai/dsh-client-ui-sidebar-documentpreview/code'
     const owners = new Map<string, string>()
     for (const definition of previews.getSnapshot()) {
       for (const extension of new Set([...definition.extensions, ...definition.binaryExtensions ?? []])) {
@@ -155,7 +155,7 @@ describe('ui-sidebar-documentpreview apply', () => {
         owners.set(extension, earlier ?? definition.id)
       }
     }
-    const excel = '@deepseek-ai/dsh-client-ui-sidebar-documentpreview/excel'
+    const excel = '@omega-ai/dsh-client-ui-sidebar-documentpreview/excel'
     expect(previews.candidates('table.csv').map(candidate => candidate.id)).toEqual([excel, sharedHighlighter])
     expect(previews.candidates('table.tsv')[0]?.id).toBe(excel)
   })

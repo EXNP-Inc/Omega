@@ -1,15 +1,15 @@
 /**
  * Visible persistent terminals: a terminal registry backend whose sessions are Agent terminals in the
  * Session's sidebar, read-only tools for terminals the user controls, and guidance for both.
- * @module @deepseek-ai/dsh-terminal-panel
+ * @module @omega-ai/dsh-terminal-panel
  */
 
-import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-api-terminal-controller'
-import type {} from '@deepseek-ai/dsh-sandbox-policy'
-import type {} from '@deepseek-ai/dsh-system-prompt'
-import type {} from '@deepseek-ai/dsh-terminal'
-import type {} from '@deepseek-ai/dsh-tools'
+import type { Context } from '@omega-ai/cordis'
+import type {} from '@omega-ai/dsh-api-terminal-controller'
+import type {} from '@omega-ai/dsh-sandbox-policy'
+import type {} from '@omega-ai/dsh-system-prompt'
+import type {} from '@omega-ai/dsh-terminal'
+import type {} from '@omega-ai/dsh-tools'
 import { PanelTerminalBackend } from './backend.ts'
 import { type Config, validateConfig } from './config.ts'
 import { registerUserTerminalTools } from './tools.ts'

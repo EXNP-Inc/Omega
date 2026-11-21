@@ -3,7 +3,7 @@ kind: package-reference
 description: "使用仅存于内存的私有凭据认证 Desktop 请求，不向 renderer 暴露凭据。"
 ---
 
-# @deepseek-ai/dsh-host-authentication-desktop
+# @omega-ai/dsh-host-authentication-desktop
 
 [English](README.md) | 中文
 

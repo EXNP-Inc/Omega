@@ -1,6 +1,6 @@
 /** Merge request patches pinned to one head through MR diff versions, and comparisons of two commits. */
 
-import type { ChangeRequestRef, ForgeFailure } from '@deepseek-ai/dsh-experimental-forge'
+import type { ChangeRequestRef, ForgeFailure } from '@omega-ai/dsh-experimental-forge'
 import { structuredPatch } from 'diff'
 import { z } from 'zod'
 import type { GitLabApi } from './api.ts'

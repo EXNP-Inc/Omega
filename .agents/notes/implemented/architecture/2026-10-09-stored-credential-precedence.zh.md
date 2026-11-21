@@ -27,7 +27,7 @@ $DSH_HOME/.credentials.yaml        (provider-managed, written by set/unset)
 
 ## 按次覆盖
 
-之前的顺序让 CI、容器和一次性的 `DEEPSEEK_API_KEY=… dsh` 无需修改机器状态就能覆盖凭据。全新的 CI 或容器 harness home 中没有 `.credentials.yaml`，因此其导出的机密仍是生效值。harness home 中存有密钥，只可能是有人通过 Models 页面或直接编辑该文件存入的。要对该名字使用导出的值，用户应删除对应的 `refs` 条目，或使用单独的 `DSH_HOME` 启动。
+之前的顺序让 CI、容器和一次性的 `OMEGA_API_KEY=… dsh` 无需修改机器状态就能覆盖凭据。全新的 CI 或容器 harness home 中没有 `.credentials.yaml`，因此其导出的机密仍是生效值。harness home 中存有密钥，只可能是有人通过 Models 页面或直接编辑该文件存入的。要对该名字使用导出的值，用户应删除对应的 `refs` 条目，或使用单独的 `DSH_HOME` 启动。
 
 ## 考虑过的替代方案
 

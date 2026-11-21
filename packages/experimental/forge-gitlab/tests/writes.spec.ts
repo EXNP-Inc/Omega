@@ -1,6 +1,6 @@
 import type {
   ForgeCommentId, ForgeLineComment, ForgeReviewId, ForgeReviewRequest, ForgeReviewWrite, ForgeThreadId,
-} from '@deepseek-ai/dsh-experimental-forge'
+} from '@omega-ai/dsh-experimental-forge'
 import { describe, expect, it } from 'vitest'
 import { GitLabApi } from '../src/api.ts'
 import type { GlabOutput } from '../src/glab.ts'

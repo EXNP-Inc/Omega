@@ -1,9 +1,9 @@
 /** Deterministic keyless LLM for the real-profile acceptance base: one file write, then text. */
 
 import { existsSync, writeFileSync } from 'node:fs'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { LlmAdapter } from '@deepseek-ai/dsh-llm'
-/** @import { ToolCallId } from '@deepseek-ai/dsh-llm/types' */
+import { brandString } from '@omega-ai/dsh-brand'
+import { LlmAdapter } from '@omega-ai/dsh-llm'
+/** @import { ToolCallId } from '@omega-ai/dsh-llm/types' */
 
 let nextCall = 0
 let callCount = 0
@@ -197,5 +197,5 @@ export function apply(ctx) {
   if (process.env.BASE_LLM_LOADED) {
     try { writeFileSync(process.env.BASE_LLM_LOADED, 'loaded\n') } catch (_markerWriteFailed) { /* A spec that reads no marker loses nothing; one that reads it fails on the missing file. */ }
   }
-  ctx.llm.registerAdapter(['deepseek-official'], new BaseFixtureAdapter())
+  ctx.llm.registerAdapter(['omega-official'], new BaseFixtureAdapter())
 }

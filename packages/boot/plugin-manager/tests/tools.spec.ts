@@ -1,23 +1,23 @@
 /** Agent controls use the same manager methods as the Web and bound inventory reads. */
-import { executeToolFixture } from '@deepseek-ai/dsh-tool-testkit'
-import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
-import { setSandboxMode } from '@deepseek-ai/dsh-sandbox-policy'
-import { Context } from '@deepseek-ai/cordis'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime, { type ToolExecutionResult } from '@deepseek-ai/dsh-tools'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { ToolCallId } from '@deepseek-ai/dsh-llm/types'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import SandboxPolicy from '@deepseek-ai/dsh-sandbox-policy'
-import { Session, type SessionId, SESSION_FORMAT_VERSION } from '@deepseek-ai/dsh-session'
-import SessionProjections from '@deepseek-ai/dsh-session-projection'
-import ApprovalService, { type ApprovalOutcome } from '@deepseek-ai/dsh-user-approval'
+import { executeToolFixture } from '@omega-ai/dsh-tool-testkit'
+import * as NativeToolExecutor from '@omega-ai/dsh-tool-executor-native'
+import { setSandboxMode } from '@omega-ai/dsh-sandbox-policy'
+import { Context } from '@omega-ai/cordis'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRuntime, { type ToolExecutionResult } from '@omega-ai/dsh-tools'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { ToolCallId } from '@omega-ai/dsh-llm/types'
+import type { Agent } from '@omega-ai/dsh-agent'
+import SandboxPolicy from '@omega-ai/dsh-sandbox-policy'
+import { Session, type SessionId, SESSION_FORMAT_VERSION } from '@omega-ai/dsh-session'
+import SessionProjections from '@omega-ai/dsh-session-projection'
+import ApprovalService, { type ApprovalOutcome } from '@omega-ai/dsh-user-approval'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import type PluginManager from '../src/index.ts'
 import type { BundleInfo } from '../src/types.ts'
 import * as tool from '../src/tools.ts'
 import { PluginManagerError } from '../src/error.ts'
-import { FileLockError } from '@deepseek-ai/dsh-atomic-write'
+import { FileLockError } from '@omega-ai/dsh-atomic-write'
 
 function resultText(result: ToolExecutionResult): string {
   if (typeof result.value !== 'string') throw new Error('Expected a serialized manager result')
@@ -91,9 +91,9 @@ it('preserves selected bundle load errors in the agent list result', async () =>
 it('exposes an absent Official bundle installation target without display metadata', async () => {
   const { manager, call } = await fixture()
   const offered: BundleInfo = {
-    name: '@deepseek-ai/dsh-subagent-codex', official: true, availability: 'missing',
+    name: '@omega-ai/dsh-subagent-codex', official: true, availability: 'missing',
     installed: false, enabled: false, optional: false, removable: false, rows: [], overrides: [],
-    installTarget: { spec: '@deepseek-ai/dsh-subagent-codex@1.2.3', version: '1.2.3' },
+    installTarget: { spec: '@omega-ai/dsh-subagent-codex@1.2.3', version: '1.2.3' },
     meta: { title: 'Codex subagent' },
   }
   manager.listBundles.mockResolvedValue([offered])
@@ -104,11 +104,11 @@ it('exposes an absent Official bundle installation target without display metada
           "availability": "missing",
           "enabled": false,
           "installTarget": {
-            "spec": "@deepseek-ai/dsh-subagent-codex@1.2.3",
+            "spec": "@omega-ai/dsh-subagent-codex@1.2.3",
             "version": "1.2.3",
           },
           "installed": false,
-          "name": "@deepseek-ai/dsh-subagent-codex",
+          "name": "@omega-ai/dsh-subagent-codex",
           "official": true,
           "optional": false,
           "overrides": [],

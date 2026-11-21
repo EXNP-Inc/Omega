@@ -8,7 +8,7 @@
 
 import type {
   ForgeFailure, ForgeViewerFilter, ForgeViewerList, ForgeViewerQuery, ForgeViewerSource,
-} from '@deepseek-ai/dsh-experimental-forge/types'
+} from '@omega-ai/dsh-experimental-forge/types'
 import type { ForgeReviewCountFrame, ForgeReviewFrame, ForgeReviewHost, ForgeReviewList } from './types.ts'
 
 /** The lists in the order the page shows them. */

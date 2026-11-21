@@ -3,8 +3,8 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { expect, it } from 'vitest'
 import { selectDesktopPackage } from '../src/resolve-desktop-publish-ci.ts'
-import { resolveRetainedDesktopPublication } from '@deepseek-ai/dsh-desktop-publisher/resolve-retained-desktop-publish-ci.ts'
-import { retainDesktopRelease, verifyRetainedDesktopRelease } from '@deepseek-ai/dsh-desktop-publisher/desktop-release-store.ts'
+import { resolveRetainedDesktopPublication } from '@omega-ai/dsh-desktop-publisher/resolve-retained-desktop-publish-ci.ts'
+import { retainDesktopRelease, verifyRetainedDesktopRelease } from '@omega-ai/dsh-desktop-publisher/desktop-release-store.ts'
 
 function fixture() {
   const run = { id: 42, run_attempt: 2, head_sha: 'a'.repeat(40), status: 'completed', conclusion: 'success',

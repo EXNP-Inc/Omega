@@ -1,4 +1,4 @@
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { expect, it } from 'vitest'
 import { Config, apply } from '../src/index.ts'
 

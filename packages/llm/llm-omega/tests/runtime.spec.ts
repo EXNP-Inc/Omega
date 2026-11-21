@@ -1,13 +1,13 @@
-import * as Protocol from '@deepseek-ai/dsh-llm-deepseek'
+import * as Protocol from '@omega-ai/dsh-llm-omega'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { AttachmentId, ImageVariantId } from '@deepseek-ai/dsh-attachment/types'
-import type { AttachmentStore, ImageAttachmentRef, RequestImageAttachment } from '@deepseek-ai/dsh-attachment'
-import { createLaunchEnvironmentSnapshot } from '@deepseek-ai/dsh-launch-environment'
+import { Context } from '@omega-ai/cordis'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { AttachmentId, ImageVariantId } from '@omega-ai/dsh-attachment/types'
+import type { AttachmentStore, ImageAttachmentRef, RequestImageAttachment } from '@omega-ai/dsh-attachment'
+import { createLaunchEnvironmentSnapshot } from '@omega-ai/dsh-launch-environment'
 import LlmRuntime, { type ToolCallId, createUserMessage,
   CONTEXT_WINDOW_EXCEEDED_CODE,
   createToolResultMessage,
@@ -17,16 +17,16 @@ import LlmRuntime, { type ToolCallId, createUserMessage,
   QUOTA_EXCEEDED_CODE,
   type ReasoningEffortId,
   userAgent,
-} from '@deepseek-ai/dsh-llm'
-import { MAX_TIMER_DELAY_MS } from '@deepseek-ai/dsh-timeout'
-import { getOrCreateAnonymousUserId, type AnonymousUserId } from '@deepseek-ai/dsh-anonymous-user-id'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import DeepSeekLlmApiExtensionRegistry from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
-import type { PreparedDeepSeekLlmApiExtensions } from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
-import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
-import { DeepSeekAdapter, resolveAdapterOptions } from '@deepseek-ai/dsh-llm-deepseek'
-import DeepSeekAuth from '@deepseek-ai/dsh-deepseek-auth'
-import type { ContextFormed } from '@deepseek-ai/dsh-llm'
+} from '@omega-ai/dsh-llm'
+import { MAX_TIMER_DELAY_MS } from '@omega-ai/dsh-timeout'
+import { getOrCreateAnonymousUserId, type AnonymousUserId } from '@omega-ai/dsh-anonymous-user-id'
+import type { SessionId } from '@omega-ai/dsh-session'
+import OmegaLlmApiExtensionRegistry from '@omega-ai/dsh-omega-llm-api-extensions'
+import type { PreparedOmegaLlmApiExtensions } from '@omega-ai/dsh-omega-llm-api-extensions'
+import * as LlmOmega from '@omega-ai/dsh-llm-omega-api-key'
+import { OmegaAdapter, resolveAdapterOptions } from '@omega-ai/dsh-llm-omega'
+import OmegaAuth from '@omega-ai/dsh-omega-auth'
+import type { ContextFormed } from '@omega-ai/dsh-llm'
 import { providerError } from '../src/transport.ts'
 import { resolveRequestImageTarget } from '../src/request-pricing.ts'
 import { assemble } from './assemble.ts'
@@ -34,7 +34,7 @@ import { closeMockServers, mockServer, textEvents } from './mock-server.ts'
 import type { Behavior } from './mock-server.ts'
 import { requestImageStore } from './helpers.ts'
 
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@omega-ai/dsh-llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }
@@ -44,7 +44,7 @@ const TEST_USER_ID = '00000000-0000-4000-8000-000000000001' as AnonymousUserId
 let testHome: string
 
 beforeEach(() => {
-  testHome = mkdtempSync(join(tmpdir(), 'dsh-llm-deepseek-'))
+  testHome = mkdtempSync(join(tmpdir(), 'dsh-llm-omega-'))
   vi.stubEnv('DSH_HOME', testHome)
 })
 
@@ -58,28 +58,28 @@ afterEach(async () => {
 async function harness(baseURL: string, config: object = {}) {
   // Configuration carries only the reference; the key comes from the
   // environment, which is the whole credential plane without a mounted seam.
-  vi.stubEnv('DEEPSEEK_API_KEY', 'test-key')
+  vi.stubEnv('OMEGA_API_KEY', 'test-key')
   const ctx = new Context()
   await ctx.plugin(LlmRuntime)
-  await ctx.plugin(DeepSeekLlmApiExtensionRegistry)
-  await ctx.plugin(DeepSeekAuth)
-  await ctx.plugin(LlmDeepSeek, { baseURL, ...config })
+  await ctx.plugin(OmegaLlmApiExtensionRegistry)
+  await ctx.plugin(OmegaAuth)
+  await ctx.plugin(LlmOmega, { baseURL, ...config })
   return ctx
 }
 
 /** Direct adapter over the plugin's real resolve step, with a static key. */
-function noExtensions(): Promise<PreparedDeepSeekLlmApiExtensions> {
+function noExtensions(): Promise<PreparedOmegaLlmApiExtensions> {
   return Promise.resolve({ fields: {}, accept: () => Promise.resolve() })
 }
 
 /** Direct adapter over the plugin's real resolve step, with a static key. */
 function adapterOf(
-  config: Partial<LlmDeepSeek.Options> & { apiKey?: string } = {},
+  config: Partial<LlmOmega.Options> & { apiKey?: string } = {},
   attachments?: AttachmentStore,
-  files?: Protocol.DeepSeekFileStore,
-): DeepSeekAdapter {
+  files?: Protocol.OmegaFileStore,
+): OmegaAdapter {
   const { apiKey, ...rest } = config
-  return new DeepSeekAdapter({
+  return new OmegaAdapter({
     options: () => resolveAdapterOptions({ ...rest }),
     resolveAuth: () => Promise.resolve({ headers: { 'x-api-key': apiKey ?? 'k' } }),
     resolveUserId: () => TEST_USER_ID,
@@ -130,12 +130,12 @@ function attachmentStoreOf(
 }
 
 function fileStoreOf(
-  implementation: (...args: Parameters<Protocol.DeepSeekFileStore['ensureUploaded']>) => ReturnType<Protocol.DeepSeekFileStore['ensureUploaded']>,
+  implementation: (...args: Parameters<Protocol.OmegaFileStore['ensureUploaded']>) => ReturnType<Protocol.OmegaFileStore['ensureUploaded']>,
 ) {
   const ensureUploaded = vi.fn(implementation)
   const invalidate = vi.fn(() => Promise.resolve())
   return {
-    store: Object.assign(new Protocol.DeepSeekFileStore(), { ensureUploaded, invalidate }),
+    store: Object.assign(new Protocol.OmegaFileStore(), { ensureUploaded, invalidate }),
     ensureUploaded,
     invalidate,
   }
@@ -157,11 +157,11 @@ function expectFileReplacements(requests: readonly unknown[], count: number, rej
   expect(replacements.toSorted()).toEqual(ids(count + 1, rejected.length).toSorted())
 }
 
-function fileReference(fileId: string): Awaited<ReturnType<Protocol.DeepSeekFileStore['ensureUploaded']>> {
+function fileReference(fileId: string): Awaited<ReturnType<Protocol.OmegaFileStore['ensureUploaded']>> {
   return {
-    record: { fileId: brandString<Protocol.DeepSeekFileId>(fileId) },
+    record: { fileId: brandString<Protocol.OmegaFileId>(fileId) },
     uploaded: true,
-  } as Awaited<ReturnType<Protocol.DeepSeekFileStore['ensureUploaded']>>
+  } as Awaited<ReturnType<Protocol.OmegaFileStore['ensureUploaded']>>
 }
 
 function successfulSseResponse(): Response {
@@ -200,16 +200,16 @@ describe('request image target', () => {
     const adapter = adapterOf({
       models: [{ id: 'vision', inputModalities: ['text', 'image'] }],
     })
-    const priced = adapter.imageRequestPricing('deepseek-official', 'vision')?.priceImages([{ type: 'image', attachment: imageRef }])
+    const priced = adapter.imageRequestPricing('omega-official', 'vision')?.priceImages([{ type: 'image', attachment: imageRef }])
     expect(priced).toHaveLength(1)
     expect(priced?.[0]!.visualTokens).toBeGreaterThan(0)
-    const textOnly = adapter.imageRequestPricing('deepseek-official', 'unlisted')?.priceImages([{ type: 'image', attachment: imageRef }])
+    const textOnly = adapter.imageRequestPricing('omega-official', 'unlisted')?.priceImages([{ type: 'image', attachment: imageRef }])
     expect(textOnly?.[0]!.visualTokens).toBe(0)
   })
 
   it('prices descriptor text through the serializer\'s access resolution', () => {
     const attachments = {} as AttachmentStore
-    const adapter = new DeepSeekAdapter({
+    const adapter = new OmegaAdapter({
       options: () => resolveAdapterOptions({ models: [{ id: 'vision', inputModalities: ['text', 'image'] }] }),
       resolveAuth: () => Promise.resolve({ headers: { 'x-api-key': 'k' } }),
       resolveUserId: () => TEST_USER_ID,
@@ -219,12 +219,12 @@ describe('request image target', () => {
         : undefined),
       prepareExtensions: noExtensions,
     })
-    const priced = adapter.imageRequestPricing('deepseek-official', 'vision')?.priceImages([{ type: 'image', attachment: imageRef }])
+    const priced = adapter.imageRequestPricing('omega-official', 'vision')?.priceImages([{ type: 'image', attachment: imageRef }])
     expect(priced?.[0]?.text).toContain('/world/img.png')
   })
 })
 
-describe('DeepSeekAdapter against a mock server', () => {
+describe('OmegaAdapter against a mock server', () => {
   it('merges prepared extension fields and accepts them once after HTTP 2xx', async () => {
     const server = await mockServer([{ kind: 'sse', events: textEvents }])
     const accept = vi.fn()
@@ -232,14 +232,14 @@ describe('DeepSeekAdapter against a mock server', () => {
       fields: { dsh_test: { version: 1 } },
       accept: async () => { accept() },
     }))
-    const adapter = new DeepSeekAdapter({
+    const adapter = new OmegaAdapter({
       options: () => resolveAdapterOptions({ baseURL: server.url }),
       resolveAuth: () => Promise.resolve({ headers: { 'x-api-key': 'k' } }),
       resolveUserId: () => TEST_USER_ID,
       prepareExtensions: prepareExtensions as never,
     })
 
-    await drain(adapter.stream({ provider: 'deepseek-official', model: 'm', messages: [], sessionId: brandString<SessionId>('s') }))
+    await drain(adapter.stream({ provider: 'omega-official', model: 'm', messages: [], sessionId: brandString<SessionId>('s') }))
     expect(server.requests[0]).toMatchObject({ dsh_test: { version: 1 } })
     expect(prepareExtensions).toHaveBeenCalledWith(expect.objectContaining({ sessionId: 's' }))
     expect(accept).toHaveBeenCalledOnce()
@@ -252,21 +252,21 @@ describe('DeepSeekAdapter against a mock server', () => {
       resolveAuth: () => Promise.resolve({ headers: { 'x-api-key': 'k' } }),
       resolveUserId: () => TEST_USER_ID,
     }
-    const failed = new DeepSeekAdapter({
+    const failed = new OmegaAdapter({
       ...base,
       prepareExtensions: () => Promise.reject(new Error('metadata unavailable')),
     })
-    await expect(drain(failed.stream({ provider: 'deepseek-official', model: 'm', messages: [] })))
+    await expect(drain(failed.stream({ provider: 'omega-official', model: 'm', messages: [] })))
       .rejects.toMatchObject({
         code: 'REQUEST_EXTENSION',
-        message: 'DeepSeek request extension preparation failed: metadata unavailable',
+        message: 'Omega request extension preparation failed: metadata unavailable',
       })
 
-    const collision = new DeepSeekAdapter({
+    const collision = new OmegaAdapter({
       ...base,
       prepareExtensions: (() => Promise.resolve({ fields: { model: 'replacement' }, accept: () => Promise.resolve() })) as never,
     })
-    await expect(drain(collision.stream({ provider: 'deepseek-official', model: 'm', messages: [] })))
+    await expect(drain(collision.stream({ provider: 'omega-official', model: 'm', messages: [] })))
       .rejects.toMatchObject({ code: 'REQUEST_EXTENSION' })
     expect(server.requests).toHaveLength(0)
   })
@@ -276,7 +276,7 @@ describe('DeepSeekAdapter against a mock server', () => {
     const controller = new AbortController()
     const started = Promise.withResolvers<undefined>()
     let signalSeen: AbortSignal | undefined
-    const adapter = new DeepSeekAdapter({
+    const adapter = new OmegaAdapter({
       options: () => resolveAdapterOptions({ baseURL: server.url }),
       resolveAuth: () => Promise.resolve({ headers: { 'x-api-key': 'k' } }),
       resolveUserId: () => TEST_USER_ID,
@@ -294,7 +294,7 @@ describe('DeepSeekAdapter against a mock server', () => {
     })
 
     const pending = drain(adapter.stream({
-      provider: 'deepseek-official',
+      provider: 'omega-official',
       model: 'm',
       messages: [],
       signal: controller.signal,
@@ -322,7 +322,7 @@ describe('DeepSeekAdapter against a mock server', () => {
     try {
       const adapter = adapterOf({ baseURL: 'https://provider.invalid' })
       const pending = drain(adapter.stream({
-        provider: 'deepseek-official',
+        provider: 'omega-official',
         model: 'm',
         messages: [],
         signal: controller.signal,
@@ -341,13 +341,13 @@ describe('DeepSeekAdapter against a mock server', () => {
       { kind: 'close-early', events: textEvents.slice(0, 3) },
     ])
     const accept = vi.fn()
-    const adapter = new DeepSeekAdapter({
+    const adapter = new OmegaAdapter({
       options: () => resolveAdapterOptions({ baseURL: server.url }),
       resolveAuth: () => Promise.resolve({ headers: { 'x-api-key': 'k' } }),
       resolveUserId: () => TEST_USER_ID,
       prepareExtensions: () => Promise.resolve({ fields: { dsh_test: 1 }, accept: async () => { accept() } }) as never,
     })
-    const request = { provider: 'deepseek-official', model: 'm', messages: [] }
+    const request = { provider: 'omega-official', model: 'm', messages: [] }
 
     await expect(drain(adapter.stream(request))).rejects.toMatchObject({ code: 'SERVER' })
     expect(accept).not.toHaveBeenCalled()
@@ -368,11 +368,11 @@ describe('DeepSeekAdapter against a mock server', () => {
         accept: () => Promise.reject(failure),
       }) as never,
     }
-    const request = { provider: 'deepseek-official', model: 'm', messages: [] }
+    const request = { provider: 'omega-official', model: 'm', messages: [] }
 
-    await expect(drain(new DeepSeekAdapter({ ...base, onExtensionsUnaccepted: unaccepted }).stream(request))).resolves.toBeUndefined()
-    expect(unaccepted).toHaveBeenCalledWith({ provider: 'deepseek-official', model: 'm', error: failure })
-    await expect(drain(new DeepSeekAdapter(base).stream(request))).resolves.toBeUndefined()
+    await expect(drain(new OmegaAdapter({ ...base, onExtensionsUnaccepted: unaccepted }).stream(request))).resolves.toBeUndefined()
+    expect(unaccepted).toHaveBeenCalledWith({ provider: 'omega-official', model: 'm', error: failure })
+    await expect(drain(new OmegaAdapter(base).stream(request))).resolves.toBeUndefined()
     expect(server.requests).toHaveLength(2)
   })
 
@@ -381,10 +381,10 @@ describe('DeepSeekAdapter against a mock server', () => {
     const ctx = await harness(server.url)
 
     const result = await assemble(ctx, {
-      model: 'deepseek-v4-pro',
+      model: 'omega-v4-pro',
       messages: [createUserMessage({
         content: [{ type: 'text', text: 'hi' }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     })
     expect(result.message.content).toEqual([{ type: 'text', text: 'hello' }])
@@ -393,19 +393,19 @@ describe('DeepSeekAdapter against a mock server', () => {
 
     // The wire request carried the auth header contents we configured.
     expect(server.requests[0]).toMatchObject({
-      model: 'deepseek-v4-pro',
+      model: 'omega-v4-pro',
       max_tokens: 256_000,
       output_config: { effort: 'high' },
       stream: true,
     })
-    // App attribution and DeepSeek request identity are independent wire facts.
+    // App attribution and Omega request identity are independent wire facts.
     expect(server.headers[0]?.['user-agent']).toBe(userAgent())
-    expect(server.headers[0]?.['x-deepseek-harness-user-id']).toBe(getOrCreateAnonymousUserId())
-    expect(server.headers[0]).not.toHaveProperty('x-deepseek-harness-session-id')
+    expect(server.headers[0]?.['x-omega-harness-user-id']).toBe(getOrCreateAnonymousUserId())
+    expect(server.headers[0]).not.toHaveProperty('x-omega-harness-session-id')
     expect(server.headers[0]).not.toHaveProperty('http-referer')
     expect(server.headers[0]).not.toHaveProperty('x-openrouter-title')
     expect(server.headers[0]).not.toHaveProperty('x-openrouter-categories')
-    expect(server.headers[0]).not.toHaveProperty('x-deepseek-harness-compact')
+    expect(server.headers[0]).not.toHaveProperty('x-omega-harness-compact')
   })
 
   it('uploads a durable image once and sends only its Files API id to the vision model', async () => {
@@ -417,22 +417,26 @@ describe('DeepSeekAdapter against a mock server', () => {
       policies.push(policy)
       return Promise.resolve(requestImage(ref))
     })
-    const adapter = adapterOf({ baseURL: server.url }, attachmentMocks.store)
+    const adapter = adapterOf({
+      baseURL: server.url,
+      // The catalog ships empty, so the vision smoke supplies the capability it exercises.
+      models: [{ id: 'omega-flash', inputModalities: ['text', 'image'] }],
+    }, attachmentMocks.store)
 
     await drain(adapter.stream({
-      provider: 'deepseek-official',
-      model: 'deepseek-flash',
+      provider: 'omega-official',
+      model: 'omega-flash',
       messages: [createUserMessage({
         content: [
           { type: 'text', text: 'describe ' },
           { type: 'image', attachment: imageRef },
         ],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     }))
 
     expect(server.requests[0]).toMatchObject({
-      model: 'deepseek-flash',
+      model: 'omega-flash',
       messages: [{
         role: 'user',
         content: [
@@ -456,7 +460,7 @@ describe('DeepSeekAdapter against a mock server', () => {
     const server = await mockServer([{ kind: 'sse', events: textEvents }])
     const attachmentMocks = attachmentStoreOf(ref => Promise.resolve(requestImage(ref)))
     const adapter = adapterOf({ baseURL: server.url }, attachmentMocks.store)
-    await expect(drain(adapter.stream({ provider: 'deepseek-official', model: 'deepseek-v4-pro', messages: [
+    await expect(drain(adapter.stream({ provider: 'omega-official', model: 'omega-v4-pro', messages: [
       createUserMessage({ source: { kind: 'user' }, content: [
         { type: 'plugin:message',
           message: { role: 'tool', toolCallId: 'foreign', content: [{ type: 'image', attachment: { ...imageRef } }] },
@@ -479,18 +483,18 @@ describe('DeepSeekAdapter against a mock server', () => {
     const files = fileStoreOf(() => Promise.reject(new LlmError('Files unavailable', 'SERVER')))
     const adapter = adapterOf({
       baseURL: server.url,
-      models: [{ id: 'deepseek-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
+      models: [{ id: 'omega-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
     }, attachments, files.store)
 
     await drain(adapter.stream({
-      provider: 'deepseek-official',
-      model: 'deepseek-v4-flash-vision-exp',
+      provider: 'omega-official',
+      model: 'omega-v4-flash-vision-exp',
       messages: [createUserMessage({
         content: [
           { type: 'image', attachment: imageRef },
           { type: 'image', attachment: secondRef },
         ],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     }))
 
@@ -508,15 +512,15 @@ describe('DeepSeekAdapter against a mock server', () => {
       baseURL: server.url,
       maxInlineRequestImageBytes: 80,
       inlineImageOffloadByteQuantum: 40,
-      models: [{ id: 'deepseek-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
+      models: [{ id: 'omega-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
     }, attachments, files.store)
 
     await expect(drain(adapter.stream({
-      provider: 'deepseek-official',
-      model: 'deepseek-v4-flash-vision-exp',
+      provider: 'omega-official',
+      model: 'omega-v4-flash-vision-exp',
       messages: [createUserMessage({
         content: Array.from({ length: 21 }, () => ({ type: 'image' as const, attachment: imageRef })),
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     }))).rejects.toMatchObject({ code: 'IMAGE_OFFLOAD_REQUIRED', message: expect.stringContaining('11 more') as string })
     expect(server.requests).toHaveLength(0)
@@ -534,18 +538,18 @@ describe('DeepSeekAdapter against a mock server', () => {
       .mockRejectedValueOnce(new LlmError('Files unavailable', 'TRANSPORT'))
     const adapter = adapterOf({
       baseURL: server.url,
-      models: [{ id: 'deepseek-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
+      models: [{ id: 'omega-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
     }, attachments, files.store)
 
     await drain(adapter.stream({
-      provider: 'deepseek-official',
-      model: 'deepseek-v4-flash-vision-exp',
+      provider: 'omega-official',
+      model: 'omega-v4-flash-vision-exp',
       messages: [createUserMessage({
         content: [
           { type: 'image', attachment: imageRef },
           { type: 'image', attachment: secondRef },
         ],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     }))
 
@@ -570,19 +574,22 @@ describe('DeepSeekAdapter against a mock server', () => {
         return new Response(null, { status: 429 })
       })
     }
-    const index = new Protocol.DeepSeekUploadIndex()
+    const index = new Protocol.OmegaUploadIndex()
     vi.spyOn(index, 'get').mockResolvedValue(undefined)
-    const files = new Protocol.DeepSeekFileStore({ fetch: upload, index })
+    const files = new Protocol.OmegaFileStore({ fetch: upload, index })
     const attachments = attachmentStoreOf(ref => Promise.resolve({
       ...requestImage(ref), variantId: brandString<ImageVariantId>(ref.attachmentId),
     })).store
     const messages = vi.spyOn(globalThis, 'fetch').mockImplementation(async () => successfulSseResponse())
-    const adapter = adapterOf({ baseURL: 'https://deepseek.invalid' }, attachments, files)
+    const adapter = adapterOf({
+      baseURL: 'https://omega.invalid',
+      models: [{ id: 'omega-flash', inputModalities: ['text', 'image'] }],
+    }, attachments, files)
     const ten = Array.from({ length: 10 }, (_, i) => ({
       ...imageRef, attachmentId: brandString<AttachmentId>(`sha256:${i.toString(16).repeat(64)}`),
     }))
     const request = (images = [imageRef]) => drain(adapter.stream({
-      provider: 'deepseek-official', model: 'deepseek-flash',
+      provider: 'omega-official', model: 'omega-flash',
       messages: [createUserMessage({ content: images.map(attachment => ({ type: 'image', attachment })), source: { kind: 'user' } })],
     }))
 
@@ -603,7 +610,7 @@ describe('DeepSeekAdapter against a mock server', () => {
         expect(upload).toHaveBeenCalledTimes(expectedPosts)
         expect(messages.mock.lastCall?.[1]?.body).toEqual(expect.stringContaining('base64'))
         await vi.advanceTimersByTimeAsync(3_600_000)
-        await drain(adapter.stream({ provider: 'deepseek-official', model: 'deepseek-flash', messages: [] }))
+        await drain(adapter.stream({ provider: 'omega-official', model: 'omega-flash', messages: [] }))
         for (let skip = 0; skip < 2 ** round; skip++) {
           await request(ten)
           const inline = messages.mock.lastCall?.[1]?.body
@@ -632,17 +639,17 @@ describe('DeepSeekAdapter against a mock server', () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch')
     const controller = new AbortController()
     const adapter = adapterOf({
-      baseURL: 'https://deepseek.invalid',
-      models: [{ id: 'deepseek-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
+      baseURL: 'https://omega.invalid',
+      models: [{ id: 'omega-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
     }, attachments, files.store)
 
     const pending = drain(adapter.stream({
-      provider: 'deepseek-official',
-      model: 'deepseek-v4-flash-vision-exp',
+      provider: 'omega-official',
+      model: 'omega-v4-flash-vision-exp',
       signal: controller.signal,
       messages: [createUserMessage({
         content: [{ type: 'image', attachment: imageRef }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     }))
     await started.promise
@@ -663,15 +670,15 @@ describe('DeepSeekAdapter against a mock server', () => {
     const files = fileStoreOf(() => Promise.resolve(fileReference('file-api-ready')))
     const adapter = adapterOf({
       baseURL: server.url,
-      models: [{ id: 'deepseek-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
+      models: [{ id: 'omega-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
     }, attachments, files.store)
 
     await expect(drain(adapter.stream({
-      provider: 'deepseek-official',
-      model: 'deepseek-v4-flash-vision-exp',
+      provider: 'omega-official',
+      model: 'omega-v4-flash-vision-exp',
       messages: [createUserMessage({
         content: [{ type: 'image', attachment: imageRef }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     }))).rejects.toMatchObject({ code: 'SERVER', message: 'chat unavailable' })
 
@@ -690,18 +697,18 @@ describe('DeepSeekAdapter against a mock server', () => {
     })
     const adapter = adapterOf({
       baseURL: server.url,
-      models: [{ id: 'deepseek-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
+      models: [{ id: 'omega-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
     }, attachmentMocks.store)
 
     await drain(adapter.stream({
-      provider: 'deepseek-official',
-      model: 'deepseek-v4-flash-vision-exp',
+      provider: 'omega-official',
+      model: 'omega-v4-flash-vision-exp',
       messages: [createUserMessage({
         content: [
           { type: 'image', attachment: old, offloaded: true },
           { type: 'image', attachment: recent },
         ],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     }))
 
@@ -750,11 +757,11 @@ describe('DeepSeekAdapter against a mock server', () => {
     })
 
     const call = createAssistantMessage({
-      source: { provider: 'deepseek-official', model: 'vision-low' },
+      source: { provider: 'omega-official', model: 'vision-low' },
       content: [{ type: 'tool-call', id: nested.toolCallId, name: 'read_image', arguments: '{}' }],
     })
-    await drain(adapter.stream({ provider: 'deepseek-official', model: 'vision-low', messages: [call, nested] }))
-    await drain(adapter.stream({ provider: 'deepseek-official', model: 'vision-custom', messages: [call, nested] }))
+    await drain(adapter.stream({ provider: 'omega-official', model: 'vision-low', messages: [call, nested] }))
+    await drain(adapter.stream({ provider: 'omega-official', model: 'vision-custom', messages: [call, nested] }))
 
     expect(attachmentMocks.readImageRequest).toHaveBeenNthCalledWith(
       1,
@@ -778,17 +785,17 @@ describe('DeepSeekAdapter against a mock server', () => {
     const attachments = attachmentStoreOf(ref => Promise.resolve(requestImage(ref))).store
     const adapter = adapterOf({
       baseURL: server.url,
-      models: [{ id: 'deepseek-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
+      models: [{ id: 'omega-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
     }, attachments)
     const messages = [createUserMessage({
       content: [{ type: 'image' as const, attachment: imageRef }],
       source: { kind: 'test' as const },
     })]
 
-    await drain(adapter.stream({ provider: 'deepseek-official', model: 'deepseek-v4-flash-vision-exp', messages }))
+    await drain(adapter.stream({ provider: 'omega-official', model: 'omega-v4-flash-vision-exp', messages }))
     await drain(adapter.stream({
-      provider: 'deepseek-official',
-      model: 'deepseek-v4-flash-vision-exp',
+      provider: 'omega-official',
+      model: 'omega-v4-flash-vision-exp',
       messages,
       purpose: 'compaction',
     }))
@@ -798,7 +805,7 @@ describe('DeepSeekAdapter against a mock server', () => {
       { messages: [{ content: [expect.objectContaining({ type: 'text' }), { type: 'image', source: { type: 'file', file_id: 'file-api-1' } }] }] },
       { messages: [{ content: [expect.objectContaining({ type: 'text' }), { type: 'image', source: { type: 'file', file_id: 'file-api-1' } }] }] },
     ])
-    expect(server.headers[1]?.['x-deepseek-harness-compact']).toBe('1')
+    expect(server.headers[1]?.['x-omega-harness-compact']).toBe('1')
   })
 
   it('explains a provider rejection of a normalized image and retains the raw response as cause', async () => {
@@ -807,17 +814,17 @@ describe('DeepSeekAdapter against a mock server', () => {
     const attachments = attachmentStoreOf(ref => Promise.resolve(requestImage(ref))).store
     const adapter = adapterOf({
       baseURL: server.url,
-      models: [{ id: 'deepseek-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
+      models: [{ id: 'omega-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
     }, attachments)
 
     let failure: unknown
     try {
       await drain(adapter.stream({
-        provider: 'deepseek-official',
-        model: 'deepseek-v4-flash-vision-exp',
+        provider: 'omega-official',
+        model: 'omega-v4-flash-vision-exp',
         messages: [createUserMessage({
           content: [{ type: 'image', attachment: imageRef }],
-          source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+          source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
         })],
       }))
     } catch (error: unknown) {
@@ -841,15 +848,15 @@ describe('DeepSeekAdapter against a mock server', () => {
     const attachments = attachmentStoreOf(ref => Promise.resolve(requestImage(ref))).store
     const adapter = adapterOf({
       baseURL: server.url,
-      models: [{ id: 'deepseek-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
+      models: [{ id: 'omega-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
     }, attachments)
 
     await expect(drain(adapter.stream({
-      provider: 'deepseek-official',
-      model: 'deepseek-v4-flash-vision-exp',
+      provider: 'omega-official',
+      model: 'omega-v4-flash-vision-exp',
       messages: [createUserMessage({
         content: [{ type: 'image', attachment: imageRef }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     }))).rejects.toMatchObject({
       message: expect.stringContaining(`normalized image "${imageRef.attachmentId}"`) as string,
@@ -874,18 +881,18 @@ describe('DeepSeekAdapter against a mock server', () => {
     }).store
     const adapter = adapterOf({
       baseURL: server.url,
-      models: [{ id: 'deepseek-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
+      models: [{ id: 'omega-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
     }, attachments)
 
     await expect(drain(adapter.stream({
-      provider: 'deepseek-official',
-      model: 'deepseek-v4-flash-vision-exp',
+      provider: 'omega-official',
+      model: 'omega-v4-flash-vision-exp',
       messages: [createUserMessage({
         content: [
           { type: 'image', attachment: imageRef },
           { type: 'image', attachment: secondRef },
         ],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     }))).rejects.toMatchObject({
       code: 'INVALID_REQUEST',
@@ -913,11 +920,11 @@ describe('DeepSeekAdapter against a mock server', () => {
     const attachmentMocks = attachmentStoreOf(ref => Promise.resolve(requestImage(ref)))
     const adapter = adapterOf({
       baseURL: server.url,
-      models: [{ id: 'deepseek-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
+      models: [{ id: 'omega-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
     }, attachmentMocks.store)
     const options = {
-      provider: 'deepseek-official',
-      model: 'deepseek-v4-flash-vision-exp',
+      provider: 'omega-official',
+      model: 'omega-v4-flash-vision-exp',
       messages: [createUserMessage({
         content: [{ type: 'image' as const, attachment: imageRef }],
         source: { kind: 'test' as const },
@@ -950,15 +957,15 @@ describe('DeepSeekAdapter against a mock server', () => {
       .mockRejectedValueOnce(new LlmError('Files unavailable', 'SERVER'))
     const adapter = adapterOf({
       baseURL: server.url,
-      models: [{ id: 'deepseek-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
+      models: [{ id: 'omega-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
     }, attachments, files.store)
 
     await drain(adapter.stream({
-      provider: 'deepseek-official',
-      model: 'deepseek-v4-flash-vision-exp',
+      provider: 'omega-official',
+      model: 'omega-v4-flash-vision-exp',
       messages: [createUserMessage({
         content: [{ type: 'image', attachment: imageRef }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     }))
 
@@ -987,18 +994,18 @@ describe('DeepSeekAdapter against a mock server', () => {
     })).store
     const adapter = adapterOf({
       baseURL: server.url,
-      models: [{ id: 'deepseek-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
+      models: [{ id: 'omega-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
     }, attachments)
 
     await drain(adapter.stream({
-      provider: 'deepseek-official',
-      model: 'deepseek-v4-flash-vision-exp',
+      provider: 'omega-official',
+      model: 'omega-v4-flash-vision-exp',
       messages: [createUserMessage({
         content: [
           { type: 'image', attachment: imageRef },
           { type: 'image', attachment: secondRef },
         ],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     }))
 
@@ -1039,19 +1046,19 @@ describe('DeepSeekAdapter against a mock server', () => {
     }).store
     const adapter = adapterOf({
       baseURL: server.url,
-      models: [{ id: 'deepseek-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
+      models: [{ id: 'omega-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
     }, attachments)
 
     await drain(adapter.stream({
-      provider: 'deepseek-official',
-      model: 'deepseek-v4-flash-vision-exp',
+      provider: 'omega-official',
+      model: 'omega-v4-flash-vision-exp',
       messages: [createUserMessage({
         content: [
           { type: 'image', attachment: imageRef },
           { type: 'image', attachment: secondRef },
           { type: 'image', attachment: thirdRef },
         ],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     }))
 
@@ -1085,15 +1092,15 @@ describe('DeepSeekAdapter against a mock server', () => {
     })).store
     const adapter = adapterOf({
       baseURL: server.url,
-      models: [{ id: 'deepseek-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
+      models: [{ id: 'omega-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
     }, attachments)
 
     await drain(adapter.stream({
-      provider: 'deepseek-official',
-      model: 'deepseek-v4-flash-vision-exp',
+      provider: 'omega-official',
+      model: 'omega-v4-flash-vision-exp',
       messages: [createUserMessage({
         content: refs.map(ref => ({ type: 'image' as const, attachment: ref })),
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     }))
 
@@ -1121,18 +1128,18 @@ describe('DeepSeekAdapter against a mock server', () => {
     })).store
     const adapter = adapterOf({
       baseURL: server.url,
-      models: [{ id: 'deepseek-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
+      models: [{ id: 'omega-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
     }, attachments)
 
     await drain(adapter.stream({
-      provider: 'deepseek-official',
-      model: 'deepseek-v4-flash-vision-exp',
+      provider: 'omega-official',
+      model: 'omega-v4-flash-vision-exp',
       messages: [createUserMessage({
         content: [
           { type: 'image', attachment: imageRef },
           { type: 'image', attachment: secondRef },
         ],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     }))
 
@@ -1149,29 +1156,29 @@ describe('DeepSeekAdapter against a mock server', () => {
     const attachments = attachmentStoreOf(ref => Promise.resolve(requestImage(ref))).store
     const adapter = adapterOf({
       baseURL: server.url,
-      models: [{ id: 'deepseek-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
+      models: [{ id: 'omega-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
     }, attachments)
 
     await expect(drain(adapter.stream({
-      provider: 'deepseek-official',
-      model: 'deepseek-v4-flash-vision-exp',
+      provider: 'omega-official',
+      model: 'omega-v4-flash-vision-exp',
       messages: [createUserMessage({
         content: [{ type: 'image', attachment: imageRef }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     }))).rejects.toMatchObject({ code: 'INVALID_REQUEST', message: 'file_id file-api-1 expired' })
     expect(server.requests).toHaveLength(2)
     expect(server.fileRequests.filter(request => request.method === 'POST')).toHaveLength(2)
   })
 
-  it.each(['deepseek-v4-flash', 'unlisted-pass-through'])(
+  it.each(['omega-v4-flash', 'unlisted-pass-through'])(
     'rejects image input for text-only model %s before credentials, image reads, or fetch',
     async (model) => {
       const server = await mockServer([])
       const resolveAuth = vi.fn(() => Promise.resolve({ headers: { 'x-api-key': 'k' } }))
       const attachments = attachmentStoreOf(ref => Promise.resolve(requestImage(ref)))
       const resolveAttachments = vi.fn(() => attachments.store)
-      const adapter = new DeepSeekAdapter({
+      const adapter = new OmegaAdapter({
         options: () => resolveAdapterOptions({ baseURL: server.url }),
         resolveAuth,
         resolveUserId: () => TEST_USER_ID,
@@ -1180,11 +1187,11 @@ describe('DeepSeekAdapter against a mock server', () => {
       })
 
       await expect(drain(adapter.stream({
-        provider: 'deepseek-official',
+        provider: 'omega-official',
         model,
         messages: [createUserMessage({
           content: [{ type: 'image', attachment: imageRef }],
-          source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+          source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
         })],
       }))).rejects.toMatchObject({ code: 'UNSUPPORTED_CONTENT' })
       expect(resolveAuth).not.toHaveBeenCalled()
@@ -1196,10 +1203,10 @@ describe('DeepSeekAdapter against a mock server', () => {
   it('rejects vision input without an attachment provider before credentials or fetch', async () => {
     const server = await mockServer([])
     const resolveAuth = vi.fn(() => Promise.resolve({ headers: { 'x-api-key': 'k' } }))
-    const adapter = new DeepSeekAdapter({
+    const adapter = new OmegaAdapter({
       options: () => resolveAdapterOptions({
         baseURL: server.url,
-        models: [{ id: 'deepseek-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
+        models: [{ id: 'omega-v4-flash-vision-exp', inputModalities: ['text', 'image'] }],
       }),
       resolveAuth,
       resolveUserId: () => TEST_USER_ID,
@@ -1207,11 +1214,11 @@ describe('DeepSeekAdapter against a mock server', () => {
     })
 
     await expect(drain(adapter.stream({
-      provider: 'deepseek-official',
-      model: 'deepseek-v4-flash-vision-exp',
+      provider: 'omega-official',
+      model: 'omega-v4-flash-vision-exp',
       messages: [createUserMessage({
         content: [{ type: 'image', attachment: imageRef }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     }))).rejects.toMatchObject({ code: 'UNSUPPORTED_CONTENT' })
     expect(resolveAuth).not.toHaveBeenCalled()
@@ -1224,11 +1231,11 @@ describe('DeepSeekAdapter against a mock server', () => {
 
     const kinds: string[] = []
     for await (const chunk of ctx.llm.stream({
-      provider: 'deepseek-official',
-      model: 'deepseek-v4-flash',
+      provider: 'omega-official',
+      model: 'omega-v4-flash',
       messages: [createUserMessage({
         content: [{ type: 'text', text: 'hi' }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     })) {
       kinds.push(chunk.type)
@@ -1241,16 +1248,16 @@ describe('DeepSeekAdapter against a mock server', () => {
     const ctx = await harness(server.url)
 
     await assemble(ctx, {
-      model: 'deepseek-v4-flash',
+      model: 'omega-v4-flash',
       messages: [createUserMessage({
         content: [{ type: 'text', text: 'hi' }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
       sessionId: brandString<SessionId>('child-session'),
     })
 
-    expect(server.headers[0]?.['x-deepseek-harness-session-id']).toBe('child-session')
-    expect(server.headers[0]?.['x-deepseek-harness-user-id']).toBe(getOrCreateAnonymousUserId())
+    expect(server.headers[0]?.['x-omega-harness-session-id']).toBe('child-session')
+    expect(server.headers[0]?.['x-omega-harness-user-id']).toBe(getOrCreateAnonymousUserId())
   })
 
   it('marks the auxiliary compaction call on the wire', async () => {
@@ -1258,15 +1265,15 @@ describe('DeepSeekAdapter against a mock server', () => {
     const ctx = await harness(server.url)
 
     await assemble(ctx, {
-      model: 'deepseek-v4-flash',
+      model: 'omega-v4-flash',
       messages: [createUserMessage({
         content: [{ type: 'text', text: 'hi' }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
       purpose: 'compaction',
     })
 
-    expect(server.headers[0]?.['x-deepseek-harness-compact']).toBe('1')
+    expect(server.headers[0]?.['x-omega-harness-compact']).toBe('1')
   })
 
   it('switches dynamically from the configured low default through off to max', async () => {
@@ -1278,26 +1285,26 @@ describe('DeepSeekAdapter against a mock server', () => {
     const ctx = await harness(server.url, { thinking: 'enabled', reasoningEffort: 'low' })
 
     await assemble(ctx,{
-      model: 'deepseek-v4-flash',
+      model: 'omega-v4-flash',
       messages: [createUserMessage({
         content: [{ type: 'text', text: 'hi' }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     })
     await assemble(ctx,{
-      model: 'deepseek-v4-flash',
+      model: 'omega-v4-flash',
       reasoningEffort: brandString<ReasoningEffortId>('off'),
       messages: [createUserMessage({
         content: [{ type: 'text', text: 'hi again' }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     })
     await assemble(ctx,{
-      model: 'deepseek-v4-flash',
+      model: 'omega-v4-flash',
       reasoningEffort: brandString<ReasoningEffortId>('max'),
       messages: [createUserMessage({
         content: [{ type: 'text', text: 'one more time' }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     })
     expect(server.requests[0]).toMatchObject({
@@ -1321,8 +1328,8 @@ describe('DeepSeekAdapter against a mock server', () => {
     ])
     const ctx = await harness(server.url, { maxTokens: 32_000 })
 
-    await assemble(ctx, { model: 'deepseek-v4-flash', messages: [] })
-    await assemble(ctx, { model: 'deepseek-v4-flash', messages: [], maxTokens: 8_192 })
+    await assemble(ctx, { model: 'omega-v4-flash', messages: [] })
+    await assemble(ctx, { model: 'omega-v4-flash', messages: [], maxTokens: 8_192 })
 
     expect(server.requests[0]).toMatchObject({ max_tokens: 32_000 })
     expect(server.requests[1]).toMatchObject({ max_tokens: 8_192 })
@@ -1333,17 +1340,17 @@ describe('DeepSeekAdapter against a mock server', () => {
     const ctx = await harness(server.url, { thinking: 'disabled' })
 
     await assemble(ctx,{
-      model: 'deepseek-v4-flash',
+      model: 'omega-v4-flash',
       messages: [createUserMessage({
         content: [{ type: 'text', text: 'hi' }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     })
     expect(server.requests[0]).toMatchObject({
       thinking: { type: 'disabled' },
     })
     expect(server.requests[0]).not.toHaveProperty('output_config')
-    await expect(ctx.llm.resolveModelInfo('deepseek-official', 'deepseek-v4-flash'))
+    await expect(ctx.llm.resolveModelInfo('omega-official', 'omega-v4-flash'))
       .resolves.toMatchObject({
         reasoning: {
           efforts: [{
@@ -1361,11 +1368,11 @@ describe('DeepSeekAdapter against a mock server', () => {
     const ctx = await harness(server.url, { thinking: 'disabled' })
 
     const result = await assemble(ctx, {
-      model: 'deepseek-v4-flash',
+      model: 'omega-v4-flash',
       reasoningEffort: brandString<ReasoningEffortId>('high'),
       messages: [createUserMessage({
         content: [{ type: 'text', text: 'hi' }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
       })],
     })
     expect(result.finish).toMatchObject({
@@ -1382,12 +1389,12 @@ describe('DeepSeekAdapter against a mock server', () => {
       const adapter = adapterOf({ apiKey: 'test-key', baseURL: server.url, thinking: 'disabled' })
 
       const stream = adapter.stream({
-        provider: 'deepseek-official',
-        model: 'deepseek-v4-flash',
+        provider: 'omega-official',
+        model: 'omega-v4-flash',
         reasoningEffort: brandString<ReasoningEffortId>(effort),
         messages: [createUserMessage({
           content: [{ type: 'text', text: 'hi' }],
-          source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+          source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
         })],
       })
       await expect(async () => {
@@ -1412,7 +1419,7 @@ describe('DeepSeekAdapter against a mock server', () => {
     }
     const server = await mockServer([behavior])
     const ctx = await harness(server.url)
-    const result = await assemble(ctx,{ model: 'deepseek-v4-flash', messages: [] })
+    const result = await assemble(ctx,{ model: 'omega-v4-flash', messages: [] })
     expect(result.finish).toEqual({
       kind: 'error',
       failure: { message: `failed with ${status}`, code, status },
@@ -1424,12 +1431,12 @@ describe('DeepSeekAdapter against a mock server', () => {
     const adapter = adapterOf({ baseURL: server.url })
 
     await expect(drain(adapter.stream({
-      provider: 'deepseek-official',
-      model: 'deepseek-v4-flash',
+      provider: 'omega-official',
+      model: 'omega-v4-flash',
       messages: [],
     }))).rejects.toMatchObject({
       failure: { code: 'SERVER', status: 500 },
-      message: 'DeepSeek Messages request failed (500)',
+      message: 'Omega Messages request failed (500)',
     })
   })
 
@@ -1446,7 +1453,7 @@ describe('DeepSeekAdapter against a mock server', () => {
       }),
     }])
     const ctx = await harness(server.url)
-    const result = await assemble(ctx, { model: 'deepseek-v4-flash', messages: [] })
+    const result = await assemble(ctx, { model: 'omega-v4-flash', messages: [] })
     expect(result.finish).toMatchObject({
       kind: 'error',
       failure: { code: CONTEXT_WINDOW_EXCEEDED_CODE },
@@ -1461,7 +1468,7 @@ describe('DeepSeekAdapter against a mock server', () => {
       headers: { 'retry-after': '2', 'x-request-id': 'req-429' },
     }])
     const ctx = await harness(server.url)
-    const result = await assemble(ctx, { model: 'deepseek-v4-flash', messages: [] })
+    const result = await assemble(ctx, { model: 'omega-v4-flash', messages: [] })
     expect(result.finish).toEqual({
       kind: 'error',
       failure: {
@@ -1474,7 +1481,7 @@ describe('DeepSeekAdapter against a mock server', () => {
     })
   })
 
-  it('parses a future Retry-After HTTP date and the DeepSeek request-id fallback', async () => {
+  it('parses a future Retry-After HTTP date and the Omega request-id fallback', async () => {
     const now = 1_800_000_000_000
     const dateNow = vi.spyOn(Date, 'now').mockReturnValue(now)
     try {
@@ -1484,11 +1491,11 @@ describe('DeepSeekAdapter against a mock server', () => {
         body: JSON.stringify({ error: { message: 'come back later' } }),
         headers: {
           'retry-after': new Date(now + 3_000).toUTCString(),
-          'x-deepseek-request-id': 'deepseek-503',
+          'x-omega-request-id': 'omega-503',
         },
       }])
       const ctx = await harness(server.url)
-      const result = await assemble(ctx, { model: 'deepseek-v4-flash', messages: [] })
+      const result = await assemble(ctx, { model: 'omega-v4-flash', messages: [] })
       expect(result.finish).toEqual({
         kind: 'error',
         failure: {
@@ -1496,7 +1503,7 @@ describe('DeepSeekAdapter against a mock server', () => {
           code: 'SERVER',
           status: 503,
           providerRetryAfterMs: 3_000,
-          requestId: brandString<ProviderRequestId>('deepseek-503'),
+          requestId: brandString<ProviderRequestId>('omega-503'),
         },
       })
     } finally {
@@ -1519,7 +1526,7 @@ describe('DeepSeekAdapter against a mock server', () => {
         headers: { 'retry-after': value },
       }])
       const ctx = await harness(server.url)
-      const result = await assemble(ctx, { model: 'deepseek-v4-flash', messages: [] })
+      const result = await assemble(ctx, { model: 'omega-v4-flash', messages: [] })
       expect(result.finish).toEqual({
         kind: 'error',
         failure: { message: 'retry later', code: 'RATE_LIMIT', status: 429 },
@@ -1544,21 +1551,21 @@ describe('DeepSeekAdapter against a mock server', () => {
   it('includes the status for JSON error bodies without a message', async () => {
     const server = await mockServer([{ kind: 'http-error', status: 500, body: '{"error":{"type":"x"}}' }])
     const ctx = await harness(server.url)
-    const result = await assemble(ctx,{ model: 'deepseek-v4-flash', messages: [] })
+    const result = await assemble(ctx,{ model: 'omega-v4-flash', messages: [] })
     expect(result.finish.kind).toBe('error')
     if (result.finish.kind !== 'error') throw new Error('expected an error finish')
     expect(result.finish.failure.code).toBe('SERVER')
-    expect(result.finish.failure.message).toBe('DeepSeek Messages request failed (500)')
+    expect(result.finish.failure.message).toBe('Omega Messages request failed (500)')
   })
 
   it('includes the status for non-JSON error bodies', async () => {
     const server = await mockServer([{ kind: 'http-error', status: 502, body: 'Bad Gateway', contentType: 'text/plain' }])
     const ctx = await harness(server.url)
-    const result = await assemble(ctx,{ model: 'deepseek-v4-flash', messages: [] })
+    const result = await assemble(ctx,{ model: 'omega-v4-flash', messages: [] })
     expect(result.finish.kind).toBe('error')
     if (result.finish.kind !== 'error') throw new Error('expected an error finish')
     expect(result.finish.failure.code).toBe('SERVER')
-    expect(result.finish.failure.message).toBe('DeepSeek Messages request failed (502)')
+    expect(result.finish.failure.message).toBe('Omega Messages request failed (502)')
   })
 
   it('maps unusual statuses to HTTP_<status>', () => {
@@ -1568,12 +1575,12 @@ describe('DeepSeekAdapter against a mock server', () => {
   it('reports a failed endpoint connection as a transport failure', async () => {
     // Port 1 is reserved/unbound, so the service normalizes the fetch failure.
     const ctx = await harness('http://127.0.0.1:1')
-    const result = await assemble(ctx, { model: 'deepseek-v4-flash', messages: [] })
+    const result = await assemble(ctx, { model: 'omega-v4-flash', messages: [] })
     expect(result.finish).toMatchObject({
       kind: 'error',
       failure: {
         code: 'TRANSPORT',
-        message: 'DeepSeek Messages transport failed',
+        message: 'Omega Messages transport failed',
       },
     })
   })
@@ -1583,7 +1590,7 @@ describe('DeepSeekAdapter against a mock server', () => {
     controller.abort()
     const ctx = await harness('http://127.0.0.1:1')
     const result = await assemble(ctx, {
-      model: 'deepseek-v4-flash',
+      model: 'omega-v4-flash',
       messages: [],
       signal: controller.signal,
     })
@@ -1597,7 +1604,7 @@ describe('DeepSeekAdapter against a mock server', () => {
     )
     try {
       const iterate = async (): Promise<void> => {
-        for await (const _chunk of adapter.stream({ provider: 'deepseek-official', model: 'm', messages: [] })) { /* drain */ }
+        for await (const _chunk of adapter.stream({ provider: 'omega-official', model: 'm', messages: [] })) { /* drain */ }
       }
       await expect(iterate()).rejects.toThrow(/no response body/)
     } finally {
@@ -1611,11 +1618,11 @@ describe('DeepSeekAdapter against a mock server', () => {
       events: textEvents.slice(0, 3),
     }])
     const ctx = await harness(server.url)
-    const result = await assemble(ctx,{ model: 'deepseek-v4-flash', messages: [] })
+    const result = await assemble(ctx,{ model: 'omega-v4-flash', messages: [] })
     expect(result.finish.kind).toBe('error')
     if (result.finish.kind !== 'error') throw new Error('expected an error finish')
     expect(result.finish.failure.code).toBe('TRANSPORT')
-    expect(result.finish.failure.message).toBe('DeepSeek Messages transport failed')
+    expect(result.finish.failure.message).toBe('Omega Messages transport failed')
   })
 
   it('aborts mid-stream via the request signal', async () => {
@@ -1626,8 +1633,8 @@ describe('DeepSeekAdapter against a mock server', () => {
     const pending = (async () => {
       const chunks = []
       for await (const chunk of ctx.llm.stream({
-        provider: 'deepseek-official',
-        model: 'deepseek-v4-flash',
+        provider: 'omega-official',
+        model: 'omega-v4-flash',
         messages: [],
         signal: controller.signal,
       })) {
@@ -1652,7 +1659,7 @@ describe('DeepSeekAdapter against a mock server', () => {
     const adapter = adapterOf({ baseURL: 'https://example.invalid' })
     try {
       const drain = async (): Promise<void> => {
-        for await (const _chunk of adapter.stream({ provider: 'deepseek-official', model: 'm', messages: [] })) { /* drain */ }
+        for await (const _chunk of adapter.stream({ provider: 'omega-official', model: 'm', messages: [] })) { /* drain */ }
       }
       await expect(drain()).rejects.toMatchObject({ code: 'TRANSPORT', cause })
     } finally {
@@ -1669,10 +1676,10 @@ describe('DeepSeekAdapter against a mock server', () => {
     const adapter = adapterOf({ baseURL: 'https://example.invalid' })
     try {
       const drain = async (): Promise<void> => {
-        for await (const _chunk of adapter.stream({ provider: 'deepseek-official', model: 'm', messages: [] })) { /* drain */ }
+        for await (const _chunk of adapter.stream({ provider: 'omega-official', model: 'm', messages: [] })) { /* drain */ }
       }
       await expect(drain()).rejects.toMatchObject({
-        message: 'DeepSeek Messages transport failed',
+        message: 'Omega Messages transport failed',
         code: 'TRANSPORT',
         cause: 'offline',
       })
@@ -1702,7 +1709,7 @@ describe('DeepSeekAdapter against a mock server', () => {
     })
     try {
       const drain = (async () => {
-        for await (const _chunk of adapter.stream({ provider: 'deepseek-official', model: 'm', messages: [] })) { /* drain */ }
+        for await (const _chunk of adapter.stream({ provider: 'omega-official', model: 'm', messages: [] })) { /* drain */ }
       })()
       const rejected = expect(drain).rejects.toMatchObject({ code: 'TIMEOUT' })
       await vi.advanceTimersByTimeAsync(0)
@@ -1737,7 +1744,7 @@ describe('DeepSeekAdapter against a mock server', () => {
     try {
       const chunks: string[] = []
       const drain = (async () => {
-        for await (const chunk of adapter.stream({ provider: 'deepseek-official', model: 'm', messages: [] })) {
+        for await (const chunk of adapter.stream({ provider: 'omega-official', model: 'm', messages: [] })) {
           chunks.push(chunk.type)
         }
       })()
@@ -1754,7 +1761,7 @@ describe('DeepSeekAdapter against a mock server', () => {
 
 describe('plugin registration and config', () => {
   it('resolves the Messages endpoint without rewriting overrides', () => {
-    expect(resolveAdapterOptions({}).baseURL).toBe('https://api.deepseek.com/anthropic')
+    expect(resolveAdapterOptions({}).baseURL).toBe('http://127.0.0.1:8090/anthropic')
     for (const baseURL of ['https://example.com', 'https://example.com/custom']) {
       expect(resolveAdapterOptions({ baseURL }).baseURL).toBe(baseURL)
     }
@@ -1772,22 +1779,22 @@ describe('plugin registration and config', () => {
       'mapFinishReason',
       'mapUsage',
       'translate',
-    ]) expect(LlmDeepSeek).not.toHaveProperty(helper)
+    ]) expect(LlmOmega).not.toHaveProperty(helper)
   })
 
-  it('registers the deepseek provider and unregisters on dispose (HMR safety)', async () => {
+  it('registers the omega provider and unregisters on dispose (HMR safety)', async () => {
     const server = await mockServer([])
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(DeepSeekAuth)
-    const fiber = await ctx.plugin(LlmDeepSeek, {
+    await ctx.plugin(OmegaAuth)
+    const fiber = await ctx.plugin(LlmOmega, {
       baseURL: server.url,
     })
-    expect(ctx.llm.listProviders()).toEqual([{ id: 'deepseek-official', name: 'DeepSeek' }])
+    expect(ctx.llm.listProviders()).toEqual([{ id: 'omega-official', name: 'Omega' }])
     expect(ctx.llm.listConfigurableProviders()).toEqual([{
-      provider: 'deepseek-official',
-      displayName: 'DeepSeek',
-      settingsNs: 'llm-deepseek-api-key',
+      provider: 'omega-official',
+      displayName: 'Omega',
+      settingsNs: 'llm-omega-api-key',
       settingsPath: [],
     }])
     await fiber.dispose()
@@ -1798,8 +1805,8 @@ describe('plugin registration and config', () => {
   it('registers retryPolicy from the provider config', async () => {
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(DeepSeekAuth)
-    await ctx.plugin(LlmDeepSeek, {
+    await ctx.plugin(OmegaAuth)
+    await ctx.plugin(LlmOmega, {
       baseURL: 'http://127.0.0.1:1',
       retryPolicy: {
         mode: 'always',
@@ -1807,7 +1814,7 @@ describe('plugin registration and config', () => {
       },
     })
 
-    expect(ctx.llm.providerRetryPolicy('deepseek-official')).toEqual({
+    expect(ctx.llm.providerRetryPolicy('omega-official')).toEqual({
       mode: 'always',
       initialDelayMs: 25,
       maxDelayMs: 100,
@@ -1815,52 +1822,41 @@ describe('plugin registration and config', () => {
     })
   })
 
-  it('owns the deepseek provider and advertises the default models', async () => {
-    vi.stubEnv('DEEPSEEK_API_KEY', 'catalog-fixture-key')
+  it('owns the omega provider with an empty default catalog that resolves any model id', async () => {
+    vi.stubEnv('OMEGA_API_KEY', 'catalog-fixture-key')
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(DeepSeekAuth)
-    await ctx.plugin(LlmDeepSeek, { baseURL: 'http://127.0.0.1:1' })
-    expect(ctx.llm.listProviders()).toEqual([{ id: 'deepseek-official', name: 'DeepSeek' }])
-    await expect(ctx.llm.listModels('deepseek-official')).resolves.toEqual([
-      { provider: 'deepseek-official', id: 'deepseek-flash', name: 'DeepSeek-V4.1-Flash', inputModalities: ['text', 'image'] },
-      {
-        provider: 'deepseek-official',
-        id: 'deepseek-v4-pro',
-        name: 'DeepSeek-V4-Pro',
-        description: 'Stronger agentic coding, knowledge, and difficult reasoning; suited to complex or quality-critical tasks at higher cost.',
-        inputModalities: ['text'],
-      },
-    ])
-    await expect(ctx.llm.resolveModelInfo('deepseek-official', 'deepseek-flash'))
+    await ctx.plugin(OmegaAuth)
+    await ctx.plugin(LlmOmega, { baseURL: 'http://127.0.0.1:1' })
+    expect(ctx.llm.listProviders()).toEqual([{ id: 'omega-official', name: 'Omega' }])
+    await expect(ctx.llm.listModels('omega-official')).resolves.toEqual([])
+    await expect(ctx.llm.resolveModelInfo('omega-official', 'omega-flash'))
       .resolves.toMatchObject({
-        provider: 'deepseek-official',
-        id: 'deepseek-flash',
-        name: 'DeepSeek-V4.1-Flash',
-        inputModalities: ['text', 'image'],
-        systemPromptUpdate: 'in-history',
-        context: { contextWindow: 1_048_576 },
+        provider: 'omega-official',
+        id: 'omega-flash',
+        name: 'omega-flash',
+        inputModalities: ['text'],
+        context: { contextWindow: 1_000_000 },
         defaultMaxTokens: 256_000,
-        reasoning: {
-          efforts: [
-            { id: brandString<ReasoningEffortId>('off'), name: 'Off', description: 'Use for simple tasks that do not need reasoning.' },
-            { id: brandString<ReasoningEffortId>('low'), name: 'Low', description: 'Prefer for routine or latency-sensitive tasks.' },
-            { id: brandString<ReasoningEffortId>('high'), name: 'High', description: 'The default balance for most tasks.' },
-            { id: brandString<ReasoningEffortId>('max'), name: 'Max', description: 'Reserve for the hardest quality-first tasks.' },
-          ],
-          defaultEffort: brandString<ReasoningEffortId>('high'),
-        },
       })
   })
 
-  it('keeps deepseek-v4-pro available with its V4 capabilities', async () => {
+  it('keeps omega-v4-pro available with its V4 capabilities', async () => {
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(DeepSeekAuth)
-    await ctx.plugin(LlmDeepSeek, { baseURL: 'http://127.0.0.1:1' })
-    const info = await ctx.llm.resolveModelInfo('deepseek-official', 'deepseek-v4-pro')
+    await ctx.plugin(OmegaAuth)
+    await ctx.plugin(LlmOmega, {
+      baseURL: 'http://127.0.0.1:1',
+      models: [{
+        id: 'omega-v4-pro',
+        name: 'Omega-V4-Pro',
+        description: 'Stronger agentic coding, knowledge, and difficult reasoning; suited to complex or quality-critical tasks at higher cost.',
+        contextWindow: 1_048_576,
+      }],
+    })
+    const info = await ctx.llm.resolveModelInfo('omega-official', 'omega-v4-pro')
     expect(info).toMatchObject({
-      id: 'deepseek-v4-pro',
+      id: 'omega-v4-pro',
       inputModalities: ['text'],
       context: { contextWindow: 1_048_576 },
       defaultMaxTokens: 256_000,
@@ -1871,12 +1867,12 @@ describe('plugin registration and config', () => {
   it.each(['off', 'low', 'max'] as const)('uses the configured %s reasoning default', async (effort) => {
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(DeepSeekAuth)
-    await ctx.plugin(LlmDeepSeek, {
+    await ctx.plugin(OmegaAuth)
+    await ctx.plugin(LlmOmega, {
       baseURL: 'http://127.0.0.1:1',
       reasoningEffort: effort,
     })
-    await expect(ctx.llm.resolveModelInfo('deepseek-official', 'unlisted-pass-through'))
+    await expect(ctx.llm.resolveModelInfo('omega-official', 'unlisted-pass-through'))
       .resolves.toMatchObject({
         reasoning: {
           efforts: [
@@ -1893,13 +1889,13 @@ describe('plugin registration and config', () => {
   it('accepts off as the default when thinking is deployment-disabled', async () => {
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(DeepSeekAuth)
-    await ctx.plugin(LlmDeepSeek, {
+    await ctx.plugin(OmegaAuth)
+    await ctx.plugin(LlmOmega, {
       baseURL: 'http://127.0.0.1:1',
       thinking: 'disabled',
       reasoningEffort: 'off',
     })
-    await expect(ctx.llm.resolveModelInfo('deepseek-official', 'unlisted-pass-through'))
+    await expect(ctx.llm.resolveModelInfo('omega-official', 'unlisted-pass-through'))
       .resolves.toMatchObject({
         reasoning: {
           efforts: [{
@@ -1917,8 +1913,8 @@ describe('plugin registration and config', () => {
     async (reasoningEffort) => {
       const ctx = new Context()
       await ctx.plugin(LlmRuntime)
-      await ctx.plugin(DeepSeekAuth)
-      await expect(ctx.plugin(LlmDeepSeek, {
+      await ctx.plugin(OmegaAuth)
+      await expect(ctx.plugin(LlmOmega, {
         baseURL: 'http://127.0.0.1:1',
         thinking: 'disabled',
         reasoningEffort,
@@ -1937,7 +1933,7 @@ describe('plugin registration and config', () => {
 
   it('accepts disabled thinking with off at the resolver boundary', async () => {
     const adapter = adapterOf({ thinking: 'disabled', reasoningEffort: 'off' })
-    await expect(adapter.resolveModel('deepseek-official', 'pass-through')).resolves.toMatchObject({
+    await expect(adapter.resolveModel('omega-official', 'pass-through')).resolves.toMatchObject({
       reasoning: {
         efforts: [{
           id: brandString<ReasoningEffortId>('off'),
@@ -1949,31 +1945,27 @@ describe('plugin registration and config', () => {
     })
   })
 
-  it('uses the default model catalog when apply is called directly', async () => {
-    vi.stubEnv('DEEPSEEK_API_KEY', 'catalog-fixture-key')
+  it('advertises the configured model catalog when apply is called directly', async () => {
+    vi.stubEnv('OMEGA_API_KEY', 'catalog-fixture-key')
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(DeepSeekAuth)
-    LlmDeepSeek.apply(ctx, LlmDeepSeek.Config({ baseURL: 'http://127.0.0.1:1' }))
-    await expect(ctx.llm.listModels('deepseek-official')).resolves.toEqual([
-      { provider: 'deepseek-official', id: 'deepseek-flash', name: 'DeepSeek-V4.1-Flash', inputModalities: ['text', 'image'] },
-      {
-        provider: 'deepseek-official',
-        id: 'deepseek-v4-pro',
-        name: 'DeepSeek-V4-Pro',
-        description: 'Stronger agentic coding, knowledge, and difficult reasoning; suited to complex or quality-critical tasks at higher cost.',
-        inputModalities: ['text'],
-      },
+    await ctx.plugin(OmegaAuth)
+    LlmOmega.apply(ctx, LlmOmega.Config({
+      baseURL: 'http://127.0.0.1:1',
+      models: [{ id: 'configured-model', name: 'Configured' }],
+    }))
+    await expect(ctx.llm.listModels('omega-official')).resolves.toEqual([
+      { provider: 'omega-official', id: 'configured-model', name: 'Configured', inputModalities: ['text'] },
     ])
   })
 
 
   it('advertises configured models without restricting arbitrary request ids', async () => {
-    vi.stubEnv('DEEPSEEK_API_KEY', 'catalog-fixture-key')
+    vi.stubEnv('OMEGA_API_KEY', 'catalog-fixture-key')
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(DeepSeekAuth)
-    await ctx.plugin(LlmDeepSeek, {
+    await ctx.plugin(OmegaAuth)
+    await ctx.plugin(LlmOmega, {
       baseURL: 'http://127.0.0.1:1',
       models: [
         { id: 'private-fast', contextWindow: 32_000 },
@@ -1986,19 +1978,19 @@ describe('plugin registration and config', () => {
         },
       ],
     })
-    await expect(ctx.llm.listModels('deepseek-official')).resolves.toEqual([
-      { provider: 'deepseek-official', id: 'private-fast', name: 'private-fast', inputModalities: ['text'] },
-      { provider: 'deepseek-official', id: 'private-reasoner', name: 'Private Reasoner', description: 'Higher reasoning budget', inputModalities: ['text', 'image'] },
+    await expect(ctx.llm.listModels('omega-official')).resolves.toEqual([
+      { provider: 'omega-official', id: 'private-fast', name: 'private-fast', inputModalities: ['text'] },
+      { provider: 'omega-official', id: 'private-reasoner', name: 'Private Reasoner', description: 'Higher reasoning budget', inputModalities: ['text', 'image'] },
     ])
-    await expect(ctx.llm.resolveModelInfo('deepseek-official', 'private-fast'))
+    await expect(ctx.llm.resolveModelInfo('omega-official', 'private-fast'))
       .resolves.toMatchObject({ context: { contextWindow: 32_000 } })
-    await expect(ctx.llm.resolveModelInfo('deepseek-official', 'private-reasoner'))
+    await expect(ctx.llm.resolveModelInfo('omega-official', 'private-reasoner'))
       .resolves.toMatchObject({
         name: 'Private Reasoner',
         description: 'Higher reasoning budget',
         inputModalities: ['text', 'image'],
       })
-    await expect(ctx.llm.resolveModelInfo('deepseek-official', 'arbitrary-unlisted'))
+    await expect(ctx.llm.resolveModelInfo('omega-official', 'arbitrary-unlisted'))
       .resolves.toMatchObject({
         context: { contextWindow: 1_000_000 },
         defaultMaxTokens: 256_000,
@@ -2008,8 +2000,8 @@ describe('plugin registration and config', () => {
   it('uses exact model capacity before the adapter-wide default', async () => {
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(DeepSeekAuth)
-    await ctx.plugin(LlmDeepSeek, {
+    await ctx.plugin(OmegaAuth)
+    await ctx.plugin(LlmOmega, {
       baseURL: 'http://127.0.0.1:1',
       defaultContextWindow: 256_000,
       models: [
@@ -2018,23 +2010,23 @@ describe('plugin registration and config', () => {
       ],
     })
 
-    await expect(ctx.llm.resolveModelInfo('deepseek-official', 'inherits-default'))
+    await expect(ctx.llm.resolveModelInfo('omega-official', 'inherits-default'))
       .resolves.toMatchObject({ context: { contextWindow: 256_000 } })
-    await expect(ctx.llm.resolveModelInfo('deepseek-official', 'exact-override'))
+    await expect(ctx.llm.resolveModelInfo('omega-official', 'exact-override'))
       .resolves.toMatchObject({ context: { contextWindow: 64_000 } })
-    await expect(ctx.llm.resolveModelInfo('deepseek-official', 'unlisted-pass-through'))
+    await expect(ctx.llm.resolveModelInfo('omega-official', 'unlisted-pass-through'))
       .resolves.toMatchObject({ context: { contextWindow: 256_000 } })
   })
 
   it('allows an explicit empty model catalog', async () => {
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(DeepSeekAuth)
-    await ctx.plugin(LlmDeepSeek, {
+    await ctx.plugin(OmegaAuth)
+    await ctx.plugin(LlmOmega, {
       baseURL: 'http://127.0.0.1:1',
       models: [],
     })
-    await expect(ctx.llm.listModels('deepseek-official')).resolves.toEqual([])
+    await expect(ctx.llm.listModels('omega-official')).resolves.toEqual([])
   })
 
   const invalidModels: Array<[object[], RegExp]> = [
@@ -2054,8 +2046,8 @@ describe('plugin registration and config', () => {
   it.each(invalidModels)('rejects invalid advisory model config', async (models, message) => {
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(DeepSeekAuth)
-    await expect(Reflect.apply(ctx.plugin.bind(ctx), undefined, [LlmDeepSeek, {
+    await ctx.plugin(OmegaAuth)
+    await expect(Reflect.apply(ctx.plugin.bind(ctx), undefined, [LlmOmega, {
       baseURL: 'http://127.0.0.1:1', models: [...models],
     }])).rejects.toThrow(message)
     expect(ctx.llm.listProviders()).toEqual([])
@@ -2079,8 +2071,8 @@ describe('plugin registration and config', () => {
 
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(DeepSeekAuth)
-    await expect(ctx.plugin(LlmDeepSeek, {
+    await ctx.plugin(OmegaAuth)
+    await expect(ctx.plugin(LlmOmega, {
       baseURL: 'http://127.0.0.1:1',
       models: [legacyModel],
     })).rejects.toThrow(/imageDetail is no longer supported/)
@@ -2097,11 +2089,11 @@ describe('plugin registration and config', () => {
       { id: 'capable', systemPromptUpdate: 'in-history' },
       { id: 'plain' },
     ] })
-    await expect(adapter.resolveModel('deepseek-official', 'capable'))
+    await expect(adapter.resolveModel('omega-official', 'capable'))
       .resolves.toMatchObject({ systemPromptUpdate: 'in-history' })
-    await expect(adapter.resolveModel('deepseek-official', 'plain'))
+    await expect(adapter.resolveModel('omega-official', 'plain'))
       .resolves.not.toHaveProperty('systemPromptUpdate')
-    await expect(adapter.resolveModel('deepseek-official', 'not-in-catalog'))
+    await expect(adapter.resolveModel('omega-official', 'not-in-catalog'))
       .resolves.not.toHaveProperty('systemPromptUpdate')
     expect(() => { Reflect.apply(resolveAdapterOptions, undefined, [{
       models: [{ id: 'bogus', systemPromptUpdate: 'leading' }],
@@ -2133,11 +2125,11 @@ describe('plugin registration and config', () => {
       { id: 'capped', maxTokens: 512 },
       { id: 'uncapped' },
     ] })
-    await expect(adapter.resolveModel('deepseek-official', 'capped'))
+    await expect(adapter.resolveModel('omega-official', 'capped'))
       .resolves.toMatchObject({ defaultMaxTokens: 512 })
-    await expect(adapter.resolveModel('deepseek-official', 'uncapped'))
+    await expect(adapter.resolveModel('omega-official', 'uncapped'))
       .resolves.toMatchObject({ defaultMaxTokens: 4096 })
-    await expect(adapter.resolveModel('deepseek-official', 'not-in-catalog'))
+    await expect(adapter.resolveModel('omega-official', 'not-in-catalog'))
       .resolves.toMatchObject({ defaultMaxTokens: 4096 })
   })
 
@@ -2145,7 +2137,7 @@ describe('plugin registration and config', () => {
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
     expect(() => {
-      LlmDeepSeek.apply(ctx, LlmDeepSeek.Config({
+      LlmOmega.apply(ctx, LlmOmega.Config({
         baseURL: 'http://127.0.0.1:1',
         models: [{ id: 'invalid-context', contextWindow: 0 }],
       }))
@@ -2161,8 +2153,8 @@ describe('plugin registration and config', () => {
 
       const ctx = new Context()
       await ctx.plugin(LlmRuntime)
-      await ctx.plugin(DeepSeekAuth)
-      await expect(ctx.plugin(LlmDeepSeek, {
+      await ctx.plugin(OmegaAuth)
+      await expect(ctx.plugin(LlmOmega, {
         baseURL: 'http://127.0.0.1:1',
         defaultContextWindow,
       })).rejects.toThrow(/defaultContextWindow/)
@@ -2178,8 +2170,8 @@ describe('plugin registration and config', () => {
 
       const ctx = new Context()
       await ctx.plugin(LlmRuntime)
-      await ctx.plugin(DeepSeekAuth)
-      await expect(ctx.plugin(LlmDeepSeek, {
+      await ctx.plugin(OmegaAuth)
+      await expect(ctx.plugin(LlmOmega, {
         baseURL: 'http://127.0.0.1:1',
         maxTokens,
       })).rejects.toThrow(/maxTokens/)
@@ -2238,8 +2230,8 @@ describe('plugin registration and config', () => {
 
       const ctx = new Context()
       await ctx.plugin(LlmRuntime)
-      await ctx.plugin(DeepSeekAuth)
-      await expect(ctx.plugin(LlmDeepSeek, {
+      await ctx.plugin(OmegaAuth)
+      await expect(ctx.plugin(LlmOmega, {
         baseURL: 'http://127.0.0.1:1',
         maxRequestFilesBytes,
       })).rejects.toThrow(/maxRequestFilesBytes/)
@@ -2255,8 +2247,8 @@ describe('plugin registration and config', () => {
 
       const ctx = new Context()
       await ctx.plugin(LlmRuntime)
-      await ctx.plugin(DeepSeekAuth)
-      await expect(ctx.plugin(LlmDeepSeek, {
+      await ctx.plugin(OmegaAuth)
+      await expect(ctx.plugin(LlmOmega, {
         baseURL: 'http://127.0.0.1:1',
         maxInlineRequestImageBytes,
       })).rejects.toThrow(/maxInlineRequestImageBytes/)
@@ -2264,115 +2256,115 @@ describe('plugin registration and config', () => {
     },
   )
 
-  it('falls back to DEEPSEEK_API_KEY and DEEPSEEK_BASE_URL env vars', async () => {
-    vi.stubEnv('DEEPSEEK_API_KEY', 'env-key')
-    vi.stubEnv('DEEPSEEK_BASE_URL', 'http://127.0.0.1:1')
+  it('falls back to OMEGA_API_KEY and OMEGA_BASE_URL env vars', async () => {
+    vi.stubEnv('OMEGA_API_KEY', 'env-key')
+    vi.stubEnv('OMEGA_BASE_URL', 'http://127.0.0.1:1')
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(DeepSeekAuth)
-    await ctx.plugin(LlmDeepSeek, {})
-    expect(ctx.llm.listProviders()).toEqual([{ id: 'deepseek-official', name: 'DeepSeek' }])
+    await ctx.plugin(OmegaAuth)
+    await ctx.plugin(LlmOmega, {})
+    expect(ctx.llm.listProviders()).toEqual([{ id: 'omega-official', name: 'Omega' }])
   })
 
   it('loads keyless with an empty catalog and fails requests actionably', async () => {
-    vi.stubEnv('DEEPSEEK_API_KEY', '')
+    vi.stubEnv('OMEGA_API_KEY', '')
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(DeepSeekAuth)
-    await ctx.plugin(LlmDeepSeek, { baseURL: 'http://127.0.0.1:1' })
-    expect(ctx.llm.listProviders()).toEqual([{ id: 'deepseek-official', name: 'DeepSeek' }])
-    await expect(ctx.llm.listModels('deepseek-official')).resolves.toEqual([])
-    const first = await assemble(ctx, { model: 'deepseek-flash', messages: [] })
+    await ctx.plugin(OmegaAuth)
+    await ctx.plugin(LlmOmega, { baseURL: 'http://127.0.0.1:1' })
+    expect(ctx.llm.listProviders()).toEqual([{ id: 'omega-official', name: 'Omega' }])
+    await expect(ctx.llm.listModels('omega-official')).resolves.toEqual([])
+    const first = await assemble(ctx, { model: 'omega-flash', messages: [] })
     expect(first.finish).toMatchObject({ kind: 'error', failure: { code: 'MISSING_CREDENTIAL' } })
     // The guidance leads with the managed credential store.
-    const second = await assemble(ctx, { model: 'deepseek-flash', messages: [] })
+    const second = await assemble(ctx, { model: 'omega-flash', messages: [] })
     expect(second.finish.kind).toBe('error')
     if (second.finish.kind !== 'error') throw new Error('expected an error finish')
     // The guidance names both places a credential can come from, and nothing
     // else: configuration carries the reference, never a literal key.
     expect(second.finish.failure.message)
-      .toMatch(/store DEEPSEEK_API_KEY through the credentials service.*export DEEPSEEK_API_KEY/s)
+      .toMatch(/store OMEGA_API_KEY through the credentials service.*export OMEGA_API_KEY/s)
   })
 
   it('reads the ambient variable when no credentials seam is mounted', async () => {
     // The plain cordis.yml composition: no credential provider, the key in
     // the launching environment.
-    vi.stubEnv('DEEPSEEK_API_KEY', 'ambient-key')
+    vi.stubEnv('OMEGA_API_KEY', 'ambient-key')
     const server = await mockServer([{ kind: 'sse', events: textEvents }])
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(DeepSeekAuth)
-    await ctx.plugin(LlmDeepSeek, { baseURL: server.url })
-    await assemble(ctx, { model: 'deepseek-v4-flash', messages: [] })
+    await ctx.plugin(OmegaAuth)
+    await ctx.plugin(LlmOmega, { baseURL: server.url })
+    await assemble(ctx, { model: 'omega-v4-flash', messages: [] })
     expect(server.headers[0]?.['x-api-key']).toBe('ambient-key')
   })
 
   it('treats an empty ambient variable as no key when no credentials seam is mounted', async () => {
-    vi.stubEnv('DEEPSEEK_API_KEY', '')
+    vi.stubEnv('OMEGA_API_KEY', '')
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(DeepSeekAuth)
-    await ctx.plugin(LlmDeepSeek, { baseURL: 'http://127.0.0.1:1' })
-    const result = await assemble(ctx, { model: 'deepseek-v4-flash', messages: [] })
+    await ctx.plugin(OmegaAuth)
+    await ctx.plugin(LlmOmega, { baseURL: 'http://127.0.0.1:1' })
+    const result = await assemble(ctx, { model: 'omega-v4-flash', messages: [] })
     expect(result.finish).toMatchObject({ kind: 'error', failure: { code: 'MISSING_CREDENTIAL' } })
   })
 
   it('prefers explicit config over env for key and base URL', async () => {
-    vi.stubEnv('DEEPSEEK_API_KEY', 'env-key')
-    vi.stubEnv('DEEPSEEK_BASE_URL', 'http://env-host:1')
+    vi.stubEnv('OMEGA_API_KEY', 'env-key')
+    vi.stubEnv('OMEGA_BASE_URL', 'http://env-host:1')
     const server = await mockServer([{ kind: 'sse', events: textEvents }])
     const ctx = await harness(server.url) // harness passes explicit config
-    await assemble(ctx,{ model: 'deepseek-v4-flash', messages: [] })
+    await assemble(ctx,{ model: 'omega-v4-flash', messages: [] })
     expect(server.requests).toHaveLength(1) // hit the explicit URL, not env
   })
 
-  it('uses DEEPSEEK_BASE_URL when config omits baseURL', async () => {
+  it('uses OMEGA_BASE_URL when config omits baseURL', async () => {
     const server = await mockServer([{ kind: 'sse', events: textEvents }])
-    vi.stubEnv('DEEPSEEK_BASE_URL', server.url)
-    vi.stubEnv('DEEPSEEK_API_KEY', 'test-key')
+    vi.stubEnv('OMEGA_BASE_URL', server.url)
+    vi.stubEnv('OMEGA_API_KEY', 'test-key')
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(DeepSeekAuth)
-    await ctx.plugin(LlmDeepSeek, {})
-    await assemble(ctx,{ model: 'deepseek-v4-flash', messages: [] })
+    await ctx.plugin(OmegaAuth)
+    await ctx.plugin(LlmOmega, {})
+    await assemble(ctx,{ model: 'omega-v4-flash', messages: [] })
     expect(server.requests).toHaveLength(1)
   })
 
 
-  it('takes DEEPSEEK_BASE_URL from any environment layer, with explicit config still on top', () => {
+  it('takes OMEGA_BASE_URL from any environment layer, with explicit config still on top', () => {
     const trusted = createLaunchEnvironmentSnapshot([
-      { source: 'user-env', path: '/home/.dsh/.env', values: { DEEPSEEK_BASE_URL: 'https://user.example' } },
+      { source: 'user-env', path: '/home/.dsh/.env', values: { OMEGA_BASE_URL: 'https://user.example' } },
     ])
     expect(resolveAdapterOptions({}, trusted).baseURL).toBe('https://user.example')
     // The product trusts the project it is launched in, so a checkout can
     // point its own agent at the gateway that checkout is meant to use.
     const project = createLaunchEnvironmentSnapshot([
-      { source: 'project-env', path: '/work/.env', values: { DEEPSEEK_BASE_URL: 'https://project.example' } },
+      { source: 'project-env', path: '/work/.env', values: { OMEGA_BASE_URL: 'https://project.example' } },
     ])
     expect(resolveAdapterOptions({}, project).baseURL).toBe('https://project.example')
     // An explicitly configured endpoint outranks every environment layer, so a
     // stale shell value cannot rewrite a deployment's own gateway.
     const shell = createLaunchEnvironmentSnapshot([
-      { source: 'process', values: { DEEPSEEK_BASE_URL: 'https://stale.example' } },
+      { source: 'process', values: { OMEGA_BASE_URL: 'https://stale.example' } },
     ])
     expect(resolveAdapterOptions({ baseURL: 'https://gateway.internal' }, shell).baseURL).toBe('https://gateway.internal')
   })
   it('uses the public Messages base URL without an endpoint override', async () => {
-    vi.stubEnv('DEEPSEEK_API_KEY', 'k')
-    vi.stubEnv('DEEPSEEK_BASE_URL', undefined)
+    vi.stubEnv('OMEGA_API_KEY', 'k')
+    vi.stubEnv('OMEGA_BASE_URL', undefined)
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    // Registration succeeds; no call is made (would hit api.deepseek.com).
-    await ctx.plugin(DeepSeekAuth)
-    await ctx.plugin(LlmDeepSeek, {})
-    expect(ctx.llm.listProviders()).toEqual([{ id: 'deepseek-official', name: 'DeepSeek' }])
+    // Registration succeeds; no call is made (would hit api.omega.com).
+    await ctx.plugin(OmegaAuth)
+    await ctx.plugin(LlmOmega, {})
+    expect(ctx.llm.listProviders()).toEqual([{ id: 'omega-official', name: 'Omega' }])
   })
 
   it('adapter is constructible directly for embedding over the shared resolver', async () => {
     const adapter = adapterOf()
-    expect(adapter).toBeInstanceOf(DeepSeekAdapter)
-    await expect(adapter.listModels('deepseek-official')).resolves.toEqual([])
-    await expect(adapter.resolveModel('deepseek-official', 'deepseek-flash')).resolves.toMatchObject({ name: 'DeepSeek-V4.1-Flash' })
+    expect(adapter).toBeInstanceOf(OmegaAdapter)
+    await expect(adapter.listModels('omega-official')).resolves.toEqual([])
+    await expect(adapter.resolveModel('omega-official', 'omega-flash')).resolves.toMatchObject({ name: 'omega-flash', inputModalities: ['text'] })
   })
 
   it('resolves connection facts and the credential exactly once per stream call', async () => {
@@ -2380,9 +2372,9 @@ describe('plugin registration and config', () => {
     const options = vi.fn(() => resolveAdapterOptions({ baseURL: server.url }))
     const resolveAuth = vi.fn(() => Promise.resolve({ headers: { 'x-api-key': 'per-request-key' } }))
     const resolveUserId = vi.fn(() => TEST_USER_ID)
-    const adapter = new DeepSeekAdapter({ options, resolveAuth, resolveUserId, prepareExtensions: noExtensions })
+    const adapter = new OmegaAdapter({ options, resolveAuth, resolveUserId, prepareExtensions: noExtensions })
 
-    for await (const _chunk of adapter.stream({ provider: 'deepseek-official', model: 'm', messages: [] })) { /* drain */ }
+    for await (const _chunk of adapter.stream({ provider: 'omega-official', model: 'm', messages: [] })) { /* drain */ }
 
     expect(options).toHaveBeenCalledTimes(1)
     expect(resolveAuth).toHaveBeenCalledTimes(1)
@@ -2398,12 +2390,12 @@ describe('plugin registration and config', () => {
 
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(DeepSeekAuth)
-    await expect(ctx.plugin(LlmDeepSeek, {
+    await ctx.plugin(OmegaAuth)
+    await expect(ctx.plugin(LlmOmega, {
       baseURL: 'http://127.0.0.1:1',
       streamIdleTimeoutMs: 0,
     })).rejects.toThrow(/streamIdleTimeoutMs/)
-    await expect(ctx.plugin(LlmDeepSeek, {
+    await expect(ctx.plugin(LlmOmega, {
       baseURL: 'http://127.0.0.1:1',
       streamIdleTimeoutMs: MAX_TIMER_DELAY_MS + 1,
     })).rejects.toThrow(/streamIdleTimeoutMs/)
@@ -2417,12 +2409,12 @@ describe('plugin registration and config', () => {
 
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(DeepSeekAuth)
-    await expect(ctx.plugin(LlmDeepSeek, {
+    await ctx.plugin(OmegaAuth)
+    await expect(ctx.plugin(LlmOmega, {
       baseURL: 'http://127.0.0.1:1',
       filesApiTimeoutMs: 0,
     })).rejects.toThrow(/filesApiTimeoutMs/)
-    await expect(ctx.plugin(LlmDeepSeek, {
+    await expect(ctx.plugin(LlmOmega, {
       baseURL: 'http://127.0.0.1:1',
       filesApiTimeoutMs: MAX_TIMER_DELAY_MS + 1,
     })).rejects.toThrow(/filesApiTimeoutMs/)
@@ -2434,8 +2426,8 @@ describe('plugin registration and config', () => {
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
 
-    await ctx.plugin(DeepSeekAuth)
-    await expect(ctx.plugin(LlmDeepSeek, {
+    await ctx.plugin(OmegaAuth)
+    await expect(ctx.plugin(LlmOmega, {
       baseURL: 'http://127.0.0.1:1',
       retryPolicy: { mode: 'normal', maxRetries: -1 },
     })).rejects.toThrow(/retryPolicy/)

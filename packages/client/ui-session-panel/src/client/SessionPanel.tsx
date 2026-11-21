@@ -1,6 +1,6 @@
 /** Floating Session panel in the Chat View's aside: section titles drawn from the section roster, bodies from the section slot. */
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type FocusEvent, type ReactNode } from 'react'
-import { isBehindModal, observeComposition } from '@deepseek-ai/dsh-client-ui-primitives'
+import { isBehindModal, observeComposition } from '@omega-ai/dsh-client-ui-primitives'
 import { panelElementId, toggleElementId } from './element-ids.ts'
 import type { SessionPanelProps, SessionPanelSectionOwnerProps } from './slots.ts'
 import { presentationOf } from './visibility.ts'

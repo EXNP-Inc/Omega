@@ -1,7 +1,7 @@
 /**
  * Keyless snapshot coverage for the TypeScript SDK path: each scenario spawns
  * the real `dsh --profile sdk` or `sdk-minimal` runtime through
- * `@deepseek-ai/dsh-sdk-client`, drives recorded turns and standalone commands over stdio JSON-RPC,
+ * `@omega-ai/dsh-sdk-client`, drives recorded turns and standalone commands over stdio JSON-RPC,
  * and pins the SDK `RunResult`, the complete notification stream, and the
  * persisted session logs. Replay serves recorded model
  * responses via `llm-replay` (`cordis.snapshot.yml`); `DSH_SNAPSHOT=record`
@@ -54,18 +54,18 @@ import {
   type NormalizeContext,
   type SnapshotManifest,
   type WorkspaceSnapshotEntry,
-} from '@deepseek-ai/dsh-session-snapshot'
+} from '@omega-ai/dsh-session-snapshot'
 import {
-  DeepSeekHarness,
+  OmegaHarness,
   type HarnessNotification,
   type NotificationSubscription,
   type RunResult,
   type SdkPromptContentBlock,
   type SdkUserQuestionRequest,
   type SdkUserQuestionResult,
-} from '@deepseek-ai/dsh-sdk-client'
-import { SESSION_FORMAT_VERSION } from '@deepseek-ai/dsh-session'
-import { deriveReplayScript, parseSessionLog } from '@deepseek-ai/dsh-llm-replay'
+} from '@omega-ai/dsh-sdk-client'
+import { SESSION_FORMAT_VERSION } from '@omega-ai/dsh-session'
+import { deriveReplayScript, parseSessionLog } from '@omega-ai/dsh-llm-replay'
 
 const corpusRoot = fileURLToPath(new URL('../', import.meta.url))
 
@@ -158,7 +158,7 @@ const SDK_ASSERTIONS: Readonly<Record<string, SdkAssertions>> = {
     expectedFinalResponse: 'SDK snapshot OK',
     runtimeContext: {
       includes: ['Current working directory:'],
-      excludes: ['Current DeepSeek Harness implementation checkout:', 'Current DeepSeek Harness Web GUI URL:'],
+      excludes: ['Current Omega implementation checkout:', 'Current Omega Web GUI URL:'],
     },
   },
   'desktop-ptc-context': { expectedFinalResponse: 'SDK snapshot OK' },
@@ -256,12 +256,12 @@ const SDK_ASSERTIONS: Readonly<Record<string, SdkAssertions>> = {
     expectedSystem: MINIMAL_SYSTEM_PROMPT,
     expectedToolDescriptions: { bash: MINIMAL_BASH_DESCRIPTION },
     runtimeContext: {
-      includes: ['Current working directory:', 'Current DSH file policy: danger-full-access', 'Approval prompts are disabled in this session'],
+      includes: ['Current working directory:', 'Current Omega file policy: danger-full-access', 'Approval prompts are disabled in this session'],
       excludes: ['workspace-write'],
     },
   },
   'subagent-dsh-sdk-dynamic-route': {
-    environment: { DSH_TEST_PARENT_PROVIDER: 'deepseek-official' },
+    environment: { DSH_TEST_PARENT_PROVIDER: 'omega-official' },
     dshSdkChild: {
       config: dshSdkChildConfig,
       agentConfig: {
@@ -273,7 +273,7 @@ const SDK_ASSERTIONS: Readonly<Record<string, SdkAssertions>> = {
     },
   },
   'subagent-dsh-sdk-empty-route': {
-    environment: { DSH_TEST_PARENT_PROVIDER: 'deepseek-official', DSH_TEST_PARENT_ROUTE_SCRIPT: 'empty-after-denied' },
+    environment: { DSH_TEST_PARENT_PROVIDER: 'omega-official', DSH_TEST_PARENT_ROUTE_SCRIPT: 'empty-after-denied' },
     dshSdkChild: {
       config: dshSdkChildConfig,
       agentConfig: {
@@ -867,7 +867,7 @@ async function runScenario(scenario: CorpusScenario): Promise<{
       return { answers: [{ id: question.id, selected: [choice === 'approve' ? 'Approve' : 'Keep planning'],
         ...choice === 'keep' ? { custom: 'Add rollback.' } : {} }] }
     }
-  const createHarness = (model = route.model): DeepSeekHarness => new DeepSeekHarness({
+  const createHarness = (model = route.model): OmegaHarness => new OmegaHarness({
     profile: scenario.manifest.profile,
     ...(assertions.approvalOutcomes === undefined ? {} : { approvalRequests: true }),
     patches,
@@ -960,7 +960,7 @@ async function runScenario(scenario: CorpusScenario): Promise<{
           subscription.close()
           await harness.close()
           await prepareTurnReplay(action.turn)
-          harness = createHarness('deepseek-v4-pro')
+          harness = createHarness('omega-v4-pro')
           await harness.start()
           subscription = harness.client.subscribeSessionTree(sessionId)
           await expect(harness.resumeSession('missing-session')).rejects.toThrow()
@@ -1410,7 +1410,7 @@ describe('TypeScript SDK snapshots over the jsonrpc runtime', () => {
         }
         const runtimeContexts = continuationMessages.filter(message => (message.source as JsonObject | undefined)?.kind === 'runtime-context')
         const runtimeText = JSON.stringify(runtimeContexts.at(-1))
-        expect(runtimeText).toContain('Current DSH file policy: read-only.')
+        expect(runtimeText).toContain('Current Omega file policy: read-only.')
         const texts = continuationMessages.flatMap(message => message.content as JsonObject[])
           .flatMap(block => block.type === 'text' ? [block.text] : [])
         expect(texts).toContain('SDK_PERMISSION_READY')

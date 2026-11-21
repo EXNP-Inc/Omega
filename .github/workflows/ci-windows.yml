@@ -51,7 +51,7 @@ jobs:
           dest: ${{ runner.temp }}/setup-pnpm-js-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
       - name: Install only publisher production dependencies
         working-directory: publisher-isolated
-        run: pnpm --filter @deepseek-ai/dsh-desktop-publisher --fail-if-no-match install --prod --frozen-lockfile --ignore-scripts
+        run: pnpm --filter @omega-ai/dsh-desktop-publisher --fail-if-no-match install --prod --frozen-lockfile --ignore-scripts
       - name: Load publisher without Desktop or root development dependencies
         working-directory: publisher-isolated/apps/desktop-publisher
         run: node --import tsx tests/isolated-install.mjs

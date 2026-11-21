@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from deepseek_harness.models import CommandExecution
-from deepseek_harness import RunResult, Session, UserQuestionRequest
+from omega_harness.models import CommandExecution
+from omega_harness import RunResult, Session, UserQuestionRequest
 from test_commands_runtime import (
     _Completion, _Runtime, _SESSION_ID, _WAIT_SECONDS, _assert_request_permission,
     _command_pair, _native_result, _of_type, _permission_facts, _read_events,

@@ -4,10 +4,10 @@ import {
   Button, IconChevronDownOutlineRegular, IconPlusOutlineRegular, IconRefreshOutlineRegular, IconSearchOutlineRegular,
   IconSlidersTwoOutlineRegular, IconTrashOutlineRegular, IconWarningOutlineRegular, Input, Menu, Modal, Pill,
   PluginArtworkDefault, StateDot, Tag, Tooltip,
-} from '@deepseek-ai/dsh-client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
-import type { MarketCompatibility, MarketListingEntry, MarketListingVersion, MarketSearchResult, MarketSort } from '@deepseek-ai/dsh-api-remotes/client'
-import { isGitMarketIndexSourceAddress } from '@deepseek-ai/dsh-plugin-market-index/source'
+} from '@omega-ai/dsh-client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@omega-ai/dsh-client-ui-slots'
+import type { MarketCompatibility, MarketListingEntry, MarketListingVersion, MarketSearchResult, MarketSort } from '@omega-ai/dsh-api-remotes/client'
+import { isGitMarketIndexSourceAddress } from '@omega-ai/dsh-plugin-market-index/source'
 import type { DiscoverFace, DiscoverState, ListingFailure, ListingState, SourceFailure } from './market-store.ts'
 import {
   displayDeclarations, indexLabel, indexMenuItems, presentedVersion, sourceFacts, withText,

@@ -1,6 +1,6 @@
 /** Pull request descriptions through GraphQL, with the image addresses a browser can load without a GitHub session. */
 
-import type { ChangeRequestDescription, ChangeRequestRef, ForgeFailure } from '@deepseek-ai/dsh-experimental-forge'
+import type { ChangeRequestDescription, ChangeRequestRef, ForgeFailure } from '@omega-ai/dsh-experimental-forge'
 import { z } from 'zod'
 import type { GraphqlReader } from './commits.ts'
 import { checkedRepository } from './urls.ts'

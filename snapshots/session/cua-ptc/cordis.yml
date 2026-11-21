@@ -1,11 +1,11 @@
 - id: agent-default-model
-  name: '@deepseek-ai/dsh-agent-default-model'
+  name: '@omega-ai/dsh-agent-default-model'
   config:
-    provider: deepseek-official
-    model: deepseek-v4-flash-vision-exp
+    provider: omega-official
+    model: omega-v4-flash-vision-exp
 
 - id: session-persistence-jsonl
-  name: '@deepseek-ai/dsh-session-persistence-jsonl'
+  name: '@omega-ai/dsh-session-persistence-jsonl'
   config:
     root: !!js dshHomePath('sessions')
     compression: none
@@ -21,7 +21,7 @@
     maxOutputBytes: 4096
 
 - id: system-prompt
-  name: '@deepseek-ai/dsh-system-prompt'
+  name: '@omega-ai/dsh-system-prompt'
   config:
     personaPrefix: |
       You are a coding assistant powered by the {{model}} model.
@@ -29,19 +29,19 @@
       Verify your work by running the code or tests. Keep answers brief and factual.
 
 - id: attachment-local
-  name: '@deepseek-ai/dsh-attachment-local'
+  name: '@omega-ai/dsh-attachment-local'
 
 - insert:
     - id: computer-use
-      name: '@deepseek-ai/dsh-computer-use'
+      name: '@omega-ai/dsh-computer-use'
     - id: cua-native
-      name: '@deepseek-ai/dsh-cua-macos'
+      name: '@omega-ai/dsh-cua-macos'
       config:
         agentPreset: false
         helperPath: !!js process.cwd() + '/native-helper.mjs'
 
 - id: user-questions
-  name: '@deepseek-ai/dsh-user-questions'
+  name: '@omega-ai/dsh-user-questions'
 
 - insert:
     - id: cua-consent-fixture

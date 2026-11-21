@@ -1,11 +1,11 @@
 import { queryObjects } from 'node:v8'
-import { RemoteError, typertOwnedValue } from '@deepseek-ai/dsh-typert-protocol'
-import { Context, Service } from '@deepseek-ai/cordis'
-import type { Fiber } from '@deepseek-ai/cordis'
+import { RemoteError, typertOwnedValue } from '@omega-ai/dsh-typert-protocol'
+import { Context, Service } from '@omega-ai/cordis'
+import type { Fiber } from '@omega-ai/cordis'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { z } from 'zod'
-import { RemoteMock } from '@deepseek-ai/dsh-remote-mock'
-import { openConnectionWebSocket } from '@deepseek-ai/dsh-client-connection/src/client/socket.ts'
+import { RemoteMock } from '@omega-ai/dsh-remote-mock'
+import { openConnectionWebSocket } from '@omega-ai/dsh-client-connection/src/client/socket.ts'
 import {
   apply as applyConnection,
   installConnection,
@@ -13,7 +13,7 @@ import {
   type ConnectionGeneration,
   type ConnectionGenerationSource,
   type ConnectionHandle,
-} from '@deepseek-ai/dsh-client-connection/client'
+} from '@omega-ai/dsh-client-connection/client'
 import type {
   InvocationDescriptor,
   RemoteResult,
@@ -24,8 +24,8 @@ import type {
   TypertLookup,
   TypertRemoteScopeApi,
   TypertRemoteNamespace,
-} from '@deepseek-ai/dsh-typert-protocol'
-import TypertRegistry from '@deepseek-ai/dsh-typert-registry'
+} from '@omega-ai/dsh-typert-protocol'
+import TypertRegistry from '@omega-ai/dsh-typert-registry'
 import type { ClientRemote } from '../src/client/index.ts'
 import { apply, inject, isRemoteFailure, RemoteStream } from '../src/client/index.ts'
 import {
@@ -50,7 +50,7 @@ interface FixtureAgent {
   readonly agentId: string
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Events {
     /**
      * Test-only forwarded Host event.
@@ -85,7 +85,7 @@ declare module '@deepseek-ai/cordis' {
   }
 }
 
-declare module '@deepseek-ai/dsh-typert-protocol' {
+declare module '@omega-ai/dsh-typert-protocol' {
   interface TypertRemoteEventSelection extends
     Record<'fixture/changed' | 'fixture/idle' | 'fixture/approval', true> {}
 

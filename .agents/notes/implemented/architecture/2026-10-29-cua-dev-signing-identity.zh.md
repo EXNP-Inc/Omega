@@ -10,7 +10,7 @@ Status: implemented
 
 ## 决策
 
-Host 以开发版构建源码检出，Bundle ID 为 `com.deepseek.harness.computer-use.dev`，名称为 `DSH Computer Use Dev`，应用包文件名为 `DSH Computer Use Dev.app`。macOS 隐私列表和 helper 返回的启动应用名称使用应用包文件名，因此文件名也需包含 Dev。正式版及其打包流程不变。按[共享 helper 决策](2026-10-09-cua-shared-native-helper.zh.md)的要求，授权仍归经 LaunchServices 启动的 helper 应用。
+Host 以开发版构建源码检出，Bundle ID 为 `com.omega.harness.computer-use.dev`，名称为 `DSH Computer Use Dev`，应用包文件名为 `DSH Computer Use Dev.app`。macOS 隐私列表和 helper 返回的启动应用名称使用应用包文件名，因此文件名也需包含 Dev。正式版及其打包流程不变。按[共享 helper 决策](2026-10-09-cua-shared-native-helper.zh.md)的要求，授权仍归经 LaunchServices 启动的 helper 应用。
 
 `sourceSigning` 由 macOS provider 定义，只接受默认的 `ad-hoc` 和指定已有证书及钥匙串绝对路径的 `{ identity, keychain }`。构建不创建、解锁或移除身份。开发者凭据与面向用户的 DSH home 分开，后者只保存选择证书的配置；共享 `cua` 包不持有 macOS 签名配置。
 

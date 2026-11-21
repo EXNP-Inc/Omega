@@ -3,7 +3,7 @@ description: "The shared per-call sandbox policy resolver and current model cont
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-sandbox-policy
+# @omega-ai/dsh-sandbox-policy
 
 English | [中文](README.zh.md)
 
@@ -36,7 +36,7 @@ Choose it for every composition with confined capabilities (bash, filesystem, te
 Load the package with a default mode; the fail-safe default is `read-only`, and a deployment that wants a workspace-writable agent opts into `workspace-write` explicitly.
 
 ```yaml
-- name: '@deepseek-ai/dsh-sandbox-policy'
+- name: '@omega-ai/dsh-sandbox-policy'
   config:
     mode: workspace-write
     workspaceRoot: /absolute/path/to/workspace
@@ -50,7 +50,7 @@ Load the package with a default mode; the fail-safe default is `read-only`, and 
 
 A session's workspace root is the directory it works in, read from the [working-directory service](../../session/working-directory/README.md): every Host move of the Session's directory, such as entering or leaving a worktree, moves the boundary with it. For a linked Git worktree, the repository's Git directory lies outside that root, so Git commands that write it are denied under `workspace-write` until a grant covers it: the deployment can grant it to every session with `additionalWritableRoots`, and a Host plugin can grant it to one live Session with `registerWritableRoot`. The caller selects that directory explicitly; the policy does not inspect Git files or grant a parent checkout. These grants are deployment configuration shared by the composition's sessions, rather than saved Session permissions. Granting the entire Git directory also permits changes to hooks and configuration that a later host Git invocation can execute outside the sandbox; use that grant only for trusted tasks. Use physical absolute directory paths. The enforcing host rejects missing paths, non-directories, and symlinked directories on each call, including a directory replaced by a symlink between calls. Remote grants are validated on the remote host.
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-sandbox-policy) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-sandbox-policy) is the exhaustive source for every accepted field and its JSDoc.
 
 ### Registering a session's writable directory
 
@@ -122,25 +122,25 @@ One `sandbox:policy` contribution in the current runtime-context snapshot for ev
 ##### Read-only
 
 ```markdown
-Current DSH file policy: read-only. Any available operation enforced by the DSH file sandbox cannot modify files in the standing mode. Do not refuse a required modification from this policy alone: try an available tool normally and follow any denial and escalation guidance it returns.
+Current Omega file policy: read-only. Any available operation enforced by the Omega file sandbox cannot modify files in the standing mode. Do not refuse a required modification from this policy alone: try an available tool normally and follow any denial and escalation guidance it returns.
 ```
 
 ##### Workspace-write
 
 ```markdown
-Current DSH file policy: workspace-write. Any available operation enforced by the DSH file sandbox may modify files under the session workspace: "<workspace root>". Some platform temporary areas may also be writable.
+Current Omega file policy: workspace-write. Any available operation enforced by the Omega file sandbox may modify files under the session workspace: "<workspace root>". Some platform temporary areas may also be writable.
 ```
 
 ##### Workspace-write with extra directories
 
 ```markdown
-Current DSH file policy: workspace-write. Any available operation enforced by the DSH file sandbox may modify files under the session workspace: "<workspace root>". Additional writable directories: ["/repo/.git"]. On Windows, these additional grants apply to file tools only, not sandboxed processes. Some platform temporary areas may also be writable.
+Current Omega file policy: workspace-write. Any available operation enforced by the Omega file sandbox may modify files under the session workspace: "<workspace root>". Additional writable directories: ["/repo/.git"]. On Windows, these additional grants apply to file tools only, not sandboxed processes. Some platform temporary areas may also be writable.
 ```
 
 ##### Danger-full-access
 
 ```markdown
-Current DSH file policy: danger-full-access. The DSH file sandbox does not restrict file modifications by available operations.
+Current Omega file policy: danger-full-access. The Omega file sandbox does not restrict file modifications by available operations.
 ```
 
 #### Token effect

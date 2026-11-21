@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-11-10-omega-request-authentication.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-11-10-omega-request-authentication.md
+/agent-note-omega-request-authentication-one-service-releases-the-api-key-or-the-account-sign-in-to-every-omega-consumer:
+  en: 088c78bdd2972915
+  zh: 3c6c77b85bfda9ce
+/agent-note-omega-request-authentication-one-service-releases-the-api-key-or-the-account-sign-in-to-every-omega-consumer/problem:
+  en: 2e945f988d9cd603
+  zh: af1f48f0a4a445ad
+/agent-note-omega-request-authentication-one-service-releases-the-api-key-or-the-account-sign-in-to-every-omega-consumer/decision:
+  en: d4d5107ceef5e337
+  zh: b6b4044ff4f1ebb2
+/agent-note-omega-request-authentication-one-service-releases-the-api-key-or-the-account-sign-in-to-every-omega-consumer/alternatives-considered:
+  en: f811643867c6c244
+  zh: 185f6c6aae3bb8ee
+/agent-note-omega-request-authentication-one-service-releases-the-api-key-or-the-account-sign-in-to-every-omega-consumer/consequences:
+  en: 4e3e581d1fbfb435
+  zh: 5fec7bd9cdd9cc6a

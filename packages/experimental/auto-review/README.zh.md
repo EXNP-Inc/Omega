@@ -3,7 +3,7 @@ description: "为 Web 或 headless profile 添加实验性逐调用 Auto review�
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-experimental-auto-review
+# @omega-ai/dsh-experimental-auto-review
 
 [English](README.md) | 中文
 
@@ -40,7 +40,7 @@ CLI 会在需要时初始化 profile，并将本包声明的 patch 追加到 bas
 通过同一 CLI 移除此层：
 
 ```sh
-pnpm dsh plugin --profile web remove @deepseek-ai/dsh-experimental-auto-review
+pnpm dsh plugin --profile web remove @omega-ai/dsh-experimental-auto-review
 ```
 
 <a id="headless-supervision"></a>
@@ -49,7 +49,7 @@ pnpm dsh plugin --profile web remove @deepseek-ai/dsh-experimental-auto-review
 为 headless profile 显式启用实验层：
 
 ```sh
-dsh plugin --profile headless add @deepseek-ai/dsh-experimental-auto-review
+dsh plugin --profile headless add @omega-ai/dsh-experimental-auto-review
 dsh headless --permission-mode auto --approval-policy never --json - < task.txt > run.jsonl
 ```
 
@@ -110,7 +110,7 @@ Reviewer 使用最新 `request/header.config` 的 provider 与模型，并沿用
 
 #### KV Cache 影响
 
-每次评审的消息都以上一次评审的全部消息（包括其待审调用）开头，因此按 prompt 前缀、按消息结尾或在末尾标记处回溯缓存的路由都能复用策略与先前历史。Compaction、cwd 变化、较早条目离开 surface，以及重启后的第一次评审会让复用中断一次。Auto 不向主 agent 增加专门 runtime context 或模式切换提示词。每个评审请求都携带被评审 Session 的 `sessionId` 和 `purpose: 'auto-review'`，作为模型不可见的传输元数据。按 Session 划分 prompt 缓存或请求路由的路由（例如 OpenAI 的 `prompt_cache_key`，以及 OpenCode 要求的 `x-opencode-session` header）会以该 Session 的键发送评审；[DeepSeek session-log 上传](../../session/session-log-deepseek/README.zh.md#request-field)在启用且没有已注册排除条件匹配时贡献权威 Session 日志。
+每次评审的消息都以上一次评审的全部消息（包括其待审调用）开头，因此按 prompt 前缀、按消息结尾或在末尾标记处回溯缓存的路由都能复用策略与先前历史。Compaction、cwd 变化、较早条目离开 surface，以及重启后的第一次评审会让复用中断一次。Auto 不向主 agent 增加专门 runtime context 或模式切换提示词。每个评审请求都携带被评审 Session 的 `sessionId` 和 `purpose: 'auto-review'`，作为模型不可见的传输元数据。按 Session 划分 prompt 缓存或请求路由的路由（例如 OpenAI 的 `prompt_cache_key`，以及 OpenCode 要求的 `x-opencode-session` header）会以该 Session 的键发送评审；[Omega session-log 上传](../../session/session-log-omega/README.zh.md#request-field)在启用且没有已注册排除条件匹配时贡献权威 Session 日志。
 
 ### 工具拒绝
 

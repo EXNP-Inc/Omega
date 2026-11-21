@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type {
   ChangeRequestSummary, ForgeFailure, ForgeViewerFilter, ForgeViewerList, ForgeViewerQuery, ForgeViewerSource,
-} from '@deepseek-ai/dsh-experimental-forge/types'
+} from '@omega-ai/dsh-experimental-forge/types'
 import type { ForgeReviewCountFrame, ForgeReviewFrame } from '../src/types.ts'
 import { Reader, ViewerLists, type ViewerListSources, type ViewerListTiming } from '../src/viewer-lists.ts'
 

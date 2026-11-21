@@ -8,7 +8,7 @@ import {
   launchAcpTestAgent,
   type AgentUnderTest,
   type LaunchedAcpTestAgent,
-} from '@deepseek-ai/dsh-session-snapshot'
+} from '@omega-ai/dsh-session-snapshot'
 import { cleanupAcpExampleTest } from './cleanup.ts'
 
 /**
@@ -44,7 +44,7 @@ afterEach(async () => {
   await cleanupAcpExampleTest(ownedSpawned, ownedWorkdir)
 })
 
-describe.skipIf(!process.env.DEEPSEEK_API_KEY)('acp-agent e2e: a PreToolUse hook blocks bash (real model)', () => {
+describe.skipIf(!process.env.OMEGA_API_KEY)('acp-agent e2e: a PreToolUse hook blocks bash (real model)', () => {
   it('denies every bash command, so the requested file is never written (verified on disk)', async () => {
     workdir = await mkdtemp(join(tmpdir(), 'acp-hooks-e2e-'))
     // `configPath` is process-relative, so placing the match-all hook in the

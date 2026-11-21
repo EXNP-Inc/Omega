@@ -8,26 +8,26 @@
  *
  * Namespace plugin (named exports, no default export). Lifecycle is effect-scoped: disposal
  * unregisters from `ctx.lsp` and tears down every live server.
- * @module @deepseek-ai/dsh-lsp-stdio
+ * @module @omega-ai/dsh-lsp-stdio
  */
 
-import type { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import { LspError, type LspProviderId } from '@deepseek-ai/dsh-lsp'
-import { HarnessError } from '@deepseek-ai/dsh-error'
+import type { Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
+import { LspError, type LspProviderId } from '@omega-ai/dsh-lsp'
+import { HarnessError } from '@omega-ai/dsh-error'
 import type {
   LspProvider,
   LspProviderQuery,
   LspQueryResult,
-} from '@deepseek-ai/dsh-lsp'
-import { MAX_TIMER_DELAY_MS } from '@deepseek-ai/dsh-timeout'
+} from '@omega-ai/dsh-lsp'
+import { MAX_TIMER_DELAY_MS } from '@omega-ai/dsh-timeout'
 import { abortable, abortError } from './abort.ts'
 import { canonicalizeWorkspace, readHostSource } from './host.ts'
 import type { HostWorkspace } from './host.ts'
 import { LspInstance } from './instance.ts'
 import type { ConnectionSpawner } from './connection.ts'
 import type { InstanceSpec } from './instance.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 /** Cordis plugin name for loader diagnostics. */
 export const name = 'lsp-stdio'

@@ -30,7 +30,7 @@
     "user/message",
     "request/header",
     "request/context",
-    "session-log-deepseek/delivery-accepted",
+    "session-log-omega/delivery-accepted",
     "assistant/message",
     "step/end",
     "turn/end"
@@ -39,7 +39,7 @@
     {
       "type": "model/selection",
       "data": {
-        "provider": "deepseek-official",
+        "provider": "omega-official",
         "model": "resumed-smoke-model"
       }
     }

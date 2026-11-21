@@ -3,8 +3,8 @@
 import type {
   ChangeRequestRef, ForgeActionFailure, ForgeLineComment, ForgeReviewEvent, ForgeReviewRequest, ForgeReviewResult, ForgeReviewWrite,
   ForgeReviewWriteResult,
-} from '@deepseek-ai/dsh-experimental-forge'
-import { assertNever } from '@deepseek-ai/dsh-util-values'
+} from '@omega-ai/dsh-experimental-forge'
+import { assertNever } from '@omega-ai/dsh-util-values'
 import { z } from 'zod'
 import type { GitLabApi, WriteResult } from './api.ts'
 import { newestVersion } from './diff.ts'

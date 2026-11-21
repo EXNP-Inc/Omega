@@ -1,13 +1,13 @@
 /** A full child profile must finish its nested fork before its external task settles. */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { existsSync } from 'node:fs'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it, vi } from 'vitest'
-import { resolveExampleLaunch } from '@deepseek-ai/dsh-loader-smoke'
-import { createProcessDeepSeekHarness } from '../../../sdk/client/src/api.ts'
+import { resolveExampleLaunch } from '@omega-ai/dsh-loader-smoke'
+import { createProcessOmegaHarness } from '../../../sdk/client/src/api.ts'
 import { spawnSubprocess } from '../../../subprocess/subprocess-local/src/spawn.ts'
 import { startAcpRun } from '../../subagent-acp/src/run.ts'
 import { externalTestParent } from '../../subagent/tests/external-activation-helpers.ts'
@@ -41,7 +41,7 @@ describe('external tasks with a nested fork', () => {
     let run: Awaited<ReturnType<typeof startSdkRun>> | undefined
     try {
       await writeFile(patch, JSON.stringify([
-        { id: 'llm-deepseek', disabled: true },
+        { id: 'llm-omega', disabled: true },
         { id: 'agent-instructions', disabled: true },
         { id: 'skill-filesystem', config: { includeDefaultRoots: false } },
         { id: 'typert-loader', disabled: true },
@@ -53,7 +53,7 @@ describe('external tasks with a nested fork', () => {
       const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(45_000)])
       const request = { parent, prompt: [{ type: 'text' as const, text: 'delegate with a fork' }], signal }
       if (profile === 'sdk') {
-        internals.createHarness = options => createProcessDeepSeekHarness({
+        internals.createHarness = options => createProcessOmegaHarness({
           command: launch.command, args: launch.args, cwd: root,
           environment: () => ({ ...process.env, ...launch.env }),
           description: 'nested SDK profile', initializeTimeoutMs: 30_000,

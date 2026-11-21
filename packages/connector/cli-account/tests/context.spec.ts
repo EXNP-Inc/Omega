@@ -1,5 +1,5 @@
-import { Context } from '@deepseek-ai/cordis'
-import SystemPrompt, { renderContextSections } from '@deepseek-ai/dsh-system-prompt'
+import { Context } from '@omega-ai/cordis'
+import SystemPrompt, { renderContextSections } from '@omega-ai/dsh-system-prompt'
 import { describe, expect, it, onTestFinished } from 'vitest'
 import { cliPathContextText, registerCliPathContext, type CliPathContext } from '../src/context.ts'
 

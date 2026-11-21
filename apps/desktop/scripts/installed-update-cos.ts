@@ -2,13 +2,13 @@
 import { createReadStream } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { Readable, Writable } from 'node:stream'
-import { cosOperation } from '@deepseek-ai/dsh-desktop-publisher/cos-operation.ts'
-import { createDesktopCos, DESKTOP_COS_REGION } from '@deepseek-ai/dsh-desktop-publisher/desktop-cos.ts'
+import { cosOperation } from '@omega-ai/dsh-desktop-publisher/cos-operation.ts'
+import { createDesktopCos, DESKTOP_COS_REGION } from '@omega-ai/dsh-desktop-publisher/desktop-cos.ts'
 import { loadDesktopPackageEnvironment } from './desktop-package-environment.mjs'
 import type { InstalledUpdatePublicationStore, InstalledUpdateRemoteObject } from './installed-update-publication.ts'
 
 const BUCKET = 'bj-toc-download-test-1320056602'
-const ORIGIN = 'https://download-test.deepseek.com'
+const ORIGIN = 'https://download-test.omega.com'
 
 /** COS reports a missing key through this error code; no other status means absence. */
 function isMissingObject(error: unknown): boolean {

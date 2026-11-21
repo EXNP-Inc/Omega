@@ -3,17 +3,17 @@
  * authorization as the operation, and the page's operations run through the manager.
  */
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@deepseek-ai/cordis'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import type { Context } from '@omega-ai/cordis'
+import { brandString } from '@omega-ai/dsh-brand'
 import type {
   ConnectorAccountButton, ConnectorAccountCopy, ConnectorAccountDisplay, ConnectorAccountSource, ConnectorAccountView,
   ConnectorOperationId, ConnectorOperationResult,
-} from '@deepseek-ai/dsh-client-ui-connector-account/types'
-import type { McpAuthorizationReason, McpOAuthAttemptId, McpOAuthAttemptView } from '@deepseek-ai/dsh-mcp-client/types'
-import type {} from '@deepseek-ai/dsh-mcp-manager'
-import type { McpManagedServerView } from '@deepseek-ai/dsh-mcp-manager/types'
-import type { LocalizedText } from '@deepseek-ai/dsh-package-manifest'
-import { assertNever } from '@deepseek-ai/dsh-util-values'
+} from '@omega-ai/dsh-client-ui-connector-account/types'
+import type { McpAuthorizationReason, McpOAuthAttemptId, McpOAuthAttemptView } from '@omega-ai/dsh-mcp-client/types'
+import type {} from '@omega-ai/dsh-mcp-manager'
+import type { McpManagedServerView } from '@omega-ai/dsh-mcp-manager/types'
+import type { LocalizedText } from '@omega-ai/dsh-package-manifest'
+import { assertNever } from '@omega-ai/dsh-util-values'
 import { text, type McpAccountKey } from './locales.ts'
 import type { McpAccountCopy } from './types.ts'
 

@@ -10,7 +10,7 @@ The [stored credential precedence](2026-10-09-stored-credential-precedence.md) d
 
 ## Decision
 
-The shipped headless bundle disables the base `credentials`, `authorization` and `deepseek-account` rows. API-key adapters already support compositions without the credentials service and resolve through the launch snapshot: process environment, invocation-directory `.env`, then Harness-home `.env`. The profile does not read, migrate, write or delete `.credentials.yaml`. Dependent authorization and account rows are disabled explicitly so ordinary jobs do not emit pending-service warnings.
+The shipped headless bundle disables the base `credentials`, `authorization` and `omega-account` rows. API-key adapters already support compositions without the credentials service and resolve through the launch snapshot: process environment, invocation-directory `.env`, then Harness-home `.env`. The profile does not read, migrate, write or delete `.credentials.yaml`. Dependent authorization and account rows are disabled explicitly so ordinary jobs do not emit pending-service warnings.
 
 This partially supersedes the per-run override policy in stored credential precedence for the shipped headless profile. Other profiles and an explicitly restored headless store retain stored-first resolution. The headless [README](../../../../packages/bundle/headless/README.md#credentials) owns the restoration patch.
 
@@ -24,7 +24,7 @@ This partially supersedes the per-run override policy in stored credential prece
 
 ## Consequences
 
-- Headless ignores saved API keys, provider records and grants. A provider requiring stored sign-in or the DeepSeek account route fails until the user restores stored authentication; restoring it also restores saved-first precedence.
+- Headless ignores saved API keys, provider records and grants. A provider requiring stored sign-in or the Omega account route fails until the user restores stored authentication; restoring it also restores saved-first precedence.
 - Environment and external provider credential chains remain available. Sessions, settings and tools stay composed; omission of the store does not deny filesystem reads by tools.
 - Web, SDK and ACP retain the credential store. Their authentication, login and refresh implementations are unchanged.
 - Profile-level process tests cover all three environment layers, named and native pi-ai authentication, missing keys, ignored malformed storage, restoration and preservation of the document. Existing headless transcripts and real-model workspace tests cover the remaining composition.

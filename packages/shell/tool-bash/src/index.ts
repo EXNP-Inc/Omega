@@ -8,26 +8,26 @@
  *
  * TODO(permissions): deployment policy belongs in `tools/pre-execute` and
  * sandboxing executors; see docs/architecture.md § Where new behavior goes.
- * @module @deepseek-ai/dsh-tool-bash
+ * @module @omega-ai/dsh-tool-bash
  */
 
-import type {} from '@deepseek-ai/dsh-working-directory'
-import { FiberState } from '@deepseek-ai/cordis'
-import type { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
+import type {} from '@omega-ai/dsh-working-directory'
+import { FiberState } from '@omega-ai/cordis'
+import type { Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
 import { isAbsolute, sep } from 'node:path'
-import { defineTool, TOOL_ABORTED, ToolArgsError, ToolContextUnavailableError } from '@deepseek-ai/dsh-tools'
-import type { GenericCallView, TerminalCallView, ToolDefinition, ToolExecution, ToolResult, ToolResultView } from '@deepseek-ai/dsh-tools'
-import { HarnessError } from '@deepseek-ai/dsh-llm'
-import type { JobId, JobRegistry, JobView } from '@deepseek-ai/dsh-jobs'
-import type {} from '@deepseek-ai/dsh-user-approval'
-import type {} from '@deepseek-ai/dsh-shell-env'
-import type { SandboxExecutionPolicy, SandboxMode } from '@deepseek-ai/dsh-sandbox'
-import { ESCALATION_TARGETS, approveEscalation, sandboxPermissionsDescription, validateEscalationArgs } from '@deepseek-ai/dsh-sandbox'
-import { subprocessSpawnFailure } from '@deepseek-ai/dsh-subprocess'
-import type { SandboxPolicyService } from '@deepseek-ai/dsh-sandbox-policy'
-import { DSH_ENV_PREFIX } from '@deepseek-ai/dsh-shell'
-import type { ShellExecRequest, ShellExecSpec, ShellExecution, ShellRunResult } from '@deepseek-ai/dsh-shell'
+import { defineTool, TOOL_ABORTED, ToolArgsError, ToolContextUnavailableError } from '@omega-ai/dsh-tools'
+import type { GenericCallView, TerminalCallView, ToolDefinition, ToolExecution, ToolResult, ToolResultView } from '@omega-ai/dsh-tools'
+import { HarnessError } from '@omega-ai/dsh-llm'
+import type { JobId, JobRegistry, JobView } from '@omega-ai/dsh-jobs'
+import type {} from '@omega-ai/dsh-user-approval'
+import type {} from '@omega-ai/dsh-shell-env'
+import type { SandboxExecutionPolicy, SandboxMode } from '@omega-ai/dsh-sandbox'
+import { ESCALATION_TARGETS, approveEscalation, sandboxPermissionsDescription, validateEscalationArgs } from '@omega-ai/dsh-sandbox'
+import { subprocessSpawnFailure } from '@omega-ai/dsh-subprocess'
+import type { SandboxPolicyService } from '@omega-ai/dsh-sandbox-policy'
+import { DSH_ENV_PREFIX } from '@omega-ai/dsh-shell'
+import type { ShellExecRequest, ShellExecSpec, ShellExecution, ShellRunResult } from '@omega-ai/dsh-shell'
 import { processJob, processOutcome, processSources, ringDelta } from './background.ts'
 import type { ProcessJobHooks } from './background.ts'
 import { parseExitStatus, renderJobRead, renderPromoted, renderResult } from './render.ts'
@@ -542,7 +542,7 @@ export function apply(ctx: Context, config: Config = {}): void {
         }
         if (args.run_in_background === true) {
           if (jobs === undefined) {
-            throw new ToolContextUnavailableError('background jobs unavailable: load @deepseek-ai/dsh-jobs and @deepseek-ai/dsh-tool-jobs')
+            throw new ToolContextUnavailableError('background jobs unavailable: load @omega-ai/dsh-jobs and @omega-ai/dsh-tool-jobs')
           }
           // The caller owns cancellation until ctx.jobs commits detached ownership.
           if (exec.signal.aborted) throw toolAborted()

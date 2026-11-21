@@ -1,10 +1,10 @@
 /** Shared directory application catalog, preference, and launch carrier for controls and menus. */
 
-import { createSnapshotStore, type SnapshotStore } from '@deepseek-ai/dsh-client-store'
+import { createSnapshotStore, type SnapshotStore } from '@omega-ai/dsh-client-store'
 import {
   OPEN_IN_APP_APPS_ROUTE, OPEN_IN_APP_OPEN_ROUTE,
   type OpenInAppAppsPayload, type OpenInAppOpenPayload,
-} from '@deepseek-ai/dsh-host-open-in-app/shared'
+} from '@omega-ai/dsh-host-open-in-app/shared'
 
 import { APP_LABEL_KEY } from './applications.ts'
 import type { OpenInAppOutcome } from './outcome.ts'

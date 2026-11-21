@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { AttachmentId } from '@deepseek-ai/dsh-attachment'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { AttachmentId } from '@omega-ai/dsh-attachment'
 import {
   type ToolCallId,
   boundContextSummary,
@@ -12,8 +12,8 @@ import {
   createUserMessage,
   freezeMessage,
   type MessageId,
-} from '@deepseek-ai/dsh-llm'
-import { extractTextContent } from '@deepseek-ai/dsh-llm/message'
+} from '@omega-ai/dsh-llm'
+import { extractTextContent } from '@omega-ai/dsh-llm/message'
 
 describe('extractTextContent', () => {
   it('preserves whitespace and empty text blocks while omitting non-text blocks', () => {

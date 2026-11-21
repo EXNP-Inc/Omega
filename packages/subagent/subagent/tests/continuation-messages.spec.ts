@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { createUserMessage, type ToolCallId, type ContentBlock } from '@deepseek-ai/dsh-llm'
-import type { SessionId } from '@deepseek-ai/dsh-session'
+import { brandString } from '@omega-ai/dsh-brand'
+import { createUserMessage, type ToolCallId, type ContentBlock } from '@omega-ai/dsh-llm'
+import type { SessionId } from '@omega-ai/dsh-session'
 import { createSettlementMessage } from '../src/continuation-messages.ts'
 
 const childId = brandString<SessionId>('settled-child')

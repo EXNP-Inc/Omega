@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { GH_COMMANDS } from '@deepseek-ai/dsh-experimental-forge-github/src/commands.ts'
+import { GH_COMMANDS } from '@omega-ai/dsh-experimental-forge-github/src/commands.ts'
 import { compileRules, commandOf, FORGE_CHANGE_REQUESTS_VERSION, pushedBranches, sameChangeRequestUrl, validateRule } from '../src/commands.ts'
 import type { CommandEvidence, ForgeCommandRule } from '../src/index.ts'
 import { TEA_COMMANDS } from './fixtures.ts'

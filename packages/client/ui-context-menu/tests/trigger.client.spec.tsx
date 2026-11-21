@@ -1,15 +1,15 @@
 // @vitest-environment jsdom
-import { syncedConfig } from '@deepseek-ai/dsh-client-test-runtime'
+import { syncedConfig } from '@omega-ai/dsh-client-test-runtime'
 import { act, cleanup, createEvent, fireEvent, render } from '@testing-library/react'
 import { afterEach, expect, it, onTestFinished, vi } from 'vitest'
 import { createPortal } from 'react-dom'
-import { SlotTestRuntime } from '@deepseek-ai/dsh-client-test-runtime'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { SlotTestRuntime } from '@omega-ai/dsh-client-test-runtime'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import { apply, inject } from '../src/client/index.ts'
 import { createContextMenuBindings } from '../src/client/trigger.ts'
 import type { ContextMenuTriggerProps, ContextMenuTarget } from '../src/client/types.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 afterEach(cleanup)
 const target = (id: string): ContextMenuTarget => ({ kind: 'session', value: { sessionId: brandString<SessionId>(id), displayTitle: id } })

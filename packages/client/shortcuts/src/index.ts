@@ -1,6 +1,6 @@
 /** Host Loader entry declaring window-local keyboard sequence timing; the keyboard service belongs to the Client. */
-import type { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
+import type { Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
 import type { ShortcutsConfig } from './types.ts'
 
 /** Fixed shortcut sequence timing; the browser receives it through its synced Config. */

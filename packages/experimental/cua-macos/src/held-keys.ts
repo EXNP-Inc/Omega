@@ -1,9 +1,9 @@
 /** Directional input belongs to the enclosing program, including while its worker calls other tools. */
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@deepseek-ai/cordis'
-import type { CuaBackend } from '@deepseek-ai/dsh-cua'
-import { NativeError, type NativeClient } from '@deepseek-ai/dsh-cua/native-client'
-import { RUN_CODE_NAME, type ToolExecutionToken } from '@deepseek-ai/dsh-tools'
+import type { Context } from '@omega-ai/cordis'
+import type { CuaBackend } from '@omega-ai/dsh-cua'
+import { NativeError, type NativeClient } from '@omega-ai/dsh-cua/native-client'
+import { RUN_CODE_NAME, type ToolExecutionToken } from '@omega-ai/dsh-tools'
 
 interface HeldKeyRun {
   id: string

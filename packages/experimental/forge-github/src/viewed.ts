@@ -2,7 +2,7 @@
 
 import type {
   ChangeRequestRef, ForgeActionFailure, ForgeFailure, ForgeViewedFiles, ForgeViewedRequest, ForgeViewedState,
-} from '@deepseek-ai/dsh-experimental-forge'
+} from '@omega-ai/dsh-experimental-forge'
 import { pullRequestNode } from './pull-request-node.ts'
 import { z } from 'zod'
 import type { GraphqlReader } from './commits.ts'

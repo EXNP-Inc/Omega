@@ -1,0 +1,16 @@
+# Bilingual-pair consistency record for guide.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/upgrade-guide/v0.2.2-rc.2/omega-files-timeout/guide.md
+/:
+  en: 409742e0dbfb7830
+  zh: bf793e338d18b7fc
+/omega-image-upload-timeout:
+  en: fd9ead4cd6913fca
+  zh: e6a1ec281c60715c
+/omega-image-upload-timeout/change:
+  en: 2fcab2b99d847c24
+  zh: e7b7a7104ebffa68
+/omega-image-upload-timeout/migration:
+  en: ad58733c4672b2a7
+  zh: 853aa1870727ef73

@@ -34,7 +34,7 @@ const CONFIG_GLOB = 'packages/*/*/tsdown.config.ts'
 const PLATFORM_SOURCE = 'packages/client/web/src/platform.ts'
 const PARSER_PRELOAD_SOURCE = 'packages/client/modules/src/index.ts'
 const STATIC_PRESET_SOURCE = 'packages/client/tsdown.client.ts'
-const CORDIS = '@deepseek-ai/cordis'
+const CORDIS = '@omega-ai/cordis'
 /** Stylesheet requests the dynamic build preset compiles: CSS Modules, global sheets, and `?inline` text. */
 const STYLESHEET_REQUEST = /\.css(?:\?inline)?$/u
 const INLINE_STYLESHEET_QUERY = /\?inline$/u
@@ -360,8 +360,8 @@ function collectModuleViolations(facts: ClientPackageFacts): string[] {
         violations.push(pkg.manifest + ': dsh.client.external names its own row ' + JSON.stringify(specifier))
       } else if (supplier !== undefined) {
         // The iframe provider shares the registry's Realm error identity; this is an infrastructure edge, not UI composition.
-        const realmProvider = pkg.name === '@deepseek-ai/dsh-client-script-realm-iframe'
-          && specifier === '@deepseek-ai/dsh-client-script-realm/client'
+        const realmProvider = pkg.name === '@omega-ai/dsh-client-script-realm-iframe'
+          && specifier === '@omega-ai/dsh-client-script-realm/client'
         if (pkg.manifest.startsWith(CLIENT_FEATURE_PREFIX) && !isInfrastructureRow(byName.get(supplier)) && !realmProvider) {
           violations.push(
             pkg.manifest + ': client feature package requests runtime external ' + JSON.stringify(specifier)

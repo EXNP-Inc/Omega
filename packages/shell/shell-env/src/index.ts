@@ -5,23 +5,23 @@
  * the registry itself while plugins can register additional, enumerable facts
  * with effect-scoped disposal.
  *
- * @module @deepseek-ai/dsh-shell-env
+ * @module @omega-ai/dsh-shell-env
  */
 
 import { dirname } from 'node:path'
-import { Service, type Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import { DSH_ENV_PREFIX } from '@deepseek-ai/dsh-shell'
-import type { DshEnvironment, DshEnvironmentKey } from '@deepseek-ai/dsh-shell'
-import { DSH_HOME_ENV, resolveDshHome } from '@deepseek-ai/dsh-home-paths'
+import { Service, type Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
+import { DSH_ENV_PREFIX } from '@omega-ai/dsh-shell'
+import type { DshEnvironment, DshEnvironmentKey } from '@omega-ai/dsh-shell'
+import { DSH_HOME_ENV, resolveDshHome } from '@omega-ai/dsh-home-paths'
 import { ShellEnvError } from './error.ts'
-import type { ToolExecution } from '@deepseek-ai/dsh-tools'
+import type { ToolExecution } from '@omega-ai/dsh-tools'
 // Declares `Context.profileContext`, the launcher-provided profile the built-ins read.
-import type {} from '@deepseek-ai/dsh-app-boot'
+import type {} from '@omega-ai/dsh-app-boot'
 
 export { ShellEnvError, type ShellEnvErrorCode } from './error.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context {
     shellEnv: ShellEnvRegistry
   }
@@ -32,7 +32,7 @@ export const inject: string[] = []
 
 /** Plugin config (all optional — the built-in facts resolve without defaults). */
 export interface Config {
-  /** DeepSeek Harness home directory exposed as `DSH_HOME`; defaults to `$DSH_HOME` or `~/.dsh`. */
+  /** Omega home directory exposed as `DSH_HOME`; defaults to `$DSH_HOME` or `~/.dsh`. */
   dshHome?: string
 }
 

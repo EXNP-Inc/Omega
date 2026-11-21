@@ -3,7 +3,7 @@ description: "The web access service (ctx.web): how deployments and plugin autho
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-web
+# @omega-ai/dsh-web
 
 English | [中文](README.zh.md)
 
@@ -33,23 +33,23 @@ Choose the service when a plugin or tool must search or fetch without hard-codin
 
 ### Minimal configuration
 
-Load the service and let a single mounted backend auto-select, or pin a provider id with `searchProvider`/`fetchProvider`. The environment variables `$DSH_WEB_SEARCH_PROVIDER` and `$DSH_WEB_FETCH_PROVIDER` feed the same fields and are not a separate priority chain. Both backends below register a fetch provider, so the example pins `fetchProvider: http`. The DeepSeek backend requires [`dsh-deepseek-auth`](../../account/deepseek-auth/README.md) for its credentials.
+Load the service and let a single mounted backend auto-select, or pin a provider id with `searchProvider`/`fetchProvider`. The environment variables `$DSH_WEB_SEARCH_PROVIDER` and `$DSH_WEB_FETCH_PROVIDER` feed the same fields and are not a separate priority chain. Both backends below register a fetch provider, so the example pins `fetchProvider: http`. The Omega backend requires [`dsh-omega-auth`](../../account/omega-auth/README.md) for its credentials.
 
 ```yaml
-- name: '@deepseek-ai/dsh-web'
+- name: '@omega-ai/dsh-web'
   config:
     fetchProvider: http
-- name: '@deepseek-ai/dsh-deepseek-auth'
-- name: '@deepseek-ai/dsh-web-deepseek-api'
-- name: '@deepseek-ai/dsh-web-fetch-http'
+- name: '@omega-ai/dsh-omega-auth'
+- name: '@omega-ai/dsh-web-omega-api'
+- name: '@omega-ai/dsh-web-fetch-http'
 ```
 
 | Field | Default | Meaning |
 |---|---|---|
-| `searchProvider` | (unset) | Pinned search provider id; unset prefers the usable DeepSeek provider of the [request's model route](#provider-selection), and otherwise auto-selects when exactly one is usable |
+| `searchProvider` | (unset) | Pinned search provider id; unset prefers the usable Omega provider of the [request's model route](#provider-selection), and otherwise auto-selects when exactly one is usable |
 | `fetchProvider` | (unset) | Pinned fetch provider id; unset auto-selects when exactly one is usable |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-web) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-web) is the exhaustive source for every accepted field and its JSDoc.
 
 ### Searching and fetching
 
@@ -57,7 +57,7 @@ The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-a
 
 ```text
 // Search the web; sources[] is capped to maxResults:
-const result = await ctx.web.search({ query: 'deepseek harness', maxResults: 8 })
+const result = await ctx.web.search({ query: 'Omega', maxResults: 8 })
 
 // Fetch one URL; a non-2xx response is a result, not an error:
 const page = await ctx.web.fetch({ url: 'https://example.com' })
@@ -80,7 +80,7 @@ Each call resolves its provider at execution time, and registration or load orde
 | no id, no usable provider | `WEB_PROVIDER_UNAVAILABLE` |
 | no id, multiple usable providers | `WEB_PROVIDER_AMBIGUOUS` |
 
-The shipped `deepseek-official` and `deepseek-search-api` search ids select legacy Messages search and the direct Search API respectively. While no search provider is configured, a search prefers `deepseek-official` for a model request on the `deepseek-official` or `deepseek-account` model route, because DeepSeek makes no per-search charge for Messages search, and `deepseek-search-api` for a request on any other route and for a search that serves no model request. The preference is fixed in this package and applies only while the preferred provider is registered and usable, so a composition without these providers selects as the table states. The [base composition](../../bundle/base/cordis.patch.yml) mounts both and configures no search provider. A configured `searchProvider`, or `$DSH_WEB_SEARCH_PROVIDER`, applies to every route.
+The shipped `omega-official` and `omega-search-api` search ids select legacy Messages search and the direct Search API respectively. While no search provider is configured, a search prefers `omega-official` for a model request on the `omega-official` or `omega-account` model route, because Omega makes no per-search charge for Messages search, and `omega-search-api` for a request on any other route and for a search that serves no model request. The preference is fixed in this package and applies only while the preferred provider is registered and usable, so a composition without these providers selects as the table states. The [base composition](../../bundle/base/cordis.patch.yml) mounts both and configures no search provider. A configured `searchProvider`, or `$DSH_WEB_SEARCH_PROVIDER`, applies to every route.
 
 A provider's availability is a cheap local check — for example whether its API key is present — and never makes network calls, so selection stays fast and deterministic.
 
@@ -118,8 +118,8 @@ A search or fetch backend outside the shipped composition is a plugin package th
 
 ```text
 // false only when the selected provider cannot authenticate this route's operations:
-const searchOffered = await ctx.web.searchReady('deepseek-official')
-const fetchOffered = await ctx.web.fetchReady('deepseek-official')
+const searchOffered = await ctx.web.searchReady('omega-official')
+const fetchOffered = await ctx.web.fetchReady('omega-official')
 ```
 
 ### Failures and recovery
@@ -141,7 +141,7 @@ This section explains the design decisions behind the service; the observable be
 The package is built on one deliberate separation:
 
 - **One seam, two independent operations.** Search and fetch share no request schema and no business logic, but they share one service so provider selection, cancellation, errors, and product configuration have a single owner. The parallel `Search`/`Fetch` method pairs are intentional.
-- **Selection is never order-dependent.** A capability either pins a provider id or auto-selects when exactly one usable provider is registered, and an unpinned search prefers the DeepSeek provider of the request's model route; `search()`/`fetch()` resolve the provider at execution time.
+- **Selection is never order-dependent.** A capability either pins a provider id or auto-selects when exactly one usable provider is registered, and an unpinned search prefers the Omega provider of the request's model route; `search()`/`fetch()` resolve the provider at execution time.
 - **The service owns the result bound.** `maxResults` is enforced by the seam after the provider returns, so an over-returning provider can never leak more sources than the caller asked for.
 
 ### Source map
@@ -172,7 +172,7 @@ Read these pages when the package-level contract is not enough. They move from t
 - [Web package map](../README.md) — the five-package family and each role.
 - [dsh-tool-web](../tool-web/README.md) — the model-facing `web_search` and `web_fetch` tools over this service.
 - [dsh-web-fetch-http](../web-fetch-http/README.md) — the shipped anonymous HTTP(S) fetch backend.
-- [Generated configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-web) — every accepted config field and its source declaration.
+- [Generated configuration catalog](../../../docs/config-catalog.md#omega-aidsh-web) — every accepted config field and its source declaration.
 - [Web capability seam decision](../../../.agents/notes/implemented/architecture/2026-06-24-web-capability-seam.md) — why search and fetch share one provider-selection service.
 - [Search readiness decision](../../../.agents/notes/implemented/architecture/2026-09-27-web-search-offered-by-provider-readiness.md) — why the seam answers per-route search and fetch readiness for `dsh-tool-web`.
 
@@ -197,7 +197,7 @@ These limits define when the service is incomplete on its own. They are current 
 - **No availability observation** — `listProviders()` and `web/providers-changed` report which providers are registered, not whether they are usable; there is no capability-status query, and `searchReady()` and `fetchReady()` report only the selected provider's credential readiness and answer true when selection fails. Availability is observable only by running a search or fetch and routing the thrown code, and the no-provider failure is the generic `WEB_PROVIDER_UNAVAILABLE` with no per-provider reason enumeration ([Agent Note](../../../.agents/notes/archived/simplification/2026-07-04-drop-unconsumed-web-observation-surface.md)).
 - **Search requests carry only `query`, `maxResults`, and `llmProvider`** — provider-neutral controls (recency, domain filters, regional hints, search depth) are deferred until the backends can honor them ([seam Agent Note](../../../.agents/notes/implemented/architecture/2026-06-24-web-capability-seam.md)).
 - **`WebFetchBody` has no `pdf` arm** — text-extractable PDF support is named deferred work; the closed union makes adding it a compile-enforced change across the web packages.
-- **The per-route search preference is fixed** — the two DeepSeek model routes and the two DeepSeek search provider ids are constants of this package, so a deployment changes the outcome only by configuring `searchProvider`, and a provider-neutral rule is deferred until a second pair of routes and providers needs one.
+- **The per-route search preference is fixed** — the two Omega model routes and the two Omega search provider ids are constants of this package, so a deployment changes the outcome only by configuring `searchProvider`, and a provider-neutral rule is deferred until a second pair of routes and providers needs one.
 - **Provider-backed page extraction is out of scope of `fetch()`** — a Firecrawl/Tavily-style `web_extract` capability is deferred rather than widening the fetch operation.
 
 <a id="dev-note"></a>

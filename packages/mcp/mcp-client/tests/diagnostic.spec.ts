@@ -2,9 +2,9 @@
 // verbatim, and hostile shapes (cycles, empty messages, bare values) cannot
 // break the status text they feed.
 import { describe, expect, it } from 'vitest'
-import { describeError, McpLocalError, mcpRequestError, redactSecrets } from '@deepseek-ai/dsh-mcp-client/src/diagnostic.ts'
-import { withDeadline } from '@deepseek-ai/dsh-mcp-client/src/deadline.ts'
-import { MissingTemplateValue, resolveTemplateString } from '@deepseek-ai/dsh-mcp-client/src/templates.ts'
+import { describeError, McpLocalError, mcpRequestError, redactSecrets } from '@omega-ai/dsh-mcp-client/src/diagnostic.ts'
+import { withDeadline } from '@omega-ai/dsh-mcp-client/src/deadline.ts'
+import { MissingTemplateValue, resolveTemplateString } from '@omega-ai/dsh-mcp-client/src/templates.ts'
 
 describe('describeError', () => {
   it('keeps a plain error as its own string', () => {

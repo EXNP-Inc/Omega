@@ -1,7 +1,7 @@
 import { createServer, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { installProxyFromEnvironment } from '@deepseek-ai/dsh-http-proxy'
+import { installProxyFromEnvironment } from '@omega-ai/dsh-http-proxy'
 
 let seen: string[] = []
 let proxy: Server
@@ -32,8 +32,8 @@ async function observe(run: () => Promise<unknown>): Promise<string[]> {
   return seen
 }
 import { vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import LlmRuntime from '@deepseek-ai/dsh-llm'
+import { Context } from '@omega-ai/cordis'
+import LlmRuntime from '@omega-ai/dsh-llm'
 import * as LlmPiAi from '../src/index.ts'
 import { discoverModels } from '../src/discovery.ts'
 
@@ -44,9 +44,9 @@ async function streamOnce(): Promise<void> {
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
     await ctx.plugin(LlmPiAi, {
-      providers: { deepseek: { apiKeyEnv: 'PI_TEST_KEY', baseURL: 'http://pi-stream-probe.invalid' } },
+      providers: { omega: { apiKeyEnv: 'PI_TEST_KEY', baseURL: 'http://pi-stream-probe.invalid' } },
     })
-    for await (const _chunk of ctx.llm.stream({ provider: 'deepseek', model: 'deepseek-flash', messages: [] })) {
+    for await (const _chunk of ctx.llm.stream({ provider: 'omega', model: 'omega-flash', messages: [] })) {
       // The endpoint never answers; the proxy record is the assertion.
     }
   } finally {

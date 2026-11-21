@@ -5,28 +5,28 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import Include from '@deepseek-ai/cordis-plugin-include'
-import LlmRuntime from '@deepseek-ai/dsh-llm'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import SessionStore, { type SessionId } from '@deepseek-ai/dsh-session'
-import { credentialRef } from '@deepseek-ai/dsh-credentials'
-import LocalCredentialProvider from '@deepseek-ai/dsh-credentials-local'
+import { Context } from '@omega-ai/cordis'
+import Loader from '@omega-ai/cordis-plugin-loader'
+import Include from '@omega-ai/cordis-plugin-include'
+import LlmRuntime from '@omega-ai/dsh-llm'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import AgentRegistry from '@omega-ai/dsh-agent'
+import SessionStore, { type SessionId } from '@omega-ai/dsh-session'
+import { credentialRef } from '@omega-ai/dsh-credentials'
+import LocalCredentialProvider from '@omega-ai/dsh-credentials-local'
 import { profileComposition } from '../../../settings/settings/tests/profile-composition.ts'
-import { getOrCreateAnonymousUserId } from '@deepseek-ai/dsh-anonymous-user-id'
-import DeepSeekLlmApiExtensionRegistry from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
-import * as SessionLogDeepSeek from '@deepseek-ai/dsh-session-log-deepseek'
-import * as DeepSeekPluginPackageInventory from '@deepseek-ai/dsh-plugin-package-inventory-deepseek'
-import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
-import DeepSeekAuth from '@deepseek-ai/dsh-deepseek-auth'
+import { getOrCreateAnonymousUserId } from '@omega-ai/dsh-anonymous-user-id'
+import OmegaLlmApiExtensionRegistry from '@omega-ai/dsh-omega-llm-api-extensions'
+import * as SessionLogOmega from '@omega-ai/dsh-session-log-omega'
+import * as OmegaPluginPackageInventory from '@omega-ai/dsh-plugin-package-inventory-omega'
+import * as LlmOmega from '@omega-ai/dsh-llm-omega-api-key'
+import OmegaAuth from '@omega-ai/dsh-omega-auth'
 import { assemble } from './assemble.ts'
 import { closeMockServers, mockServer, textEvents } from './mock-server.ts'
 import { sourceModuleLoader } from './helpers.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
-declare module '@deepseek-ai/dsh-llm/types' {
+declare module '@omega-ai/dsh-llm/types' {
   interface LlmRequestPurposeMap {
     'test-upload-exclusion': true
   }
@@ -34,14 +34,14 @@ declare module '@deepseek-ai/dsh-llm/types' {
 
 const uploadExclusion = {
   name: 'test-upload-exclusion',
-  inject: ['sessionLogDeepSeek'],
+  inject: ['sessionLogOmega'],
   apply(ctx: Context) {
-    ctx.sessionLogDeepSeek.registerExclusion(request => request.purpose === 'test-upload-exclusion')
+    ctx.sessionLogOmega.registerExclusion(request => request.purpose === 'test-upload-exclusion')
   },
 }
 
-const NS = 'llm-deepseek'
-const KEY_REF = credentialRef('DEEPSEEK_API_KEY')
+const NS = 'llm-omega'
+const KEY_REF = credentialRef('OMEGA_API_KEY')
 
 let root: string | undefined
 let context: Context | undefined
@@ -67,43 +67,43 @@ async function loadComposition(
   const settingsPath = join(root, 'profile', 'cordis.patch.yml')
   const credentialsPath = join(root, '.credentials.yaml')
   if (options.withDynamic && fresh) {
-    await writeFile(credentialsPath, 'version: 1\nrefs:\n  DEEPSEEK_API_KEY: boot-key\n', { mode: 0o600 })
+    await writeFile(credentialsPath, 'version: 1\nrefs:\n  OMEGA_API_KEY: boot-key\n', { mode: 0o600 })
   }
 
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, [
     '- id: llm',
-    "  name: '@deepseek-ai/dsh-llm'",
+    "  name: '@omega-ai/dsh-llm'",
     '- id: session',
-    "  name: '@deepseek-ai/dsh-session'",
+    "  name: '@omega-ai/dsh-session'",
     '- id: session-projection',
-    "  name: '@deepseek-ai/dsh-session-projection'",
+    "  name: '@omega-ai/dsh-session-projection'",
     '- id: agents',
-    "  name: '@deepseek-ai/dsh-agent'",
-    "- name: '@deepseek-ai/dsh-session-projection'",
-    '- id: deepseek-llm-api-extensions',
-    "  name: '@deepseek-ai/dsh-deepseek-llm-api-extensions'",
+    "  name: '@omega-ai/dsh-agent'",
+    "- name: '@omega-ai/dsh-session-projection'",
+    '- id: omega-llm-api-extensions',
+    "  name: '@omega-ai/dsh-omega-llm-api-extensions'",
     ...options.exclusionFirst === true ? ["- name: '@test/upload-exclusion'"] : [],
-    '- id: session-log-deepseek',
-    "  name: '@deepseek-ai/dsh-session-log-deepseek'",
+    '- id: session-log-omega',
+    "  name: '@omega-ai/dsh-session-log-omega'",
     ...options.enableSessionLog !== undefined
       ? ['  config:', `    enabled: ${String(options.enableSessionLog)}`]
       : [],
     ...options.exclusionFirst === false ? ["- name: '@test/upload-exclusion'"] : [],
-    '- id: plugin-package-inventory-deepseek',
-    "  name: '@deepseek-ai/dsh-plugin-package-inventory-deepseek'",
+    '- id: plugin-package-inventory-omega',
+    "  name: '@omega-ai/dsh-plugin-package-inventory-omega'",
     ...options.withDynamic
       ? [
         '- id: credentials',
-        "  name: '@deepseek-ai/dsh-credentials-local'",
+        "  name: '@omega-ai/dsh-credentials-local'",
         '  config:',
         `    path: ${JSON.stringify(credentialsPath)}`,
         '    debounceMs: 10',
       ]
       : [],
-    "- name: '@deepseek-ai/dsh-deepseek-auth'",
-    '- id: llm-deepseek',
-    "  name: '@deepseek-ai/dsh-llm-deepseek-api-key'",
+    "- name: '@omega-ai/dsh-omega-auth'",
+    '- id: llm-omega',
+    "  name: '@omega-ai/dsh-llm-omega-api-key'",
     '  config:',
     `    baseURL: ${JSON.stringify(options.baseURL)}`,
     '',
@@ -116,17 +116,17 @@ async function loadComposition(
   ctx.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
     ['@test/upload-exclusion', uploadExclusion],
-    ['@deepseek-ai/dsh-llm', LlmRuntime],
-    ['@deepseek-ai/dsh-session', SessionStore],
-    ['@deepseek-ai/dsh-session-projection', SessionProjectionRegistry],
-    ['@deepseek-ai/dsh-agent', AgentRegistry],
-    ['@deepseek-ai/dsh-session-projection', SessionProjectionRegistry],
-    ['@deepseek-ai/dsh-deepseek-llm-api-extensions', DeepSeekLlmApiExtensionRegistry],
-    ['@deepseek-ai/dsh-session-log-deepseek', SessionLogDeepSeek],
-    ['@deepseek-ai/dsh-plugin-package-inventory-deepseek', DeepSeekPluginPackageInventory],
-    ['@deepseek-ai/dsh-credentials-local', LocalCredentialProvider],
-    ['@deepseek-ai/dsh-deepseek-auth', DeepSeekAuth],
-    ['@deepseek-ai/dsh-llm-deepseek-api-key', LlmDeepSeek],
+    ['@omega-ai/dsh-llm', LlmRuntime],
+    ['@omega-ai/dsh-session', SessionStore],
+    ['@omega-ai/dsh-session-projection', SessionProjectionRegistry],
+    ['@omega-ai/dsh-agent', AgentRegistry],
+    ['@omega-ai/dsh-session-projection', SessionProjectionRegistry],
+    ['@omega-ai/dsh-omega-llm-api-extensions', OmegaLlmApiExtensionRegistry],
+    ['@omega-ai/dsh-session-log-omega', SessionLogOmega],
+    ['@omega-ai/dsh-plugin-package-inventory-omega', OmegaPluginPackageInventory],
+    ['@omega-ai/dsh-credentials-local', LocalCredentialProvider],
+    ['@omega-ai/dsh-omega-auth', OmegaAuth],
+    ['@omega-ai/dsh-llm-omega-api-key', LlmOmega],
   ])
   // The custom importer bypasses Node resolution; mirror the package manifests
   // a deployed cordis.yml has beside its declared dependencies.
@@ -152,98 +152,98 @@ async function loadComposition(
 }
 
 
-describe('llm-deepseek real dynamic composition', () => {
+describe('llm-omega real dynamic composition', () => {
   it('updates the model catalog when the stored API key is removed or added', async () => {
-    vi.stubEnv('DEEPSEEK_API_KEY', '')
+    vi.stubEnv('OMEGA_API_KEY', '')
     // The official endpoint's model listing is unavailable, so the route serves its built-in catalog offline.
     vi.spyOn(globalThis, 'fetch').mockImplementation(() => Promise.resolve(new Response(null, { status: 404 })))
-    const { ctx } = await loadComposition({ withDynamic: true, baseURL: 'https://api.deepseek.com/anthropic' })
+    const { ctx } = await loadComposition({ withDynamic: true, baseURL: 'http://127.0.0.1:8090/anthropic' })
     const credentials = ctx.get('credentials')!
-    const models = await ctx.llm.listModels('deepseek-official')
-    expect(models).not.toHaveLength(0)
+    const models = await ctx.llm.listModels('omega-official')
+    expect(models).toEqual([])
 
     await credentials.unset(KEY_REF)
-    expect(await ctx.llm.listModels('deepseek-official')).toEqual([])
-    expect(ctx.llm.listConfigurableProviders().map(row => row.provider)).toContain('deepseek-official')
+    expect(await ctx.llm.listModels('omega-official')).toEqual([])
+    expect(ctx.llm.listConfigurableProviders().map(row => row.provider)).toContain('omega-official')
 
     await credentials.set(KEY_REF, 'stored-by-ui')
-    expect(await ctx.llm.listModels('deepseek-official')).toEqual(models)
+    expect(await ctx.llm.listModels('omega-official')).toEqual(models)
 
     const failure = new Error('credential lookup failed')
     const resolve = vi.spyOn(credentials, 'resolve').mockRejectedValue(failure)
     try {
-      await expect(ctx.llm.listModels('deepseek-official')).rejects.toBe(failure)
+      await expect(ctx.llm.listModels('omega-official')).rejects.toBe(failure)
     } finally { resolve.mockRestore() }
   })
 
   it('follows the official model listing and reloads it once the customized catalog is restored', async () => {
-    vi.stubEnv('DEEPSEEK_API_KEY', '')
+    vi.stubEnv('OMEGA_API_KEY', '')
     vi.spyOn(console, 'error').mockImplementation(() => {})
     const keys: Array<string | null> = []
     const messages = { api_capabilities: { anthropic_messages: {} } }
     vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
       const request = new Request(input, init)
-      if (request.url !== 'https://api.deepseek.com/models') return Promise.reject(new Error(`unexpected request to ${request.url}`))
+      if (request.url !== 'http://127.0.0.1:8090/models') return Promise.reject(new Error(`unexpected request to ${request.url}`))
       keys.push(request.headers.get('x-api-key'))
       return Promise.resolve(new Response(JSON.stringify({ data: [
-        { id: 'deepseek-flash', ...messages },
-        { id: 'deepseek-v5', ...messages, client_requirements: { 'deepseek-harness': { min_version: '0.0.1' } } },
+        { id: 'omega-flash', ...messages, client_requirements: { 'omega-harness': { min_version: '0.0.1' } } },
+        { id: 'omega-v5', ...messages, client_requirements: { 'omega-harness': { min_version: '0.0.1' } } },
       ] })))
     })
-    const { ctx } = await loadComposition({ withDynamic: true, baseURL: 'https://api.deepseek.com/anthropic' })
-    const ids = async () => (await ctx.llm.listModels('deepseek-official')).map(model => model.id)
-    expect(await ids()).toEqual(['deepseek-flash', 'deepseek-v5'])
+    const { ctx } = await loadComposition({ withDynamic: true, baseURL: 'http://127.0.0.1:8090/anthropic' })
+    const ids = async () => (await ctx.llm.listModels('omega-official')).map(model => model.id)
+    expect(await ids()).toEqual(['omega-flash', 'omega-v5'])
 
     // The Models page writes these path operations for an edited catalog and for Restore defaults.
     await ctx.settings.mutate(NS, [{ op: 'set', path: ['models'], value: [{ id: 'custom' }] }])
     expect(await ids()).toEqual(['custom'])
     expect(keys).toEqual(['boot-key'])
     await ctx.settings.mutate(NS, [{ op: 'unset', path: ['models'] }])
-    expect(await ids()).toEqual(['deepseek-flash', 'deepseek-v5'])
+    expect(await ids()).toEqual(['omega-flash', 'omega-v5'])
     expect(keys).toEqual(['boot-key', 'boot-key'])
   })
 
   it('advertises listed badges through the composed route and drops them with a customized catalog', async () => {
-    vi.stubEnv('DEEPSEEK_API_KEY', '')
+    vi.stubEnv('OMEGA_API_KEY', '')
     vi.spyOn(console, 'error').mockImplementation(() => {})
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const messages = { api_capabilities: { anthropic_messages: {} } }
     vi.spyOn(globalThis, 'fetch').mockImplementation(() => Promise.resolve(new Response(JSON.stringify({ data: [
-      { id: 'deepseek-flash', ...messages, client_metadata: { 'deepseek-harness': { badge: { text: { en: 'New', zh: '新' }, tone: 'info' } } } },
-      { id: 'deepseek-v4-pro', ...messages, client_metadata: { 'deepseek-harness': { badge: { text: 'far too long a badge' } } } },
+      { id: 'omega-flash', ...messages, client_requirements: { 'omega-harness': { min_version: '0.0.1' } }, client_metadata: { 'omega-harness': { badge: { text: { en: 'New', zh: '新' }, tone: 'info' } } } },
+      { id: 'omega-v4-pro', ...messages, client_requirements: { 'omega-harness': { min_version: '0.0.1' } }, client_metadata: { 'omega-harness': { badge: { text: 'far too long a badge' } } } },
     ] }))))
-    const { ctx } = await loadComposition({ withDynamic: true, baseURL: 'https://api.deepseek.com/anthropic' })
-    const badges = async () => (await ctx.llm.listModels('deepseek-official')).map(model => [model.id, model.badge])
+    const { ctx } = await loadComposition({ withDynamic: true, baseURL: 'http://127.0.0.1:8090/anthropic' })
+    const badges = async () => (await ctx.llm.listModels('omega-official')).map(model => [model.id, model.badge])
     expect(await badges()).toEqual([
-      ['deepseek-flash', { text: { en: 'New', zh: '新' }, tone: 'info' }],
-      ['deepseek-v4-pro', undefined],
+      ['omega-flash', { text: { en: 'New', zh: '新' }, tone: 'info' }],
+      ['omega-v4-pro', undefined],
     ])
-    expect(warn).toHaveBeenCalledWith('[llm-deepseek-api-key]', expect.stringMatching(/^model "deepseek-v4-pro" shows no badge: /))
-    await ctx.settings.mutate(NS, [{ op: 'set', path: ['models'], value: [{ id: 'deepseek-flash' }] }])
-    expect(await badges()).toEqual([['deepseek-flash', undefined]])
+    expect(warn).toHaveBeenCalledWith('[llm-omega-api-key]', expect.stringMatching(/^model "omega-v4-pro" shows no badge: /))
+    await ctx.settings.mutate(NS, [{ op: 'set', path: ['models'], value: [{ id: 'omega-flash' }] }])
+    expect(await badges()).toEqual([['omega-flash', undefined]])
   })
 
   it('keeps package inventory on when the Loader composition disables session upload', async () => {
-    vi.stubEnv('DEEPSEEK_API_KEY', 'entry-key')
+    vi.stubEnv('OMEGA_API_KEY', 'entry-key')
     const server = await mockServer([{ kind: 'sse', events: textEvents }])
     const { ctx } = await loadComposition({ withDynamic: false, baseURL: server.url, enableSessionLog: false })
     const session = ctx.sessions.create(brandString<SessionId>('extension-composition'))
     session.append('turn/start', { turn: 1 })
 
-    await assemble(ctx, { model: 'deepseek-v4-flash', messages: [], sessionId: session.id })
+    await assemble(ctx, { model: 'omega-v4-flash', messages: [], sessionId: session.id })
     const request = server.requests[0] as { dsh_plugin_packages: { version: number; packages: unknown[] } }
     expect(request).not.toHaveProperty('dsh_session_log')
     expect(request.dsh_plugin_packages.packages).toEqual(expect.arrayContaining([
-      { name: '@deepseek-ai/dsh-deepseek-llm-api-extensions', version: '0.1.0-rc.8' },
-      { name: '@deepseek-ai/dsh-llm-deepseek-api-key', version: '0.1.0-rc.8' },
-      { name: '@deepseek-ai/dsh-session-log-deepseek', version: '0.1.0-rc.8' },
+      { name: '@omega-ai/dsh-omega-llm-api-extensions', version: '0.1.0-rc.8' },
+      { name: '@omega-ai/dsh-llm-omega-api-key', version: '0.1.0-rc.8' },
+      { name: '@omega-ai/dsh-session-log-omega', version: '0.1.0-rc.8' },
     ]))
     expect(request.dsh_plugin_packages.version).toBe(1)
-    expect(SessionLogDeepSeek.acceptedThrough(session)).toBe(-1)
+    expect(SessionLogOmega.acceptedThrough(session)).toBe(-1)
   })
 
   it('sends the canonical session suffix by default through Loader composition', async () => {
-    vi.stubEnv('DEEPSEEK_API_KEY', 'entry-key')
+    vi.stubEnv('OMEGA_API_KEY', 'entry-key')
     const server = await mockServer([{ kind: 'sse', events: textEvents }])
     const { ctx } = await loadComposition({
       withDynamic: false,
@@ -252,7 +252,7 @@ describe('llm-deepseek real dynamic composition', () => {
     const session = ctx.sessions.create(brandString<SessionId>('extension-composition-enabled'))
     session.append('turn/start', { turn: 1 })
 
-    await assemble(ctx, { model: 'deepseek-v4-flash', messages: [], sessionId: session.id })
+    await assemble(ctx, { model: 'omega-v4-flash', messages: [], sessionId: session.id })
     const request = server.requests[0] as {
       dsh_session_log?: {
         version: number
@@ -269,70 +269,70 @@ describe('llm-deepseek real dynamic composition', () => {
       throughSeq: 0,
       events: [{ type: 'turn/start', seq: 0 }],
     })
-    expect(SessionLogDeepSeek.acceptedThrough(session)).toBe(0)
+    expect(SessionLogOmega.acceptedThrough(session)).toBe(0)
   })
 
   it.each([false, true])('applies a registered upload exclusion through HTTP with consumer first=%s', async (exclusionFirst) => {
-    vi.stubEnv('DEEPSEEK_API_KEY', 'entry-key')
+    vi.stubEnv('OMEGA_API_KEY', 'entry-key')
     const server = await mockServer([{ kind: 'sse', events: textEvents }, { kind: 'sse', events: textEvents }])
     const { ctx } = await loadComposition({ withDynamic: false, baseURL: server.url, exclusionFirst })
     const session = ctx.sessions.create(brandString<SessionId>('excluded-composition'))
     session.append('turn/start', { turn: 1 })
 
-    await assemble(ctx, { model: 'deepseek-v4-flash', messages: [], sessionId: session.id, purpose: 'test-upload-exclusion' })
-    expect(server.headers[0]?.['x-deepseek-harness-session-id']).toBe(session.id)
+    await assemble(ctx, { model: 'omega-v4-flash', messages: [], sessionId: session.id, purpose: 'test-upload-exclusion' })
+    expect(server.headers[0]?.['x-omega-harness-session-id']).toBe(session.id)
     expect(server.requests[0]).not.toHaveProperty('dsh_session_log')
     expect(server.requests[0]).toHaveProperty('dsh_plugin_packages')
-    expect(SessionLogDeepSeek.acceptedThrough(session)).toBe(-1)
+    expect(SessionLogOmega.acceptedThrough(session)).toBe(-1)
     expect(session.snapshotEvents()).toHaveLength(1)
 
-    await assemble(ctx, { model: 'deepseek-v4-flash', messages: [], sessionId: session.id })
+    await assemble(ctx, { model: 'omega-v4-flash', messages: [], sessionId: session.id })
     expect(server.requests[1]).toHaveProperty('dsh_session_log')
-    expect(SessionLogDeepSeek.acceptedThrough(session)).toBe(0)
+    expect(SessionLogOmega.acceptedThrough(session)).toBe(0)
   })
 
   it('boots from cordis.yml and routes the next request after external settings and credential edits', async () => {
-    vi.stubEnv('DEEPSEEK_API_KEY', '')
+    vi.stubEnv('OMEGA_API_KEY', '')
     const serverA = await mockServer([{ kind: 'sse', events: textEvents }])
     const serverB = await mockServer([{ kind: 'sse', events: textEvents }])
     const { ctx, settingsPath, credentialsPath } = await loadComposition({ withDynamic: true, baseURL: serverA.url })
 
     expect(ctx.settings.describe().map(entry => entry.ns)).toContain(NS)
-    await assemble(ctx, { model: 'deepseek-v4-flash', messages: [] })
+    await assemble(ctx, { model: 'omega-v4-flash', messages: [] })
     expect(serverA.headers[0]?.['x-api-key']).toBe('boot-key')
-    expect(serverA.headers[0]?.['x-deepseek-harness-user-id']).toBe(getOrCreateAnonymousUserId())
+    expect(serverA.headers[0]?.['x-omega-harness-user-id']).toBe(getOrCreateAnonymousUserId())
 
     // External edits, exactly as a user or the web UI would leave them on disk.
     await writeFile(settingsPath, JSON.stringify([{ id: NS, config: { baseURL: serverB.url } }]))
     await vi.waitFor(() => {
       expect((ctx.settings.describe().find(row => row.ns === NS)!.value as { baseURL?: string }).baseURL).toBe(serverB.url)
     }, { timeout: 5000 })
-    await writeFile(credentialsPath, 'version: 1\nrefs:\n  DEEPSEEK_API_KEY: rotated-key\n', { mode: 0o600 })
+    await writeFile(credentialsPath, 'version: 1\nrefs:\n  OMEGA_API_KEY: rotated-key\n', { mode: 0o600 })
     await vi.waitFor(async () => {
       expect(await ctx.get('credentials')!.resolve(KEY_REF)).toEqual({ value: 'rotated-key', source: 'file' })
     }, { timeout: 5000 })
 
-    await assemble(ctx, { model: 'deepseek-v4-flash', messages: [] })
+    await assemble(ctx, { model: 'omega-v4-flash', messages: [] })
     expect(serverA.requests).toHaveLength(1)
     expect(serverB.headers[0]?.['x-api-key']).toBe('rotated-key')
   })
 
   it('reports a provider refusal for a request without a safety check flag', async () => {
-    vi.stubEnv('DEEPSEEK_API_KEY', '')
+    vi.stubEnv('OMEGA_API_KEY', '')
     const refusal = textEvents.map(event => event.replace('"end_turn"', '"refusal"'))
     const server = await mockServer([{ kind: 'sse', events: refusal }])
     const { ctx } = await loadComposition({ withDynamic: true, baseURL: server.url })
 
-    const refused = await assemble(ctx, { model: 'deepseek-v4-flash', messages: [] })
+    const refused = await assemble(ctx, { model: 'omega-v4-flash', messages: [] })
     expect(server.requests).toHaveLength(1)
     expect(server.requests[0]).not.toHaveProperty('safety_check')
     expect(refused.finish).toMatchObject({ kind: 'error', failure: { code: 'CONTENT_REFUSED' } })
   })
 
   it('keeps a stored key writable and rotatable across a real restart', async () => {
-    // No ambient DEEPSEEK_API_KEY: the shipped surfaces do not hoist
+    // No ambient OMEGA_API_KEY: the shipped surfaces do not hoist
     // the credentials document into process.env, so a stored key must stay file-sourced.
-    vi.stubEnv('DEEPSEEK_API_KEY', '')
+    vi.stubEnv('OMEGA_API_KEY', '')
     const first = await mockServer([{ kind: 'sse', events: textEvents }])
     const second = await mockServer([{ kind: 'sse', events: textEvents }])
     const boot = await loadComposition({ withDynamic: true, baseURL: first.url })
@@ -340,7 +340,7 @@ describe('llm-deepseek real dynamic composition', () => {
     await boot.ctx.get('credentials')!.set(KEY_REF, 'stored-by-ui')
     expect(await boot.ctx.get('credentials')!.describe(KEY_REF))
       .toEqual({ configured: true, source: 'file', writable: true, masked: '•'.repeat(12) })
-    await assemble(boot.ctx, { model: 'deepseek-v4-flash', messages: [] })
+    await assemble(boot.ctx, { model: 'omega-v4-flash', messages: [] })
     expect(first.headers[0]?.['x-api-key']).toBe('stored-by-ui')
     await boot.ctx.fiber.dispose()
     context = undefined
@@ -357,20 +357,20 @@ describe('llm-deepseek real dynamic composition', () => {
     await credentials.set(KEY_REF, 'rotated-after-restart')
     expect(await credentials.describe(KEY_REF))
       .toEqual({ configured: true, source: 'file', writable: true, masked: '•'.repeat(21) })
-    await assemble(restarted.ctx, { model: 'deepseek-v4-flash', messages: [] })
+    await assemble(restarted.ctx, { model: 'omega-v4-flash', messages: [] })
     expect(second.headers[0]?.['x-api-key']).toBe('rotated-after-restart')
   })
 
   it('boots the same adapter on entry config alone, resolving the reference from the environment', async () => {
     // No settings and no credentials provider: configuration carries only the
     // reference, so the environment is the whole credential plane here.
-    vi.stubEnv('DEEPSEEK_API_KEY', 'entry-key')
+    vi.stubEnv('OMEGA_API_KEY', 'entry-key')
     const server = await mockServer([{ kind: 'sse', events: textEvents }])
     const { ctx } = await loadComposition({ withDynamic: false, baseURL: server.url })
 
     expect(ctx.get('settings')).toBeUndefined()
     expect(ctx.get('credentials')).toBeUndefined()
-    await assemble(ctx, { model: 'deepseek-v4-flash', messages: [] })
+    await assemble(ctx, { model: 'omega-v4-flash', messages: [] })
     expect(server.headers[0]?.['x-api-key']).toBe('entry-key')
   })
 })

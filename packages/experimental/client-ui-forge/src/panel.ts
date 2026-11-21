@@ -1,15 +1,15 @@
 /** Live panel state of one followed Session, shared by all of its followers. */
 
 import { isDeepStrictEqual } from 'node:util'
-import type { Context } from '@deepseek-ai/cordis'
-import type { ChangeRequestRef, ChangeRequestSnapshot, ForgeReadiness, ForgeRepository } from '@deepseek-ai/dsh-experimental-forge'
-import type { SessionChangeRequest } from '@deepseek-ai/dsh-experimental-forge-session'
-import type {} from '@deepseek-ai/dsh-experimental-worktree'
-import type {} from '@deepseek-ai/dsh-sandbox-policy'
-import { pluginRecordOf } from '@deepseek-ai/dsh-session'
-import type { Session, SessionEvent } from '@deepseek-ai/dsh-session'
-import type { ProjectionHandle } from '@deepseek-ai/dsh-session-projection'
-import { deadline } from '@deepseek-ai/dsh-timeout'
+import type { Context } from '@omega-ai/cordis'
+import type { ChangeRequestRef, ChangeRequestSnapshot, ForgeReadiness, ForgeRepository } from '@omega-ai/dsh-experimental-forge'
+import type { SessionChangeRequest } from '@omega-ai/dsh-experimental-forge-session'
+import type {} from '@omega-ai/dsh-experimental-worktree'
+import type {} from '@omega-ai/dsh-sandbox-policy'
+import { pluginRecordOf } from '@omega-ai/dsh-session'
+import type { Session, SessionEvent } from '@omega-ai/dsh-session'
+import type { ProjectionHandle } from '@omega-ai/dsh-session-projection'
+import { deadline } from '@omega-ai/dsh-timeout'
 import { gitIn, hasBranch, inspectCheckout } from './git.ts'
 import type { GitConfig, Inspection } from './git.ts'
 import { localChanges } from './local-diff.ts'
@@ -19,7 +19,7 @@ import type {
   ForgeCheckoutState, ForgeLocalChanges, ForgeMissingWorktree, ForgePanelChangeRequest, ForgePanelState, ForgePanelWorktree,
   ForgeWorktreeBlocker, ForgeWorktreeState,
 } from './types.ts'
-import type {} from '@deepseek-ai/dsh-working-directory'
+import type {} from '@omega-ai/dsh-working-directory'
 import { within, WORKTREE_RECORD } from './worktree.ts'
 import type { WorktreeCreations } from './worktree.ts'
 

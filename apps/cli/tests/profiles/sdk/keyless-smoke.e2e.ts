@@ -4,11 +4,11 @@ import { tmpdir } from 'node:os'
 import { dirname, join, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { zstdDecompressSync } from 'node:zlib'
-import { resolveExampleLaunch } from '@deepseek-ai/dsh-loader-smoke'
-import { scanZstdFrames } from '@deepseek-ai/dsh-session-persistence-jsonl/src/zstd.js'
+import { resolveExampleLaunch } from '@omega-ai/dsh-loader-smoke'
+import { scanZstdFrames } from '@omega-ai/dsh-session-persistence-jsonl/src/zstd.js'
 import { execa } from 'execa'
 import { describe, expect, it, onTestFinished } from 'vitest'
-import { workspaceDependencyPaths, type PrimaryRuntimeManifest } from '@deepseek-ai/dsh-tool-workspace-dependencies'
+import { workspaceDependencyPaths, type PrimaryRuntimeManifest } from '@omega-ai/dsh-tool-workspace-dependencies'
 
 import { messagesResponse } from './fixtures/messages-response.ts'
 
@@ -76,7 +76,7 @@ describe('Python SDK dsh profile keyless smoke', () => {
     if (editorEnabled) await writeFile(editorPatch, [
       '- insert:',
       '    - id: tool-str-replace-editor',
-      "      name: '@deepseek-ai/dsh-tool-str-replace-editor'",
+      "      name: '@omega-ai/dsh-tool-str-replace-editor'",
       '',
     ].join('\n'))
     const modelRequests: Record<string, unknown>[] = []
@@ -117,8 +117,8 @@ describe('Python SDK dsh profile keyless smoke', () => {
         DSH_PERMISSION_MODE: 'danger-full-access',
         DSH_TELEMETRY_DISABLED: '1',
         DSH_TOOLS_MODE: ptc ? 'native' : 'ptc',
-        DEEPSEEK_API_KEY: 'keyless-smoke-no-call',
-        DEEPSEEK_BASE_URL: `http://127.0.0.1:${address.port}`,
+        OMEGA_API_KEY: 'keyless-smoke-no-call',
+        OMEGA_BASE_URL: `http://127.0.0.1:${address.port}`,
         ...(envValue === undefined ? {} : { DSH_MAX_TOKENS_AS_SUCCESS: envValue }),
       },
       timeout: 35_000,
@@ -143,8 +143,8 @@ describe('Python SDK dsh profile keyless smoke', () => {
         method: 'initialize',
         params: {
           cwd: root,
-          provider: 'deepseek-official',
-          model: 'deepseek-v4-pro',
+          provider: 'omega-official',
+          model: 'omega-v4-pro',
           reasoningEffort: 'max',
           maxTokens: 1234,
         },
@@ -153,7 +153,7 @@ describe('Python SDK dsh profile keyless smoke', () => {
       expect(initialized).toMatchObject({
         jsonrpc: '2.0',
         id: 1,
-        result: { serverInfo: { name: 'deepseek-harness-sdk-runtime' } },
+        result: { serverInfo: { name: 'omega-harness-sdk-runtime' } },
       })
 
       child.stdin.write(`${JSON.stringify({
@@ -211,8 +211,8 @@ describe('Python SDK dsh profile keyless smoke', () => {
         'Time sampled while preparing']) {
         expect(requestText.includes(text), text).toBe(true)
       }
-      expect(requestText).not.toContain('Current DeepSeek Harness implementation checkout:')
-      expect(requestText).not.toContain('Current DeepSeek Harness Web GUI URL:')
+      expect(requestText).not.toContain('Current Omega implementation checkout:')
+      expect(requestText).not.toContain('Current Omega Web GUI URL:')
 
       child.stdin.write(`${JSON.stringify({ jsonrpc: '2.0', id: 3, method: 'shutdown' })}\n`)
       const shutdown = await waitForLine(lines, value => value.id === 3, () => stderr)
@@ -278,9 +278,9 @@ describe('Python SDK dsh profile keyless smoke', () => {
       await writeFile(editorPatch, yaml!)
     }
     if (offloadEnabled) await writeFile(editorPatch, [
-      '- id: llm-deepseek',
+      '- id: llm-omega',
       '  config:',
-      '    apiKeyEnv: DEEPSEEK_API_KEY',
+      '    apiKeyEnv: OMEGA_API_KEY',
       '    maxRequestFilesBytes: 1',
       '    imageOffloadByteQuantum: 1',
       '',
@@ -337,8 +337,8 @@ describe('Python SDK dsh profile keyless smoke', () => {
         ...launch.env,
         DSH_HOME: join(root, '.dsh'),
         DSH_SYSTEM_PROMPT: 'Minimal allowlist prompt.',
-        DEEPSEEK_API_KEY: 'keyless-smoke-no-call',
-        DEEPSEEK_BASE_URL: `http://127.0.0.1:${address.port}`,
+        OMEGA_API_KEY: 'keyless-smoke-no-call',
+        OMEGA_BASE_URL: `http://127.0.0.1:${address.port}`,
       },
       timeout: 35_000,
       killSignal: 'SIGKILL',
@@ -360,7 +360,7 @@ describe('Python SDK dsh profile keyless smoke', () => {
         jsonrpc: '2.0',
         id: 1,
         method: 'initialize',
-        params: { cwd: root, provider: 'deepseek-official', model: imageEnabled ? 'deepseek-flash' : 'deepseek-v4-pro' },
+        params: { cwd: root, provider: 'omega-official', model: imageEnabled ? 'omega-flash' : 'omega-v4-pro' },
       })}\n`)
       await waitForLine(lines, value => value.id === 1, () => stderr)
       child.stdin.write(`${JSON.stringify({
@@ -384,7 +384,7 @@ describe('Python SDK dsh profile keyless smoke', () => {
         await readFile(join(root, '.dsh', 'profiles', 'sdk-minimal', 'package.json'), 'utf8'),
       ) as { dsh?: { profile?: { bundles?: string[] } } }
       expect(profile.dsh?.profile).toEqual({
-        bundles: ['@deepseek-ai/dsh-sdk-minimal'],
+        bundles: ['@omega-ai/dsh-sdk-minimal'],
       })
       expect(modelRequests[0]?.tools).toEqual(expect.any(Array))
       const tools = modelRequests[0]?.tools as { name?: string }[]
@@ -456,7 +456,7 @@ describe('Python SDK dsh profile keyless smoke', () => {
       ...launch.args, '--profile', 'sdk', '--patch', patch,
     ], {
       cwd: repoRoot,
-      env: { ...launch.env, DSH_HOME: home, DSH_TELEMETRY_DISABLED: '1', DEEPSEEK_API_KEY: 'keyless-no-call' },
+      env: { ...launch.env, DSH_HOME: home, DSH_TELEMETRY_DISABLED: '1', OMEGA_API_KEY: 'keyless-no-call' },
       stdin: 'pipe',
       stripFinalNewline: false,
       timeout: 25_000,
@@ -498,7 +498,7 @@ describe('Python SDK dsh profile keyless smoke', () => {
         env: {
           ...launch.env,
           DSH_HOME: join(root, '.dsh'),
-          DEEPSEEK_API_KEY: 'keyless-smoke-no-call',
+          OMEGA_API_KEY: 'keyless-smoke-no-call',
           DSH_MAX_TOKENS_AS_SUCCESS: 'sometimes',
         },
         stdin: 'ignore',
@@ -510,7 +510,7 @@ describe('Python SDK dsh profile keyless smoke', () => {
       expect(exitCode, stderr).toBe(1)
       expect(stdout).toBe('')
       expect(stderr).toContain('startup failed:')
-      expect(stderr).toContain('sdk-jsonrpc-server (required)\n    Package: @deepseek-ai/dsh-sdk-jsonrpc-server\n    SyntaxError')
+      expect(stderr).toContain('sdk-jsonrpc-server (required)\n    Package: @omega-ai/dsh-sdk-jsonrpc-server\n    SyntaxError')
       expect(stderr).toContain('sometimes')
     } finally {
       await rm(root, { recursive: true, force: true })
@@ -580,7 +580,7 @@ it.each(['unset', 'empty', 'full', 'python-only', 'python-only-patched', 'wrong-
     configArgs: ['--profile', 'sdk', '--patch', cliPatch],
     env: { DSH_HOME: home, DSH_PRIMARY_RUNTIME: mode === 'unset' ? undefined : mode === 'empty' ? '' : source + '/',
       DSH_PERMISSION_MODE: 'danger-full-access', DSH_TELEMETRY_DISABLED: '1',
-      DEEPSEEK_API_KEY: 'local-fixture', DEEPSEEK_BASE_URL: `http://127.0.0.1:${address.port}` },
+      OMEGA_API_KEY: 'local-fixture', OMEGA_BASE_URL: `http://127.0.0.1:${address.port}` },
   })
   const child = execa(officeLaunch.command, officeLaunch.args, { cwd: repoRoot, env: officeLaunch.env, timeout: 60_000, reject: false })
   onTestFinished(async () => { child.kill('SIGKILL'); await child })
@@ -597,7 +597,7 @@ it.each(['unset', 'empty', 'full', 'python-only', 'python-only-patched', 'wrong-
     child.stdin.write(`${JSON.stringify({ jsonrpc: '2.0', id, method, params })}\n`)
     return waitForLine(lines, value => value.id === id, () => stderr)
   }
-  expect(await send(1, 'initialize', { cwd: root, provider: 'deepseek-official', model: 'deepseek-v4-pro' })).toHaveProperty('result')
+  expect(await send(1, 'initialize', { cwd: root, provider: 'omega-official', model: 'omega-v4-pro' })).toHaveProperty('result')
   await send(2, 'session/prompt', { sessionId: 'office', contentBlocks: [{ type: 'text', text: 'Query workspace dependencies.' }] })
   await waitForLine(lines, (value) => {
     const params = value.params as { sessionId?: string; event?: { type?: string } } | undefined

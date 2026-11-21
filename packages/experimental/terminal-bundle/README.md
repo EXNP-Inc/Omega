@@ -3,7 +3,7 @@ description: "Let the agent run long-lived commands in terminals you can watch i
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-experimental-terminal-bundle
+# @omega-ai/dsh-experimental-terminal-bundle
 
 English | [中文](README.zh.md)
 

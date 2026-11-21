@@ -2,10 +2,10 @@
 import { access, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import type { Converter, RenderImagesRequest, RenderImagesResult, RenderedImage } from '@deepseek-ai/libreoffice-kit'
 import { afterEach, beforeEach, expect, it, onTestFinished, vi } from 'vitest'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 import OfficeKit, { Config, type OfficeSourceKey, type OfficeKitSource, type OfficeImagesRequest } from '../src/index.ts'
 
 const kit = vi.hoisted(() => ({ create: vi.fn<() => Promise<Converter>>() }))

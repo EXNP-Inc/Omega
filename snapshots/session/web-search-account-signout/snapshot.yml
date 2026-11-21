@@ -6,6 +6,6 @@ recording: authored
 header:
   class: web-search-account-billing
 environment:
-  # No DeepSeek API key, and a fixed DeepSeek origin for the account token.
-  DEEPSEEK_API_KEY: ''
-  DEEPSEEK_BASE_URL: https://api.deepseek.com/anthropic
+  # No Omega API key, and a fixed Omega origin for the account token.
+  OMEGA_API_KEY: ''
+  OMEGA_BASE_URL: https://api.omega.com/anthropic

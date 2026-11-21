@@ -3,8 +3,8 @@
  * `SyncedConfigRef`s, as a Host activation resolves its own volatile references; only the page's entry
  * controller writes values, and it stops writing to an activation once that activation's teardown begins.
  */
-import type { VolatileSnapshot } from '@deepseek-ai/cordis'
-import type { SyncedConfigRef, SyncedConfigValues } from '@deepseek-ai/dsh-client-config/types'
+import type { VolatileSnapshot } from '@omega-ai/cordis'
+import type { SyncedConfigRef, SyncedConfigValues } from '@omega-ai/dsh-client-config/types'
 import { notifySubscribers } from './notify.ts'
 
 /** Controller-side access to one reference: set without notifying, then notify once every field is set. */

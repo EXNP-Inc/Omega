@@ -12,8 +12,8 @@
   en: a15c7c13f167e5ac
   zh: 63bcc2ef60c2f344
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/scope:
-  en: 86061e5578d06871
-  zh: 08eb605fcd38329d
+  en: b611d9a4bbb88ba2
+  zh: 67005f494c5b5075
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/two-layers-principal-and-peer:
   en: 6663ea33561eee82
   zh: 722fd3b8fae0ef90
@@ -27,20 +27,20 @@
   en: a01ac57fc71a84f0
   zh: 3e488ef3da5e4b8c
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/method-level-access-control:
-  en: 725a2d4145c0a75e
-  zh: b98a64532cadeaba
+  en: 9ffdfac5ac7f13c8
+  zh: b32f63da28977696
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/method-level-access-control/correspondence-with-rbac:
   en: a78a2410eb52f777
   zh: a868bf1b0e690c9f
-/agent-note-peer-principals-and-method-level-remote-access-control/decision/method-level-access-control/resources-and-resource-readers-deepseek-ai-dsh-typert-protocol-deepseek-ai-dsh-typert-registry:
-  en: d50ae22978165c57
-  zh: 8c1fcfb7dc2d3367
+/agent-note-peer-principals-and-method-level-remote-access-control/decision/method-level-access-control/resources-and-resource-readers-omega-ai-dsh-typert-protocol-omega-ai-dsh-typert-registry:
+  en: feb8a69e53cf7cfb
+  zh: 4bdbbacc013c5339
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/method-level-access-control/endpoint-resources:
   en: 582f5f527ecc58c8
   zh: 4a4b68361de2dcf0
-/agent-note-peer-principals-and-method-level-remote-access-control/decision/method-level-access-control/roles-bindings-and-policies-deepseek-ai-dsh-api-remote-access:
-  en: e57f396239ea9f56
-  zh: ddb26278b1521ceb
+/agent-note-peer-principals-and-method-level-remote-access-control/decision/method-level-access-control/roles-bindings-and-policies-omega-ai-dsh-api-remote-access:
+  en: 3c2eb9a666a2cdbf
+  zh: ff4a22af111a130e
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/method-level-access-control/example-share-viewer:
   en: 3c911f57f0f6ca4b
   zh: 1509781eeda4c922
@@ -57,14 +57,14 @@
   en: a928a63e8c36177c
   zh: c943c1fdc8c4bb45
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/method-level-access-control/client-face:
-  en: 7be28cd7e19e5377
-  zh: 30b5aee957271d6c
+  en: ef8923fce6752003
+  zh: 4f4f270ffa960ad5
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/security-invariants:
   en: 2094587c320b6ccc
   zh: 3a1d2a6b343500f4
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/recording-the-message-source:
-  en: 2ee3abed24d418f4
-  zh: 25653dd24b95c220
+  en: 688ac12c4c02b0a7
+  zh: f2a917db90722727
 /agent-note-peer-principals-and-method-level-remote-access-control/decision/code-review-rule-and-documentation:
   en: e9a2e0d1534b8fe7
   zh: 085813c0b2b3c0d8

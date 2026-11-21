@@ -9,11 +9,11 @@ English | [中文](guide.zh.md)
 
 ## Change
 
-The base profile bundle gains the row `upstream-skills` (`@deepseek-ai/dsh-upstream-skills`), a Host Service that injects `skills`. A composition that keeps the `skill` row is not affected. A `cordis.yml`, patch, or overlay that disables the `skill` row and leaves `upstream-skills` enabled keeps the new row pending, and every boot prints two more lines on stderr:
+The base profile bundle gains the row `upstream-skills` (`@omega-ai/dsh-upstream-skills`), a Host Service that injects `skills`. A composition that keeps the `skill` row is not affected. A `cordis.yml`, patch, or overlay that disables the `skill` row and leaves `upstream-skills` enabled keeps the new row pending, and every boot prints two more lines on stderr:
 
 ```text
 dsh: warning: 1 entry did not activate
-upstream-skills (@deepseek-ai/dsh-upstream-skills): pending (waiting for service: skills)
+upstream-skills (@omega-ai/dsh-upstream-skills): pending (waiting for service: skills)
 ```
 
 A composition that already reports entries that did not activate counts one more and lists this row with them.
@@ -24,7 +24,7 @@ A composition that already reports entries that did not activate counts one more
 
    ```yaml
    - id: upstream-skills
-     name: '@deepseek-ai/dsh-upstream-skills'
+     name: '@omega-ai/dsh-upstream-skills'
      disabled: true
    ```
 

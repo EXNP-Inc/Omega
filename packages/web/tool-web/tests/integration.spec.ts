@@ -1,34 +1,34 @@
 /**
  * Integration: the real fetch backend (`dsh-web-fetch-http`) + a real search provider
- * (`dsh-web-deepseek-api`) + the real seam (`dsh-web`) + the model tool (`dsh-tool-web`) + the
+ * (`dsh-web-omega-api`) + the real seam (`dsh-web`) + the model tool (`dsh-tool-web`) + the
  * tool-call timeout policy (`dsh-tool-call-timeout-policy`), exercised through `executeToolFixture()` —
  * nothing bypasses the tool registry. Fetch verifies world effects against loopback HTTP; search uses the real
- * DeepSeek Search API provider with only its network boundary stubbed.
+ * Omega Search API provider with only its network boundary stubbed.
  */
-import { executeToolFixture } from '@deepseek-ai/dsh-tool-testkit'
+import { executeToolFixture } from '@omega-ai/dsh-tool-testkit'
 
-import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
+import * as NativeToolExecutor from '@omega-ai/dsh-tool-executor-native'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http'
 import { AddressInfo } from 'node:net'
-import { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { DSH_LAUNCH_ENVIRONMENT_KEY, createLaunchEnvironmentSnapshot } from '@deepseek-ai/dsh-launch-environment'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import DeepSeekAuth from '@deepseek-ai/dsh-deepseek-auth'
-import type { ToolCallId } from '@deepseek-ai/dsh-llm/types'
-import { createScope } from '@deepseek-ai/dsh-scope'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime, { type ToolExecutionResult } from '@deepseek-ai/dsh-tools'
-import WebRuntime from '@deepseek-ai/dsh-web'
-import * as WebFetchLocal from '@deepseek-ai/dsh-web-fetch-http'
-import * as WebDeepSeekApi from '@deepseek-ai/dsh-web-deepseek-api'
-import * as ToolWeb from '@deepseek-ai/dsh-tool-web'
-import * as TimeoutPolicy from '@deepseek-ai/dsh-tool-call-timeout-policy'
+import { Context } from '@omega-ai/cordis'
+import type { Agent } from '@omega-ai/dsh-agent'
+import { DSH_LAUNCH_ENVIRONMENT_KEY, createLaunchEnvironmentSnapshot } from '@omega-ai/dsh-launch-environment'
+import { brandString } from '@omega-ai/dsh-brand'
+import OmegaAuth from '@omega-ai/dsh-omega-auth'
+import type { ToolCallId } from '@omega-ai/dsh-llm/types'
+import { createScope } from '@omega-ai/dsh-scope'
+import type { SessionId } from '@omega-ai/dsh-session'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRuntime, { type ToolExecutionResult } from '@omega-ai/dsh-tools'
+import WebRuntime from '@omega-ai/dsh-web'
+import * as WebFetchLocal from '@omega-ai/dsh-web-fetch-http'
+import * as WebOmegaApi from '@omega-ai/dsh-web-omega-api'
+import * as ToolWeb from '@omega-ai/dsh-tool-web'
+import * as TimeoutPolicy from '@omega-ai/dsh-tool-call-timeout-policy'
 
 const testToolSignal = new AbortController().signal
-const SEARCH_API_BASE = 'https://api.deepseek.test/v1/tools'
+const SEARCH_API_BASE = 'https://api.omega.test/v1/tools'
 
 type Handler = (req: IncomingMessage, res: ServerResponse) => void
 
@@ -51,13 +51,13 @@ beforeEach(async () => {
   await ctx.plugin(ToolRuntime)
   await ctx.plugin(NativeToolExecutor)
   await ctx.plugin(WebRuntime, {
-    searchProvider: WebDeepSeekApi.DEEPSEEK_SEARCH_API_PROVIDER_ID,
+    searchProvider: WebOmegaApi.OMEGA_SEARCH_API_PROVIDER_ID,
     fetchProvider: WebFetchLocal.LOCAL_FETCH_PROVIDER_ID,
   })
   await ctx.plugin(WebFetchLocal, {})
-  ctx.provide(DSH_LAUNCH_ENVIRONMENT_KEY, createLaunchEnvironmentSnapshot([{ source: 'process', values: { DEEPSEEK_API_KEY: 'search-key' } }]))
-  await ctx.plugin(DeepSeekAuth)
-  await ctx.plugin(WebDeepSeekApi, { searchBaseURL: SEARCH_API_BASE, sendOriginalQuestion: false })
+  ctx.provide(DSH_LAUNCH_ENVIRONMENT_KEY, createLaunchEnvironmentSnapshot([{ source: 'process', values: { OMEGA_API_KEY: 'search-key' } }]))
+  await ctx.plugin(OmegaAuth)
+  await ctx.plugin(WebOmegaApi, { searchBaseURL: SEARCH_API_BASE, sendOriginalQuestion: false })
   // The shipped deployment shape: the tool-call budget is declared by tool-web
   // config (default 30s, attached as ToolDefinition.timeoutMs) and enforced by
   // the zero-config timeout-policy plugin, set above the provider backstop so the
@@ -115,21 +115,21 @@ describe('web_fetch integration over the real backend', () => {
   })
 })
 
-describe('web_search integration over the real DeepSeek Search API provider', () => {
+describe('web_search integration over the real Omega Search API provider', () => {
   it('runs web_search end-to-end and formats the provider result', async () => {
     const fetchMock = vi.fn(async (_endpoint: string, _init: { headers: HeadersInit; body: string }) => new Response(
       JSON.stringify({ results: [{ url: 'https://result.test', title: 'Result', snippet: 'a snippet', date: null }] }),
       { status: 200, headers: { 'content-type': 'application/json' } },
     ))
     vi.stubGlobal('fetch', fetchMock)
-    const out = await call('web_search', { queries: ['deepseek-official'] })
+    const out = await call('web_search', { queries: ['omega-official'] })
     expect(out.isError).toBe(false)
     expect(out.content.map(b => b.type === 'text' ? b.text : '').join('')).toContain('[Result](https://result.test)')
     expect(fetchMock).toHaveBeenCalledOnce()
     const [endpoint, init] = fetchMock.mock.calls[0]!
     expect(endpoint).toBe(`${SEARCH_API_BASE}/search`)
     expect(new Headers(init.headers).get('authorization')).toBe('Bearer search-key')
-    expect(JSON.parse(init.body)).toMatchObject({ query: 'deepseek-official' })
+    expect(JSON.parse(init.body)).toMatchObject({ query: 'omega-official' })
   })
 })
 

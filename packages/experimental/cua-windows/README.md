@@ -3,7 +3,7 @@ description: "Discover Windows applications by AUMID and observe or operate expl
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-cua-windows
+# @omega-ai/dsh-cua-windows
 
 English | [中文](README.zh.md)
 

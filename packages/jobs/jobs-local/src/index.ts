@@ -7,26 +7,26 @@
  * Registrations outlive producer and controller fibers. Agent or service
  * disposal cancels live work and awaits compliant producers; a throwing
  * teardown cancel force-fails only the record and reports a possible orphan.
- * @module @deepseek-ai/dsh-jobs-local
+ * @module @omega-ai/dsh-jobs-local
  */
 
 import { randomUUID } from 'node:crypto'
-import { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { ScopedLayers, scopeOf } from '@deepseek-ai/dsh-scope'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import { deadline, timeoutOf } from '@deepseek-ai/dsh-timeout'
-import { JobError, JobRegistry, type JobId } from '@deepseek-ai/dsh-jobs'
+import { Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
+import type { Agent } from '@omega-ai/dsh-agent'
+import { ScopedLayers, scopeOf } from '@omega-ai/dsh-scope'
+import type { SessionId } from '@omega-ai/dsh-session'
+import { deadline, timeoutOf } from '@omega-ai/dsh-timeout'
+import { JobError, JobRegistry, type JobId } from '@omega-ai/dsh-jobs'
 import type {
   JobAppendOptions, JobEvent, JobEvents, JobHandle, JobKind, JobOutcome, JobOutputRead, JobOutputSource,
   JobRead, JobRegisteredData, JobSettleCause, JobSettledData, JobSpec, JobStatus, JobToolCall, JobView,
-} from '@deepseek-ai/dsh-jobs'
+} from '@omega-ai/dsh-jobs'
 import { JobEventHub, JobLayer } from './events.ts'
 import { startPump } from './pump.ts'
 import type { PumpHandle } from './pump.ts'
 import { OutputRing } from './ring.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 /** Timeout code that distinguishes a bounded wait from caller cancellation. */
 export const TASK_WAIT_TIMEOUT = 'TASK_WAIT_TIMEOUT'
@@ -134,7 +134,7 @@ function isTerminal(status: JobStatus): boolean {
 
 /**
  * The in-memory `jobs` registry. See the Service Definition contract in
- * `@deepseek-ai/dsh-jobs` for the ownership, isolation, and lifecycle
+ * `@omega-ai/dsh-jobs` for the ownership, isolation, and lifecycle
  * semantics this implementation honors.
  */
 export class LocalJobRegistry extends JobRegistry {
@@ -218,7 +218,7 @@ export class LocalJobRegistry extends JobRegistry {
     const owner = this.resolveOwner(spec.owner)
     if (!this.servesOwner(owner)) {
       throw new JobError(
-        'background jobs unavailable: no job controller serves this agent (load @deepseek-ai/dsh-tool-jobs in its composition)',
+        'background jobs unavailable: no job controller serves this agent (load @omega-ai/dsh-tool-jobs in its composition)',
         'JOB_CONTROLLER_UNAVAILABLE',
       )
     }
@@ -377,7 +377,7 @@ export class LocalJobRegistry extends JobRegistry {
     if (session === undefined) return undefined
     const agents = this.selfCtx.get('agents')
     if (agents === undefined) {
-      throw new JobError('background job ownership requires the agent registry (load @deepseek-ai/dsh-agent)', 'JOB_OWNER_REGISTRY_UNAVAILABLE')
+      throw new JobError('background job ownership requires the agent registry (load @omega-ai/dsh-agent)', 'JOB_OWNER_REGISTRY_UNAVAILABLE')
     }
     const owner = agents.get(session)
     if (owner === undefined) {

@@ -6,15 +6,15 @@
 - id: headless-runner
   disabled: true
 
-- id: llm-deepseek
+- id: llm-omega
   config:
     thinking: enabled
     reasoningEffort: max
     models:
-      - id: deepseek-v4-pro
+      - id: omega-v4-pro
         contextWindow: 128000
         maxTokens: 8192
-      - id: deepseek-v4-flash
+      - id: omega-v4-flash
         contextWindow: 128000
         maxTokens: 8192
 
@@ -22,8 +22,8 @@
   config:
     agents:
       - id: main
-        provider: deepseek-official
-        model: deepseek-v4-flash
+        provider: omega-official
+        model: omega-v4-flash
         cwd: !!js process.cwd()
 
 - id: session-persistence-jsonl

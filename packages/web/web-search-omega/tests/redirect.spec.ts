@@ -6,13 +6,13 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { createServer, type IncomingMessage, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
-import { DeepSeekSearchProvider } from '@deepseek-ai/dsh-web-search-deepseek'
+import { OmegaSearchProvider } from '@omega-ai/dsh-web-search-omega'
 
 /** Construct the provider over a fixed options value; production passes a live thunk. */
-import type { DeepSeekSearchProviderOptions } from '@deepseek-ai/dsh-web-search-deepseek'
+import type { OmegaSearchProviderOptions } from '@omega-ai/dsh-web-search-omega'
 
-const searchProvider = (options: DeepSeekSearchProviderOptions): DeepSeekSearchProvider =>
-  new DeepSeekSearchProvider(() => options)
+const searchProvider = (options: OmegaSearchProviderOptions): OmegaSearchProvider =>
+  new OmegaSearchProvider(() => options)
 
 const TEST_API_KEY = 'redirect-test-key'
 const TEST_QUERY = 'private redirect query'
@@ -49,13 +49,13 @@ afterAll(async () => {
   await Promise.all([close(redirectServer), close(targetServer)])
 })
 
-describe('DeepSeekSearchProvider redirect policy', () => {
+describe('OmegaSearchProvider redirect policy', () => {
   it.each([301, 302, 303, 307, 308])('rejects HTTP %i before contacting Location', async (status) => {
     targetRequests.length = 0
     const provider = searchProvider({
       apiKey: TEST_API_KEY,
       baseURL: `${redirectOrigin}/${status}`,
-      model: 'deepseek-chat',
+      model: 'omega-chat',
       apiVersion: '2023-06-01',
       maxTokens: 32,
       maxUses: 1,

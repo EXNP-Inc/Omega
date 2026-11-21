@@ -1,18 +1,18 @@
 /** GitHub HTTP authentication, parsing, and fire-and-forget dispatch. */
 
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@omega-ai/cordis'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { Webhooks } from '@octokit/webhooks'
-import type { CredentialRef } from '@deepseek-ai/dsh-credentials'
-import { snapshotJsonValue } from '@deepseek-ai/dsh-util-values'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import type { CredentialRef } from '@omega-ai/dsh-credentials'
+import { snapshotJsonValue } from '@omega-ai/dsh-util-values'
+import { brandString } from '@omega-ai/dsh-brand'
 import type {
   WebhookDeliveryId,
   WebhookSourceId,
   VerifiedWebhookDelivery,
-} from '@deepseek-ai/dsh-webhook/types'
-import type {} from '@deepseek-ai/dsh-webhook'
-import type { WebRoute } from '@deepseek-ai/dsh-host-webserver'
+} from '@omega-ai/dsh-webhook/types'
+import type {} from '@omega-ai/dsh-webhook'
+import type { WebRoute } from '@omega-ai/dsh-host-webserver'
 import { readBoundedUtf8Body, WebhookHttpError } from './body.ts'
 import type { GitHubJsonObject } from './types.ts'
 

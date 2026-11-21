@@ -24,7 +24,7 @@
       name: './mock-llm.ts'
 
     - id: time-context
-      name: '@deepseek-ai/dsh-time-context'
+      name: '@omega-ai/dsh-time-context'
 
 - id: sandbox-policy
   inject: []

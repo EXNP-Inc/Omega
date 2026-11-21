@@ -2,29 +2,29 @@
 - id: llm-replay
   config:
     providers:
-      - id: deepseek-official
-        name: DeepSeek
+      - id: omega-official
+        name: Omega
         models:
-          - id: deepseek-v4-flash-vision-exp
+          - id: omega-v4-flash-vision-exp
             inputModalities: [text, image]
 
 - insert:
     - id: agent-preset-registry
-      name: '@deepseek-ai/dsh-agent-preset-registry'
+      name: '@omega-ai/dsh-agent-preset-registry'
       config:
         default: standard
     - id: cua-standard-preset
-      name: '@deepseek-ai/dsh-agent-preset'
+      name: '@omega-ai/dsh-agent-preset'
       config:
         id: standard
         plugins:
-          - name: '@deepseek-ai/dsh-tool-executor-native'
+          - name: '@omega-ai/dsh-tool-executor-native'
     - id: cua-standard-selection
       name: '../../../packages/test-support/session-snapshot/tests/fixtures/parent-agent-preset.ts'
       config:
         presets: [standard]
     - id: computer-use
-      name: '@deepseek-ai/dsh-computer-use'
+      name: '@omega-ai/dsh-computer-use'
     - id: cua-run-code-fixture
       name: '../cua-run-code/provider.mjs'
       config:

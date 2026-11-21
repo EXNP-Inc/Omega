@@ -1,23 +1,23 @@
 /** Remote contribution and slot registrations of the forge panel. */
 
-import type { Context } from '@deepseek-ai/cordis'
-import type { RemoteHostFacts } from '@deepseek-ai/dsh-api-remotes/client'
-import type {} from '@deepseek-ai/dsh-api-session-controller/client'
-import type {} from '@deepseek-ai/dsh-client-locale/client'
-import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type {} from '@deepseek-ai/dsh-client-ui-layout/client'
-import type {} from '@deepseek-ai/dsh-client-ui-plugin-manager/client'
-import type { QuoteSummary } from '@deepseek-ai/dsh-client-ui-primitives'
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type {} from '@deepseek-ai/dsh-client-ui-session-panel/client'
-import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
-import type {} from '@deepseek-ai/dsh-client-ui-sidebar-right/client'
-import type { HostObservable } from '@deepseek-ai/dsh-client-ui-slots'
-import type {} from '@deepseek-ai/dsh-client-ui-workspace/client'
-import type {} from '@deepseek-ai/dsh-experimental-client-ui-forge/remote'
-import type { ForgeReviewThread } from '@deepseek-ai/dsh-experimental-forge/types'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { RemoteResult, TypertRemoteContribution } from '@deepseek-ai/dsh-typert-protocol'
+import type { Context } from '@omega-ai/cordis'
+import type { RemoteHostFacts } from '@omega-ai/dsh-api-remotes/client'
+import type {} from '@omega-ai/dsh-api-session-controller/client'
+import type {} from '@omega-ai/dsh-client-locale/client'
+import type {} from '@omega-ai/dsh-client-ui-conversation/client'
+import type {} from '@omega-ai/dsh-client-ui-layout/client'
+import type {} from '@omega-ai/dsh-client-ui-plugin-manager/client'
+import type { QuoteSummary } from '@omega-ai/dsh-client-ui-primitives'
+import type {} from '@omega-ai/dsh-client-ui-renderer/client'
+import type {} from '@omega-ai/dsh-client-ui-session-panel/client'
+import type {} from '@omega-ai/dsh-client-ui-settings/client'
+import type {} from '@omega-ai/dsh-client-ui-sidebar-right/client'
+import type { HostObservable } from '@omega-ai/dsh-client-ui-slots'
+import type {} from '@omega-ai/dsh-client-ui-workspace/client'
+import type {} from '@omega-ai/dsh-experimental-client-ui-forge/remote'
+import type { ForgeReviewThread } from '@omega-ai/dsh-experimental-forge/types'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { RemoteResult, TypertRemoteContribution } from '@omega-ai/dsh-typert-protocol'
 import type {
   ForgeChangeRequestListState, ForgeChangeRequestStatesFrame, ForgeExtensionState,
 } from '../types.ts'
@@ -61,7 +61,7 @@ import { WorktreeToggle, type WorktreeToggleInjected } from './WorktreeToggle.ts
 export const inject = ['remote', 'slots', 'locale', 'sidebarRightTabs', 'sidebarRight', 'sessions', 'configForms', 'remoteAccess', 'workspaces', 'uiWorkspace']
 
 /** The worktree row of the Forge bundle, whose Plugins page carries the archive cleanup switch. */
-export const WORKTREE_ROW_KEY = '@deepseek-ai/dsh-experimental-forge-bundle#worktree'
+export const WORKTREE_ROW_KEY = '@omega-ai/dsh-experimental-forge-bundle#worktree'
 
 /** The Loader entry id the worktree service's settings namespace follows. */
 export const WORKTREE_NS = 'worktree'

@@ -12,7 +12,7 @@ window.__ModuleLoader__.load({
   },
   factory(require) {
     const React = require('react')
-    const { IconFolderCloseRegular, IconNewChatOutlineRegular, MenuItemButton } = require('@deepseek-ai/dsh-client-ui-primitives')
+    const { IconFolderCloseRegular, IconNewChatOutlineRegular, MenuItemButton } = require('@omega-ai/dsh-client-ui-primitives')
     return {
       inject: ['slots', 'locale'],
       apply(ctx) {

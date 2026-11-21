@@ -3,7 +3,7 @@ description: "Skill-activated Office tools for viewing document pages, convertin
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-tool-office
+# @omega-ai/dsh-tool-office
 
 English | [中文](README.zh.md)
 
@@ -27,13 +27,13 @@ After an Office skill loads, the model gains three tools. `office_render` return
 
 The [Web bundle](../../bundle/web-app/README.md) and the [SDK bundle](../../bundle/sdk-app/README.md) mount this plugin with `office-kit` in Desktop, ordinary `dsh web`, and the SDK; in the Web bundle the `standard` and `ptc` agent presets include it and the `minimal` preset does not. Loading any configured [Office skill](../../skill/skill-office/README.md) activates all three tools from the next model step, whether loaded by a model `skill` call, a nested PTC call, or direct user invocation such as `/office`. Failed loads and other skills do not activate them. Calls before activation return `UNKNOWN_TOOL`.
 
-Activation matches only the skill names listed in `activationSkills`, so mount [`@deepseek-ai/dsh-skill-office`](../../skill/skill-office/README.md) or another provider that registers skills with those names; without one, the three tools never appear.
+Activation matches only the skill names listed in `activationSkills`, so mount [`@omega-ai/dsh-skill-office`](../../skill/skill-office/README.md) or another provider that registers skills with those names; without one, the three tools never appear.
 
 The tools read the Office kit service at each call. When Kit is missing, calls fail with the service's `unavailable` message; while the service is absent, calls fail with `The document converter is unavailable.` Every `unavailable` failure tells the model to inform the user, or to retry later when the cause may be temporary, such as a full output store or a service being unloaded, without substituting system soffice, npx, or another converter.
 
 ```yaml
-- name: '@deepseek-ai/dsh-office-kit'
-- name: '@deepseek-ai/dsh-tool-office'
+- name: '@omega-ai/dsh-office-kit'
+- name: '@omega-ai/dsh-tool-office'
   config:
     maxImages: 20
 ```

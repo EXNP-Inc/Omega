@@ -8,7 +8,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium, type Locator, type Page } from 'playwright'
 import { expect, it, onTestFailed, onTestFinished } from 'vitest'
-import { createLaunchEnvironmentSnapshot, type LaunchEnvironmentSnapshot } from '@deepseek-ai/dsh-launch-environment'
+import { createLaunchEnvironmentSnapshot, type LaunchEnvironmentSnapshot } from '@omega-ai/dsh-launch-environment'
 import { launchWebScaffold, seedSession, watchConsole } from './scaffold.ts'
 import { connectFreshWorkspace, saveFailureShot } from './support.ts'
 

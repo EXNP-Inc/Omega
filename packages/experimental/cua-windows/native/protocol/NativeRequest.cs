@@ -4,7 +4,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using Json.Schema;
 
-namespace DeepSeek.Cua.Protocol;
+namespace Omega.Cua.Protocol;
 
 /// <summary>A native refusal whose code remains visible through the shared CUA client.</summary>
 public sealed class NativeFailure(string code, string message) : Exception(message)
@@ -52,7 +52,7 @@ public sealed record NativeRequest(string Id, string Method, JsonElement Params)
 
     private static JsonSchema LoadSchema()
     {
-        using var stream = typeof(NativeRequest).Assembly.GetManifestResourceStream("DeepSeek.Cua.NativeRequestSchema.json")
+        using var stream = typeof(NativeRequest).Assembly.GetManifestResourceStream("Omega.Cua.NativeRequestSchema.json")
             ?? throw new InvalidOperationException("The native request schema is missing");
         using var reader = new StreamReader(stream, WireJson.Utf8);
         return JsonSchema.FromText(reader.ReadToEnd());

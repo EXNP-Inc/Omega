@@ -1,6 +1,6 @@
 /** SQLite artifact paths preserve arbitrary Session identifiers. @module */
 import { expect, it } from 'vitest'
-import { SessionId } from '@deepseek-ai/dsh-session'
+import { SessionId } from '@omega-ai/dsh-session'
 import { encodeSegment, projectKey, sessionDir } from '../src/paths.ts'
 
 it('escapes unsafe identifiers and rejects empty path components', () => {

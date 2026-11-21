@@ -48,8 +48,8 @@ jobs:
         with:
           client-id: ${{ vars.DSH_APPROVAL_APP_CLIENT_ID }}
           private-key: ${{ secrets.DSH_APPROVAL_APP_PRIVATE_KEY }}
-          owner: deepseek-harness
-          repositories: deepseek-harness
+          owner: omega-harness
+          repositories: omega-harness
           permission-checks: write
       - name: Revoke previous approval status
         id: revoke

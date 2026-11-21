@@ -1,17 +1,17 @@
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { Context, type Fiber } from '@deepseek-ai/cordis'
+import { createUserMessage } from '@omega-ai/dsh-llm'
+import { Context, type Fiber } from '@omega-ai/cordis'
 import { describe, expect, it, vi } from 'vitest'
-import SessionStore, { Session, type SessionId, SessionSeq } from '@deepseek-ai/dsh-session'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { SessionTitleProviderId } from '@deepseek-ai/dsh-session-title/types'
+import SessionStore, { Session, type SessionId, SessionSeq } from '@omega-ai/dsh-session'
+import AgentRegistry from '@omega-ai/dsh-agent'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { SessionTitleProviderId } from '@omega-ai/dsh-session-title/types'
 import SessionTitleService, {
   type Config,
   type SessionTitleProvider,
   type SessionTitleProviderRequest,
   type SessionTitleProviderResult,
-} from '@deepseek-ai/dsh-session-title'
+} from '@omega-ai/dsh-session-title'
 
 const CONFIG = {
   fallbackMaxWords: 5,

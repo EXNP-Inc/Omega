@@ -3,7 +3,7 @@ description: "复用 Computer Use 应用和窗口对象，通过已授权并记�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-cua
+# @omega-ai/dsh-cua
 
 [English](README.md) | 中文
 
@@ -29,7 +29,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-挂载 [macOS 提供方](../cua-macos/README.zh.md)或 [Windows 提供方](../cua-windows/README.zh.md)以启用对应平台的原生操作。外部 PTC 宿主从 `@deepseek-ai/dsh-cua/bridge` 导入 `connectCua`，并提供当前 `tools.cua` 绑定。源码组合与原生组件准备由提供方负责。
+挂载 [macOS 提供方](../cua-macos/README.zh.md)或 [Windows 提供方](../cua-windows/README.zh.md)以启用对应平台的原生操作。外部 PTC 宿主从 `@omega-ai/dsh-cua/bridge` 导入 `connectCua`，并提供当前 `tools.cua` 绑定。源码组合与原生组件准备由提供方负责。
 
 `cua_run_code` 为每个 agent（智能体）在独立的持久 Node 环境中按 scoped REPL 语句运行 TypeScript。程序开始前即可使用全局 `cua` 对象；`tools` 中只有 `cua`。其他普通工具在程序外直接调用。使用顶层 `await`，通过 `inspect(...values)` 展示选中的文字和截图；顶层 `return` 无效。工具接受与 `run_code` 相同的超时和沙箱控制参数。运行时重启会自动重建 `cua`，但其他变量和已选择的应用对象需要重新创建。
 
@@ -59,7 +59,7 @@ kind: "package-reference"
 
 ### 权限控件
 
-应用授权卡片包含**风险提示**标签。悬停、通过键盘聚焦或轻触该标签，可阅读保留格式的卡片，了解对已授权应用的后台访问、各应用的自动化规则和可能的账号限制，以及通过 DeepSeek Harness 停止操作的方法。指针移入卡片后，可以继续阅读和选择文字。
+应用授权卡片包含**风险提示**标签。悬停、通过键盘聚焦或轻触该标签，可阅读保留格式的卡片，了解对已授权应用的后台访问、各应用的自动化规则和可能的账号限制，以及通过 Omega 停止操作的方法。指针移入卡片后，可以继续阅读和选择文字。
 
 Computer Use 详情页的权限卡片、组件列表和来源信息使用 l3 边框，区块间距为 32px。应用名称徽标保留 l1 边框。
 
@@ -118,7 +118,7 @@ Computer Use 详情页的权限卡片、组件列表和来源信息使用 l3 边
 通过 `await cua.getCapabilities()` 返回的 `methods` 和 `keyboard` 确认支持的操作和输入范围。`pressKey(key, modifiers?)` 在按住所列修饰键时按下并释放一个键；`sendKeyEvent(key, direction)` 只发送一次按下或抬起。`typeText` 和 `paste` 在 provider 声明的键盘作用域内传送字面文本。键盘修饰键名称是 provider 解释的普通字符串。
 
 
-平台提供方从 `@deepseek-ai/dsh-cua/config` 导入 `CuaConfigFields` 来扩展共享配置。根 Host 入口导出 `installCua`、`CuaConfig` 和供 Typert 发现的 `CuaAccess` 服务，`apply()` 只标记可选 Client 贡献。`/client` 通过现有模块加载器加载权限界面。Host 和 Client 使用独立编译项目，headless 导入不会加载 React、CSS 或浏览器注册。`/api` 提供应用、窗口 API 及其类型；`/bridge`、`/native-client` 和 `/protocol` 保留运行时和平台消费者。`/types` 仅导出生成 Remote 声明所需的命名类型，Client 使用包内类型。`/typert` 提供 Host 反射，`/remote` 提供浏览器描述和编解码，权限判断仍由 Host 执行。
+平台提供方从 `@omega-ai/dsh-cua/config` 导入 `CuaConfigFields` 来扩展共享配置。根 Host 入口导出 `installCua`、`CuaConfig` 和供 Typert 发现的 `CuaAccess` 服务，`apply()` 只标记可选 Client 贡献。`/client` 通过现有模块加载器加载权限界面。Host 和 Client 使用独立编译项目，headless 导入不会加载 React、CSS 或浏览器注册。`/api` 提供应用、窗口 API 及其类型；`/bridge`、`/native-client` 和 `/protocol` 保留运行时和平台消费者。`/types` 仅导出生成 Remote 声明所需的命名类型，Client 使用包内类型。`/typert` 提供 Host 反射，`/remote` 提供浏览器描述和编解码，权限判断仍由 Host 执行。
 
 可选浏览器插件挂载原生 provider 的权限 Remote，复用插件页的启用引导和配置插槽。四排使用条件始终可见，未加载的字段保留占位；平台确认后，查询期间和权限已允许时均保留权限管理说明。默认模式、执行方式、系统权限、应用列表和应用图标分别查询，结果返回后各自显示。应用名称和操作按钮不等待图标，图标位置保留空位。用户操作按顺序执行，不等待尚未完成的查询；卸载时等待操作和查询全部结束，再释放独立持有的 Remote 挂载。已知查询错误和只读设置提示在管理操作或重试期间保持可见，操作按钮禁用。查询错误只显示在对应部分，启用引导只等待系统权限结果。注入层独立于页面观察插件管理操作。组合包和组件行变更会暂停四项查询，并使进行中的结果失效；操作结束后即使页面已关闭，也会重新查询。已知错误保留至读取成功；卸载后的迟到结果会被丢弃。首次读取系统权限失败时，控制器会查询主机插件清单。已启用的 Windows 提供方即使因准备辅助程序而加载失败，页面仍会显示配置步骤。两项查询都失败时，页面显示两个错误并提供重试。重新连接后会刷新状态。进入页面、窗口聚焦或操作完成后读取当前授权存储。操作提示挂载到 shell overlay，关闭页面后仍可显示。provider 负责权限检查、持久授权和取消；浏览器不保存授权决定。
 

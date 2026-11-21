@@ -12,7 +12,7 @@ Status: implemented
 
 通过 Web 页面存下的密钥仍然被用户自己 `.env` 里更旧的密钥遮蔽，因为凭据提供方是拿「环境」与自己的文件比较，而现在环境包含了那个文件。这次拆分本该消除的迁移死路，只是换了个位置。
 
-endpoint 可以被项目重定向。调用目录的 `.env` 和其他层一样会被物化，而 base URL 决定已解析的 API key 发往何处——于是写进模型可编辑工作区的 `DEEPSEEK_BASE_URL`，会把用户自己的凭据、以及承载其代码的提示词，一起发给该文件指定的任何主机。压平的视图无法把这件事和运维显式 export 同一个变量区分开。
+endpoint 可以被项目重定向。调用目录的 `.env` 和其他层一样会被物化，而 base URL 决定已解析的 API key 发往何处——于是写进模型可编辑工作区的 `OMEGA_BASE_URL`，会把用户自己的凭据、以及承载其代码的提示词，一起发给该文件指定的任何主机。压平的视图无法把这件事和运维显式 export 同一个变量区分开。
 
 而已交付组合里的 `!!js process.env.X` 让同一个值有两条抵达路径：一条经 entry config，一条经消费方各自的 ladder，胜负取决于层序而非这个值的语义。
 
@@ -30,7 +30,7 @@ explicit for this run     per-operation override, CLI argument
 ```
 
 
-settings 在 composition 之上，因为 [settings seam](../../archived/architecture/2026-07-28-user-settings-seam.md) 就是这么做的：插件把自己的 cordis entry config 注册为 `base` 层，用户 section 叠加其上，而 seam 无法区分某个值是 profile 的 bundle 设的，还是它的用户 patch 层或某个 `--patch` overlay 设的——它们都以 entry config 的形式抵达。产品 CLI（命令行界面）没有高于已存 settings 的手段，因此需要把某字段钉死、不被用户已存 settings 覆盖的部署方，应自带 bin 或 loader 配置树，或者干脆不挂载 settings 提供方。composition 仍然高于环境，所以 shell 里陈旧的 `DEEPSEEK_BASE_URL` 无法改写已配置的 endpoint。
+settings 在 composition 之上，因为 [settings seam](../../archived/architecture/2026-07-28-user-settings-seam.md) 就是这么做的：插件把自己的 cordis entry config 注册为 `base` 层，用户 section 叠加其上，而 seam 无法区分某个值是 profile 的 bundle 设的，还是它的用户 patch 层或某个 `--patch` overlay 设的——它们都以 entry config 的形式抵达。产品 CLI（命令行界面）没有高于已存 settings 的手段，因此需要把某字段钉死、不被用户已存 settings 覆盖的部署方，应自带 bin 或 loader 配置树，或者干脆不挂载 settings 提供方。composition 仍然高于环境，所以 shell 里陈旧的 `OMEGA_BASE_URL` 无法改写已配置的 endpoint。
 
 **凭据保留一条更窄的独立顺序**，本 Note 不把它并入上表：
 
@@ -41,11 +41,11 @@ inherited process environment      (read-only, wins)
 > $DSH_HOME/.env
 ```
 
-继承环境优先，因为 `DEEPSEEK_API_KEY=… dsh`、CI 机密与容器 `-e` 是运维必须能按次施加、且无需改动机器状态的那一种覆盖；而它无法从进程内部修改，就必须*可见地*只读。配置本应只携带*引用*——解析哪个名字——该名字本身遵循上面的非机密顺序。
+继承环境优先，因为 `OMEGA_API_KEY=… dsh`、CI 机密与容器 `-e` 是运维必须能按次施加、且无需改动机器状态的那一种覆盖；而它无法从进程内部修改，就必须*可见地*只读。配置本应只携带*引用*——解析哪个名字——该名字本身遵循上面的非机密顺序。
 
-**harness 被启动于其中的项目默认可信，且不做询问。** 一个 checkout 可以携带自己的普通变量和自己的密钥，但不能设置下一段列出的启动专用变量名，其中包括 DeepSeek 端点；密钥排在受管存储之下，因此通过 Models 页存下的密钥绝不会被 checkout 中恰好带有的那一个顶掉。`LaunchEnvironmentSnapshot.getFrom(name, sources)` 仍然只搜索调用方点名的层，省略某层仍是拒绝而不是降级——该机制供要求某一层不可达的决策使用；本决策包含项目层。
+**harness 被启动于其中的项目默认可信，且不做询问。** 一个 checkout 可以携带自己的普通变量和自己的密钥，但不能设置下一段列出的启动专用变量名，其中包括 Omega 端点；密钥排在受管存储之下，因此通过 Models 页存下的密钥绝不会被 checkout 中恰好带有的那一个顶掉。`LaunchEnvironmentSnapshot.getFrom(name, sources)` 仍然只搜索调用方点名的层，省略某层仍是拒绝而不是降级——该机制供要求某一层不可达的决策使用；本决策包含项目层。
 
-**信任不延伸到改变 harness 本身。** `loadLayeredEnv` 会在加载时、且在物化任何内容之前，拒绝任何设置了下列变量的 `.env`：决定进程如何启动的（`PATH`、`SHELL`、`NODE_OPTIONS`、`LD_PRELOAD`）、决定由哪个环境程序处理一项操作的（`EDITOR`、`PAGER`、`BROWSER`）、决定运行时在执行被要求运行的程序之前先执行哪些代码的（`BASH_ENV`、`PERL5OPT`、`PYTHONSTARTUP`、`RUBYOPT`、`JAVA_TOOL_OPTIONS`、Git 的钩子命令）、决定模型可见指令从哪里加载的（整个 `DSH_*` 命名空间、`HOME`、`XDG_*`），以及决定网络如何访问以及如何建立信任的（proxy、CA 与 DeepSeek 端点变量）。匹配不区分大小写，因此 `https_proxy` 不是绕过手段。有两项豁免从 `$DSH_HOME/.env` 接受变量名——没有任何 `.env` 能挪动该文件——但仍拒绝来自调用目录文件的同名变量：四个代理名，记录在[代理策略笔记](2026-08-27-outbound-proxy-policy.zh.md)中；以及 `DEEPSEEK_BASE_URL` 与 `DEEPSEEK_SEARCH_BASE_URL`。这两个端点变量名决定携带用户 DeepSeek 凭据的模型请求与搜索请求发往何处。同一 home 中的 profile patch 本就能以插件 `baseURL` 字段设置这些端点，因此从 home 文件接受它们，不会给能写入该目录的一方任何它原本没有的能力。
+**信任不延伸到改变 harness 本身。** `loadLayeredEnv` 会在加载时、且在物化任何内容之前，拒绝任何设置了下列变量的 `.env`：决定进程如何启动的（`PATH`、`SHELL`、`NODE_OPTIONS`、`LD_PRELOAD`）、决定由哪个环境程序处理一项操作的（`EDITOR`、`PAGER`、`BROWSER`）、决定运行时在执行被要求运行的程序之前先执行哪些代码的（`BASH_ENV`、`PERL5OPT`、`PYTHONSTARTUP`、`RUBYOPT`、`JAVA_TOOL_OPTIONS`、Git 的钩子命令）、决定模型可见指令从哪里加载的（整个 `DSH_*` 命名空间、`HOME`、`XDG_*`），以及决定网络如何访问以及如何建立信任的（proxy、CA 与 Omega 端点变量）。匹配不区分大小写，因此 `https_proxy` 不是绕过手段。有两项豁免从 `$DSH_HOME/.env` 接受变量名——没有任何 `.env` 能挪动该文件——但仍拒绝来自调用目录文件的同名变量：四个代理名，记录在[代理策略笔记](2026-08-27-outbound-proxy-policy.zh.md)中；以及 `OMEGA_BASE_URL` 与 `OMEGA_SEARCH_BASE_URL`。这两个端点变量名决定携带用户 Omega 凭据的模型请求与搜索请求发往何处。同一 home 中的 profile patch 本就能以插件 `baseURL` 字段设置这些端点，因此从 home 文件接受它们，不会给能写入该目录的一方任何它原本没有的能力。
 
 这条界线在于：它们无需任何用户动作、在任何轮次开始之前、且在权限策略与沙箱之外就生效。`DSH_PERMISSION_MODE` 会关掉让「信任项目」根本成立的那道审批，而 `BASH_ENV` 会在 bash 工具每次发出 `bash -c` 时执行项目指定的文件——项目的代码在 agent（智能体）的策略下运行是约定，项目改写那份策略不是。一个变量一个变量地枚举是必输的游戏，所以整个 `DSH_*` 命名空间被拒绝而不是只拒绝一份经审查的子集，也所以这份清单是按变量*做什么*而不是按哪个运行时拥有它来组织的。不设逃生门：逃生门本身总得从某处读取，而任何被发现的文件能设置的东西，就是那个漏洞本身。
 
@@ -56,13 +56,13 @@ inherited process environment      (read-only, wins)
 ## Consequences
 
 - Web 凭据表单现在能压过用户 `.env` 里更旧的密钥；只有在启动 shell 里 export 的密钥才会让它变成只读，诊断信息也会这么说。
-- 含 `DSH_*`、`PATH`、`BROWSER` 或（在调用目录中）proxy 或 DeepSeek 端点变量的 `.env` 会导致启动失败而不是被应用。把开关放在仓库 `.env` 里的开发者需要改放到 shell——这是一次刻意且响亮的破坏。
+- 含 `DSH_*`、`PATH`、`BROWSER` 或（在调用目录中）proxy 或 Omega 端点变量的 `.env` 会导致启动失败而不是被应用。把开关放在仓库 `.env` 里的开发者需要改放到 shell——这是一次刻意且响亮的破坏。
 - composition 不再会被陈旧的 shell endpoint 覆盖。但它仍然会被用户已存的 `settings.yaml` 覆盖，这是 settings seam 的分层方式，本 Note 不改变它；产品 CLI 没有高于它的标志，因此需要压过已存 settings 的部署方要自带 bin 或 loader 配置树。
 - 未解决的：各层仍然会被物化进 `process.env`，因此普通项目变量继续按子进程清洗规则抵达子进程。bootstrap 变量完全不能来自文件；环境包将其余变量仍可抵达子进程这一点记录为一项限制。
 
 ## Alternatives considered
 
-**按「来源由谁书写」把凭据并入非机密顺序。** 尝试过并放弃：它读起来很顺，但 settings seam 已经把 composition 固定在用户 section *之下*，因此「由部署方写入」根本不是该 seam 能表达的一层；而把 `.credentials.yaml` 抬到启动环境之上，会夺走 CI、容器和一次性 `DEEPSEEK_API_KEY=…` 所依赖的那唯一一种覆盖。两条各自说明优先顺序的规则，好过一条两边都描述不准的规则。
+**按「来源由谁书写」把凭据并入非机密顺序。** 尝试过并放弃：它读起来很顺，但 settings seam 已经把 composition 固定在用户 section *之下*，因此「由部署方写入」根本不是该 seam 能表达的一层；而把 `.credentials.yaml` 抬到启动环境之上，会夺走 CI、容器和一次性 `OMEGA_API_KEY=…` 所依赖的那唯一一种覆盖。两条各自说明优先顺序的规则，好过一条两边都描述不准的规则。
 
 **在项目被显式信任之前，不给它路由与凭据能力。** 作为产品立场被否决：checkout 默认可信，不询问，也不存储信任记录。残留风险是真实的、值得写明——克隆一个携带 `.env`、其中指定了另一个 endpoint 或密钥的仓库，会让该会话经由它——处理它的地方是日后的 project trust 门禁，而不是一条让常见情形都要走仪式的规则。
 

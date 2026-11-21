@@ -1,11 +1,11 @@
 /** Browser-session authentication for the Host Connection carrier. */
 
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
-import type { PeerId } from '@deepseek-ai/dsh-typert-protocol'
-import { CONNECT_PATH } from '@deepseek-ai/dsh-client-connection'
+import type { PeerId } from '@omega-ai/dsh-typert-protocol'
+import { CONNECT_PATH } from '@omega-ai/dsh-client-connection'
 import type { ConnectionInteractions } from './types.ts'
-import { credentialKey } from '@deepseek-ai/dsh-credentials'
-import type { CredentialProvider, CredentialRecord } from '@deepseek-ai/dsh-credentials'
+import { credentialKey } from '@omega-ai/dsh-credentials'
+import type { CredentialProvider, CredentialRecord } from '@omega-ai/dsh-credentials'
 import type {
   ConnectionIndexRequest,
   ConnectionIndexResponse,

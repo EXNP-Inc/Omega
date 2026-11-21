@@ -1,7 +1,7 @@
 /** Desktop text-input recognition for the SDK; command execution stays with the native registry. */
 
-import type { CommandDescriptor } from '@deepseek-ai/dsh-commands/types'
-import { builtinCommandName, resolveCommand } from '@deepseek-ai/dsh-commands/builtin'
+import type { CommandDescriptor } from '@omega-ai/dsh-commands/types'
+import { builtinCommandName, resolveCommand } from '@omega-ai/dsh-commands/builtin'
 
 /**
  * Recognize compact, explicit permission changes, plan, and goal by their definition identities.

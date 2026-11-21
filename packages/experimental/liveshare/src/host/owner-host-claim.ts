@@ -22,7 +22,7 @@
  * the next host, and so is one that names this process. The liveness check protects no share data and
  * no Session log, and pid reuse can at worst leave a live host without its shares until its next
  * start. There is deliberately no deadline that could expropriate a stalled holder.
- * @module @deepseek-ai/dsh-experimental-liveshare/src/host/owner-host-claim
+ * @module @omega-ai/dsh-experimental-liveshare/src/host/owner-host-claim
  */
 
 import { randomBytes } from 'node:crypto'

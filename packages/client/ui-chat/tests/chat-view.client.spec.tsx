@@ -1,16 +1,16 @@
 // @vitest-environment jsdom
-import { contextMenuHook } from '@deepseek-ai/dsh-client-test-runtime'
+import { contextMenuHook } from '@omega-ai/dsh-client-test-runtime'
 
 import { ChatViewport } from '../src/client/chat/use-chat-viewport.ts'
 import type { ProcessGroupData } from '../src/client/contract/process-groups.ts'
-import type { InboxState } from '@deepseek-ai/dsh-agent/types'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { MessageId } from '@deepseek-ai/dsh-llm/types'
-import type { GlobalStandardProps, PropsRenderFactories, PropsRenderSlots } from '@deepseek-ai/dsh-client-ui-slots'
+import type { InboxState } from '@omega-ai/dsh-agent/types'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { MessageId } from '@omega-ai/dsh-llm/types'
+import type { GlobalStandardProps, PropsRenderFactories, PropsRenderSlots } from '@omega-ai/dsh-client-ui-slots'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { useEffect, useMemo } from 'react'
-import { useMarkdownDelegate, type MarkdownDelegateFenceInfo, type MarkdownMenuTarget } from '@deepseek-ai/dsh-client-ui-primitives'
+import { useMarkdownDelegate, type MarkdownDelegateFenceInfo, type MarkdownMenuTarget } from '@omega-ai/dsh-client-ui-primitives'
 import type {
   AssistantMessageNode, ChatFlowHookContext, ChatFlowOwnerProps, ChatFlowSlotProps,
   ChatNode, ChatNodeHookContext, ChatNodeOwnerProps, ChatSnapshot, UserBeforeOwnerProps,
@@ -18,26 +18,26 @@ import type {
   LegacyConversationSlice, ModelRetryNode, StartedToolCall, SteeringMessageNode,
   ToolCallBlock, ToolResultNode, TurnErrorNode, TurnMaxTokensNode,
   TranscriptViewMode, UserContentInput, UserMessageNode,
-} from '@deepseek-ai/dsh-client-ui-chat/client'
+} from '@omega-ai/dsh-client-ui-chat/client'
 import type {
   SessionListState, SessionSnapshot,
-} from '@deepseek-ai/dsh-api-session-controller/client'
+} from '@omega-ai/dsh-api-session-controller/client'
 import type {
   ConversationGroupedView,
   ConversationSnapshot, ConversationViewSnapshotStore, GroupKey, GroupSnapshot,
   MessageImagesOwnerProps, NodeKey, TurnLocation,
-} from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type { WorkspaceSnapshot } from '@deepseek-ai/dsh-api-workspace-controller/client'
-import { SessionSeq, type SessionId } from '@deepseek-ai/dsh-session/types'
-import type { SessionStatusSnapshot } from '@deepseek-ai/dsh-client-ui-session-status/client'
-import type { KeyedSnapshotSelectorHook, SnapshotSelectorHook } from '@deepseek-ai/dsh-client-ui-slots'
-import { allowAllAccess, bindSnapshotSelector, makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import { createSnapshotStore, type ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
-import type { ConnectionState } from '@deepseek-ai/dsh-client-connection/client'
-import { EMPTY_CONVERSATION_SNAPSHOT } from '@deepseek-ai/dsh-client-ui-conversation/client'
-import { en as commonEn } from '@deepseek-ai/dsh-client-locale/src/locales/en.ts'
-import { zh as commonZh } from '@deepseek-ai/dsh-client-locale/src/locales/zh.ts'
-import { PartialArguments } from '@deepseek-ai/dsh-util-values'
+} from '@omega-ai/dsh-client-ui-conversation/client'
+import type { WorkspaceSnapshot } from '@omega-ai/dsh-api-workspace-controller/client'
+import { SessionSeq, type SessionId } from '@omega-ai/dsh-session/types'
+import type { SessionStatusSnapshot } from '@omega-ai/dsh-client-ui-session-status/client'
+import type { KeyedSnapshotSelectorHook, SnapshotSelectorHook } from '@omega-ai/dsh-client-ui-slots'
+import { allowAllAccess, bindSnapshotSelector, makeTranslate } from '@omega-ai/dsh-client-test-runtime'
+import { createSnapshotStore, type ObservableSnapshot } from '@omega-ai/dsh-client-store'
+import type { ConnectionState } from '@omega-ai/dsh-client-connection/client'
+import { EMPTY_CONVERSATION_SNAPSHOT } from '@omega-ai/dsh-client-ui-conversation/client'
+import { en as commonEn } from '@omega-ai/dsh-client-locale/src/locales/en.ts'
+import { zh as commonZh } from '@omega-ai/dsh-client-locale/src/locales/zh.ts'
+import { PartialArguments } from '@omega-ai/dsh-util-values'
 import { createChatStore } from '../src/client/stores.ts'
 import { derivePresentationPolicy, type CollapseTiming, type FoldedReplies } from '../src/client/presentation-policy.ts'
 import { CHAT_FLOW_INJECT, CHAT_NODE_INJECT } from '../src/client/apply.ts'

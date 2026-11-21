@@ -1,5 +1,5 @@
 /** Conversation plugin configuration shared by the Host and Client faces; types only. */
-import type { Volatile } from '@deepseek-ai/cordis'
+import type { Volatile } from '@omega-ai/cordis'
 import type { BusyEnterBehavior } from './submission-settings.ts'
 
 /** Live preferences; the browser receives every field through its synced Config. */

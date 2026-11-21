@@ -1,7 +1,7 @@
 /** Runs the GitLab CLI on the host with a scrubbed, non-interactive environment that cannot redirect it to another host. */
 
 import { tmpdir } from 'node:os'
-import { scrubbedParentEnv } from '@deepseek-ai/dsh-subprocess'
+import { scrubbedParentEnv } from '@omega-ai/dsh-subprocess'
 import { execa } from 'execa'
 
 /** Complete output of one `glab` invocation that ran to an exit code. */

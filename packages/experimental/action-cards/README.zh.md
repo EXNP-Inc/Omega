@@ -3,7 +3,7 @@ description: "可选操作卡片的共享 Host 服务：从回答里的 action-c
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-action-cards
+# @omega-ai/dsh-action-cards
 
 [English](README.md) | 中文
 

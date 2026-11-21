@@ -1,13 +1,13 @@
 /** Request header contributions reach the provider without crossing call lifetimes. */
 
 import { afterEach, expect, it, onTestFinished, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import LlmRuntime, { userAgent } from '@deepseek-ai/dsh-llm'
-import type { SessionId } from '@deepseek-ai/dsh-session'
+import { Context } from '@omega-ai/cordis'
+import LlmRuntime, { userAgent } from '@omega-ai/dsh-llm'
+import type { SessionId } from '@omega-ai/dsh-session'
 import * as PiAi from '../src/index.ts'
 import { assemble } from './assemble.ts'
 import { closeMockServers, mockServer, textEvents } from './mock-server.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 afterEach(async () => {
   await closeMockServers()
@@ -19,7 +19,7 @@ async function harness(baseURL: string, otherURL?: string, headers?: Record<stri
   const ctx = new Context()
   onTestFinished(() => ctx.fiber.dispose())
   await ctx.plugin(LlmRuntime)
-  await ctx.plugin(PiAi, { providers: { deepseek: {
+  await ctx.plugin(PiAi, { providers: { omega: {
     apiKeyEnv: 'PI_HEADERS_KEY', baseURL,
     headers: { 'X-Company': 'static', 'X-Request-Session': 'static-session', ...headers },
   }, ...otherURL === undefined ? {} : { gateway: {
@@ -41,7 +41,7 @@ it.each([false, true])('keeps the last configured value of case-insensitive head
       return next()
     })
   }
-  const result = await assemble(ctx, { model: 'deepseek-flash', messages: [] })
+  const result = await assemble(ctx, { model: 'omega-flash', messages: [] })
   expect(result.finish).toEqual({ kind: 'stop' })
   expect(server.headers[0]?.authorization).toBe('Bearer new-fixture')
   expect(server.headers[0]?.['x-tenant']).toBe(contribute ? 'contributed-tenant' : 'new-tenant')
@@ -64,11 +64,11 @@ it('composes request-local headers, enforces attribution, and removes disposed l
     headers.set('x-second-listener', 'yes')
     return next()
   })
-  await assemble(ctx, { model: 'deepseek-flash', messages: [], sessionId: brandString<SessionId>('one') })
-  await assemble(ctx, { model: 'deepseek-flash', messages: [] })
+  await assemble(ctx, { model: 'omega-flash', messages: [], sessionId: brandString<SessionId>('one') })
+  await assemble(ctx, { model: 'omega-flash', messages: [] })
   expect(seen).toEqual([
-    { provider: 'deepseek', model: 'deepseek-flash', baseURL: server.url, sessionId: 'one' },
-    { provider: 'deepseek', model: 'deepseek-flash', baseURL: server.url },
+    { provider: 'omega', model: 'omega-flash', baseURL: server.url, sessionId: 'one' },
+    { provider: 'omega', model: 'omega-flash', baseURL: server.url },
   ])
   expect(server.headers[0]).toMatchObject({
     'x-request-session': 'one', 'x-company': 'static', 'x-second-listener': 'yes', 'user-agent': userAgent(),
@@ -76,7 +76,7 @@ it('composes request-local headers, enforces attribution, and removes disposed l
   expect(server.headers[1]).not.toHaveProperty('x-request-session')
   remove()
   removeSecond()
-  await assemble(ctx, { model: 'deepseek-flash', messages: [], sessionId: brandString<SessionId>('two') })
+  await assemble(ctx, { model: 'omega-flash', messages: [], sessionId: brandString<SessionId>('two') })
   expect(server.headers[2]).toMatchObject({ 'x-request-session': 'static-session', 'x-company': 'static' })
   expect(server.headers[2]).not.toHaveProperty('x-second-listener')
 })
@@ -91,14 +91,14 @@ it('uses the prepared endpoint and isolates overlapping requests', async () => {
     headers.set('x-request-session', String(request.sessionId))
     return next()
   })
-  const prepared = await ctx.llm.prepareCall({ provider: 'deepseek', model: 'deepseek-flash' })
+  const prepared = await ctx.llm.prepareCall({ provider: 'omega', model: 'omega-flash' })
   const iterator = prepared.stream({ ...prepared.config, messages: [], sessionId: brandString<SessionId>('first') })[Symbol.asyncIterator]()
   onTestFinished(async () => { await iterator.return?.() })
   await iterator.next()
   await assemble(ctx, { provider: 'gateway', model: 'm', messages: [], sessionId: brandString<SessionId>('second') })
   while (!(await iterator.next()).done) { /* Drain the first response after the second call settles. */ }
   expect(seen.map(({ provider, baseURL, sessionId }) => ({ provider, baseURL, sessionId }))).toEqual([
-    { provider: 'deepseek', baseURL: first.url, sessionId: 'first' },
+    { provider: 'omega', baseURL: first.url, sessionId: 'first' },
     { provider: 'gateway', baseURL: second.url, sessionId: 'second' },
   ])
   expect(first.headers[0]?.['x-request-session']).toBe('first')
@@ -120,10 +120,10 @@ it.each([
     else headers.set('authorization', 'Bearer private-header-fixture\nsuffix')
     return next()
   })
-  const result = await assemble(ctx, { model: 'deepseek-flash', messages: [] })
+  const result = await assemble(ctx, { model: 'omega-flash', messages: [] })
   expect(result.finish).toMatchObject({ kind: 'error', failure: {
     code: 'REQUEST_HEADERS',
-    message: `pi-ai request header preparation failed for provider "deepseek": ${detail}`,
+    message: `pi-ai request header preparation failed for provider "omega": ${detail}`,
   } })
   expect(JSON.stringify(result.finish)).not.toContain('private-')
   expect(server.requests).toHaveLength(0)

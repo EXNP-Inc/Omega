@@ -1,5 +1,5 @@
 /** Connection plugin configuration shared by the Host and Client faces; types only. */
-import type { Volatile } from '@deepseek-ai/cordis'
+import type { Volatile } from '@omega-ai/cordis'
 import type { ConnectionRecoveryConfig } from './recovery-config.ts'
 
 /** Browser authentication, request limits, and connection recovery configuration. */

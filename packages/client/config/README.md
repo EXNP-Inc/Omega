@@ -3,7 +3,7 @@ description: "Types of browser-synced plugin configuration"
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-config
+# @omega-ai/dsh-client-config
 
 English | [中文](README.zh.md)
 
@@ -25,7 +25,7 @@ The types a browser plugin uses to read its live Host configuration. A plugin de
 <a id="use-this-package"></a>
 ## Use this package
 
-A plugin package lists this package in `devDependencies` and imports from `@deepseek-ai/dsh-client-config/types` with `import type` only:
+A plugin package lists this package in `devDependencies` and imports from `@omega-ai/dsh-client-config/types` with `import type` only:
 
 | Type | Use |
 |---|---|

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { compileRules } from '@deepseek-ai/dsh-experimental-forge-session/src/commands.ts'
+import { compileRules } from '@omega-ai/dsh-experimental-forge-session/src/commands.ts'
 import { GLAB_COMMANDS } from '../src/commands.ts'
 
 const rules = compileRules([GLAB_COMMANDS])
@@ -68,8 +68,8 @@ describe('glab command rule', () => {
     const merge = (host: string, number: number) => `https://${host}/LegGasai/jyc-test/-/merge_requests/${number}`
 
     it.each([
-      ['glab api --hostname gitlab.deepseek.com "projects/LegGasai%2Fjyc-test/merge_requests/3" 2>&1 | head -c 6000', merge('gitlab.deepseek.com', 3)],
-      ['glab api --hostname gitlab.deepseek.com projects/LegGasai%2Fjyc-test/merge_requests/3/changes', merge('gitlab.deepseek.com', 3)],
+      ['glab api --hostname gitlab.omega.com "projects/LegGasai%2Fjyc-test/merge_requests/3" 2>&1 | head -c 6000', merge('gitlab.omega.com', 3)],
+      ['glab api --hostname gitlab.omega.com projects/LegGasai%2Fjyc-test/merge_requests/3/changes', merge('gitlab.omega.com', 3)],
       ["glab api '/api/v4/projects/LegGasai%2Fjyc-test/merge_requests/4/notes?per_page=100' --hostname=gitlab.example --paginate", merge('gitlab.example', 4)],
       ['glab api -X POST -f body=LGTM -H "Accept: application/json" --hostname gitlab.example projects/LegGasai%2Fjyc-test/merge_requests/5/notes',
         merge('gitlab.example', 5)],

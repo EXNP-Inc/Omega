@@ -3,9 +3,9 @@ import {
   LIVESHARE_CAPABILITIES,
   LIVESHARE_OWNER_PLATFORMS,
   LIVESHARE_PROTOCOL_VERSION,
-} from '@deepseek-ai/dsh-experimental-liveshare-protocol'
+} from '@omega-ai/dsh-experimental-liveshare-protocol'
 import { registrationUrl } from '../src/owner-gateway/registration-url.ts'
-import type { TunnelShareSpec } from '@deepseek-ai/dsh-experimental-liveshare-protocol'
+import type { TunnelShareSpec } from '@omega-ai/dsh-experimental-liveshare-protocol'
 
 /** The share every case starts from: the required fields, and nothing optional. */
 const minimal: TunnelShareSpec = {

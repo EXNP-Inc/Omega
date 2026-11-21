@@ -3,18 +3,18 @@ import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { Context, LoggerLevel } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import Include from '@deepseek-ai/cordis-plugin-include'
-import AgentRegistry, { type Agent } from '@deepseek-ai/dsh-agent'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import { createScope } from '@deepseek-ai/dsh-scope'
-import AgentPresets from '@deepseek-ai/dsh-agent-preset-registry'
-import { PluginPackages } from '@deepseek-ai/dsh-app-boot'
-import DeepSeekLlmApiExtensionRegistry from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
+import { Context, LoggerLevel } from '@omega-ai/cordis'
+import Loader from '@omega-ai/cordis-plugin-loader'
+import Include from '@omega-ai/cordis-plugin-include'
+import AgentRegistry, { type Agent } from '@omega-ai/dsh-agent'
+import type { SessionId } from '@omega-ai/dsh-session'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import { createScope } from '@omega-ai/dsh-scope'
+import AgentPresets from '@omega-ai/dsh-agent-preset-registry'
+import { PluginPackages } from '@omega-ai/dsh-app-boot'
+import OmegaLlmApiExtensionRegistry from '@omega-ai/dsh-omega-llm-api-extensions'
 import * as PluginInventory from '../src/index.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const contexts: Context[] = []
 const roots: string[] = []
@@ -52,7 +52,7 @@ async function harness(
   await ctx.plugin(SessionProjectionRegistry)
   await ctx.plugin(AgentRegistry)
   await ctx.plugin(AgentPresets, { default: 'fixture' })
-  await ctx.plugin(DeepSeekLlmApiExtensionRegistry)
+  await ctx.plugin(OmegaLlmApiExtensionRegistry)
   const inventory = enabled === undefined
     ? ctx.plugin(PluginInventory)
     : ctx.plugin(PluginInventory, { enabled })
@@ -60,16 +60,16 @@ async function harness(
   return { ctx, root, disposeInventory: () => inventory.dispose() }
 }
 
-describe('DeepSeek plugin package inventory', () => {
+describe('Omega plugin package inventory', () => {
   it('contributes by default and can be explicitly disabled', async () => {
     const defaultHarness = await harness()
-    const defaultFields = await defaultHarness.ctx.deepseekLlmApiExtensions.prepare({
+    const defaultFields = await defaultHarness.ctx.omegaLlmApiExtensions.prepare({
       body: { messages: [] }, signal: SIGNAL,
     })
     expect(defaultFields.fields).toHaveProperty('dsh_plugin_packages')
 
     const disabledHarness = await harness(false)
-    const disabledFields = await disabledHarness.ctx.deepseekLlmApiExtensions.prepare({
+    const disabledFields = await disabledHarness.ctx.omegaLlmApiExtensions.prepare({
       body: { messages: [] }, signal: SIGNAL,
     })
     expect(disabledFields.fields).not.toHaveProperty('dsh_plugin_packages')
@@ -89,7 +89,7 @@ describe('DeepSeek plugin package inventory', () => {
     await ctx.loader.create({ name: disabled, disabled: true })
     await ctx.loader.create({ name: './loose/plugin.mjs' })
 
-    const prepared = await ctx.deepseekLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })
+    const prepared = await ctx.omegaLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })
     expect(prepared.fields.dsh_plugin_packages).toEqual({
       version: 1,
       packages: [
@@ -110,7 +110,7 @@ describe('DeepSeek plugin package inventory', () => {
       id: `inventory-${String(index)}`,
       name,
     })))
-    const prepared = await ctx.deepseekLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })
+    const prepared = await ctx.omegaLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })
     expect(prepared.fields.dsh_plugin_packages?.packages).toStrictEqual([
       { name: 'same' },
       { name: 'same', version: 'undefined' },
@@ -129,20 +129,20 @@ describe('DeepSeek plugin package inventory', () => {
     if (kind === 'deleted') await rm(manifest)
     else await writeFile(manifest, kind === 'null' ? 'null' : '{')
     for (let request = 0; request < 2; request++) {
-      const prepared = await ctx.deepseekLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })
+      const prepared = await ctx.omegaLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })
       expect(prepared.fields.dsh_plugin_packages?.packages).toEqual([{ name: 'good', version: '2.0.0' }])
     }
     // A deleted manifest leaves a loose module, which is omitted without a warning.
     expect(warnings).toEqual(kind === 'deleted'
       ? []
-      : [['plugin-package-inventory-deepseek: omitting unreadable package identity for %s: %o', bad, expect.any(Error)]])
+      : [['plugin-package-inventory-omega: omitting unreadable package identity for %s: %o', bad, expect.any(Error)]])
   })
 
   it('omits a loose ESM module whose nearest manifest only marks the module type', async () => {
     const { ctx, root } = await harness()
     const marker = await packagePlugin(root, 'marker-only', {})
     await ctx.loader.create({ name: marker })
-    await expect(ctx.deepseekLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL }))
+    await expect(ctx.omegaLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL }))
       .resolves.toMatchObject({ fields: { dsh_plugin_packages: { version: 1, packages: [] } } })
   })
 
@@ -155,13 +155,13 @@ describe('DeepSeek plugin package inventory', () => {
     await ctx.loader.create({ name: kind === 'file' ? pathToFileURL(join(root, nested)).href : 'inspector-skill/plugin.mjs' })
     await ctx.loader.create({ name: versioned })
 
-    const prepared = await ctx.deepseekLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })
+    const prepared = await ctx.omegaLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })
     expect(prepared.fields.dsh_plugin_packages?.packages).toEqual([
       { name: 'inspector-skill' },
       { name: 'versioned-private', version: '2.0.0' },
     ])
     await ctx.loader.create({ name: parent })
-    const withParent = await ctx.deepseekLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })
+    const withParent = await ctx.omegaLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })
     expect(withParent.fields.dsh_plugin_packages?.packages).toEqual([
       { name: 'inspector', version: '1.0.0' },
       { name: 'inspector-skill' },
@@ -174,7 +174,7 @@ describe('DeepSeek plugin package inventory', () => {
     const { ctx, root } = await harness()
     const plugin = await packagePlugin(root, 'invalid', manifest)
     await ctx.loader.create({ name: plugin })
-    const prepared = await ctx.deepseekLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })
+    const prepared = await ctx.omegaLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })
     expect(prepared.fields.dsh_plugin_packages?.packages).toStrictEqual([{ name: 'optional-metadata' }])
   })
 
@@ -182,7 +182,7 @@ describe('DeepSeek plugin package inventory', () => {
     const { ctx, root } = await harness()
     const plugin = await packagePlugin(root, 'invalid', { name, version: '1.0.0' })
     await ctx.loader.create({ name: plugin })
-    await expect(ctx.deepseekLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL }))
+    await expect(ctx.omegaLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL }))
       .resolves.toMatchObject({ fields: { dsh_plugin_packages: { version: 1, packages: [] } } })
   })
 
@@ -190,13 +190,13 @@ describe('DeepSeek plugin package inventory', () => {
     const { ctx, root } = await harness()
     const plugin = await packagePlugin(root, 'host-only', { name: 'host-only', version: '3.0.0' })
     await ctx.loader.create({ name: plugin })
-    const missing = await ctx.deepseekLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL, sessionId: 'missing' })
+    const missing = await ctx.omegaLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL, sessionId: 'missing' })
     expect(missing.fields.dsh_plugin_packages?.packages).toEqual([{ name: 'host-only', version: '3.0.0' }])
 
     const id = brandString<SessionId>('bare-agent')
     const agentScope = createScope(ctx, {})
     await ctx.agents.register({ id, ctx: agentScope.ctx, session: { id } } as unknown as Agent)
-    const bare = await ctx.deepseekLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL, sessionId: id })
+    const bare = await ctx.omegaLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL, sessionId: id })
     expect(bare.fields.dsh_plugin_packages?.packages).toEqual([{ name: 'host-only', version: '3.0.0' }])
   })
 
@@ -226,7 +226,7 @@ describe('DeepSeek plugin package inventory', () => {
     await ctx.loader.create({ name: 'cordis:noop' })
     await ctx.loader.create({ name: 'https://plugins.example/test.mjs' })
 
-    const prepared = await ctx.deepseekLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })
+    const prepared = await ctx.omegaLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })
     expect(prepared.fields.dsh_plugin_packages?.packages).toEqual([
       { name: '@scope/scoped-package', version: '2.0.0' },
       { name: 'absolute-package', version: '3.0.0' },
@@ -241,7 +241,7 @@ describe('DeepSeek plugin package inventory', () => {
       import: async () => ({ default: () => {} }),
     } as unknown as NonNullable<typeof ctx.loader.internal>
     await ctx.loader.create({ name: 'missing-package' })
-    await expect(ctx.deepseekLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL }))
+    await expect(ctx.omegaLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL }))
       .resolves.toMatchObject({ fields: { dsh_plugin_packages: { version: 1, packages: [] } } })
   })
 
@@ -253,7 +253,7 @@ describe('DeepSeek plugin package inventory', () => {
     } as unknown as NonNullable<typeof ctx.loader.internal>
     await ctx.loader.create({ name: 'missing-profile-package' })
 
-    await expect(ctx.deepseekLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL }))
+    await expect(ctx.omegaLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL }))
       .resolves.toMatchObject({ fields: { dsh_plugin_packages: { version: 1, packages: [] } } })
   })
 
@@ -263,11 +263,11 @@ describe('DeepSeek plugin package inventory', () => {
     await ctx.plugin(Loader)
     await ctx.plugin(SessionProjectionRegistry)
     await ctx.plugin(AgentRegistry)
-    await ctx.plugin(DeepSeekLlmApiExtensionRegistry)
+    await ctx.plugin(OmegaLlmApiExtensionRegistry)
     await ctx.plugin(PluginInventory)
     ctx.loader.builtins.noop = () => {}
     await ctx.loader.create({ name: 'cordis:noop' })
-    const prepared = await ctx.deepseekLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })
+    const prepared = await ctx.omegaLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })
     expect(prepared.fields.dsh_plugin_packages).toEqual({ version: 1, packages: [] })
   })
 
@@ -287,7 +287,7 @@ describe('DeepSeek plugin package inventory', () => {
     await ctx.loader.create({ name: 'cordis:include', config: { path: pathToFileURL(composition).href } })
     await ctx.loader.await()
 
-    const prepared = await ctx.deepseekLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })
+    const prepared = await ctx.omegaLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })
     expect(prepared.fields.dsh_plugin_packages?.packages).toEqual([
       { name: 'versioned-plugin', version: '1.0.0' },
       { name: 'versioned-plugin', version: '2.0.0' },
@@ -318,7 +318,7 @@ describe('DeepSeek plugin package inventory', () => {
       new URL('probe.mjs', pathToFileURL(composition)).href,
     ])
 
-    const prepared = await ctx.deepseekLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL, sessionId: id })
+    const prepared = await ctx.omegaLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL, sessionId: id })
     expect(prepared.fields.dsh_plugin_packages?.packages).toEqual([
       { name: 'preset-only', version: '4.0.0' },
       { name: 'preset-only', version: '5.0.0' },
@@ -327,10 +327,10 @@ describe('DeepSeek plugin package inventory', () => {
 
   it('withdraws the inventory field when the contributing plugin reloads', async () => {
     const { ctx, disposeInventory } = await harness()
-    expect((await ctx.deepseekLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })).fields)
+    expect((await ctx.omegaLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })).fields)
       .toHaveProperty('dsh_plugin_packages')
     await disposeInventory()
-    expect((await ctx.deepseekLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })).fields)
+    expect((await ctx.omegaLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })).fields)
       .not.toHaveProperty('dsh_plugin_packages')
   })
 })

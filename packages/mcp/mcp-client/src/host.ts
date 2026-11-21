@@ -6,7 +6,7 @@
  * @module
  */
 
-import { Service, type Context } from '@deepseek-ai/cordis'
+import { Service, type Context } from '@omega-ai/cordis'
 import * as McpClient from './index.ts'
 import type { Config, StreamableHttpConfig } from './index.ts'
 import { hasOAuthWithAuthorizationHeader, SERVER_NAME_PATTERN, StdioSchema, StreamableHttpSchema } from './config.ts'
@@ -22,7 +22,7 @@ import type { McpConnectionStatusHandle } from './status.ts'
 import { assertTemplateSyntax } from './templates.ts'
 import type { McpCloseResult, McpProbeResult } from './types.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context {
     /** Validates, mounts, probes, and authorizes MCP servers for the plugin that manages them. */
     mcpClientHost: McpClientHost

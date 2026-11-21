@@ -2,7 +2,7 @@
  * The one definition of a well-formed API key, shared by every consumer that
  * puts a resolved key in an HTTP header. A consumer words its own diagnostic
  * for a key that is not.
- * @module @deepseek-ai/dsh-credentials/api-key
+ * @module @omega-ai/dsh-credentials/api-key
  */
 
 /**

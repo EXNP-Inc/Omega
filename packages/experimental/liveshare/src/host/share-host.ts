@@ -2,12 +2,12 @@
 
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
-import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-api-remote-access'
-import type {} from '@deepseek-ai/dsh-api-session-controller'
-import type {} from '@deepseek-ai/dsh-client-connection'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type {} from '@deepseek-ai/dsh-workspace'
+import type { Context } from '@omega-ai/cordis'
+import type {} from '@omega-ai/dsh-api-remote-access'
+import type {} from '@omega-ai/dsh-api-session-controller'
+import type {} from '@omega-ai/dsh-client-connection'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import type {} from '@omega-ai/dsh-workspace'
 import {
   loadOwnerState,
   writeOwnerState,
@@ -44,11 +44,11 @@ import {
 import { readViewerAsset } from './viewer-assets.ts'
 import type { ForkShareState } from './fork-policy.ts'
 import type { ForkToolExecution } from './fork-tool-guard.ts'
-import type { ShareRpcActor } from '@deepseek-ai/dsh-experimental-liveshare-protocol'
+import type { ShareRpcActor } from '@omega-ai/dsh-experimental-liveshare-protocol'
 import {
   identityKeyOf,
   type IdentityActor,
-} from '@deepseek-ai/dsh-experimental-liveshare-protocol'
+} from '@omega-ai/dsh-experimental-liveshare-protocol'
 
 export const name = 'liveshare-share-host'
 export const inject = ['connection']

@@ -3,22 +3,22 @@ import { mkdtemp, readFile, realpath, rm, symlink, writeFile } from 'node:fs/pro
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import Include, { applyEntryPatches } from '@deepseek-ai/cordis-plugin-include'
-import { loadOverlayPatches } from '@deepseek-ai/dsh-app-boot'
-import WorkspaceFiles, { type WorkspaceFileScope } from '@deepseek-ai/dsh-api-workspace-files'
-import OfficeKit from '@deepseek-ai/dsh-office-kit'
-import * as DocumentPreview from '@deepseek-ai/dsh-client-ui-sidebar-documentpreview'
-import SessionStore, { type SessionId } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import SandboxPolicyService from '@deepseek-ai/dsh-sandbox-policy'
-import LocalFileSystem from '@deepseek-ai/dsh-fs-local'
-import { FsError } from '@deepseek-ai/dsh-fs'
-import TypertRegistry from '@deepseek-ai/dsh-typert-registry'
+import { Context } from '@omega-ai/cordis'
+import Loader from '@omega-ai/cordis-plugin-loader'
+import Include, { applyEntryPatches } from '@omega-ai/cordis-plugin-include'
+import { loadOverlayPatches } from '@omega-ai/dsh-app-boot'
+import WorkspaceFiles, { type WorkspaceFileScope } from '@omega-ai/dsh-api-workspace-files'
+import OfficeKit from '@omega-ai/dsh-office-kit'
+import * as DocumentPreview from '@omega-ai/dsh-client-ui-sidebar-documentpreview'
+import SessionStore, { type SessionId } from '@omega-ai/dsh-session'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import SandboxPolicyService from '@omega-ai/dsh-sandbox-policy'
+import LocalFileSystem from '@omega-ai/dsh-fs-local'
+import { FsError } from '@omega-ai/dsh-fs'
+import TypertRegistry from '@omega-ai/dsh-typert-registry'
 import type { Converter, ConverterOptions } from '@deepseek-ai/libreoffice-kit'
 import { expect, it, onTestFinished, vi } from 'vitest'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const kit = vi.hoisted(() => ({ create: vi.fn<(options?: ConverterOptions) => Promise<Converter>>() }))
 vi.mock('@deepseek-ai/libreoffice-kit', () => ({ createConverter: kit.create }))
@@ -37,8 +37,8 @@ it('loads the shipped Office rows with separately patched settings and authorize
   })
   const configPath = join(directory, 'cordis.yml')
   const expectedRows = {
-    'office-kit': '@deepseek-ai/dsh-office-kit',
-    'ui-sidebar-documentpreview': '@deepseek-ai/dsh-client-ui-sidebar-documentpreview',
+    'office-kit': '@omega-ai/dsh-office-kit',
+    'ui-sidebar-documentpreview': '@omega-ai/dsh-client-ui-sidebar-documentpreview',
   }
   const rows = loadOverlayPatches('web-office-test', fileURLToPath(new URL('../cordis.patch.yml', import.meta.url)))
     .flatMap(patch => patch.insert ?? []).filter(row => row.id !== undefined && Object.hasOwn(expectedRows, row.id))
@@ -51,12 +51,12 @@ it('loads the shipped Office rows with separately patched settings and authorize
   ], (message) => { throw new Error(message) }).data
   expect(configured.find(row => row.id === 'ui-sidebar-documentpreview')!.config).toEqual(clientConfig)
   await writeFile(configPath, JSON.stringify([
-    { name: '@deepseek-ai/dsh-session' },
-    { name: '@deepseek-ai/dsh-session-projection' },
-    { name: '@deepseek-ai/dsh-sandbox-policy', config: { workspaceRoot: directory } },
-    { name: '@deepseek-ai/dsh-fs-local', config: { cwd: directory } },
-    { name: '@deepseek-ai/dsh-typert-registry' },
-    { name: '@deepseek-ai/dsh-api-workspace-files', config: { maxFileBytes: 1 } },
+    { name: '@omega-ai/dsh-session' },
+    { name: '@omega-ai/dsh-session-projection' },
+    { name: '@omega-ai/dsh-sandbox-policy', config: { workspaceRoot: directory } },
+    { name: '@omega-ai/dsh-fs-local', config: { cwd: directory } },
+    { name: '@omega-ai/dsh-typert-registry' },
+    { name: '@omega-ai/dsh-api-workspace-files', config: { maxFileBytes: 1 } },
     ...configured,
   ]))
   const pdf = Buffer.from('%PDF-1.7\nLoader preview\n%%EOF\n')
@@ -76,14 +76,14 @@ it('loads the shipped Office rows with separately patched settings and authorize
   ctx.loader.builtins.include = Include
   // Loader's native imports must share the test's source-plane Service classes.
   const modules = new Map<string, unknown>([
-    ['@deepseek-ai/dsh-session', SessionStore],
-    ['@deepseek-ai/dsh-session-projection', SessionProjectionRegistry],
-    ['@deepseek-ai/dsh-sandbox-policy', SandboxPolicyService],
-    ['@deepseek-ai/dsh-fs-local', LocalFileSystem],
-    ['@deepseek-ai/dsh-typert-registry', TypertRegistry],
-    ['@deepseek-ai/dsh-api-workspace-files', WorkspaceFiles],
-    ['@deepseek-ai/dsh-office-kit', OfficeKit],
-    ['@deepseek-ai/dsh-client-ui-sidebar-documentpreview', DocumentPreview],
+    ['@omega-ai/dsh-session', SessionStore],
+    ['@omega-ai/dsh-session-projection', SessionProjectionRegistry],
+    ['@omega-ai/dsh-sandbox-policy', SandboxPolicyService],
+    ['@omega-ai/dsh-fs-local', LocalFileSystem],
+    ['@omega-ai/dsh-typert-registry', TypertRegistry],
+    ['@omega-ai/dsh-api-workspace-files', WorkspaceFiles],
+    ['@omega-ai/dsh-office-kit', OfficeKit],
+    ['@omega-ai/dsh-client-ui-sidebar-documentpreview', DocumentPreview],
   ])
   ctx.loader.internal = {
     version: 'v2',

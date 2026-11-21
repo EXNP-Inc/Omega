@@ -1,43 +1,43 @@
 /** Native helper replacement is synchronized with Agent and provider disposal. */
-import { executeModelToolFixture, executeToolFixture } from '@deepseek-ai/dsh-tool-testkit'
+import { executeModelToolFixture, executeToolFixture } from '@omega-ai/dsh-tool-testkit'
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { setImmediate } from 'node:timers/promises'
-import { Context, FiberState } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import Timer from '@deepseek-ai/cordis-plugin-timer'
-import { initProfile, mountRootInclude, readProfilePatches, type ProfileContext } from '@deepseek-ai/dsh-app-boot'
-import ConfigEditor from '@deepseek-ai/dsh-config-editor'
-import Settings from '@deepseek-ai/dsh-settings'
-import Storage from '@deepseek-ai/dsh-storage'
-import * as StorageJson from '@deepseek-ai/dsh-storage-json'
-import * as StorageDomain from '@deepseek-ai/dsh-storage-domain'
-import Hmr from '@deepseek-ai/dsh-hmr'
-import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@deepseek-ai/dsh-agent-loop-testkit'
-import ComputerUseRegistry from '@deepseek-ai/dsh-computer-use'
-import { COMMON_GUIDANCE } from '@deepseek-ai/dsh-cua/guidance'
-import { CuaConfig, installCua } from '@deepseek-ai/dsh-cua'
-import { createConfigProjector } from '@deepseek-ai/dsh-app-boot/src/config-schema/projector.ts'
-import LocalAttachmentStore from '@deepseek-ai/dsh-attachment-local'
-import FileSystem from '@deepseek-ai/dsh-fs-local'
-import UserQuestions, { UserQuestionError } from '@deepseek-ai/dsh-user-questions'
-import NodeRuntime from '@deepseek-ai/dsh-ptc-runtime-node'
-import { createRunCodeTool } from '@deepseek-ai/dsh-tool-executor-ptc/run-code'
-import Sandbox from '@deepseek-ai/dsh-sandbox-local'
-import SandboxPolicy from '@deepseek-ai/dsh-sandbox-policy'
-import { LlmAdapter, LlmError, type ToolCallId, type LlmResolvedModelInfo, type StreamChunk } from '@deepseek-ai/dsh-llm'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import Subprocess from '@deepseek-ai/dsh-subprocess'
-import SubprocessLocal from '@deepseek-ai/dsh-subprocess-local'
+import { Context, FiberState } from '@omega-ai/cordis'
+import Loader from '@omega-ai/cordis-plugin-loader'
+import Timer from '@omega-ai/cordis-plugin-timer'
+import { initProfile, mountRootInclude, readProfilePatches, type ProfileContext } from '@omega-ai/dsh-app-boot'
+import ConfigEditor from '@omega-ai/dsh-config-editor'
+import Settings from '@omega-ai/dsh-settings'
+import Storage from '@omega-ai/dsh-storage'
+import * as StorageJson from '@omega-ai/dsh-storage-json'
+import * as StorageDomain from '@omega-ai/dsh-storage-domain'
+import Hmr from '@omega-ai/dsh-hmr'
+import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@omega-ai/dsh-agent-loop-testkit'
+import ComputerUseRegistry from '@omega-ai/dsh-computer-use'
+import { COMMON_GUIDANCE } from '@omega-ai/dsh-cua/guidance'
+import { CuaConfig, installCua } from '@omega-ai/dsh-cua'
+import { createConfigProjector } from '@omega-ai/dsh-app-boot/src/config-schema/projector.ts'
+import LocalAttachmentStore from '@omega-ai/dsh-attachment-local'
+import FileSystem from '@omega-ai/dsh-fs-local'
+import UserQuestions, { UserQuestionError } from '@omega-ai/dsh-user-questions'
+import NodeRuntime from '@omega-ai/dsh-ptc-runtime-node'
+import { createRunCodeTool } from '@omega-ai/dsh-tool-executor-ptc/run-code'
+import Sandbox from '@omega-ai/dsh-sandbox-local'
+import SandboxPolicy from '@omega-ai/dsh-sandbox-policy'
+import { LlmAdapter, LlmError, type ToolCallId, type LlmResolvedModelInfo, type StreamChunk } from '@omega-ai/dsh-llm'
+import type { SessionId } from '@omega-ai/dsh-session'
+import Subprocess from '@omega-ai/dsh-subprocess'
+import SubprocessLocal from '@omega-ai/dsh-subprocess-local'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import sharp from 'sharp'
-import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
+import type { ImageAttachmentRef } from '@omega-ai/dsh-attachment'
 import * as NativeProvider from '../src/index.ts'
-import { NativeError, type NativeClient } from '@deepseek-ai/dsh-cua/native-client'
+import { NativeError, type NativeClient } from '@omega-ai/dsh-cua/native-client'
 import type { NativeBuildSpec } from '../src/native-build.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const native = vi.hoisted(() => ({
   connect: vi.fn<typeof import('../src/shared-native.ts')['createSharedNativeChannel']>(),
@@ -53,8 +53,8 @@ vi.mock('../src/native-build.ts', async importOriginal => ({
   nativeHostArchitecture: native.architecture,
   prepareNativeExecutable: native.prepare,
 }))
-vi.mock('@deepseek-ai/dsh-cua/native-client', async importOriginal => ({
-  ...await importOriginal<typeof import('@deepseek-ai/dsh-cua/native-client')>(),
+vi.mock('@omega-ai/dsh-cua/native-client', async importOriginal => ({
+  ...await importOriginal<typeof import('@omega-ai/dsh-cua/native-client')>(),
   NativeClient: class {
     disposed = false
     constructor(...args: ConstructorParameters<typeof NativeClient>) {
@@ -962,7 +962,7 @@ it.each([
     let closed = false
     closing = (owner === 'provider' ? f.provider.dispose()
       : owner === 'agent' ? f.handle.dispose()
-        : f.ctx.cuaAccess.revoke('a'.repeat(64) as import('@deepseek-ai/dsh-cua/types').CuaApplicationId)).then(() => { closed = true })
+        : f.ctx.cuaAccess.revoke('a'.repeat(64) as import('@omega-ai/dsh-cua/types').CuaApplicationId)).then(() => { closed = true })
     await setImmediate()
     expect(admissionSignal?.aborted).toBe(true)
     expect(closed).toBe(false)
@@ -1107,7 +1107,7 @@ it('stores revocation without entering the HMR configuration queue', async () =>
   onTestFinished(() => { release.resolve(undefined) })
   const blocked = f.ctx.hmr.runExclusive(async () => { acquired.resolve(undefined); await release.promise })
   await acquired.promise
-  await f.ctx.cuaAccess.revoke(grant.id as import('@deepseek-ai/dsh-cua/types').CuaApplicationId)
+  await f.ctx.cuaAccess.revoke(grant.id as import('@omega-ai/dsh-cua/types').CuaApplicationId)
   expect((await f.ctx.cuaAccess.applications()).allowedApps).toEqual([])
   expect(await readFile(f.profile.patchPath, 'utf8')).toBe(before)
   release.resolve(undefined)

@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom'
 import {
   Button, IconWarningOutlineRegular, MenuSurface, Tag,
   isBehindModal, observeComposition, useDismissOnOutsidePointer, usePointerGrace,
-} from '@deepseek-ai/dsh-client-ui-primitives'
+} from '@omega-ai/dsh-client-ui-primitives'
 import type { ApprovalCardInput } from './contract/slots.ts'
 import css from './ApprovalPanel.module.css'
 

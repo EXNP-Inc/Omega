@@ -1,13 +1,13 @@
-import { Context } from '@deepseek-ai/cordis'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import type { Agent, AgentHandle, CreateAgentOptions } from '@deepseek-ai/dsh-agent'
-import type {} from '@deepseek-ai/dsh-agent-preset-registry'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import SessionStore, { type SessionId } from '@deepseek-ai/dsh-session'
-import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
-import TypertRegistry from '@deepseek-ai/dsh-typert-registry'
-import type { Workspace, WorkspaceId } from '@deepseek-ai/dsh-workspace'
+import { Context } from '@omega-ai/cordis'
+import AgentRegistry from '@omega-ai/dsh-agent'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import type { Agent, AgentHandle, CreateAgentOptions } from '@omega-ai/dsh-agent'
+import type {} from '@omega-ai/dsh-agent-preset-registry'
+import { createUserMessage } from '@omega-ai/dsh-llm'
+import SessionStore, { type SessionId } from '@omega-ai/dsh-session'
+import { RemoteError } from '@omega-ai/dsh-typert-protocol'
+import TypertRegistry from '@omega-ai/dsh-typert-registry'
+import type { Workspace, WorkspaceId } from '@omega-ai/dsh-workspace'
 import { describe, expect, it, vi } from 'vitest'
 import {
   ApiSessionAgentController,
@@ -17,7 +17,7 @@ import {
 } from '../src/agent.ts'
 import { SessionCommandController } from '../src/commands.ts'
 import { installSessionReadTestServices, testSessionPersistence } from './test-remote.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 async function expectFailure(operation: Promise<unknown>, code: string): Promise<void> {
   await expect(operation).rejects.toMatchObject({ code })

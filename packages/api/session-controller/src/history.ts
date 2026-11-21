@@ -3,17 +3,17 @@
 import {
   isAppendSurfaceEvent,
   SessionLogOffset,
-} from '@deepseek-ai/dsh-session'
+} from '@omega-ai/dsh-session'
 import type {
   SessionEvent,
   SessionHeader,
   SessionId,
   SessionLogOffset as SessionLogOffsetType,
   SessionSeqCursor,
-} from '@deepseek-ai/dsh-session'
-import type { SessionObservation } from '@deepseek-ai/dsh-session-query'
-import type {} from '@deepseek-ai/dsh-subagent'
-import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
+} from '@omega-ai/dsh-session'
+import type { SessionObservation } from '@omega-ai/dsh-session-query'
+import type {} from '@omega-ai/dsh-subagent'
+import { RemoteError } from '@omega-ai/dsh-typert-protocol'
 import type {
   SessionAddress,
   SessionEventEntry,

@@ -1,18 +1,18 @@
-import { Context } from '@deepseek-ai/cordis'
-import ForgeService, { changeRequestKey } from '@deepseek-ai/dsh-experimental-forge'
+import { Context } from '@omega-ai/cordis'
+import ForgeService, { changeRequestKey } from '@omega-ai/dsh-experimental-forge'
 import type {
   ChangeRequestKey, ChangeRequestRef, ChangeRequestSnapshot, ForgeActionFailure, ForgeFailure, ForgeProvider, ForgeReadiness,
   ForgeRepository,
-} from '@deepseek-ai/dsh-experimental-forge'
-import { createAssistantMessage, createToolResultMessage, type ToolCallId } from '@deepseek-ai/dsh-llm'
-import SessionStore from '@deepseek-ai/dsh-session'
-import type { Session } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import { GH_COMMANDS } from '@deepseek-ai/dsh-experimental-forge-github/src/commands.ts'
-import type {} from '@deepseek-ai/dsh-tool-executor-ptc/types'
+} from '@omega-ai/dsh-experimental-forge'
+import { createAssistantMessage, createToolResultMessage, type ToolCallId } from '@omega-ai/dsh-llm'
+import SessionStore from '@omega-ai/dsh-session'
+import type { Session } from '@omega-ai/dsh-session'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import { GH_COMMANDS } from '@omega-ai/dsh-experimental-forge-github/src/commands.ts'
+import type {} from '@omega-ai/dsh-tool-executor-ptc/types'
 import ForgeSessionService from '../src/index.ts'
 import type { Config, ForgeCommandRule } from '../src/index.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 /**
  * A rule with reference commands only, no JSON URL members, and no options: `tea pulls checkout <url>` names the pull

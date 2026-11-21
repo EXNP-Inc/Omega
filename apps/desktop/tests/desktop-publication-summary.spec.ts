@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { expect, it } from 'vitest'
 import { desktopPublicationSummary } from '../scripts/desktop-publication-summary.ts'
-import type { DesktopRetainedSource } from '@deepseek-ai/dsh-desktop-publisher/desktop-release-store.ts'
+import type { DesktopRetainedSource } from '@omega-ai/dsh-desktop-publisher/desktop-release-store.ts'
 import type { DesktopUploadPlan } from '../scripts/desktop-upload-plan.ts'
 
 const source: DesktopRetainedSource = {
@@ -13,7 +13,7 @@ const plan: DesktopUploadPlan = {
   environment: 'production', target: 'win-x64', version: '1.0.0', bucket: 'production-1234567890',
   publicUrl: 'https://download.example.com/dsh-desk/feeds/win-x64/', secretIdEnvName: 'SECRET_ID', secretKeyEnvName: 'SECRET_KEY',
   artifacts: [
-    { path: '/not-read/installer.exe', filename: 'deepseek-harness-1.0.0-win-x64.exe', key: 'dsh-desk/bin/win-x64/stable/deepseek-harness-1.0.0-win-x64.exe',
+    { path: '/not-read/installer.exe', filename: 'omega-harness-1.0.0-win-x64.exe', key: 'dsh-desk/bin/win-x64/stable/omega-harness-1.0.0-win-x64.exe',
       contents: 'installer bytes', contentType: 'application/octet-stream', channelMetadata: false },
     { path: '/not-read/stable.yml', filename: 'stable.yml', key: 'dsh-desk/feeds/win-x64/stable.yml',
       contents: 'version: 1.0.0\n', contentType: 'application/yaml', channelMetadata: true },
@@ -23,7 +23,7 @@ const plan: DesktopUploadPlan = {
 it('shows production destinations and tag after approval with upload-byte fingerprints', async () => {
   const summary = await desktopPublicationSummary(source, plan, 'c'.repeat(64), false)
   await expect(summary).toMatchFileSnapshot('./expected/publication-production.md')
-  expect(summary).toContain('/stable/deepseek-harness-1.0.0-win-x64.exe')
+  expect(summary).toContain('/stable/omega-harness-1.0.0-win-x64.exe')
   expect(summary).toContain('https&#58;//download.example.com/dsh-desk/feeds/win-x64/stable.yml')
   expect(summary).toContain(createHash('sha256').update('version: 1.0.0\n').digest('hex'))
   expect(summary).not.toContain('测试 release ID |')
@@ -48,7 +48,7 @@ it('fails instead of rendering success when an upload file cannot be read', asyn
 it('shows the fixed website replacement before production approval only when selected', async () => {
   const summary = await desktopPublicationSummary(source, plan, 'c'.repeat(64), true)
   await expect(summary).toMatchFileSnapshot('./expected/publication-production-website.md')
-  expect(summary).toContain('download.deepseek.com/desktop/dsh-latest-windows-x64.exe')
+  expect(summary).toContain('download.omega.com/desktop/dsh-latest-windows-x64.exe')
   expect(summary).toContain('无防降级保护')
   expect(await desktopPublicationSummary(source, plan, 'c'.repeat(64), false)).not.toContain('官网固定安装包')
   expect(await desktopPublicationSummary({ ...source, preset: 'test', testReleaseId: 'a'.repeat(32) },

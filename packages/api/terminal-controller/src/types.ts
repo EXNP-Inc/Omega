@@ -1,8 +1,8 @@
 /** Browser terminal identities, metadata and screen-stream frames. */
-import type { Branded } from '@deepseek-ai/dsh-brand'
-import type { RemoteUplinkWindow } from '@deepseek-ai/dsh-typert-protocol'
+import type { Branded } from '@omega-ai/dsh-brand'
+import type { RemoteUplinkWindow } from '@omega-ai/dsh-typert-protocol'
 
-declare module '@deepseek-ai/dsh-typert-protocol' {
+declare module '@omega-ai/dsh-typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** The terminal identity is missing or has begun process cleanup. */
     'terminal/unavailable': Record<string, never>
@@ -45,7 +45,7 @@ export type TerminalParty = 'user' | 'agent'
 
 /**
  * Sandbox mode of an agent terminal. Kept member-identical to `SandboxMode` in
- * `@deepseek-ai/dsh-sandbox` without a wire dependency on it; change both together.
+ * `@omega-ai/dsh-sandbox` without a wire dependency on it; change both together.
  */
 export type TerminalSandboxMode = 'read-only' | 'workspace-write' | 'danger-full-access'
 

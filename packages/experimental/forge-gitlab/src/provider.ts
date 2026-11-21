@@ -1,11 +1,11 @@
 /** GitLab implementation of the forge provider contract, read and written through the GitLab CLI on the host. */
 
-import { changeRequestKey } from '@deepseek-ai/dsh-experimental-forge'
+import { changeRequestKey } from '@omega-ai/dsh-experimental-forge'
 import type {
   BranchUpdateRequest, ChangeRequestIssue, ChangeRequestKey, ChangeRequestRef, ChangeRequestSnapshot, ForgeActionFailure, ForgeCommitList,
   ForgeFailure, ForgeProvider, ForgeReadiness, ForgeRepository, ForgeRerunRequest, ForgeReviewData, ForgeReviewerCandidate,
   ForgeReviewersRequest, ForgeReviewRequest, ForgeReviewResult, ForgeReviewWrite, ForgeReviewWriteResult, MergeRequest,
-} from '@deepseek-ai/dsh-experimental-forge'
+} from '@omega-ai/dsh-experimental-forge'
 import { z } from 'zod'
 import { GitLabApi } from './api.ts'
 import { readCommits } from './commits.ts'

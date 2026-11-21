@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/upgrade-guide/v0.2.2-rc.1/web-search-billing/guide.md
 /:
-  en: d5f047c8126e2039
-  zh: 921852a96d5fdaf2
-/deepseek-web-search-and-fetch-choose-their-credential-by-billing:
-  en: 5b4ad8a6553f2017
-  zh: 33d0dbee4bbadad8
-/deepseek-web-search-and-fetch-choose-their-credential-by-billing/change:
-  en: c479258a05c03e30
-  zh: 9479ed43eebd03c2
-/deepseek-web-search-and-fetch-choose-their-credential-by-billing/migration:
-  en: f02650a1b0730ecf
-  zh: e6ddb011af754005
+  en: 8bdf50e9396db4d7
+  zh: 56bd160919427370
+/omega-web-search-and-fetch-choose-their-credential-by-billing:
+  en: 6275abe0ba004f14
+  zh: a17b9f7204fe4796
+/omega-web-search-and-fetch-choose-their-credential-by-billing/change:
+  en: 4fcbfc7e38bd0e67
+  zh: 30af91494096d601
+/omega-web-search-and-fetch-choose-their-credential-by-billing/migration:
+  en: f609b420ed257550
+  zh: 7e47613042eb6178

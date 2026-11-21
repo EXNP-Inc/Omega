@@ -1,16 +1,16 @@
-# DeepSeek Account
+# Omega Account
 
 English | [中文](account.zh.md)
 
-The account service of [dsh-deepseek-account](../../packages/account/deepseek-account) signs the user in through the system browser, stores the resulting grant as a credential record of the [credential seam](credentials.md), and releases per-request account credentials to Host consumers. Consumers name the destination of one request and receive the headers that request carries; they never read the stored token, choose its header, or decide which origin may receive it. Clients observe account state through the `account` Remote namespace, which carries no credential.
+The account service of [dsh-omega-account](../../packages/account/omega-account) signs the user in through the system browser, stores the resulting grant as a credential record of the [credential seam](credentials.md), and releases per-request account credentials to Host consumers. Consumers name the destination of one request and receive the headers that request carries; they never read the stored token, choose its header, or decide which origin may receive it. Clients observe account state through the `account` Remote namespace, which carries no credential.
 
-Source: [`packages/account/deepseek-account/src/index.ts`](../../packages/account/deepseek-account/src/index.ts)
+Source: [`packages/account/omega-account/src/index.ts`](../../packages/account/omega-account/src/index.ts)
 
 ## Request credentials
 
-`resolveRequestCredential(url)` is Host-only. It answers `undefined` while signed out, during credential removal, and for any destination outside the configured `inferenceOrigin`; otherwise it returns an `AccountRequestCredential` whose `headers` carry the token as `x-dsh-auth-token` and whose `reject()` removes the stored grant only while it still matches that token, containing storage failures so the caller reports the destination's rejection. Its `revoked` signal aborts when the account signs out of the sign-in that token belongs to, by the user or after a rejection, once the `deepseek-account/signed-out` listeners have returned; the account model route and the DeepSeek web providers run each model, Files, Search, and Fetch request that carries the token under it, so a sign-out ends those requests even after the plugin that sent them has unloaded. Consumers do not call it themselves: [`ctx.deepseekAuth`](../../packages/account/deepseek-auth/README.md) asks for the credential on behalf of the `deepseek-account` model route and the DeepSeek web providers, for a destination under the origin of that route's base URL or, without that route, of `DEEPSEEK_BASE_URL`. `reject()` runs on the account service mounted when it is called, so a reload between a request and the destination's answer still removes the grant; without a mounted service it leaves the grant for the next one to reject. A credential released by an account service that has since been replaced keeps an unaborted signal, because the replacement withdraws only the credentials it released.
+`resolveRequestCredential(url)` is Host-only. It answers `undefined` while signed out, during credential removal, and for any destination outside the configured `inferenceOrigin`; otherwise it returns an `AccountRequestCredential` whose `headers` carry the token as `x-dsh-auth-token` and whose `reject()` removes the stored grant only while it still matches that token, containing storage failures so the caller reports the destination's rejection. Its `revoked` signal aborts when the account signs out of the sign-in that token belongs to, by the user or after a rejection, once the `omega-account/signed-out` listeners have returned; the account model route and the Omega web providers run each model, Files, Search, and Fetch request that carries the token under it, so a sign-out ends those requests even after the plugin that sent them has unloaded. Consumers do not call it themselves: [`ctx.omegaAuth`](../../packages/account/omega-auth/README.md) asks for the credential on behalf of the `omega-account` model route and the Omega web providers, for a destination under the origin of that route's base URL or, without that route, of `OMEGA_BASE_URL`. `reject()` runs on the account service mounted when it is called, so a reload between a request and the destination's answer still removes the grant; without a mounted service it leaves the grant for the next one to reject. A credential released by an account service that has since been replaced keeps an unaborted signal, because the replacement withdraws only the credentials it released.
 
-Model routes that bill the account register a running-task report with `registerRunningTaskReport(report)` inside `ctx.effect()`; `hasRunningAccountTasks()` answers true while any report does, so the sign-out confirmation can warn about work the sign-out interrupts. The route plugin owns cancellation of that work after `deepseek-account/signed-out`; a request that outlives the plugin ends through its credential's `revoked` signal, and the plugin's failure callback for that request cancels the work.
+Model routes that bill the account register a running-task report with `registerRunningTaskReport(report)` inside `ctx.effect()`; `hasRunningAccountTasks()` answers true while any report does, so the sign-out confirmation can warn about work the sign-out interrupts. The route plugin owns cancellation of that work after `omega-account/signed-out`; a request that outlives the plugin ends through its credential's `revoked` signal, and the plugin's failure callback for that request cancels the work.
 
 ## Embedded Platform credentials
 
@@ -28,9 +28,9 @@ Notification queries return an AccountNotificationBatch with the server's nextPo
 
 Generated from source by `scripts/gen-cordis-catalog.ts` (verified fresh by `pnpm run verify-cordis-catalog` in doc-sync; regenerate with `pnpm run gen-cordis-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../cordis-primer.md#dispatch-modes), and the framework-inherited `ctx` API lives in [cordis-api/inherited.md](../cordis-api/inherited.md).
 
-<a id="ctxdeepseekaccount--deepseekaccount"></a>
+<a id="ctxomegaaccount--omegaaccount"></a>
 
-### `ctx.deepseekAccount` — `DeepSeekAccount`
+### `ctx.omegaAccount` — `OmegaAccount`
 
 Account login, credentials, and client-safe Remote operations.
 
@@ -165,13 +165,13 @@ watch(signal: AbortSignal, includeIdentityChanges: boolean = false): AsyncIterab
 @Remote({ name: 'watch', mode: 'stream' }) watchState(signal: AbortSignal): AsyncIterable<AccountUpdate>
 ```
 
-Source: [`packages/account/deepseek-account/src/index.ts`](../../packages/account/deepseek-account/src/index.ts)
+Source: [`packages/account/omega-account/src/index.ts`](../../packages/account/omega-account/src/index.ts)
 
-<a id="ctxdeepseekauth--deepseekauth"></a>
+<a id="ctxomegaauth--omegaauth"></a>
 
-### `ctx.deepseekAuth` — `DeepSeekAuth`
+### `ctx.omegaAuth` — `OmegaAuth`
 
-`ctx.deepseekAuth`: the two DeepSeek credential kinds behind one request-authorization operation.
+`ctx.omegaAuth`: the two Omega credential kinds behind one request-authorization operation.
 
 ```ts cordis-catalog
 /**
@@ -180,16 +180,16 @@ Source: [`packages/account/deepseek-account/src/index.ts`](../../packages/accoun
  * @param route - provider route the plugin registers; {@link routeKind} answers `kind` for it while connected.
  * @param connection - reads the plugin's current settings; a throw marks the kind unresolved for that operation.
  * @returns the disposer removing the connection.
- * @throws {DeepSeekAuthError} code `DUPLICATE_CONNECTION` when the kind is already connected.
+ * @throws {OmegaAuthError} code `DUPLICATE_CONNECTION` when the kind is already connected.
  */
-connect(kind: DeepSeekAuthKind, route: string, connection: () => DeepSeekAuthConnection): () => void
+connect(kind: OmegaAuthKind, route: string, connection: () => OmegaAuthConnection): () => void
 
 /**
  * The kind that bills a conversation on one model route.
  * @param route - provider route of a model request; undefined names none.
  * @returns the kind connected under that route, or undefined for a route no plugin connected.
  */
-routeKind(route: string | undefined): DeepSeekAuthKind | undefined
+routeKind(route: string | undefined): OmegaAuthKind | undefined
 
 /**
  * The kinds one request can authenticate with, in the order its billing tries them, each bound to its destination.
@@ -198,7 +198,7 @@ routeKind(route: string | undefined): DeepSeekAuthKind | undefined
  * @returns candidates and unresolved kinds, first preferred; empty when the destination accepts no kind the
  *   billing allows or no allowed kind serves an absolute destination.
  */
-candidates(request: DeepSeekAuthRequest): (DeepSeekAuthCandidate | DeepSeekAuthUnresolved)[]
+candidates(request: OmegaAuthRequest): (OmegaAuthCandidate | OmegaAuthUnresolved)[]
 
 /**
  * Release the credential of the first candidate that has one. A later candidate is not read once an earlier one
@@ -206,21 +206,21 @@ candidates(request: DeepSeekAuthRequest): (DeepSeekAuthCandidate | DeepSeekAuthU
  * @param request - the request.
  * @param signal - cancellation for the lookups.
  * @returns the authorization, or undefined when no candidate has a credential.
- * @throws {DeepSeekAuthError} code `UNRESOLVED_CONNECTION` at an unresolved kind, `INVALID_CREDENTIAL` for an
+ * @throws {OmegaAuthError} code `UNRESOLVED_CONNECTION` at an unresolved kind, `INVALID_CREDENTIAL` for an
  *   unusable API key; store failures propagate.
  */
-async authorize(request: DeepSeekAuthRequest, signal?: AbortSignal): Promise<DeepSeekAuthorization | undefined>
+async authorize(request: OmegaAuthRequest, signal?: AbortSignal): Promise<OmegaAuthorization | undefined>
 ```
 
-Source: [`packages/account/deepseek-auth/src/index.ts`](../../packages/account/deepseek-auth/src/index.ts)
+Source: [`packages/account/omega-auth/src/index.ts`](../../packages/account/omega-auth/src/index.ts)
 
-<a id="deepseek-account-events"></a>
+<a id="omega-account-events"></a>
 
-### `deepseek-account/*` events
+### `omega-account/*` events
 
-<a id="deepseek-accountmodel-sign-in-required--emit"></a>
+<a id="omega-accountmodel-sign-in-required--emit"></a>
 
-#### `deepseek-account/model-sign-in-required` — emit
+#### `omega-account/model-sign-in-required` — emit
 
 An account model request requires the user to sign in.
 
@@ -228,14 +228,14 @@ An account model request requires the user to sign in.
 /** An account model request requires the user to sign in.
  * @mode emit
  */
-'deepseek-account/model-sign-in-required'(): void
+'omega-account/model-sign-in-required'(): void
 ```
 
-Source: [`packages/account/deepseek-account/src/types.ts`](../../packages/account/deepseek-account/src/types.ts)
+Source: [`packages/account/omega-account/src/types.ts`](../../packages/account/omega-account/src/types.ts)
 
-<a id="deepseek-accountsession-expired--emit"></a>
+<a id="omega-accountsession-expired--emit"></a>
 
-#### `deepseek-account/session-expired` — emit
+#### `omega-account/session-expired` — emit
 
 Server rejection removed the current account credential; this notification is not replayed.
 
@@ -243,14 +243,14 @@ Server rejection removed the current account credential; this notification is no
 /** Server rejection removed the current account credential; this notification is not replayed.
  * @mode emit
  */
-'deepseek-account/session-expired'(): void
+'omega-account/session-expired'(): void
 ```
 
-Source: [`packages/account/deepseek-account/src/types.ts`](../../packages/account/deepseek-account/src/types.ts)
+Source: [`packages/account/omega-account/src/types.ts`](../../packages/account/omega-account/src/types.ts)
 
-<a id="deepseek-accountsigned-out--emit"></a>
+<a id="omega-accountsigned-out--emit"></a>
 
-#### `deepseek-account/signed-out` — emit
+#### `omega-account/signed-out` — emit
 
 Local grant removal has completed. After the listeners return, the `revoked` signal of that grant's request credentials aborts.
 
@@ -258,12 +258,12 @@ Local grant removal has completed. After the listeners return, the `revoked` sig
 /** Local grant removal has completed. After the listeners return, the `revoked` signal of that grant's request credentials aborts.
  * @mode emit
  */
-'deepseek-account/signed-out'(): void
+'omega-account/signed-out'(): void
 ```
 
-Source: [`packages/account/deepseek-account/src/index.ts`](../../packages/account/deepseek-account/src/index.ts)
+Source: [`packages/account/omega-account/src/index.ts`](../../packages/account/omega-account/src/index.ts)
 <!-- END GENERATED cordis-surface -->
 
-The account Service Definition exposes getState, getProfile, getBalance, getNotifications, getNotificationContent, reportNotificationEvent, startSignIn, cancelSignIn, signOut, watch, and Host-only resolveRequestCredential, registerRunningTaskReport, and getPlatformSession. The platform provider implements it with an AuthorizationFlow and a private GrantRecord. AccountView distinguishes stored presence from server validation; attempt IDs bind cancellation to one local flow. AccountUpdate carries a complete AccountView in state and a type of snapshot for initial or progress updates, or credentials-changed for credential writes and removal. Pending credential changes take priority over progress updates. See [the account package](../../packages/account/deepseek-account/README.md).
+The account Service Definition exposes getState, getProfile, getBalance, getNotifications, getNotificationContent, reportNotificationEvent, startSignIn, cancelSignIn, signOut, watch, and Host-only resolveRequestCredential, registerRunningTaskReport, and getPlatformSession. The platform provider implements it with an AuthorizationFlow and a private GrantRecord. AccountView distinguishes stored presence from server validation; attempt IDs bind cancellation to one local flow. AccountUpdate carries a complete AccountView in state and a type of snapshot for initial or progress updates, or credentials-changed for credential writes and removal. Pending credential changes take priority over progress updates. See [the account package](../../packages/account/omega-account/README.md).
 
 `AccountClientMetadata` carries `version` from the caller’s `DSH_CLIENT_VERSION`, its active UI `locale`, and `timezoneOffsetSeconds` sampled when the operation begins. The offset is local time minus UTC in seconds: UTC+8 is `28800`. It contains no credentials. Login attempts retain their initiating metadata through exchange and cancellation; sign-out retains its metadata for revocation retries.

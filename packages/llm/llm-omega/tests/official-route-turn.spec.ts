@@ -1,17 +1,17 @@
 /** Turns on the official endpoint report credential failures on the model request, after the prompt is recorded. */
 import { afterEach, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import LlmRuntime, { createUserMessage } from '@deepseek-ai/dsh-llm'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import SessionStore, { type SessionId } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
-import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
-import * as DeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
-import DeepSeekAuth from '@deepseek-ai/dsh-deepseek-auth'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { Context } from '@omega-ai/cordis'
+import LlmRuntime, { createUserMessage } from '@omega-ai/dsh-llm'
+import AgentRegistry from '@omega-ai/dsh-agent'
+import AgentLoop from '@omega-ai/dsh-agent-loop'
+import SessionStore, { type SessionId } from '@omega-ai/dsh-session'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRuntime from '@omega-ai/dsh-tools'
+import * as NativeToolExecutor from '@omega-ai/dsh-tool-executor-native'
+import * as Omega from '@omega-ai/dsh-llm-omega-api-key'
+import OmegaAuth from '@omega-ai/dsh-omega-auth'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const contexts: Context[] = []
 afterEach(async () => {
@@ -21,7 +21,7 @@ afterEach(async () => {
 })
 
 it('records the prompt and fails the request when the official endpoint has a malformed key', async () => {
-  vi.stubEnv('DEEPSEEK_API_KEY', 'invalid\nheader')
+  vi.stubEnv('OMEGA_API_KEY', 'invalid\nheader')
   const fetch = vi.spyOn(globalThis, 'fetch')
   const ctx = new Context()
   contexts.push(ctx)
@@ -30,9 +30,9 @@ it('records the prompt and fails the request when the official endpoint has a ma
   }
   await ctx.plugin(NativeToolExecutor)
   await ctx.plugin(AgentLoop, { agents: [] })
-  await ctx.plugin(DeepSeekAuth)
-  await ctx.plugin(DeepSeek, {})
-  const agent = await ctx.agentLoop.create(brandString<SessionId>('malformed-official-key'), { provider: 'deepseek-official', model: 'deepseek-flash' })
+  await ctx.plugin(OmegaAuth)
+  await ctx.plugin(Omega, {})
+  const agent = await ctx.agentLoop.create(brandString<SessionId>('malformed-official-key'), { provider: 'omega-official', model: 'omega-flash' })
   agent.followup(createUserMessage({ content: [{ type: 'text', text: 'hello' }], source: { kind: 'user' } }))
   await agent.whenIdle()
   const events = agent.session.snapshotEvents()

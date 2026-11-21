@@ -1,21 +1,21 @@
 /** Target-neutral Conversation slot declarations and composed component props. */
 import type { ReactNode, RefObject } from 'react'
-import type { FileAttachmentRef, ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
-import type { SessionSnapshot } from '@deepseek-ai/dsh-api-session-controller/client'
-import type { FileUploadReceiptId } from '@deepseek-ai/dsh-client-file-upload/client'
-import type { ImageLightboxLabels } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { WorkspaceSnapshot } from '@deepseek-ai/dsh-api-workspace-controller/client'
+import type { FileAttachmentRef, ImageAttachmentRef } from '@omega-ai/dsh-attachment'
+import type { SessionSnapshot } from '@omega-ai/dsh-api-session-controller/client'
+import type { FileUploadReceiptId } from '@omega-ai/dsh-client-file-upload/client'
+import type { ImageLightboxLabels } from '@omega-ai/dsh-client-ui-primitives'
+import type { WorkspaceSnapshot } from '@omega-ai/dsh-api-workspace-controller/client'
 import type {
   MaybeSnapshotSelectorHook, ObservableSnapshot, SnapshotSelectorHook,
-} from '@deepseek-ai/dsh-client-store'
+} from '@omega-ai/dsh-client-store'
 import type {
   FactoryComponentPropsOf, FactoryLocalComponentPropsOf,
   InjectFace, PropsLocale, PropsRenderFactories, PropsRenderSlots, PropsRuntime, PropsStore,
-} from '@deepseek-ai/dsh-client-ui-slots'
-import type { SessionPendingInteraction } from '@deepseek-ai/dsh-client-ui-session/client'
-import type {} from '@deepseek-ai/dsh-client-ui-layout/client'
-import type { SessionId, SessionSeq } from '@deepseek-ai/dsh-session/types'
-import type { WorkspaceId } from '@deepseek-ai/dsh-workspace/types'
+} from '@omega-ai/dsh-client-ui-slots'
+import type { SessionPendingInteraction } from '@omega-ai/dsh-client-ui-session/client'
+import type {} from '@omega-ai/dsh-client-ui-layout/client'
+import type { SessionId, SessionSeq } from '@omega-ai/dsh-session/types'
+import type { WorkspaceId } from '@omega-ai/dsh-workspace/types'
 import type { ComposerBlock } from './composer-blocks.ts'
 import type { DraftAttachmentId, InputActions, InputNotice, InputState } from './input.ts'
 import type { ComposerKeyboard, DraftSnapshot, EditSelection } from './draft-editor.ts'
@@ -25,7 +25,7 @@ import type { ConversationSnapshot } from './snapshot.ts'
 import type { ViewTab } from './views.ts'
 import type { UserTextDocumentInput, UserTextEvaluator, UserTextId, UserTextNode } from './user-text.ts'
 
-declare module '@deepseek-ai/dsh-client-ui-context-menu/client' {
+declare module '@omega-ai/dsh-client-ui-context-menu/client' {
   interface ContextMenuTargetMap {
     /** Session Header More menu, independent of Session-row and title context actions. */
     sessionHeader: { readonly sessionId: SessionId }
@@ -196,7 +196,7 @@ export type UseConversation = SnapshotSelectorHook<ConversationSnapshot>
 /** Selector hook over the registered Conversation View roster. */
 export type UseConversationViews = SnapshotSelectorHook<readonly ViewTab[]>
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@omega-ai/dsh-client-ui-slots' {
   interface SlotFactoryMap {
     /** Parse one original text and render its business nodes through the owned keyed Slot. */
     'conversation.user.text': {
@@ -211,7 +211,7 @@ declare module '@deepseek-ai/dsh-client-ui-slots' {
     'conversation.images.content': {
       scope: 'root'
       props: MessageImagesContentInput
-      inject: { readonly fileDrag: import('@deepseek-ai/dsh-client-ui-primitives').FileDragActions }
+      inject: { readonly fileDrag: import('@omega-ai/dsh-client-ui-primitives').FileDragActions }
       locale: 'conversation'
     }
   }

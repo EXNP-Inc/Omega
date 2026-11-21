@@ -2,13 +2,13 @@
  * Vocabulary for the web capability seam (`ctx.web`). Search and fetch deliberately share one
  * seam so provider selection, cancellation, errors, and product configuration have one owner,
  * while retaining separate request and result types.
- * @module @deepseek-ai/dsh-web/types
+ * @module @omega-ai/dsh-web/types
  */
 
-import { HarnessError } from '@deepseek-ai/dsh-error'
-import type { LocalizedText } from '@deepseek-ai/dsh-package-manifest'
+import { HarnessError } from '@omega-ai/dsh-error'
+import type { LocalizedText } from '@omega-ai/dsh-package-manifest'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Events {
     /**
      * The set of registered search or fetch providers changed: one provider
@@ -33,7 +33,7 @@ export interface WebSearchRequest {
   /**
    * Upper bound on returned sources; the seam truncates to it. Omitted = no
    * bound. `dsh-tool-web` always sets it. A provider whose API supports a
-   * result-count control (the DeepSeek Search API's `count`) should apply it
+   * result-count control (the Omega Search API's `count`) should apply it
    * at the request layer as a cost/latency optimization; the seam enforces the
    * bound regardless.
    */
@@ -48,7 +48,7 @@ export interface WebSearchRequest {
 
 /**
  * Normalized search outcome. `content` is optional provider-generated answer
- * text or summary (DeepSeek returns none; a provider whose API generates an
+ * text or summary (Omega returns none; a provider whose API generates an
  * answer returns it here).
  * `sources[]` is the portable citation shape. `truncated` is set by the seam
  * when it cut `sources[]` down to `maxResults`.

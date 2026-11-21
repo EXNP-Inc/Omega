@@ -10,7 +10,7 @@ Computer Use 的训练数据应来自多个 agent harness，而不只是 DSH 会
 
 ## 决策
 
-`@deepseek-ai/dsh-cua-mcp` 是 `OPTIONAL_BUNDLES` 中的实验性组合包：它在空 profile 根上用一次 insert 组成独立的 `cua-mcp` profile。只选它这一个组合包的 profile manifest 就是全部安装步骤：启动器加载已存在的 manifest 时不查 `PROFILE_TEMPLATES`，而安装本身已自带该组合包，因此不涉及 pnpm 或 registry。这是唯一的 MCP 应用路径；没有包 bin 或 SDK 逃逸，该组合包不进入 `PROFILE_TEMPLATES`，因为模板不能引用实验包。
+`@omega-ai/dsh-cua-mcp` 是 `OPTIONAL_BUNDLES` 中的实验性组合包：它在空 profile 根上用一次 insert 组成独立的 `cua-mcp` profile。只选它这一个组合包的 profile manifest 就是全部安装步骤：启动器加载已存在的 manifest 时不查 `PROFILE_TEMPLATES`，而安装本身已自带该组合包，因此不涉及 pnpm 或 registry。这是唯一的 MCP 应用路径；没有包 bin 或 SDK 逃逸，该组合包不进入 `PROFILE_TEMPLATES`，因为模板不能引用实验包。
 
 服务器运行在 profile 进程内，带着连接的 Agent、不经模型步骤地调用 `ctx.tools.execute`。一个 stdio 连接拥有一个 Agent：在 stdio 传输打开之前创建，stdin EOF 时销毁。每次程序调用都作为该 Agent 的维护活动运行，因此 Agent 销毁时会取消进行中的调用，并等它及其嵌套调用结算之后才关闭 Session。Agent 归属已经决定了保留的程序进程、本机连接和会话级授权，因此连接生命周期与状态生命周期重合。空的默认 preset `cua-mcp` 不组合任何面向模型的条目；该 Agent 不使用 `agentPreset` 指定的 preset，因此提供方为它提供 `cua_run_code`。该 Agent 在专用工作区中工作，即 `DSH_CUA_WORKSPACE`，未设置时为 Harness home 下的 `cua-mcp/workspace`：Agent 的工作目录就是其程序的 `workspace-write` 根，而客户端启动服务器的目录可能是 `/`。
 
@@ -42,7 +42,7 @@ Computer Use 的训练数据应来自多个 agent harness，而不只是 DSH 会
 
 **把 `cua` API 参考放进工具描述或服务器说明。** Claude Code 2.1.309 对 MCP 工具描述和服务器说明都只转发前 4,096 个字符并追加 `… [truncated]`，2026-11-10 用 20,000 个字符的探针文本测得；`dsh-mcp-client` 原样转发同一描述。参考约 13,000 个字符，因此作为工具结果传递，注册项 3,200 个字符的描述留在预算之内。
 
-**把参考放在每个环境首个程序结果的开头。** 服务器观察不到模型保留了哪些结果：`dsh-mcp-client` 这类客户端用一个连接承载多次对话，被取消或失败的首次调用会丢弃其结果，上下文压缩之后这段文本也会消失。记录已交付的标志由程序调用和重置两处写入，二者没有共同的排序点。无状态的只读工具让缺少参考的模型自己去取；2026-11-11 的十五次探针对话中，经 `dsh-mcp-client` 的 DeepSeek 模型与 Claude Code 2.1.309 都在首个程序之前调用了它。
+**把参考放在每个环境首个程序结果的开头。** 服务器观察不到模型保留了哪些结果：`dsh-mcp-client` 这类客户端用一个连接承载多次对话，被取消或失败的首次调用会丢弃其结果，上下文压缩之后这段文本也会消失。记录已交付的标志由程序调用和重置两处写入，二者没有共同的排序点。无状态的只读工具让缺少参考的模型自己去取；2026-11-11 的十五次探针对话中，经 `dsh-mcp-client` 的 Omega 模型与 Claude Code 2.1.309 都在首个程序之前调用了它。
 
 **在 PTC 程序工具工厂上提供 reset 操作。** 带 `reset(agent)` 的工厂句柄让工具执行器成为环境恢复的第二个所有者，清理失败后还带着自己的阻塞状态。程序运行时的 owner release 本来就能结束一个环境，同一所有者的下一次运行会启动新环境；前端串行化该连接的调用，因此由它这个调用方围绕释放来安排这些调用。
 

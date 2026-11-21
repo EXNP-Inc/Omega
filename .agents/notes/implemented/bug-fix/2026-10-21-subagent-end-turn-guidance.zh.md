@@ -8,7 +8,7 @@ Status: implemented
 
 委派指导段以 `When only waiting for their results remains, end your turn instead of sleeping or polling; the next result starts a new turn.` 结尾。后来的一次提示词回退把这句和不相关的提示词改动一起删掉了。
 
-这句出现之前，一个长 Session 为了等待 2–9 分钟就结束的 review 子代理，七次 `sleep` 150–240 秒，累计约 25 分钟（#6057）。2026-10-21 的受控探针测量了这句对「子代理启动后模型下一条消息」的影响：`deepseek-v4-flash` 与 `deepseek-v4-pro`，每臂每模型 150 次请求，最小 system prompt，真实 `subagent` 与 `bash` schema，历史以 `started subagent reviewer-1` 结束。
+这句出现之前，一个长 Session 为了等待 2–9 分钟就结束的 review 子代理，七次 `sleep` 150–240 秒，累计约 25 分钟（#6057）。2026-10-21 的受控探针测量了这句对「子代理启动后模型下一条消息」的影响：`omega-v4-flash` 与 `omega-v4-pro`，每臂每模型 150 次请求，最小 system prompt，真实 `subagent` 与 `bash` schema，历史以 `started subagent reviewer-1` 结束。
 
 | 组 | sleep 调用 | 任何 bash 调用 | 结束本轮 |
 |---|---|---|---|

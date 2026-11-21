@@ -3,7 +3,7 @@ description: "Host Office rendering, conversion, and recalculation with the inde
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-office-kit
+# @omega-ai/dsh-office-kit
 
 English | [中文](README.zh.md)
 
@@ -25,7 +25,7 @@ Render Office documents as PDFs or PNG images, convert them between formats, and
 <a id="use-this-package"></a>
 ## Use this package
 
-The [Web bundle](../../bundle/web-app/README.md) and the [SDK bundle](../../bundle/sdk-app/README.md) mount this provider as `office-kit`; the [Office tools](../tool-office/README.md) are its model-facing consumers. Independent compositions mount `@deepseek-ai/dsh-office-kit` as a `cordis.yml` row.
+The [Web bundle](../../bundle/web-app/README.md) and the [SDK bundle](../../bundle/sdk-app/README.md) mount this provider as `office-kit`; the [Office tools](../tool-office/README.md) are its model-facing consumers. Independent compositions mount `@omega-ai/dsh-office-kit` as a `cordis.yml` row.
 
 Callers submit authorized source identity, version, optional byte size, a deferred bounded read, and input extension; PDF conversions also name a scheduling priority, and image rendering, format conversion, and recalculation run at foreground priority. A changed source version rejects the operation. Cancellation rejects with its reason; failures use `OfficeKitError`, whose lowercase `code` is also the `document-render/failed` reason; [`dsh-tool-office`](../tool-office/README.md#use-this-package) maps it to `OfficeToolError` codes for tool results. Every result carries the missing fonts; PDF results also carry the conversion generation, which changes on configuration replacement.
 
@@ -38,7 +38,7 @@ Callers submit authorized source identity, version, optional byte size, a deferr
 
 `renderImages()` requires `maxImages`, `maxPixels`, `maxDimension`, and `maxBytes`. The engine rejects a selection with more images than `maxImages` or an image above the pixel or dimension limit; the provider rejects images whose total PNG bytes exceed `maxBytes` with `output-too-large`, before and while reading them. A page, sheet, range, resolution, or format selection the engine rejects fails with `invalid-request` and the engine's description. Converted and recalculated files obey `maxOutputBytes`. The provider never writes into a workspace: it saves each output in its own owner-only directory under `outputDirectory`, grouped by the request's `output.owner` (`office_convert` and `office_recalculate` pass the root Session of the caller's subagent tree), and returns the absolute Host path. A file is deleted after `outputRetentionMs`, when newer outputs need room within `maxOutputStoreBytes` (oldest first), when the Session whose id equals the owner is disposed, or when the provider unloads; a file larger than `maxOutputStoreBytes` fails with `output-too-large`. A file counts toward `maxOutputStoreBytes` until its deletion succeeds; a failed deletion is logged and retried by later eviction, release, and unload, and a save that cannot free enough room fails with `unavailable`. Unload waits for deletions in progress. Startup also removes expired output directories of earlier processes, considering only real directories, not links or junctions, with the names the provider generates: `session-` and 24 lowercase hexadecimal digits directly under `outputDirectory`, each holding lowercase UUID v4 output directories. Other entries are left untouched. `outputDirectory` is exposed on the service so consumers can check that their execution world reads it.
 
-The provider depends on the independently published [`@deepseek-ai/libreoffice-kit`](https://github.com/deepseek-ai/dsh-libreoffice-kit) npm API at kit version `0.2.3`. Application packaging selects the matching native package declared in the kit’s `optionalDependencies`, or WASM when no native package is declared for that target. A missing declared native engine rejects packaging without selecting WASM. The [release ownership decision](../../../.agents/notes/implemented/architecture/2026-09-14-independent-libreoffice-kit.md) defines the independent kit and Harness responsibilities.
+The provider depends on the independently published [`@deepseek-ai/libreoffice-kit`](https://github.com/omega-ai/dsh-libreoffice-kit) npm API at kit version `0.2.3`. Application packaging selects the matching native package declared in the kit’s `optionalDependencies`, or WASM when no native package is declared for that target. A missing declared native engine rejects packaging without selecting WASM. The [release ownership decision](../../../.agents/notes/implemented/architecture/2026-09-14-independent-libreoffice-kit.md) defines the independent kit and Harness responsibilities.
 
 The provider registers even when its Kit is absent, such as a Python SDK executable launched without a downloaded Office sidecar. A conversion that needs a new converter then rejects with `OfficeKitError` code `unavailable`, and the provider logs each distinct failure once through `ctx.logger`. A Kit entry that fails to import behaves the same way. The provider retains only a successful import, so a later conversion locates and imports Kit again. The Office preview shows its localized `unavailable` message for the `document-render/failed` reason.
 
@@ -56,7 +56,7 @@ Browsers request PDFs through the `officeKit.render` Remote method with a Sessio
 | `maxImageResolution` | `192` | Image resolution in DPI of PDF exports; overrides the kit default of `144`. `renderImages()` uses each request's `dpi` instead. |
 | `fontFallbacks` | Kit defaults | Ordered font-family preference groups; each group requires at least two names containing non-whitespace characters. |
 
-The [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-office-kit) owns the full font, archive, and image settings. `fontDirectories` accepts absolute directories; omission uses the kit platform defaults. Explicit `fontFallbacks` replaces the kit's default groups. Installed requested fonts retain precedence, and other system fonts remain eligible for uncovered glyphs. Native engines can select installed metric-compatible fonts before these preferences.
+The [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-office-kit) owns the full font, archive, and image settings. `fontDirectories` accepts absolute directories; omission uses the kit platform defaults. Explicit `fontFallbacks` replaces the kit's default groups. Installed requested fonts retain precedence, and other system fonts remain eligible for uncovered glyphs. Native engines can select installed metric-compatible fonts before these preferences.
 
 The [bounded conversion decision](../../../.agents/notes/implemented/architecture/2026-09-15-bounded-office-conversion.md) explains queue admission, cache limits, and shared cancellation.
 

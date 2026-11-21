@@ -3,7 +3,7 @@ description: "Connect Linear's hosted MCP server through the shared MCP manager,
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-linear
+# @omega-ai/dsh-linear
 
 English | [中文](README.zh.md)
 
@@ -30,7 +30,7 @@ The Linear plugin registers Linear's hosted MCP server, `https://mcp.linear.app/
 Install the package as a bundle, for example from the Web sidebar's **Plugins** page or with the CLI:
 
 ```sh
-dsh plugin --profile web add @deepseek-ai/dsh-linear
+dsh plugin --profile web add @omega-ai/dsh-linear
 ```
 
 The bundle patch inserts the `linear` row after the profile's other layers. The plugin requires the `mcpManager` and `systemPrompt` services: the [base bundle](../../bundle/base/README.md) provides `systemPrompt`, and the Web and Desktop compositions add the MCP manager through [`dsh-web-app`](../../bundle/web-app/README.md). In a profile without the MCP manager, such as `headless`, the plugin does not activate, and startup prints a warning that names the missing `mcpManager` service.
@@ -63,7 +63,7 @@ Turning the row off in Plugin Manager, or uninstalling the package, ends the reg
 | `url` | `https://mcp.linear.app/mcp` | Streamable HTTP MCP endpoint of the Linear server |
 | `toolLoading` | `on-demand` | `on-demand` keeps Linear's tools hidden from each agent until it loads them; `eager` sends every tool definition with every request |
 
-The generated [config catalog](../../../docs/config-catalog.md#deepseek-aidsh-linear) is the exhaustive source of supported fields. Connection and authorization budgets use the manager and mcp-client defaults. The saved grant is bound to `url`; changing it requires connecting the account again.
+The generated [config catalog](../../../docs/config-catalog.md#omega-aidsh-linear) is the exhaustive source of supported fields. Connection and authorization budgets use the manager and mcp-client defaults. The saved grant is bound to `url`; changing it requires connecting the account again.
 
 -----
 
@@ -75,7 +75,7 @@ The generated [config catalog](../../../docs/config-catalog.md#deepseek-aidsh-li
 
 [`cordis.patch.yml`](cordis.patch.yml) inserts one row with id `linear` naming this package, so the package is both the bundle and its only row; `config` overrides target that id. The Host half, [`src/index.ts`](src/index.ts), makes two registrations, both effects of the plugin's fiber: `ctx.mcpManager.register('linear', …)` adds a Streamable HTTP entry with the configured `url` and OAuth credential key, and `ctx.systemPrompt.section()` adds the naming guidance at the `MCP_SERVERS` order. The server name fixes the `mcp__linear__` tool namespace, and the credential key fixes the grant address, so a reloaded or reinstalled plugin reaches the same tools and grant. The manager validates the entry when it is registered; a configured or registered server that already uses the name or key makes the plugin fail to load before the guidance is added.
 
-While the account registry runs, the plugin also calls `ctx.mcpAccounts.register({ server: 'linear', packageName: '@deepseek-ai/dsh-linear', copy })`, where [`src/locales.ts`](src/locales.ts) holds the text that names Linear in every shipped language; [`dsh-mcp-account`](../../mcp/mcp-account/README.md) then registers the account with the connector account registry, which renders the section, guidance, tag, and toast described above. A composition without the registry, such as a headless profile, loads the plugin without the account section.
+While the account registry runs, the plugin also calls `ctx.mcpAccounts.register({ server: 'linear', packageName: '@omega-ai/dsh-linear', copy })`, where [`src/locales.ts`](src/locales.ts) holds the text that names Linear in every shipped language; [`dsh-mcp-account`](../../mcp/mcp-account/README.md) then registers the account with the connector account registry, which renders the section, guidance, tag, and toast described above. A composition without the registry, such as a headless profile, loads the plugin without the account section.
 
 </details>
 

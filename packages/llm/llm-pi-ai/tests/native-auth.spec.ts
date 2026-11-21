@@ -92,13 +92,13 @@ describe('provider metadata', () => {
   })
 
   it('reports a resolver failure before using compatibility metadata, and refuses unknown metadata', async () => {
-    const provider: Provider = { ...catalogProvider('deepseek')!, auth: { apiKey: {
+    const provider: Provider = { ...catalogProvider('omega')!, auth: { apiKey: {
       name: 'fixture', resolve: () => Promise.reject(new Error('unsupported probe')),
     } } }
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     try {
-      expect((await generateProviderData([provider])).deepseek!.env).toEqual(['DEEPSEEK_API_KEY'])
-      expect(warn).toHaveBeenCalledWith('deepseek: using findEnvKeys auth metadata fallback', expect.any(Error))
+      expect((await generateProviderData([provider])).omega!.env).toEqual(['OMEGA_API_KEY'])
+      expect(warn).toHaveBeenCalledWith('omega: using findEnvKeys auth metadata fallback', expect.any(Error))
       await expect(generateProviderData([{ ...provider, id: 'unknown-provider' }])).rejects.toThrow('no auth metadata fallback')
     } finally { warn.mockRestore() }
   })
@@ -106,7 +106,7 @@ describe('provider metadata', () => {
   it('cancels a probe even when a resolver does not observe the signal', async () => {
     vi.useFakeTimers()
     try {
-      const provider: Provider = { ...catalogProvider('deepseek')!, auth: { apiKey: {
+      const provider: Provider = { ...catalogProvider('omega')!, auth: { apiKey: {
         name: 'fixture', resolve: () => new Promise(() => {}),
       } } }
       const assertion = expect(resolverEnv(provider)).rejects.toThrow('probe timed out')

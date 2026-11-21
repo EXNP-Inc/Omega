@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/upgrade-guide/v0.2.1-rc.4/model-listing-refresh/guide.md
 /:
-  en: 87b8371f353630ce
-  zh: 545cd66ec2055405
+  en: c80a1db0d465e6b0
+  zh: 4fe27f837cb9f884
 /model-listings-refresh-automatically:
   en: f4613eb3beef2045
   zh: 7c1301d90456a6c2
 /model-listings-refresh-automatically/change:
-  en: 6ed436b9f0a93aef
-  zh: 16a09e92ba786d89
+  en: 35b40be7fa70c6be
+  zh: cb41f6e0025d08d6
 /model-listings-refresh-automatically/migration:
   en: e479027c4c4811df
   zh: 7cc7cde8aa4e0135

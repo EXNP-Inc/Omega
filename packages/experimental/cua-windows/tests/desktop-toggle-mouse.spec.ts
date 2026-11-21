@@ -1,9 +1,9 @@
 /** Opt-in real Windows mouse-button toggles through the native helper. */
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
 import { createInterface } from 'node:readline'
-import { Context } from '@deepseek-ai/cordis'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
-import { NativeClient } from '@deepseek-ai/dsh-cua/native-client'
+import { Context } from '@omega-ai/cordis'
+import LocalSubprocessRuntime from '@omega-ai/dsh-subprocess-local'
+import { NativeClient } from '@omega-ai/dsh-cua/native-client'
 import { expect, it } from 'vitest'
 import { z } from 'zod'
 import { Config } from '../src/index.ts'

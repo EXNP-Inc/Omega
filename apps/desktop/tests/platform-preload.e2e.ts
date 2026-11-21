@@ -10,7 +10,7 @@ interface Bridge {
   getLocale(): string
   onLocaleChange(listener: (locale: string) => void): () => void
 }
-function load(mainFrame: boolean, response: unknown, origin = 'https://platform.deepseek.com') {
+function load(mainFrame: boolean, response: unknown, origin = 'https://platform.omega.com') {
   const bridges = new Map<string, Bridge>()
   const invoke = vi.fn(() => response)
   const ipc = Object.assign(new EventEmitter(), { sendSync: invoke })
@@ -22,12 +22,12 @@ function load(mainFrame: boolean, response: unknown, origin = 'https://platform.
         ipcRenderer: ipc,
       }
     },
-    process: { isMainFrame: mainFrame, argv: ['--dsh-platform-origin=https://platform.deepseek.com'] }, location: new URL('/usage', origin), exports: {},
+    process: { isMainFrame: mainFrame, argv: ['--dsh-platform-origin=https://platform.omega.com'] }, location: new URL('/usage', origin), exports: {},
   })
   return { bridge: bridges.get('dsh'), invoke, ipc }
 }
 it('provides a synchronous getter immediately after exactly one bootstrap IPC', () => {
-  const { bridge, invoke } = load(true, { origin: 'https://platform.deepseek.com', token: 'fixture-secret', locale: 'zh_CN' })
+  const { bridge, invoke } = load(true, { origin: 'https://platform.omega.com', token: 'fixture-secret', locale: 'zh_CN' })
   expect(bridge!.displayMode).toBe('embedded')
   expect(bridge!.getAuthToken()).toBe('fixture-secret')
   expect(bridge!.getAuthToken()).toBe('fixture-secret')
@@ -58,7 +58,7 @@ it('exposes no bridge when the document leaves the allowed origin', () => {
 
 
 it('caches language changes before subscription and removes disposed listeners', () => {
-  const { bridge, ipc, invoke } = load(true, { origin: 'https://platform.deepseek.com', token: 'fixture-secret', locale: 'zh_CN' })
+  const { bridge, ipc, invoke } = load(true, { origin: 'https://platform.omega.com', token: 'fixture-secret', locale: 'zh_CN' })
   expect(bridge!.getLocale()).toBe('zh_CN')
   ipc.emit('dsh-platform:locale-changed', {}, 'en_US')
   expect(bridge!.getLocale()).toBe('en_US')
@@ -77,7 +77,7 @@ it('caches language changes before subscription and removes disposed listeners',
 })
 
 it('rejects invalid bootstrap languages', () => {
-  const { bridge } = load(true, { origin: 'https://platform.deepseek.com', token: 'fixture-secret', locale: 'invalid' })
+  const { bridge } = load(true, { origin: 'https://platform.omega.com', token: 'fixture-secret', locale: 'invalid' })
   expect(() => bridge!.getAuthToken()).toThrow()
   expect(() => bridge!.getLocale()).toThrow()
 })

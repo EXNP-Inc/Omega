@@ -3,7 +3,7 @@ description: "在插件页显示每个 MCP 连接器插件的 OAuth 服务器账
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-mcp-account
+# @omega-ai/dsh-mcp-account
 
 [English](README.md) | 中文
 
@@ -28,7 +28,7 @@ Linear、Notion 等 MCP 连接器插件通过 `ctx.mcpAccounts` 注册其 OAuth 
 连接器的 Host 行在 `ctx.inject` 内向 MCP 管理器注册服务器、向本服务注册账号，因此没有本服务的组合（如 headless profile）加载连接器时不带页面：
 
 ```ts ignore-check
-import type {} from '@deepseek-ai/dsh-mcp-account'
+import type {} from '@omega-ai/dsh-mcp-account'
 
 export function apply(ctx: Context): void {
   ctx.inject(['mcpAccounts'], (scope) => {

@@ -3,7 +3,7 @@ description: "通过默认启动 Token 登录，并使用绑定 authority 的 Co
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-host-authentication-token
+# @omega-ai/dsh-host-authentication-token
 
 [English](README.md) | 中文
 

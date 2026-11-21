@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 /** Natural reminders of the Session the visible, focused main view retains. */
-import { Context } from '@deepseek-ai/cordis'
-import type { SessionListState } from '@deepseek-ai/dsh-api-session-controller/client'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { SessionPendingInteraction } from '@deepseek-ai/dsh-client-ui-session/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { Context } from '@omega-ai/cordis'
+import type { SessionListState } from '@omega-ai/dsh-api-session-controller/client'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import type { SessionPendingInteraction } from '@omega-ai/dsh-client-ui-session/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import { afterEach, expect, it, vi } from 'vitest'
 import type { SessionReadSnapshot } from '../src/client/model.ts'
 import { UiSessionStatus } from '../src/client/status.ts'

@@ -8,7 +8,7 @@ description: "模型工具 `create_worktree` 被移除；`enter_worktree` 创建
 
 ## 变更
 
-实验性包 `@deepseek-ai/dsh-experimental-tool-worktree` 不再注册模型工具 `create_worktree`。取代它的 `enter_worktree({ name?, from? })` 把 Session 移入它所在检出的工作树池（默认 `.agents/worktrees/`）中的工作树：
+实验性包 `@omega-ai/dsh-experimental-tool-worktree` 不再注册模型工具 `create_worktree`。取代它的 `enter_worktree({ name?, from? })` 把 Session 移入它所在检出的工作树池（默认 `.agents/worktrees/`）中的工作树：
 
 - 池中已有名为 `name` 的已登记工作树时，调用进入该工作树，不改变 Git 状态和文件。`create_worktree` 在名称已存在时失败。
 - 否则调用从 `from`（默认 HEAD）创建新的分支与检出目录并进入，与 `create_worktree` 相同。省略 `name` 时用生成的名称新建。

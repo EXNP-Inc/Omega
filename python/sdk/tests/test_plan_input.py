@@ -103,7 +103,7 @@ import runpy
 import subprocess
 import sys
 import threading
-from deepseek_harness import DeepSeekHarness
+from omega_harness import OmegaHarness
 
 if sys.platform != "win32":
     import resource
@@ -132,12 +132,12 @@ def configured_harness(**options):
         with (root / "callbacks.jsonl").open("a") as output:
             output.write(json.dumps(result) + "\\n")
         return result
-    return DeepSeekHarness(
+    return OmegaHarness(
         **options, on_user_question=record_answer, _launch_args=(sys.executable, peer, str(root)),
         initialize_timeout_seconds=5, shutdown_timeout_seconds=1,
     )
 
-example["main"].__globals__["DeepSeekHarness"] = configured_harness
+example["main"].__globals__["OmegaHarness"] = configured_harness
 sys.argv = [example_path, "--dsh-home", str(root / "home"), "--workspace", str(root), "Plan a change."]
 try:
     example["main"]()

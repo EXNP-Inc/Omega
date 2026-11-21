@@ -1,11 +1,11 @@
 /**
  * LLM failure codes and helpers over the shared Harness error base. The base
- * class lives in `@deepseek-ai/dsh-error` and is re-exported here, so both
+ * class lives in `@omega-ai/dsh-error` and is re-exported here, so both
  * import paths name the same class.
- * @module @deepseek-ai/dsh-llm/error
+ * @module @omega-ai/dsh-llm/error
  */
 
-import { HarnessError } from '@deepseek-ai/dsh-error'
+import { HarnessError } from '@omega-ai/dsh-error'
 
 export { HarnessError }
 

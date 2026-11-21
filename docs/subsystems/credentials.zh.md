@@ -6,7 +6,7 @@
 
 来源：[`packages/credentials/credentials/src/index.ts`](../../packages/credentials/credentials/src/index.ts)
 
-DeepSeek 账号授权是其中一条记录；其登录、请求凭据和 Platform 会话见 [account.zh.md](account.zh.md)。
+Omega 账号授权是其中一条记录；其登录、请求凭据和 Platform 会话见 [account.zh.md](account.zh.md)。
 
 ## 标识
 

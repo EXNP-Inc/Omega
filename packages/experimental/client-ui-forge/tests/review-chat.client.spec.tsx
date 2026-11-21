@@ -7,15 +7,15 @@
 import type { ReactNode } from 'react'
 import { act, cleanup, fireEvent, render, renderHook } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { SessionListState, SessionReference, SessionSnapshot } from '@deepseek-ai/dsh-api-session-controller/client'
+import type { SessionListState, SessionReference, SessionSnapshot } from '@omega-ai/dsh-api-session-controller/client'
 import type {
   ConversationSnapshot, ConversationViewsProps, WorkspaceSelectedHandler, WorkspaceSessionAdopter,
-} from '@deepseek-ai/dsh-client-ui-conversation/client'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import { bindSnapshotSelector, conversationSnapshot, makeTranslate, sessionSnapshot } from '@deepseek-ai/dsh-client-test-runtime'
-import type { RenderFactorySlot, SessionAreaProps } from '@deepseek-ai/dsh-client-ui-slots'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import { brandString } from '@deepseek-ai/dsh-brand'
+} from '@omega-ai/dsh-client-ui-conversation/client'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import { bindSnapshotSelector, conversationSnapshot, makeTranslate, sessionSnapshot } from '@omega-ai/dsh-client-test-runtime'
+import type { RenderFactorySlot, SessionAreaProps } from '@omega-ai/dsh-client-ui-slots'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import { brandString } from '@omega-ai/dsh-brand'
 import { en } from '../src/client/locales.ts'
 import {
   ReviewChat, ReviewChatView, ReviewConversation, useReviewConversation, type ReviewChatFace, type ReviewChatProps,

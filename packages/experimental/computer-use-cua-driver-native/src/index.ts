@@ -1,18 +1,18 @@
 /**
  * Computer use through the in-process Cua Driver native SDK and its own tools.
- * @module @deepseek-ai/dsh-experimental-computer-use-cua-driver-native
+ * @module @omega-ai/dsh-experimental-computer-use-cua-driver-native
  */
 
-import type { Context } from '@deepseek-ai/cordis'
-import Schema from '@deepseek-ai/schemastery'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { ComputerUseProviderName } from '@deepseek-ai/dsh-computer-use/types'
-import { createMcpToolDefinition } from '@deepseek-ai/dsh-mcp-client'
+import type { Context } from '@omega-ai/cordis'
+import Schema from '@omega-ai/schemastery'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { ComputerUseProviderName } from '@omega-ai/dsh-computer-use/types'
+import { createMcpToolDefinition } from '@omega-ai/dsh-mcp-client'
 import { z } from 'zod'
 import type { CuaDriver as NativeDriver } from '@trycua/cua-driver'
-import type {} from '@deepseek-ai/dsh-computer-use'
-import type {} from '@deepseek-ai/dsh-system-prompt'
-import type {} from '@deepseek-ai/dsh-tools'
+import type {} from '@omega-ai/dsh-computer-use'
+import type {} from '@omega-ai/dsh-system-prompt'
+import type {} from '@omega-ai/dsh-tools'
 import { CuaDriverError } from './error.ts'
 
 export { CuaDriverError, type CuaDriverErrorCode } from './error.ts'
@@ -35,7 +35,7 @@ const ToolCatalog = z.object({
   })),
 })
 
-/** DeepSeek's function-name alphabet and maximum length are protocol constants. */
+/** Omega's function-name alphabet and maximum length are protocol constants. */
 const TOOL_NAME = /^[A-Za-z0-9_-]{1,64}$/u
 
 const GUIDANCE = `Cua Driver native computer-use tools operate the host desktop. Discover the exact app and window, then get a fresh window snapshot before acting. Use element_token from that snapshot, or coordinates from its screenshot. A new snapshot of that window invalidates its earlier element tokens. Select either target or the legacy pid/window_id fields; do not combine them.

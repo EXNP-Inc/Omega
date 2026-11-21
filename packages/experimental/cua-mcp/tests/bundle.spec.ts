@@ -2,9 +2,9 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parseEntryYaml } from '@deepseek-ai/cordis-plugin-include'
-import type { EntryOptions } from '@deepseek-ai/cordis-plugin-loader'
-import { interpolate } from '@deepseek-ai/cordis-plugin-loader'
+import { parseEntryYaml } from '@omega-ai/cordis-plugin-include'
+import type { EntryOptions } from '@omega-ai/cordis-plugin-loader'
+import { interpolate } from '@omega-ai/cordis-plugin-loader'
 import { describe, expect, it } from 'vitest'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
@@ -28,12 +28,12 @@ const row = (id: string) => inserted.find(entry => entry.id === id)
 
 describe('cua-mcp bundle', () => {
   it('publishes an unprefixed experimental bundle whose patch is its only declaration, with both native providers optional', () => {
-    expect(manifest.name).toBe('@deepseek-ai/dsh-cua-mcp')
+    expect(manifest.name).toBe('@omega-ai/dsh-cua-mcp')
     expect(manifest.publishConfig.access).toBe('public')
     expect(manifest.icon).toBe('./icon.svg')
     expect(manifest.exports).toHaveProperty('./locale/*.json')
     expect(manifest.dsh.bundle).toEqual({ patch: './cordis.patch.yml' })
-    expect(Object.keys(manifest.optionalDependencies)).toEqual(['@deepseek-ai/dsh-cua-macos', '@deepseek-ai/dsh-cua-windows'])
+    expect(Object.keys(manifest.optionalDependencies)).toEqual(['@omega-ai/dsh-cua-macos', '@omega-ai/dsh-cua-windows'])
     expect(readdirSync(resolve(root, 'locale')).sort()).toEqual(['de.json', 'en.json', 'es.json', 'fr.json', 'ja.json', 'pt.json', 'ru.json', 'zh.json'])
   })
 
@@ -48,7 +48,7 @@ describe('cua-mcp bundle', () => {
     ])
     // The llm hub carries no adapter row, so no model request can leave this profile.
     expect(inserted.map(entry => entry.name).filter(name => /llm|telemetry|otel|web|subagent|compaction|skill|plugin-manager/.test(name)))
-      .toEqual(['@deepseek-ai/dsh-llm'])
+      .toEqual(['@omega-ai/dsh-llm'])
     expect(row('agent-loop')?.config).toEqual({ agents: [] })
     expect(row('cua-mcp-presets')?.config).toEqual({ default: 'cua-mcp' })
     expect(row('cua-mcp-preset')?.config).toEqual({ id: 'cua-mcp', plugins: [] })
@@ -82,8 +82,8 @@ describe('cua-mcp bundle', () => {
 
   it('mounts one native provider per Host, each with a fixed screenshot target and the PTC raw-tool preset', () => {
     const providers = { darwin: row('cua-mcp-provider'), win32: row('cua-mcp-provider-windows') }
-    expect(providers.darwin?.name).toBe('@deepseek-ai/dsh-cua-macos')
-    expect(providers.win32?.name).toBe('@deepseek-ai/dsh-cua-windows')
+    expect(providers.darwin?.name).toBe('@omega-ai/dsh-cua-macos')
+    expect(providers.win32?.name).toBe('@omega-ai/dsh-cua-windows')
     for (const [host, provider] of Object.entries(providers)) {
       expect(provider?.config).toEqual({ agentPreset: 'ptc', screenshotTarget: { longEdge: 2048, maxBytes: 2_097_152 } })
       // Each row loads on its own Host only: elsewhere its optional provider package can be absent.

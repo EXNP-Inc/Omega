@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { compileRules } from '@deepseek-ai/dsh-experimental-forge-session/src/commands.ts'
+import { compileRules } from '@omega-ai/dsh-experimental-forge-session/src/commands.ts'
 import { GH_COMMANDS } from '../src/commands.ts'
 
 const rules = compileRules([GH_COMMANDS])
@@ -24,8 +24,8 @@ describe('gh command rule', () => {
   })
 
   it('looks up a repository without a host through gh in the same environment', () => {
-    expect(rules.named('gh pr view 5960 --repo deepseek-harness/deepseek-harness --json number,title,body 2>&1 | head -200')).toEqual([
-      { url: null, lookup: 'env gh pr view 5960 --repo deepseek-harness/deepseek-harness --json url --jq .url', rule: 'gh', kind: 'reference' },
+    expect(rules.named('gh pr view 5960 --repo omega-harness/omega-harness --json number,title,body 2>&1 | head -200')).toEqual([
+      { url: null, lookup: 'env gh pr view 5960 --repo omega-harness/omega-harness --json url --jq .url', rule: 'gh', kind: 'reference' },
     ])
     expect(rules.named('GH_CONFIG_DIR="/tmp/gh config" gh pr edit 12 -R octo/demo --title "A title"')).toEqual([
       { url: null, lookup: "env 'GH_CONFIG_DIR=/tmp/gh config' gh pr view 12 --repo octo/demo --json url --jq .url", rule: 'gh', kind: 'reference' },

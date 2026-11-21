@@ -10,7 +10,7 @@ import type { ViewerInputFixture } from './viewer-input-fixture.client.ts'
 import { installViewerRelay } from './viewer-relay.client.ts'
 
 /** The generated contribution is a build artifact; the mount boundary is what this face test covers. */
-vi.mock('@deepseek-ai/dsh-experimental-liveshare/remote', () => ({ default: { package: '@deepseek-ai/dsh-experimental-liveshare', methods: {} } }))
+vi.mock('@omega-ai/dsh-experimental-liveshare/remote', () => ({ default: { package: '@omega-ai/dsh-experimental-liveshare', methods: {} } }))
 
 let inputFixture: ViewerInputFixture | undefined
 let owner: FixtureWorld | undefined
@@ -130,7 +130,7 @@ describe('Assembled liveshare viewer page', () => {
     await waitFor(() => { expect(document.querySelector('[data-liveshare-viewer-seat="model"]')).not.toBeNull() })
     const modelSeat = document.querySelector<HTMLElement>('[data-liveshare-viewer-seat="model"]')
     expect(modelSeat?.tagName).toBe('SPAN')
-    expect(modelSeat?.textContent).toMatch(/deepseek/iu)
+    expect(modelSeat?.textContent).toMatch(/omega/iu)
     expect(modelSeat?.querySelector('button, select, [role="button"], [role="combobox"]')).toBeNull()
     expect(screen.queryByRole('button', { name: /model|模型/iu })).toBeNull()
     // The turn tail is on screen, and it offers no branch action: this page cannot write, so the

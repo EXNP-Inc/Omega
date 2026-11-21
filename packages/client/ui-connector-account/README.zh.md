@@ -3,7 +3,7 @@ description: "通过 `ctx.connectorAccounts` 在 Host 上注册连接器插件�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-connector-account
+# @omega-ai/dsh-client-ui-connector-account
 
 [English](README.md) | 中文
 
@@ -32,7 +32,7 @@ kind: "package-reference"
 注册方的 Host 行在注册表运行时注册其账号来源，因此没有注册表的组合（如 headless profile）会跳过注册：
 
 ```ts ignore-check
-import type {} from '@deepseek-ai/dsh-client-ui-connector-account'
+import type {} from '@omega-ai/dsh-client-ui-connector-account'
 
 export function apply(ctx: Context): void {
   const account = new AcmeAccount(options)

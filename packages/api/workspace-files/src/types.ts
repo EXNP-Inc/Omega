@@ -14,12 +14,12 @@
  *   exclusions use the same relative syntax, because its consumer is the same
  *   workspace tree.
  *
- * @module @deepseek-ai/dsh-api-workspace-files/types
+ * @module @omega-ai/dsh-api-workspace-files/types
  */
 
 // Import the protocol module so the declaration at the end of this file
 // augments its error map rather than defining an unrelated ambient module.
-import type {} from '@deepseek-ai/dsh-typert-protocol'
+import type {} from '@omega-ai/dsh-typert-protocol'
 
 /** Identity and freshness of one workspace file, without its content. */
 export interface WorkspaceFileStat {
@@ -203,7 +203,7 @@ export type WorkspaceFileWatchFrame =
   | { readonly kind: 'ready' }
   | { readonly kind: 'change'; readonly change: WorkspaceFileChange }
 
-declare module '@deepseek-ai/dsh-typert-protocol' {
+declare module '@omega-ai/dsh-typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** Search cannot run: missing subprocess, launch/execution failure, or configured timeout. */
     'workspace-file/search-failed': Record<string, never>

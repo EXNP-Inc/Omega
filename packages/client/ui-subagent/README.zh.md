@@ -3,7 +3,7 @@ description: "dsh Web 客户端会话面板中的 subagent 对话目录、面包
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-subagent
+# @omega-ai/dsh-client-ui-subagent
 
 [English](README.md) | 中文
 

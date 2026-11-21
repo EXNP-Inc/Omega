@@ -1,0 +1,79 @@
+{
+  "name": "@omega-ai/dsh-omega-account",
+  "description": "Sign in to Omega and manage account credentials and notifications",
+  "version": "0.2.2-rc.5",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
+    "directory": "packages/account/omega-account"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./types": {
+      "types": "./lib/types/types.d.ts",
+      "default": "./lib/types/types.js"
+    },
+    "./client-metadata": {
+      "types": "./lib/types/client-metadata.d.ts",
+      "default": "./lib/types/client-metadata.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json",
+    "./typert": {
+      "types": "./lib/typert.host.d.ts",
+      "default": "./lib/typert.host.js"
+    },
+    "./remote": {
+      "types": "./lib/typert.remote-client.d.ts",
+      "default": "./lib/typert.remote-client.js"
+    }
+  },
+  "files": [
+    "locale/*.json",
+    "lib/index.js",
+    "lib/types/**/*.js",
+    "lib/types/**/*.d.ts",
+    "lib/types/**/*.d.ts.map",
+    "lib/**/*.js.map",
+    "lib/typert.host.js",
+    "lib/typert.host.d.ts",
+    "lib/typert.remote-client.js",
+    "lib/typert.remote-client.d.ts",
+    "lib/typert.remote-client.d.ts.map",
+    "src"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-brand": "workspace:*",
+    "@omega-ai/dsh-util-values": "workspace:*",
+    "@omega-ai/dsh-authorization": "workspace:*",
+    "@omega-ai/dsh-credentials": "workspace:*",
+    "@omega-ai/dsh-host-webserver": "workspace:*",
+    "@omega-ai/dsh-typert-protocol": "workspace:*"
+  },
+  "devDependencies": {
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-client-connection": "workspace:*",
+    "@omega-ai/dsh-brand": "workspace:*",
+    "@omega-ai/dsh-util-values": "workspace:*",
+    "@omega-ai/dsh-authorization": "workspace:*",
+    "@omega-ai/dsh-credentials": "workspace:*",
+    "@omega-ai/dsh-host-webserver": "workspace:*",
+    "@omega-ai/dsh-typert-protocol": "workspace:*"
+  },
+  "dependencies": {
+    "@omega-ai/schemastery": "workspace:~",
+    "zod": "4.6.6"
+  }
+}

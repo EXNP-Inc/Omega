@@ -3,7 +3,7 @@ description: "通过宿主上的 GitHub CLI 为实验性 forge 注册表服务 G
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-experimental-forge-github
+# @omega-ai/dsh-experimental-forge-github
 
 [English](README.md) | 中文
 
@@ -28,13 +28,13 @@ kind: "package-reference"
 在 forge 注册表之后挂载提供方，并显式列出每个 GitHub Enterprise 主机。
 
 ```yaml
-- name: '@deepseek-ai/dsh-experimental-forge'
-- name: '@deepseek-ai/dsh-experimental-forge-github'
+- name: '@omega-ai/dsh-experimental-forge'
+- name: '@omega-ai/dsh-experimental-forge-github'
   config:
     hosts: [github.com, ghe.example.com]
 ```
 
-即使 Session 在其他执行环境中运行命令，提供方也以宿主进程的形式运行 `gh`。每个主机执行一次 `gh auth login --hostname <host>` 完成登录。子进程继承的宿主环境去掉了 `DSH_*` 变量以及名称包含 `KEY`、`PASSWORD`、`SECRET` 或 `TOKEN` 的变量，因此 `GH_TOKEN` 与 `GITHUB_TOKEN` 不会被转发，`gh` 使用自己的凭据存储。交互提示、更新提醒、分页器与颜色输出均被关闭。`maxOutputBytes`、`maxReviewThreads`、`maxCommits`、`maxViewedFiles` 与 `maxViewerItems` 必须是正安全整数，`maxViewerItems` 最大为 100；只有 `timeoutMs` 受运行时定时器上限约束。`ghCommand`、`hosts`、`timeoutMs`、`maxOutputBytes`、`maxReviewThreads`、`maxCommits`、`maxViewedFiles` 与 `maxViewerItems` 见[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-experimental-forge-github)。
+即使 Session 在其他执行环境中运行命令，提供方也以宿主进程的形式运行 `gh`。每个主机执行一次 `gh auth login --hostname <host>` 完成登录。子进程继承的宿主环境去掉了 `DSH_*` 变量以及名称包含 `KEY`、`PASSWORD`、`SECRET` 或 `TOKEN` 的变量，因此 `GH_TOKEN` 与 `GITHUB_TOKEN` 不会被转发，`gh` 使用自己的凭据存储。交互提示、更新提醒、分页器与颜色输出均被关闭。`maxOutputBytes`、`maxReviewThreads`、`maxCommits`、`maxViewedFiles` 与 `maxViewerItems` 必须是正安全整数，`maxViewerItems` 最大为 100；只有 `timeoutMs` 受运行时定时器上限约束。`ghCommand`、`hosts`、`timeoutMs`、`maxOutputBytes`、`maxReviewThreads`、`maxCommits`、`maxViewedFiles` 与 `maxViewerItems` 见[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-experimental-forge-github)。
 
 [forge-session](../forge-session/README.zh.md) 运行期间，插件向其注册 `gh` 命令规则。`gh pr create` 与 `gh pr new` 绑定它们打印的 pull request。`gh pr view`、`gh pr edit` 与 `gh pr checkout` 绑定 URL 选中的 pull request，或前后带有 `--repo`、`--repo=` 或 `-R` 的编号所选中的 pull request；包含主机的仓库参数或字面量 `GH_HOST` 赋值可直接确定 URL，其他仓库参数则在调用所在的 shell 中通过 `gh pr view <number> --repo <repository> --json url --jq .url` 解析。`gh api` 绑定其 REST 路径指向的 pull request，例如 `repos/octo/demo/pulls/7/files`：`--hostname` 或字面量 `GH_HOST` 赋值写明主机时直接绑定，否则通过同样的 `gh pr view` 查询解析，`{owner}/{repo}` 占位符则不带 `--repo`。
 

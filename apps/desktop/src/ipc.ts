@@ -1,12 +1,12 @@
-import type { DesktopFileActions } from '@deepseek-ai/dsh-client-ui-file-actions/types'
+import type { DesktopFileActions } from '@omega-ai/dsh-client-ui-file-actions/types'
 /** Typed preload operations exposed only by the Electron shell. */
 
-export type { DesktopChannelState, DesktopChannelChangeResult } from '@deepseek-ai/dsh-client-ui-settings-general/types'
-import type { DesktopChannelBridge, DesktopChannelState } from '@deepseek-ai/dsh-client-ui-settings-general/types'
-import type { DesktopKeyboardApi, DesktopShortcutsApi } from '@deepseek-ai/dsh-client-shortcuts/protocol'
+export type { DesktopChannelState, DesktopChannelChangeResult } from '@omega-ai/dsh-client-ui-settings-general/types'
+import type { DesktopChannelBridge, DesktopChannelState } from '@omega-ai/dsh-client-ui-settings-general/types'
+import type { DesktopKeyboardApi, DesktopShortcutsApi } from '@omega-ai/dsh-client-shortcuts/protocol'
 import type { IpcMainInvokeEvent } from 'electron'
-import type { DesktopBrowserBridge } from '@deepseek-ai/dsh-client-ui-sidebar-browser/types'
-import type { DesktopFileDrag } from '@deepseek-ai/dsh-util-file-drag'
+import type { DesktopBrowserBridge } from '@omega-ai/dsh-client-ui-sidebar-browser/types'
+import type { DesktopFileDrag } from '@omega-ai/dsh-util-file-drag'
 
 /** IPC channel names kept private to the desktop application bundle. */
 export const DESKTOP_IPC = {

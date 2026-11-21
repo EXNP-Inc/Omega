@@ -15,7 +15,7 @@ English | [中文](guide.zh.md)
 
 `ForgeReviewData` gains the required `reviewEvents`, the decisions the host lets the signed-in user record in a submitted review. The review dialog offers only these, replacing its own rule that the author of a pull request may only comment.
 
-This affects third-party providers and code that builds these values. All types come from `@deepseek-ai/dsh-experimental-forge`. The GitHub provider sets `hosts` from its `hosts` setting, `label: 'GitHub'`, `changeRequestNoun: 'pull-request'`, `signIn` while `gh` is not signed in, and `['comment']` for the author of a pull request.
+This affects third-party providers and code that builds these values. All types come from `@omega-ai/dsh-experimental-forge`. The GitHub provider sets `hosts` from its `hosts` setting, `label: 'GitHub'`, `changeRequestNoun: 'pull-request'`, `signIn` while `gh` is not signed in, and `['comment']` for the author of a pull request.
 
 ## Migration
 

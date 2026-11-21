@@ -2,7 +2,7 @@
 
 import type {
   BranchUpdateRequest, ChangeRequestRef, ForgeActionFailure, ForgeFailure, ForgeReviewerCandidate, ForgeReviewersRequest,
-} from '@deepseek-ai/dsh-experimental-forge'
+} from '@omega-ai/dsh-experimental-forge'
 import { z } from 'zod'
 import type { GraphqlReader } from './commits.ts'
 import type { GraphqlWriter } from './mutation.ts'

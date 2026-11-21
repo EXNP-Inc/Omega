@@ -16,8 +16,8 @@ A plugin package's entry point takes one of two forms, and they are not mixed. A
 The compliant entry — the four exports, with the same-package test path recorded as a comment rather than as a fifth export.
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
+import type { Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
 
 // The plugin entry: the Loader four, and no fifth value
 export const name = 'web-app'
@@ -56,7 +56,7 @@ A package in one of the two shapes, with the standard manifest fields and no han
 
 ```json
 {
-  "name": "@deepseek-ai/dsh-example",
+  "name": "@omega-ai/dsh-example",
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
@@ -69,7 +69,7 @@ A package in one of the two shapes, with the standard manifest fields and no han
 A hand-written `external` list — and a `tsconfig.foo.json` invented beside it for one package — leaves the scans nothing to derive, so build output and manifest stop agreeing.
 
 ```json
-{ "name": "@deepseek-ai/dsh-example", "external": ["@deepseek-ai/*"] }
+{ "name": "@omega-ai/dsh-example", "external": ["@omega-ai/*"] }
 ```
 
 ## `package.json` `exports` uses the standard key set
@@ -131,10 +131,10 @@ The repeatable procedure: reproduce, read the diagnostic, and fix the manifest i
 pnpm run verify-package-dependencies
 
 # 2. The diagnostic names the manifest, the section, the dependency, and the expected range
-#    packages/example/package.json: dependencies.@deepseek-ai/dsh-base must use workspace:*, found workspace:~
+#    packages/example/package.json: dependencies.@omega-ai/dsh-base must use workspace:*, found workspace:~
 
 # 3. The fix goes into the manifest, never into the policy file or the scan
-#    "dependencies": { "@deepseek-ai/dsh-base": "workspace:*" }
+#    "dependencies": { "@omega-ai/dsh-base": "workspace:*" }
 
 # 4. Re-run the scan until every package matches the published policy
 pnpm run verify-package-dependencies
@@ -149,16 +149,16 @@ Restating a required-devDependency package list or the field rules on this page 
 
 ## Internal dependency syntax follows the package family
 
-Internal dependency syntax follows the package family: `@deepseek-ai/dsh` and `@deepseek-ai/dsh-*` use `workspace:*`, every other internal package uses `workspace:~`, and `workspace:^` has retired. The same dependency name is written the same way in every workspace, and a mismatch is a hard scan failure rather than a warning a reviewer can waive. The uniform syntax keeps one resolution path and prevents duplicate instances of a dependency and the resolution differences that follow them.
+Internal dependency syntax follows the package family: `@omega-ai/dsh` and `@omega-ai/dsh-*` use `workspace:*`, every other internal package uses `workspace:~`, and `workspace:^` has retired. The same dependency name is written the same way in every workspace, and a mismatch is a hard scan failure rather than a warning a reviewer can waive. The uniform syntax keeps one resolution path and prevents duplicate instances of a dependency and the resolution differences that follow them.
 
-- Judged by `workspaceRange()` in [verify-package-dependencies.ts](../../scripts/verify-package-dependencies.ts): the `@deepseek-ai/dsh` and `@deepseek-ai/dsh-*` families get `workspace:*`, every other internal package gets `workspace:~`; the scan walks the managed manifests and compares every declaration of the same dependency name.
+- Judged by `workspaceRange()` in [verify-package-dependencies.ts](../../scripts/verify-package-dependencies.ts): the `@omega-ai/dsh` and `@omega-ai/dsh-*` families get `workspace:*`, every other internal package gets `workspace:~`; the scan walks the managed manifests and compares every declaration of the same dependency name.
 - Boundary: a same-namespace package that is not a workspace member declares an ordinary third-party range and is outside the family rule — `@deepseek-ai/libreoffice-kit` is declared `0.2.3` in `packages/bundle/web-app/package.json` (devDependencies) and `packages/document/office-kit/package.json` (dependencies).
 - Distribution is not restated here; the recompute command below prints the current counts of `workspace:*`, `workspace:~`, `workspace:^`, and any exact-range declaration outside the family rule.
 - Exception: the scan decides mechanically; a genuine exception means changing the scan and the policy file with the domain owner's confirmation and the reason on the change.
 - Recompute:
 
 ```sh
-python3 -c "import json,glob,collections; c=collections.Counter(); [c.update([r]) for p in glob.glob('apps/*/package.json')+glob.glob('packages/*/*/package.json')+glob.glob('vendor/*/package.json') for s in ('dependencies','devDependencies','optionalDependencies','peerDependencies') for n,r in (json.load(open(p)).get(s) or {}).items() if n.startswith('@deepseek-ai/')]; print(c.most_common())"
+python3 -c "import json,glob,collections; c=collections.Counter(); [c.update([r]) for p in glob.glob('apps/*/package.json')+glob.glob('packages/*/*/package.json')+glob.glob('vendor/*/package.json') for s in ('dependencies','devDependencies','optionalDependencies','peerDependencies') for n,r in (json.load(open(p)).get(s) or {}).items() if n.startswith('@omega-ai/')]; print(c.most_common())"
 ```
 
 Each family in its form, with the non-member exception left as an ordinary version range.
@@ -166,12 +166,12 @@ Each family in its form, with the non-member exception left as an ordinary versi
 ```json
 {
   "dependencies": {
-    "@deepseek-ai/dsh-base": "workspace:*",
-    "@deepseek-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-base": "workspace:*",
+    "@omega-ai/cordis": "workspace:~",
     "@deepseek-ai/libreoffice-kit": "0.2.3"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-typert-registry": "workspace:*"
+    "@omega-ai/dsh-typert-registry": "workspace:*"
   }
 }
 ```
@@ -181,8 +181,8 @@ A `dsh-*` package on `workspace:~` and a workspace member pinned to an external 
 ```json
 {
   "dependencies": {
-    "@deepseek-ai/dsh-base": "workspace:~",
-    "@deepseek-ai/cordis": "^4.0.0"
+    "@omega-ai/dsh-base": "workspace:~",
+    "@omega-ai/cordis": "^4.0.0"
   }
 }
 ```
@@ -215,7 +215,7 @@ A hook added so that one specifier lands where this package expects it, or the e
 ```ts ignore-check
 // Added so one specifier resolves to the local source copy
 export async function resolve(specifier: string, parentURL: string, importAttributes: object) {
-  if (specifier === '@deepseek-ai/dsh-example') return { url: localSourceUrl, shortCircuit: true }
+  if (specifier === '@omega-ai/dsh-example') return { url: localSourceUrl, shortCircuit: true }
   return defaultResolve(specifier, parentURL, importAttributes)
 }
 

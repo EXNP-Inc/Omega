@@ -1,8 +1,8 @@
 /** The face's search: when it runs, the preferences it follows, what it aborts and drops, and the store writes it makes. */
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import { RemoteError } from '@deepseek-ai/dsh-client-test-runtime'
-import type { PaneId, TabId } from '@deepseek-ai/dsh-client-ui-dockkit'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { RemoteError } from '@omega-ai/dsh-client-test-runtime'
+import type { PaneId, TabId } from '@omega-ai/dsh-client-ui-dockkit'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import { filesFace } from '../src/client/face.ts'
 import type { WorkspaceSearchPreferenceBook } from '../src/client/search-preferences.ts'
 import { defaultSearchPreferences, enabledPaths } from '../src/client/search-rules.ts'

@@ -53,7 +53,7 @@ describe.skipIf(!requiredArtifacts)('Goal Remote built LIB chain', () => {
     }).map(([key, path]) => [key, artifactUrl(path)]))
     const script = `
       import { createServer } from 'node:http'
-      import * as cordis from '@deepseek-ai/cordis'
+      import * as cordis from '@omega-ai/cordis'
       import * as zod from 'zod'
 
       const urls = ${JSON.stringify(urls)}
@@ -182,21 +182,21 @@ describe.skipIf(!requiredArtifacts)('Goal Remote built LIB chain', () => {
           const handoff = handoffs.get(id)
           if (handoff === undefined) throw new Error('missing Client bundle handoff ' + id)
           return handoff.factory(specifier => {
-            if (specifier === '@deepseek-ai/cordis') return cordis
+            if (specifier === '@omega-ai/cordis') return cordis
             if (specifier === 'zod') return zod
             throw new Error('unexpected Client external ' + specifier)
           })
         }
         const client = new Context()
         for (const id of [
-          '@deepseek-ai/dsh-typert-registry',
-          '@deepseek-ai/dsh-client-connection',
-          '@deepseek-ai/dsh-api-gateway',
-          '@deepseek-ai/dsh-api-remotes',
+          '@omega-ai/dsh-typert-registry',
+          '@omega-ai/dsh-client-connection',
+          '@omega-ai/dsh-api-gateway',
+          '@omega-ai/dsh-api-remotes',
         ]) {
           const plugin = instantiate(id)
           // The connection Client face reads its recovery timing from its synced Config; an absent value uses the defaults.
-          const config = id === '@deepseek-ai/dsh-client-connection' ? { recovery: { get: () => undefined } } : undefined
+          const config = id === '@omega-ai/dsh-client-connection' ? { recovery: { get: () => undefined } } : undefined
           await client.plugin({ inject: plugin.inject, apply: plugin.apply }, config)
         }
         client.typert.contexts.registerClient('agent', {

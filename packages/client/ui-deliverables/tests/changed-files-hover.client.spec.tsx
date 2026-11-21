@@ -3,13 +3,13 @@
 import { useSyncExternalStore } from 'react'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { makeTranslate } from '@omega-ai/dsh-client-test-runtime'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import { ChangedFiles } from '../src/client/ChangedFiles.tsx'
 import { ChangesDiffStore } from '../src/client/changes-diff.ts'
 import { changesDiffUrl } from '../src/changes.ts'
 import { en } from '../src/client/locales.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 beforeEach(() => { vi.useFakeTimers() })
 afterEach(() => { cleanup(); vi.useRealTimers() })

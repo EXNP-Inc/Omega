@@ -2,14 +2,14 @@
  * Forward file and folder mention candidates in original text, without Facts or discovery.
  * The node components decide whether a candidate names an existing path.
  */
-import type { UserTextRule } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { UserTextRule } from '@omega-ai/dsh-client-ui-conversation/client'
 
 interface PathReferenceData {
   readonly path: string
   readonly label: string
 }
 
-declare module '@deepseek-ai/dsh-client-ui-conversation/client' {
+declare module '@omega-ai/dsh-client-ui-conversation/client' {
   interface UserTextDataMap {
     file: PathReferenceData
     folder: PathReferenceData

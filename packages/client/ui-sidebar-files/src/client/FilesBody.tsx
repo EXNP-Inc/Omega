@@ -7,16 +7,16 @@
  * it is and opens the file where the right Sidebar places it by default
  * (`FileNavigator`).
  */
-import { selectSessionDirectory } from '@deepseek-ai/dsh-api-session-controller/client/directories'
+import { selectSessionDirectory } from '@omega-ai/dsh-api-session-controller/client/directories'
 import { useCallback, useEffect } from 'react'
 import type { ReactNode } from 'react'
-import type {} from '@deepseek-ai/dsh-client-ui-context-menu/client'
+import type {} from '@omega-ai/dsh-client-ui-context-menu/client'
 import type {
   InjectFace, PropsLocale, PropsRenderFactories, PropsRenderSlots, PropsRuntime, PropsStore,
-} from '@deepseek-ai/dsh-client-ui-slots'
+} from '@omega-ai/dsh-client-ui-slots'
 import {
   IconPauseOutlineRegular, IconPlayOutlineRegular, IconRefreshOutlineRegular, IconSearchOutlineRegular, PathLabel, Tooltip,
-} from '@deepseek-ai/dsh-client-ui-primitives'
+} from '@omega-ai/dsh-client-ui-primitives'
 import type { FilesInjected } from './face.ts'
 import type {} from './FileNavigator.tsx'
 import type {} from './locales.ts'

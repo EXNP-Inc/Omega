@@ -5,45 +5,45 @@
 /:
   en: f55d62d235c3a1f3
   zh: 62063508c0ba87ad
-/deepseek-ai-dsh-experimental-translator:
-  en: de5ee8ccf9094431
-  zh: ca8ed948d6fb6553
-/deepseek-ai-dsh-experimental-translator/summary:
-  en: dbfd4283d49cc598
-  zh: 1717743620294ec6
-/deepseek-ai-dsh-experimental-translator/table-of-contents:
+/omega-ai-dsh-experimental-translator:
+  en: d3d9d1dd0797d3c6
+  zh: 0020588a98d17648
+/omega-ai-dsh-experimental-translator/summary:
+  en: f4821cc3f53e5d40
+  zh: 5926456640e7556e
+/omega-ai-dsh-experimental-translator/table-of-contents:
   en: d152484eb41ac6b4
   zh: 91dd6a6ee0635d20
-/deepseek-ai-dsh-experimental-translator/use-this-package:
-  en: a8a0b2481c0966c3
-  zh: aedb4a655c2c96c2
-/deepseek-ai-dsh-experimental-translator/understand-the-implementation:
-  en: 26bdde8357a1bb43
-  zh: 727c36c494dc644a
-/deepseek-ai-dsh-experimental-translator/further-exploration:
+/omega-ai-dsh-experimental-translator/use-this-package:
+  en: c584b7bc0a9a1a4a
+  zh: 86689ec767c36449
+/omega-ai-dsh-experimental-translator/understand-the-implementation:
+  en: eb42362ccfd7cb4a
+  zh: 925db2e9a6cdd759
+/omega-ai-dsh-experimental-translator/further-exploration:
   en: 17792a9fe5429633
   zh: b51e5e3c30b0e14d
-/deepseek-ai-dsh-experimental-translator/model-experience:
+/omega-ai-dsh-experimental-translator/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/deepseek-ai-dsh-experimental-translator/model-experience/auxiliary-flash-translation-system-prompt:
+/omega-ai-dsh-experimental-translator/model-experience/auxiliary-flash-translation-system-prompt:
   en: 75b37930051f9b46
   zh: e79f28804416b939
-/deepseek-ai-dsh-experimental-translator/model-experience/auxiliary-flash-translation-system-prompt/what-the-model-sees:
-  en: 8e7fa23dc157c1ea
-  zh: 3d483952fed2b2cd
-/deepseek-ai-dsh-experimental-translator/model-experience/auxiliary-flash-translation-system-prompt/what-the-model-sees/fixed-translation-instruction:
+/omega-ai-dsh-experimental-translator/model-experience/auxiliary-flash-translation-system-prompt/what-the-model-sees:
+  en: cfccf5a5eaa8f10c
+  zh: 19ca2ee13df06416
+/omega-ai-dsh-experimental-translator/model-experience/auxiliary-flash-translation-system-prompt/what-the-model-sees/fixed-translation-instruction:
   en: cd064594a1c325af
   zh: 736f9213f65c0b78
-/deepseek-ai-dsh-experimental-translator/model-experience/auxiliary-flash-translation-system-prompt/token-effect:
-  en: 5d7b4e99ba5c776e
-  zh: 7e14e2679ec6aff3
-/deepseek-ai-dsh-experimental-translator/model-experience/auxiliary-flash-translation-system-prompt/kv-cache-effect:
+/omega-ai-dsh-experimental-translator/model-experience/auxiliary-flash-translation-system-prompt/token-effect:
+  en: 2dc7c10069063f19
+  zh: 8148e2be09eeef08
+/omega-ai-dsh-experimental-translator/model-experience/auxiliary-flash-translation-system-prompt/kv-cache-effect:
   en: e6120b67c2543395
   zh: af321d4edf9212fe
-/deepseek-ai-dsh-experimental-translator/known-limitations-and-deferred-work:
+/omega-ai-dsh-experimental-translator/known-limitations-and-deferred-work:
   en: 2c00a5295af60b8f
   zh: b235aa5343c72a71
-/deepseek-ai-dsh-experimental-translator/known-limitations-and-deferred-work/dev-note:
-  en: 96686375e99911bc
-  zh: b2514a4d8fd2bdeb
+/omega-ai-dsh-experimental-translator/known-limitations-and-deferred-work/dev-note:
+  en: a552b4b20c414117
+  zh: 17fc2c4ff22d72ac

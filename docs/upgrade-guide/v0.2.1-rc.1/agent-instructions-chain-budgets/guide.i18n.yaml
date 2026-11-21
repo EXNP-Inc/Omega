@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/upgrade-guide/v0.2.1-rc.1/agent-instructions-chain-budgets/guide.md
 /:
-  en: a4f7c0355dfc799f
-  zh: 7fba904f2c771d26
-/size-maxbytes-of-deepseek-ai-dsh-agent-instructions-per-instruction-chain:
-  en: 32a1e5663b3ddc28
-  zh: 2f2bdb9dbc72449a
-/size-maxbytes-of-deepseek-ai-dsh-agent-instructions-per-instruction-chain/change:
-  en: 852972af8ae3b10b
-  zh: 984774781a0233bc
-/size-maxbytes-of-deepseek-ai-dsh-agent-instructions-per-instruction-chain/migration:
-  en: 45737c7f5e7534ea
-  zh: 46ac35baa76b850a
+  en: ef82ff49612b2f8f
+  zh: f3b92b27dcd3c079
+/size-maxbytes-of-omega-ai-dsh-agent-instructions-per-instruction-chain:
+  en: 68166d0bc0d45f86
+  zh: 1a64dd5128263544
+/size-maxbytes-of-omega-ai-dsh-agent-instructions-per-instruction-chain/change:
+  en: 53cf9361186adb0b
+  zh: d6b57ad57fd0ba4e
+/size-maxbytes-of-omega-ai-dsh-agent-instructions-per-instruction-chain/migration:
+  en: 725543b3c02aa5fc
+  zh: b526d7263118d7e5

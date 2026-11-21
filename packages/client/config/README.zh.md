@@ -3,7 +3,7 @@ description: "浏览器同步插件配置的类型"
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-config
+# @omega-ai/dsh-client-config
 
 [English](README.md) | 中文
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-插件包把本包列入 `devDependencies`，只用 `import type` 从 `@deepseek-ai/dsh-client-config/types` 导入：
+插件包把本包列入 `devDependencies`，只用 `import type` 从 `@omega-ai/dsh-client-config/types` 导入：
 
 | 类型 | 用途 |
 |---|---|

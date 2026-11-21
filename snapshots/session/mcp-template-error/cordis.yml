@@ -1,9 +1,9 @@
-- id: llm-deepseek
+- id: llm-omega
   config:
     thinking: enabled
     reasoningEffort: max
     models:
-      - id: deepseek-flash
+      - id: omega-flash
 
 # The template resolves through the credential store, which the headless profile disables.
 - id: credentials
@@ -11,7 +11,7 @@
 
 - insert:
     - id: mcp-template-error
-      name: '@deepseek-ai/dsh-mcp-client'
+      name: '@omega-ai/dsh-mcp-client'
       inject: [credentials]
       config:
         transport: streamable-http

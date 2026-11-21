@@ -6,13 +6,13 @@
  * across Loader rebuilds of the declaring chain.
  */
 import { describe, expect, onTestFinished, vi } from 'vitest'
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
-import { ok, type RemoteMock } from '@deepseek-ai/dsh-remote-mock'
-import type { SettingsNamespaceView } from '@deepseek-ai/dsh-settings/types'
-import { createClientTest, type TestClient, webApp } from '@deepseek-ai/dsh-client-test-runtime/src/assembly/index.ts'
-import { graphFromRoster } from '@deepseek-ai/dsh-client-test-runtime/src/assembly/roster.ts'
-import { resolveSlotLabel } from '@deepseek-ai/dsh-client-ui-slots'
-import { LOCALE_SETTINGS_NAMESPACE, LocaleSettingsSchema } from '@deepseek-ai/dsh-client-locale/src/locale-settings.ts'
+import type {} from '@omega-ai/dsh-client-ui-renderer/client'
+import { ok, type RemoteMock } from '@omega-ai/dsh-remote-mock'
+import type { SettingsNamespaceView } from '@omega-ai/dsh-settings/types'
+import { createClientTest, type TestClient, webApp } from '@omega-ai/dsh-client-test-runtime/src/assembly/index.ts'
+import { graphFromRoster } from '@omega-ai/dsh-client-test-runtime/src/assembly/roster.ts'
+import { resolveSlotLabel } from '@omega-ai/dsh-client-ui-slots'
+import { LOCALE_SETTINGS_NAMESPACE, LocaleSettingsSchema } from '@omega-ai/dsh-client-locale/src/locale-settings.ts'
 import { inject } from '../src/client/index.ts'
 import type { DeveloperToolsRowInjected } from '../src/client/DeveloperToolsRow.tsx'
 import { HostReleasePrompt, type HostReleasePromptInjected } from '../src/client/HostReleasePrompt.tsx'
@@ -23,8 +23,8 @@ import { GeneralSection } from '../src/client/GeneralSection.tsx'
 import { SettingsDocumentAction } from '../src/client/SettingsDocumentAction.tsx'
 import type { SettingsDocumentActionInjected } from '../src/client/SettingsDocumentAction.tsx'
 
-const SELF = '@deepseek-ai/dsh-client-ui-settings-general'
-const SIDEBAR = '@deepseek-ai/dsh-client-ui-sidebar'
+const SELF = '@omega-ai/dsh-client-ui-settings-general'
+const SIDEBAR = '@omega-ai/dsh-client-ui-sidebar'
 const it = createClientTest({ roster: webApp })
 /** The whole roster's first boot pays the cold module transform of every plugin package. */
 const COLD_BOOT_TIMEOUT_MS = 60_000

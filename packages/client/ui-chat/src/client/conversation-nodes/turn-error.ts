@@ -1,8 +1,8 @@
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@omega-ai/cordis'
 import type {
   ConversationMatch, ConversationNodeContext, ConversationNodeDefinition, TurnErrorNode,
-} from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type { TurnEndReason } from '@deepseek-ai/dsh-session/types'
+} from '@omega-ai/dsh-client-ui-conversation/client'
+import type { TurnEndReason } from '@omega-ai/dsh-session/types'
 import { chatNode } from './common.ts'
 import { displayFailure } from './event-projection.ts'
 
@@ -39,8 +39,8 @@ function endFailure(reason: TurnEndReason): { readonly message: string; readonly
       return reason.error
     case 'aborted':
       // User and parent cancellations show only the stopped turn summary.
-      return reason.reason.kind === 'hook' && reason.reason.reason === 'deepseek-account/signed-out'
-        ? { message: 'Stopped because you signed out of DeepSeek.', code: 'ACCOUNT_SIGNED_OUT' }
+      return reason.reason.kind === 'hook' && reason.reason.reason === 'omega-account/signed-out'
+        ? { message: 'Stopped because you signed out of Omega.', code: 'ACCOUNT_SIGNED_OUT' }
         : undefined
     case 'interrupted':
       return { message: 'The DSH process exited before this turn finished.', code: 'INTERRUPTED' }

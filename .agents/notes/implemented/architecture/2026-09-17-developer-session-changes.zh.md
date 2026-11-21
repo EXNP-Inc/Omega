@@ -32,4 +32,4 @@ Session V4 预留 issue #4146 所需的持久表示。生产发出、提供方�
 
 ## Consequences
 
-Session V4 持久化 issue #4146 的工具变更表示。发出、路由投影、DeepSeek 序列化及 Chat 和 Trajectory 展示由[动态工具更新决策](2026-09-20-dynamic-tool-updates.zh.md)负责。
+Session V4 持久化 issue #4146 的工具变更表示。发出、路由投影、Omega 序列化及 Chat 和 Trajectory 展示由[动态工具更新决策](2026-09-20-dynamic-tool-updates.zh.md)负责。

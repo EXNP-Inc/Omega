@@ -1,16 +1,16 @@
 /** Queued reader input is rechecked against Relay admission at the actual pre-step, from its own message source. */
-import { Context } from '@deepseek-ai/cordis'
-import type { Agent, PreStepDecision } from '@deepseek-ai/dsh-agent'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { identityKeyOf } from '@deepseek-ai/dsh-experimental-liveshare-protocol'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import type { SessionRequestId } from '@deepseek-ai/dsh-api-session-controller'
+import { Context } from '@omega-ai/cordis'
+import type { Agent, PreStepDecision } from '@omega-ai/dsh-agent'
+import { createUserMessage } from '@omega-ai/dsh-llm'
+import { identityKeyOf } from '@omega-ai/dsh-experimental-liveshare-protocol'
+import type { SessionId } from '@omega-ai/dsh-session'
+import type { SessionRequestId } from '@omega-ai/dsh-api-session-controller'
 import { mkdtempSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import { apply } from '../src/host/share-host.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 vi.mock('../src/host/tunnel-worker.ts', () => ({ TunnelWorker: class {
   start() {}

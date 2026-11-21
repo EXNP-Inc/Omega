@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { Session, type SessionId } from '@deepseek-ai/dsh-session'
-import { appendHookInvoked, appendHookResult, summarizeStderr, type HookOutput } from '@deepseek-ai/dsh-hook-protocol'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { Session, type SessionId } from '@omega-ai/dsh-session'
+import { appendHookInvoked, appendHookResult, summarizeStderr, type HookOutput } from '@omega-ai/dsh-hook-protocol'
+import { brandString } from '@omega-ai/dsh-brand'
 
 /** A {@link HookOutput} with the required stream fields defaulted. */
 function output(over: Partial<HookOutput> = {}): HookOutput {

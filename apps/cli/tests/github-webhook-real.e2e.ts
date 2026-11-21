@@ -1,4 +1,4 @@
-/** Real CLI and DeepSeek evidence for a GitHub webhook-created Session. */
+/** Real CLI and Omega evidence for a GitHub webhook-created Session. */
 
 import type { ChildProcess } from 'node:child_process'
 import { spawn } from 'node:child_process'
@@ -13,8 +13,8 @@ import { setTimeout as delay } from 'node:timers/promises'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import WebSocket from 'ws'
-import { initProfile } from '@deepseek-ai/dsh-app-boot'
-import { PROFILE_TEMPLATES } from '@deepseek-ai/dsh-official-bundles'
+import { initProfile } from '@omega-ai/dsh-app-boot'
+import { PROFILE_TEMPLATES } from '@omega-ai/dsh-official-bundles'
 
 const REPO_ROOT = fileURLToPath(new URL('../../..', import.meta.url))
 const BUILT_BIN = join(REPO_ROOT, 'apps/cli/lib/bin.js')
@@ -329,10 +329,10 @@ async function sendGitHubDelivery(origin: string): Promise<Response> {
   const body = JSON.stringify({
     action: 'ready_for_review',
     number: 4242,
-    repository: { full_name: 'deepseek-ai/deepseek-harness' },
+    repository: { full_name: 'omega-ai/omega-harness' },
     pull_request: {
       title: 'Real CLI webhook e2e',
-      html_url: 'https://github.com/deepseek-ai/deepseek-harness/pull/4242',
+      html_url: 'https://github.com/omega-ai/omega-harness/pull/4242',
       draft: false,
       user: { login: 'octocat' },
       base: { ref: 'master', sha: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' },
@@ -352,7 +352,7 @@ async function sendGitHubDelivery(origin: string): Promise<Response> {
   })
 }
 
-describe.skipIf(!process.env.DEEPSEEK_API_KEY)('GitHub webhook through the real dsh CLI and model', () => {
+describe.skipIf(!process.env.OMEGA_API_KEY)('GitHub webhook through the real dsh CLI and model', () => {
   it('creates, attaches, prompts, and completes a Workspace Session', async () => {
     expect(existsSync(BUILT_BIN), `missing built CLI ${BUILT_BIN}; run pnpm run build:official`).toBe(true)
     const root = await mkdtemp(join(tmpdir(), 'dsh-github-webhook-real-'))
@@ -363,7 +363,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('GitHub webhook through the real 
     initProfile(profile, PROFILE_TEMPLATES.web!.bundles)
     const manifestPath = join(profile, 'package.json')
     const manifest = JSON.parse(await readFile(manifestPath, 'utf8')) as { dependencies: Record<string, string> }
-    for (const name of ['@deepseek-ai/dsh-webhook', '@deepseek-ai/dsh-webhook-github']) {
+    for (const name of ['@omega-ai/dsh-webhook', '@omega-ai/dsh-webhook-github']) {
       const directory = dirname(fileURLToPath(import.meta.resolve(`${name}/package.json`)))
       const link = join(profile, 'node_modules', name)
       await mkdir(dirname(link), { recursive: true })
@@ -467,7 +467,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('GitHub webhook through the real 
       const completed = await eventually(
         child,
         observation.text,
-        'a real DeepSeek assistant response',
+        'a real Omega assistant response',
         async () => await history(baseUrl, sessionId),
         page => assistantText(page).includes(MARKER),
         150_000,

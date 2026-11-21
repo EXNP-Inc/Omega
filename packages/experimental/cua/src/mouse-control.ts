@@ -1,7 +1,7 @@
 /** Session approval for explicit system mouse input, shared by capable CUA providers. */
-import type { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { UserQuestionError } from '@deepseek-ai/dsh-user-questions'
+import type { Context } from '@omega-ai/cordis'
+import type { Agent } from '@omega-ai/dsh-agent'
+import { UserQuestionError } from '@omega-ai/dsh-user-questions'
 import { NativeError, type NativeClient } from './native-client.ts'
 import { applicationAccessDisplay } from './locales.ts'
 import { mouseControlPrompt } from './mouse-control-locales.ts'

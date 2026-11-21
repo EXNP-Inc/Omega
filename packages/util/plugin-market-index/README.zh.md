@@ -40,8 +40,8 @@ kind: "package-library"
 ## API
 
 ```ts
-import { MarketIndexError, marketInstallTarget, parseMarketIndex } from '@deepseek-ai/dsh-plugin-market-index'
-import { gitMarketIndexSource, isGitMarketIndexSourceAddress, parseGitMarketIndexSource } from '@deepseek-ai/dsh-plugin-market-index/source'
+import { MarketIndexError, marketInstallTarget, parseMarketIndex } from '@omega-ai/dsh-plugin-market-index'
+import { gitMarketIndexSource, isGitMarketIndexSourceAddress, parseGitMarketIndexSource } from '@omega-ai/dsh-plugin-market-index/source'
 ```
 
 | 导出 | 作用 |

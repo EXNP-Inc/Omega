@@ -2,11 +2,11 @@
 import type { Transport } from '@modelcontextprotocol/client'
 import { readFile, writeFile } from 'node:fs/promises'
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import Timer from '@deepseek-ai/cordis-plugin-timer'
-import Hmr from '@deepseek-ai/dsh-hmr'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
+import { Context } from '@omega-ai/cordis'
+import Timer from '@omega-ai/cordis-plugin-timer'
+import Hmr from '@omega-ai/dsh-hmr'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRuntime from '@omega-ai/dsh-tools'
 import { managerProfile } from './profile-fixture.ts'
 
 const { MockClient, MockTransport } = vi.hoisted(() => {
@@ -119,7 +119,7 @@ describe('mcp-manager real composition', () => {
       { one: { transport: 'stdio', command: 'echo', oauth } },
       { one: { ...http, headers: { AUTHORIZATION: 'private' } } },
       { one: { ...http, oauth: { credentialKey: 'invalid' } } },
-      { one: { ...http, oauth: { credentialKey: 'deepseek-account-platform/default' } } },
+      { one: { ...http, oauth: { credentialKey: 'omega-account-platform/default' } } },
       { one: http, two: http },
     ]) {
       await expect(ctx.settings.update('mcp', { servers })).rejects.toThrow()

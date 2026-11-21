@@ -1,9 +1,9 @@
 /** Host-owned opt-in setting for model-selectable subagent delegation. */
-import type { Volatile } from '@deepseek-ai/cordis'
+import type { Volatile } from '@omega-ai/cordis'
 
-import { Context, Service } from '@deepseek-ai/cordis'
-import { SubagentError } from '@deepseek-ai/dsh-subagent'
-import z from '@deepseek-ai/schemastery'
+import { Context, Service } from '@omega-ai/cordis'
+import { SubagentError } from '@omega-ai/dsh-subagent'
+import z from '@omega-ai/schemastery'
 // Retains the released Session event declaration in emitted declarations.
 import './model-selection-state.ts'
 import {
@@ -12,7 +12,7 @@ import {
   type AllowedModelRoute,
 } from './model-selection.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context {
     /** User preference read for explicit child route selection and route discovery. */
     subagentModelSelection: SubagentModelSelectionConfig

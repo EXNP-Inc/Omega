@@ -1,4 +1,4 @@
-import { brandNumber, brandString, type Branded, type BrandedNumber } from '@deepseek-ai/dsh-brand'
+import { brandNumber, brandString, type Branded, type BrandedNumber } from '@omega-ai/dsh-brand'
 import type {
   AssistantMessage,
   DeveloperMessage,
@@ -13,9 +13,9 @@ import type {
   ToolResultMessage,
   ToolSchema,
   UserMessage,
-} from '@deepseek-ai/dsh-llm'
-import type { TypertResource } from '@deepseek-ai/dsh-typert-protocol'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+} from '@omega-ai/dsh-llm'
+import type { TypertResource } from '@omega-ai/dsh-typert-protocol'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
 
 /** Identifies one session in the store (and its persistence artifacts). */
 export type SessionId = Branded<'SessionId'>
@@ -565,7 +565,7 @@ export interface PluginRecord {
   readonly data: unknown
 }
 
-declare module '@deepseek-ai/dsh-typert-protocol' {
+declare module '@omega-ai/dsh-typert-protocol' {
   interface TypertResourceMap {
     /** One Session; the Session Controller registers its default `sessionId` wire field. */
     session: TypertResource<SessionId>

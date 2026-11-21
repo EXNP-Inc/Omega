@@ -9,14 +9,14 @@ English | [中文](guide.zh.md)
 
 ## Change
 
-`@deepseek-ai/dsh-ptc-runtime-node` previously ran `executionMode: persistent-in-memory` programs in Node's REPL evaluator when `replScoped` was omitted. It now runs them as scoped REPL statements and reports program format `scoped-repl`. Each call is a separate strict-mode script that starts with copies of the top-level bindings left by earlier calls, so a later call may declare a `let`, `const`, or `class` name again. `require`, `_`, `_error`, and globals created by assigning an undeclared name are unavailable. The model guidance describes this behavior; the package README lists its [known limitations](../../../../packages/ptc-runtime/ptc-runtime-node/README.md#known-limitations-and-deferred-work).
+`@omega-ai/dsh-ptc-runtime-node` previously ran `executionMode: persistent-in-memory` programs in Node's REPL evaluator when `replScoped` was omitted. It now runs them as scoped REPL statements and reports program format `scoped-repl`. Each call is a separate strict-mode script that starts with copies of the top-level bindings left by earlier calls, so a later call may declare a `let`, `const`, or `class` name again. `require`, `_`, `_error`, and globals created by assigning an undeclared name are unavailable. The model guidance describes this behavior; the package README lists its [known limitations](../../../../packages/ptc-runtime/ptc-runtime-node/README.md#known-limitations-and-deferred-work).
 
 This affects:
 
 - profiles whose `ptc-runtime` entry sets `executionMode: persistent-in-memory` without `replScoped`, including workflow-ptc scripts that run on that runtime;
 - persistent PTC enabled from the Computer Use detail page, which now writes `replScoped: true`;
 - the Computer Use `cua_run_code` tool, whose dedicated runtime omits `replScoped` unless `standaloneRunCode.runtime.replScoped` is set;
-- profile editors that merge `resolvePersistentExecution` from `@deepseek-ai/dsh-ptc-runtime-node/configuration`, which now returns `replScoped: true` for function bodies and REPL statements.
+- profile editors that merge `resolvePersistentExecution` from `@omega-ai/dsh-ptc-runtime-node/configuration`, which now returns `replScoped: true` for function bodies and REPL statements.
 
 `per-call` and `vm-script` execution, including the default profile, are unchanged, and entries that set `replScoped: false` keep Node's REPL evaluator.
 

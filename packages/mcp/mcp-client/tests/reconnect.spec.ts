@@ -4,18 +4,18 @@
  * cap, the stability-window budget reset, and disposal stopping reconnection.
  * Isolated file so vi.mock of the MCP SDK doesn't pollute other test suites.
  */
-import { executeToolFixture } from '@deepseek-ai/dsh-tool-testkit'
-import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
+import { executeToolFixture } from '@omega-ai/dsh-tool-testkit'
+import * as NativeToolExecutor from '@omega-ai/dsh-tool-executor-native'
 import { describe, expect, it, vi, beforeEach, onTestFinished } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { ProtocolError, SdkError, SdkErrorCode, type Transport } from '@modelcontextprotocol/client'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
-import McpResources from '@deepseek-ai/dsh-mcp-resources'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { ToolCallId } from '@deepseek-ai/dsh-llm/types'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRuntime from '@omega-ai/dsh-tools'
+import McpResources from '@omega-ai/dsh-mcp-resources'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { ToolCallId } from '@omega-ai/dsh-llm/types'
 import { TestCredentials } from './credential-fixture.ts'
-import type { Config } from '@deepseek-ai/dsh-mcp-client'
+import type { Config } from '@omega-ai/dsh-mcp-client'
 
 // ---- Mock MCP SDK ----
 
@@ -86,11 +86,11 @@ vi.mock('@modelcontextprotocol/client/stdio', () => ({
 
 // vi.mock is hoisted above static imports, so the modules under test see the
 // mocked SDK even through a static import.
-import { Config as ConfigSchema, apply } from '@deepseek-ai/dsh-mcp-client/src/index.ts'
-import { connectionStatusIn as connectionStatusOf } from '@deepseek-ai/dsh-mcp-client/src/status.ts'
-import { RECONNECT_DEFAULTS, resolveReconnectPolicy, startConnection } from '@deepseek-ai/dsh-mcp-client/src/connection.ts'
-import { McpStatusCell } from '@deepseek-ai/dsh-mcp-client/src/status.ts'
-import { McpGeneration } from '@deepseek-ai/dsh-mcp-client/src/generation.ts'
+import { Config as ConfigSchema, apply } from '@omega-ai/dsh-mcp-client/src/index.ts'
+import { connectionStatusIn as connectionStatusOf } from '@omega-ai/dsh-mcp-client/src/status.ts'
+import { RECONNECT_DEFAULTS, resolveReconnectPolicy, startConnection } from '@omega-ai/dsh-mcp-client/src/connection.ts'
+import { McpStatusCell } from '@omega-ai/dsh-mcp-client/src/status.ts'
+import { McpGeneration } from '@omega-ai/dsh-mcp-client/src/generation.ts'
 
 // ---- Helpers ----
 

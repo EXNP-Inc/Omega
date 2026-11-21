@@ -3,7 +3,7 @@ description: "完整的 V3 到 V4 Session 转换与原生接纳：工具角色�
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-session-format-v3-to-v4
+# @omega-ai/dsh-session-format-v3-to-v4
 
 [English](README.md) | 中文
 
@@ -124,8 +124,8 @@ V3 未知内容标签变为 `plugin:<original-type>`，其他字段原样保留�
 | `compact` | `compact-checkpoint` |
 | `tools-code-mode`、`tools-ptc` | `ptc-mode` |
 | `dsh-compaction-basic` | `compact-basic` |
-| system 角色消息中的 `@deepseek-ai/dsh-system-prompt` | `system-prompt` |
-| 其他角色中的 `@deepseek-ai/dsh-system-prompt` | `runtime-context` |
+| system 角色消息中的 `@omega-ai/dsh-system-prompt` | `system-prompt` |
+| 其他角色中的 `@omega-ai/dsh-system-prompt` | `runtime-context` |
 | 下文列出的同名第一方生产者 | 精确的 plugin 字符串 |
 | 其他任何插件名 | `plugin:` 后接完整的原始名称 |
 
@@ -170,7 +170,7 @@ Stage 只把最终继承截点之后的父目录记录作为候选。每个 inhe
 
 | Delivery 记录 | 接纳与保留 |
 |---|---|
-| 任何被解释的 `session-log-deepseek/delivery-accepted` | 代际必须为非负安全整数；省略表示 V0。 |
+| 任何被解释的 `session-log-omega/delivery-accepted` | 代际必须为非负安全整数；省略表示 V0。 |
 | V3 源 marker 声明 generation 4 | 拒绝：提升 header 不得激活目标代际的 watermark。 |
 | generation 3 的 V3 源 marker | 要求非空 Session id 和早于 marker 的非负安全整数 `throughSeq`；只有在继承截点之前且带 `parentSession` 时才允许其他 Session id。 |
 | 其他源代际，包括高于 4 的值 | 原样保留事件类型及 payload 坐标；它们在 V4 中仍未激活。 |

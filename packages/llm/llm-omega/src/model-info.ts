@@ -1,8 +1,8 @@
 /** Protocol-independent model capabilities and reasoning choices. */
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { ReasoningEffortId } from '@deepseek-ai/dsh-llm/types'
-import type { LlmModelBadge, LlmModelInfo, LlmResolvedModelInfo } from '@deepseek-ai/dsh-llm'
-import type { DeepSeekCatalogModel, DeepSeekConnectionOptions } from './types.ts'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { ReasoningEffortId } from '@omega-ai/dsh-llm/types'
+import type { LlmModelBadge, LlmModelInfo, LlmResolvedModelInfo } from '@omega-ai/dsh-llm'
+import type { OmegaCatalogModel, OmegaConnectionOptions } from './types.ts'
 
 const OFF_REASONING_EFFORT = brandString<ReasoningEffortId>('off')
 const LOW_REASONING_EFFORT = brandString<ReasoningEffortId>('low')
@@ -44,7 +44,7 @@ const OFF_ONLY_REASONING_EFFORTS = [
  * @param badge - selector badge a model listing declares for the entry.
  * @returns selector metadata.
  */
-export function catalogModelInfo(provider: string, model: DeepSeekCatalogModel, badge?: LlmModelBadge): LlmModelInfo {
+export function catalogModelInfo(provider: string, model: OmegaCatalogModel, badge?: LlmModelBadge): LlmModelInfo {
   return {
     provider,
     id: model.id,
@@ -62,7 +62,7 @@ export function catalogModelInfo(provider: string, model: DeepSeekCatalogModel, 
  * @returns effective model metadata for this operation.
  */
 export function modelInfo(
-  connection: DeepSeekConnectionOptions,
+  connection: OmegaConnectionOptions,
   provider: string,
   model: string,
 ): LlmResolvedModelInfo {

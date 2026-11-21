@@ -1,8 +1,8 @@
 /** Scripted Agent terminal: a line screen, revisions, foreground facts and recorded agent operations. */
 import { vi } from 'vitest'
-import { AgentTerminalError } from '@deepseek-ai/dsh-api-terminal-controller'
-import type { TerminalScreenMark, TerminalScreenPage, TerminalScreenRequest, WebTerminalId, WebTerminalInfo } from '@deepseek-ai/dsh-api-terminal-controller'
-import type { SubprocessTerminalForeground, SubprocessTerminalSignal } from '@deepseek-ai/dsh-subprocess'
+import { AgentTerminalError } from '@omega-ai/dsh-api-terminal-controller'
+import type { TerminalScreenMark, TerminalScreenPage, TerminalScreenRequest, WebTerminalId, WebTerminalInfo } from '@omega-ai/dsh-api-terminal-controller'
+import type { SubprocessTerminalForeground, SubprocessTerminalSignal } from '@omega-ai/dsh-subprocess'
 import type { PanelTerminal } from '../src/session.ts'
 
 /** The shell's process id; a foreground group equal to it means the shell is at its prompt. */

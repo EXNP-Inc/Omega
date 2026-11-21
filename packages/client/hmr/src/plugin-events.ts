@@ -1,9 +1,9 @@
 /** Host `pluginEvents` Remote service: an authenticated baseline-and-increment stream of graph and rebuild changes. */
-import type { Context } from '@deepseek-ai/cordis'
-import { Deque } from '@deepseek-ai/dsh-deque'
-import { principalOf, Remote, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
-import type { Principal } from '@deepseek-ai/dsh-typert-protocol'
-import type {} from '@deepseek-ai/dsh-client-modules'
+import type { Context } from '@omega-ai/cordis'
+import { Deque } from '@omega-ai/dsh-deque'
+import { principalOf, Remote, TypertRemoteService } from '@omega-ai/dsh-typert-protocol'
+import type { Principal } from '@omega-ai/dsh-typert-protocol'
+import type {} from '@omega-ai/dsh-client-modules'
 import type { PluginsEventFrame, PluginsEventIncrement } from './types.ts'
 
 /** Ordered increments of one stream generation; closing wakes the waiting reader. */

@@ -8,11 +8,11 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import type {
   IncompatiblePlugin, PluginUpdateResult, PluginUpdateStep, PluginVersion, PluginVersionList, Registry, RegistryAttempt,
-} from '@deepseek-ai/dsh-api-remotes/client'
+} from '@omega-ai/dsh-api-remotes/client'
 import {
   Button, Checkbox, IconCheckOutlineRegular, IconChevronDownOutlineRegular, IconChevronRightOutlineRegular, IconCloseOutlineRegular,
   IconDownloadOutlineRegular, IconRefreshOutlineRegular, IconWarningOutlineRegular, Modal, StateDot, Tag, Tooltip,
-} from '@deepseek-ai/dsh-client-ui-primitives'
+} from '@omega-ai/dsh-client-ui-primitives'
 import { installable, updateCandidate, type PackageView, type UpdateSource, type UpdateState, type VersionCheck } from './manager-store.ts'
 import { managementText, registryText, restartText, type Translate } from './presentation.ts'
 import css from './PluginManagerPage.module.css'

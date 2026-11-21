@@ -6,7 +6,7 @@ The credential seam of [dsh-credentials](../../packages/credentials/credentials)
 
 Source: [`packages/credentials/credentials/src/index.ts`](../../packages/credentials/credentials/src/index.ts)
 
-The DeepSeek account grant is one such record; its sign-in, request credentials, and Platform session are documented in [account.md](account.md).
+The Omega account grant is one such record; its sign-in, request credentials, and Platform session are documented in [account.md](account.md).
 
 ## Identity
 

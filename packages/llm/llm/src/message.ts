@@ -1,8 +1,8 @@
 /** Message value types, content text extraction, identity, and immutable construction helpers. */
 
-import { randomUUID } from '@deepseek-ai/dsh-util-crypto'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { deepFreeze } from '@deepseek-ai/dsh-util-values'
+import { randomUUID } from '@omega-ai/dsh-util-crypto'
+import { brandString } from '@omega-ai/dsh-brand'
+import { deepFreeze } from '@omega-ai/dsh-util-values'
 import type { ContentBlock, MessageId, ToolCallId } from './types.ts'
 
 /** Provider/model identity and adapter-private replay data for an assistant message. */
@@ -308,7 +308,7 @@ export function createToolResultMessage(input: ToolResultMessageInput): ToolResu
 /**
  * Extract and join only text blocks in content order, preserving their whitespace.
  * Non-text blocks contribute neither text nor separators; content is not modified.
- * Import from `@deepseek-ai/dsh-llm/message` in Host and browser code.
+ * Import from `@omega-ai/dsh-llm/message` in Host and browser code.
  * @param content - source blocks to read in their existing order.
  * @param options - optional text extraction settings.
  * @param options.separator - text inserted between text blocks; defaults to an empty string.

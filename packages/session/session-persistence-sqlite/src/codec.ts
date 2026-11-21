@@ -1,10 +1,10 @@
 /** SQLite stores logical Session headers and events without JSONL row encoding. @module */
 import { isAbsolute } from 'node:path'
 import { z } from 'zod'
-import { SESSION_FORMAT_VERSION, SessionId, KNOWN_SESSION_EVENT_TYPES, SessionLogOffset } from '@deepseek-ai/dsh-session'
-import type { SessionEvent, SessionHeader } from '@deepseek-ai/dsh-session'
-import type { SessionFormatEvent } from '@deepseek-ai/dsh-session-format'
-import { assertV4RowAdmission } from '@deepseek-ai/dsh-session-format-v3-to-v4'
+import { SESSION_FORMAT_VERSION, SessionId, KNOWN_SESSION_EVENT_TYPES, SessionLogOffset } from '@omega-ai/dsh-session'
+import type { SessionEvent, SessionHeader } from '@omega-ai/dsh-session'
+import type { SessionFormatEvent } from '@omega-ai/dsh-session-format'
+import { assertV4RowAdmission } from '@omega-ai/dsh-session-format-v3-to-v4'
 
 /** SQLite's logical format version; a new Session version requires an explicit storage migration. */
 export const SQLITE_SESSION_FORMAT_VERSION = 4 satisfies typeof SESSION_FORMAT_VERSION

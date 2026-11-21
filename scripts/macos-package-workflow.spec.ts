@@ -89,7 +89,7 @@ describe.each(['arm64', 'x64'])('macOS %s packaging', (arch) => {
     expect(staging).toBeLessThan(steps.findIndex(step => step.name === 'Build signed installers'))
     const run = steps[staging]?.run ?? ''
     // Sources whose dsh does not ship the bundle, or that predate helper packaging, skip staging.
-    expect(run.indexOf("dependencies?.['@deepseek-ai/dsh-cua-bundle']")).toBeLessThan(run.indexOf('scripts/cua-helper/package.ts --out'))
+    expect(run.indexOf("dependencies?.['@omega-ai/dsh-cua-bundle']")).toBeLessThan(run.indexOf('scripts/cua-helper/package.ts --out'))
     expect(run.indexOf('[[ ! -f scripts/cua-helper/package.ts ]]')).toBeLessThan(run.indexOf('scripts/cua-helper/package.ts --out'))
     expect(run).toContain('pnpm exec tsx scripts/cua-helper/package.ts --out dist/cua-helper')
     expect(run).toContain('pnpm exec tsx scripts/cua-helper/stage.ts --from dist/cua-helper/extracted')

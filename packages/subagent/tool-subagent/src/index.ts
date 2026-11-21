@@ -3,24 +3,24 @@
  * Provider lifecycle controls tool registration and context-sensitive schema
  * wording. Every delegation starts a managed activation and returns its child
  * id; the subagent runtime owns result delivery and resource cleanup.
- * @module @deepseek-ai/dsh-tool-subagent
+ * @module @omega-ai/dsh-tool-subagent
  */
 
-import type { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import type {} from '@deepseek-ai/dsh-agent-preset-registry'
-import { defineTool, ToolContextUnavailableError } from '@deepseek-ai/dsh-tools'
-import type { ToolDefinition } from '@deepseek-ai/dsh-tools'
-import type { AgentOptions } from '@deepseek-ai/dsh-agent'
-import type { ReasoningEffortId } from '@deepseek-ai/dsh-llm/types'
-import type { ContentBlock } from '@deepseek-ai/dsh-llm'
+import type { Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
+import type {} from '@omega-ai/dsh-agent-preset-registry'
+import { defineTool, ToolContextUnavailableError } from '@omega-ai/dsh-tools'
+import type { ToolDefinition } from '@omega-ai/dsh-tools'
+import type { AgentOptions } from '@omega-ai/dsh-agent'
+import type { ReasoningEffortId } from '@omega-ai/dsh-llm/types'
+import type { ContentBlock } from '@omega-ai/dsh-llm'
 import {
   assertSubagentMaxDepth,
   delegationDepthOf,
   parentAgentOptionsForDelegation,
   SubagentError,
-} from '@deepseek-ai/dsh-subagent'
-import type { SubagentProvider } from '@deepseek-ai/dsh-subagent'
+} from '@omega-ai/dsh-subagent'
+import type { SubagentProvider } from '@omega-ai/dsh-subagent'
 import {
   delegationModelRequest,
   hasConfiguredLlmSelection,

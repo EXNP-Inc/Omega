@@ -1,14 +1,14 @@
 // @vitest-environment jsdom
 /** Notification integration shares the account plugin's single state stream. */
 import { afterEach, beforeEach, expect, onTestFinished, vi } from 'vitest'
-import { ok } from '@deepseek-ai/dsh-remote-mock'
-import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
-import { createClientTest, type TestClient, webApp } from '@deepseek-ai/dsh-client-test-runtime/src/assembly/index.ts'
-import type { AccountNotificationBatch, AccountNotificationId, AccountDetails, AccountView, SignInAttemptId } from '@deepseek-ai/dsh-deepseek-account/types'
-import type { AccountSectionInjected } from '@deepseek-ai/dsh-client-ui-settings-account/client'
+import { ok } from '@omega-ai/dsh-remote-mock'
+import { RemoteError } from '@omega-ai/dsh-typert-protocol'
+import { createClientTest, type TestClient, webApp } from '@omega-ai/dsh-client-test-runtime/src/assembly/index.ts'
+import type { AccountNotificationBatch, AccountNotificationId, AccountDetails, AccountView, SignInAttemptId } from '@omega-ai/dsh-omega-account/types'
+import type { AccountSectionInjected } from '@omega-ai/dsh-client-ui-settings-account/client'
 import type { AccountNotificationsInjected } from '../src/client/AccountNotifications.tsx'
-import type { Context } from '@deepseek-ai/cordis'
-import { syncedConfig } from '@deepseek-ai/dsh-client-test-runtime'
+import type { Context } from '@omega-ai/cordis'
+import { syncedConfig } from '@omega-ai/dsh-client-test-runtime'
 import { apply as notificationsApply, inject as notificationsInject } from '../src/client/index.ts'
 import type { AccountNotificationsConfig } from '../src/types.ts'
 import { notification } from './notification-fixture.ts'
@@ -16,13 +16,13 @@ import { notification } from './notification-fixture.ts'
 const it = createClientTest({ roster: webApp })
 /** The same composition with a one-second initial polling delay synced from the Host. */
 const itWithInterval = createClientTest({ roster: webApp, provide: {
-  '@deepseek-ai/dsh-client-ui-account-notifications': { inject: notificationsInject, apply: (ctx: Context) => {
+  '@omega-ai/dsh-client-ui-account-notifications': { inject: notificationsInject, apply: (ctx: Context) => {
     notificationsApply(ctx, syncedConfig<AccountNotificationsConfig>({ notificationPollIntervalMs: 1_000 }))
   } },
 } })
-const SELF = '@deepseek-ai/dsh-client-ui-settings-account'
+const SELF = '@omega-ai/dsh-client-ui-settings-account'
 const view: AccountView = { status: 'signed-out', attempt: null,
-  links: { usageUrl: 'https://platform.deepseek.com/usage', topUpUrl: 'https://platform.deepseek.com/top_up' } }
+  links: { usageUrl: 'https://platform.omega.com/usage', topUpUrl: 'https://platform.omega.com/top_up' } }
 const stored: AccountView = { ...view, status: 'credential-stored' }
 function bonus(orderId: string, message = 'Awarded 5.00'): AccountNotificationBatch {
   return { nextPollAfterSeconds: 300, notifications: [notification(orderId, { body: message, displayUntil: '2099-01-01T00:00:00Z' })] }
@@ -122,7 +122,7 @@ it('clears notification cards and ignores old event failures when credentials ch
     await vi.advanceTimersByTimeAsync(3_000)
     expect(c.mock.remote.account.reportNotificationEvent).toHaveBeenCalledTimes(1)
     expect(c.mock.remote.account.getNotifications).toHaveBeenCalledTimes(2)
-    expect(log).toHaveBeenCalledWith('[deepseek-account] notification read failed; retaining cards and retrying on the next poll')
+    expect(log).toHaveBeenCalledWith('[omega-account] notification read failed; retaining cards and retrying on the next poll')
   } finally { vi.useRealTimers() }
 }, 60_000)
 
@@ -148,7 +148,7 @@ it('keeps the notice without retrying its event across repeated signed-in frames
     expect(c.mock.remote.account.getNotifications).toHaveBeenCalledOnce()
     expect(c.mock.remote.account.reportNotificationEvent).toHaveBeenCalledOnce()
     expect(log).toHaveBeenCalledWith(
-      '[deepseek-account] notification event report failed; keeping local state without retry', { event: 'displayed' })
+      '[omega-account] notification event report failed; keeping local state without retry', { event: 'displayed' })
   } finally { vi.useRealTimers() }
 }, 60_000)
 
@@ -296,7 +296,7 @@ it('retains notification content when the localization RPC is refused', async ({
     applies: 'live', secrets: [], revision: 1,
   }))
   c.ctx.locale.setLocale('zh')
-  await vi.waitFor(() => { expect(output).toHaveBeenCalledWith('[deepseek-account] notification content read failed') })
+  await vi.waitFor(() => { expect(output).toHaveBeenCalledWith('[omega-account] notification content read failed') })
   expect(notificationOperations(c).hooks.notices.getSnapshot()?.[0]?.body).toBe('Awarded 5.00')
 }, 60_000)
 
@@ -332,7 +332,7 @@ it('reloads notifications without opening another account stream', async ({ star
   await c.flush()
   const stream = vi.spyOn(c.ctx.remote, '$stream')
   const before = c.mock.remote.account.getNotifications.mock.calls.length
-  await c.reload('@deepseek-ai/dsh-client-ui-account-notifications')
+  await c.reload('@omega-ai/dsh-client-ui-account-notifications')
   await c.flush()
   expect(stream).not.toHaveBeenCalled()
   expect(c.mock.remote.account.getNotifications).toHaveBeenCalledTimes(before + 1)

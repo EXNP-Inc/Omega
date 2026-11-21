@@ -1,22 +1,22 @@
 /** Register the card frame, the hidden answer block, their copy and the body registry. */
-import type { Context } from '@deepseek-ai/cordis'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type {} from '@deepseek-ai/dsh-api-remotes/client'
-import type {} from '@deepseek-ai/dsh-client-locale/client'
-import type {} from '@deepseek-ai/dsh-client-ui-session/client'
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type {} from '@deepseek-ai/dsh-client-ui-chat/client'
-import type {} from '@deepseek-ai/dsh-action-cards/remote'
-import type { TypertRemoteContribution } from '@deepseek-ai/dsh-typert-protocol'
+import type { Context } from '@omega-ai/cordis'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import type {} from '@omega-ai/dsh-api-remotes/client'
+import type {} from '@omega-ai/dsh-client-locale/client'
+import type {} from '@omega-ai/dsh-client-ui-session/client'
+import type {} from '@omega-ai/dsh-client-ui-renderer/client'
+import type {} from '@omega-ai/dsh-client-ui-chat/client'
+import type {} from '@omega-ai/dsh-action-cards/remote'
+import type { TypertRemoteContribution } from '@omega-ai/dsh-typert-protocol'
 import { ACTION_CARD_FENCE, ActionCardTail, HiddenCardBlock, type TailInjected } from './Card.tsx'
 import { ActionCardRegistry } from './registry.ts'
 import { de, en, es, fr, ja, pt, ru, zh, type ActionCardKey } from './locales.ts'
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@omega-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap { actionCards: ActionCardKey }
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context {
     /** Card bodies by action kind; kinds register theirs inside their own `ctx.effect`. */
     actionCards: ActionCardRegistry
@@ -45,7 +45,7 @@ export async function mountActionCards(ctx: Context, contribution: TypertRemoteC
 function registerUi(ctx: Context, registry: ActionCardRegistry): void {
   ctx.effect(() => ctx.locale.register('actionCards', { en, zh, ja, es, fr, de, ru, pt }), 'action-cards: locale')
   ctx.slots.inject('conversation.chat.turnTail', () => ctx.slots.register({
-    name: 'conversation.chat.turnTail', id: '@deepseek-ai/dsh-client-ui-action-cards', locale: 'actionCards',
+    name: 'conversation.chat.turnTail', id: '@omega-ai/dsh-client-ui-action-cards', locale: 'actionCards',
     inject: (sessionId: SessionId): TailInjected => ({
       sessionId,
       hooks: { bodies: registry.source },
@@ -57,6 +57,6 @@ function registerUi(ctx: Context, registry: ActionCardRegistry): void {
     }),
   }, ActionCardTail))
   ctx.slots.inject('conversation.chat.markdown.fence', () => ctx.slots.register(
-    { name: 'conversation.chat.markdown.fence', key: ACTION_CARD_FENCE, id: '@deepseek-ai/dsh-client-ui-action-cards/block' }, HiddenCardBlock,
+    { name: 'conversation.chat.markdown.fence', key: ACTION_CARD_FENCE, id: '@omega-ai/dsh-client-ui-action-cards/block' }, HiddenCardBlock,
   ))
 }

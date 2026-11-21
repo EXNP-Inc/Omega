@@ -1,5 +1,5 @@
 /** The Plugins page account a connector registers for its MCP server. */
-import type { LocalizedText } from '@deepseek-ai/dsh-package-manifest'
+import type { LocalizedText } from '@omega-ai/dsh-package-manifest'
 
 /**
  * The text that names the connector's service; every other string comes from this package's shared copy.

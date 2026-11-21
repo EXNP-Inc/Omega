@@ -1,4 +1,4 @@
-import type { SignInAttemptId } from '@deepseek-ai/dsh-deepseek-account/types'
+import type { SignInAttemptId } from '@omega-ai/dsh-omega-account/types'
 /** Native welcome window and its presentation-only renderer. */
 
 import { join } from 'node:path'

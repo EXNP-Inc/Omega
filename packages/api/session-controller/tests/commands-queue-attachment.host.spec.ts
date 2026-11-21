@@ -1,28 +1,28 @@
-import TypertRegistry from '@deepseek-ai/dsh-typert-registry'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
-import { Context } from '@deepseek-ai/cordis'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import type { Agent, Inbox } from '@deepseek-ai/dsh-agent'
-import { AttachmentError } from '@deepseek-ai/dsh-attachment'
-import type { AttachmentId } from '@deepseek-ai/dsh-attachment/types'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
-import { createUserMessage, type MessageId } from '@deepseek-ai/dsh-llm'
-import type { ContextFormed } from '@deepseek-ai/dsh-llm'
+import TypertRegistry from '@omega-ai/dsh-typert-registry'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import { RemoteError } from '@omega-ai/dsh-typert-protocol'
+import { Context } from '@omega-ai/cordis'
+import AgentRegistry from '@omega-ai/dsh-agent'
+import type { Agent, Inbox } from '@omega-ai/dsh-agent'
+import { AttachmentError } from '@omega-ai/dsh-attachment'
+import type { AttachmentId } from '@omega-ai/dsh-attachment/types'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { ImageAttachmentRef } from '@omega-ai/dsh-attachment'
+import { createUserMessage, type MessageId } from '@omega-ai/dsh-llm'
+import type { ContextFormed } from '@omega-ai/dsh-llm'
 import SessionStore, {
   Session, type SessionId, SessionLogOffset,
-} from '@deepseek-ai/dsh-session'
-import type { UserMessage } from '@deepseek-ai/dsh-session'
-import { snapshotSubagentDescriptor, SUBAGENT_DESCRIPTOR_VERSION } from '@deepseek-ai/dsh-subagent'
-import { subagentIdentityProjectionDefinition } from '@deepseek-ai/dsh-subagent/src/projection.ts'
+} from '@omega-ai/dsh-session'
+import type { UserMessage } from '@omega-ai/dsh-session'
+import { snapshotSubagentDescriptor, SUBAGENT_DESCRIPTOR_VERSION } from '@omega-ai/dsh-subagent'
+import { subagentIdentityProjectionDefinition } from '@omega-ai/dsh-subagent/src/projection.ts'
 import { describe, expect, it, vi } from 'vitest'
 import { ApiSessionAgentController } from '../src/agent.ts'
 import { SessionCommandController } from '../src/commands.ts'
-import { unsupportedModel, createInboxStub } from '@deepseek-ai/dsh-agent-loop-testkit'
+import { unsupportedModel, createInboxStub } from '@omega-ai/dsh-agent-loop-testkit'
 import { installSessionReadTestServices } from './test-remote.ts'
 
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@omega-ai/dsh-llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { contextMenuHook } from '@deepseek-ai/dsh-client-test-runtime'
+import { contextMenuHook } from '@omega-ai/dsh-client-test-runtime'
 /**
  * The shipped Session row actions rendered directly with hand-built props:
  * the menu rows, hover buttons, dialogs, and global notices. Every action
@@ -10,19 +10,19 @@ import { contextMenuHook } from '@deepseek-ai/dsh-client-test-runtime'
  */
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import type { SessionListState, SessionSummary } from '@deepseek-ai/dsh-api-session-controller/client'
-import type { WorkspaceId, WorkspaceSnapshot } from '@deepseek-ai/dsh-api-workspace-controller/client'
-import type { SessionStatusSnapshot } from '@deepseek-ai/dsh-client-ui-session-status/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { GlobalStandardProps, PropsLocale, PropsRenderSlots, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
-import { allowAllAccess, bindSnapshotSelector, makeTranslate, SlotTestRuntime } from '@deepseek-ai/dsh-client-test-runtime'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
+import type { SessionListState, SessionSummary } from '@omega-ai/dsh-api-session-controller/client'
+import type { WorkspaceId, WorkspaceSnapshot } from '@omega-ai/dsh-api-workspace-controller/client'
+import type { SessionStatusSnapshot } from '@omega-ai/dsh-client-ui-session-status/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import type { GlobalStandardProps, PropsLocale, PropsRenderSlots, PropsRuntime } from '@omega-ai/dsh-client-ui-slots'
+import { allowAllAccess, bindSnapshotSelector, makeTranslate, SlotTestRuntime } from '@omega-ai/dsh-client-test-runtime'
+import { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
 import { registerToasts } from '../src/client/toast/register.ts'
 import { ArchiveToastEntry } from '../src/client/toast/Toast.tsx'
 import type { ArchiveToastEntryProps } from '../src/client/contract/toast.ts'
-import { en as commonEn } from '@deepseek-ai/dsh-client-locale/src/locales/en.ts'
-import { zh as commonZh } from '@deepseek-ai/dsh-client-locale/src/locales/zh.ts'
+import { en as commonEn } from '@omega-ai/dsh-client-locale/src/locales/en.ts'
+import { zh as commonZh } from '@omega-ai/dsh-client-locale/src/locales/zh.ts'
 import type {
   RowToast, RowToastState, SessionArchiveConfirmInjected, SessionArchiveConfirmRequest,
   SessionRenameDialogInjected, SessionRenameTarget,
@@ -416,7 +416,7 @@ describe('SessionArchiveConfirmDialog', () => {
 
 // A provider outside this package may merge its own family into the kind map;
 // the dialog must describe it without knowing its copy.
-declare module '@deepseek-ai/dsh-workspace/types' {
+declare module '@omega-ai/dsh-workspace/types' {
   interface SessionActivityKindMap {
     probe: true
   }

@@ -1,6 +1,6 @@
-/** Attachment failure class. @module @deepseek-ai/dsh-attachment/error */
+/** Attachment failure class. @module @omega-ai/dsh-attachment/error */
 
-import { HarnessError } from '@deepseek-ai/dsh-error'
+import { HarnessError } from '@omega-ai/dsh-error'
 
 const IMAGE_ADMISSION_ERROR_CODES = [
   'TOO_MANY_IMAGES',

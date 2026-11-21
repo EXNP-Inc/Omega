@@ -1,6 +1,6 @@
 - insert:
     - id: mcp-tool-loading
-      name: '@deepseek-ai/dsh-mcp-client'
+      name: '@omega-ai/dsh-mcp-client'
       config:
         transport: streamable-http
         serverName: demo

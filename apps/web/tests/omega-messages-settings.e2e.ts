@@ -1,4 +1,4 @@
-/** Web provider credentials, environment fallback, and DeepSeek model selection. */
+/** Web provider credentials, environment fallback, and Omega model selection. */
 import { readFile } from 'node:fs/promises'
 import { once } from 'node:events'
 import { createServer } from 'node:http'
@@ -6,22 +6,22 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium, webkit, type Browser, type Page } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { BlockAssembler, createUserMessage, type StreamChunk } from '@deepseek-ai/dsh-llm'
-import { credentialRef } from '@deepseek-ai/dsh-credentials'
-import { createLaunchEnvironmentSnapshot } from '@deepseek-ai/dsh-launch-environment'
+import { BlockAssembler, createUserMessage, type StreamChunk } from '@omega-ai/dsh-llm'
+import { credentialRef } from '@omega-ai/dsh-credentials'
+import { createLaunchEnvironmentSnapshot } from '@omega-ai/dsh-launch-environment'
 import {
   captureStableAria, compareOrRefreshGolden, launchWebScaffold,
   watchConsole, webSnapshotMode, type WebScaffold,
 } from './scaffold.ts'
 import { openSettings, connectFreshWorkspaceZh, saveFailureShot, ZH_BROWSER_LOCALE } from './support.ts'
 
-const EXPECTED = fileURLToPath(new URL('./expected/deepseek-messages-settings/', import.meta.url))
+const EXPECTED = fileURLToPath(new URL('./expected/omega-messages-settings/', import.meta.url))
 
-it.skipIf(webSnapshotMode() === 'record').each(['deepseek-official', 'google', 'openai', 'acme-gateway'])(
+it.skipIf(webSnapshotMode() === 'record').each(['omega-official', 'google', 'openai', 'acme-gateway'])(
   'clears the saved %s key and sends the next request with environment authentication', async (provider) => {
-    const messages = provider === 'deepseek-official'
+    const messages = provider === 'omega-official'
     const google = provider === 'google'
-    const ref = credentialRef(messages ? 'DEEPSEEK_API_KEY' : `${provider.toUpperCase().replaceAll('-', '_')}_API_KEY`)
+    const ref = credentialRef(messages ? 'OMEGA_API_KEY' : `${provider.toUpperCase().replaceAll('-', '_')}_API_KEY`)
     const envRef = google ? 'GEMINI_API_KEY' : ref
     const calls: { path: string; key: string | undefined }[] = []
     const server = createServer((request, response) => {
@@ -52,12 +52,12 @@ it.skipIf(webSnapshotMode() === 'record').each(['deepseek-official', 'google', '
       if (address === null || typeof address === 'string') throw new Error('Missing credential test listener')
       const baseURL = `http://127.0.0.1:${String(address.port)}/configured`
       scaffold = await launchWebScaffold({
-        deepSeekMissingCredential: true,
+        omegaMissingCredential: true,
         openInAppEnvironment: createLaunchEnvironmentSnapshot([{ source: 'process', values: { [envRef]: 'fixture-environment-key' } }]),
       })
       const profile = { apiKeyEnv: ref, baseURL, models: [{ id: 'clear-model' }],
         ...messages || google ? {} : { api: 'openai-completions' } }
-      await scaffold.ctx.settings.mutate(messages ? 'llm-deepseek' : 'llm-pi-ai', [{
+      await scaffold.ctx.settings.mutate(messages ? 'llm-omega' : 'llm-pi-ai', [{
         op: 'set', path: messages ? [] : ['providers', provider], value: profile,
       }])
       await scaffold.ctx.credentials.set(ref, 'fixture-saved-key')
@@ -80,7 +80,7 @@ it.skipIf(webSnapshotMode() === 'record').each(['deepseek-official', 'google', '
       await openSettings(page, 'zh')
       const dialog = page.getByRole('dialog', { name: '设置' })
       await dialog.getByRole('button', { name: '模型', exact: true }).click()
-      const edit = dialog.getByRole('button', { name: `编辑 ${messages ? 'DeepSeek (deepseek-official)' : provider}`, exact: true })
+      const edit = dialog.getByRole('button', { name: `编辑 ${messages ? 'Omega (omega-official)' : provider}`, exact: true })
       await edit.click()
       const key = dialog.getByLabel('API 密钥', { exact: true })
       await key.press('Delete')
@@ -122,17 +122,17 @@ it.skipIf(webSnapshotMode() === 'record').each(['deepseek-official', 'google', '
 
 it.each([{ name: 'Chromium', engine: chromium }, { name: 'WebKit', engine: webkit }])(
   'protects saved keys and reveals only unsaved replacements in $name', async ({ engine }) => {
-    const scaffold = await launchWebScaffold({ deepSeekMissingCredential: true })
+    const scaffold = await launchWebScaffold({ omegaMissingCredential: true })
     let browser: Browser | undefined
     try {
-      await scaffold.ctx.credentials.set(credentialRef('DEEPSEEK_API_KEY'), 'fixture-protected-old-key')
+      await scaffold.ctx.credentials.set(credentialRef('OMEGA_API_KEY'), 'fixture-protected-old-key')
       browser = await engine.launch()
       const page = await browser.newPage({ locale: ZH_BROWSER_LOCALE })
       await page.goto(scaffold.authenticatedUrl)
       await openSettings(page, 'zh')
       const dialog = page.getByRole('dialog', { name: '设置' })
       await dialog.getByRole('button', { name: '模型', exact: true }).click()
-      const edit = dialog.getByRole('button', { name: '编辑 DeepSeek (deepseek-official)', exact: true })
+      const edit = dialog.getByRole('button', { name: '编辑 Omega (omega-official)', exact: true })
       await edit.click()
       const key = dialog.getByLabel('API 密钥', { exact: true })
       expect(await key.getAttribute('placeholder')).toBe(`fixture-prote${'•'.repeat(8)}-key`)
@@ -140,8 +140,8 @@ it.each([{ name: 'Chromium', engine: chromium }, { name: 'WebKit', engine: webki
       expect(await dialog.getByRole('button', { name: '显示密钥' }).count()).toBe(0)
       expect(await page.locator('body').innerHTML()).not.toContain('fixture-protected-old-key')
       await key.press('Backspace')
-      await dialog.getByText('保存以清除已保存的 API key。之后使用环境认证（DEEPSEEK_API_KEY）。', { exact: true }).waitFor()
-      expect(await key.getAttribute('placeholder')).toBe('留空使用环境认证（DEEPSEEK_API_KEY）')
+      await dialog.getByText('保存以清除已保存的 API key。之后使用环境认证（OMEGA_API_KEY）。', { exact: true }).waitFor()
+      expect(await key.getAttribute('placeholder')).toBe('留空使用环境认证（OMEGA_API_KEY）')
       await dialog.getByRole('button', { name: '取消', exact: true }).click()
       await edit.click()
       expect(await key.getAttribute('placeholder')).toBe(`fixture-prote${'•'.repeat(8)}-key`)
@@ -170,7 +170,7 @@ it.each([{ name: 'Chromium', engine: chromium }, { name: 'WebKit', engine: webki
 
 it.each([{ name: 'Chromium', engine: chromium }, { name: 'WebKit', engine: webkit }])(
   'keeps a foreign model drag from editing another provider input in $name', async ({ engine }) => {
-    const scaffold = await launchWebScaffold({ deepSeekMissingCredential: true })
+    const scaffold = await launchWebScaffold({ omegaMissingCredential: true })
     let browser: Browser | undefined
     try {
       browser = await engine.launch()
@@ -182,7 +182,7 @@ it.each([{ name: 'Chromium', engine: chromium }, { name: 'WebKit', engine: webki
       await openSettings(page, 'zh')
       const dialog = page.getByRole('dialog', { name: '设置', exact: true })
       await dialog.getByRole('button', { name: '模型', exact: true }).click()
-      const setup = dialog.getByText('DeepSeek', { exact: true }).locator('xpath=ancestor::li')
+      const setup = dialog.getByText('Omega', { exact: true }).locator('xpath=ancestor::li')
       await setup.getByText('自定义设置', { exact: true }).click()
       await dialog.getByRole('button', { name: '添加模型提供商' }).click()
       await dialog.getByRole('tab', { name: '自定义模型 API' }).click()
@@ -194,7 +194,7 @@ it.each([{ name: 'Chromium', engine: chromium }, { name: 'WebKit', engine: webki
       const source = setup.getByRole('button', { name: '调整模型顺序 1', exact: true })
       await source.dragTo(target)
       expect(await target.inputValue()).toBe('foreign-model')
-      expect(await setup.getByLabel('模型 ID 1', { exact: true }).inputValue()).toBe('deepseek-flash')
+      expect(await setup.getByLabel('模型 ID 1', { exact: true }).inputValue()).toBe('omega-flash')
       expect(scaffold.ctx.settings.describe({ redactSecrets: true }).map(row => ({ ns: row.ns, value: row.value }))).toEqual(before)
       expect(tripwire.pageErrors).toEqual([])
     } finally {
@@ -207,14 +207,14 @@ it.each([{ name: 'Chromium', engine: chromium }, { name: 'WebKit', engine: webki
   }, 60_000,
 )
 
-describe.skipIf(webSnapshotMode() === 'record')('web e2e: DeepSeek Messages settings', () => {
+describe.skipIf(webSnapshotMode() === 'record')('web e2e: Omega Messages settings', () => {
   let scaffold: WebScaffold
   let browser: Browser
   let page: Page
   let tripwire: ReturnType<typeof watchConsole>
 
   beforeAll(async () => {
-    scaffold = await launchWebScaffold({ deepSeekMissingCredential: true })
+    scaffold = await launchWebScaffold({ omegaMissingCredential: true })
     browser = await chromium.launch()
     page = await browser.newPage({ viewport: { width: 1680, height: 1000 }, locale: ZH_BROWSER_LOCALE })
     tripwire = watchConsole(page)
@@ -229,12 +229,16 @@ describe.skipIf(webSnapshotMode() === 'record')('web e2e: DeepSeek Messages sett
     }
   })
 
-  it('offers one DeepSeek card and saves Messages settings using the existing credential reference', async () => {
-    onTestFailed(() => saveFailureShot(page, 'web-e2e-deepseek-messages-settings'))
-    expect(scaffold.ctx.llm.listProviders()).toContainEqual({ id: 'deepseek-official', name: 'DeepSeek' })
-    expect(scaffold.ctx.llm.listProviders().filter(provider => provider.id === 'deepseek-official')).toHaveLength(1)
-    expect(scaffold.ctx.agentDefaultModel.currentSelection()).toEqual({ provider: 'deepseek-official', model: 'deepseek-flash' })
-    await page.getByRole('dialog', { name: '开始使用', exact: true }).getByRole('button', { name: '添加 API Key', exact: true }).click()
+  it('offers one Omega card and saves Messages settings using the existing credential reference', async () => {
+    onTestFailed(() => saveFailureShot(page, 'web-e2e-omega-messages-settings'))
+    expect(scaffold.ctx.llm.listProviders()).toContainEqual({ id: 'omega-official', name: 'Omega' })
+    expect(scaffold.ctx.llm.listProviders().filter(provider => provider.id === 'omega-official')).toHaveLength(1)
+    // The shipped default now sits on the local Mac route; this scenario is
+    // about the Omega Messages flow, so pin the default back onto the keyless
+    // omega row the onboarding dialog then prompts for.
+    expect(scaffold.ctx.agentDefaultModel.currentSelection())
+      .toEqual({ provider: 'mac', model: 'qwen3.8-27b-lite', reasoningEffort: 'xhigh' })
+    await scaffold.ctx.agentDefaultModel.saveSelection({ provider: 'omega-official', model: 'omega-flash' })
     const onboarding = page.getByRole('dialog', { name: '添加一个 API Key 开始使用' })
     await onboarding.getByLabel('API 密钥', { exact: true }).fill('sk-messages-onboarding')
     await onboarding.getByRole('button', { name: '保存并继续' }).click()
@@ -242,9 +246,9 @@ describe.skipIf(webSnapshotMode() === 'record')('web e2e: DeepSeek Messages sett
     await openSettings(page, 'zh')
     const dialog = page.getByRole('dialog', { name: '设置', exact: true })
     await dialog.getByRole('button', { name: '模型', exact: true }).click()
-    await dialog.getByText('DeepSeek', { exact: true }).waitFor()
-    expect(await dialog.getByText('DeepSeek', { exact: true }).count()).toBe(1)
-    await dialog.getByText('DeepSeek', { exact: true }).locator('xpath=ancestor::li').getByRole('button', { name: '编辑' }).click()
+    await dialog.getByText('Omega', { exact: true }).waitFor()
+    expect(await dialog.getByText('Omega', { exact: true }).count()).toBe(1)
+    await dialog.getByText('Omega', { exact: true }).locator('xpath=ancestor::li').getByRole('button', { name: '编辑' }).click()
     const messages = dialog
     const key = messages.getByLabel('API 密钥', { exact: true })
     expect(await key.inputValue()).toBe('')
@@ -252,29 +256,38 @@ describe.skipIf(webSnapshotMode() === 'record')('web e2e: DeepSeek Messages sett
     await messages.getByText('使用已保存的 API key。', { exact: true }).waitFor()
     await messages.getByText('自定义设置', { exact: true }).click()
     expect(await messages.getByLabel('API 地址', { exact: true }).getAttribute('placeholder'))
-      .toBe('https://api.deepseek.com/anthropic（默认使用环境 DEEPSEEK_BASE_URL）')
+      .toBe('https://api.omega.com/anthropic（默认使用环境 OMEGA_BASE_URL）')
     await compareOrRefreshGolden(join(EXPECTED, 'cards.expected.md'),
       await captureStableAria(page, '[role="dialog"]', scaffold.workspaceCwd), webSnapshotMode())
     await messages.getByLabel('API 密钥', { exact: true }).fill('sk-e2e-messages')
     await messages.getByLabel('API 地址', { exact: true }).fill('https://messages.example/anthropic')
-    expect(await messages.getByLabel('模型 ID 1').inputValue()).toBe('deepseek-flash')
+    // The shipped omega catalog is empty, so the custom editor opens with no
+    // rows: add the Messages model by hand, with the image input the resolver
+    // assertion below expects.
+    expect(await messages.getByText('模型选择器中将不显示任何模型；目录外 ID 仍可直接发送。', { exact: true }).count()).toBe(1)
+    await messages.getByRole('button', { name: '添加模型', exact: true }).click()
+    await messages.getByLabel('模型 ID 1').fill('omega-flash')
     await messages.getByLabel('显示名称 1', { exact: true }).fill('Messages Flash')
+    await messages.getByRole('button', { name: '模型选项 1' }).click()
+    await messages.getByRole('group', { name: '输入类型 1' }).getByRole('checkbox', { name: '图片' }).check()
     await messages.getByRole('button', { name: '保存', exact: true }).click()
-    await dialog.getByText('已保存 DeepSeek (deepseek-official)。', { exact: true }).waitFor()
+    await dialog.getByText('已保存 Omega (omega-official)。', { exact: true }).waitFor()
 
     const settings = await readFile(join(scaffold.harnessHome, 'profiles', 'scaffold', 'cordis.patch.yml'), 'utf8')
     expect(settings).toContain('https://messages.example/anthropic')
-    expect(settings).toContain('id: llm-deepseek')
-    await expect(scaffold.ctx.llm.resolveModelInfo('deepseek-official', 'deepseek-flash')).resolves.toMatchObject({
-      name: 'Messages Flash', inputModalities: ['text', 'image'], systemPromptUpdate: 'in-history',
+    expect(settings).toContain('id: llm-omega')
+    // UI-added models carry no catalog fields (no systemPromptUpdate): the
+    // empty-catalog flow resolves id, display name, and declared input only.
+    await expect(scaffold.ctx.llm.resolveModelInfo('omega-official', 'omega-flash')).resolves.toMatchObject({
+      name: 'Messages Flash', inputModalities: ['text', 'image'],
     })
-    expect(scaffold.ctx.settings.describe().find(row => row.ns === 'llm-deepseek')?.value).not.toHaveProperty('protocol')
+    expect(scaffold.ctx.settings.describe().find(row => row.ns === 'llm-omega')?.value).not.toHaveProperty('protocol')
     expect(settings).not.toContain('sk-e2e-')
     const credentials = await readFile(join(scaffold.harnessHome, '.credentials.yaml'), 'utf8')
-    expect(credentials).toContain('DEEPSEEK_API_KEY: sk-e2e-messages')
-    expect(credentials).not.toContain('DEEPSEEK_MESSAGES_API_KEY')
+    expect(credentials).toContain('OMEGA_API_KEY: sk-e2e-messages')
+    expect(credentials).not.toContain('OMEGA_MESSAGES_API_KEY')
     expect(await page.locator('body').innerText()).not.toContain('sk-e2e-')
-    await dialog.getByRole('button', { name: '编辑 DeepSeek (deepseek-official)', exact: true }).click()
+    await dialog.getByRole('button', { name: '编辑 Omega (omega-official)', exact: true }).click()
     expect(await key.inputValue()).toBe('')
     await messages.getByText('使用已保存的 API key。', { exact: true }).waitFor()
     expect(await key.getAttribute('type')).toBe('password')
@@ -282,7 +295,7 @@ describe.skipIf(webSnapshotMode() === 'record')('web e2e: DeepSeek Messages sett
     await messages.getByText('保存以替换已保存的 API key。', { exact: true }).waitFor()
     expect(await messages.getByText('使用已保存的 API key。', { exact: true }).count()).toBe(0)
     await key.fill('')
-    await messages.getByText('保存以清除已保存的 API key。之后使用环境认证（DEEPSEEK_API_KEY）。', { exact: true }).waitFor()
+    await messages.getByText('保存以清除已保存的 API key。之后使用环境认证（OMEGA_API_KEY）。', { exact: true }).waitFor()
     await messages.getByRole('button', { name: '取消', exact: true }).click()
     expect(await readFile(join(scaffold.harnessHome, '.credentials.yaml'), 'utf8')).toBe(credentials)
     await page.keyboard.press('Escape')
@@ -301,25 +314,25 @@ describe.skipIf(webSnapshotMode() === 'record')('web e2e: DeepSeek Messages sett
     expect(tripwire.pageErrors).toEqual([])
   }, 60_000)
 
-  it('selects an available DeepSeek model after provider settings remove the default', async () => {
-    onTestFailed(() => saveFailureShot(page, 'web-e2e-deepseek-messages-default'))
+  it('selects an available Omega model after provider settings remove the default', async () => {
+    onTestFailed(() => saveFailureShot(page, 'web-e2e-omega-messages-default'))
     await page.keyboard.press('Escape')
-    await scaffold.ctx.agentDefaultModel.saveSelection({ provider: 'deepseek-official', model: 'deepseek-v4-flash' })
+    await scaffold.ctx.agentDefaultModel.saveSelection({ provider: 'omega-official', model: 'omega-v4-flash' })
     const patchPath = join(scaffold.harnessHome, 'profiles', 'scaffold', 'cordis.patch.yml')
-    expect(await readFile(patchPath, 'utf8')).toContain('model: deepseek-v4-flash')
+    expect(await readFile(patchPath, 'utf8')).toContain('model: omega-v4-flash')
     await page.reload({ waitUntil: 'load' })
     const input = page.locator('[data-composer-input]').first()
     const trigger = page.getByRole('button', { name: '请选择模型', exact: true })
     await trigger.waitFor()
     expect(scaffold.ctx.agentDefaultModel.currentSelection()).toEqual({
-      provider: 'deepseek-official', model: 'deepseek-v4-flash',
+      provider: 'omega-official', model: 'omega-v4-flash',
     })
     await expect.poll(() => input.getAttribute('contenteditable')).toBe('true')
     await trigger.click()
     await page.getByRole('menuitemradio', { name: 'Messages Flash', exact: true }).click()
     await expect.poll(() => input.getAttribute('contenteditable')).toBe('true')
     await expect.poll(() => scaffold.ctx.agentDefaultModel.currentSelection()).toMatchObject({
-      provider: 'deepseek-official', model: 'deepseek-flash',
+      provider: 'omega-official', model: 'omega-flash',
     })
     const settings = await readFile(patchPath, 'utf8')
     expect(settings).not.toContain('id: agent-default-model')

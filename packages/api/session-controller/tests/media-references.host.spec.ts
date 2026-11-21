@@ -2,10 +2,10 @@ import { appendFile, mkdir, mkdtemp, open, realpath, rm, symlink, writeFile } fr
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import { FsError, type FsTargetKey, type FsVersion } from '@deepseek-ai/dsh-fs'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { LocalFileSystem } from '@deepseek-ai/dsh-fs-local'
+import { Context } from '@omega-ai/cordis'
+import { FsError, type FsTargetKey, type FsVersion } from '@omega-ai/dsh-fs'
+import { brandString } from '@omega-ai/dsh-brand'
+import { LocalFileSystem } from '@omega-ai/dsh-fs-local'
 import { SessionMediaReferences } from '../src/media-references.ts'
 
 const PNG_BYTES = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3, 4])

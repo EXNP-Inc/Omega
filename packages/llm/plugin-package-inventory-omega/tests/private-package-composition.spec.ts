@@ -1,15 +1,15 @@
-/** Unversioned file plugins do not block Loader-composed DeepSeek requests. */
+/** Unversioned file plugins do not block Loader-composed Omega requests. */
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, expect, it } from 'vitest'
-import { Context, FiberState } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import Include from '@deepseek-ai/cordis-plugin-include'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import DeepSeekLlmApiExtensionRegistry from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
+import { Context, FiberState } from '@omega-ai/cordis'
+import Loader from '@omega-ai/cordis-plugin-loader'
+import Include from '@omega-ai/cordis-plugin-include'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import AgentRegistry from '@omega-ai/dsh-agent'
+import OmegaLlmApiExtensionRegistry from '@omega-ai/dsh-omega-llm-api-extensions'
 import * as PluginInventory from '../src/index.ts'
 
 let root: string | undefined
@@ -59,7 +59,7 @@ it.each([true, false])('reports an unversioned package by name alongside a versi
   ctx.loader.builtins['session-projections'] = SessionProjectionRegistry
   ctx.loader.builtins.agents = AgentRegistry
   ctx.loader.builtins.projections = SessionProjectionRegistry
-  ctx.loader.builtins['deepseek-extensions'] = DeepSeekLlmApiExtensionRegistry
+  ctx.loader.builtins['deepseek-extensions'] = OmegaLlmApiExtensionRegistry
   ctx.loader.builtins['plugin-inventory'] = PluginInventory
   await ctx.loader.create({ name: 'cordis:include', config: { path: pathToFileURL(configPath).href } })
   await ctx.loader.await()
@@ -68,7 +68,7 @@ it.each([true, false])('reports an unversioned package by name alongside a versi
     .map(entry => entry.options.name)
   expect(activeNames).toEqual(expect.arrayContaining(['cordis:plugin-inventory', privateUrl, siblingUrl]))
 
-  const prepared = await ctx.deepseekLlmApiExtensions.prepare({
+  const prepared = await ctx.omegaLlmApiExtensions.prepare({
     body: { messages: [] }, signal: new AbortController().signal,
   })
   expect(prepared.fields).toMatchInlineSnapshot(`

@@ -144,7 +144,7 @@ jobs:
         # A source whose dsh ships the Computer Use bundle packs the workspace provider into the Desktop runtime,
         # which therefore needs the same notarized helper npm publication stages.
         run: |
-          if ! node -e "process.exit(require('./apps/cli/package.json').dependencies?.['@deepseek-ai/dsh-cua-bundle'] ? 0 : 1)"; then
+          if ! node -e "process.exit(require('./apps/cli/package.json').dependencies?.['@omega-ai/dsh-cua-bundle'] ? 0 : 1)"; then
             echo 'This source does not ship Computer Use in Desktop; no helper is staged.'
             exit 0
           fi

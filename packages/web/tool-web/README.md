@@ -3,7 +3,7 @@ description: "The model-facing web tools (web_search, web_fetch) over ctx.web: h
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-tool-web
+# @omega-ai/dsh-tool-web
 
 English | [中文](README.zh.md)
 
@@ -33,13 +33,13 @@ Choose this package when the model should discover current information or read a
 
 ### Minimal configuration
 
-Load the web service, at least one backend, and this package; both tools register by default. The DeepSeek backend below requires [`dsh-deepseek-auth`](../../account/deepseek-auth/README.md) for its credentials.
+Load the web service, at least one backend, and this package; both tools register by default. The Omega backend below requires [`dsh-omega-auth`](../../account/omega-auth/README.md) for its credentials.
 
 ```yaml
-- name: '@deepseek-ai/dsh-web'
-- name: '@deepseek-ai/dsh-deepseek-auth'
-- name: '@deepseek-ai/dsh-web-deepseek-api'
-- name: '@deepseek-ai/dsh-tool-web'
+- name: '@omega-ai/dsh-web'
+- name: '@omega-ai/dsh-omega-auth'
+- name: '@omega-ai/dsh-web-omega-api'
+- name: '@omega-ai/dsh-tool-web'
 ```
 
 | Field | Default | Meaning |
@@ -53,14 +53,14 @@ Load the web service, at least one backend, and this package; both tools registe
 | `searchTimeoutMs` | `30000` | Cooperative tool-call timeout budget (ms) for `web_search` |
 | `fetchMaxOutputChars` | `200000` | Cap on source characters converted synchronously and on one complete `web_fetch` output |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-tool-web) is the exhaustive source for every accepted field and its JSDoc. `searchMaxQueries` bounds the accepted array before exact-string deduplication and provider fan-out; validation rejects an oversized array before any search starts. The timeout budgets attach to each tool definition and are enforced by [`@deepseek-ai/dsh-tool-call-timeout-policy`](../../guard/timeout-policy/README.md); the model-facing schemas expose no timeout argument.
+The generated [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-tool-web) is the exhaustive source for every accepted field and its JSDoc. `searchMaxQueries` bounds the accepted array before exact-string deduplication and provider fan-out; validation rejects an oversized array before any search starts. The timeout budgets attach to each tool definition and are enforced by [`@omega-ai/dsh-tool-call-timeout-policy`](../../guard/timeout-policy/README.md); the model-facing schemas expose no timeout argument.
 
 ### Using web_search
 
 Call `web_search` with a `queries` array of one to `searchMaxQueries` non-empty strings. Exact duplicate queries run once; multiple queries run concurrently and their sources merge round-robin before the combined `searchMaxResults` cap applies. The result is an optional provider answer followed by `Sources:` with one line per source — `- [<title-or-url>](<url>)`, optionally with the source summary, else its snippet, and date — and a standing instruction to cite the URLs. A summary has its whitespace collapsed to single spaces and is capped at `searchSummaryMaxChars`; the search card keeps showing the snippet.
 
 ```text
-web_search({ queries: ['deepseek harness documentation'] })
+web_search({ queries: ['Omega documentation'] })
 ```
 
 If any query in a multi-query call fails, `web_search` aborts the remaining searches, waits for every started search to settle, discards successful results, and returns `Error: <message>` for the first failure.
@@ -80,7 +80,7 @@ Tool registration follows product enablement, not backend availability: a tool s
 <a id="search-readiness"></a>
 ### Search and fetch readiness
 
-Each model step admits `web_search` and `web_fetch`, and so declares, describes, and dispatches them, only while `ctx.web.searchReady()` and `ctx.web.fetchReady()` answer true for the chat route of the step's model selection. The service asks only the provider that `search()` or `fetch()` would select; a provider that does not implement readiness counts as ready, and a selection failure also answers true, so the stable-registration errors above still reach the model. [`dsh-web-search-deepseek`](../web-search-deepseek/README.md#authentication) and [`dsh-web-deepseek-api`](../web-deepseek-api/README.md#authentication) are not ready when the step's operation has no credential. The shipped HTTP fetch provider needs no credential, so `web_fetch` stays admitted while it is selected. The check runs for every step, so a model switch or a newly stored key applies to the next step. A step that does not admit a tool also leaves it out of PTC program bindings, and a call to it fails as `UNKNOWN_TOOL`.
+Each model step admits `web_search` and `web_fetch`, and so declares, describes, and dispatches them, only while `ctx.web.searchReady()` and `ctx.web.fetchReady()` answer true for the chat route of the step's model selection. The service asks only the provider that `search()` or `fetch()` would select; a provider that does not implement readiness counts as ready, and a selection failure also answers true, so the stable-registration errors above still reach the model. [`dsh-web-search-omega`](../web-search-omega/README.md#authentication) and [`dsh-web-omega-api`](../web-omega-api/README.md#authentication) are not ready when the step's operation has no credential. The shipped HTTP fetch provider needs no credential, so `web_fetch` stays admitted while it is selected. The check runs for every step, so a model switch or a newly stored key applies to the next step. A step that does not admit a tool also leaves it out of PTC program bindings, and a call to it fails as `UNKNOWN_TOOL`.
 
 ### Failures and recovery
 
@@ -139,9 +139,9 @@ Read these pages when the package-level contract is not enough. They move from t
 - [Web subsystem](../../../docs/subsystems/web.md) — the exhaustive search/fetch requests and results, provider availability, and error codes.
 - [Web package map](../README.md) — the six-package family and each role.
 - [dsh-web](../web/README.md) — the web service the tools execute through.
-- [Generated tool catalog](../../../docs/tool-catalog.md#deepseek-aidsh-tool-web) — the exact `web_search` and `web_fetch` schemas.
+- [Generated tool catalog](../../../docs/tool-catalog.md#omega-aidsh-tool-web) — the exact `web_search` and `web_fetch` schemas.
 - [dsh-tool-call-timeout-policy](../../guard/timeout-policy/README.md) — the deployment policy that enforces each tool's timeout budget.
-- [Generated configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-tool-web) — every accepted config field and its source declaration.
+- [Generated configuration catalog](../../../docs/config-catalog.md#omega-aidsh-tool-web) — every accepted config field and its source declaration.
 - [Web capability seam decision](../../../.agents/notes/implemented/architecture/2026-06-24-web-capability-seam.md) — why search and fetch share one provider-selection service.
 - [Search readiness decision](../../../.agents/notes/implemented/architecture/2026-09-27-web-search-offered-by-provider-readiness.md) — why readiness splits across the provider, `ctx.web`, and this package.
 
@@ -186,7 +186,7 @@ Prefix-stable while visible tools, scope, and guidance text are unchanged. Confi
 
 #### What the model sees
 
-The model sees the generated [`web_search` and `web_fetch` schemas](../../../docs/tool-catalog.md#deepseek-aidsh-tool-web). Result-count and timeout budgets are deployment settings, not model arguments.
+The model sees the generated [`web_search` and `web_fetch` schemas](../../../docs/tool-catalog.md#omega-aidsh-tool-web). Result-count and timeout budgets are deployment settings, not model arguments.
 
 #### Token effect
 
@@ -208,7 +208,7 @@ Withholding removes the tool's schema and its prompt guidance from the request.
 
 #### KV Cache effect
 
-On a DeepSeek route, a returning web tool is loaded as a deferred addition that keeps the cached prefix; removing it while the route stays the same changes the declared tools and prevents reuse from there. Routes without tool-update support send the complete tool list, so either change prevents reuse from the tool declarations. A model switch already invalidates the cache.
+On a Omega route, a returning web tool is loaded as a deferred addition that keeps the cached prefix; removing it while the route stays the same changes the declared tools and prevents reuse from there. Routes without tool-update support send the complete tool list, so either change prevents reuse from the tool declarations. A model switch already invalidates the cache.
 
 ### Search result
 
@@ -274,7 +274,7 @@ Append-only; newly visible content follows the reusable request prefix and does 
 These limits define when the tools are incomplete or need deployment cooperation. They are current package constraints.
 
 - **There is no batch-wide native-search counter** — `searchMaxQueries` bounds `ctx.web.search` calls, but a provider may perform several native searches inside each call; for example a model-backed provider configured with `maxUses` can permit up to `searchMaxQueries × maxUses` native searches, and `searchMaxResults` limits only the combined sources returned to the caller. Deployments control cost through these independent consumer and provider settings because the service does not know provider-internal search units.
-- **One failed query fails the whole call** — queries in one call run concurrently, and the first provider failure aborts the rest and discards results that already succeeded. A provider rate limit therefore fails the call; [`dsh-web-deepseek-api`](../web-deepseek-api/README.md#known-limitations-and-deferred-work) paces its own Search requests to the account's 5 QPS limit within one process.
+- **One failed query fails the whole call** — queries in one call run concurrently, and the first provider failure aborts the rest and discards results that already succeeded. A provider rate limit therefore fails the call; [`dsh-web-omega-api`](../web-omega-api/README.md#known-limitations-and-deferred-work) paces its own Search requests to the account's 5 QPS limit within one process.
 - **HTML→markdown conversion omits inputs it cannot safely represent** — [turndown](https://github.com/mixmark-io/turndown) converts at most `fetchMaxOutputChars` source characters through a real DOM. A 512-level nesting guard and conversion exceptions produce a fixed omission marker instead of raw HTML; table `colspan` remains unsupported because GFM has no spanning-cell representation ([archived dependency decision](../../../.agents/notes/archived/simplification/2026-07-26-turndown-for-tool-web-html-markdown.md)).
 - **The model-facing API is minimal by design, with promotions deferred** — `max_results` stays a config bound (not a model argument), and `web_fetch` takes only `url` (no `format`/`prompt`/LLM-summarization mode); both are named later steps in [the seam Agent Note](../../../.agents/notes/implemented/architecture/2026-06-24-web-capability-seam.md).
 - **Fetches do not request approval** — the shipped `cordis`, `code`, and `standard` presets expose `web_fetch` in every sandbox and approval mode. The HTTP provider does not restrict destination addresses, so a model can reach loopback and private-network hosts and send data to any reachable URL. Deployments that need per-call confirmation must add a `tools/pre-execute` policy or disable fetch.

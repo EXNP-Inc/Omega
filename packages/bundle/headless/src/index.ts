@@ -1,5 +1,5 @@
 /**
- * @deepseek-ai/dsh-headless — one-shot direct Agent driver. The bundle patch
+ * @omega-ai/dsh-headless — one-shot direct Agent driver. The bundle patch
  * rides over dsh-base without Host, HTTP, or browser plugins; this runner
  * creates one Agent through the core registry (or adopts the exact Session a
  * `--session-id` names), drives the task to quiescence, streams provider
@@ -7,34 +7,34 @@
  * stdout, and exits. With `--json` it projects the run as newline-delimited
  * events instead of the final text.
  *
- * @module @deepseek-ai/dsh-headless
+ * @module @omega-ai/dsh-headless
  */
 
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { Agent, AgentOptions } from '@deepseek-ai/dsh-agent'
-import type {} from '@deepseek-ai/dsh-agent-default-model'
-import { installModelSelection } from '@deepseek-ai/dsh-agent'
-import type {} from '@deepseek-ai/dsh-fs'
-import { extractTextContent } from '@deepseek-ai/dsh-llm/message'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { APPROVAL_POLICIES, setApprovalPolicy, type ApprovalPolicy } from '@deepseek-ai/dsh-user-approval'
-import { assertNever } from '@deepseek-ai/dsh-util-values'
-import { SessionSeq } from '@deepseek-ai/dsh-session'
-import type { Session, SessionEvent, SessionId, SessionLogOffset } from '@deepseek-ai/dsh-session'
-import { SessionQueryError } from '@deepseek-ai/dsh-session-query'
+import type { Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { Agent, AgentOptions } from '@omega-ai/dsh-agent'
+import type {} from '@omega-ai/dsh-agent-default-model'
+import { installModelSelection } from '@omega-ai/dsh-agent'
+import type {} from '@omega-ai/dsh-fs'
+import { extractTextContent } from '@omega-ai/dsh-llm/message'
+import { createUserMessage } from '@omega-ai/dsh-llm'
+import { APPROVAL_POLICIES, setApprovalPolicy, type ApprovalPolicy } from '@omega-ai/dsh-user-approval'
+import { assertNever } from '@omega-ai/dsh-util-values'
+import { SessionSeq } from '@omega-ai/dsh-session'
+import type { Session, SessionEvent, SessionId, SessionLogOffset } from '@omega-ai/dsh-session'
+import { SessionQueryError } from '@omega-ai/dsh-session-query'
 // Empty type imports carry the loader Context merge for the settlement await,
 // the cmdline Context merge for the appExit host value, and the sessionQuery
 // Context merge for exact Session adoption.
-import type {} from '@deepseek-ai/cordis-plugin-loader'
-import type {} from '@deepseek-ai/dsh-cmdline'
-import type {} from '@deepseek-ai/dsh-session-query'
-import type {} from '@deepseek-ai/dsh-subagent'
+import type {} from '@omega-ai/cordis-plugin-loader'
+import type {} from '@omega-ai/dsh-cmdline'
+import type {} from '@omega-ai/dsh-session-query'
+import type {} from '@omega-ai/dsh-subagent'
 // Optional service peers stay type-only so profiles can omit their packages.
-import type {} from '@deepseek-ai/dsh-permission-presets'
-import type {} from '@deepseek-ai/dsh-sandbox-policy'
+import type {} from '@omega-ai/dsh-permission-presets'
+import type {} from '@omega-ai/dsh-sandbox-policy'
 import type {} from './startup.ts'
 import { internals } from './runner-internals.ts'
 import { projectJsonRun, boundJsonLine } from './json-stream.ts'
@@ -365,7 +365,7 @@ async function run(ctx: Context, config: Config, io: HeadlessIo): Promise<void> 
   // This bundle composes no preset roster, so the model-facing rows sit in the
   // host plane and the agent reads them from the global layer. A deployment
   // that DOES configure one has to join it here first
-  // (@deepseek-ai/dsh-agent-preset-registry README, "Composing a child agent").
+  // (@omega-ai/dsh-agent-preset-registry README, "Composing a child agent").
   const setup = (agentCtx: Context, agent: Agent): void => {
     // A resumed Session continues with this run's configured model.
     if (config.sessionId !== undefined) {

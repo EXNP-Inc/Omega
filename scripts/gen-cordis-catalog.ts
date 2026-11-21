@@ -26,8 +26,8 @@ import {
   renderPageRegion,
   REGION_BEGIN,
   REGION_END,
-} from '@deepseek-ai/dsh-typert-generator'
-import type { CordisCatalogPolicy } from '@deepseek-ai/dsh-typert-generator'
+} from '@omega-ai/dsh-typert-generator'
+import type { CordisCatalogPolicy } from '@omega-ai/dsh-typert-generator'
 import { renderCordisCoreApiPages } from './cordis-core-api.ts'
 import { contextKeyMap, contextMergeFiles, eventNameList } from './cordis-walk.ts'
 import {
@@ -94,13 +94,13 @@ export const SERVICE_PAGE: Record<string, string> = {
   compaction: 'compaction.md',
   cordisInspect: 'extensions.md',
   authorization: 'credentials.md',
-  deepseekAccount: 'account.md',
-  deepseekAuth: 'account.md',
+  omegaAccount: 'account.md',
+  omegaAuth: 'account.md',
   credentials: 'credentials.md',
   credentialsController: 'credentials.md',
   settingsController: 'settings.md',
   directoryPicker: 'workspace.md',
-  deepseekLlmApiExtensions: 'llm-streaming.md',
+  omegaLlmApiExtensions: 'llm-streaming.md',
   dynamicCordisRunner: 'extensions.md',
   fileUploads: 'attachment.md',
   fileReferences: 'session-reference.md',
@@ -121,7 +121,7 @@ export const SERVICE_PAGE: Record<string, string> = {
   sandboxPolicy: 'sandbox.md',
   ssh: 'ssh.md',
   sessionPersistence: 'persistence.md',
-  deepseekChatImport: 'persistence.md',
+  omegaChatImport: 'persistence.md',
   sessionQuery: 'session-query.md',
   sessionFileReferences: 'session-reference.md',
   sessionReferenceResolver: 'session-reference.md',
@@ -136,7 +136,7 @@ export const SERVICE_PAGE: Record<string, string> = {
   sessionStatus: 'web-client.md',
   sessionSkillCatalog: 'skills.md',
   sessions: 'session.md',
-  sessionLogDeepSeek: 'session.md',
+  sessionLogOmega: 'session.md',
   settings: 'settings.md',
   sessionTitle: 'session-title.md',
   skills: 'skills.md',
@@ -175,7 +175,7 @@ export const SERVICE_PAGE: Record<string, string> = {
 /**
  * Context keys declared in `interface Context` merges that the rendering
  * projection cannot see, each with the reason and its documentation owner.
- * The scan that enforces this list reads EVERY `declare module '@deepseek-ai/cordis'`
+ * The scan that enforces this list reads EVERY `declare module '@omega-ai/cordis'`
  * Context merge under `packages/x/x/src/**` — any depth, not only root
  * `index.ts` files with a same-named service class — so a new service can
  * never silently join this blind spot: it either enters {@link SERVICE_PAGE}
@@ -263,7 +263,7 @@ export const EVENT_SCOPE_PAGE: Record<string, string> = {
   'cordis': 'extensions.md',
   'authorization': 'credentials.md',
   'credentials': 'credentials.md',
-  'deepseek-account': 'account.md',
+  'omega-account': 'account.md',
   'domain': 'storage.md',
   'forge': 'forge.md',
   'fs': 'filesystem.md',
@@ -295,7 +295,7 @@ export const EVENT_SCOPE_PAGE: Record<string, string> = {
  * Event names declared in `interface Events` merges that the rendering
  * projection cannot see, each with the reason and its documentation owner.
  * The mirror of {@link SERVICE_WALK_EXEMPTIONS} for events: an independent
- * scan reads EVERY `declare module '@deepseek-ai/cordis'` Events merge under
+ * scan reads EVERY `declare module '@omega-ai/cordis'` Events merge under
  * `packages/x/x/src/**`, so a declared event either renders onto a subsystems
  * page (via {@link EVENT_SCOPE_PAGE}) or names itself here — never vanishes
  * silently. Keys are full event names rather than scopes, so a scope-level
@@ -501,9 +501,9 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
   SettleReason: 'core.md',
   AdapterRegistrationHandle: 'llm-streaming.md',
   DirectoryRegistrationHandle: 'llm-streaming.md',
-  DeepSeekLlmApiExtensionMap: 'llm-streaming.md',
-  DeepSeekLlmApiExtensionProvider: 'llm-streaming.md',
-  DeepSeekLlmApiExtensionRequest: 'llm-streaming.md',
+  OmegaLlmApiExtensionMap: 'llm-streaming.md',
+  OmegaLlmApiExtensionProvider: 'llm-streaming.md',
+  OmegaLlmApiExtensionRequest: 'llm-streaming.md',
   LlmCallConfig: 'llm-streaming.md',
   PiAiRequestHeaderContext: 'llm-streaming.md',
   ConfigureCall: 'llm-streaming.md',
@@ -720,7 +720,7 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
   LspQueryResult: 'lsp.md',
   LlmAdapter: 'llm-streaming.md',
   PreparedLlmCall: 'llm-streaming.md',
-  PreparedDeepSeekLlmApiExtensions: 'llm-streaming.md',
+  PreparedOmegaLlmApiExtensions: 'llm-streaming.md',
   LlmRuntime: 'llm-streaming.md',
   StreamChunk: 'llm-streaming.md',
   SkillProviderControl: 'skills.md',
@@ -948,15 +948,15 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
   AccountUserId: 'account.md',
   PlatformSession: 'account.md',
   SignInAttemptId: 'account.md',
-  DeepSeekApiKeyHeader: 'account.md',
-  DeepSeekAuthBilling: 'account.md',
-  DeepSeekAuthCandidate: 'account.md',
-  DeepSeekAuthConnection: 'account.md',
-  DeepSeekAuthDestination: 'account.md',
-  DeepSeekAuthKind: 'account.md',
-  DeepSeekAuthRequest: 'account.md',
-  DeepSeekAuthUnresolved: 'account.md',
-  DeepSeekAuthorization: 'account.md',
+  OmegaApiKeyHeader: 'account.md',
+  OmegaAuthBilling: 'account.md',
+  OmegaAuthCandidate: 'account.md',
+  OmegaAuthConnection: 'account.md',
+  OmegaAuthDestination: 'account.md',
+  OmegaAuthKind: 'account.md',
+  OmegaAuthRequest: 'account.md',
+  OmegaAuthUnresolved: 'account.md',
+  OmegaAuthorization: 'account.md',
   AuthorizationPrompt: 'credentials.md',
   AuthorizationRequest: 'credentials.md',
   AuthorizationSession: 'credentials.md',
@@ -1102,7 +1102,7 @@ export const TYPE_LINK_EXEMPTIONS: Readonly<Record<string, string>> = {
   ActionCardResult: 'packages/experimental/action-cards/README.md',
   ActionCardView: 'packages/experimental/action-cards/README.md',
   RecommendationDetails: 'packages/experimental/plugin-recommendations/README.md',
-  DeepseekChatImportLimits: 'upload limits returned to the browser are owned by packages/experimental/deepseek-chat-import/src/types.ts',
+  OmegaChatImportLimits: 'upload limits returned to the browser are owned by packages/experimental/omega-chat-import/src/types.ts',
   ProductEvent: 'Desktop event fields are owned by packages/client/product-analytics/README.md and src/events.ts',
   ConnectionFetchHandler: 'shared Fetch dispatch is owned by packages/client/connection/src/rpc.ts',
   ConnectionTrustRequest: 'transport authentication input is owned by packages/client/connection/src/rpc.ts',

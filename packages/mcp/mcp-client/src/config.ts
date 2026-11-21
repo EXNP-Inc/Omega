@@ -5,8 +5,8 @@
  * @module
  */
 
-import z from '@deepseek-ai/schemastery'
-import { MAX_TIMER_DELAY_MS } from '@deepseek-ai/dsh-timeout'
+import z from '@omega-ai/schemastery'
+import { MAX_TIMER_DELAY_MS } from '@omega-ai/dsh-timeout'
 import { DEFAULT_MAX_INSTRUCTION_BYTES, RECONNECT_DEFAULTS } from './connection.ts'
 import type { ReconnectConfig } from './connection.ts'
 import { OAuthSchema } from './oauth-options.ts'

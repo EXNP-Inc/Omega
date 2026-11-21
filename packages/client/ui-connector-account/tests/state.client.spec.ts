@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /** The browser follows every registered account through one Host stream and keeps only what this browser started. */
-import { Context } from '@deepseek-ai/cordis'
-import { RemoteStreamCarrierError, type RemoteStreamOptions } from '@deepseek-ai/dsh-api-gateway/client'
+import { Context } from '@omega-ai/cordis'
+import { RemoteStreamCarrierError, type RemoteStreamOptions } from '@omega-ai/dsh-api-gateway/client'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import { BrowserAccounts, openAuthorizationPage } from '../src/client/state.ts'
 import type { ConnectorAccountEntry, ConnectorAccountsView, ConnectorOperationId } from '../src/types.ts'

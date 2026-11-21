@@ -7,24 +7,24 @@
  * unless `maxConsecutiveWakes` caps it per owner. A notice carries the job's
  * output and result when it fits `inlineOutputBytes`, and `job_output`
  * withdraws a notice still pending.
- * @module @deepseek-ai/dsh-tool-jobs
+ * @module @omega-ai/dsh-tool-jobs
  */
 
-import type { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import { boundContextSummary, createUserMessage, type ContentBlock } from '@deepseek-ai/dsh-llm'
-import type { ContextFormed, MessageId } from '@deepseek-ai/dsh-llm'
-import { TextRetainer } from '@deepseek-ai/dsh-output-retention'
-import { defineTool, ToolArgsError } from '@deepseek-ai/dsh-tools'
-import type { GenericCallView, ToolDefinition, ToolExecution } from '@deepseek-ai/dsh-tools'
-import type { JobId } from '@deepseek-ai/dsh-jobs'
-import type { JobEvent, JobView, JobRead } from '@deepseek-ai/dsh-jobs'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import type {} from '@deepseek-ai/dsh-agent'
+import type { Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
+import { boundContextSummary, createUserMessage, type ContentBlock } from '@omega-ai/dsh-llm'
+import type { ContextFormed, MessageId } from '@omega-ai/dsh-llm'
+import { TextRetainer } from '@omega-ai/dsh-output-retention'
+import { defineTool, ToolArgsError } from '@omega-ai/dsh-tools'
+import type { GenericCallView, ToolDefinition, ToolExecution } from '@omega-ai/dsh-tools'
+import type { JobId } from '@omega-ai/dsh-jobs'
+import type { JobEvent, JobView, JobRead } from '@omega-ai/dsh-jobs'
+import type { Agent } from '@omega-ai/dsh-agent'
+import type {} from '@omega-ai/dsh-agent'
 import { publicJob, renderModelDelta, statusLine } from './render.ts'
 import type { PublicJobSnapshot } from './render.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
-declare module '@deepseek-ai/dsh-llm' {
+import { brandString } from '@omega-ai/dsh-brand'
+declare module '@omega-ai/dsh-llm' {
   interface MessageSourceMap {
     'tool-jobs': { kind: 'tool-jobs' } & ContextFormed
   }

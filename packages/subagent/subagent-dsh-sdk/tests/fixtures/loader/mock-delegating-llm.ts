@@ -1,9 +1,9 @@
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@omega-ai/cordis'
 import { appendFileSync } from 'node:fs'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@deepseek-ai/dsh-llm'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { ToolCallId, ReasoningEffortId } from '@deepseek-ai/dsh-llm/types'
-import { LlmAdapter } from '@deepseek-ai/dsh-llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@omega-ai/dsh-llm'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { ToolCallId, ReasoningEffortId } from '@omega-ai/dsh-llm/types'
+import { LlmAdapter } from '@omega-ai/dsh-llm'
 
 /** Delegation argument sequences selected by `DSH_TEST_PARENT_ROUTE_SCRIPT`. */
 const ROUTE_SCRIPTS: Readonly<Record<string, readonly Readonly<Record<string, string>>[]>> = {
@@ -85,8 +85,8 @@ export const inject = ['llm']
  * @param ctx - the plugin context supplying `ctx.llm`.
  */
 export function apply(ctx: Context): void {
-  const providers = process.env.DSH_TEST_PARENT_PROVIDER === 'deepseek-official'
-    ? ['deepseek-official', 'mock']
+  const providers = process.env.DSH_TEST_PARENT_PROVIDER === 'omega-official'
+    ? ['omega-official', 'mock']
     : ['mock']
   ctx.llm.registerAdapter(providers, new MockDelegatingAdapter())
 }

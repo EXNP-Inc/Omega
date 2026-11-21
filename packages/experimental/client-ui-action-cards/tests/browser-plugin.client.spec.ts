@@ -1,17 +1,17 @@
 /** Real registries bind actions to the displayed session and remove every contribution on unload. */
 import { isValidElement } from 'react'
-import { Context } from '@deepseek-ai/cordis'
-import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { ActionCardId } from '@deepseek-ai/dsh-action-cards/types'
+import { Context } from '@omega-ai/cordis'
+import { SlotRegistry } from '@omega-ai/dsh-client-ui-renderer/client'
+import { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { ActionCardId } from '@omega-ai/dsh-action-cards/types'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import { mountActionCards, inject } from '../src/client/mount.ts'
 import { apply as hostApply } from '../src/index.ts'
 import { HiddenCardBlock, type TailInjected } from '../src/client/Card.tsx'
 
-const apply = (ctx: Context) => mountActionCards(ctx, { package: '@deepseek-ai/dsh-action-cards', descriptors: [] })
+const apply = (ctx: Context) => mountActionCards(ctx, { package: '@omega-ai/dsh-action-cards', descriptors: [] })
 const Body = () => null
 
 it('binds actions to the displayed session, serves registered bodies and removes registrations on unload', async () => {

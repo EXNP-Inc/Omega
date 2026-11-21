@@ -1,13 +1,13 @@
 /** Common paid requests and results survive Host restart without altering main conversation input. */
-import { createAssistantMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
-import { pluginRecordOf, type SessionId, SessionSeq, type SessionEvent } from '@deepseek-ai/dsh-session'
-import type { SessionPersistence } from '@deepseek-ai/dsh-session-persistence'
+import { createAssistantMessage, createUserMessage } from '@omega-ai/dsh-llm'
+import { pluginRecordOf, type SessionId, SessionSeq, type SessionEvent } from '@omega-ai/dsh-session'
+import type { SessionPersistence } from '@omega-ai/dsh-session-persistence'
 import type { JsonlHandleStorage } from '../../../session/session-persistence-jsonl/src/storage.ts'
 import { readFile } from 'node:fs/promises'
 import { setImmediate } from 'node:timers/promises'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { paidFixture } from './paid-fixture.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const cleanups: Array<() => Promise<void>> = []
 afterEach(async () => {
@@ -20,7 +20,7 @@ afterEach(async () => {
   if (failures.length > 0) throw new AggregateError(failures, 'Paid storage fixture teardown failed')
 })
 
-const providers = ['deepseek-account', 'deepseek-official'] as const
+const providers = ['omega-account', 'omega-official'] as const
 const requests = (events: readonly SessionEvent[]) => events.filter(event => pluginRecordOf(event)?.type === 'plugin:translator/request')
 const results = (events: readonly SessionEvent[]) => events.filter(event => pluginRecordOf(event)?.type === 'plugin:translator/result')
 
@@ -41,7 +41,7 @@ function historicalEvents(): SessionEvent[] {
 describe('common paid translation persistence', () => {
   it.each(['caller cancellation', 'provider deadline'] as const)(
     'keeps a pending result ahead of an immediate retry after %s without billing again', async (interruption) => {
-      const b = await paidFixture(cleanups, { translator: { deepseekTimeoutMs: 60_000 } }), backend = b.ctx.sessionPersistence as SessionPersistence & Pick<JsonlHandleStorage, 'persistBatch'>
+      const b = await paidFixture(cleanups, { translator: { omegaTimeoutMs: 60_000 } }), backend = b.ctx.sessionPersistence as SessionPersistence & Pick<JsonlHandleStorage, 'persistBatch'>
       expect(typeof backend.persistBatch).toBe('function')
       const entered = Promise.withResolvers<undefined>(), release = Promise.withResolvers<undefined>()
       cleanups.push(async () => { release.resolve(undefined) })
@@ -56,7 +56,7 @@ describe('common paid translation persistence', () => {
       const caller = new AbortController(), reason = new Error('Canceled while saving the translation')
       vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
       try {
-        const first = b.translate('deepseek-official', 'Original paragraph', caller.signal).catch((error: unknown) => error)
+        const first = b.translate('omega-official', 'Original paragraph', caller.signal).catch((error: unknown) => error)
         await entered.promise
         expect(b.requests).toHaveLength(1)
         if (interruption === 'caller cancellation') caller.abort(reason)
@@ -66,7 +66,7 @@ describe('common paid translation persistence', () => {
         else expect(rejected).toMatchObject({ code: 'TRANSLATION_TIMEOUT' })
         expect(results(await b.readEvents(b.session!.id))).toEqual([])
         const stat = vi.spyOn(backend, 'stat')
-        const retry = b.translate('deepseek-official').then(text => ({ text }), (error: unknown) => ({ error }))
+        const retry = b.translate('omega-official').then(text => ({ text }), (error: unknown) => ({ error }))
         // Retry admission starts in promise reactions; one event-loop turn drains those without releasing the write barrier.
         await setImmediate()
         const readsBeforeCommit = stat.mock.calls.length
@@ -134,7 +134,7 @@ describe('common paid translation persistence', () => {
     expect(wire.audit.slice(0, resumed.length)).toEqual(resumed)
     expect(wire.audit).toHaveLength(resumed.length + 1)
     expect(requests(wire.audit)[0]).toMatchObject({ ignorable: true, data: { provider, text: 'Original paragraph', sourceLanguage: 'auto', targetLanguage: 'zh',
-      metadata: { modelRequest: { config: { provider, model: 'deepseek-flash', reasoningEffort: 'off', maxTokens: 8192 },
+      metadata: { modelRequest: { config: { provider, model: 'omega-flash', reasoningEffort: 'off', maxTokens: 8192 },
         system: wire.body.system, messages: wire.body.messages } } } })
     expect(wire.body.messages).toEqual([{ role: 'user', content: [{ type: 'text', text: 'Original paragraph' }] }])
     expect(wire.body.thinking).toEqual({ type: 'disabled' })
@@ -155,7 +155,7 @@ describe('common paid translation persistence', () => {
 
   it('refuses a missing historical Session before paid dispatch', async () => {
     const b = await paidFixture(cleanups, { withSession: false })
-    await expect(b.ctx.translator.translate(b.ctx.translator.resolve({ provider: 'deepseek-official', text: 'source',
+    await expect(b.ctx.translator.translate(b.ctx.translator.resolve({ provider: 'omega-official', text: 'source',
       targetLanguage: 'zh', sessionId: brandString<SessionId>('missing-historical') })))
       .rejects.toMatchObject({ code: 'TRANSLATION_SESSION_REQUIRED' })
     expect(b.requests).toEqual([])
@@ -165,7 +165,7 @@ describe('common paid translation persistence', () => {
   it('does not claim a historical writer on a cache miss or dispatch paid work', async () => {
     const b = await paidFixture(cleanups, { withSession: false }), original = await b.createHistorical(brandString<SessionId>('owned-history'), historicalEvents())
     await using writer = await b.ctx.sessionPersistence.open(original.id, 'write')
-    await expect(b.ctx.translator.translate(b.ctx.translator.resolve({ provider: 'deepseek-official', text: 'source',
+    await expect(b.ctx.translator.translate(b.ctx.translator.resolve({ provider: 'omega-official', text: 'source',
       targetLanguage: 'zh', sessionId: original.id })))
       .rejects.toMatchObject({ code: 'TRANSLATION_SESSION_INACTIVE' })
     expect((await writer.read()).events).toEqual(original.events)
@@ -181,7 +181,7 @@ describe('common paid translation persistence', () => {
       if (b.requests.length > 0) throw new Error('Fixture result storage unavailable')
       return flush(value)
     })
-    await expect(b.ctx.translator.translate(b.ctx.translator.resolve({ provider: 'deepseek-official', text: 'Original paragraph',
+    await expect(b.ctx.translator.translate(b.ctx.translator.resolve({ provider: 'omega-official', text: 'Original paragraph',
       targetLanguage: 'zh', sessionId: session.id })))
       .rejects.toMatchObject({ code: 'TRANSLATION_STORAGE_ERROR' })
     expect(b.requests).toHaveLength(1)
@@ -193,9 +193,9 @@ describe('common paid translation persistence', () => {
 
   it('does not reuse a saved paid result when the configured output-token cap changes', async () => {
     const b = await paidFixture(cleanups), id = b.session!.id
-    const spec = () => b.ctx.translator.resolve({ provider: 'deepseek-official', text: 'Original paragraph', targetLanguage: 'zh', sessionId: id })
+    const spec = () => b.ctx.translator.resolve({ provider: 'omega-official', text: 'Original paragraph', targetLanguage: 'zh', sessionId: id })
     expect(await b.ctx.translator.translate(spec())).toBe('翻译结果')
-    await b.restart({ translator: { deepseekMaxOutputTokens: 16 } })
+    await b.restart({ translator: { omegaMaxOutputTokens: 16 } })
     await expect(b.ctx.translator.translate(spec())).rejects.toMatchObject({ code: 'TRANSLATION_SESSION_INACTIVE' })
     expect(b.requests).toHaveLength(1)
     await b.activate(id)

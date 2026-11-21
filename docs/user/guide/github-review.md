@@ -6,14 +6,14 @@ This opt-in overlay adds a signed GitHub endpoint to `dsh web`. When a pull requ
 
 ## Prerequisites
 
-- A local checkout that DSH may register as a Web Workspace.
+- A local checkout that Omega may register as a Web Workspace.
 - A high-entropy GitHub webhook secret available through the `DSH_GITHUB_WEBHOOK_SECRET` credential reference.
 - A TLS reverse proxy or tunnel that can forward one public URL to the loopback listener.
 - GitHub webhook subscription to the Pull requests event with content type `application/json`.
 
 The overlay defaults the Workspace to the launch directory and the listener to `127.0.0.1:3081`. Override them with `DSH_GITHUB_REVIEW_WORKSPACE` and `DSH_GITHUB_WEBHOOK_PORT`.
 
-## Start DSH
+## Start Omega
 
 Generate a secret and retain the same value across restarts:
 
@@ -25,9 +25,9 @@ printf '%s\n' "$DSH_GITHUB_WEBHOOK_SECRET"
 Install both experimental packages into the Web profile first. Profiles do not install peers automatically; the GitHub adapter needs the webhook runtime explicitly:
 
 ```sh
-dsh plugin --profile web add @deepseek-ai/dsh-webhook @deepseek-ai/dsh-webhook-github
-export DSH_GITHUB_REVIEW_WORKSPACE=/path/to/deepseek-harness
-dsh web --patch "${DSH_HOME:-$HOME/.dsh}/profiles/web/node_modules/@deepseek-ai/dsh-webhook-github/examples/github-review/cordis.yml"
+dsh plugin --profile web add @omega-ai/dsh-webhook @omega-ai/dsh-webhook-github
+export DSH_GITHUB_REVIEW_WORKSPACE=/path/to/omega-harness
+dsh web --patch "${DSH_HOME:-$HOME/.dsh}/profiles/web/node_modules/@omega-ai/dsh-webhook-github/examples/github-review/cordis.yml"
 ```
 
 The adapter distributes the example, which loads from the profile's installation directory so its rule module can resolve profile-installed peers. Do not run the rule from an arbitrary directory outside the profile. To customize it, copy both example files to `$DSH_HOME/profiles/web/github-review/`, edit the configuration, and point `--patch` at that copy of `cordis.yml`; use `~/.dsh` when `DSH_HOME` is unset.
@@ -36,7 +36,7 @@ The repository example lives under `packages/experimental/webhook-github/example
 
 ## Expose the dedicated endpoint
 
-The main Web UI and `/api` remain on port 3080. The overlay mounts a second WebServer in an isolated realm; only `POST /github` is registered there, and every other path returns `404`.
+The main Web UI and `/api` remain on port 4080. The overlay mounts a second WebServer in an isolated realm; only `POST /github` is registered there, and every other path returns `404`.
 
 A Caddy configuration can expose only that listener:
 
@@ -62,7 +62,7 @@ Active:       yes
 
 ## Rule behavior
 
-The rule accepts only source `primary-github`, repository `deepseek-ai/deepseek-harness`, event `pull_request`, and action `ready_for_review`. It passes the exact head SHA plus selected PR fields to the review prompt, labeling the JSON as untrusted metadata and forbidding file, branch, PR, or GitHub mutation.
+The rule accepts only source `primary-github`, repository `omega-ai/omega-harness`, event `pull_request`, and action `ready_for_review`. It passes the exact head SHA plus selected PR fields to the review prompt, labeling the JSON as untrusted metadata and forbidding file, branch, PR, or GitHub mutation.
 
 The Session request selects the `standard` agent preset and `read-only` permission preset. `workspacePath` is canonicalized through `WorkspaceRegistry.create()`, so the first matching delivery creates the Web Workspace when absent and later deliveries reuse it.
 
@@ -86,8 +86,8 @@ It can also map repositories to different local paths:
 
 ```js
 const workspacePath = {
-  'deepseek-ai/deepseek-harness': '/path/to/deepseek-harness',
-  'deepseek-harness/dsh-sdk': '/path/to/dsh-sdk',
+  'omega-ai/omega-harness': '/path/to/omega-harness',
+  'omega-harness/dsh-sdk': '/path/to/dsh-sdk',
 }[payload.repository.full_name]
 if (workspacePath === undefined) return null
 ```

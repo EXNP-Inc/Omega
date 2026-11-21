@@ -12,7 +12,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execa } from 'execa'
 import { z } from 'zod'
-import { DeepSeekHarness } from '@deepseek-ai/dsh-sdk-client'
+import { OmegaHarness } from '@omega-ai/dsh-sdk-client'
 import { expect, it, type TestContext } from 'vitest'
 import { profileEnvironment } from './fixtures/profile-environment.ts'
 import { messagesResponse } from './fixtures/messages-response.ts'
@@ -64,8 +64,8 @@ async function fixture(test: TestContext) {
     const before = requests.length
     let inventory: Inventory
     if (side === 'sdk') {
-      const harness = new DeepSeekHarness({
-        cwd, processCwd: cwd, dshHome: join(cwd, 'home'), env, model: 'deepseek-v4-pro',
+      const harness = new OmegaHarness({
+        cwd, processCwd: cwd, dshHome: join(cwd, 'home'), env, model: 'omega-v4-pro',
         patches: [...mode === 'ptc' ? [join(repo, 'apps/cli/config/examples/ptc.yml')] : [], patch],
       })
       const abort = (): void => { void harness.close() }

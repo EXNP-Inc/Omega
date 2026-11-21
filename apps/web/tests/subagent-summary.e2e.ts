@@ -2,14 +2,14 @@
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Agent, AssistantStreamFrame } from '@deepseek-ai/dsh-agent'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import type { Agent, AssistantStreamFrame } from '@omega-ai/dsh-agent'
+import { brandString } from '@omega-ai/dsh-brand'
 import {
   AssistantStreamAccumulator, type LlmAttemptId, type ToolCallId,
   createAssistantMessage, createToolResultMessage, createUserMessage,
   type StreamChunk,
-} from '@deepseek-ai/dsh-llm'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
+} from '@omega-ai/dsh-llm'
+import type { SessionEvent } from '@omega-ai/dsh-session'
 import type { Browser, Locator, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
@@ -23,7 +23,7 @@ const SNAPSHOT_DIR = fileURLToPath(new URL('./snapshots/subagent-summary/', impo
 const MODE = webSnapshotMode()
 const DESCRIPTION = 'Review subagent task summaries'
 const PROMPT = 'Inspect the subagent tool card across its lifecycle.\nCheck streaming arguments, creation receipts, and restored history.\nReturn findings without changing unrelated files.'
-const SOURCE = { provider: 'deepseek-official', model: 'deepseek-v4-flash' }
+const SOURCE = { provider: 'omega-official', model: 'omega-v4-flash' }
 
 async function snapshotGolden(name: string, actual: string): Promise<void> {
   if (MODE === 'refresh') await mkdir(SNAPSHOT_DIR, { recursive: true })

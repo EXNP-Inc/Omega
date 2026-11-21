@@ -3,7 +3,7 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { performance } from 'node:perf_hooks'
-import { DeepSeekHarness } from '@deepseek-ai/dsh-sdk-client'
+import { OmegaHarness } from '@omega-ai/dsh-sdk-client'
 import { assertBuiltBenchmarkRuntime } from '../support/built-worker.ts'
 import { PARENT_ID, resultText, WORKLOAD } from './workload.ts'
 
@@ -25,11 +25,11 @@ async function run(root: string): Promise<ProfileReport> {
   await writeFile(join(cwd, 'synthetic.txt'), resultText(0))
   const patch = join(root, 'profile.patch.yml')
   await writeFile(patch, [
-    '- id: llm-deepseek', '  disabled: true',
+    '- id: llm-omega', '  disabled: true',
     '- id: sessions', '  config:', '    root: ' + JSON.stringify(join(root, 'profile-sessions')), '    compression: zstd',
     '- insert:',
-    '    - id: fs-local', "      name: '@deepseek-ai/dsh-fs-local'",
-    '    - id: str-replace-editor', "      name: '@deepseek-ai/dsh-tool-str-replace-editor'",
+    '    - id: fs-local', "      name: '@omega-ai/dsh-fs-local'",
+    '    - id: str-replace-editor', "      name: '@omega-ai/dsh-tool-str-replace-editor'",
     '    - id: benchmark-model', '      name: ' + JSON.stringify(join(import.meta.dirname, 'profile-adapter.js')),
     '',
   ].join('\n'))
@@ -37,7 +37,7 @@ async function run(root: string): Promise<ProfileReport> {
     PATH: process.env.PATH, HOME: home, USERPROFILE: home,
     DSH_AGENTS_HOME: join(home, 'agents'),
   }
-  const harness = new DeepSeekHarness({
+  const harness = new OmegaHarness({
     dshBin: join(import.meta.dirname, '..', '..', '..', 'apps', 'cli', 'lib', 'bin.js'),
     profile: 'sdk-minimal', dshHome: home, processCwd: cwd, cwd,
     provider: 'bench', model: 'bench', patches: [patch], env,
@@ -82,7 +82,7 @@ async function run(root: string): Promise<ProfileReport> {
   }
 }
 
-assertBuiltBenchmarkRuntime(import.meta.url, { '@deepseek-ai/dsh-sdk-client': import.meta.resolve('@deepseek-ai/dsh-sdk-client') })
+assertBuiltBenchmarkRuntime(import.meta.url, { '@omega-ai/dsh-sdk-client': import.meta.resolve('@omega-ai/dsh-sdk-client') })
 const [root] = process.argv.slice(2)
 if (root === undefined) throw new Error('usage: profile-continuation.worker.js <root>')
 process.stdout.write(JSON.stringify(await run(root)) + '\n')

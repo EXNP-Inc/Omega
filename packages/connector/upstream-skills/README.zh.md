@@ -3,7 +3,7 @@ description: "把 CLI 应用插件的入口技能注册到 Host Service `ctx.ups
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-upstream-skills
+# @omega-ai/dsh-upstream-skills
 
 [English](README.md) | 中文
 
@@ -37,7 +37,7 @@ CLI 应用插件的 Host 行注入 `upstreamSkills` 并调用一次 `register`�
 
 ```yaml
 - id: upstream-skills
-  name: '@deepseek-ai/dsh-upstream-skills'
+  name: '@omega-ai/dsh-upstream-skills'
 ```
 
 | 字段 | 默认值 | 含义 |
@@ -45,7 +45,7 @@ CLI 应用插件的 Host 行注入 `upstreamSkills` 并调用一次 `register`�
 | `skillsUrls` | `['https://codeload.github.com']` | 按顺序尝试的 HTTPS 归档下载前缀，不含查询串、片段或凭据；对每个已注册的插件生效 |
 | `skillsTimeoutMs` | `120000` | 一个前缀送达完整归档的时限（整数毫秒），超时后尝试下一个；对每个已注册的插件生效 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-upstream-skills)是每个可接受字段的完整来源。`skillsUrls` 为空、某个前缀无法解析为这样的 URL，或 `skillsTimeoutMs` 小于 1 或大于 2147483647，都在加载时失败。
+生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-upstream-skills)是每个可接受字段的完整来源。`skillsUrls` 为空、某个前缀无法解析为这样的 URL，或 `skillsTimeoutMs` 小于 1 或大于 2147483647，都在加载时失败。
 
 ### 注册入口技能
 
@@ -53,8 +53,8 @@ CLI 应用插件的 Host 行注入 `upstreamSkills` 并调用一次 `register`�
 
 ```ts
 import { fileURLToPath } from 'node:url'
-import type { Context } from '@deepseek-ai/cordis'
-import type { UpstreamSkillSet } from '@deepseek-ai/dsh-upstream-skills'
+import type { Context } from '@omega-ai/cordis'
+import type { UpstreamSkillSet } from '@omega-ai/dsh-upstream-skills'
 
 const VENDOR_SKILLS: UpstreamSkillSet = {
   repository: 'vendor/vendor-cli',

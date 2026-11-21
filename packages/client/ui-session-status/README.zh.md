@@ -3,7 +3,7 @@ description: "基于宿主阅读记录的 Client 会话状态表与 useSessionSt
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-session-status
+# @omega-ai/dsh-client-ui-session-status
 
 [English](README.md) | 中文
 

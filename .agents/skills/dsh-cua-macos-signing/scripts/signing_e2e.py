@@ -51,7 +51,7 @@ def main():
                 assert application.name == "DSH Computer Use Dev.app", application
                 subprocess.run(["/usr/bin/codesign", "--verify", "--strict", str(application)], check=True)
                 info = plistlib.loads((application / "Contents/Info.plist").read_bytes())
-                assert info["CFBundleIdentifier"] == "com.deepseek.harness.computer-use.dev", info
+                assert info["CFBundleIdentifier"] == "com.omega.harness.computer-use.dev", info
                 requirements.append((application, requirement(application)))
             (first, first_requirement), (second, second_requirement) = requirements
             assert first != second, "changed builds must publish separate generations"

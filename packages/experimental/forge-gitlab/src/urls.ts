@@ -1,6 +1,6 @@
 /** GitLab remote URL and merge request URL parsing, and validation of the project paths inlined into requests. */
 
-import type { ChangeRequestRef, ForgeRepository } from '@deepseek-ai/dsh-experimental-forge'
+import type { ChangeRequestRef, ForgeRepository } from '@omega-ai/dsh-experimental-forge'
 
 /** Characters GitLab permits in one group or project path segment. */
 const SEGMENT = /^[A-Za-z0-9_.-]+$/

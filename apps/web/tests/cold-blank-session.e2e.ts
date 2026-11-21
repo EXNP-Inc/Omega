@@ -3,14 +3,14 @@
 import { fileURLToPath } from 'node:url'
 import { chromium, type Browser, type Page } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { SESSION_FORMAT_VERSION, type SessionId, SessionSeq } from '@deepseek-ai/dsh-session'
+import { createUserMessage } from '@omega-ai/dsh-llm'
+import { SESSION_FORMAT_VERSION, type SessionId, SessionSeq } from '@omega-ai/dsh-session'
 import {
   captureStableAria, compareOrRefreshGolden, launchWebScaffold,
   watchConsole, webSnapshotMode, type WebScaffold,
 } from './scaffold.ts'
 import { newEnglishPage, saveFailureShot } from './support.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const SESSION_ID = brandString<SessionId>('cold-inbox-web-e2e')
 const PENDING_TEXT = 'Accepted before the Host restarted'

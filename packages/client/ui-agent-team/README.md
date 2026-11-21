@@ -3,7 +3,7 @@ description: "Inspect the shared task board in the Web Session panel's Shared ta
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-agent-team
+# @omega-ai/dsh-client-ui-agent-team
 
 English | [中文](README.zh.md)
 

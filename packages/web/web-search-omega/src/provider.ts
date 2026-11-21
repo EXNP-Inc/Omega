@@ -1,21 +1,21 @@
 /**
- * DeepSeek search through an Anthropic-compatible Messages model call with the native
+ * Omega search through an Anthropic-compatible Messages model call with the native
  * `web_search_20250305` server tool. Each search costs a model turn, but returns structured
  * result blocks; absence of those blocks is an error rather than a prose-scraping fallback.
  * The wire format and native `fetch` client are provider-private and do not use `ctx.llm`.
- * @module @deepseek-ai/dsh-web-search-deepseek/provider
+ * @module @omega-ai/dsh-web-search-omega/provider
  */
 
-import { WebError } from '@deepseek-ai/dsh-web'
+import { WebError } from '@omega-ai/dsh-web'
 import type {
   WebSearchProvider,
   WebSearchRequest,
   WebSearchResult,
   WebSearchSource,
-} from '@deepseek-ai/dsh-web'
-import type { CredentialRef } from '@deepseek-ai/dsh-credentials'
-import type { DeepSeekAuthorization } from '@deepseek-ai/dsh-deepseek-auth'
-import type {} from '@deepseek-ai/dsh-session'
+} from '@omega-ai/dsh-web'
+import type { CredentialRef } from '@omega-ai/dsh-credentials'
+import type { OmegaAuthorization } from '@omega-ai/dsh-omega-auth'
+import type {} from '@omega-ai/dsh-session'
 import type {
   AnthropicError,
   AnthropicResponse,
@@ -25,35 +25,36 @@ import type {
 } from './types.ts'
 
 /** Stable id this provider registers under. */
-export const DEEPSEEK_PROVIDER_ID = 'deepseek-official'
+export const OMEGA_PROVIDER_ID = 'omega-official'
 
 /**
  * Default auxiliary-search endpoint, including `/v1`; `/messages` is appended.
- * `$DEEPSEEK_SEARCH_BASE_URL` overrides it independently of the conversation
- * adapter's endpoint. Both providers share the API key.
+ * `$OMEGA_SEARCH_BASE_URL` overrides it independently of the conversation
+ * adapter's endpoint. Both providers share the API key. The default is the
+ * local gateway, which a deployment routes to its search-capable model.
  */
-export const DEEPSEEK_DEFAULT_BASE_URL = 'https://api.deepseek.com/anthropic/v1'
+export const OMEGA_DEFAULT_BASE_URL = 'http://127.0.0.1:8090/anthropic/v1'
 
-/** Default Anthropic-format model name (aligned with the repo's DeepSeek model vocabulary). */
-export const DEEPSEEK_DEFAULT_MODEL = 'deepseek-v4-flash'
+/** Default Anthropic-format model name for the search request; the local gateway's default model. */
+export const OMEGA_DEFAULT_MODEL = 'qwen3.8-27b-lite'
 
 /** Default `anthropic-version` header value. */
-export const DEEPSEEK_DEFAULT_API_VERSION = '2023-06-01'
+export const OMEGA_DEFAULT_API_VERSION = '2023-06-01'
 
 /** Default upper bound on generated tokens for the Messages request. */
-export const DEEPSEEK_DEFAULT_MAX_TOKENS = 4096
+export const OMEGA_DEFAULT_MAX_TOKENS = 4096
 
 /** Default maximum `web_search` server-tool uses per request. */
-export const DEEPSEEK_DEFAULT_MAX_USES = 5
+export const OMEGA_DEFAULT_MAX_USES = 5
 
 /** Attribution header sent on every request. Bump with the package version. */
-const USER_AGENT = 'deepseek-harness/0.0.1'
+const USER_AGENT = 'omega-harness/0.0.1'
 
 /**
- * Exact secret-free DeepSeek Messages request recorded immediately before one
+ * Exact secret-free Omega Messages request recorded immediately before one
  * auxiliary search dispatch.
  */
-export interface DeepSeekSearchLlmRequest {
+export interface OmegaSearchLlmRequest {
   /** Fully resolved Messages endpoint. */
   readonly endpoint: string
   /** `anthropic-version` header value. */
@@ -84,17 +85,17 @@ export interface DeepSeekSearchLlmRequest {
   }
 }
 
-declare module '@deepseek-ai/dsh-session/types' {
+declare module '@omega-ai/dsh-session/types' {
   interface SessionEventMap {
-    /** Secret-free auxiliary DeepSeek search request recorded before dispatch. */
-    'web/deepseek-search-llm-request': DeepSeekSearchLlmRequest
+    /** Secret-free auxiliary Omega search request recorded before dispatch. */
+    'web/omega-search-llm-request': OmegaSearchLlmRequest
   }
 }
 
 /** Resolved provider options (the plugin's `apply` supplies credential and constant defaults). */
-export interface DeepSeekSearchProviderOptions {
+export interface OmegaSearchProviderOptions {
   /**
-   * Release the credential `ctx.deepseekAuth` binds to one search endpoint: the account sign-in in a
+   * Release the credential `ctx.omegaAuth` binds to one search endpoint: the account sign-in in a
    * conversation the account bills, otherwise the referenced API key. A released credential takes
    * precedence over the literal {@link apiKey} and is sent only through its headers. An account
    * sign-in is invalidated through `reject` after HTTP 401; a failure of that invalidation is
@@ -102,7 +103,7 @@ export interface DeepSeekSearchProviderOptions {
    * the account signs out. `undefined` selects the literal key.
    */
   authorize?: (endpoint: string, signal?: AbortSignal) => Promise<SearchAuth | undefined>
-  /** Literal DeepSeek API key, sent when {@link authorize} releases no credential. */
+  /** Literal Omega API key, sent when {@link authorize} releases no credential. */
   apiKey?: string
   /** Credential reference named by missing-credential diagnostics. */
   apiKeyEnv?: CredentialRef
@@ -120,7 +121,7 @@ export interface DeepSeekSearchProviderOptions {
    * Record the exact secret-free request immediately before dispatch. A throw
    * prevents dispatch so model-visible auxiliary input cannot escape logging.
    */
-  recordRequest?: (request: DeepSeekSearchLlmRequest) => void
+  recordRequest?: (request: OmegaSearchLlmRequest) => void
 }
 
 /**
@@ -146,7 +147,7 @@ export function citationSnippets(blocks: readonly ContentBlock[]): Map<string, s
 }
 
 /**
- * Map a DeepSeek Anthropic Messages response to a normalized search result. Walks
+ * Map a Omega Anthropic Messages response to a normalized search result. Walks
  * `web_search_tool_result` blocks for citeable `web_search_result` items, takes each item's own
  * `snippet` or else its citation excerpt as `snippet`, and dedupes by `url` (a `max_uses > 1`
  * request can surface the same URL across searches). The web service owns the final `maxResults`
@@ -163,7 +164,7 @@ export function mapAnthropicResponse(response: AnthropicResponse): WebSearchResu
   )
   if (resultBlocks.length === 0) {
     throw new WebError(
-      'DeepSeek returned no web_search_tool_result blocks; the request may not have triggered native web search',
+      'Omega returned no web_search_tool_result blocks; the request may not have triggered native web search',
       'WEB_PROVIDER_ERROR',
     )
   }
@@ -189,26 +190,26 @@ export function mapAnthropicResponse(response: AnthropicResponse): WebSearchResu
 
 /**
  * The credential one search sends, tagged by its kind: the fields the search reads of an authorization
- * `ctx.deepseekAuth` releases. `reject` invalidates a sent account sign-in, and `revoked` ends the request at sign-out.
+ * `ctx.omegaAuth` releases. `reject` invalidates a sent account sign-in, and `revoked` ends the request at sign-out.
  */
-type SearchAuth = Pick<DeepSeekAuthorization, 'kind' | 'headers' | 'reject' | 'revoked'>
+type SearchAuth = Pick<OmegaAuthorization, 'kind' | 'headers' | 'reject' | 'revoked'>
 
 /**
- * The DeepSeek-backed search provider. HTTP redirects fail as `WEB_PROVIDER_ERROR`;
+ * The Omega-backed search provider. HTTP redirects fail as `WEB_PROVIDER_ERROR`;
  * failures after dispatch name the endpoint and tell the model how the user can configure it.
  */
-export class DeepSeekSearchProvider implements WebSearchProvider {
-  readonly id = DEEPSEEK_PROVIDER_ID
+export class OmegaSearchProvider implements WebSearchProvider {
+  readonly id = OMEGA_PROVIDER_ID
   /** Picker description: what this provider suits and what it costs or cannot do. */
   readonly description: NonNullable<WebSearchProvider['description']> = {
-    en: 'No per-search charge, but every search uses extra model tokens. Requires a DeepSeek account or API key.',
-    zh: '搜索不按次收费，每次搜索都会额外消耗模型 token。需要 DeepSeek 账号或 API Key。',
-    ja: '検索ごとの料金はかかりませんが、検索のたびに追加のモデルトークンを消費します。DeepSeek アカウントまたは API キーが必要です。',
-    es: 'Sin cargo por búsqueda, pero cada búsqueda consume tokens adicionales del modelo. Requiere una cuenta de DeepSeek o una clave de API.',
-    fr: 'Sans frais par recherche, mais chaque recherche consomme des jetons de modèle supplémentaires. Nécessite un compte DeepSeek ou une clé API.',
-    de: 'Keine Kosten pro Suche, aber jede Suche verbraucht zusätzliche Modell-Tokens. Erfordert ein DeepSeek-Konto oder einen API-Schlüssel.',
-    ru: 'Плата за каждый поиск не взимается, но каждый поиск расходует дополнительные токены модели. Требуется учётная запись DeepSeek или ключ API.',
-    pt: 'Sem cobrança por pesquisa, mas cada pesquisa consome tokens extras do modelo. Requer uma conta DeepSeek ou uma chave de API.',
+    en: 'No per-search charge, but every search uses extra model tokens. Requires a Omega account or API key.',
+    zh: '搜索不按次收费，每次搜索都会额外消耗模型 token。需要 Omega 账号或 API Key。',
+    ja: '検索ごとの料金はかかりませんが、検索のたびに追加のモデルトークンを消費します。Omega アカウントまたは API キーが必要です。',
+    es: 'Sin cargo por búsqueda, pero cada búsqueda consume tokens adicionales del modelo. Requiere una cuenta de Omega o una clave de API.',
+    fr: 'Sans frais par recherche, mais chaque recherche consomme des jetons de modèle supplémentaires. Nécessite un compte Omega ou une clé API.',
+    de: 'Keine Kosten pro Suche, aber jede Suche verbraucht zusätzliche Modell-Tokens. Erfordert ein Omega-Konto oder einen API-Schlüssel.',
+    ru: 'Плата за каждый поиск не взимается, но каждый поиск расходует дополнительные токены модели. Требуется учётная запись Omega или ключ API.',
+    pt: 'Sem cobrança por pesquisa, mas cada pesquisa consome tokens extras do modelo. Requer uma conta Omega ou uma chave de API.',
   }
 
   /**
@@ -218,7 +219,7 @@ export class DeepSeekSearchProvider implements WebSearchProvider {
    * between searches, and re-registering the provider to carry a new endpoint
    * would make the seam's selection observable to the user as a flicker.
    */
-  constructor(private readonly resolveOptions: () => DeepSeekSearchProviderOptions) {}
+  constructor(private readonly resolveOptions: () => OmegaSearchProviderOptions) {}
 
   available(): boolean {
     const options = this.resolveOptions()
@@ -236,7 +237,7 @@ export class DeepSeekSearchProvider implements WebSearchProvider {
     const endpoint = `${options.baseURL}/messages`
     const auth = await this.authHeaders(options, endpoint, signal)
     throwIfSearchAborted(signal)
-    const body: DeepSeekSearchLlmRequest['body'] = {
+    const body: OmegaSearchLlmRequest['body'] = {
       model: options.model,
       max_tokens: options.maxTokens,
       messages: [{
@@ -281,14 +282,14 @@ export class DeepSeekSearchProvider implements WebSearchProvider {
     } catch (error: unknown) {
       throw interrupted(error) ?? searchEndpointError(
         endpoint,
-        `DeepSeek search request failed: ${String(error)}`,
+        `Omega search request failed: ${String(error)}`,
         error,
       )
     }
 
     if (!response.ok) {
       const status = response.status
-      let message = `DeepSeek API error (HTTP ${status})`
+      let message = `Omega API error (HTTP ${status})`
       let aborted: WebError | undefined
       try {
         const parsed = await response.json() as AnthropicError
@@ -324,7 +325,7 @@ export class DeepSeekSearchProvider implements WebSearchProvider {
       if (stopped !== undefined) throw stopped
       const message = error instanceof WebError
         ? error.message
-        : `DeepSeek returned an unprocessable response body: ${String(error)}`
+        : `Omega returned an unprocessable response body: ${String(error)}`
       throw searchEndpointError(endpoint, message, error)
     }
   }
@@ -337,7 +338,7 @@ export class DeepSeekSearchProvider implements WebSearchProvider {
    * @returns the released credential when one resolves, otherwise the literal key in both API-key headers.
    */
   private async authHeaders(
-    options: DeepSeekSearchProviderOptions, endpoint: string, signal?: AbortSignal,
+    options: OmegaSearchProviderOptions, endpoint: string, signal?: AbortSignal,
   ): Promise<SearchAuth> {
     const { authorize, apiKey } = options
     const released = authorize === undefined
@@ -345,14 +346,14 @@ export class DeepSeekSearchProvider implements WebSearchProvider {
       : await resolveCredential(() => authorize(endpoint, signal), signal)
     if (released !== undefined) return released
     throwIfSearchAborted(signal)
-    // Official DeepSeek expects `x-api-key`; an Anthropic-compatible proxy
+    // Official Omega expects `x-api-key`; an Anthropic-compatible proxy
     // may expect `Authorization: Bearer` — send both so either resolves.
     if (apiKey !== undefined && apiKey.length > 0) return { kind: 'api-key', headers: { 'x-api-key': apiKey, 'authorization': `Bearer ${apiKey}` } }
-    const ref = options.apiKeyEnv ?? 'DEEPSEEK_API_KEY'
+    const ref = options.apiKeyEnv ?? 'OMEGA_API_KEY'
     throw new WebError(
-      `DeepSeek search has no API key for "${ref}"; store it through the credentials service`
+      `Omega search has no API key for "${ref}"; store it through the credentials service`
       + ' (the web Models page writes it), export it in the launching environment, or set a literal'
-      + ' "apiKey" in the web-search-deepseek config; a conversation using a DeepSeek Account model'
+      + ' "apiKey" in the web-search-omega config; a conversation using a Omega Account model'
       + ' searches with the account sign-in instead',
       'WEB_PROVIDER_CREDENTIAL_MISSING',
     )
@@ -374,7 +375,7 @@ async function resolveCredential<T>(resolve: () => Promise<T>, signal?: AbortSig
   } catch (error: unknown) {
     if (signal?.aborted === true || isAbortError(error)) throw searchAborted(signal, error)
     throw new WebError(
-      `DeepSeek search credential resolution failed: ${String(error)}`,
+      `Omega search credential resolution failed: ${String(error)}`,
       'WEB_PROVIDER_ERROR',
       { cause: error },
     )
@@ -400,18 +401,18 @@ function requestSignal(signal: AbortSignal | undefined, revoked: AbortSignal | u
  */
 function accountSignedOutError(cause: unknown): WebError {
   return new WebError(
-    'The DeepSeek account signed out before this web search finished. Guide the user to sign in to DeepSeek again;'
+    'The Omega account signed out before this web search finished. Guide the user to sign in to Omega again;'
     + ' the search endpoint does not need changing.',
     'WEB_PROVIDER_ERROR',
     { cause },
   )
 }
 
-/** Replace endpoint guidance with sign-in guidance when DeepSeek rejects the account token. */
+/** Replace endpoint guidance with sign-in guidance when Omega rejects the account token. */
 function accountRejectedError(message: string): WebError {
   return new WebError(
-    `${message}\n\nDeepSeek rejected the account sign-in used for this web search. `
-    + 'Guide the user to sign in to DeepSeek again; the search endpoint does not need changing.',
+    `${message}\n\nOmega rejected the account sign-in used for this web search. `
+    + 'Guide the user to sign in to Omega again; the search endpoint does not need changing.',
     'WEB_PROVIDER_ERROR',
   )
 }
@@ -421,9 +422,9 @@ function searchEndpointError(endpoint: string, message: string, cause?: unknown)
   return new WebError(
     `${message}\n\nThe web request used endpoint ${JSON.stringify(endpoint)}. `
     + 'Search endpoint configuration is separate from chat. If that endpoint is not intended, '
-    + 'guide the user to Plugins > Built-in plugin settings > Web search and fetch, select DeepSeek server-side search under Search, '
+    + 'guide the user to Plugins > Built-in plugin settings > Web search and fetch, select Omega server-side search under Search, '
     + 'and change and save its Base URL. If that settings page is unavailable, the user can set '
-    + 'web-search-deepseek.baseURL to a trusted DeepSeek endpoint. Only the user should choose or change the endpoint.',
+    + 'web-search-omega.baseURL to a trusted Omega endpoint. Only the user should choose or change the endpoint.',
     'WEB_PROVIDER_ERROR',
     cause === undefined ? undefined : { cause },
   )
@@ -465,7 +466,7 @@ function throwIfSearchAborted(signal?: AbortSignal): void {
 
 /** Build the provider's stable cancellation error while retaining the caller's reason. */
 function searchAborted(signal?: AbortSignal, fallback?: unknown): WebError {
-  return new WebError('DeepSeek search aborted', 'WEB_ABORTED', {
+  return new WebError('Omega search aborted', 'WEB_ABORTED', {
     cause: signal?.aborted === true ? signal.reason : fallback,
   })
 }
@@ -482,7 +483,7 @@ function dispatchable(baseURL: string): boolean {
   return username === '' && password === ''
 }
 
-/** True for DeepSeek request limits that can be sent to the Messages API. */
+/** True for Omega request limits that can be sent to the Messages API. */
 function isPositiveInteger(value: number): boolean {
   return Number.isInteger(value) && value > 0
 }

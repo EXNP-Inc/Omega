@@ -40,8 +40,8 @@ Install one version with `marketInstallTarget(name, version)`: it returns the ex
 ## API
 
 ```ts
-import { MarketIndexError, marketInstallTarget, parseMarketIndex } from '@deepseek-ai/dsh-plugin-market-index'
-import { gitMarketIndexSource, isGitMarketIndexSourceAddress, parseGitMarketIndexSource } from '@deepseek-ai/dsh-plugin-market-index/source'
+import { MarketIndexError, marketInstallTarget, parseMarketIndex } from '@omega-ai/dsh-plugin-market-index'
+import { gitMarketIndexSource, isGitMarketIndexSourceAddress, parseGitMarketIndexSource } from '@omega-ai/dsh-plugin-market-index/source'
 ```
 
 | Export | Role |

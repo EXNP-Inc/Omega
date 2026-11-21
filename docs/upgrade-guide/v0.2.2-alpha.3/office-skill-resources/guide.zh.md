@@ -9,7 +9,7 @@ description: "`DSH_BUNDLED_OFFICE_SKILLS` 和 `office-skills/` 资源目录被�
 
 ## 变更
 
-Web 和 SDK profile 不再为 `skill-office` 行设置 `assetRoot`，因此 [`@deepseek-ai/dsh-skill-office`](../../../../packages/skill/skill-office/README.zh.md) 在所有部署中都从包内 `assets/` 读取 Office 技能：
+Web 和 SDK profile 不再为 `skill-office` 行设置 `assetRoot`，因此 [`@omega-ai/dsh-skill-office`](../../../../packages/skill/skill-office/README.zh.md) 在所有部署中都从包内 `assets/` 读取 Office 技能：
 
 | 已删除 | 替代 |
 |---|---|

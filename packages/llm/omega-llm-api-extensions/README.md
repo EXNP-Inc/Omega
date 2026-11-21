@@ -1,15 +1,15 @@
 ---
-description: "Official DeepSeek request-extension registry for provider plugins contributing lifecycle-owned top-level API fields."
+description: "Official Omega request-extension registry for provider plugins contributing lifecycle-owned top-level API fields."
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-deepseek-llm-api-extensions
+# @omega-ai/dsh-omega-llm-api-extensions
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-Provider-specific registry for additive top-level fields on official DeepSeek LLM API requests. `DeepSeekLlmApiExtensionRegistry` registers `ctx.deepseekLlmApiExtensions`; contributor plugins claim one declaration-merged field, and `dsh-llm-deepseek` prepares the current contributions after serializing its base request. Use it when a plugin must add a validated provider-specific field without changing the base adapter.
+Provider-specific registry for additive top-level fields on official Omega LLM API requests. `OmegaLlmApiExtensionRegistry` registers `ctx.omegaLlmApiExtensions`; contributor plugins claim one declaration-merged field, and `dsh-llm-omega` prepares the current contributions after serializing its base request. Use it when a plugin must add a validated provider-specific field without changing the base adapter.
 
 ## Table of Contents
 
@@ -31,12 +31,12 @@ Each provider sees the exact serialized Messages body, the request `AbortSignal`
 
 Request `purpose` is the producer-defined string forwarded by the adapter, or absent for ordinary conversation requests. The registry forwards unfamiliar purposes without choosing field-specific policy.
 
-The registry owns addition and lifecycle, not field semantics. `@deepseek-ai/dsh-session-log-deepseek` owns `dsh_session_log`; `@deepseek-ai/dsh-plugin-package-inventory-deepseek` owns `dsh_plugin_packages`. The provider-neutral LLM seam and `llm-pi-ai` do not consume this registry.
+The registry owns addition and lifecycle, not field semantics. `@omega-ai/dsh-session-log-omega` owns `dsh_session_log`; `@omega-ai/dsh-plugin-package-inventory-omega` owns `dsh_plugin_packages`. The provider-neutral LLM seam and `llm-pi-ai` do not consume this registry.
 
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through `@deepseek-ai/dsh-llm-deepseek`, which sends registered fields outside the model's `messages`, system prompt, and tool schemas.
+Indirectly, through `@omega-ai/dsh-llm-omega`, which sends registered fields outside the model's `messages`, system prompt, and tool schemas.
 
 #### KV Cache effect
 
@@ -46,7 +46,7 @@ None; registry fields are model-hidden provider metadata and do not alter the se
 
 <a id="known-limitations-and-deferred-work"></a>
 
-- **Official DeepSeek requests only** — the registry intentionally has no provider-neutral routing or pi-ai adapter integration.
+- **Official Omega requests only** — the registry intentionally has no provider-neutral routing or pi-ai adapter integration.
 - **No field ordering contract** — JSON object member order follows registration preparation but receivers address fields by name.
 
 

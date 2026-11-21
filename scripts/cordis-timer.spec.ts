@@ -1,6 +1,6 @@
 /** Timer iterator ordering and cancellation on the vendored Cordis lifecycle. */
-import { Context } from '@deepseek-ai/cordis'
-import Timer from '@deepseek-ai/cordis-plugin-timer'
+import { Context } from '@omega-ai/cordis'
+import Timer from '@omega-ai/cordis-plugin-timer'
 import { afterEach, beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest'
 
 describe('Cordis Timer', () => {

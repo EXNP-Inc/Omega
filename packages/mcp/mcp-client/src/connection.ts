@@ -16,11 +16,11 @@
  */
 
 import { Client } from '@modelcontextprotocol/client'
-import type { Context } from '@deepseek-ai/cordis'
-import type { ScopeKey } from '@deepseek-ai/dsh-scope'
-import { assertNever, deepEqualJson, type JsonValue } from '@deepseek-ai/dsh-util-values'
+import type { Context } from '@omega-ai/cordis'
+import type { ScopeKey } from '@omega-ai/dsh-scope'
+import { assertNever, deepEqualJson, type JsonValue } from '@omega-ai/dsh-util-values'
 import type { ServerContext } from './server-context.ts'
-import { MAX_TIMER_DELAY_MS } from '@deepseek-ai/dsh-timeout'
+import { MAX_TIMER_DELAY_MS } from '@omega-ai/dsh-timeout'
 import { withDeadline } from './deadline.ts'
 import { McpAuthorizationRequired, McpLocalError, mcpRequestError, McpToolError, oauthFailure } from './diagnostic.ts'
 import type { McpOAuthCredentials, McpOAuthGrant } from './oauth-credentials.ts'

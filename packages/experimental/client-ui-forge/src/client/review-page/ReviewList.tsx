@@ -9,10 +9,10 @@ import {
   Button, HoverCard, IconCheckOutlineRegular, IconChevronDownOutlineRegular, IconFlatListOutlineRegular, IconFolderCloseRegular,
   IconLayersOutlineRegular, IconSearchOutlineRegular, IconSlidersTwoOutlineRegular, IconUserOutlineRegular, IconUsersOutlineRegular,
   Input, MarqueeText, Menu, Tooltip, useHoverMarquee, type MenuEntry,
-} from '@deepseek-ai/dsh-client-ui-primitives'
-import type { PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
-import { TextSearchIndex } from '@deepseek-ai/dsh-util-text-search'
-import type { ChecksRollup, ForgeViewerFilter } from '@deepseek-ai/dsh-experimental-forge/types'
+} from '@omega-ai/dsh-client-ui-primitives'
+import type { PropsLocale } from '@omega-ai/dsh-client-ui-slots'
+import { TextSearchIndex } from '@omega-ai/dsh-util-text-search'
+import type { ChecksRollup, ForgeViewerFilter } from '@omega-ai/dsh-experimental-forge/types'
 import type { ForgeReviewFrame } from '../../types.ts'
 import { formatAgo, formatShortAgo } from '../format.ts'
 import { ChangeRequestGlyph } from '../glyphs.tsx'

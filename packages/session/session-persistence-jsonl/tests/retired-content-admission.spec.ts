@@ -1,15 +1,15 @@
 /** Interpreted retired content must fail before migration publication or recoverable native-tail suppression. */
-import { Context } from '@deepseek-ai/cordis'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import { SessionFormatUnsupportedError, SessionPersistenceCorruptionError } from '@deepseek-ai/dsh-session-persistence'
-import * as JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
+import { Context } from '@omega-ai/cordis'
+import type { SessionId } from '@omega-ai/dsh-session'
+import { SessionFormatUnsupportedError, SessionPersistenceCorruptionError } from '@omega-ai/dsh-session-persistence'
+import * as JsonlSessionPersistence from '@omega-ai/dsh-session-persistence-jsonl'
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { basename, dirname, join } from 'node:path'
 import { describe, expect, it, onTestFinished } from 'vitest'
 import { generationLogPath } from '../src/format.ts'
 import { compressZstdFrame } from '../src/zstd.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const id = brandString<SessionId>('retired-content-admission')
 const wrapper = { type: 'tool-result', toolCallId: 'retired-call', content: [{ type: 'text', text: 'result' }] }

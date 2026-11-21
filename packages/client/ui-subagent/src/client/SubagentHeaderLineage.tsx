@@ -1,11 +1,11 @@
 /** Breadcrumb switcher for subagent Sessions: the current title opens its siblings' tree. */
 import { useMemo, useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import { MenuSurface } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRuntime, TranslateNS } from '@deepseek-ai/dsh-client-ui-slots'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import { MenuSurface } from '@omega-ai/dsh-client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRuntime, TranslateNS } from '@omega-ai/dsh-client-ui-slots'
 import { NS } from './locales.ts'
-import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type {} from '@omega-ai/dsh-client-ui-conversation/client'
 import {
   CatalogTree, deriveCatalogs, entryName, levelPreparer, treeItems, type SubagentCatalogInjected, type SubagentCatalogSnapshot,
 } from './SubagentCatalog.tsx'

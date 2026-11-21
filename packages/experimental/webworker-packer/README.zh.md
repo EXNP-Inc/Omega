@@ -3,7 +3,7 @@ description: "面向构建或排查实验性预览部署的维护者，说明浏
 kind: "package-library"
 ---
 
-# `@deepseek-ai/dsh-experimental-webworker-packer`
+# `@omega-ai/dsh-experimental-webworker-packer`
 
 [English](README.md) | 中文
 
@@ -29,7 +29,7 @@ VFS 镜像打包器：把一份随附 profile 的 bundle 和安装提供的 opti
 
 打包是三层标准栈：
 
-1. **Roster**——随附 profile 模板的 bundle 和 [`dsh-official-bundles`](../../util/official-bundles/README.zh.md) `OPTIONAL_BUNDLES` 中的每个 bundle（各自按启动器的方式从 CLI manifest 解析），加上它们 patch 文件点名的每个包（含 insert 列表与分组行），再加上 CLI（命令行界面）在 `package.json` `dsh.configTrees` 里声明的每棵配置树的行，按 Node 式依赖闭包物化。外部 peer 边绝不会绑定到 worker，workspace peer 保留在链上。CLI manifest 本身单独进入镜像，位于 `node_modules/@deepseek-ai/dsh/package.json`，作为 worker 解析 bundle 的锚点；manifest 记录它的名称和 profile。
+1. **Roster**——随附 profile 模板的 bundle 和 [`dsh-official-bundles`](../../util/official-bundles/README.zh.md) `OPTIONAL_BUNDLES` 中的每个 bundle（各自按启动器的方式从 CLI manifest 解析），加上它们 patch 文件点名的每个包（含 insert 列表与分组行），再加上 CLI（命令行界面）在 `package.json` `dsh.configTrees` 里声明的每棵配置树的行，按 Node 式依赖闭包物化。外部 peer 边绝不会绑定到 worker，workspace peer 保留在链上。CLI manifest 本身单独进入镜像，位于 `node_modules/@omega-ai/dsh/package.json`，作为 worker 解析 bundle 的锚点；manifest 记录它的名称和 profile。
 2. **发布视图**——每个 workspace 或 vendored 包贡献其构建后的 npm 切片（`files` 走 picomatch），不带源码和 workspace `dist/`。外部包的 `main` 或 `exports` 可能指向 `src/` 或 `dist/`，因此两处发布 JavaScript 都会保留，只应用通用的测试、map、声明与归档排除规则。
 3. **可达性 sweep**——用运行时加载器自己的解析, 从全部不含通配符的 workspace 运行时导出加 worker 装配种子 (`IMAGE_ENTRY_SEEDS`) 出发, 打包时把每个可达模块转换为符合包装层约定的形式. 仅含类型声明的条件树不作为扫描入口; 运行时代码请求这些导出仍会失败. 该转换会报告名称可静态确定的 import、re-export 与动态 import、经 `require` 发起的调用, 以及通过 `node:module` 或 `module` 具名导入 (含导入别名) 在模块作用域直接发起的 `createRequire(import.meta.url)('pkg')` 调用. 页面资产 (`./client` 导出背后的 `lib/client.js`) 原样直发; 自家代码的不可解析请求会让打包失败, 第三方不可解析请求则允许延后到 require 时明确失败.
 4. **懒加载 chunk**——页面资产以字面量 `require.async("./client.<name>.js")`（动态 Client 构建产出的唯一形式）请求的每个页面 chunk，除非被 `./client` 导出点名，否则移出基础镜像。每个 chunk 成为基础镜像旁的一个独立确定性归档，命名为 `lazy/<归档的 sha256>.tar.gz`；manifest 为 worker 的懒加载文件系统登记其路径、大小和归档。请求包未发布的 chunk 会让打包失败。
@@ -59,7 +59,7 @@ VFS 镜像打包器：把一份随附 profile 的 bundle 和安装提供的 opti
 - **可达性只推断精确请求形式**——计算得到的 `import` 与 `require` 参数、保存下来的 `createRequire` 结果、经 CommonJS 获取的 `createRequire`，以及基准不是 `import.meta.url` 的调用只在运行时解析；若目标已被裁掉就会显式失败。只能通过这些形式触达的目标需要显式镜像入口种子。
 - **vendored 包源码（`src/*.ts`）被排除**——运行时无人解析它们；未来若有 worker 内源码巡检功能需要专门的 include 规则。
 - **打包器假定构建产物 `lib/` 是新鲜的**：它从不编译，工作区构建陈旧就会打包陈旧字节。先跑仓库构建。
-- **CLI 必须位于原有仓库位置**：`dsh-pack-vfs-image` 相对于自身安装文件定位检出目录，并从中读取源码 CLI、配置树和预览 fixture。npm 安装支持参数化的库 API；CLI 和仓库辅助函数需要完整且已构建的 DeepSeek Harness 检出目录。
+- **CLI 必须位于原有仓库位置**：`dsh-pack-vfs-image` 相对于自身安装文件定位检出目录，并从中读取源码 CLI、配置树和预览 fixture。npm 安装支持参数化的库 API；CLI 和仓库辅助函数需要完整且已构建的 Omega 检出目录。
 - **Preview Session 输入使用原始 JSONL** — `packPreviewFixture` 拒绝压缩文件与不规范的 Session 代际文件名。通用 overlay 仍逐字节保留输入。
 
 

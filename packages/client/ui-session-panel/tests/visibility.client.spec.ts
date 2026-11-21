@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import { PINNED_STORAGE_KEY, SessionPanelState, presentationOf } from '../src/client/visibility.ts'
 
 const A = 'session-a' as SessionId

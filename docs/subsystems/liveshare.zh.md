@@ -2,7 +2,7 @@
 
 [English](liveshare.md) | 中文
 
-可选的 LiveShare bundle（`@deepseek-ai/dsh-experimental-liveshare`）让一位所有者通过独立的 Liveshare 服务端把一个或多个会话分享给外部 viewer。viewer 永远拿不到所有者的工具：所有者宿主机自己读取 viewer 的每个请求，以该 viewer 自己的 Peer 分派它，Gateway 依据本包注册的 [remote access](../../packages/api/remote-access/README.zh.md) 策略判定该 Peer 的 `share-viewer` principal，并把共享会话代表 viewer 运行的一切限制在分享所授予的工作区内。[包 README](../../packages/experimental/liveshare/README.zh.md)负责配置、客户端界面与限制；[Owner 说明](../../.agents/notes/implemented/feature/2026-09-13-liveshare-protocol-and-owner-surfaces.zh.md)负责其背后的安全姿态。
+可选的 LiveShare bundle（`@omega-ai/dsh-experimental-liveshare`）让一位所有者通过独立的 Liveshare 服务端把一个或多个会话分享给外部 viewer。viewer 永远拿不到所有者的工具：所有者宿主机自己读取 viewer 的每个请求，以该 viewer 自己的 Peer 分派它，Gateway 依据本包注册的 [remote access](../../packages/api/remote-access/README.zh.md) 策略判定该 Peer 的 `share-viewer` principal，并把共享会话代表 viewer 运行的一切限制在分享所授予的工作区内。[包 README](../../packages/experimental/liveshare/README.zh.md)负责配置、客户端界面与限制；[Owner 说明](../../.agents/notes/implemented/feature/2026-09-13-liveshare-protocol-and-owner-surfaces.zh.md)负责其背后的安全姿态。
 
 分享以创建它时的会话来开始，`liveshareShares.addSessions` 可以为它增加更多源会话。每个源会话都按该分享的 ACL、档位、有效期、fork 开关与暴露的插件端点提供服务；Relay 注册与 viewer 页面保留第一个源会话，读者通过策略现在绑定的会话列表访问其余源会话。每个源会话必须属于该分享的同一个工作区：Host 会拒绝无法放进该工作区的源，因此所有读者都停留在同一个工作区根目录内。停止该分享会结束它的全部源会话。
 
@@ -50,7 +50,7 @@ fork 创建查看者拥有的新会话，源会话保持不变。Fork 授权检�
 
 ## viewer 状态
 
-一次以拒绝结束的 viewer 读取会指明它自己的状态，而不是让所有原因共用一种失败：链接不存在、owner 已停止分享、分享已过期、owner 的机器没有路由、登录已过期、读者尚未申请、申请仍在等待、申请被 owner 拒绝、owner 从未收到通知，每种都有各自的 HTTP 状态与错误码；页面联系不上 Liveshare 服务端时由页面自己陈述。`@deepseek-ai/dsh-experimental-liveshare-protocol` 中的 `VIEWER_STATE_ANSWERS` 就是这份词汇表，每种状态对应的答案由 [共享协议](../../packages/experimental/liveshare-protocol/README.zh.md) 维护。没有任何一种答案会扩大 viewer 能读到的内容：owner 离线、分享已停止、申请被拒，三者都是拒绝。
+一次以拒绝结束的 viewer 读取会指明它自己的状态，而不是让所有原因共用一种失败：链接不存在、owner 已停止分享、分享已过期、owner 的机器没有路由、登录已过期、读者尚未申请、申请仍在等待、申请被 owner 拒绝、owner 从未收到通知，每种都有各自的 HTTP 状态与错误码；页面联系不上 Liveshare 服务端时由页面自己陈述。`@omega-ai/dsh-experimental-liveshare-protocol` 中的 `VIEWER_STATE_ANSWERS` 就是这份词汇表，每种状态对应的答案由 [共享协议](../../packages/experimental/liveshare-protocol/README.zh.md) 维护。没有任何一种答案会扩大 viewer 能读到的内容：owner 离线、分享已停止、申请被拒，三者都是拒绝。
 
 viewer 页面渲染所用的工作区流与会话列表经同一策略过滤：只要工作区还持有共享会话或该 viewer 自己创建的分支就会下发，其成员与手工顺序只保留这些。失去它们的工作区要到该工作区或工作区顺序下次变化时才离开工作区流，届时流替换读者的基线；仅访问变化不会发送帧。因此读者看到的是围绕它被授予的每个会话的 owner 工作区名称与分组，而不是 owner 其余的工作区。
 

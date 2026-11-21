@@ -1,6 +1,6 @@
 // Portable checks exercise admission, framing, text offsets, and model-visible formatting.
 using System.Text;
-using DeepSeek.Cua.Protocol;
+using Omega.Cua.Protocol;
 
 var checks = 0;
 void Check(bool condition, string message)

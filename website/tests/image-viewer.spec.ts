@@ -94,7 +94,7 @@ function render(complete = true) {
   const container = document.createElement('p')
   const image = document.createElement('img')
   image.src = 'https://docs.example/provider.png'
-  image.alt = 'DeepSeek API settings'
+  image.alt = 'Omega API settings'
   container.append(image)
   required(document.querySelector('main')).append(container)
   return { image, container, state: imageState(image, complete) }
@@ -106,12 +106,12 @@ function install(): ImageViewer {
 }
 
 function entry(): HTMLElement {
-  return getByRole(document.body, 'button', { name: 'View image fullscreen: DeepSeek API settings' })
+  return getByRole(document.body, 'button', { name: 'View image fullscreen: Omega API settings' })
 }
 
 function open(): HTMLDialogElement {
   entry().click()
-  return getByRole(document.body, 'dialog', { name: 'DeepSeek API settings' }) as HTMLDialogElement
+  return getByRole(document.body, 'dialog', { name: 'Omega API settings' }) as HTMLDialogElement
 }
 
 function enlarged(dialog: HTMLElement): HTMLImageElement {
@@ -166,8 +166,8 @@ describe('documentation image viewer', () => {
   })
 
   it.each([
-    { locale: 'en-US', title: 'DeepSeek API settings', name: 'View image fullscreen: DeepSeek API settings', trigger: 'image' },
-    { locale: 'zh-CN', title: 'DeepSeek API 配置', name: '全屏查看图片：DeepSeek API 配置', trigger: 'button' },
+    { locale: 'en-US', title: 'Omega API settings', name: 'View image fullscreen: Omega API settings', trigger: 'image' },
+    { locale: 'zh-CN', title: 'Omega API 配置', name: '全屏查看图片：Omega API 配置', trigger: 'button' },
   ])('opens the loaded image with accessible controls in $locale', async ({ locale, title, name, trigger }) => {
     const { image, state } = render()
     language = locale

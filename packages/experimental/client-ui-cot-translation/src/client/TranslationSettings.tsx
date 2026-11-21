@@ -1,9 +1,9 @@
 /** Provider, language, and external-service disclosure on the Plugins page. */
-import type {} from '@deepseek-ai/dsh-client-ui-plugin-manager/client'
+import type {} from '@omega-ai/dsh-client-ui-plugin-manager/client'
 import { useEffect, useId } from 'react'
-import type { TranslationProvider } from '@deepseek-ai/dsh-experimental-translator/types'
-import { Button, SettingsForm, SettingsValueField, Tag } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
+import type { TranslationProvider } from '@omega-ai/dsh-experimental-translator/types'
+import { Button, SettingsForm, SettingsValueField, Tag } from '@omega-ai/dsh-client-ui-primitives'
+import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@omega-ai/dsh-client-ui-slots'
 import { NS, formLabels } from './locales.ts'
 import type { TranslationFormInjected } from './preferences-form.ts'
 import css from './Translation.module.css'
@@ -21,8 +21,8 @@ function providerLabel(provider: string, t: TranslationSettingsProps['t']): stri
   switch (provider) {
     case 'bing': return t('bing')
     case 'google': return t('google')
-    case 'deepseek-account': return t('deepseekAccount')
-    case 'deepseek-official': return t('deepseekOfficial')
+    case 'omega-account': return t('omegaAccount')
+    case 'omega-official': return t('omegaOfficial')
     default: return provider
   }
 }
@@ -39,7 +39,7 @@ export function TranslationSettings(props: TranslationSettingsProps) {
   const availableProviders = props.useAvailableProviders(value => value)
   useEffect(() => { props.refreshProviders() }, [props.refreshProviders])
   const missingProvider = state.provider.text !== '' && !availableProviders.some(provider => provider === state.provider.text)
-  const paid = state.provider.text === 'deepseek-account' || state.provider.text === 'deepseek-official'
+  const paid = state.provider.text === 'omega-account' || state.provider.text === 'omega-official'
   const disabled = !state.writable || state.saving
   return <SettingsForm labels={formLabels(t)} state={state} onSave={props.save} onDiscard={props.discard}>
     <p className={css.notice}>{t('privacy')}</p>

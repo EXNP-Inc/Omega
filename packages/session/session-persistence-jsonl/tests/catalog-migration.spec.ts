@@ -1,7 +1,7 @@
-import { Context } from '@deepseek-ai/cordis'
-import type { SessionId, SessionHeader } from '@deepseek-ai/dsh-session'
-import { SessionFormatUnsupportedError, SessionPersistenceCorruptionError } from '@deepseek-ai/dsh-session-persistence'
-import * as JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
+import { Context } from '@omega-ai/cordis'
+import type { SessionId, SessionHeader } from '@omega-ai/dsh-session'
+import { SessionFormatUnsupportedError, SessionPersistenceCorruptionError } from '@omega-ai/dsh-session-persistence'
+import * as JsonlSessionPersistence from '@omega-ai/dsh-session-persistence-jsonl'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -9,7 +9,7 @@ import { dirname, join } from 'node:path'
 import { generationLogPath } from '../src/format.ts'
 import { prepareCatalogFacts } from '../src/catalog-migration.ts'
 import { compressZstdFrame } from '../src/zstd.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const roots: string[] = []
 const contexts: Context[] = []
@@ -53,7 +53,7 @@ describe.each(['none', 'zstd'] as const)('historical catalog publication (%s)', 
     const f = await fixture()
     await f.write(f.parent, [
       { type: 'feedback/record', seq: 0, time: 1, data: {} },
-      { type: 'session-log-deepseek/delivery-accepted', seq: 1, time: 2,
+      { type: 'session-log-omega/delivery-accepted', seq: 1, time: 2,
         data: { sessionId: 'other', sessionFormatVersion: 4, throughSeq: 0 } },
     ], false, 4)
     await expect(f.ctx.sessionPersistence.open(f.parent, access)).rejects.toThrow('wrong Session')

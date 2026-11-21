@@ -1,6 +1,6 @@
 /**
  * JSON payload helpers shared by the owner's HTTP adapters and Relay reads.
- * @module @deepseek-ai/dsh-experimental-liveshare/src/host/wire-json
+ * @module @omega-ai/dsh-experimental-liveshare/src/host/wire-json
  */
 
 /**

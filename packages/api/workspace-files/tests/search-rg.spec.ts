@@ -4,7 +4,7 @@ import { chmod, mkdir, realpath, symlink, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { PassThrough } from 'node:stream'
 import { mountSearchSubprocess } from './search-harness.ts'
-import type { SubprocessHandle, SubprocessOutcome } from '@deepseek-ai/dsh-subprocess'
+import type { SubprocessHandle, SubprocessOutcome } from '@omega-ai/dsh-subprocess'
 import { WorkspaceFiles, type Config, type WorkspaceFileSearchRequest } from '../src/index.ts'
 import { failureOf, openWorkspace, signal, type Caps, type Harness } from './harness.ts'
 

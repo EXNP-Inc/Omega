@@ -1,9 +1,9 @@
 /** Queued cancellation, native storage ownership, and quiescent translator disposal. */
-import { pluginRecordOf, type SessionId } from '@deepseek-ai/dsh-session'
+import { pluginRecordOf, type SessionId } from '@omega-ai/dsh-session'
 import { rm } from 'node:fs/promises'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { storageFixture, storageReply } from './storage-fixture.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const cleanups: Array<() => Promise<void>> = []
 afterEach(async () => {
@@ -28,7 +28,7 @@ describe('translation storage lifecycle', () => {
     expect(b.requests.map(request => request.text)).toEqual(['first'])
     release.resolve(undefined)
     await expect(first).resolves.toBe('Stored translation')
-    await [...b.ctx.loader.entries()].find(entry => entry.options.name === '@deepseek-ai/dsh-experimental-translator')?.fiber?.dispose()
+    await [...b.ctx.loader.entries()].find(entry => entry.options.name === '@omega-ai/dsh-experimental-translator')?.fiber?.dispose()
     expect(b.requests.map(request => request.text)).toEqual(['first'])
   })
 
@@ -43,7 +43,7 @@ describe('translation storage lifecycle', () => {
     const translating = b.ctx.translator.translate(b.ctx.translator.resolve({ text: 'source', targetLanguage: 'zh', sessionId: original.id }))
     const rejected = expect(translating).rejects.toThrow('Translator service disposed')
     await entered.promise
-    const fiber = [...b.ctx.loader.entries()].find(entry => entry.options.name === '@deepseek-ai/dsh-experimental-translator')?.fiber
+    const fiber = [...b.ctx.loader.entries()].find(entry => entry.options.name === '@omega-ai/dsh-experimental-translator')?.fiber
     if (fiber === undefined) throw new Error('Translator was not mounted')
     let disposed = false
     const disposing = fiber.dispose().then(() => { disposed = true })
@@ -66,7 +66,7 @@ describe('translation storage lifecycle', () => {
     const translating = b.ctx.translator.translate(b.ctx.translator.resolve({ text: 'source', targetLanguage: 'zh', sessionId: original.id }))
     const rejected = expect(translating).rejects.toMatchObject({ code: 'TRANSLATION_SESSION_REQUIRED' })
     await entered.promise
-    await [...b.ctx.loader.entries()].find(entry => entry.options.name === '@deepseek-ai/dsh-session-persistence-jsonl')?.fiber?.dispose()
+    await [...b.ctx.loader.entries()].find(entry => entry.options.name === '@omega-ai/dsh-session-persistence-jsonl')?.fiber?.dispose()
     release.resolve(undefined)
     await rejected
     expect(b.requests).toEqual([])

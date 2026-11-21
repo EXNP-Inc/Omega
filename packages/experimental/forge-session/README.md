@@ -3,7 +3,7 @@ description: "Bind change requests to the Session that created, pushed, or track
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-experimental-forge-session
+# @omega-ai/dsh-experimental-forge-session
 
 English | [中文](README.zh.md)
 
@@ -28,10 +28,10 @@ List the change requests a Session is working on without a separate registry. A 
 Mount the service with the forge registry, a provider, and the Session projection registry.
 
 ```yaml
-- name: '@deepseek-ai/dsh-session-projection'
-- name: '@deepseek-ai/dsh-experimental-forge'
-- name: '@deepseek-ai/dsh-experimental-forge-github'
-- name: '@deepseek-ai/dsh-experimental-forge-session'
+- name: '@omega-ai/dsh-session-projection'
+- name: '@omega-ai/dsh-experimental-forge'
+- name: '@omega-ai/dsh-experimental-forge-github'
+- name: '@omega-ai/dsh-experimental-forge-session'
 ```
 
 A provider registers the commands of its CLI with `ctx.forgeSession.registerCommands(rule)`, an effect on the calling fiber that returns its disposer; while forge-session runs, [forge-github](../forge-github/README.md) registers `gh` and [forge-gitlab](../forge-gitlab/README.md) registers `glab`. A rule names its executable, its creation subcommands, its reference subcommands and its raw API request subcommands, each group with the options it accepts, a regular expression for the change request page path, the JSON members that hold a reference command's own URL, and a `select` function that maps one parsed reference or API request command to a URL or to a read-only lookup command. Registration throws for a malformed rule and for a rule whose id or executable a live registration has. A rule classifies the same input the same way every time, and its registrant raises `version` whenever the rule classifies any command or output differently.
@@ -42,7 +42,7 @@ A `bash` or `pwsh` call binds evidence only from its first result, and only when
 
 A command's options parse by the declarations of the group whose subcommand it runs: a value option takes the next word, the text after `=`, or for a one-letter option the rest of the word, and an undeclared option makes the command name nothing. When `select` returns a lookup for a single command, optionally piped through `head`, `tail`, or `cat`, a completed foreground Bash call runs that read-only command, prefixed with `env` and the command's literal environment assignments, through the same shell service, cwd, managed environment, and standing sandbox policy; the CLI resolves its configured host. A lookup whose complete output is one page URL of the rule appends a `reference` binding record; other output and failures leave bindings unchanged and log a warning. A Bash call inside a PTC program runs its lookup after the enclosing root call settles, so the lookup follows that root call's cancellation. This live observer requires `tools`, `shell`, and `shellEnv`; projection-only compositions still recover recorded URLs. Queries share `discoveryTimeoutMs`, stop on caller cancellation, and are aborted and awaited on service disposal.
 
-Binding actions are `plugin:forge-session/binding` records listed in the [experimental persistence catalog](../../../docs/experimental-persistence-catalog.md); fork and resume carry them with the shell events, so a fork starts with its parent's bindings. `discoveryTimeoutMs` is listed in the [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-experimental-forge-session).
+Binding actions are `plugin:forge-session/binding` records listed in the [experimental persistence catalog](../../../docs/experimental-persistence-catalog.md); fork and resume carry them with the shell events, so a fork starts with its parent's bindings. `discoveryTimeoutMs` is listed in the [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-experimental-forge-session).
 
 -----
 

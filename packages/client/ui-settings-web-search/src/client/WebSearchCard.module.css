@@ -1,8 +1,8 @@
 /*
  * Web search and fetch page: two provider sections, each a title and a menu
- * with its hints. Under Search, the DeepSeek Search API shows its result count
- * and billing, and the legacy DeepSeek search its API key, base URL, and
- * searches per request, in a gray panel; under Fetch, the DeepSeek Fetch API
+ * with its hints. Under Search, the Omega Search API shows its result count
+ * and billing, and the legacy Omega search its API key, base URL, and
+ * searches per request, in a gray panel; under Fetch, the Omega Fetch API
  * shows its billing in the same panel. The sections are told apart by spacing
  * and the panel; the only hairlines are the dividers between the fields inside
  * the panel.

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { SessionLogOffset, SessionSeq, TOOL_OUTCOME_UNKNOWN, type SessionEvent } from '@deepseek-ai/dsh-session'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { createToolResultMessage, createUserMessage, type ToolCallId, type ToolSchema } from '@deepseek-ai/dsh-llm'
-import type {} from '@deepseek-ai/dsh-tool-executor-ptc/types'
+import { SessionLogOffset, SessionSeq, TOOL_OUTCOME_UNKNOWN, type SessionEvent } from '@omega-ai/dsh-session'
+import { brandString } from '@omega-ai/dsh-brand'
+import { createToolResultMessage, createUserMessage, type ToolCallId, type ToolSchema } from '@omega-ai/dsh-llm'
+import type {} from '@omega-ai/dsh-tool-executor-ptc/types'
 import {
   applyUserQuestionEvent, foldUserQuestions, isTimedAskUserQuestionSchema, questionsOf, TIMED_WAIT_PARAMETER,
   userQuestionProjectionDefinition,
@@ -49,7 +49,7 @@ const bashSchema: ToolSchema = { name: 'bash', description: 'Run a command.', pa
 /** The request header the model saw before it asked. */
 function header(seq: number, tools: ToolSchema[] | undefined): SessionEvent {
   return event(seq, 'request/header', {
-    header: { config: { provider: 'deepseek-official', model: 'deepseek-v4-flash' }, ...(tools === undefined ? {} : { tools }) },
+    header: { config: { provider: 'omega-official', model: 'omega-v4-flash' }, ...(tools === undefined ? {} : { tools }) },
     reason: 'initial',
   })
 }

@@ -4,9 +4,9 @@
  */
 
 import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
-import { Tooltip } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
-import type { ChangeRequestLabel } from '@deepseek-ai/dsh-experimental-forge/types'
+import { Tooltip } from '@omega-ai/dsh-client-ui-primitives'
+import type { PropsLocale } from '@omega-ai/dsh-client-ui-slots'
+import type { ChangeRequestLabel } from '@omega-ai/dsh-experimental-forge/types'
 import type { NS } from '../locales.ts'
 import css from './ReviewPage.module.css'
 

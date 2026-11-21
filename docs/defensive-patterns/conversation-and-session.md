@@ -227,7 +227,7 @@ A business package that declares its kind and registers its renderer leaves the 
 
 ```tsx
 // The business declares its kind and registers its renderer; the shared list is untouched.
-declare module '@deepseek-ai/dsh-client-ui-chat/client' {
+declare module '@omega-ai/dsh-client-ui-chat/client' {
   interface ChatNodeDataMap { handoff: HandoffData }
 }
 
@@ -308,7 +308,7 @@ Every business special case lands in one shared pipeline, and Markdown rendering
 A producer that declares its own source kind keeps the business difference in the payload:
 
 ```ts ignore-check
-declare module '@deepseek-ai/dsh-llm' {
+declare module '@omega-ai/dsh-llm' {
   interface MessageSourceMap {
     handoff: { kind: 'handoff'; sessionId: SessionId }
   }

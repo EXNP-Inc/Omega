@@ -3,9 +3,9 @@
  * `workingDirectory`. Pure reads with type-only imports, so client plugins
  * inline this module instead of requesting a module-table row this package
  * does not publish.
- * @module @deepseek-ai/dsh-api-session-controller/client/directories
+ * @module @omega-ai/dsh-api-session-controller/client/directories
  */
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import type { ISessions } from '../contract/sessions.ts'
 import type { SessionListState } from './service.ts'
 

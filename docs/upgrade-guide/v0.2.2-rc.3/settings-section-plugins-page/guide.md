@@ -9,7 +9,7 @@ English | [中文](guide.zh.md)
 
 ## Change
 
-**Settings → Built-in plugins** and its packages `@deepseek-ai/dsh-client-ui-settings-plugins` and `@deepseek-ai/dsh-client-ui-settings-plugin-inventory` are removed, together with the `settings.plugins.tab` slot and `SettingsPluginsTabOwnerProps`. **Settings → Plugins** opens the Plugins page instead. `settings.section` entries still appear in Settings. The Plugins page also shows an entry on the listed bundle row whose module is the registering package, or on that bundle's page, when the row or bundle registers no `plugins.row.config` or `plugins.bundle.config` of its own; there the entry's `close` returns to the view it was opened from instead of closing Settings. Both surfaces render entries through the `settings.section.view` Factory, which ui-settings-general registers and which declares `settings.section`.
+**Settings → Built-in plugins** and its packages `@omega-ai/dsh-client-ui-settings-plugins` and `@omega-ai/dsh-client-ui-settings-plugin-inventory` are removed, together with the `settings.plugins.tab` slot and `SettingsPluginsTabOwnerProps`. **Settings → Plugins** opens the Plugins page instead. `settings.section` entries still appear in Settings. The Plugins page also shows an entry on the listed bundle row whose module is the registering package, or on that bundle's page, when the row or bundle registers no `plugins.row.config` or `plugins.bundle.config` of its own; there the entry's `close` returns to the view it was opened from instead of closing Settings. Both surfaces render entries through the `settings.section.view` Factory, which ui-settings-general registers and which declares `settings.section`.
 
 ## Migration
 

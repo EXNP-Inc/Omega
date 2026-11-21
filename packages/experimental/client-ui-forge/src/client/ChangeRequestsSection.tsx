@@ -3,12 +3,12 @@
 import { useCallback, useRef, type ReactNode } from 'react'
 import {
   Button, HoverCardGroup, IconWarningTriangleOutlineRegular, MarqueeText, useHoverMarquee,
-} from '@deepseek-ai/dsh-client-ui-primitives'
+} from '@omega-ai/dsh-client-ui-primitives'
 import type {
   HostObservable, InjectFace, PropsLocale, PropsRenderFactories, PropsRenderSlots, PropsRuntime, PropsStore,
-} from '@deepseek-ai/dsh-client-ui-slots'
-import type { ForgeReadiness, MergeRequest } from '@deepseek-ai/dsh-experimental-forge/types'
-import type { PanelDetailsProps } from '@deepseek-ai/dsh-client-ui-session-panel/client'
+} from '@omega-ai/dsh-client-ui-slots'
+import type { ForgeReadiness, MergeRequest } from '@omega-ai/dsh-experimental-forge/types'
+import type { PanelDetailsProps } from '@omega-ai/dsh-client-ui-session-panel/client'
 import type { ForgePanelState } from '../types.ts'
 import { ChangeRequestCard, type ChangeRequestActions } from './ChangeRequestCard.tsx'
 import type { createChangeRequestsSectionStore } from './change-requests-store.ts'

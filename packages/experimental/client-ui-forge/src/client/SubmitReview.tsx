@@ -2,9 +2,9 @@
 
 import { useId, useState, useSyncExternalStore, type ReactNode } from 'react'
 import clsx from 'clsx'
-import { Button, Modal } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
-import type { ForgePendingReview, ForgeReviewEvent } from '@deepseek-ai/dsh-experimental-forge/types'
+import { Button, Modal } from '@omega-ai/dsh-client-ui-primitives'
+import type { PropsLocale } from '@omega-ai/dsh-client-ui-slots'
+import type { ForgePendingReview, ForgeReviewEvent } from '@omega-ai/dsh-experimental-forge/types'
 import type { ReviewQueue } from './review-queue.ts'
 import type { NS } from './locales.ts'
 import css from './SubmitReview.module.css'

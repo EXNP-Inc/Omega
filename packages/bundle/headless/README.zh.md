@@ -3,7 +3,7 @@ description: "dsh 的一次性任务模式：从命令行运行单个任务并�
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-headless
+# @omega-ai/dsh-headless
 
 [English](README.md) | 中文
 
@@ -48,14 +48,14 @@ agent 会完成该任务，把提供方的每个非空推理（reasoning）增�
 | `json` | `false` | 把本次运行投影为 stdout 上的按行 JSON 事件 |
 | `permissionMode` | 会话策略 | 提交任务前应用已配置的权限预设，恢复会话时同样生效 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-headless)是所有受支持字段及其 JSDoc 的完整真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-headless)是所有受支持字段及其 JSDoc 的完整真源。
 
 <a id="credentials"></a>
 ### 凭据
 
-随附的 headless profile 禁用托管凭据存储，以及依赖它的 authorization 和 DeepSeek account 消费方。API 密钥路由依次使用启动环境、`<运行命令的目录>/.env` 和 `$DSH_HOME/.env`。GUI 保存的密钥和登录凭据不会被使用，存储文件保持原样。需要已保存登录凭据的提供方会失败，除非恢复存储认证；AWS profile 等提供方外部凭据链仍然可用。
+随附的 headless profile 禁用托管凭据存储，以及依赖它的 authorization 和 Omega account 消费方。API 密钥路由依次使用启动环境、`<运行命令的目录>/.env` 和 `$DSH_HOME/.env`。GUI 保存的密钥和登录凭据不会被使用，存储文件保持原样。需要已保存登录凭据的提供方会失败，除非恢复存储认证；AWS profile 等提供方外部凭据链仍然可用。
 
-DeepSeek Search 与 Fetch API [跟随会话的 DeepSeek 凭据](../../web/web-deepseek-api/README.zh.md#authentication)。在随附的 headless profile 中，它们将 DeepSeek 模型路由的 `DEEPSEEK_API_KEY` 发往该路由的 origin，因此无需登录。没有该密钥时，模型请求不包含 `web_search`。
+Omega Search 与 Fetch API [跟随会话的 Omega 凭据](../../web/web-omega-api/README.zh.md#authentication)。在随附的 headless profile 中，它们将 Omega 模型路由的 `OMEGA_API_KEY` 发往该路由的 origin，因此无需登录。没有该密钥时，模型请求不包含 `web_search`。
 
 启动变量为空时，请取消导出该变量，让 `.env` 后备生效；已导出的空值会遮蔽后备值。
 
@@ -66,7 +66,7 @@ DeepSeek Search 与 Fetch API [跟随会话的 DeepSeek 凭据](../../web/web-de
   disabled: false
 - id: authorization
   disabled: false
-- id: deepseek-account
+- id: omega-account
   disabled: false
 ```
 
@@ -160,7 +160,7 @@ patch 叠加在 `dsh-base` 之上：继承投影缓存与共享 PTC 运行时，
 - [dsh-base](../base/README.zh.md)——headless 运行其上的共享核心。
 - [dsh-web-app](../web-app/README.zh.md)——用于多轮工作的同级交互式浏览器入口。
 - [dsh-cmdline](../../boot/cmdline/README.zh.md)——启动器如何把命令行交给应用。
-- [生成配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-headless)——每个受支持配置字段及其源声明。
+- [生成配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-headless)——每个受支持配置字段及其源声明。
 
 -----
 

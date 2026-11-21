@@ -2,8 +2,8 @@
 import { createServer } from 'node:http'
 import type { IncomingMessage, Server, ServerResponse } from 'node:http'
 import { afterEach, describe, expect, it } from 'vitest'
-import { APP_IDENTITY } from '@deepseek-ai/dsh-llm'
-import { deadline } from '@deepseek-ai/dsh-timeout'
+import { APP_IDENTITY } from '@omega-ai/dsh-llm'
+import { deadline } from '@omega-ai/dsh-timeout'
 import { LISTING_TIMEOUT, MAX_BADGE_TEXT_LENGTH, parseModelListing, requestModelListing } from '../src/listing.ts'
 import type { ListedCapabilities } from '../src/listing.ts'
 
@@ -12,13 +12,13 @@ const LISTING = {
   object: 'list',
   data: [
     {
-      id: 'deepseek-flash', object: 'model', owned_by: 'deepseek', name: 'DeepSeek-V4.1-Flash',
+      id: 'omega-flash', object: 'model', owned_by: 'omega', name: 'Omega-V4.1-Flash',
       context_window: 1_048_576, max_output_tokens: 393_216, input_modalities: ['text', 'image'], output_modalities: ['text'],
       effort: { supported_levels: ['low', 'high', 'max'], default_level: 'high' },
       api_capabilities: { anthropic_messages: { system_prompt_update: 'in-history' } },
     },
     {
-      id: 'deepseek-v4-pro', object: 'model', owned_by: 'deepseek', name: 'DeepSeek-V4-Pro',
+      id: 'omega-v4-pro', object: 'model', owned_by: 'omega', name: 'Omega-V4-Pro',
       context_window: 1_048_576, max_output_tokens: 393_216, input_modalities: ['text'], output_modalities: ['text'],
       effort: { supported_levels: ['low', 'high', 'max'], default_level: 'high' },
       api_capabilities: { anthropic_messages: { system_prompt_update: 'leading-only' } },
@@ -34,13 +34,13 @@ describe('parseModelListing', () => {
       skipped: 0,
       entries: [
         {
-          id: 'deepseek-flash', name: 'DeepSeek-V4.1-Flash', requirement: { kind: 'none' },
+          id: 'omega-flash', name: 'Omega-V4.1-Flash', requirement: { kind: 'none' },
           capabilities: { usable: true, facts: {
             inputModalities: ['text', 'image'], contextWindow: 1_048_576, maxOutputTokens: 393_216, systemPromptUpdate: 'in-history',
           } },
         },
         {
-          id: 'deepseek-v4-pro', name: 'DeepSeek-V4-Pro', requirement: { kind: 'none' },
+          id: 'omega-v4-pro', name: 'Omega-V4-Pro', requirement: { kind: 'none' },
           capabilities: { usable: true, facts: {
             inputModalities: ['text'], contextWindow: 1_048_576, maxOutputTokens: 393_216, systemPromptUpdate: 'leading-only',
           } },
@@ -56,7 +56,7 @@ describe('parseModelListing', () => {
   })
 
   it.each([{}, [], null, { data: {} }, { data: [] }, { data: [{ id: '' }] }])('rejects %j as a listing', (body) => {
-    expect(() => parseModelListing(body)).toThrow(/DeepSeek model listing/)
+    expect(() => parseModelListing(body)).toThrow(/Omega model listing/)
   })
 
   it.each([
@@ -77,8 +77,8 @@ describe('parseModelListing', () => {
     [{ api_capabilities: { anthropic_messages: 'yes' } }, 'declares no api_capabilities.anthropic_messages'],
     [{ ...MESSAGES, output_modalities: ['image'] }, 'declares no text output'],
     [{ ...MESSAGES, output_modalities: 'text' }, 'declares no text output'],
-    [{ ...MESSAGES, input_modalities: ['audio'] }, 'declares no input modality DeepSeek Harness supports'],
-    [{ ...MESSAGES, input_modalities: 'text' }, 'declares no input modality DeepSeek Harness supports'],
+    [{ ...MESSAGES, input_modalities: ['audio'] }, 'declares no input modality Omega supports'],
+    [{ ...MESSAGES, input_modalities: 'text' }, 'declares no input modality Omega supports'],
     [{ ...MESSAGES, context_window: 0 }, 'declares an invalid context_window or max_output_tokens'],
     [{ ...MESSAGES, max_output_tokens: 1.5 }, 'declares an invalid context_window or max_output_tokens'],
   ])('marks %j unusable', (row, reason) => {
@@ -216,7 +216,7 @@ describe('requestModelListing', () => {
       response.end(JSON.stringify(LISTING))
     })
     const listing = await requestModelListing(url, { 'x-dsh-auth-token': 'fixture-token' }, AbortSignal.timeout(5_000))
-    expect(listing.entries.map(entry => entry.id)).toEqual(['deepseek-flash', 'deepseek-v4-pro'])
+    expect(listing.entries.map(entry => entry.id)).toEqual(['omega-flash', 'omega-v4-pro'])
     expect(headers).toMatchObject({
       'accept': 'application/json',
       'x-dsh-auth-token': 'fixture-token',
@@ -248,7 +248,7 @@ describe('requestModelListing', () => {
     const url = await listen(() => { /* never answers */ })
     using limit = deadline(undefined, 20, LISTING_TIMEOUT)
     await expect(requestModelListing(url, {}, limit.signal)).rejects.toMatchObject({
-      code: 'TIMEOUT', message: `DeepSeek model listing request to ${url} timed out after 20 ms`,
+      code: 'TIMEOUT', message: `Omega model listing request to ${url} timed out after 20 ms`,
     })
     const caller = new AbortController()
     const pending = requestModelListing(url, {}, caller.signal)

@@ -3,7 +3,7 @@ description: "无依赖的 HarnessError 基类，其稳定 code 让工具结果�
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-error
+# @omega-ai/dsh-error
 
 [English](README.md) | 中文
 
@@ -26,14 +26,14 @@ kind: "package-library"
 每个所属包或领域继承出一个 `HarnessError` 子类，并为每种失败指定稳定的 `UPPER_SNAKE_CASE` code：
 
 ```ts
-import { HarnessError } from '@deepseek-ai/dsh-error'
+import { HarnessError } from '@omega-ai/dsh-error'
 
 export class ArchiveError extends HarnessError {}
 
 throw new ArchiveError('archive entry is missing', 'ARCHIVE_ENTRY_NOT_FOUND')
 ```
 
-打包工具可能重命名类时，在子类构造函数中把 `this.name` 赋为字符串字面量，因为 `name` 会被持久化。可以从 `@deepseek-ai/dsh-error` 导入该类，也可以使用 `@deepseek-ai/dsh-llm` 的重新导出；两者是同一个类，因此 `instanceof` 判断结果一致。[错误类与 code 指南](../../../.agents/skills/dsh-error-handling/references/error-codes.md)规定了类的选择、命名与 code 约定。
+打包工具可能重命名类时，在子类构造函数中把 `this.name` 赋为字符串字面量，因为 `name` 会被持久化。可以从 `@omega-ai/dsh-error` 导入该类，也可以使用 `@omega-ai/dsh-llm` 的重新导出；两者是同一个类，因此 `instanceof` 判断结果一致。[错误类与 code 指南](../../../.agents/skills/dsh-error-handling/references/error-codes.md)规定了类的选择、命名与 code 约定。
 
 -----
 

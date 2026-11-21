@@ -1,13 +1,13 @@
 /** Remote translation enforces accepted routing and sanitizes provider failures. */
-import { Context } from '@deepseek-ai/cordis'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { Context } from '@omega-ai/cordis'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import { afterEach, expect, it, vi } from 'vitest'
-import { TranslationError } from '@deepseek-ai/dsh-experimental-translator'
-import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
-import type { TranslationProvider, TranslationRequest } from '@deepseek-ai/dsh-experimental-translator/types'
+import { TranslationError } from '@omega-ai/dsh-experimental-translator'
+import { RemoteError } from '@omega-ai/dsh-typert-protocol'
+import type { TranslationProvider, TranslationRequest } from '@omega-ai/dsh-experimental-translator/types'
 import type { CotTranslationPreferences } from '../src/preferences.ts'
 import CotTranslationController from '../src/index.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const roots: Context[] = []
 afterEach(async () => { await Promise.all(roots.splice(0).map(ctx => ctx.fiber.dispose())) })
@@ -132,10 +132,10 @@ it('does not dispatch after activation resolves at the same time as cancellation
 it.each([
   { accepted: 'bing' as const, requested: 'google' as const },
   { accepted: 'google' as const, requested: 'bing' as const },
-  { accepted: 'bing' as const, requested: 'deepseek-account' as const },
-  { accepted: 'bing' as const, requested: 'deepseek-official' as const },
-  { accepted: 'deepseek-account' as const, requested: 'deepseek-official' as const },
-  { accepted: 'deepseek-official' as const, requested: 'bing' as const },
+  { accepted: 'bing' as const, requested: 'omega-account' as const },
+  { accepted: 'bing' as const, requested: 'omega-official' as const },
+  { accepted: 'omega-account' as const, requested: 'omega-official' as const },
+  { accepted: 'omega-official' as const, requested: 'bing' as const },
 ])('rejects $requested when the accepted provider is $accepted before lookup or dispatch', async ({ accepted, requested }) => {
   const b = fixture({ provider: accepted })
   await expect(b.controller.translate({ text: 'private original', targetLanguage: 'ja', provider: requested }, new AbortController().signal))
@@ -183,7 +183,7 @@ it('reports accepted Host preferences and uses them when a request omits its pro
   await expect(b.controller.limits(AbortSignal.abort(new Error('cancelled query')))).rejects.toThrow('cancelled query')
 })
 
-it.each(['deepseek-account', 'deepseek-official'] as const)('keeps accepted %s cache lookup available when new requests are ineligible', async (provider) => {
+it.each(['omega-account', 'omega-official'] as const)('keeps accepted %s cache lookup available when new requests are ineligible', async (provider) => {
   const b = fixture({ provider }), signal = new AbortController().signal
   expect(await b.controller.limits(signal)).toEqual({ maxTextChars: 32,
     preferences: { provider, targetLanguage: 'auto' }, availableProviders: ['bing', 'google'] })

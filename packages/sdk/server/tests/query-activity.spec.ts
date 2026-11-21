@@ -1,17 +1,17 @@
 /** Command input completion includes its admitted model activity without changing native handler results. */
-import { Context } from '@deepseek-ai/cordis'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import { mountAgentLoopTestDependencies } from '@deepseek-ai/dsh-agent-loop-testkit'
-import type { AttachmentStore } from '@deepseek-ai/dsh-attachment'
-import type { AttachmentId } from '@deepseek-ai/dsh-attachment/types'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import CommandRuntime, { type CommandDefinitionId, type CommandDefinition } from '@deepseek-ai/dsh-commands'
-import GoalService from '@deepseek-ai/dsh-goal'
-import * as GoalDriver from '@deepseek-ai/dsh-goal-round-driver'
-import * as GoalCommand from '@deepseek-ai/dsh-command-goal'
-import PlanMode from '@deepseek-ai/dsh-plan-mode'
-import { createUserMessage, type GenerateOptions, type StreamChunk } from '@deepseek-ai/dsh-llm'
-import type { SessionId } from '@deepseek-ai/dsh-session'
+import { Context } from '@omega-ai/cordis'
+import AgentLoop from '@omega-ai/dsh-agent-loop'
+import { mountAgentLoopTestDependencies } from '@omega-ai/dsh-agent-loop-testkit'
+import type { AttachmentStore } from '@omega-ai/dsh-attachment'
+import type { AttachmentId } from '@omega-ai/dsh-attachment/types'
+import { brandString } from '@omega-ai/dsh-brand'
+import CommandRuntime, { type CommandDefinitionId, type CommandDefinition } from '@omega-ai/dsh-commands'
+import GoalService from '@omega-ai/dsh-goal'
+import * as GoalDriver from '@omega-ai/dsh-goal-round-driver'
+import * as GoalCommand from '@omega-ai/dsh-command-goal'
+import PlanMode from '@omega-ai/dsh-plan-mode'
+import { createUserMessage, type GenerateOptions, type StreamChunk } from '@omega-ai/dsh-llm'
+import type { SessionId } from '@omega-ai/dsh-session'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import { MockAdapter, textResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 import { HarnessSdkJsonRpcServer } from '../src/server.ts'
@@ -65,7 +65,7 @@ async function setup(model = new MockAdapter([]), goal = false) {
   const sessionId = brandString<SessionId>('query-activity')
   const run = (text: string) => server.query({ sessionId, contentBlocks: [{ type: 'text', text }] })
   const register = (handler: CommandDefinition['handler']) => ctx.commands.register({
-    name: 'plan', definitionId: brandString<CommandDefinitionId>('@deepseek-ai/dsh-plan-mode'), description: 'Plan', handler,
+    name: 'plan', definitionId: brandString<CommandDefinitionId>('@omega-ai/dsh-plan-mode'), description: 'Plan', handler,
   })
   return { ctx, server, loop, goals, notices, completed: completed.promise, run, register, sessionId, model }
 }
@@ -413,7 +413,7 @@ describe('SDK query activity completion', () => {
     const entered = Promise.withResolvers<undefined>()
     const release = Promise.withResolvers<undefined>()
     h.ctx.commands.register({
-      name: 'start-goal', definitionId: brandString<CommandDefinitionId>('@deepseek-ai/dsh-command-goal'), description: 'Start goal',
+      name: 'start-goal', definitionId: brandString<CommandDefinitionId>('@omega-ai/dsh-command-goal'), description: 'Start goal',
       handler: async ({ agent }) => {
         h.ctx.goals.create(agent, { objective: 'work' })
         entered.resolve(undefined)

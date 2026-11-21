@@ -1,5 +1,5 @@
 /** The Web transport follows the plugin-events Remote stream into the page's entry controller. */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { afterEach, expect, it, vi } from 'vitest'
 import { apply, inject } from '../src/client/index.ts'
 import type { PluginsEventFrame } from '../src/types.ts'

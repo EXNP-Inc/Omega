@@ -4,9 +4,9 @@
  * started for each change request, and the changes view's choices for each change request.
  */
 
-import { defineStore, type EngineStoreHandle } from '@deepseek-ai/dsh-client-store'
-import type { ForgeViewerFilter } from '@deepseek-ai/dsh-experimental-forge/types'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { defineStore, type EngineStoreHandle } from '@omega-ai/dsh-client-store'
+import type { ForgeViewerFilter } from '@omega-ai/dsh-experimental-forge/types'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import { changesActions, type ChangesState } from '../changes-store.ts'
 import { mergeRepositories, type ReviewRepository } from './review-lists.ts'
 

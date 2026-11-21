@@ -4,8 +4,8 @@ import type { DragEvent, ReactNode } from 'react'
 import {
   IconChevronDownOutlineRegular, IconChevronRightOutlineRegular, IconDragHandleOutlineRegular,
   IconTrashOutlineRegular, Tooltip, useRowDragPreview,
-} from '@deepseek-ai/dsh-client-ui-primitives'
-import type { DeepSeekModelDraft } from './DeepSeekModelsEditor.tsx'
+} from '@omega-ai/dsh-client-ui-primitives'
+import type { OmegaModelDraft } from './OmegaModelsEditor.tsx'
 import type { ModelsKey } from './locales.ts'
 import { ModelInputTypes } from './ModelInputTypes.tsx'
 import { ModelReasoningEfforts } from './ModelReasoningEfforts.tsx'
@@ -22,7 +22,7 @@ interface CapacityInput {
 
 /** Adapter-owned data and actions for one model row. */
 interface ModelRowProps {
-  model: DeepSeekModelDraft
+  model: OmegaModelDraft
   rowKey: number
   position: number
   order: ModelRowOrder
@@ -40,7 +40,7 @@ interface ModelRowProps {
   maxTokens: CapacityInput
   onFieldChange: (field: 'id' | 'name', value: string | undefined) => void
   onIdBlur?: (value: string) => void
-  onChange: (model: DeepSeekModelDraft) => void
+  onChange: (model: OmegaModelDraft) => void
   onToggle: () => void
   onRemove: () => void
 }

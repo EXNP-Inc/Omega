@@ -3,8 +3,8 @@
  * text they are searched by, the hint each item carries, the repositories the lists name, and the failure each section reports.
  */
 
-import type { ChangeRequestSummary, ForgeFailure, ForgeViewerFilter } from '@deepseek-ai/dsh-experimental-forge/types'
-import type { SearchKeys } from '@deepseek-ai/dsh-util-text-search'
+import type { ChangeRequestSummary, ForgeFailure, ForgeViewerFilter } from '@omega-ai/dsh-experimental-forge/types'
+import type { SearchKeys } from '@omega-ai/dsh-util-text-search'
 import type { ForgeReviewFrame } from '../../types.ts'
 import type { ForgePanelKey } from '../locales.ts'
 import { toneOf, type ChangeRequestTone } from '../status.ts'

@@ -5,42 +5,42 @@
 /:
   en: 043de7aa04105a53
   zh: b3d966c6029037e1
-/deepseek-ai-dsh-plugin-market:
-  en: ee5478f5717295df
-  zh: 75a03a6db791fc6b
-/deepseek-ai-dsh-plugin-market/summary:
+/omega-ai-dsh-plugin-market:
+  en: 838a1dcdbb0a1779
+  zh: f1adcbf957b296b8
+/omega-ai-dsh-plugin-market/summary:
   en: 4def97be3ad32ece
   zh: f855102a82dbb6ec
-/deepseek-ai-dsh-plugin-market/table-of-contents:
+/omega-ai-dsh-plugin-market/table-of-contents:
   en: 76368b6b1da79c80
   zh: 52384aee991ac542
-/deepseek-ai-dsh-plugin-market/use-this-package:
+/omega-ai-dsh-plugin-market/use-this-package:
   en: 1b4074faca2694e2
   zh: f2d0007652139f26
-/deepseek-ai-dsh-plugin-market/use-this-package/plugin-detail-documents:
+/omega-ai-dsh-plugin-market/use-this-package/plugin-detail-documents:
   en: 8a49fc923d4ebd95
   zh: 44b9f020e8471458
-/deepseek-ai-dsh-plugin-market/understand-the-implementation:
+/omega-ai-dsh-plugin-market/understand-the-implementation:
   en: f349c9da02b42ff4
   zh: a34e6e788fa20564
-/deepseek-ai-dsh-plugin-market/model-experience:
+/omega-ai-dsh-plugin-market/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/deepseek-ai-dsh-plugin-market/model-experience/market-listing-tool:
+/omega-ai-dsh-plugin-market/model-experience/market-listing-tool:
   en: b8183cb06f3e4ba9
   zh: 9a213e7a124f092d
-/deepseek-ai-dsh-plugin-market/model-experience/market-listing-tool/what-the-model-sees:
-  en: bcbe6e7d5c763159
-  zh: 28cc392bc8e574e4
-/deepseek-ai-dsh-plugin-market/model-experience/market-listing-tool/token-effect:
+/omega-ai-dsh-plugin-market/model-experience/market-listing-tool/what-the-model-sees:
+  en: a1d5c774c47e0015
+  zh: 5865029cd0e56a0e
+/omega-ai-dsh-plugin-market/model-experience/market-listing-tool/token-effect:
   en: 2589c52e6deb5e48
   zh: 9a71ca215165a8a5
-/deepseek-ai-dsh-plugin-market/model-experience/market-listing-tool/kv-cache-effect:
+/omega-ai-dsh-plugin-market/model-experience/market-listing-tool/kv-cache-effect:
   en: 02cf6033092eb236
   zh: cb928bfa6d39a7f7
-/deepseek-ai-dsh-plugin-market/known-limitations-and-deferred-work:
+/omega-ai-dsh-plugin-market/known-limitations-and-deferred-work:
   en: 14b60333cd684bf2
   zh: 7547d737eceb02ba
-/deepseek-ai-dsh-plugin-market/known-limitations-and-deferred-work/dev-note:
+/omega-ai-dsh-plugin-market/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

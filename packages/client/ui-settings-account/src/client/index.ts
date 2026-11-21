@@ -1,16 +1,16 @@
 /** Account settings registration and reconnecting Remote subscription. */
-import type {} from '@deepseek-ai/dsh-client-product-analytics/client'
-import type { TranscriptViewMode } from '@deepseek-ai/dsh-client-ui-chat/client'
-import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-client-locale/client'
-import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type {} from '@deepseek-ai/dsh-client-ui-theme/client'
-import type {} from '@deepseek-ai/dsh-client-ui-chat/client'
-import type {} from '@deepseek-ai/dsh-client-ui-layout/client'
-import type {} from '@deepseek-ai/dsh-api-remote-access/client'
-import type {} from '@deepseek-ai/dsh-api-remotes/client'
-import type { AccountUpdate, AccountDetails } from '@deepseek-ai/dsh-deepseek-account/types'
+import type {} from '@omega-ai/dsh-client-product-analytics/client'
+import type { TranscriptViewMode } from '@omega-ai/dsh-client-ui-chat/client'
+import type { Context } from '@omega-ai/cordis'
+import type {} from '@omega-ai/dsh-client-locale/client'
+import type {} from '@omega-ai/dsh-client-ui-settings/client'
+import type {} from '@omega-ai/dsh-client-ui-renderer/client'
+import type {} from '@omega-ai/dsh-client-ui-theme/client'
+import type {} from '@omega-ai/dsh-client-ui-chat/client'
+import type {} from '@omega-ai/dsh-client-ui-layout/client'
+import type {} from '@omega-ai/dsh-api-remote-access/client'
+import type {} from '@omega-ai/dsh-api-remotes/client'
+import type { AccountUpdate, AccountDetails } from '@omega-ai/dsh-omega-account/types'
 import type { OnboardingChange } from './onboarding-contract.ts'
 import type { PlatformBridge } from './PlatformOverlay.tsx'
 import { ContactConfig, CONTACT_CONFIG_GLOBAL } from '../contact-config.ts'
@@ -38,7 +38,7 @@ export type { AccountSnapshot } from './AccountSection.tsx'
 export type { AccountKey } from './locales.ts'
 export type { AccountUi, AccountUiState, AccountNotificationsOwnerProps } from './account-ui.ts'
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@omega-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap { 'settings.account': AccountKey }
 }
 
@@ -75,7 +75,7 @@ export function apply(ctx: Context): void {
       let value: AccountDetails[K] | null
       try { value = await query() }
       catch { value = { status: 'failed' } }
-      if (value?.status === 'failed') console.error('[deepseek-account] account read failed', { field })
+      if (value?.status === 'failed') console.error('[omega-account] account read failed', { field })
       if (generation === revision && value !== null) publish({ ...snapshot, details: { ...snapshot.details, [field]: value } })
     }
     const request = Promise.all([
@@ -141,9 +141,9 @@ export function apply(ctx: Context): void {
         if (initialize) void (async () => {
           try {
             const initialized = await ctx.remote.session.initializeDefaultModel()
-            if (!initialized.ok) console.error('[deepseek-account] default model initialization failed', { reason: 'refused' })
+            if (!initialized.ok) console.error('[omega-account] default model initialization failed', { reason: 'refused' })
           } catch (_error) {
-            console.error('[deepseek-account] default model initialization failed', { reason: 'disconnected' })
+            console.error('[omega-account] default model initialization failed', { reason: 'disconnected' })
           }
         })()
         void refresh()
@@ -180,8 +180,8 @@ export function apply(ctx: Context): void {
     })
   const operations: AccountSectionInjected = {
     avatarFailed: (value) => { avatar.failed(value) },
-    subscribeSessionExpired: listener => ctx.remote.$on('deepseek-account/session-expired', listener),
-    subscribeModelSignInRequired: listener => ctx.remote.$on('deepseek-account/model-sign-in-required', listener),
+    subscribeSessionExpired: listener => ctx.remote.$on('omega-account/session-expired', listener),
+    subscribeModelSignInRequired: listener => ctx.remote.$on('omega-account/model-sign-in-required', listener),
     ...nativePlatform === undefined ? {} : { openPlatformPage: platformPageOpener(refreshAccount) },
     refreshAccount,
     contactUs() {

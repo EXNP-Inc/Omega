@@ -2,11 +2,11 @@
 using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using System.Text.Json;
-using DeepSeek.Cua.Protocol;
+using Omega.Cua.Protocol;
 using Forms = System.Windows.Forms;
 using Timer = System.Threading.Timer;
 
-namespace DeepSeek.Cua.Windows;
+namespace Omega.Cua.Windows;
 
 internal sealed record NativeConfig(int MaxRequestBytes, int MaxResponseBytes, int AxTimeoutMs,
     double TextEventIntervalMs, int ScreenshotTimeoutMs, int TimeoutMs, int GraceMs, int PollIntervalMs, int LaunchWaitMs, int MaxClickHoldMs)

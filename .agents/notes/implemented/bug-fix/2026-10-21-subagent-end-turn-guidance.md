@@ -8,7 +8,7 @@ English | [中文](2026-10-21-subagent-end-turn-guidance.zh.md)
 
 The delegation guidance paragraph ended with `When only waiting for their results remains, end your turn instead of sleeping or polling; the next result starts a new turn.` A later prompt revert removed that sentence together with unrelated prompt changes.
 
-Before the sentence existed, one long Session slept seven times for 150–240 seconds each (about 25 minutes) waiting for review subagents that finished in 2–9 minutes (#6057). A controlled probe on 2026-10-21 measured the sentence's effect on the model's next message after a child starts: `deepseek-v4-flash` and `deepseek-v4-pro`, 150 requests per arm per model, minimal system prompt, real `subagent` and `bash` schemas, history ending with `started subagent reviewer-1`.
+Before the sentence existed, one long Session slept seven times for 150–240 seconds each (about 25 minutes) waiting for review subagents that finished in 2–9 minutes (#6057). A controlled probe on 2026-10-21 measured the sentence's effect on the model's next message after a child starts: `omega-v4-flash` and `omega-v4-pro`, 150 requests per arm per model, minimal system prompt, real `subagent` and `bash` schemas, history ending with `started subagent reviewer-1`.
 
 | Arm | Sleep call | Any bash call | Ended turn |
 |---|---|---|---|

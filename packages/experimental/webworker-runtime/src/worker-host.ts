@@ -21,12 +21,12 @@
  * composition, entry mounting, the activation audit, and its diagnostics are the
  * same code the Node deployment runs. The Worker supplies module loading, the
  * platform overlay, and the command line.
- * @module @deepseek-ai/dsh-experimental-webworker-runtime/src/worker-host
+ * @module @omega-ai/dsh-experimental-webworker-runtime/src/worker-host
  */
 import { setActiveModuleLoader, WorkerModuleLoader, type StaticModuleFactory } from './module-system/module-loader.ts'
-import type { ProfileContext } from '@deepseek-ai/dsh-app-boot'
-import type { TypertGateway } from '@deepseek-ai/dsh-api-gateway'
-import type { HostConnectionHandle, PeerScope } from '@deepseek-ai/dsh-client-connection'
+import type { ProfileContext } from '@omega-ai/dsh-app-boot'
+import type { TypertGateway } from '@omega-ai/dsh-api-gateway'
+import type { HostConnectionHandle, PeerScope } from '@omega-ai/dsh-client-connection'
 import type { AlsCausality } from './polyfill/async-context/als-runtime.ts'
 import { join } from './module-system/posix-path.ts'
 import { installProcessGlobal } from './node/globals/process.ts'
@@ -45,7 +45,7 @@ import { parseImageManifest, type ImageManifest } from './image-manifest.ts'
 export { DEFAULT_ROOT } from './image-layout.ts'
 
 /** Port reported to the tree when the caller names none; the bind is fake either way. */
-export const DEFAULT_PORT = 3080
+export const DEFAULT_PORT = 4080
 
 // Every literal `require`/`resolve` of an image package below must appear in
 // the packer's IMAGE_ENTRY_SEEDS: no image file references these requests, so
@@ -222,11 +222,11 @@ export function createWorkerHost(options: WorkerHostOptions): WorkerHost {
       modules = loader
 
       const require = loader.requireFrom(root)
-      const appBoot = require('@deepseek-ai/dsh-app-boot') as AppBootFace
-      const { DSH_LAUNCH_ENVIRONMENT_KEY } = require('@deepseek-ai/dsh-launch-environment') as {
+      const appBoot = require('@omega-ai/dsh-app-boot') as AppBootFace
+      const { DSH_LAUNCH_ENVIRONMENT_KEY } = require('@omega-ai/dsh-launch-environment') as {
         DSH_LAUNCH_ENVIRONMENT_KEY: string
       }
-      const cmdline = require('@deepseek-ai/dsh-cmdline') as {
+      const cmdline = require('@omega-ai/dsh-cmdline') as {
         provideCmdline(ctx: unknown, host: {
           args: readonly string[]
           exit: (code: number) => void
@@ -323,7 +323,7 @@ export interface LogRenderer {
  * @param require - Image resolver, for cordis's own message renderer.
  */
 export function installLogSink(ctx: HostContext, require: (specifier: string) => unknown): void {
-  const { Logger } = require('@deepseek-ai/cordis') as { Logger: LogRenderer }
+  const { Logger } = require('@omega-ai/cordis') as { Logger: LogRenderer }
   const exporter: LogExporter = {
     colors: false,
     // cordis compares `exporter.levels ?? logger.level ?? INFO` against the

@@ -1,0 +1,58 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/account/omega-auth/README.md
+/:
+  en: 3e64362e3d38212f
+  zh: de5140be852289b3
+/omega-ai-dsh-omega-auth:
+  en: 9139e509eec9972c
+  zh: 85c37ca86b9fc809
+/omega-ai-dsh-omega-auth/summary:
+  en: f250d08926aa5aa0
+  zh: 889c6030aab1d016
+/omega-ai-dsh-omega-auth/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/omega-ai-dsh-omega-auth/use-this-package:
+  en: 8e5ddd828085daeb
+  zh: 27a1821fb024bec0
+/omega-ai-dsh-omega-auth/use-this-package/when-to-use-it:
+  en: 044c05533b56ca61
+  zh: 57da4f3ed3945dd8
+/omega-ai-dsh-omega-auth/use-this-package/authorizing-a-request:
+  en: 8d7313bbda04a7b6
+  zh: 3333cf0d4c0c227f
+/omega-ai-dsh-omega-auth/use-this-package/where-each-kind-s-credential-and-deployment-come-from:
+  en: feab7b44764937f4
+  zh: ccd44026c920a5be
+/omega-ai-dsh-omega-auth/use-this-package/what-can-go-wrong:
+  en: 15216b56e7d8d9bd
+  zh: 48269e94ecf5a2d9
+/omega-ai-dsh-omega-auth/understand-the-implementation:
+  en: 6133f3219e92d614
+  zh: d4f47c8fe96bbb83
+/omega-ai-dsh-omega-auth/understand-the-implementation/design-philosophy:
+  en: e228fb6ebba18138
+  zh: be8d05b88c675150
+/omega-ai-dsh-omega-auth/understand-the-implementation/source-map:
+  en: 363bcc64975f6eb4
+  zh: 4652138974111614
+/omega-ai-dsh-omega-auth/understand-the-implementation/lifecycle:
+  en: 410428e4e26f97ee
+  zh: b0fff475dfebe3ad
+/omega-ai-dsh-omega-auth/further-exploration:
+  en: decd1d01aa39f808
+  zh: bf462e4b88703362
+/omega-ai-dsh-omega-auth/model-experience:
+  en: fe5289b96181fa86
+  zh: 186fd56ec8423081
+/omega-ai-dsh-omega-auth/model-experience/kv-cache-effect:
+  en: 8d28a9884785f30c
+  zh: b1c45c04e1a543d7
+/omega-ai-dsh-omega-auth/known-limitations-and-deferred-work:
+  en: d6af4ea21cc5bf3b
+  zh: d90f3a6f0e91571b
+/omega-ai-dsh-omega-auth/known-limitations-and-deferred-work/dev-note:
+  en: e3eca6e1556f695c
+  zh: 7234e0729568e2e9

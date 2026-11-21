@@ -1,25 +1,25 @@
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { describe, expect, it, vi } from 'vitest'
-import type { AttachmentId, ImageAttachmentRef } from '@deepseek-ai/dsh-attachment/types'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { LlmAttemptId } from '@deepseek-ai/dsh-llm/types'
-import type { StreamChunk } from '@deepseek-ai/dsh-llm'
+import type { AttachmentId, ImageAttachmentRef } from '@omega-ai/dsh-attachment/types'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { LlmAttemptId } from '@omega-ai/dsh-llm/types'
+import type { StreamChunk } from '@omega-ai/dsh-llm'
 import type {
   AssistantLiveChunkEvent, SessionEventLike, SessionEventLikeEntry,
   SessionLiveEventEntry, SessionTransientEventEntry,
-} from '@deepseek-ai/dsh-api-session-controller/client'
-import { SessionSeq } from '@deepseek-ai/dsh-session/types'
-import type { SessionEvent, SessionId } from '@deepseek-ai/dsh-session/types'
-import { ConversationNodeAssembler } from '@deepseek-ai/dsh-client-ui-conversation/client'
+} from '@omega-ai/dsh-api-session-controller/client'
+import { SessionSeq } from '@omega-ai/dsh-session/types'
+import type { SessionEvent, SessionId } from '@omega-ai/dsh-session/types'
+import { ConversationNodeAssembler } from '@omega-ai/dsh-client-ui-conversation/client'
 import type {
   ConversationContextReader, ConversationLocation, ConversationMatch,
   ConversationNodeContext, ConversationNodeDefinition, ConversationStartMatch,
   ConversationViewDefinition,
-} from '@deepseek-ai/dsh-client-ui-conversation/client'
-import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
-import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import { resolveSlotLabel } from '@deepseek-ai/dsh-client-ui-slots'
-import type { StoredEntry } from '@deepseek-ai/dsh-client-ui-slots'
+} from '@omega-ai/dsh-client-ui-conversation/client'
+import { SlotRegistry } from '@omega-ai/dsh-client-ui-renderer/client'
+import { makeTranslate } from '@omega-ai/dsh-client-test-runtime'
+import { resolveSlotLabel } from '@omega-ai/dsh-client-ui-slots'
+import type { StoredEntry } from '@omega-ai/dsh-client-ui-slots'
 import { de, en, es, fr, ja, NS, pt, ru, zh } from '../src/client/locales.ts'
 import type {
   StatsCall, StatsContribution, StatsSnapshot, StatsStepMetrics, StatsStepState, StatsViewNode,
@@ -719,8 +719,8 @@ describe('conversation Definitions', () => {
         shadowedRange: { start: 1 as SessionSeq, end: 2 as SessionSeq },
         shadowedSeqs: [],
         shadowedTokenCount: 4_000,
-        provider: 'deepseek-official',
-        model: 'deepseek-flash',
+        provider: 'omega-official',
+        model: 'omega-flash',
         usage: { inputTokens: 1_000, cacheReadTokens: 100, outputTokens: 50 },
         llmStreamCall: false,
       }, 5_300)),
@@ -745,8 +745,8 @@ describe('conversation Definitions', () => {
       cacheHit: 100 / 1_100,
       cacheRead: 100,
       cacheWrite: null,
-      provider: 'deepseek-official',
-      model: 'deepseek-flash',
+      provider: 'omega-official',
+      model: 'omega-flash',
       shadowedTokens: 4_000,
       summaryChars: 3,
       error: null,

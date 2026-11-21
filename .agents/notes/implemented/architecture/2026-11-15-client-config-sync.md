@@ -22,7 +22,7 @@ Host plugin configuration updates live: when only volatile fields change, the Lo
 |---|---|
 | One Config | A plugin has one configuration type, in the package's `src/types.ts`, shared by the Host and Client faces; the schema lives only on the Host face. The browser exports no `Config` and validates no configuration |
 | Volatile only | The browser receives only the fields the Host schema declares volatile |
-| Secrets removed | `role('secret')` positions inside volatile fields, including inside volatile objects, arrays, and dictionaries, are removed on the Host and never sent. The Host face of `client/modules` implements this itself, without depending on `@deepseek-ai/dsh-settings` |
+| Secrets removed | `role('secret')` positions inside volatile fields, including inside volatile objects, arrays, and dictionaries, are removed on the Host and never sent. The Host face of `client/modules` implements this itself, without depending on `@omega-ai/dsh-settings` |
 | Plugins support live updates | A synced configuration change never remounts a browser plugin; the plugin reads references at operation time, or hands them to components as observable sources |
 | Equal values do nothing | Every layer compares with deep equality; equal values push, write, and notify nothing, and a reconnect snapshot equal to the current values causes no refresh |
 | What is not synced | Host-only ordinary fields, secrets, and per-browser preferences stay out of this path; values the page HTML pre-injects to avoid a first-paint flash, such as the theme, stay as they are |
@@ -31,7 +31,7 @@ Host plugin configuration updates live: when only volatile fields change, the Lo
 
 ```ts ignore-check
 // src/types.ts — shared by both faces; types only
-import type { Volatile } from '@deepseek-ai/cordis'
+import type { Volatile } from '@omega-ai/cordis'
 
 /** Plugin configuration shared by the Host and Client faces. */
 export interface Config {
@@ -58,7 +58,7 @@ export const Config: z<Config> = z.object({
 
 ```ts ignore-check
 // src/client/index.ts — Client face; no Config export
-import type { SyncedConfig } from '@deepseek-ai/dsh-client-config/types'
+import type { SyncedConfig } from '@omega-ai/dsh-client-config/types'
 import type { Config } from '../types.ts'
 
 export function apply(ctx: Context, config: SyncedConfig<Config>): void {
@@ -79,7 +79,7 @@ export function DemoBody({ useInteractiveByDefault, tooLarge }: InjectFace<DemoB
 }
 ```
 
-Types exported by the types-only package `@deepseek-ai/dsh-client-config/types`, which plugins depend on instead of the bootstrap Client Modules package; Client Modules implements them:
+Types exported by the types-only package `@omega-ai/dsh-client-config/types`, which plugins depend on instead of the bootstrap Client Modules package; Client Modules implements them:
 
 ```ts ignore-check
 /** One synced field: Host-aligned `get()`, and directly an observable source for an injected hook. */
@@ -98,7 +98,7 @@ Components follow the [client rules](../../../../packages/client/AGENTS.md): the
 
 ### Ownership
 
-Runtime ownership stays in `client/modules`; the only new package is the types-only `@deepseek-ai/dsh-client-config` (empty `apply` on both faces). `client/modules` already follows Loader entries, composes the plugin graph, and creates entries in the browser; synced configuration is an input of an entry, so it owns this too:
+Runtime ownership stays in `client/modules`; the only new package is the types-only `@omega-ai/dsh-client-config` (empty `apply` on both faces). `client/modules` already follows Loader entries, composes the plugin graph, and creates entries in the browser; synced configuration is an input of an entry, so it owns this too:
 
 | Face | Responsibility |
 |---|---|
@@ -144,7 +144,7 @@ When a Host plugin updates its configuration and then pushes other data to the b
 
 ### Delivery
 
-First-render values travel in the `__DSH_BOOT__` graph rows; later values travel in the plugin-events stream's `baseline` and `graph` frames, with no separate configuration frame. `@deepseek-ai/dsh-client-modules/types` exports the plugin graph's wire types. Only the owner receives configured values; every other Peer, such as a LiveShare viewer, receives in the boot graph and in every plugin-events frame the values each plugin's schema resolves from an empty Config, so the Host schema remains the only source of defaults and the owner's configured values stay on the Host; a row whose schema rejects an empty Config carries no values there. Remote access policies decide only whether a Peer may follow the graph.
+First-render values travel in the `__DSH_BOOT__` graph rows; later values travel in the plugin-events stream's `baseline` and `graph` frames, with no separate configuration frame. `@omega-ai/dsh-client-modules/types` exports the plugin graph's wire types. Only the owner receives configured values; every other Peer, such as a LiveShare viewer, receives in the boot graph and in every plugin-events frame the values each plugin's schema resolves from an empty Config, so the Host schema remains the only source of defaults and the owner's configured values stay on the Host; a row whose schema rejects an empty Config carries no values there. Remote access policies decide only whether a Peer may follow the graph.
 
 ### Push channel
 
@@ -194,13 +194,13 @@ The following hold and are covered by tests:
 | Mounting `pluginEvents` through `api-remotes` | A failed `api-remotes` replacement would cut the plugin update channel |
 | Declaring "replacement requires a page reload" for Connection and the gateway | Adds a manifest field and a UI branch; a page reload after a failed replacement is accepted |
 | A unified `useConfig` framework hook in the renderer | Adds a framework-level hook; manual `hooks` injection already serves components |
-| Reusing the projection and removal functions of `@deepseek-ai/dsh-settings` | The settings architecture will be adjusted after this mechanism, so no dependency yet |
+| Reusing the projection and removal functions of `@omega-ai/dsh-settings` | The settings architecture will be adjusted after this mechanism, so no dependency yet |
 | References that are only `ObservableSnapshot` | Inconsistent with the Host's `get()` on volatile references |
 | One page-lifetime configuration object per package | An old instance being torn down during replacement would still receive new configuration, unlike the Host |
 | Changing the vendored Loader to emit a commit event for Host enqueue order | A prepended listener already suffices, with no vendor change |
 | A separate push channel for configuration | Duplicates the plugin-graph channel's authentication, reconnection, and snapshot semantics |
 | A separate `client/config` runtime package with a publicly writable configuration service | Any plugin could rewrite another plugin's configuration, and entries would have to wait for that service by package name |
-| Plugins importing the types from `@deepseek-ai/dsh-client-modules/types` | Couples every configured plugin to the bootstrap module-system package and exposes the implementing class |
+| Plugins importing the types from `@omega-ai/dsh-client-modules/types` | Couples every configured plugin to the bootstrap module-system package and exposes the implementing class |
 | Emitting `loader/volatile-update` in the browser too | The field references' `subscribe` suffices; the event requires reaching into Cordis's filter mechanism |
 
 ## Consequences

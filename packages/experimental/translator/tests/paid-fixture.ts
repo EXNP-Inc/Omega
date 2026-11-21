@@ -1,25 +1,25 @@
 /** Real Loader/native adapters with fixture-owned credentials and a bounded loopback wire. */
-import type { ModuleLoaderV2 } from '@deepseek-ai/cordis-plugin-loader'
-import { boot } from '@deepseek-ai/dsh-app-boot'
-import LlmRuntime from '@deepseek-ai/dsh-llm'
-import SessionStore, { SESSION_FORMAT_VERSION, type SessionId, SessionSeq, type Session, type SessionEvent, type SessionHeader } from '@deepseek-ai/dsh-session'
-import * as JsonlPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import SqliteSessionQuery from '@deepseek-ai/dsh-session-query-sqlite'
-import * as Official from '@deepseek-ai/dsh-llm-deepseek-api-key'
-import DeepSeekAuth from '@deepseek-ai/dsh-deepseek-auth'
-import * as Account from '@deepseek-ai/dsh-llm-deepseek-account'
-import DeepSeekLlmApiExtensionRegistry from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
-import * as SessionLogDeepSeek from '@deepseek-ai/dsh-session-log-deepseek'
-import { createLaunchEnvironmentSnapshot } from '@deepseek-ai/dsh-launch-environment'
+import type { ModuleLoaderV2 } from '@omega-ai/cordis-plugin-loader'
+import { boot } from '@omega-ai/dsh-app-boot'
+import LlmRuntime from '@omega-ai/dsh-llm'
+import SessionStore, { SESSION_FORMAT_VERSION, type SessionId, SessionSeq, type Session, type SessionEvent, type SessionHeader } from '@omega-ai/dsh-session'
+import * as JsonlPersistence from '@omega-ai/dsh-session-persistence-jsonl'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import SqliteSessionQuery from '@omega-ai/dsh-session-query-sqlite'
+import * as Official from '@omega-ai/dsh-llm-omega-api-key'
+import OmegaAuth from '@omega-ai/dsh-omega-auth'
+import * as Account from '@omega-ai/dsh-llm-omega-account'
+import OmegaLlmApiExtensionRegistry from '@omega-ai/dsh-omega-llm-api-extensions'
+import * as SessionLogOmega from '@omega-ai/dsh-session-log-omega'
+import { createLaunchEnvironmentSnapshot } from '@omega-ai/dsh-launch-environment'
 import { once } from 'node:events'
 import { createServer, type ServerResponse } from 'node:http'
 import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import Translator, { type Config } from '../src/index.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { accountStub } from '../../../account/deepseek-account/tests/account-stub.ts'
+import { brandString } from '@omega-ai/dsh-brand'
+import { accountStub } from '../../../account/omega-account/tests/account-stub.ts'
 
 /** Provider-visible request, without credential values. */
 export interface NativeRequest {
@@ -34,7 +34,7 @@ export interface NativeRequest {
 /** Native SSE text reply; alternate stop reasons exercise incomplete output. */
 export function replyEvents(text = '翻译结果', stop = 'end_turn'): Record<string, unknown>[] {
   return [
-    { type: 'message_start', message: { id: 'translation-response', model: 'deepseek-flash', usage: { input_tokens: 3, output_tokens: 0 } } },
+    { type: 'message_start', message: { id: 'translation-response', model: 'omega-flash', usage: { input_tokens: 3, output_tokens: 0 } } },
     { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
     { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text } },
     { type: 'content_block_stop', index: 0 },
@@ -87,7 +87,7 @@ export async function paidFixture(cleanups: Array<() => Promise<void>>, options:
   const server = createServer((request, response) => {
     const work = (async () => {
       if (request.method === 'GET' && request.url === '/models') {
-        const listed = options.accountModels ?? [{ id: 'deepseek-flash', name: 'Another arbitrary Flash version' }]
+        const listed = options.accountModels ?? [{ id: 'omega-flash', name: 'Another arbitrary Flash version' }]
         response.writeHead(200, { 'content-type': 'application/json' })
         response.end(JSON.stringify({ object: 'list', data: listed.map(model => ({ ...model, api_capabilities: { anthropic_messages: {} } })) }))
         return
@@ -101,7 +101,7 @@ export async function paidFixture(cleanups: Array<() => Promise<void>>, options:
       if (typeof payload !== 'object' || payload === null || Array.isArray(payload)) throw new Error('Expected native Messages request object')
       const input: NativeRequest = { path: request.url ?? '', body: payload as Record<string, unknown>,
         accountAuth: request.headers['x-dsh-auth-token'] !== undefined, officialAuth: request.headers['x-api-key'] !== undefined,
-        sessionHeader: request.headers['x-deepseek-harness-session-id'] !== undefined,
+        sessionHeader: request.headers['x-omega-harness-session-id'] !== undefined,
         audit: await readEvents(auditId) }
       requests.push(input)
       response.writeHead(options.responseStatus ?? 200, { 'content-type': 'text/event-stream' })
@@ -129,34 +129,34 @@ export async function paidFixture(cleanups: Array<() => Promise<void>>, options:
   const configPath = join(root, 'cordis.yml'), storedRoot = join(root, 'sessions')
   let translator = options.translator ?? {}, withNativeOwners = true
   const rows = () => [
-    { id: 'llm', name: '@deepseek-ai/dsh-llm' },
-    { id: 'session', name: '@deepseek-ai/dsh-session' },
-    { id: 'storage', name: '@deepseek-ai/dsh-session-persistence-jsonl', config: { root: storedRoot, compression: 'none' } },
-    { id: 'deepseek-auth', name: '@deepseek-ai/dsh-deepseek-auth' },
-    { id: 'official-custom-id', name: options.officialName ?? '@deepseek-ai/dsh-llm-deepseek-api-key', disabled: !withNativeOwners, config: {
-      baseURL, apiKeyEnv: 'PAID_TRANSLATION_FIXTURE_KEY', models: options.officialModels ?? [{ id: 'deepseek-flash', name: 'Flash version-independent name' }],
+    { id: 'llm', name: '@omega-ai/dsh-llm' },
+    { id: 'session', name: '@omega-ai/dsh-session' },
+    { id: 'storage', name: '@omega-ai/dsh-session-persistence-jsonl', config: { root: storedRoot, compression: 'none' } },
+    { id: 'omega-auth', name: '@omega-ai/dsh-omega-auth' },
+    { id: 'official-custom-id', name: options.officialName ?? '@omega-ai/dsh-llm-omega-api-key', disabled: !withNativeOwners, config: {
+      baseURL, apiKeyEnv: 'PAID_TRANSLATION_FIXTURE_KEY', models: options.officialModels ?? [{ id: 'omega-flash', name: 'Flash version-independent name' }],
     } },
-    { id: 'account-custom-id', name: '@deepseek-ai/dsh-llm-deepseek-account', disabled: !withNativeOwners, config: { baseURL } },
-    { id: 'translator', name: '@deepseek-ai/dsh-experimental-translator', config: translator },
+    { id: 'account-custom-id', name: '@omega-ai/dsh-llm-omega-account', disabled: !withNativeOwners, config: { baseURL } },
+    { id: 'translator', name: '@omega-ai/dsh-experimental-translator', config: translator },
     ...options.withSessionQuery === true ? [
-      { id: 'projections', name: '@deepseek-ai/dsh-session-projection' },
-      { id: 'query', name: '@deepseek-ai/dsh-session-query-sqlite', config: { path: join(root, 'query.sqlite'), openAt: 'never' } },
+      { id: 'projections', name: '@omega-ai/dsh-session-projection' },
+      { id: 'query', name: '@omega-ai/dsh-session-query-sqlite', config: { path: join(root, 'query.sqlite'), openAt: 'never' } },
     ] : [],
     ...options.withSessionLog === true ? [
-      { id: 'deepseek-llm-api-extensions', name: '@deepseek-ai/dsh-deepseek-llm-api-extensions' },
-      { id: 'session-log-deepseek', name: '@deepseek-ai/dsh-session-log-deepseek' },
+      { id: 'omega-llm-api-extensions', name: '@omega-ai/dsh-omega-llm-api-extensions' },
+      { id: 'session-log-omega', name: '@omega-ai/dsh-session-log-omega' },
     ] : [],
   ]
   await writeFile(configPath, JSON.stringify(rows()))
   const modules = new Map<string, unknown>([
-    ['@deepseek-ai/dsh-llm', LlmRuntime], ['@deepseek-ai/dsh-session', SessionStore],
-    ['@deepseek-ai/dsh-session-persistence-jsonl', JsonlPersistence], ['@deepseek-ai/dsh-session-query-sqlite', SqliteSessionQuery],
-    ['@deepseek-ai/dsh-deepseek-auth', DeepSeekAuth],
-    ['@deepseek-ai/dsh-session-projection', SessionProjectionRegistry],
-    [options.officialName ?? '@deepseek-ai/dsh-llm-deepseek-api-key', Official],
-    ['@deepseek-ai/dsh-llm-deepseek-account', Account], ['@deepseek-ai/dsh-experimental-translator', Translator],
-    ['@deepseek-ai/dsh-deepseek-llm-api-extensions', DeepSeekLlmApiExtensionRegistry],
-    ['@deepseek-ai/dsh-session-log-deepseek', SessionLogDeepSeek],
+    ['@omega-ai/dsh-llm', LlmRuntime], ['@omega-ai/dsh-session', SessionStore],
+    ['@omega-ai/dsh-session-persistence-jsonl', JsonlPersistence], ['@omega-ai/dsh-session-query-sqlite', SqliteSessionQuery],
+    ['@omega-ai/dsh-omega-auth', OmegaAuth],
+    ['@omega-ai/dsh-session-projection', SessionProjectionRegistry],
+    [options.officialName ?? '@omega-ai/dsh-llm-omega-api-key', Official],
+    ['@omega-ai/dsh-llm-omega-account', Account], ['@omega-ai/dsh-experimental-translator', Translator],
+    ['@omega-ai/dsh-omega-llm-api-extensions', OmegaLlmApiExtensionRegistry],
+    ['@omega-ai/dsh-session-log-omega', SessionLogOmega],
   ])
   const start = () => boot('paid-translator-composition', configPath, [], (host) => {
     const sourceModules: ModuleLoaderV2 = {
@@ -177,7 +177,7 @@ export async function paidFixture(cleanups: Array<() => Promise<void>>, options:
       describe: async () => ({ configured, writable: true }),
       resolve: async () => configured ? { value: 'fixture-native-key', source: 'fixture' } : undefined,
     } as never)
-    host.provide('deepseekAccount', accountStub({ token: () => signedIn ? 'fixture-account-token' : undefined }))
+    host.provide('omegaAccount', accountStub({ token: () => signedIn ? 'fixture-account-token' : undefined }))
   })
   let ctx = await start(), session: Session | undefined
   cleanups.push(async () => { await ctx.fiber.dispose() })
@@ -191,7 +191,7 @@ export async function paidFixture(cleanups: Array<() => Promise<void>>, options:
     await ctx.sessionPersistence.create(session.header)
     await ctx.sessions.flush(session)
   }
-  const translate = (provider: 'deepseek-account' | 'deepseek-official', text = 'Original paragraph', signal?: AbortSignal) =>
+  const translate = (provider: 'omega-account' | 'omega-official', text = 'Original paragraph', signal?: AbortSignal) =>
     ctx.translator.translate(ctx.translator.resolve({ text, targetLanguage: 'zh', provider,
       ...session === undefined ? {} : { sessionId: session.id } }), signal)
   return { get ctx() { return ctx }, get session() { return session }, root, requests, errors, translate, readEvents,

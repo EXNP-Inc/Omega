@@ -1,6 +1,6 @@
 """Run a short SDK session, close immediately, and try restoring its history.
 
-Requires an installed SDK/runtime and DEEPSEEK_API_KEY. Run this file directly.
+Requires an installed SDK/runtime and OMEGA_API_KEY. Run this file directly.
 The temporary Harness home is retained for inspection.
 """
 
@@ -8,10 +8,10 @@ from pathlib import Path
 from tempfile import mkdtemp
 from time import monotonic
 
-from deepseek_harness import DeepSeekHarness, DeepSeekHarnessConfig
+from omega_harness import OmegaHarness, OmegaHarnessConfig
 
 root = Path(mkdtemp(prefix="dsh-shutdown-"))
-config = DeepSeekHarnessConfig(
+config = OmegaHarnessConfig(
     profile="sdk-minimal",
     dsh_home=str(root / "home"),
     cwd=str(root),
@@ -19,7 +19,7 @@ config = DeepSeekHarnessConfig(
 )
 print("Test directory:", root)
 
-with DeepSeekHarness(config) as harness:
+with OmegaHarness(config) as harness:
     result = harness.run("只回复 OK，不要调用工具。")
     started = monotonic()
 
@@ -31,6 +31,6 @@ print("History files:", list((root / "home" / "sessions").rglob("*.jsonl")))
 
 # Recovery gets a separate budget so its own shutdown does not repeat the test.
 config.shutdown_timeout_seconds = 30.0
-with DeepSeekHarness(config) as harness:
+with OmegaHarness(config) as harness:
     harness.resume_session(result.session_id)
     print("History restored successfully:", result.session_id)

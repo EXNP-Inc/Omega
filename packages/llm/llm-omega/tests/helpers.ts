@@ -1,25 +1,25 @@
 /** Deterministic Messages fixtures and loopback transport with explicit teardown. */
-import { Context } from '@deepseek-ai/cordis'
-import AttachmentStore from '@deepseek-ai/dsh-attachment'
-import type { ModuleLoaderV2 } from '@deepseek-ai/cordis-plugin-loader'
-import type { AnonymousUserId } from '@deepseek-ai/dsh-anonymous-user-id'
+import { Context } from '@omega-ai/cordis'
+import AttachmentStore from '@omega-ai/dsh-attachment'
+import type { ModuleLoaderV2 } from '@omega-ai/cordis-plugin-loader'
+import type { AnonymousUserId } from '@omega-ai/dsh-anonymous-user-id'
 import { createServer } from 'node:http'
 import type { IncomingHttpHeaders, ServerResponse } from 'node:http'
 import { once } from 'node:events'
 import { object } from '../src/replay.ts'
-import { BlockAssembler, createAssistantMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { GenerateOptions, StreamChunk } from '@deepseek-ai/dsh-llm'
+import { BlockAssembler, createAssistantMessage, createUserMessage } from '@omega-ai/dsh-llm'
+import type { GenerateOptions, StreamChunk } from '@omega-ai/dsh-llm'
 import { resolveAdapterOptions } from '../src/index.ts'
-import { DeepSeekAdapter } from '../src/adapter.ts'
+import { OmegaAdapter } from '../src/adapter.ts'
 import type { Options as Config } from '../src/config.ts'
-import type { DeepSeekAdapterOptions } from '../src/types.ts'
-import { DeepSeekFileStore } from '../src/file-store.ts'
+import type { OmegaAdapterOptions } from '../src/types.ts'
+import { OmegaFileStore } from '../src/file-store.ts'
 
 export const prepareExtensions = async () => ({ fields: {}, accept: async () => {} })
 
-export const MODEL = 'deepseek-v4-flash'
+export const MODEL = 'omega-v4-flash'
 export const user = (text = 'hello') => createUserMessage({ source: { kind: 'user' }, content: [{ type: 'text', text }] })
-export const options = (overrides: Partial<GenerateOptions> = {}): GenerateOptions => ({ provider: 'deepseek-official', model: MODEL, messages: [user()], ...overrides })
+export const options = (overrides: Partial<GenerateOptions> = {}): GenerateOptions => ({ provider: 'omega-official', model: MODEL, messages: [user()], ...overrides })
 export const start = { type: 'message_start', message: { id: 'msg_1', model: MODEL, usage: { input_tokens: 12, output_tokens: 1 } } }
 export const end = (reason = 'end_turn') => [
   { type: 'message_delta', delta: { stop_reason: reason }, usage: { output_tokens: 5 } },
@@ -40,12 +40,12 @@ export async function assemble(stream: AsyncIterable<StreamChunk>, model = MODEL
   const assembler = new BlockAssembler()
   const output = await chunks(stream)
   for (const chunk of output) assembler.push(chunk)
-  const message = createAssistantMessage({ content: assembler.blocks(), source: { provider: 'deepseek-official', model, ...assembler.replayState === undefined ? {} : { replayState: assembler.replayState } } })
+  const message = createAssistantMessage({ content: assembler.blocks(), source: { provider: 'omega-official', model, ...assembler.replayState === undefined ? {} : { replayState: assembler.replayState } } })
   return { output, message, assembler }
 }
-export function adapter(config: Config = {}, dependencies: Partial<DeepSeekAdapterOptions> = {}) {
-  const files = new DeepSeekFileStore()
-  return new DeepSeekAdapter({ options: () => resolveAdapterOptions(config), resolveAuth: () => Promise.resolve({ headers: { 'x-api-key': 'test-key' } }), resolveUserId: () => 'test-user' as AnonymousUserId, resolveAttachments: () => undefined, resolveImageAccess: () => undefined, resolveFiles: () => files, prepareExtensions, ...dependencies })
+export function adapter(config: Config = {}, dependencies: Partial<OmegaAdapterOptions> = {}) {
+  const files = new OmegaFileStore()
+  return new OmegaAdapter({ options: () => resolveAdapterOptions(config), resolveAuth: () => Promise.resolve({ headers: { 'x-api-key': 'test-key' } }), resolveUserId: () => 'test-user' as AnonymousUserId, resolveAttachments: () => undefined, resolveImageAccess: () => undefined, resolveFiles: () => files, prepareExtensions, ...dependencies })
 }
 /**
  * Loopback Messages endpoint recording each model request.

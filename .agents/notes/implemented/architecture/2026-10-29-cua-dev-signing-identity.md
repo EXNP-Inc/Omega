@@ -10,7 +10,7 @@ Source checkouts compile `DSH Computer Use.app` with an ad-hoc signature. macOS 
 
 ## Decision
 
-The Host builds source checkouts as a development variant with bundle identifier `com.deepseek.harness.computer-use.dev` and name `DSH Computer Use Dev`, in `DSH Computer Use Dev.app`. The macOS privacy list and the helper’s reported launch application use the bundle filename, so that filename also includes Dev. The release variant and its packaging are unchanged. Grants stay with the helper application launched through LaunchServices, as the [shared helper decision](2026-10-09-cua-shared-native-helper.md) requires.
+The Host builds source checkouts as a development variant with bundle identifier `com.omega.harness.computer-use.dev` and name `DSH Computer Use Dev`, in `DSH Computer Use Dev.app`. The macOS privacy list and the helper’s reported launch application use the bundle filename, so that filename also includes Dev. The release variant and its packaging are unchanged. Grants stay with the helper application launched through LaunchServices, as the [shared helper decision](2026-10-09-cua-shared-native-helper.md) requires.
 
 `sourceSigning` belongs to the macOS provider and accepts only default `ad-hoc` or `{ identity, keychain }` selecting an existing certificate and absolute keychain path. Builds do not create, unlock or remove identities. Developer credentials stay separate from the user-facing DSH home, which stores only the certificate selection; the shared `cua` package owns no macOS signing configuration.
 

@@ -1,21 +1,21 @@
-/** DeepSeek Files API upload reuse, invalidation, and quota recovery. @module dsh-llm-deepseek/file-store */
+/** Omega Files API upload reuse, invalidation, and quota recovery. @module dsh-llm-omega/file-store */
 
 import { setTimeout as delay } from 'node:timers/promises'
-import { timeoutOf, type TimeoutReason } from '@deepseek-ai/dsh-timeout'
-import type { RequestImageAttachment } from '@deepseek-ai/dsh-attachment'
-import { LlmError } from '@deepseek-ai/dsh-llm'
-import { DeepSeekFilesClient, DeepSeekFilesError, isFilesQuotaError } from './files-api.ts'
-import type { DeepSeekFileId } from './file-id.ts'
+import { timeoutOf, type TimeoutReason } from '@omega-ai/dsh-timeout'
+import type { RequestImageAttachment } from '@omega-ai/dsh-attachment'
+import { LlmError } from '@omega-ai/dsh-llm'
+import { OmegaFilesClient, OmegaFilesError, isFilesQuotaError } from './files-api.ts'
+import type { OmegaFileId } from './file-id.ts'
 import { messagesApiRoot } from './messages-api.ts'
-import { deepSeekFileScope, DeepSeekUploadIndex } from './upload-index.ts'
+import { omegaFileScope, OmegaUploadIndex } from './upload-index.ts'
 import { serializeAuthHeaders } from './auth-headers.ts'
-import type { DeepSeekUploadRecord } from './upload-index.ts'
+import type { OmegaUploadRecord } from './upload-index.ts'
 
 /** Shared Files-store limit for each request image, including file-id references. */
 export const MAX_IMAGE_BYTES = 32 * 1024 * 1024
 const OWNED_FILE_PREFIX = 'dsh-'
 /** Per-image deadline whose expiry during upload starts Files backoff. */
-export const FILES_API_TIMEOUT = 'DEEPSEEK_FILES_API_TIMEOUT'
+export const FILES_API_TIMEOUT = 'OMEGA_FILES_API_TIMEOUT'
 
 interface UploadBackoff {
   interval: bigint
@@ -24,7 +24,7 @@ interface UploadBackoff {
 }
 
 /** Resolved file-store policy from the plugin configuration. */
-export interface DeepSeekFilePolicy {
+export interface OmegaFilePolicy {
   expiresAfterSeconds: number
   refreshMarginSeconds: number
   quotaCleanupBatch: number
@@ -39,20 +39,20 @@ export interface DeepSeekFilePolicy {
 }
 
 /** Connection facts needed by file operations. */
-export interface DeepSeekFileConnection {
+export interface OmegaFileConnection {
   baseURL: string
   /** Provider-resolved authentication headers for this endpoint. */
   headers: Readonly<Record<string, string>>
 }
 
 /** Result of one file-id resolution. */
-export interface DeepSeekFileReference {
-  record: DeepSeekUploadRecord
+export interface OmegaFileReference {
+  record: OmegaUploadRecord
   uploaded: boolean
 }
 
 interface FileStoreOptions {
-  index?: DeepSeekUploadIndex
+  index?: OmegaUploadIndex
   now?: () => number
   fetch?: typeof fetch
 }
@@ -65,31 +65,31 @@ export interface FileRequestBackoff {
 
 interface SharedUpload {
   controller: AbortController
-  promise: Promise<DeepSeekFileReference>
+  promise: Promise<OmegaFileReference>
   settled: boolean
   waiters: number
   onUploadTimeout?: (reason: TimeoutReason) => void
 }
 
 /** The Files resource's parent URL identifies the upload namespace. */
-function fileScope(connection: DeepSeekFileConnection) {
-  return deepSeekFileScope(messagesApiRoot(connection.baseURL), serializeAuthHeaders(connection.headers))
+function fileScope(connection: OmegaFileConnection) {
+  return omegaFileScope(messagesApiRoot(connection.baseURL), serializeAuthHeaders(connection.headers))
 }
 
 function abortReason(signal: AbortSignal): Error {
   const reason: unknown = signal.reason
   return reason instanceof Error
     ? reason
-    : new Error('DeepSeek file upload cancelled with a non-Error reason.', { cause: reason })
+    : new Error('Omega file upload cancelled with a non-Error reason.', { cause: reason })
 }
 
 function uploadFailure(error: unknown): Error {
   return error instanceof Error
     ? error
-    : new Error('DeepSeek file upload failed with a non-Error reason.', { cause: error })
+    : new Error('Omega file upload failed with a non-Error reason.', { cause: error })
 }
 
-function waitForUpload(operation: SharedUpload, signal: AbortSignal | undefined): Promise<DeepSeekFileReference> {
+function waitForUpload(operation: SharedUpload, signal: AbortSignal | undefined): Promise<OmegaFileReference> {
   signal?.throwIfAborted()
   operation.waiters += 1
   let released = false
@@ -106,7 +106,7 @@ function waitForUpload(operation: SharedUpload, signal: AbortSignal | undefined)
       release()
     })
   }
-  return new Promise<DeepSeekFileReference>((resolve, reject) => {
+  return new Promise<OmegaFileReference>((resolve, reject) => {
     const abort = (): void => {
       const reason = abortReason(signal)
       const timeout = timeoutOf(signal, FILES_API_TIMEOUT)
@@ -142,27 +142,27 @@ function filename(version: RequestImageAttachment): string {
   return `${OWNED_FILE_PREFIX}${attachment}-${variant}.${extension(version.mediaType)}`
 }
 
-/** User-scoped durable file-id reuse for the DeepSeek route. */
-export class DeepSeekFileStore {
-  private readonly index: DeepSeekUploadIndex
+/** User-scoped durable file-id reuse for the Omega route. */
+export class OmegaFileStore {
+  private readonly index: OmegaUploadIndex
   private readonly now: () => number
   private readonly fetchImpl: typeof fetch | undefined
-  private readonly backoffs = new Map<DeepSeekUploadRecord['scope'], UploadBackoff>()
+  private readonly backoffs = new Map<OmegaUploadRecord['scope'], UploadBackoff>()
   private readonly inflight = new Map<string, SharedUpload>()
   /** Unclaimed slots from the preceding cleanup in each active Files namespace. */
-  private readonly quotaRecoveries = new Map<DeepSeekUploadRecord['scope'], Promise<number>>()
+  private readonly quotaRecoveries = new Map<OmegaUploadRecord['scope'], Promise<number>>()
 
   /**
    * @param options - testable index, clock, and transport boundaries.
    */
   constructor(options: FileStoreOptions = {}) {
-    this.index = options.index ?? new DeepSeekUploadIndex()
+    this.index = options.index ?? new OmegaUploadIndex()
     this.now = options.now ?? Date.now
     this.fetchImpl = options.fetch
   }
 
-  private client(connection: DeepSeekFileConnection): DeepSeekFilesClient {
-    return new DeepSeekFilesClient({
+  private client(connection: OmegaFileConnection): OmegaFilesClient {
+    return new OmegaFilesClient({
       baseURL: connection.baseURL,
       headers: connection.headers,
       ...this.fetchImpl === undefined ? {} : { fetch: this.fetchImpl },
@@ -181,14 +181,14 @@ export class DeepSeekFileStore {
    */
   async ensureUploaded(
     version: RequestImageAttachment,
-    connection: DeepSeekFileConnection,
-    policy: DeepSeekFilePolicy,
+    connection: OmegaFileConnection,
+    policy: OmegaFilePolicy,
     signal?: AbortSignal,
     request: FileRequestBackoff = {},
-  ): Promise<DeepSeekFileReference> {
+  ): Promise<OmegaFileReference> {
     signal?.throwIfAborted()
     if (version.bytes > MAX_IMAGE_BYTES) {
-      throw new LlmError('DeepSeek image exceeds the 32 MiB per-image limit.', 'INVALID_REQUEST')
+      throw new LlmError('Omega image exceeds the 32 MiB per-image limit.', 'INVALID_REQUEST')
     }
     const scope = fileScope(connection)
     const marginMs = policy.refreshMarginSeconds * 1_000
@@ -208,7 +208,7 @@ export class DeepSeekFileStore {
     }
     if (request.skippedAfter) {
       throw LlmError.fromFailure({
-        message: 'DeepSeek Files API upload skipped after a timeout.', code: 'FILES_API_SKIPPED',
+        message: 'Omega Files API upload skipped after a timeout.', code: 'FILES_API_SKIPPED',
       }, { cause: request.skippedAfter })
     }
     const key = `${scope}\0${version.variantId}`
@@ -241,17 +241,17 @@ export class DeepSeekFileStore {
 
   private async uploadOnce(
     version: RequestImageAttachment,
-    connection: DeepSeekFileConnection,
-    policy: DeepSeekFilePolicy,
-    scope: DeepSeekUploadRecord['scope'],
+    connection: OmegaFileConnection,
+    policy: OmegaFilePolicy,
+    scope: OmegaUploadRecord['scope'],
     shared: SharedUpload,
     retryUntil: number,
-  ): Promise<DeepSeekFileReference> {
+  ): Promise<OmegaFileReference> {
     const signal = shared.controller.signal
     const marginMs = policy.refreshMarginSeconds * 1_000
 
     const client = this.client(connection)
-    const upload = async (): Promise<DeepSeekUploadRecord> => {
+    const upload = async (): Promise<OmegaUploadRecord> => {
       signal.throwIfAborted()
       const previous = this.backoffs.get(scope)
       // Count overlapping uploads from one failure interval once, even if an aborted transport never settles.
@@ -269,7 +269,7 @@ export class DeepSeekFileStore {
         signal,
       }).finally(() => { delete shared.onUploadTimeout })
       if (remote.bytes !== version.data.byteLength) {
-        throw new LlmError('DeepSeek Files API upload response does not match the submitted image.', 'INVALID_RESPONSE')
+        throw new LlmError('Omega Files API upload response does not match the submitted image.', 'INVALID_RESPONSE')
       }
       if (!signal.aborted) this.backoffs.delete(scope)
       return {
@@ -283,7 +283,7 @@ export class DeepSeekFileStore {
       }
     }
 
-    let candidate: DeepSeekUploadRecord
+    let candidate: OmegaUploadRecord
     let reclaimed = false
     for (let attempt = 0; ; attempt++) {
       try {
@@ -295,7 +295,7 @@ export class DeepSeekFileStore {
           if (reclaimed || !await this.reserveQuotaSlot(scope, connection, policy.quotaCleanupBatch, signal)) throw error
           reclaimed = true
         } else {
-          if (!(error instanceof DeepSeekFilesError) || error.code !== 'RATE_LIMIT') throw error
+          if (!(error instanceof OmegaFilesError) || error.code !== 'RATE_LIMIT') throw error
           const wait = Math.max(error.failure.providerRetryAfterMs ?? 0, policy.uploadRetryDelayMs)
           if (wait >= retryUntil - this.now()) throw error
           await delay(wait, undefined, { signal })
@@ -314,7 +314,7 @@ export class DeepSeekFileStore {
   }
 
   /** Overlapping quota failures claim distinct deleted slots, listing again only when the batch runs out. */
-  private async reserveQuotaSlot(scope: DeepSeekUploadRecord['scope'], connection: DeepSeekFileConnection, count: number, signal: AbortSignal) {
+  private async reserveQuotaSlot(scope: OmegaUploadRecord['scope'], connection: OmegaFileConnection, count: number, signal: AbortSignal) {
     const previous = this.quotaRecoveries.get(scope)
     const next = Promise.withResolvers<number>()
     this.quotaRecoveries.set(scope, next.promise)
@@ -341,8 +341,8 @@ export class DeepSeekFileStore {
    * @param connection - endpoint and API-key snapshot.
    */
   async invalidate(
-    generations: readonly Pick<DeepSeekUploadRecord, 'variantId' | 'fileId'>[],
-    connection: DeepSeekFileConnection,
+    generations: readonly Pick<OmegaUploadRecord, 'variantId' | 'fileId'>[],
+    connection: OmegaFileConnection,
   ): Promise<void> {
     await this.index.remove(fileScope(connection), generations)
   }
@@ -357,8 +357,8 @@ export class DeepSeekFileStore {
    */
   async release(
     version: RequestImageAttachment,
-    connection: DeepSeekFileConnection,
-    policy: DeepSeekFilePolicy,
+    connection: OmegaFileConnection,
+    policy: OmegaFilePolicy,
     signal?: AbortSignal,
   ): Promise<boolean> {
     const scope = fileScope(connection)
@@ -382,13 +382,13 @@ export class DeepSeekFileStore {
    * @returns number of successfully deleted files.
    */
   async reclaimOldestOwned(
-    connection: DeepSeekFileConnection,
+    connection: OmegaFileConnection,
     count: number,
     signal?: AbortSignal,
   ): Promise<number> {
     const client = this.client(connection)
-    let after: DeepSeekFileId | undefined
-    const owned: { id: DeepSeekFileId; createdAt: number }[] = []
+    let after: OmegaFileId | undefined
+    const owned: { id: OmegaFileId; createdAt: number }[] = []
     while (true) {
       const page = await client.list({
         ...after === undefined ? {} : { after },
@@ -415,7 +415,7 @@ export class DeepSeekFileStore {
    * @param signal - request cancellation.
    * @returns number of deleted files.
    */
-  async releaseAll(connection: DeepSeekFileConnection, signal?: AbortSignal): Promise<number> {
+  async releaseAll(connection: OmegaFileConnection, signal?: AbortSignal): Promise<number> {
     let total = 0
     for (;;) {
       const deleted = await this.reclaimOldestOwned(connection, 1_000, signal)

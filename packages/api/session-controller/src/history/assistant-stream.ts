@@ -1,9 +1,9 @@
 /** Assistant stream baselines and per-connection subscriptions. */
 
-import type { Context } from '@deepseek-ai/cordis'
-import { SessionSeq } from '@deepseek-ai/dsh-session'
-import type { Session, SessionId } from '@deepseek-ai/dsh-session'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+import type { Context } from '@omega-ai/cordis'
+import { SessionSeq } from '@omega-ai/dsh-session'
+import type { Session, SessionId } from '@omega-ai/dsh-session'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
 import { SessionAssistantStreamAccumulator } from '../assistant-stream.ts'
 import type { SessionAssistantStreamBaseline, SessionAssistantStreamFrame } from '../types.ts'
 import { ListenerBuffer } from './listener.ts'

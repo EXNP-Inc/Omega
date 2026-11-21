@@ -3,10 +3,10 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
-using DeepSeek.Cua.Protocol;
+using Omega.Cua.Protocol;
 using Microsoft.Win32.SafeHandles;
 
-namespace DeepSeek.Cua.Windows;
+namespace Omega.Cua.Windows;
 
 internal sealed record ShellApplication(string AppId, string DisplayName, bool HasShellName);
 internal sealed record ShellCatalog(ShellApplication[] Applications, int Omitted);

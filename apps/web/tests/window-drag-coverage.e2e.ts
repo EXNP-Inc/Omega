@@ -19,13 +19,13 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Locator, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { initialShortcutConfig } from '@deepseek-ai/dsh-client-shortcuts/protocol'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { type ToolCallId, createAssistantMessage, createToolResultMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { Session } from '@deepseek-ai/dsh-session'
+import { initialShortcutConfig } from '@omega-ai/dsh-client-shortcuts/protocol'
+import { brandString } from '@omega-ai/dsh-brand'
+import { type ToolCallId, createAssistantMessage, createToolResultMessage, createUserMessage } from '@omega-ai/dsh-llm'
+import type { Session } from '@omega-ai/dsh-session'
 import {
   INTERACTIVE_SELECTOR, RECALL_MARK, isDraggableAt, type RegionRect,
-} from '@deepseek-ai/dsh-client-web/src/window-drag/regions.ts'
+} from '@omega-ai/dsh-client-web/src/window-drag/regions.ts'
 import { launchWebScaffold, watchConsole, type WebScaffold } from './scaffold.ts'
 import {
   collectWindowSurface, connectFreshWorkspace, expandOwningTurnProcess, newEnglishPage, saveFailureShot,
@@ -602,7 +602,7 @@ describe('web e2e: macOS window drag coverage', () => {
     ['darwin', false], ['darwin', true], ['win32', false], ['win32', true],
   ] as const)('%s scopes compact spacing with tabs=%s to the collapsed macOS header at every width', async (platform, hasTabs) => {
     const host = hasTabs ? await launchWebScaffold({
-      profile: { packages: [], bundles: ['@deepseek-ai/dsh-experimental-plugin-market-bundle'] },
+      profile: { packages: [], bundles: ['@omega-ai/dsh-experimental-plugin-market-bundle'] },
     }) : scaffold
     try {
       const { page, tripwire } = await desktopPage(platform, host)

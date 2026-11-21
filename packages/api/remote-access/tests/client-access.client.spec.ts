@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import type { HostObservable, RootStandardSourceContribution } from '@deepseek-ai/dsh-client-ui-slots'
-import type { TypertRemoteContribution, TypertResource } from '@deepseek-ai/dsh-typert-protocol'
+import { Context } from '@omega-ai/cordis'
+import type { HostObservable, RootStandardSourceContribution } from '@omega-ai/dsh-client-ui-slots'
+import type { TypertRemoteContribution, TypertResource } from '@omega-ai/dsh-typert-protocol'
 import type { RemoteAccessFrame, RemoteAccessGrant } from '../src/types.ts'
 import { ClientAccessState, parseInjectedBaseline, type Baseline } from '../src/client/state.ts'
 import { mountAccess } from '../src/client/mount.ts'
 import { whenAllowed } from '../src/client/when-allowed.ts'
 
-declare module '@deepseek-ai/dsh-typert-protocol' {
+declare module '@omega-ai/dsh-typert-protocol' {
   interface TypertResourceMap {
     /** Test-only resource kinds; the Client face itself names no kind. */
     'test-shelf': TypertResource<string>
@@ -221,7 +221,7 @@ async function mounted(initial?: Baseline): Promise<{
       return () => {}
     },
   } as never)
-  const contribution: TypertRemoteContribution = { package: '@deepseek-ai/dsh-api-remote-access', descriptors: [] }
+  const contribution: TypertRemoteContribution = { package: '@omega-ai/dsh-api-remote-access', descriptors: [] }
   let dispose: (() => Promise<void>) | undefined
   await ctx.plugin({
     inject: ['remote', 'slots'],

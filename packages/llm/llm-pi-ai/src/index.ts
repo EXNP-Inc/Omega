@@ -11,7 +11,7 @@
  *
  * ```yaml
  * - id: llm
- *   name: '@deepseek-ai/dsh-llm-pi-ai'
+ *   name: '@omega-ai/dsh-llm-pi-ai'
  *   config:
  *     providers:
  *       # Catalog route: everything but the credential comes from pi-ai.
@@ -34,7 +34,7 @@
  *         baseURL: https://gateway.acme.example/v1
  *         # Reasoning dialect for a URL pi-ai cannot recognize.
  *         compat:
- *           thinkingFormat: deepseek
+ *           thinkingFormat: omega
  *         models:
  *           - id: acme-large
  *             name: Acme Large
@@ -52,20 +52,20 @@
  *               max: ultra
  * ```
  *
- * @module @deepseek-ai/dsh-llm-pi-ai
+ * @module @omega-ai/dsh-llm-pi-ai
  */
-import type {} from '@deepseek-ai/dsh-settings'
+import type {} from '@omega-ai/dsh-settings'
 
-import type {} from '@deepseek-ai/cordis-plugin-loader'
+import type {} from '@omega-ai/cordis-plugin-loader'
 
-import type { Context } from '@deepseek-ai/cordis'
-import { launchEnvironmentOf } from '@deepseek-ai/dsh-launch-environment'
-import { normalizeApiKey } from '@deepseek-ai/dsh-credentials'
-import type { ApiKeyRejection } from '@deepseek-ai/dsh-credentials'
-import { INVALID_CREDENTIAL_CODE, LlmError, resolveImageAttachmentAccess } from '@deepseek-ai/dsh-llm'
-import type { AdapterRegistrationHandle, DirectoryRegistrationHandle, LlmConfigurableProvider } from '@deepseek-ai/dsh-llm'
-import type {} from '@deepseek-ai/dsh-fs'
-import { deepEqualJson } from '@deepseek-ai/dsh-util-values'
+import type { Context } from '@omega-ai/cordis'
+import { launchEnvironmentOf } from '@omega-ai/dsh-launch-environment'
+import { normalizeApiKey } from '@omega-ai/dsh-credentials'
+import type { ApiKeyRejection } from '@omega-ai/dsh-credentials'
+import { INVALID_CREDENTIAL_CODE, LlmError, resolveImageAttachmentAccess } from '@omega-ai/dsh-llm'
+import type { AdapterRegistrationHandle, DirectoryRegistrationHandle, LlmConfigurableProvider } from '@omega-ai/dsh-llm'
+import type {} from '@omega-ai/dsh-fs'
+import { deepEqualJson } from '@omega-ai/dsh-util-values'
 import { PiAiAdapter } from './adapter.ts'
 import { authContextFrom, credentialStoreFrom } from './auth.ts'
 import { catalogProvider, catalogProviderIds } from './catalog.ts'
@@ -97,7 +97,7 @@ export { supportedProtocols } from './provider.ts'
 export const name = 'llm-pi-ai'
 export const inject = ['llm']
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Events {
     /**
      * Prepare headers for one pi-ai inference call, excluding model discovery.
@@ -286,7 +286,7 @@ export function apply(ctx: Context, config: Config): void {
     const entries = directoryEntries(profiles(), settingsNs)
     if (deepEqualJson(entries, directoryFacts)) return
     // Atomic replace, never dispose-then-register: a route another adapter
-    // family already declares (a profile keyed `deepseek-official`) would
+    // family already declares (a profile keyed `omega-official`) would
     // otherwise leave this plugin's whole directory withdrawn and the Models
     // page empty. The candidate set is validated first, so a collision keeps
     // the previous entries serving and only costs a diagnostic.

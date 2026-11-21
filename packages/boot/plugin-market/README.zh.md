@@ -3,7 +3,7 @@ description: "读取用户配置的插件索引的 Host 服务，提供安装状
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-plugin-market
+# @omega-ai/dsh-plugin-market
 
 [English](README.md) | 中文
 
@@ -115,7 +115,7 @@ Host 使用进程的 `fetch` 读取直接返回 JSON 的地址，因此配置的
 
 #### 模型看到什么
 
-[`plugin_market` 工具](../../../docs/tool-catalog.zh.md#deepseek-aidsh-plugin-market)返回 JSON：已配置的索引 URL 及其英文标题和最近错误，一页插件（按索引顺序，或给出 `query` 时按最佳匹配），包含名称、英文标题、描述和作者（各截断为 300 个字符）、主页、仓库、分类、标签 id、排序键值、安装状态、默认版本和版本数量，或者某个插件的一页版本。返回的每个版本都携带 ISO 发布时间、兼容性和安装参数。其描述声明市场文本是第三方内容，不是指令。
+[`plugin_market` 工具](../../../docs/tool-catalog.zh.md#omega-aidsh-plugin-market)返回 JSON：已配置的索引 URL 及其英文标题和最近错误，一页插件（按索引顺序，或给出 `query` 时按最佳匹配），包含名称、英文标题、描述和作者（各截断为 300 个字符）、主页、仓库、分类、标签 id、排序键值、安装状态、默认版本和版本数量，或者某个插件的一页版本。返回的每个版本都携带 ISO 发布时间、兼容性和安装参数。其描述声明市场文本是第三方内容，不是指令。
 
 #### Token 影响
 

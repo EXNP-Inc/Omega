@@ -1,6 +1,6 @@
 /** Execution mode and resource limits for the Node PTC provider. */
-import z from '@deepseek-ai/schemastery'
-import { MAX_TIMER_DELAY_MS } from '@deepseek-ai/dsh-timeout'
+import z from '@omega-ai/schemastery'
+import { MAX_TIMER_DELAY_MS } from '@omega-ai/dsh-timeout'
 import type { LaunchConfig } from './launch.ts'
 import { resolvePersistentExecution } from './configuration.ts'
 

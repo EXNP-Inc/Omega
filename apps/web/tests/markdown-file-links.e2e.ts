@@ -4,11 +4,11 @@ import { basename, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium, type Browser, type Locator, type Page } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { type ToolCallId, createAssistantMessage, createToolResultMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
-import { SESSION_FORMAT_VERSION, Session, type SessionId } from '@deepseek-ai/dsh-session'
-import { sessionFileAddress } from '@deepseek-ai/dsh-util-workspace-path'
-import type {} from '@deepseek-ai/dsh-session-title'
+import { brandString } from '@omega-ai/dsh-brand'
+import { type ToolCallId, createAssistantMessage, createToolResultMessage, createUserMessage } from '@omega-ai/dsh-llm'
+import { SESSION_FORMAT_VERSION, Session, type SessionId } from '@omega-ai/dsh-session'
+import { sessionFileAddress } from '@omega-ai/dsh-util-workspace-path'
+import type {} from '@omega-ai/dsh-session-title'
 import {
   assertFixtureInventory, captureStableAria, compareOrRefreshGolden,
   launchWebScaffold, readPersistedEvents, seedSession, watchConsole, webSnapshotMode, type WebScaffold,
@@ -40,7 +40,7 @@ function parentPathFixture(path: string): string {
     turn: 1, step: 1, stream: [],
     message: createAssistantMessage({
       content: [{ type: 'tool-call', id: callId, name: 'read', arguments: args }],
-      source: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+      source: { provider: 'omega-official', model: 'omega-v4-flash' },
     }),
   }, { surfaceOp: 'append' })
   const call = session.append('tool/call', { turn: 1, step: 1, callId, name: 'read', arguments: args })
@@ -54,7 +54,7 @@ function parentPathFixture(path: string): string {
     turn: 1, step: 2, stream: [],
     message: createAssistantMessage({
       content: [{ type: 'text', text: `[Parent file:24–30](<${path}#L24-L30>) · [Parent file:30](<${path}#L30>)` }],
-      source: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+      source: { provider: 'omega-official', model: 'omega-v4-flash' },
     }),
   }, { surfaceOp: 'append' })
   session.append('step/end', { turn: 1, step: 2 })
@@ -83,7 +83,7 @@ function changedDirectoryFixture(path: string): string {
     turn: 1, step: 1, stream: [],
     message: createAssistantMessage({
       content: [{ type: 'text', text: `[Worktree notes](${path})` }],
-      source: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+      source: { provider: 'omega-official', model: 'omega-v4-flash' },
     }),
   }, { surfaceOp: 'append' })
   session.append('step/end', { turn: 1, step: 1 })

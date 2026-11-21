@@ -1,4 +1,4 @@
-from .api import DeepSeekHarness, DeepSeekHarnessConfig, RunResult, Session
+from .api import OmegaHarness, OmegaHarnessConfig, RunResult, Session
 from .client import HarnessClient, HarnessConfig, UserQuestionHandler
 from .errors import SdkProtocolError
 from .models import (
@@ -7,8 +7,8 @@ from .models import (
 )
 
 __all__ = [
-    "DeepSeekHarness",
-    "DeepSeekHarnessConfig",
+    "OmegaHarness",
+    "OmegaHarnessConfig",
     "Session",
     "RunResult",
     "ResumeSessionOptions",

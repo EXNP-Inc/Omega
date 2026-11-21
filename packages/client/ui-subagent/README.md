@@ -3,7 +3,7 @@ description: "Subagent conversation catalog in the Session panel, breadcrumb sib
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-subagent
+# @omega-ai/dsh-client-ui-subagent
 
 English | [中文](README.zh.md)
 

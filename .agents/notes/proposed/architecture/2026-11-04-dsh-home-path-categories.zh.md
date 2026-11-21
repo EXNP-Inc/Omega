@@ -24,7 +24,7 @@ Status: proposed
 
 ### 路径辅助函数
 
-`@deepseek-ai/dsh-home-paths` 中的 [`dshPath(category, ...segments)`](../../../../packages/util/home-paths/src/index.ts) 返回 `<home>/<category>/<segments>`，不创建目录；`dshPath({ category, dshHome }, ...segments)` 基于显式配置的 home 解析路径。Loader `!!js` 配置表达式在 `dshHomePath` 之外也可以使用同一个函数。home 下的新路径使用 `dshPath`，并把负责方的目录名作为第一个路径段传入，该目录名通常是去掉 `@deepseek-ai/dsh-` 前缀的包名。`dshHomePath` 继续用于现有的顶层条目，`dshCachePath` 等同于 `dshPath('cache', ...)`。
+`@omega-ai/dsh-home-paths` 中的 [`dshPath(category, ...segments)`](../../../../packages/util/home-paths/src/index.ts) 返回 `<home>/<category>/<segments>`，不创建目录；`dshPath({ category, dshHome }, ...segments)` 基于显式配置的 home 解析路径。Loader `!!js` 配置表达式在 `dshHomePath` 之外也可以使用同一个函数。home 下的新路径使用 `dshPath`，并把负责方的目录名作为第一个路径段传入，该目录名通常是去掉 `@omega-ai/dsh-` 前缀的包名。`dshHomePath` 继续用于现有的顶层条目，`dshCachePath` 等同于 `dshPath('cache', ...)`。
 
 ### 约定的顶层条目
 
@@ -55,14 +55,14 @@ profile 目录内的文件，例如 `node_modules/`、`pnpm-lock.yaml`、`compat
 | `liveshare/` | `data` | [liveshare](../../../../packages/experimental/liveshare/README.zh.md) 的所有者状态和凭据 | 存放管理令牌 |
 | `.anonymous-user-id` | `state` | [anonymous-user-id](../../../../packages/identity/anonymous-user-id/README.zh.md) | 丢失后只会生成新的 id |
 | `logs/` | `state` | CLI 启动失败报告 | 日志 |
-| `llm-deepseek/files-v3.json` | `state` | [llm-deepseek](../../../../packages/llm/llm-deepseek/README.zh.md) 上传索引 | 派生索引 |
+| `llm-omega/files-v3.json` | `state` | [llm-omega](../../../../packages/llm/llm-omega/README.zh.md) 上传索引 | 派生索引 |
 | `office-kit/outputs/` | `state` | [office-kit](../../../../packages/document/office-kit/README.zh.md) | 保留的转换输出，超过保留期后删除 |
 | `speech-to-text/sensevoice/` | `cache` | voice-input-bundle | 可下载的模型 |
 | `cache/attachments/` | `cache` | attachment-local 请求图片 | 已位于 `cache` 中 |
 
 ### home 之外
 
-以下位置不在本提案范围内：`~/.agents`（`DSH_AGENTS_HOME`），与其他 agent 工具共享；Electron 的 `userData` 和 `logs`，由 Electron 管理；Python SDK 资源缓存 `~/.cache/deepseek-harness/resources`（`DSH_RESOURCE_CACHE`），在多个 home 之间共享；操作系统临时目录下的 spill 和子进程输出目录；以及开发者或发布脚本的状态，例如 `~/.dsh-desktop-signing`。
+以下位置不在本提案范围内：`~/.agents`（`DSH_AGENTS_HOME`），与其他 agent 工具共享；Electron 的 `userData` 和 `logs`，由 Electron 管理；Python SDK 资源缓存 `~/.cache/omega-harness/resources`（`DSH_RESOURCE_CACHE`），在多个 home 之间共享；操作系统临时目录下的 spill 和子进程输出目录；以及开发者或发布脚本的状态，例如 `~/.dsh-desktop-signing`。
 
 ## 备选方案
 

@@ -3,7 +3,7 @@ description: "MCP 服务器管理器：面向需要在运行时添加、修改�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-mcp-manager
+# @omega-ai/dsh-mcp-manager
 
 [English](README.md) | 中文
 
@@ -37,7 +37,7 @@ kind: "package-reference"
 
 ```yaml
 - id: mcp
-  name: '@deepseek-ai/dsh-mcp-manager'
+  name: '@omega-ai/dsh-mcp-manager'
   inject: [credentials]
   config:
     servers:
@@ -73,7 +73,7 @@ profile 的 `cordis.patch.yml` 会替换条目的完整 `servers` 映射。需�
 | `startupTimeoutMs` | `30,000` | 模板解析、协商、连接与初次工具发现的预算 |
 | `toolCallTimeoutMs` / `closeTimeoutMs` / `reconnect` / `toolLoading` | mcp-client 默认值 | 逐服务器覆盖；`toolLoading: on-demand` 让 agent [在需要时加载服务器的工具](../mcp-client/README.zh.md#on-demand-tool-loading) |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-mcp-manager)是每个可接受字段的详尽出处。
+生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-mcp-manager)是每个可接受字段的详尽出处。
 
 ### 管理配置的服务器
 
@@ -86,8 +86,8 @@ Settings 写入经 ConfigEditor 持久化并检查 revision；Loader 更新 vola
 接入某个 MCP 服务的插件注册自己的服务器，而不是写入配置：
 
 ```ts
-import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-mcp-manager'
+import type { Context } from '@omega-ai/cordis'
+import type {} from '@omega-ai/dsh-mcp-manager'
 
 export const name = 'example-app'
 export const inject = ['mcpManager']
@@ -165,7 +165,7 @@ export function apply(ctx: Context): void {
 - [mcp-client README](../mcp-client/README.zh.md) —— 单实例桥：命名、重连策略、工具执行、状态面。
 - [Settings 包 README](../../settings/settings/README.zh.md) —— 管理器使用的 Config 表单、继承、revision 检查与 profile 写入。
 - [Credentials 组 README](../../credentials/README.zh.md) —— `${credential:…}` 模板解析的凭据引用。
-- [生成的配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-mcp-manager) —— 每个可接受的配置字段。
+- [生成的配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-mcp-manager) —— 每个可接受的配置字段。
 - [MCP 管理器 Agent Note](../../../.agents/notes/implemented/feature/2026-08-31-mcp-manager-plugin.zh.md) —— 设计决策、同类产品调研与被否决的替代方案。
 
 -----

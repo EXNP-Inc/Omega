@@ -6,9 +6,9 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Locator, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, onTestFailed, vi } from 'vitest'
-import type { AccountView } from '@deepseek-ai/dsh-deepseek-account/types'
-import type {} from '@deepseek-ai/dsh-deepseek-account'
-import type {} from '@deepseek-ai/dsh-api-session-controller'
+import type { AccountView } from '@omega-ai/dsh-omega-account/types'
+import type {} from '@omega-ai/dsh-omega-account'
+import type {} from '@omega-ai/dsh-api-session-controller'
 import {
   compareOrRefreshGolden, launchWebScaffold, seedSession, watchConsole,
   webSnapshotMode, type WebScaffold,
@@ -508,10 +508,10 @@ describe('web e2e: sidebar search alignment and row action targets', () => {
 
   it.each([false, true])('keeps account footer geometry in wide and rail layouts (signed in: %s)', async (signedIn) => {
     onTestFailed(() => saveFailureShot(page, `web-e2e-sidebar-account-${String(signedIn)}`))
-    const account = scaffold.ctx.deepseekAccount
+    const account = scaffold.ctx.omegaAccount
     const state: AccountView = {
       status: 'credential-stored', attempt: null,
-      links: { usageUrl: 'https://platform.deepseek.com/usage', topUpUrl: 'https://platform.deepseek.com/top_up' },
+      links: { usageUrl: 'https://platform.omega.com/usage', topUpUrl: 'https://platform.omega.com/top_up' },
     }
     // Only Platform identity is synthetic; the account provider's RPC and client renderer remain composed.
     const mocks = signedIn ? [

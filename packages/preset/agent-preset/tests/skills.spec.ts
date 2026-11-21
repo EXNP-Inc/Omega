@@ -7,13 +7,13 @@ import { execFileSync, spawnSync } from 'node:child_process'
 import { cpSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve, sep } from 'node:path'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { fileURLToPath } from 'node:url'
-import { parseEntryYaml } from '@deepseek-ai/cordis-plugin-include'
-import { codePointLength } from '@deepseek-ai/dsh-compaction-tool-result-pruner'
-import { detailImage, languageChain, localFiles, readPackageDocument } from '@deepseek-ai/dsh-plugin-detail'
-import SkillRegistry, { renderSkillContent } from '@deepseek-ai/dsh-skill'
-import * as SkillFileSystem from '@deepseek-ai/dsh-skill-filesystem'
+import { parseEntryYaml } from '@omega-ai/cordis-plugin-include'
+import { codePointLength } from '@omega-ai/dsh-compaction-tool-result-pruner'
+import { detailImage, languageChain, localFiles, readPackageDocument } from '@omega-ai/dsh-plugin-detail'
+import SkillRegistry, { renderSkillContent } from '@omega-ai/dsh-skill'
+import * as SkillFileSystem from '@omega-ai/dsh-skill-filesystem'
 import { describe, expect, it, type TestContext } from 'vitest'
 import { JSDOM } from 'jsdom'
 import { packageMetaProblems } from '../../../../scripts/verify-package-meta.ts'
@@ -201,8 +201,8 @@ describe('the shipped dsh-doc skill', () => {
 
   it('locates checkout documentation from the shipped skill directory', () => {
     const root = resolve(realpathSync(skill), '../../../../..')
-    expect(JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))).toMatchObject({ name: '@deepseek-ai/dsh-root' })
-    expect(JSON.parse(readFileSync(join(root, 'apps/cli/package.json'), 'utf8'))).toMatchObject({ name: '@deepseek-ai/dsh' })
+    expect(JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))).toMatchObject({ name: '@omega-ai/dsh-root' })
+    expect(JSON.parse(readFileSync(join(root, 'apps/cli/package.json'), 'utf8'))).toMatchObject({ name: '@omega-ai/dsh' })
     expect(statSync(join(root, 'pnpm-workspace.yaml')).isFile()).toBe(true)
     expect(statSync(join(root, 'docs/user/index.md')).isFile()).toBe(true)
     expect(statSync(join(root, 'packages/README.md')).isFile()).toBe(true)
@@ -212,15 +212,15 @@ describe('the shipped dsh-doc skill', () => {
   it.skipIf(process.platform === 'win32')('documents shell commands that locate a package and list upgrade index sections', (test) => {
     const install = realpathSync(mkdtempSync(join(tmpdir(), 'dsh-doc-commands-')))
     test.onTestFinished(() => { rmSync(install, { recursive: true, force: true }) })
-    const pkg = join(install, 'node_modules', '@deepseek-ai', 'dsh-tool-bash')
+    const pkg = join(install, 'node_modules', '@omega-ai', 'dsh-tool-bash')
     mkdirSync(pkg, { recursive: true })
-    writeFileSync(join(pkg, 'package.json'), '{"name":"@deepseek-ai/dsh-tool-bash"}\n')
+    writeFileSync(join(pkg, 'package.json'), '{"name":"@omega-ai/dsh-tool-bash"}\n')
     mkdirSync(join(install, 'docs', 'upgrade-guide'), { recursive: true })
     writeFileSync(join(install, 'docs', 'upgrade-guide', 'README.md'), '# Upgrade guides\r\n\r\n## v2.0.0\r\n\r\n| row |\n## v1.0.0\n')
     const cwd = join(install, 'unrelated-workspace')
-    const decoy = join(cwd, 'node_modules', '@deepseek-ai', 'dsh-tool-bash')
+    const decoy = join(cwd, 'node_modules', '@omega-ai', 'dsh-tool-bash')
     mkdirSync(decoy, { recursive: true })
-    writeFileSync(join(decoy, 'package.json'), '{"name":"@deepseek-ai/dsh-tool-bash"}\n')
+    writeFileSync(join(decoy, 'package.json'), '{"name":"@omega-ai/dsh-tool-bash"}\n')
     mkdirSync(join(pkg, 'src'))
     writeFileSync(join(pkg, 'README.md'), '# Installed package\n')
     writeFileSync(join(pkg, 'src', 'index.ts'), 'export const installed = true\n')
@@ -242,9 +242,9 @@ describe('the shipped dsh-doc skill', () => {
   it.skipIf(spawnSync('pwsh', ['-NoProfile', '-Command', 'exit 0']).status !== 0)('documents a PowerShell process form that waits for the runtime', (test) => {
     const install = realpathSync(mkdtempSync(join(tmpdir(), 'dsh-doc-pwsh-')))
     test.onTestFinished(() => { rmSync(install, { recursive: true, force: true }) })
-    const pkg = join(install, 'node_modules', '@deepseek-ai', 'dsh-tool-bash')
+    const pkg = join(install, 'node_modules', '@omega-ai', 'dsh-tool-bash')
     mkdirSync(pkg, { recursive: true })
-    writeFileSync(join(pkg, 'package.json'), '{"name":"@deepseek-ai/dsh-tool-bash"}\n')
+    writeFileSync(join(pkg, 'package.json'), '{"name":"@omega-ai/dsh-tool-bash"}\n')
     const command = /```powershell\n([\s\S]+?)\n```/u.exec(readFileSync(join(skill, 'references', 'locate-docs.md'), 'utf8'))?.[1]
     expect(command).toBeDefined()
     const run = (script: string) => spawnSync('pwsh', ['-NoProfile', '-NonInteractive', '-Command', script], {
@@ -254,10 +254,10 @@ describe('the shipped dsh-doc skill', () => {
     expect(found.status, found.stderr).toBe(0)
     expect(found.stdout.trim()).toBe(pkg)
     // A failing script keeps its exit code and writes its error to stderr only.
-    const missing = run((command ?? '').replace("'@deepseek-ai/dsh-tool-bash'", "'@deepseek-ai/dsh-missing'"))
+    const missing = run((command ?? '').replace("'@omega-ai/dsh-tool-bash'", "'@omega-ai/dsh-missing'"))
     expect(missing.status).not.toBe(0)
     expect(missing.stdout).toBe('')
-    expect(missing.stderr).toContain('@deepseek-ai/dsh-missing')
+    expect(missing.stderr).toContain('@omega-ai/dsh-missing')
   })
 
   it('never forbid reading DSH package sources and never route skill files through the shell', () => {

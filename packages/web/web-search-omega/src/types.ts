@@ -1,8 +1,8 @@
 /**
- * Provider-private wire types for DeepSeek's Anthropic-compatible Messages API. A citeable
+ * Provider-private wire types for Omega's Anthropic-compatible Messages API. A citeable
  * result item may carry its own excerpt; citation excerpts arrive in separate blocks, and the
  * provider joins them to items by URL. These types do not create a dependency on `ctx.llm`.
- * @module @deepseek-ai/dsh-web-search-deepseek/types
+ * @module @omega-ai/dsh-web-search-omega/types
  */
 
 /** A `web_search_result` item inside a `web_search_tool_result` block. */
@@ -39,12 +39,12 @@ export interface TextBlock {
 /** Any content block; only `web_search_tool_result` and `text` are consumed. */
 export type ContentBlock = WebSearchToolResultBlock | TextBlock | { type: string }
 
-/** DeepSeek's Anthropic Messages response envelope. */
+/** Omega's Anthropic Messages response envelope. */
 export interface AnthropicResponse {
   content?: ContentBlock[]
 }
 
-/** DeepSeek's error response envelope (best-effort; fields vary). */
+/** Omega's error response envelope (best-effort; fields vary). */
 export interface AnthropicError {
   error?: { message?: string } | string
   message?: string

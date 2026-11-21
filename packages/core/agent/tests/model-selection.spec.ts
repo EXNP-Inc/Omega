@@ -1,16 +1,16 @@
 import { describe, expect, it, onTestFinished } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import {
   agentEvents,
   installModelSelection,
   type Agent,
   type AgentOptions,
   type ModelSelection,
-} from '@deepseek-ai/dsh-agent'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { createUserMessage, type ReasoningEffortId, type UserMessage } from '@deepseek-ai/dsh-llm'
-import SessionStore, { Session, type SessionId, type EpochHeader } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+} from '@omega-ai/dsh-agent'
+import { brandString } from '@omega-ai/dsh-brand'
+import { createUserMessage, type ReasoningEffortId, type UserMessage } from '@omega-ai/dsh-llm'
+import SessionStore, { Session, type SessionId, type EpochHeader } from '@omega-ai/dsh-session'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
 import { AgentModel, modelSelectionProjectionDefinition } from '../src/model-selection.ts'
 
 const INITIAL = { provider: 'alpha', model: 'a0' }

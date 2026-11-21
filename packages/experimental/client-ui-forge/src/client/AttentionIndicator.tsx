@@ -1,8 +1,8 @@
 /** Mark over the Session panel toggle while a bound change request needs attention. */
 
 import type { ReactNode } from 'react'
-import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
-import type {} from '@deepseek-ai/dsh-client-ui-session-panel/client'
+import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@omega-ai/dsh-client-ui-slots'
+import type {} from '@omega-ai/dsh-client-ui-session-panel/client'
 import type { NS } from './locales.ts'
 import type { PanelSnapshot } from './source.ts'
 import { needsAttention } from './status.ts'

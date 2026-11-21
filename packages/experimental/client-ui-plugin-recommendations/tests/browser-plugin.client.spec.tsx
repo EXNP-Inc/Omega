@@ -1,17 +1,17 @@
 // @vitest-environment jsdom
 /** The body registers into the shared card registry with its copy and Remote, and leaves all three on unload. */
 import { act, cleanup, render, screen } from '@testing-library/react'
-import { Context } from '@deepseek-ai/cordis'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { ActionCardId } from '@deepseek-ai/dsh-action-cards/types'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { ActionCardDescriptor } from '@deepseek-ai/dsh-client-ui-action-cards/client'
-import { FoldedText } from '@deepseek-ai/dsh-client-ui-action-cards/src/client/Card.tsx'
+import { Context } from '@omega-ai/cordis'
+import { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { ActionCardId } from '@omega-ai/dsh-action-cards/types'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { ActionCardDescriptor } from '@omega-ai/dsh-client-ui-action-cards/client'
+import { FoldedText } from '@omega-ai/dsh-client-ui-action-cards/src/client/Card.tsx'
 import { afterEach, expect, it, onTestFinished, vi } from 'vitest'
 import { mountRecommendations, inject } from '../src/client/mount.ts'
 import { apply as hostApply } from '../src/index.ts'
-const apply = (ctx: Context) => mountRecommendations(ctx, { package: '@deepseek-ai/dsh-plugin-recommendations', descriptors: [] })
+const apply = (ctx: Context) => mountRecommendations(ctx, { package: '@omega-ai/dsh-plugin-recommendations', descriptors: [] })
 
 afterEach(cleanup)
 

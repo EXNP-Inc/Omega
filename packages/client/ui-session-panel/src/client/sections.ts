@@ -1,7 +1,7 @@
 /** Projection of the section list's registrations into the titles the panel draws. */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
-import type { ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
-import { resolveSlotLabel, type StoredEntry } from '@deepseek-ai/dsh-client-ui-slots'
+import type { Context as ClientContext } from '@omega-ai/cordis'
+import type { ObservableSnapshot } from '@omega-ai/dsh-client-store'
+import { resolveSlotLabel, type StoredEntry } from '@omega-ai/dsh-client-ui-slots'
 import type { SessionPanelSectionEntry } from './slots.ts'
 
 const SECTION_SLOT = 'conversation.session.panel.section'

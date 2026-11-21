@@ -1,9 +1,9 @@
 /** Host bootstrap route availability while the Inspector Worker is still starting. */
 
-import { Context, FiberState } from '@deepseek-ai/cordis'
-import type { Message } from '@deepseek-ai/cordis'
-import type { IndexInjection, WebServer } from '@deepseek-ai/dsh-host-webserver'
-import { ConnectionAuthentication, HostConnectionService } from '@deepseek-ai/dsh-client-connection'
+import { Context, FiberState } from '@omega-ai/cordis'
+import type { Message } from '@omega-ai/cordis'
+import type { IndexInjection, WebServer } from '@omega-ai/dsh-host-webserver'
+import { ConnectionAuthentication, HostConnectionService } from '@omega-ai/dsh-client-connection'
 import { setFlagsFromString } from 'node:v8'
 import { runInNewContext } from 'node:vm'
 import open from 'open'

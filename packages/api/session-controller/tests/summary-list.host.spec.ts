@@ -7,22 +7,22 @@
  */
 
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import { agentPresetProjectionDefinition } from '@deepseek-ai/dsh-agent-preset-registry'
-import SessionStore, { type SessionId } from '@deepseek-ai/dsh-session'
-import type { SessionFollowFrame } from '@deepseek-ai/dsh-api-session-controller/types'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import { Context } from '@omega-ai/cordis'
+import AgentRegistry from '@omega-ai/dsh-agent'
+import { agentPresetProjectionDefinition } from '@omega-ai/dsh-agent-preset-registry'
+import SessionStore, { type SessionId } from '@omega-ai/dsh-session'
+import type { SessionFollowFrame } from '@omega-ai/dsh-api-session-controller/types'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
 import {
   apply as sessionStatsApply, inject as sessionStatsInject, name as sessionStatsName,
-} from '@deepseek-ai/dsh-session-stats'
+} from '@omega-ai/dsh-session-stats'
 import {
   apply as turnOutlineApply, inject as turnOutlineInject, name as turnOutlineName,
-} from '@deepseek-ai/dsh-session-turn-outline'
+} from '@omega-ai/dsh-session-turn-outline'
 import {
   apply as toolTodoApply, Config as toolTodoConfig, inject as toolTodoInject, name as toolTodoName,
-} from '@deepseek-ai/dsh-tool-todo'
-import TokenMeter from '@deepseek-ai/dsh-token-meter'
+} from '@omega-ai/dsh-tool-todo'
+import TokenMeter from '@omega-ai/dsh-token-meter'
 import { createSessionTestRemote } from './test-remote.ts'
 
 const SUMMARY_EXCLUDED_KEYS = ['turnOutline', 'sessionStats', 'todos', 'imageLimits', 'contextPressure', 'contextBreakdown'] as const

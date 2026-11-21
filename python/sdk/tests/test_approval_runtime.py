@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 from pydantic import BaseModel
 
-from deepseek_harness import ApprovalRequestParams, HarnessClient, HarnessConfig
+from omega_harness import ApprovalRequestParams, HarnessClient, HarnessConfig
 
 
 class EmptyResponse(BaseModel):
@@ -34,10 +34,10 @@ def test_python_approval_controls_runtime_operation(tmp_path: Path, outcome: str
         with HarnessClient(
             HarnessConfig(cwd=str(repo), request_timeout_seconds=20, shutdown_timeout_seconds=20,
                           env={"DSH_HOME": str(tmp_path / "home"), "DSH_PERMISSION_MODE": "workspace-write",
-                               "DSH_TELEMETRY_DISABLED": "1", "DEEPSEEK_API_KEY": "keyless-no-model-call"}),
+                               "DSH_TELEMETRY_DISABLED": "1", "OMEGA_API_KEY": "keyless-no-model-call"}),
             _launch_args=(node, str(binary), "--profile", "sdk", "--patch", str(patch)),
         ) as client:
-            client.initialize(cwd=str(tmp_path), provider="deepseek-official", model="deepseek-v4-flash",
+            client.initialize(cwd=str(tmp_path), provider="omega-official", model="omega-v4-flash",
                               approval_requests=True)
             client.session_prompt("main", [{"type": "text", "text": "Request the marker write."}])
             request = worker.submit(client.next_request).result(timeout=20)

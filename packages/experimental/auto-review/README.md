@@ -3,7 +3,7 @@ description: "Add experimental per-call Auto review to a Web or headless profile
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-experimental-auto-review
+# @omega-ai/dsh-experimental-auto-review
 
 English | [中文](README.zh.md)
 
@@ -40,7 +40,7 @@ The CLI initializes the profile when needed and appends this package's declared 
 Remove the layer through the same CLI:
 
 ```sh
-pnpm dsh plugin --profile web remove @deepseek-ai/dsh-experimental-auto-review
+pnpm dsh plugin --profile web remove @omega-ai/dsh-experimental-auto-review
 ```
 
 <a id="headless-supervision"></a>
@@ -49,7 +49,7 @@ pnpm dsh plugin --profile web remove @deepseek-ai/dsh-experimental-auto-review
 Enable the experimental layer explicitly for the headless profile:
 
 ```sh
-dsh plugin --profile headless add @deepseek-ai/dsh-experimental-auto-review
+dsh plugin --profile headless add @omega-ai/dsh-experimental-auto-review
 dsh headless --permission-mode auto --approval-policy never --json - < task.txt > run.jsonl
 ```
 
@@ -110,7 +110,7 @@ One additional model request per supported call, without caching, retries, trunc
 
 #### KV Cache effect
 
-Each review's messages begin with all messages of the previous review, including its pending call, so routes that cache by prompt prefix, at message ends, or at a final marker with lookback reuse the policy and earlier history. Compaction, a cwd change, an earlier item leaving the surface, and the first review after a restart end that reuse once. Auto adds no dedicated runtime context or mode-switch prompt to the main agent. Each review request carries the reviewed Session's `sessionId` and `purpose: 'auto-review'` as model-hidden transport metadata. Routes that key prompt caching or request routing by Session, such as OpenAI `prompt_cache_key` and the `x-opencode-session` header that OpenCode requires, send reviews under that Session's key; [the DeepSeek Session-log upload](../../session/session-log-deepseek/README.md#request-field) contributes the canonical Session log when enabled and no registered exclusion matches.
+Each review's messages begin with all messages of the previous review, including its pending call, so routes that cache by prompt prefix, at message ends, or at a final marker with lookback reuse the policy and earlier history. Compaction, a cwd change, an earlier item leaving the surface, and the first review after a restart end that reuse once. Auto adds no dedicated runtime context or mode-switch prompt to the main agent. Each review request carries the reviewed Session's `sessionId` and `purpose: 'auto-review'` as model-hidden transport metadata. Routes that key prompt caching or request routing by Session, such as OpenAI `prompt_cache_key` and the `x-opencode-session` header that OpenCode requires, send reviews under that Session's key; [the Omega Session-log upload](../../session/session-log-omega/README.md#request-field) contributes the canonical Session log when enabled and no registered exclusion matches.
 
 ### Tool denial
 

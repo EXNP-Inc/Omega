@@ -7,7 +7,7 @@ import argparse
 import os
 from pathlib import Path
 
-from deepseek_harness import DeepSeekHarness, RunResult
+from omega_harness import OmegaHarness, RunResult
 
 
 def display(result: RunResult) -> None:
@@ -23,8 +23,8 @@ def main() -> None:
     parser.add_argument("--dsh-home", required=True, type=Path)
     parser.add_argument("--workspace", type=Path, default=Path.cwd())
     parser.add_argument("--session-id")
-    parser.add_argument("--provider", default="deepseek-official")
-    parser.add_argument("--model", default=os.environ.get("DSH_MODEL", "deepseek-v4-flash"))
+    parser.add_argument("--provider", default="omega-official")
+    parser.add_argument("--model", default=os.environ.get("DSH_MODEL", "omega-v4-flash"))
     parser.add_argument("--max-tokens", type=int)
     args = parser.parse_args()
 
@@ -33,7 +33,7 @@ def main() -> None:
     if not readme.is_file():
         parser.error("--workspace must contain README.md to provide conversation history")
 
-    with DeepSeekHarness(
+    with OmegaHarness(
         dsh_home=str(args.dsh_home.resolve()),
         cwd=str(workspace),
         profile="sdk",

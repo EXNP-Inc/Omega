@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { MarketListingEntry, MarketListingVersion } from '@deepseek-ai/dsh-api-remotes/client'
-import type { LocalizedText } from '@deepseek-ai/dsh-package-manifest'
+import type { MarketListingEntry, MarketListingVersion } from '@omega-ai/dsh-api-remotes/client'
+import type { LocalizedText } from '@omega-ai/dsh-package-manifest'
 import {
   declaredQuery, displayDeclarations, indexLabel, indexMenuItems, INITIAL_QUERY, presentedVersion, sourceFacts, withText,
 } from '../src/client/presentation.ts'

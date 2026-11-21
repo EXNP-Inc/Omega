@@ -1,21 +1,21 @@
-# Authored composition: a conversation on a non-DeepSeek model provider, a signed-in DeepSeek account, and no
-# DeepSeek API key, with Search billed only to the API key. The account route stays unmounted so
+# Authored composition: a conversation on a non-Omega model provider, a signed-in Omega account, and no
+# Omega API key, with Search billed only to the API key. The account route stays unmounted so
 # the account token goes to the default account origin.
-- id: llm-deepseek
-  name: '@deepseek-ai/dsh-llm-deepseek-api-key'
+- id: llm-omega
+  name: '@omega-ai/dsh-llm-omega-api-key'
   disabled: true
 
-- id: llm-deepseek-account
+- id: llm-omega-account
   disabled: true
 
-- id: plugin-package-inventory-deepseek
+- id: plugin-package-inventory-omega
   disabled: true
 
 - insert:
     - id: web-search-billing-fixture
       name: '../web-search-account-billing/web-search-billing-fixture.mjs'
 
-- id: web-deepseek-api
-  name: '@deepseek-ai/dsh-web-deepseek-api'
+- id: web-omega-api
+  name: '@omega-ai/dsh-web-omega-api'
   config:
     searchBilling: api-key

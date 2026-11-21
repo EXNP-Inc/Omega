@@ -2,9 +2,9 @@
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
-using DeepSeek.Cua.Protocol;
+using Omega.Cua.Protocol;
 
-namespace DeepSeek.Cua.Windows;
+namespace Omega.Cua.Windows;
 
 internal readonly record struct Bounds(double X, double Y, double Width, double Height);
 internal readonly record struct WindowGeometry(Win32.Rect Pixels, uint Dpi)

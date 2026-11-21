@@ -1,5 +1,5 @@
 /** Locale-owned copy the connector account surfaces share; each registrant's own text arrives from the Host. */
-import type {} from '@deepseek-ai/dsh-client-ui-slots'
+import type {} from '@omega-ai/dsh-client-ui-slots'
 
 /** Dictionary namespace of the shared account copy. */
 export const NS = 'connectorAccount'
@@ -79,7 +79,7 @@ export const pt: Record<ConnectorAccountKey, string> = {
   'notice.action-failed': 'A ação não foi concluída. Tente novamente.',
 }
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@omega-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap {
     connectorAccount: ConnectorAccountKey
   }

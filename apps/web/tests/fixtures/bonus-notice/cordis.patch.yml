@@ -2,7 +2,7 @@
 # Platform double. The scaffold substitutes {{origin}} after the listener binds,
 # so no port is ever committed here. A long query interval isolates other notice
 # interactions; the polling scenario advances the browser clock explicitly.
-- id: deepseek-account
+- id: omega-account
   config:
     platformOrigin: "{{origin}}"
     harnessOrigin: "{{origin}}"

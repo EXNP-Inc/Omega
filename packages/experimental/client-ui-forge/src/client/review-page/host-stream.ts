@@ -1,7 +1,7 @@
 /** A React hook that reads one Host stream, reopening it when its key or attempt changes. */
 
 import { useCallback, useEffect, useState } from 'react'
-import { remoteErrorOf } from '@deepseek-ai/dsh-typert-protocol'
+import { remoteErrorOf } from '@omega-ai/dsh-typert-protocol'
 import type { HostStream } from '../source.ts'
 
 /** The state of one stream: its latest frame, and why it stopped when it did. */

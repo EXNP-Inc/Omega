@@ -29,58 +29,58 @@ describe('desktop package-set selection', () => {
 
   it('includes only the available internal production closure', () => {
     const available = new Map<string, PackedDesktopPackage>([
-      ['@deepseek-ai/dsh', packed('@deepseek-ai/dsh', {
-        dependencies: { '@deepseek-ai/dsh-base': '^1.0.0', external: '^2.0.0' },
-        optionalDependencies: { '@deepseek-ai/platform-package': '1.0.0', '@deepseek-ai/missing-platform': '1.0.0' },
+      ['@omega-ai/dsh', packed('@omega-ai/dsh', {
+        dependencies: { '@omega-ai/dsh-base': '^1.0.0', external: '^2.0.0' },
+        optionalDependencies: { '@omega-ai/platform-package': '1.0.0', '@omega-ai/missing-platform': '1.0.0' },
       })],
-      ['@deepseek-ai/dsh-desktop-host', packed('@deepseek-ai/dsh-desktop-host', {
-        dependencies: { '@deepseek-ai/dsh': '^1.0.0' },
+      ['@omega-ai/dsh-desktop-host', packed('@omega-ai/dsh-desktop-host', {
+        dependencies: { '@omega-ai/dsh': '^1.0.0' },
       })],
-      ['@deepseek-ai/dsh-base', packed('@deepseek-ai/dsh-base', {
-        peerDependencies: { '@deepseek-ai/cordis': '^1.0.0' },
+      ['@omega-ai/dsh-base', packed('@omega-ai/dsh-base', {
+        peerDependencies: { '@omega-ai/cordis': '^1.0.0' },
       })],
-      ['@deepseek-ai/cordis', packed('@deepseek-ai/cordis')],
-      ['@deepseek-ai/platform-package', packed('@deepseek-ai/platform-package')],
-      ['@deepseek-ai/unused', packed('@deepseek-ai/unused')],
+      ['@omega-ai/cordis', packed('@omega-ai/cordis')],
+      ['@omega-ai/platform-package', packed('@omega-ai/platform-package')],
+      ['@omega-ai/unused', packed('@omega-ai/unused')],
     ])
     expect(selectDesktopPackageClosure(available, { platform: 'win32', arch: 'x64' }).map(entry => entry.manifest.name)).toEqual([
-      '@deepseek-ai/cordis',
-      '@deepseek-ai/dsh',
-      '@deepseek-ai/dsh-base',
-      '@deepseek-ai/dsh-desktop-host',
-      '@deepseek-ai/platform-package',
+      '@omega-ai/cordis',
+      '@omega-ai/dsh',
+      '@omega-ai/dsh-base',
+      '@omega-ai/dsh-desktop-host',
+      '@omega-ai/platform-package',
     ])
   })
 
   it.each([
-    '@deepseek-ai/dsh-base', '@deepseek-ai/cordis', '@deepseek-ai/node-addon-system',
+    '@omega-ai/dsh-base', '@omega-ai/cordis', '@omega-ai/node-addon-system',
   ])('rejects required prepared package %s absent from the packed release inputs', (dependency) => {
     const available = new Map<string, PackedDesktopPackage>([
-      ['@deepseek-ai/dsh', packed('@deepseek-ai/dsh', {
+      ['@omega-ai/dsh', packed('@omega-ai/dsh', {
         dependencies: { [dependency]: '^1.0.0' },
       })],
-      ['@deepseek-ai/dsh-desktop-host', packed('@deepseek-ai/dsh-desktop-host', {
-        dependencies: { '@deepseek-ai/dsh': '^1.0.0' },
+      ['@omega-ai/dsh-desktop-host', packed('@omega-ai/dsh-desktop-host', {
+        dependencies: { '@omega-ai/dsh': '^1.0.0' },
       })],
     ])
     expect(() => selectDesktopPackageClosure(available, { platform: 'win32', arch: 'x64' })).toThrow(/unpacked package/u)
     expect(() => selectDesktopPackageClosure(new Map([
-      ['@deepseek-ai/dsh', packed('@deepseek-ai/dsh')],
-    ]), { platform: 'win32', arch: 'x64' })).toThrow(/omit @deepseek-ai\/dsh-desktop-host/u)
+      ['@omega-ai/dsh', packed('@omega-ai/dsh')],
+    ]), { platform: 'win32', arch: 'x64' })).toThrow(/omit @omega-ai\/dsh-desktop-host/u)
   })
 
   it('leaves independently published Office packages to npm resolution', () => {
     const available = new Map<string, PackedDesktopPackage>([
-      ['@deepseek-ai/dsh', packed('@deepseek-ai/dsh', {
+      ['@omega-ai/dsh', packed('@omega-ai/dsh', {
         dependencies: {
           '@deepseek-ai/libreoffice-kit': '0.0.1',
           '@deepseek-ai/libreoffice-kit-wasm': '0.0.1',
         },
       })],
-      ['@deepseek-ai/dsh-desktop-host', packed('@deepseek-ai/dsh-desktop-host')],
+      ['@omega-ai/dsh-desktop-host', packed('@omega-ai/dsh-desktop-host')],
     ])
     expect(selectDesktopPackageClosure(available, { platform: 'win32', arch: 'x64' }).map(entry => entry.manifest.name)).toEqual([
-      '@deepseek-ai/dsh', '@deepseek-ai/dsh-desktop-host',
+      '@omega-ai/dsh', '@omega-ai/dsh-desktop-host',
     ])
   })
 
@@ -99,15 +99,15 @@ describe('desktop package-set selection', () => {
   })
 })
 
-const macProvider = '@deepseek-ai/dsh-cua-macos'
-const cuaBundle = '@deepseek-ai/dsh-cua-bundle'
+const macProvider = '@omega-ai/dsh-cua-macos'
+const cuaBundle = '@omega-ai/dsh-cua-bundle'
 const targetManifests = () => new Map<string, PackedDesktopPackage>([
-  ['@deepseek-ai/dsh', packed('@deepseek-ai/dsh', { dependencies: { [cuaBundle]: '1.0.0' } })],
-  ['@deepseek-ai/dsh-desktop-host', packed('@deepseek-ai/dsh-desktop-host')],
+  ['@omega-ai/dsh', packed('@omega-ai/dsh', { dependencies: { [cuaBundle]: '1.0.0' } })],
+  ['@omega-ai/dsh-desktop-host', packed('@omega-ai/dsh-desktop-host')],
   [cuaBundle, packed(cuaBundle, {
-    optionalDependencies: { [macProvider]: '1.0.0' }, dependencies: { '@deepseek-ai/dsh-cua': '1.0.0' },
+    optionalDependencies: { [macProvider]: '1.0.0' }, dependencies: { '@omega-ai/dsh-cua': '1.0.0' },
   })],
-  ['@deepseek-ai/dsh-cua', packed('@deepseek-ai/dsh-cua')],
+  ['@omega-ai/dsh-cua', packed('@omega-ai/dsh-cua')],
   [macProvider, packed(macProvider, { os: ['darwin'] })],
 ])
 
@@ -116,7 +116,7 @@ it.each([
 ] as const)('selects the CUA native tarball for target %s/%s independently of the host', (platform, arch, included) => {
   const selected = selectDesktopPackageClosure(targetManifests(), { platform, arch }).map(entry => entry.manifest.name)
   expect(selected.includes(macProvider)).toBe(included)
-  expect(selected).toContain('@deepseek-ai/dsh-cua')
+  expect(selected).toContain('@omega-ai/dsh-cua')
   expect(selected).toContain(cuaBundle)
 })
 
@@ -143,11 +143,11 @@ it('copies no macOS tarball into the Windows package set', () => {
   const inputs = join(root, 'inputs')
   mkdirSync(inputs)
   for (const [name, entry] of targetManifests()) {
-    const stem = name.replace('@deepseek-ai/', '')
+    const stem = name.replace('@omega-ai/', '')
     const folder = join(root, stem, 'package')
     mkdirSync(folder, { recursive: true })
     writeFileSync(join(folder, 'package.json'), JSON.stringify(entry.manifest))
-    if (name === '@deepseek-ai/dsh-desktop-host') {
+    if (name === '@omega-ai/dsh-desktop-host') {
       for (const file of DESKTOP_HOST_RUNTIME_FILES) {
         mkdirSync(join(folder, file, '..'), { recursive: true })
         writeFileSync(join(folder, file), '')

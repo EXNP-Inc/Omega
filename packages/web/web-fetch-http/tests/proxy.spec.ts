@@ -1,9 +1,9 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { installProxyFromEnvironment } from '@deepseek-ai/dsh-http-proxy'
-import { HttpFetchProvider } from '@deepseek-ai/dsh-web-fetch-http'
-import type { HttpFetchLimits } from '@deepseek-ai/dsh-web-fetch-http'
+import { installProxyFromEnvironment } from '@omega-ai/dsh-http-proxy'
+import { HttpFetchProvider } from '@omega-ai/dsh-web-fetch-http'
+import type { HttpFetchLimits } from '@omega-ai/dsh-web-fetch-http'
 
 const limits: HttpFetchLimits = {
   maxResponseBytes: 5_000_000,

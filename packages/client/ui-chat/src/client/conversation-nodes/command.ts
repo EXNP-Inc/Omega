@@ -1,12 +1,12 @@
-import { extractTextContent } from '@deepseek-ai/dsh-llm/message'
-import type { Context } from '@deepseek-ai/cordis'
+import { extractTextContent } from '@omega-ai/dsh-llm/message'
+import type { Context } from '@omega-ai/cordis'
 import type {
   CommandNode, CompactionSummaryNode, ConversationMatch, ConversationNodeContext, ConversationNodeDefinition,
-} from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type { CompactionCheckpointSource } from '@deepseek-ai/dsh-compaction/checkpoint'
-import type {} from '@deepseek-ai/dsh-compaction/types'
-import type {} from '@deepseek-ai/dsh-commands/types'
-import { isReplacementSurfaceEvent } from '@deepseek-ai/dsh-session/surface'
+} from '@omega-ai/dsh-client-ui-conversation/client'
+import type { CompactionCheckpointSource } from '@omega-ai/dsh-compaction/checkpoint'
+import type {} from '@omega-ai/dsh-compaction/types'
+import type {} from '@omega-ai/dsh-commands/types'
+import { isReplacementSurfaceEvent } from '@omega-ai/dsh-session/surface'
 import type { ManualCompactionChatData } from '../contract/chat-nodes.ts'
 import { chatNode } from './common.ts'
 

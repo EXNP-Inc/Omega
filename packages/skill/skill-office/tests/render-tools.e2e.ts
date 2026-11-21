@@ -4,8 +4,8 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execa } from 'execa'
 import { expect, it } from 'vitest'
-import { runLoaderSmoke } from '@deepseek-ai/dsh-loader-smoke'
-import { parseSessionLog } from '@deepseek-ai/dsh-llm-replay'
+import { runLoaderSmoke } from '@omega-ai/dsh-loader-smoke'
+import { parseSessionLog } from '@omega-ai/dsh-llm-replay'
 import { convertedPdfFiles, expectNoRenderContext, officeCalls, officeImages,
   officeModelPatches, officeToolPatches } from './fixtures/real-office.ts'
 
@@ -23,9 +23,9 @@ const launch = {
 async function prepareOffice(cwd: string) {
   await writeFile(join(cwd, 'office.patch.json'), JSON.stringify([
     ...officeModelPatches(),
-    { insert: [{ id: 'skill-office', name: '@deepseek-ai/dsh-skill-office', config: { assetRoot: join(repo, 'packages/skill/skill-office/assets') } }] },
+    { insert: [{ id: 'skill-office', name: '@omega-ai/dsh-skill-office', config: { assetRoot: join(repo, 'packages/skill/skill-office/assets') } }] },
     ...officeToolPatches(),
-    { insert: [{ id: 'workspace-dependencies', name: '@deepseek-ai/dsh-tool-workspace-dependencies', config: { source: runtime! } }] },
+    { insert: [{ id: 'workspace-dependencies', name: '@omega-ai/dsh-tool-workspace-dependencies', config: { source: runtime! } }] },
     { id: 'session-persistence-jsonl', config: { root: join(cwd, '.sessions'), compression: 'none' } },
   ]))
 }
@@ -38,7 +38,7 @@ async function sessionEvents(cwd: string) {
   return events
 }
 
-it.skipIf(!process.env.DEEPSEEK_API_KEY || !runtime).each([{ format: 'docx', mode: 'native' }, { format: 'pdf', mode: 'native' }, { format: 'docx', mode: 'ptc' }])('renders $format with office_render in $mode mode', async ({ format, mode }) => {
+it.skipIf(!process.env.OMEGA_API_KEY || !runtime).each([{ format: 'docx', mode: 'native' }, { format: 'pdf', mode: 'native' }, { format: 'docx', mode: 'ptc' }])('renders $format with office_render in $mode mode', async ({ format, mode }) => {
   let original: Buffer | undefined
   await runLoaderSmoke({
     label: 'Office rendering', tempDirPrefix: 'dsh-office-render-',
@@ -69,7 +69,7 @@ it.skipIf(!process.env.DEEPSEEK_API_KEY || !runtime).each([{ format: 'docx', mod
   })
 })
 
-it.skipIf(!process.env.DEEPSEEK_API_KEY || !runtime)('keeps Office skills and the renderer unloaded for an ordinary task', async () => {
+it.skipIf(!process.env.OMEGA_API_KEY || !runtime)('keeps Office skills and the renderer unloaded for an ordinary task', async () => {
   await runLoaderSmoke({
     ...launch,
     label: 'ordinary task with Office routing', tempDirPrefix: 'dsh-office-unused-',
@@ -87,7 +87,7 @@ it.skipIf(!process.env.DEEPSEEK_API_KEY || !runtime)('keeps Office skills and th
   })
 })
 
-it.skipIf(!process.env.DEEPSEEK_API_KEY || !runtime)('exports PDF with office_convert and preserves the source', async () => {
+it.skipIf(!process.env.OMEGA_API_KEY || !runtime)('exports PDF with office_convert and preserves the source', async () => {
   let original: Buffer | undefined
   await runLoaderSmoke({
     ...launch,

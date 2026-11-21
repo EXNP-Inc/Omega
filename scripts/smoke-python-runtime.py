@@ -27,7 +27,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Literal
 
 if TYPE_CHECKING:
-    from deepseek_harness import Notification, RunResult
+    from omega_harness import Notification, RunResult
 
 
 EXPECTED_TEXT = "runtime smoke ok"
@@ -270,7 +270,7 @@ def write_advanced_profile_patch(
                 "persona": "You are a coding agent powered by the {{model}} model. Your working directory is {{cwd}}.",
             },
         },
-        {"id": "session-log-deepseek", "config": {"enabled": True}},
+        {"id": "session-log-omega", "config": {"enabled": True}},
         *({"id": row_id, "disabled": True} for row_id in LEGACY_CUSTOM_DISABLED_ROWS),
         {"id": "tool-bash", "disabled": True},
         {"id": "tool-pwsh", "disabled": True},
@@ -282,9 +282,9 @@ def write_advanced_profile_patch(
             },
         },
         {"insert": [
-            {"id": "ptc-runtime", "name": "@deepseek-ai/dsh-ptc-runtime-node"},
-            {"id": "cordis-host-runner", "name": "@deepseek-ai/dsh-cordis-host-runner"},
-            {"id": "cordis-tool", "name": "@deepseek-ai/dsh-tool-cordis"},
+            {"id": "ptc-runtime", "name": "@omega-ai/dsh-ptc-runtime-node"},
+            {"id": "cordis-host-runner", "name": "@omega-ai/dsh-cordis-host-runner"},
+            {"id": "cordis-tool", "name": "@omega-ai/dsh-tool-cordis"},
         ]},
     ])
 
@@ -294,7 +294,7 @@ def write_mcp_patch(root: Path, sessions: Path, server_script: Path) -> Path:
     return write_profile_patch(root, "mcp.patch.yml", sessions, [{
         "insert": [{
             "id": "mcp-fixture",
-            "name": "@deepseek-ai/dsh-mcp-client",
+            "name": "@omega-ai/dsh-mcp-client",
             "config": {
                 "serverName": "fixture",
                 "transport": "stdio",
@@ -493,7 +493,7 @@ def completion_chunks(body: dict[str, object]) -> list[dict[str, object]]:
     if prompt == "check missing plugin package manager":
         assert_advertised_tool(body, "plugin_manager")
         return tool_call_chunks("python-plugin-install", "plugin_manager", {
-            "action": "install_bundle", "target": "@deepseek-ai/dsh-subagent-codex",
+            "action": "install_bundle", "target": "@omega-ai/dsh-subagent-codex",
         })
     if prompt == SNAPSHOT_DIRECT_CHILD_PROMPT:
         return text_chunks("DIRECT_CHILD_OK")
@@ -958,7 +958,7 @@ def smoke_sdk_authoring(base_url: str, executable: Path, update_snapshots: bool)
 
 
 def _smoke_sdk_authoring_cached(base_url: str, executable: Path, update_snapshots: bool, cache: Path) -> None:
-    from deepseek_harness import DeepSeekHarness
+    from omega_harness import OmegaHarness
 
     cache_environment = {**os.environ, "DSH_RESOURCE_CACHE": str(cache), "DSH_RUNTIME_DOWNLOAD": "primary"}
     primary = Path(json.loads(subprocess.check_output([str(executable)], encoding="utf-8", env=cache_environment)))
@@ -984,8 +984,8 @@ def _smoke_sdk_authoring_cached(base_url: str, executable: Path, update_snapshot
                 patch_rows.append({"id": "skill-office", "disabled": True})
             patch.write_text(json.dumps(patch_rows))
             first = len(MockModelHandler.requests)
-            with DeepSeekHarness(
-                provider="deepseek-official", model="smoke-model", cwd=str(root),
+            with OmegaHarness(
+                provider="omega-official", model="smoke-model", cwd=str(root),
                 dsh_bin=str(executable), dsh_home=str(home), patches=(str(patch),),
                 api_key="sk-keyless-smoke", base_url=base_url,
                 env={"DSH_PERMISSION_MODE": "danger-full-access", "DSH_TELEMETRY_DISABLED": "1", "DSH_RESOURCE_CACHE": str(cache)},
@@ -1036,7 +1036,7 @@ def _smoke_sdk_authoring_cached(base_url: str, executable: Path, update_snapshot
 
 def smoke_sdk_plugin_manager(base_url: str, executable: Path, cache: Path) -> None:
     """Approve a real local installation with bundled pnpm, then load it after restart."""
-    from deepseek_harness import ApprovalRequestParams, DeepSeekHarness
+    from omega_harness import ApprovalRequestParams, OmegaHarness
 
     with tempfile.TemporaryDirectory(prefix="dsh-sdk-plugin-manager-") as temporary:
         root = Path(temporary).resolve()
@@ -1059,11 +1059,11 @@ def smoke_sdk_plugin_manager(base_url: str, executable: Path, cache: Path) -> No
         home = root / "home"
         environment = {"PATH": "", "DSH_RESOURCE_CACHE": str(cache),
                        "DSH_PERMISSION_MODE": "workspace-write", "DSH_TELEMETRY_DISABLED": "1"}
-        config = dict(provider="deepseek-official", model="smoke-model", cwd=str(root),
+        config = dict(provider="omega-official", model="smoke-model", cwd=str(root),
                       dsh_bin=str(executable), dsh_home=str(home), env=environment,
                       api_key="sk-keyless-smoke", base_url=base_url, request_timeout_seconds=60)
         with ThreadPoolExecutor(max_workers=2) as worker:
-            harness = DeepSeekHarness(**config, approval_requests=True)
+            harness = OmegaHarness(**config, approval_requests=True)
             try:
                 harness.start()
                 manifest_path = home / "profiles/sdk/package.json"
@@ -1087,13 +1087,13 @@ def smoke_sdk_plugin_manager(base_url: str, executable: Path, cache: Path) -> No
                 assert "dsh-sdk-managed-fixture" in manifest["dsh"]["profile"]["bundles"], manifest
             finally:
                 harness.close()
-        with DeepSeekHarness(**config) as restarted:
+        with OmegaHarness(**config) as restarted:
             result = restarted.run(PROFILE_PLUGIN_PROMPT, session_id="installed-after-restart")
             assert result.final_response == PROFILE_PLUGIN_TEXT, result.final_response
         example = Path(__file__).resolve().parent.parent / "python/sdk/examples/manage_plugins.py"
         example_home = root / "example-home"
-        example_environment = {**os.environ, **environment, "DEEPSEEK_BASE_URL": base_url,
-                               "DEEPSEEK_API_KEY": "sk-keyless-smoke"}
+        example_environment = {**os.environ, **environment, "OMEGA_BASE_URL": base_url,
+                               "OMEGA_API_KEY": "sk-keyless-smoke"}
         example_args = [sys.executable, str(example), "--dsh-home", str(example_home),
                         "--workspace", str(root), "--dsh-bin", str(executable)]
         for decision, expected in (("n", "plugin installation rejected"), ("y", "plugin installation saved")):
@@ -1106,7 +1106,7 @@ def smoke_sdk_plugin_manager(base_url: str, executable: Path, cache: Path) -> No
 
 def smoke_sdk_office(executable: Path) -> None:
     """Exercise the relocated profile's bundled Office API and shell commands."""
-    from deepseek_harness import DeepSeekHarness
+    from omega_harness import OmegaHarness
 
     checks_path = Path(__file__).resolve().parent / "fixtures/office-render.py"
     checks = runpy.run_path(checks_path)
@@ -1114,7 +1114,7 @@ def smoke_sdk_office(executable: Path) -> None:
     with checks["workspace"](None if artifacts is None else Path(artifacts), prefix="dsh-sdk-office-") as root:
         relocated = root / executable.name
         stem = executable.name.removesuffix(".exe")
-        resources = executable.with_name(stem.removeprefix("deepseek-harness-sdk-runtime-"))
+        resources = executable.with_name(stem.removeprefix("omega-harness-sdk-runtime-"))
         for source in [*executable.parent.glob(f"{stem}*"), resources]:
             destination = root / source.name
             if source.is_dir():
@@ -1125,13 +1125,13 @@ def smoke_sdk_office(executable: Path) -> None:
         office = Path(json.loads(subprocess.check_output([str(relocated)], encoding="utf-8", env={**cache_environment, "DSH_RUNTIME_DOWNLOAD": "office"})))
         assert not (office.parent / "primary").exists(), "Office download unexpectedly prepared the authoring environment"
         adapter = office / "node_modules/@deepseek-ai/libreoffice-kit/package.json"
-        native = stem.removeprefix("deepseek-harness-sdk-runtime-").replace("win-", "win32-").replace("macos-", "darwin-")
+        native = stem.removeprefix("omega-harness-sdk-runtime-").replace("win-", "win32-").replace("macos-", "darwin-")
         declared = json.loads(adapter.read_text(encoding="utf-8")).get("optionalDependencies", {})
         selected = native if f"@deepseek-ai/libreoffice-kit-{native}" in declared else "wasm"
         expected_backend = "wasm" if selected == "wasm" else "native"
         engines = [
             json.loads(manifest.read_text())["engine"]["kind"]
-            for manifest in (office / "node_modules/@deepseek-ai").glob("libreoffice-kit-*/prebuilds.json")
+            for manifest in (office / "node_modules/@omega-ai").glob("libreoffice-kit-*/prebuilds.json")
         ]
         if engines != [expected_backend]:
             raise AssertionError(f"Office sidecar must contain only {expected_backend}: {engines}")
@@ -1161,8 +1161,8 @@ def smoke_sdk_office(executable: Path) -> None:
             "config": {"input": str(document), "output": str(output), "result": str(result_path),
                        "imageInput": str(documents["pptx"]), "imageOutput": str(root / "node-pptx")},
         }]}]))
-        with DeepSeekHarness(
-            provider="deepseek-official",
+        with OmegaHarness(
+            provider="omega-official",
             model="smoke-model",
             cwd=str(root),
             dsh_bin=str(relocated),
@@ -1196,7 +1196,7 @@ def smoke_sdk_office(executable: Path) -> None:
 import sys, zipfile
 from pathlib import Path
 from xml.etree import ElementTree
-from deepseek_harness.office import convert, render_images, recalculate
+from omega_harness.office import convert, render_images, recalculate
 root = Path(sys.argv[1])
 assert convert(root / 'color-blocks.docx', root / 'python.pdf').backend == sys.argv[2]
 rendered = render_images(root / 'python.pdf', root / 'images', pages=[1])
@@ -1224,14 +1224,14 @@ def assert_installed_wheel_environment() -> Path:
     if cwd.is_relative_to(repo_root):
         raise AssertionError(f"installed-wheel smoke must run outside the repository, got {cwd}")
 
-    sdk_version = importlib.metadata.version("deepseek-harness-sdk")
-    runtime_version = importlib.metadata.version("deepseek-harness-runtime-bin")
+    sdk_version = importlib.metadata.version("omega-harness-sdk")
+    runtime_version = importlib.metadata.version("omega-harness-runtime-bin")
     if sdk_version != runtime_version:
         raise AssertionError(
             f"installed SDK/runtime versions differ: {sdk_version} != {runtime_version}"
         )
-    expected_runtime_requirement = f"deepseek-harness-runtime-bin=={sdk_version}"
-    requirements = importlib.metadata.requires("deepseek-harness-sdk") or []
+    expected_runtime_requirement = f"omega-harness-runtime-bin=={sdk_version}"
+    requirements = importlib.metadata.requires("omega-harness-sdk") or []
     if expected_runtime_requirement not in requirements:
         raise AssertionError(
             f"installed SDK does not require {expected_runtime_requirement}: {requirements}"
@@ -1239,7 +1239,7 @@ def assert_installed_wheel_environment() -> Path:
 
     prefix = Path(sys.prefix).resolve()
     imported: dict[str, Path] = {}
-    for name in ("deepseek_harness", "deepseek_harness_runtime"):
+    for name in ("omega_harness", "omega_harness_runtime"):
         module = importlib.import_module(name)
         module_file = getattr(module, "__file__", None)
         if not isinstance(module_file, str):
@@ -1251,12 +1251,12 @@ def assert_installed_wheel_environment() -> Path:
             raise AssertionError(f"installed module {name} came from the repository checkout: {path}")
         imported[name] = path
 
-    runtime_module = sys.modules["deepseek_harness_runtime"]
+    runtime_module = sys.modules["omega_harness_runtime"]
     executable = runtime_module.bundled_runtime_path().resolve()
-    runtime_package = imported["deepseek_harness_runtime"].parent
+    runtime_package = imported["omega_harness_runtime"].parent
     if not executable.is_relative_to(runtime_package):
         raise AssertionError(f"bundled runtime came from outside the installed runtime wheel: {executable}")
-    runtime_files = importlib.metadata.files("deepseek-harness-runtime-bin") or []
+    runtime_files = importlib.metadata.files("omega-harness-runtime-bin") or []
     if not any(Path(file).name == executable.name for file in runtime_files):
         raise AssertionError(f"runtime executable is absent from installed distribution records: {executable}")
     return executable
@@ -1264,14 +1264,14 @@ def assert_installed_wheel_environment() -> Path:
 
 def smoke_sdk_live() -> None:
     """Run a real-model, tool-using two-turn task through installed wheels."""
-    from deepseek_harness import DeepSeekHarness
+    from omega_harness import OmegaHarness
 
-    api_key = os.environ.get("DEEPSEEK_API_KEY")
-    base_url = os.environ.get("DEEPSEEK_BASE_URL")
+    api_key = os.environ.get("OMEGA_API_KEY")
+    base_url = os.environ.get("OMEGA_BASE_URL")
     if not api_key:
-        raise AssertionError("sdk-live requires DEEPSEEK_API_KEY")
+        raise AssertionError("sdk-live requires OMEGA_API_KEY")
     if not base_url:
-        raise AssertionError("sdk-live requires an explicit DEEPSEEK_BASE_URL")
+        raise AssertionError("sdk-live requires an explicit OMEGA_BASE_URL")
 
     with tempfile.TemporaryDirectory(prefix="dsh-sdk-live-") as temporary:
         root = Path(temporary).resolve()
@@ -1285,9 +1285,9 @@ def smoke_sdk_live() -> None:
             f"content {LIVE_API_SENTINEL}, with no newline or byte-order mark. "
             f"Then reply with exactly {LIVE_API_SENTINEL}.\n{marker}"
         )
-        with DeepSeekHarness(
-            provider="deepseek-official",
-            model="deepseek-v4-flash",
+        with OmegaHarness(
+            provider="omega-official",
+            model="omega-v4-flash",
             cwd=str(root),
             dsh_home=str(dsh_home),
             env={
@@ -1376,14 +1376,14 @@ def safe_turn_end(value: object) -> object:
 
 
 def smoke_sdk_default(base_url: str) -> None:
-    from deepseek_harness import DeepSeekHarness
+    from omega_harness import OmegaHarness
 
     with tempfile.TemporaryDirectory(prefix="dsh-sdk-default-") as temporary:
         root = Path(temporary).resolve()
         dsh_home = root / "home"
         sessions = dsh_home / "sessions"
-        with DeepSeekHarness(
-            provider="deepseek-official",
+        with OmegaHarness(
+            provider="omega-official",
             model="smoke-model",
             cwd=str(root),
             dsh_home=str(dsh_home),
@@ -1404,8 +1404,8 @@ def smoke_sdk_default(base_url: str) -> None:
         assert_zstd_session_log(sessions)
         # The installed runtime starts with an empty PATH; no checkout or global pnpm can satisfy the tool.
         before = (dsh_home / "profiles/sdk/package.json").read_bytes()
-        with DeepSeekHarness(
-            provider="deepseek-official", model="smoke-model", cwd=str(root), dsh_home=str(dsh_home),
+        with OmegaHarness(
+            provider="omega-official", model="smoke-model", cwd=str(root), dsh_home=str(dsh_home),
             env={"DSH_PERMISSION_MODE": "danger-full-access", "DSH_TELEMETRY_DISABLED": "1", "PATH": "",
                  "DSH_PRIMARY_RUNTIME": "", "DSH_RESOURCE_CACHE": str(root / "empty-resource-cache")},
             api_key="sk-keyless-smoke", base_url=base_url, request_timeout_seconds=60,
@@ -1416,7 +1416,7 @@ def smoke_sdk_default(base_url: str) -> None:
 
 
 def smoke_sdk_custom(base_url: str, executable: Path) -> None:
-    from deepseek_harness import DeepSeekHarness
+    from omega_harness import OmegaHarness
 
     cases: tuple[tuple[Literal["native", "ptc"], tuple[tuple[str, str], ...]], ...] = (
         ("native", (("reply with the smoke text", EXPECTED_TEXT), (WORKFLOW_PROMPT, WORKFLOW_WORKER_TEXT))),
@@ -1428,8 +1428,8 @@ def smoke_sdk_custom(base_url: str, executable: Path) -> None:
             dsh_home = root / "home"
             sessions = dsh_home / "sessions"
             patch = write_advanced_profile_patch(root, "custom.patch.yml", sessions, mode)
-            with DeepSeekHarness(
-                provider="deepseek-official",
+            with OmegaHarness(
+                provider="omega-official",
                 model="smoke-model",
                 cwd=str(root),
                 dsh_bin=str(executable),
@@ -1453,7 +1453,7 @@ def smoke_sdk_minimal(
     base_url: str, executable: Path, update_snapshots: bool, *, in_history: bool = False,
 ) -> None:
     """Exercise the shipped standalone minimal profile through the packaged executable."""
-    from deepseek_harness import DeepSeekHarness
+    from omega_harness import OmegaHarness
 
     # One mock model serves every scenario of a run, so the snapshot takes this turn's slice.
     first_request = len(MockModelHandler.requests)
@@ -1465,7 +1465,7 @@ def smoke_sdk_minimal(
         if in_history:
             patch = root / "in-history.patch.yml"
             patch.write_text(json.dumps([
-                {"id": "llm-deepseek", "config": {"models": [
+                {"id": "llm-omega", "config": {"models": [
                     {"id": "smoke-model", "systemPromptUpdate": "in-history"},
                 ]}},
                 {"insert": [{
@@ -1474,8 +1474,8 @@ def smoke_sdk_minimal(
                 }]},
             ]))
             patches = (str(patch),)
-        with DeepSeekHarness(
-            provider="deepseek-official",
+        with OmegaHarness(
+            provider="omega-official",
             model="smoke-model",
             cwd=str(root),
             dsh_bin=str(executable),
@@ -1509,7 +1509,7 @@ def smoke_sdk_minimal(
 
 def smoke_sdk_dynamic_tools(base_url: str, executable: Path, update_snapshots: bool) -> None:
     """Observe native tool changes through the shipped SDK profile and its durable log."""
-    from deepseek_harness import DeepSeekHarness
+    from omega_harness import OmegaHarness
 
     first_request = len(MockModelHandler.requests)
     with tempfile.TemporaryDirectory(prefix="dsh-sdk-dynamic-tools-") as temporary:
@@ -1524,21 +1524,21 @@ def smoke_sdk_dynamic_tools(base_url: str, executable: Path, update_snapshots: b
         task.write_text("Call snapshot_ping once.\n", encoding="utf-8")
         patch = write_profile_patch(root, "dynamic-tools.patch.yml", sessions, [
             {"id": "tool-fs", "config": {"applyPatch": True}},
-            {"id": "llm-deepseek", "config": {"models": [
+            {"id": "llm-omega", "config": {"models": [
                 {"id": "smoke-model", "toolUpdate": "addition-only"},
             ]}},
             {"id": "tool-bash", "disabled": True},
             {"id": "tool-pwsh", "disabled": True},
             {"id": "session-title-llm", "disabled": True},
             # Export acknowledgements can change the request header sequence numbers.
-            {"id": "session-log-deepseek", "config": {"enabled": False}},
+            {"id": "session-log-omega", "config": {"enabled": False}},
             {"insert": [{
                 "id": "dynamic-tools",
                 "name": (Path(__file__).resolve().parent / "fixtures/python-sdk-dynamic-tools.mjs").as_uri(),
             }]},
         ])
-        with DeepSeekHarness(
-            provider="deepseek-official", model="smoke-model", cwd=str(root),
+        with OmegaHarness(
+            provider="omega-official", model="smoke-model", cwd=str(root),
             dsh_bin=str(executable), dsh_home=str(dsh_home), patches=(str(patch),),
             env={
                 "DSH_PERMISSION_MODE": "danger-full-access", "DSH_TELEMETRY_DISABLED": "1",
@@ -1564,7 +1564,7 @@ def smoke_sdk_dynamic_tools(base_url: str, executable: Path, update_snapshots: b
 
 def smoke_sdk_fs_search(base_url: str, executable: Path) -> None:
     """Exercise real grep and glob spawns through the packaged executable."""
-    from deepseek_harness import DeepSeekHarness
+    from omega_harness import OmegaHarness
 
     with tempfile.TemporaryDirectory(prefix="dsh-sdk-fs-search-") as temporary:
         root = Path(temporary).resolve()
@@ -1575,8 +1575,8 @@ def smoke_sdk_fs_search(base_url: str, executable: Path) -> None:
             {"id": "skill-filesystem", "disabled": True},
             {"id": "tool-fs-search", "config": {"sampleOverCapGlobResults": False}},
         ])
-        with DeepSeekHarness(
-            provider="deepseek-official",
+        with OmegaHarness(
+            provider="omega-official",
             model="smoke-model",
             cwd=str(root),
             dsh_bin=str(executable),
@@ -1598,15 +1598,15 @@ def smoke_sdk_fs_search(base_url: str, executable: Path) -> None:
 
 def smoke_sdk_spawn_node(base_url: str, executable: Path) -> None:
     """A shell command starting with `node` must reach the machine's Node, not the executable."""
-    from deepseek_harness import DeepSeekHarness
+    from omega_harness import OmegaHarness
 
     with tempfile.TemporaryDirectory(prefix="dsh-sdk-spawn-node-") as temporary:
         root = Path(temporary).resolve()
         dsh_home = root / "home"
         sessions = dsh_home / "sessions"
         patch = write_profile_patch(root, "spawn-node.patch.yml", sessions, [])
-        with DeepSeekHarness(
-            provider="deepseek-official",
+        with OmegaHarness(
+            provider="omega-official",
             model="smoke-model",
             cwd=str(root),
             dsh_bin=str(executable),
@@ -1628,7 +1628,7 @@ def smoke_sdk_spawn_node(base_url: str, executable: Path) -> None:
 
 def smoke_sdk_mcp(base_url: str, executable: Path | None) -> None:
     """Discover and call an external stdio MCP tool through the packaged client."""
-    from deepseek_harness import DeepSeekHarness
+    from omega_harness import OmegaHarness
 
     with tempfile.TemporaryDirectory(prefix="dsh-sdk-mcp-") as temporary:
         root = Path(temporary).resolve()
@@ -1638,8 +1638,8 @@ def smoke_sdk_mcp(base_url: str, executable: Path | None) -> None:
         server_script.write_text(MCP_SERVER_SCRIPT)
         patch = write_mcp_patch(root, sessions, server_script)
         discovery_log = server_script.with_suffix(".log")
-        with DeepSeekHarness(
-            provider="deepseek-official",
+        with OmegaHarness(
+            provider="omega-official",
             model="smoke-model",
             cwd=str(root),
             dsh_bin=None if executable is None else str(executable),
@@ -1668,7 +1668,7 @@ def smoke_sdk_mcp(base_url: str, executable: Path | None) -> None:
 
 def smoke_sdk_profile_plugin(base_url: str) -> None:
     """Install an external bundle through Python's dsh command and load it in the SDK."""
-    from deepseek_harness import DeepSeekHarness
+    from omega_harness import OmegaHarness
 
     with tempfile.TemporaryDirectory(prefix="dsh-sdk-profile-plugin-") as temporary:
         root = Path(temporary).resolve()
@@ -1681,11 +1681,11 @@ def smoke_sdk_profile_plugin(base_url: str) -> None:
             "private": True,
             "type": "module",
             "exports": "./index.js",
-            "peerDependencies": {"@deepseek-ai/cordis": "*"},
+            "peerDependencies": {"@omega-ai/cordis": "*"},
             "dsh": {"bundle": {"patch": "./cordis.patch.yml"}},
         }, indent=2))
         (plugin / "index.js").write_text(
-            "import { Context } from '@deepseek-ai/cordis'\n"
+            "import { Context } from '@omega-ai/cordis'\n"
             "export const name = 'python-sdk-blackbox-plugin'\n"
             "export const inject = ['systemPrompt']\n"
             "export function apply(ctx) {\n"
@@ -1723,8 +1723,8 @@ def smoke_sdk_profile_plugin(base_url: str) -> None:
         if "dsh-python-blackbox-plugin" not in manifest["dsh"]["profile"]["bundles"]:
             raise AssertionError(f"dsh plugin did not activate the external bundle: {manifest}")
 
-        harness = DeepSeekHarness(
-            provider="deepseek-official",
+        harness = OmegaHarness(
+            provider="omega-official",
             model="smoke-model",
             cwd=str(root),
             dsh_home=str(dsh_home),
@@ -1758,7 +1758,7 @@ def smoke_sdk_snapshot_mode(
     base_url: str, executable: Path, update_snapshots: bool, mode: Literal["native", "ptc"],
 ) -> None:
     """Drive one supported presentation through the SDK and persistent Session log."""
-    from deepseek_harness import DeepSeekHarness
+    from omega_harness import OmegaHarness
 
     with tempfile.TemporaryDirectory(prefix="dsh-sdk-snapshot-") as temporary:
         root = Path(temporary).resolve()
@@ -1778,7 +1778,7 @@ def smoke_sdk_snapshot_mode(
                 "parentSessionId": SNAPSHOT_SESSION_ID, "prompt": SNAPSHOT_WORKFLOW_CHILD_PROMPT,
                 "direct": {"prompt": SNAPSHOT_DIRECT_CHILD_PROMPT, "callId": "advanced-direct-child"},
             }},
-            {"id": "snapshot-message-feedback", "name": "@deepseek-ai/dsh-message-feedback",
+            {"id": "snapshot-message-feedback", "name": "@omega-ai/dsh-message-feedback",
              "config": {"maxNoteBytes": 1024}},
             {"id": "snapshot-feedback-producer", "name": (
                 Path(__file__).resolve().parent.parent / "snapshots/sdk/text-turn/feedback-producer.mjs"
@@ -1790,8 +1790,8 @@ def smoke_sdk_snapshot_mode(
                 "name": str(Path(__file__).resolve().parents[1] / "packages/core/agent-loop/tests/fixtures/serial-created.mjs"),
             }]},
         ])
-        with DeepSeekHarness(
-            provider="deepseek-official",
+        with OmegaHarness(
+            provider="omega-official",
             model="smoke-model",
             cwd=str(root),
             dsh_bin=str(executable),
@@ -1891,7 +1891,7 @@ def smoke_sdk_snapshot_mode(
 
 def smoke_sdk_v3_resume(base_url: str, executable: Path) -> None:
     """Migrate persisted V3 history and reopen the published log in a fresh runtime."""
-    from deepseek_harness import DeepSeekHarness
+    from omega_harness import OmegaHarness
 
     with tempfile.TemporaryDirectory(prefix="dsh-sdk-v3-resume-") as temporary:
         root = Path(temporary).resolve()
@@ -1919,9 +1919,9 @@ def smoke_sdk_v3_resume(base_url: str, executable: Path) -> None:
         patch = write_profile_patch(root, "v3-resume.patch.yml", sessions, [])
         request_count = len(MockModelHandler.requests)
 
-        def connect() -> DeepSeekHarness:
-            return DeepSeekHarness(
-                provider="deepseek-official", model="smoke-model", cwd=str(root),
+        def connect() -> OmegaHarness:
+            return OmegaHarness(
+                provider="omega-official", model="smoke-model", cwd=str(root),
                 dsh_bin=str(executable), dsh_home=str(root / "home"), patches=(str(patch),),
                 env={"DSH_TELEMETRY_DISABLED": "1"}, api_key="sk-keyless-smoke", base_url=base_url,
                 request_timeout_seconds=60,
@@ -1948,7 +1948,7 @@ def smoke_sdk_v3_resume(base_url: str, executable: Path) -> None:
 
 def smoke_sdk_restart_snapshot(base_url: str, executable: Path, update_snapshots: bool) -> None:
     """Check isolated sessions and explicit history restoration across runtime restarts."""
-    from deepseek_harness import DeepSeekHarness
+    from omega_harness import OmegaHarness
 
     with tempfile.TemporaryDirectory(prefix="dsh-sdk-restart-") as temporary:
         root = Path(temporary).resolve()
@@ -1957,9 +1957,9 @@ def smoke_sdk_restart_snapshot(base_url: str, executable: Path, update_snapshots
         patch = write_advanced_profile_patch(root, "restart.patch.yml", sessions)
         first_request = len(MockModelHandler.requests)
 
-        def connect(model: str = "smoke-model") -> DeepSeekHarness:
-            return DeepSeekHarness(
-                provider="deepseek-official",
+        def connect(model: str = "smoke-model") -> OmegaHarness:
+            return OmegaHarness(
+                provider="omega-official",
                 model=model,
                 cwd=str(root),
                 dsh_bin=str(executable),
@@ -2053,7 +2053,7 @@ def smoke_sdk_restart_snapshot(base_url: str, executable: Path, update_snapshots
             if record.get("type") == "model/selection"
         ]
         if selection_events != [{"type": "model/selection", "data": {
-            "provider": "deepseek-official", "model": "resumed-smoke-model",
+            "provider": "omega-official", "model": "resumed-smoke-model",
         }}]:
             raise AssertionError(f"resume did not persist the initialized model: {selection_events}")
         if requests[0].get("model") != "resumed-smoke-model":
@@ -2085,7 +2085,7 @@ def smoke_sdk_restart_snapshot(base_url: str, executable: Path, update_snapshots
 
 def smoke_sdk_scheduler_recovery(base_url: str, executable: Path, update_snapshots: bool) -> None:
     """Keep a failed tool turn usable through the real Messages serializer and SDK."""
-    from deepseek_harness import DeepSeekHarness
+    from omega_harness import OmegaHarness
 
     first_request = len(MockModelHandler.requests)
     with tempfile.TemporaryDirectory(prefix="dsh-sdk-scheduler-recovery-") as temporary:
@@ -2096,7 +2096,7 @@ def smoke_sdk_scheduler_recovery(base_url: str, executable: Path, update_snapsho
         patch = write_profile_patch(root, "recovery.patch.yml", sessions, [
             {"id": "tool-todo", "disabled": False},
             {"id": "session-title-llm", "disabled": True},
-            {"id": "session-log-deepseek", "config": {"enabled": False}},
+            {"id": "session-log-omega", "config": {"enabled": False}},
             {"insert": [{
                 "id": "scheduler-failure-fixture",
                 "name": (
@@ -2106,9 +2106,9 @@ def smoke_sdk_scheduler_recovery(base_url: str, executable: Path, update_snapsho
             }]},
         ])
 
-        def connect() -> DeepSeekHarness:
-            return DeepSeekHarness(
-                provider="deepseek-official", model="smoke-model", cwd=str(root),
+        def connect() -> OmegaHarness:
+            return OmegaHarness(
+                provider="omega-official", model="smoke-model", cwd=str(root),
                 dsh_bin=str(executable), dsh_home=str(dsh_home),
                 patches=(str(base_patch), str(patch)),
                 env={"DSH_PERMISSION_MODE": "danger-full-access", "DSH_TELEMETRY_DISABLED": "1"},
@@ -2185,8 +2185,8 @@ def smoke_direct(base_url: str, executable: Path) -> None:
             "DSH_HOME": str(dsh_home),
             "DSH_PERMISSION_MODE": "danger-full-access",
             "DSH_TELEMETRY_DISABLED": "1",
-            "DEEPSEEK_API_KEY": "sk-keyless-smoke",
-            "DEEPSEEK_BASE_URL": base_url,
+            "OMEGA_API_KEY": "sk-keyless-smoke",
+            "OMEGA_BASE_URL": base_url,
         }
         peer = RuntimePeer(
             [str(executable), "--profile", "sdk", "--patch", str(patch)],
@@ -2194,7 +2194,7 @@ def smoke_direct(base_url: str, executable: Path) -> None:
             environment,
         )
         try:
-            peer.send({"jsonrpc": "2.0", "id": "initialize", "method": "initialize", "params": {"cwd": str(root), "provider": "deepseek-official", "model": "smoke-model"}})
+            peer.send({"jsonrpc": "2.0", "id": "initialize", "method": "initialize", "params": {"cwd": str(root), "provider": "omega-official", "model": "smoke-model"}})
             peer.read_until(lambda message: message.get("id") == "initialize")
             peer.send({
                 "jsonrpc": "2.0",
@@ -3207,7 +3207,7 @@ def normalize_native_delivery_record(value: object, source_version: int) -> obje
                     "event": normalize_native_delivery_record(wrapper["event"], source_version),
                 }}
     data = value.get("data")
-    if value.get("type") != "session-log-deepseek/delivery-accepted" or not isinstance(data, dict):
+    if value.get("type") != "session-log-omega/delivery-accepted" or not isinstance(data, dict):
         return value
     if data.get("sessionFormatVersion") != source_version:
         return value

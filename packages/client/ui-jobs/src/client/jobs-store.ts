@@ -6,7 +6,7 @@
  * retained, across hiding and showing the panel.
  */
 
-import { defineStore, type EngineStoreHandle } from '@deepseek-ai/dsh-client-store'
+import { defineStore, type EngineStoreHandle } from '@omega-ai/dsh-client-store'
 
 /** A group of the section's rows: the live ones, or the settled ones under their fold. */
 export type JobGroup = 'live' | 'settled'

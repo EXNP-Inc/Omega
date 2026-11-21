@@ -1,12 +1,12 @@
 /** Header-only selection and cached metadata for the read-only listing tools. */
 
-import type { Context } from '@deepseek-ai/cordis'
-import type { SessionHeader, SessionId } from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-session-query'
-import type {} from '@deepseek-ai/dsh-session-projection-cache'
-import type {} from '@deepseek-ai/dsh-session-title'
-import { ToolArgsError } from '@deepseek-ai/dsh-tools'
-import { WorkspaceId } from '@deepseek-ai/dsh-workspace'
+import type { Context } from '@omega-ai/cordis'
+import type { SessionHeader, SessionId } from '@omega-ai/dsh-session'
+import type {} from '@omega-ai/dsh-session-query'
+import type {} from '@omega-ai/dsh-session-projection-cache'
+import type {} from '@omega-ai/dsh-session-title'
+import { ToolArgsError } from '@omega-ai/dsh-tools'
+import { WorkspaceId } from '@omega-ai/dsh-workspace'
 
 /** Optional model pagination arguments. */
 export interface PageInput {

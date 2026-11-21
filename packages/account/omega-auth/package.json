@@ -1,0 +1,58 @@
+{
+  "name": "@omega-ai/dsh-omega-auth",
+  "description": "Omega request authentication (ctx.omegaAuth): choose between the API key and the account sign-in for one Omega API request and release its headers",
+  "version": "0.2.2-rc.5",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
+    "directory": "packages/account/omega-auth"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./types": {
+      "types": "./lib/types/types.d.ts",
+      "default": "./lib/types/types.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "files": [
+    "locale/*.json",
+    "lib/index.js",
+    "lib/types/**/*.js",
+    "lib/types/**/*.d.ts",
+    "lib/types/**/*.d.ts.map",
+    "lib/**/*.js.map",
+    "src"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-credentials": "workspace:*",
+    "@omega-ai/dsh-omega-account": "workspace:*",
+    "@omega-ai/dsh-error": "workspace:*",
+    "@omega-ai/dsh-launch-environment": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+    "@omega-ai/dsh-omega-account": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-credentials": "workspace:*",
+    "@omega-ai/dsh-omega-account": "workspace:*",
+    "@omega-ai/dsh-error": "workspace:*",
+    "@omega-ai/dsh-launch-environment": "workspace:*"
+  }
+}

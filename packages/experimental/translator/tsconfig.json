@@ -36,13 +36,13 @@
       "path": "../../llm/llm"
     },
     {
-      "path": "../../llm/llm-deepseek"
+      "path": "../../llm/llm-omega"
     },
     {
-      "path": "../../llm/llm-deepseek-api-key"
+      "path": "../../llm/llm-omega-api-key"
     },
     {
-      "path": "../../llm/llm-deepseek-account"
+      "path": "../../llm/llm-omega-account"
     },
     {
       "path": "../../credentials/credentials"

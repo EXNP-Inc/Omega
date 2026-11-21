@@ -1,18 +1,18 @@
 /** Session-owned MCP browser processes and provider catalog activation. @module */
 
-import type { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import Schema from '@deepseek-ai/schemastery'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { BrowserUseProviderName } from '@deepseek-ai/dsh-browser-use/types'
-import * as McpClient from '@deepseek-ai/dsh-mcp-client'
-import { createScope } from '@deepseek-ai/dsh-scope'
-import type { Scope } from '@deepseek-ai/dsh-scope'
+import type { Context } from '@omega-ai/cordis'
+import type { Agent } from '@omega-ai/dsh-agent'
+import Schema from '@omega-ai/schemastery'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { BrowserUseProviderName } from '@omega-ai/dsh-browser-use/types'
+import * as McpClient from '@omega-ai/dsh-mcp-client'
+import { createScope } from '@omega-ai/dsh-scope'
+import type { Scope } from '@omega-ai/dsh-scope'
 import { BrowserSessionError, SessionResources } from './index.ts'
-import type {} from '@deepseek-ai/dsh-browser-use'
-import { ToolContextUnavailableError } from '@deepseek-ai/dsh-tools'
-import type {} from '@deepseek-ai/dsh-system-prompt'
-import type {} from '@deepseek-ai/dsh-working-directory'
+import type {} from '@omega-ai/dsh-browser-use'
+import { ToolContextUnavailableError } from '@omega-ai/dsh-tools'
+import type {} from '@omega-ai/dsh-system-prompt'
+import type {} from '@omega-ai/dsh-working-directory'
 
 /** Browser launch settings shared by the MCP integrations. */
 export interface BrowserMcpLaunchConfig {

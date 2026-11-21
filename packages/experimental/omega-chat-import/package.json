@@ -1,0 +1,132 @@
+{
+  "name": "@omega-ai/dsh-omega-chat-import",
+  "description": "Import Omega chat exports as stored Sessions in a chosen Workspace",
+  "version": "0.2.2-rc.5",
+  "icon": "./icon.svg",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
+    "directory": "packages/experimental/omega-chat-import"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./remote": {
+      "types": "./lib/typert.remote-client.d.ts",
+      "default": "./lib/typert.remote-client.js"
+    },
+    "./typert": {
+      "types": "./lib/typert.host.d.ts",
+      "default": "./lib/typert.host.js"
+    },
+    "./types": {
+      "types": "./lib/types/types.d.ts"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "files": [
+    "icon.svg",
+    "locale/*.json",
+    "docs",
+    "lib/index.js",
+    "lib/client.js",
+    "cordis.patch.yml",
+    "lib/types/**/*.d.ts",
+    "lib/types/**/*.d.ts.map",
+    "lib/**/*.js.map",
+    "lib/typert.host.js",
+    "lib/typert.host.d.ts",
+    "lib/typert.remote-client.js",
+    "lib/typert.remote-client.d.ts",
+    "lib/typert.remote-client.d.ts.map",
+    "src"
+  ],
+  "scripts": {
+    "bundle": "tsdown",
+    "watch": "tsdown --watch"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@omega-ai/dsh-brand": "workspace:*",
+    "@omega-ai/dsh-typert-protocol": "workspace:*",
+    "@omega-ai/schemastery": "workspace:~",
+    "fflate": "^0.8.2",
+    "zod": "4.6.6"
+  },
+  "peerDependencies": {
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-session-title": "workspace:*",
+    "@omega-ai/dsh-tool-web": "workspace:*"
+  },
+  "devDependencies": {
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/cordis-plugin-include": "workspace:~",
+    "@omega-ai/cordis-plugin-loader": "workspace:~",
+    "@omega-ai/dsh-agent": "workspace:*",
+    "@omega-ai/dsh-agent-loop-testkit": "workspace:*",
+    "@omega-ai/dsh-api-remote-access": "workspace:*",
+    "@omega-ai/dsh-api-session-controller": "workspace:*",
+    "@omega-ai/dsh-api-workspace-controller": "workspace:*",
+    "@omega-ai/dsh-attachment": "workspace:*",
+    "@omega-ai/dsh-client-connection": "workspace:*",
+    "@omega-ai/dsh-client-locale": "workspace:*",
+    "@omega-ai/dsh-client-test-runtime": "workspace:*",
+    "@omega-ai/dsh-client-ui-conversation": "workspace:*",
+    "@omega-ai/dsh-client-ui-primitives": "workspace:*",
+    "@omega-ai/dsh-client-ui-renderer": "workspace:*",
+    "@omega-ai/dsh-client-ui-sidebar": "workspace:*",
+    "@omega-ai/dsh-client-ui-slots": "workspace:*",
+    "@omega-ai/dsh-client-ui-workspace": "workspace:*",
+    "@omega-ai/dsh-llm": "workspace:*",
+    "@omega-ai/dsh-session": "workspace:*",
+    "@omega-ai/dsh-session-persistence": "workspace:*",
+    "@omega-ai/dsh-session-persistence-jsonl": "workspace:*",
+    "@omega-ai/dsh-session-projection": "workspace:*",
+    "@omega-ai/dsh-session-projection-cache": "workspace:*",
+    "@omega-ai/dsh-session-title": "workspace:*",
+    "@omega-ai/dsh-storage": "workspace:*",
+    "@omega-ai/dsh-storage-domain": "workspace:*",
+    "@omega-ai/dsh-storage-json": "workspace:*",
+    "@omega-ai/dsh-tool-web": "workspace:*",
+    "@omega-ai/dsh-typert-registry": "workspace:*",
+    "@omega-ai/dsh-util-values": "workspace:*",
+    "@omega-ai/dsh-web": "workspace:*",
+    "@omega-ai/dsh-workspace": "workspace:*",
+    "@testing-library/react": "^16.3.3",
+    "clsx": "^2.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@omega-ai/dsh-api-remote-access",
+        "@omega-ai/dsh-api-session-controller",
+        "@omega-ai/dsh-client-locale",
+        "@omega-ai/dsh-client-ui-renderer",
+        "@omega-ai/dsh-client-ui-sidebar",
+        "@omega-ai/dsh-client-ui-workspace"
+      ],
+      "platform": "web"
+    }
+  }
+}

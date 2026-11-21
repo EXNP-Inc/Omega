@@ -1,5 +1,5 @@
 /** Synced Config objects for Connection Client specs; this package cannot depend on the test runtime that depends on it. */
-import type { SyncedConfig } from '@deepseek-ai/dsh-client-config/types'
+import type { SyncedConfig } from '@omega-ai/dsh-client-config/types'
 import type { ConnectionRecoveryConfig } from '../src/recovery-config.ts'
 import type { ConnectionConfig } from '../src/types.ts'
 

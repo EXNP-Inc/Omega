@@ -3,7 +3,7 @@ import { cp, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/pr
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { FiberState } from '@deepseek-ai/cordis'
+import { FiberState } from '@omega-ai/cordis'
 import { chromium } from 'playwright'
 import { expect, it, onTestFailed, onTestFinished } from 'vitest'
 import { launchWebScaffold, watchConsole } from './scaffold.ts'
@@ -39,8 +39,8 @@ it('renders volatile Config without secrets or ordinary fields and updates it in
   const installed = await mkdtemp(join(tmpdir(), 'dsh-client-config-sync-'))
   onTestFinished(() => rm(installed, { recursive: true, force: true }))
   await cp(FIXTURE, installed, { recursive: true })
-  await mkdir(join(installed, 'node_modules', '@deepseek-ai'), { recursive: true })
-  await symlink(SCHEMASTERY, join(installed, 'node_modules', '@deepseek-ai', 'schemastery'), 'junction')
+  await mkdir(join(installed, 'node_modules', '@omega-ai'), { recursive: true })
+  await symlink(SCHEMASTERY, join(installed, 'node_modules', '@omega-ai', 'schemastery'), 'junction')
   const scaffold = await launchWebScaffold({ profile: { packages: [{ dir: installed, enabled: true }] } })
   onTestFinished(() => scaffold.close())
   const browser = await chromium.launch()

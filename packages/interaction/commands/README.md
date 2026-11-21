@@ -3,7 +3,7 @@ description: "Human slash-command registry for interactive UIs: plugin-owned com
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-commands
+# @omega-ai/dsh-commands
 
 English | [中文](README.zh.md)
 
@@ -29,7 +29,7 @@ Compose this service when an interactive UI should let users drive agent-side be
 
 ### Registering a command
 
-Import `CommandDefinitionId` and `CommandId` as types from `@deepseek-ai/dsh-commands/types`. Use `brandString<T>()` from `@deepseek-ai/dsh-brand` to brand an admitted string; it neither validates nor generates ids.
+Import `CommandDefinitionId` and `CommandId` as types from `@omega-ai/dsh-commands/types`. Use `brandString<T>()` from `@omega-ai/dsh-brand` to brand an admitted string; it neither validates nor generates ids.
 
 A plugin registers a command with `ctx.commands.register()`: a lowercase name, a discovery description, an optional `input` hint, and a handler. An optional branded `definitionId` gives the definition a stable, plugin-namespaced identity for adapters; it is independent of display copy and execution `commandId`. The effective descriptor carries only the selected definition's identity, so a scoped override never inherits the shadowed registration's identity.
 
@@ -63,7 +63,7 @@ A command may declare `input.attachments` to accept composer images and generic 
 
 An interactive adapter calls `execute(agent, line, attachments, signal)` with the exact receiving agent, the full command line, and the submission's ordered attachments. It returns the settled `CommandExecution` — the normalized result plus its lifecycle `commandId` — or `undefined` for invalid syntax or an unknown name. `list(agent)` and `find(agent, name)` serve discovery after agent-scoped shadowing.
 
-The stateless `@deepseek-ai/dsh-commands/builtin` entry shares first-party identity, English/Chinese input tokens, and descriptor resolution across Host and Client adapters. `builtinCommandName()` identifies the definition independently of its registered name; `resolveCommand()` preserves exact-name priority and follows aliases by definition ID. Adapters choose their supported subset; the registry itself continues to accept arbitrary definitions.
+The stateless `@omega-ai/dsh-commands/builtin` entry shares first-party identity, English/Chinese input tokens, and descriptor resolution across Host and Client adapters. `builtinCommandName()` identifies the definition independently of its registered name; `resolveCommand()` preserves exact-name priority and follows aliases by definition ID. Adapters choose their supported subset; the registry itself continues to accept arbitrary definitions.
 
 ### Cancellation
 

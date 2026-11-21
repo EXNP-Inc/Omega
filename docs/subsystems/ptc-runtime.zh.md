@@ -181,7 +181,7 @@ type PtcJsonValue = null | boolean | number | string | PtcJsonValue[] | { [key: 
 type PtcBindingFunction = (args: unknown) => Promise<PtcJsonValue>
 ```
 
-`@deepseek-ai/dsh-ptc-runtime` 导出的 `PtcInspectableValue` 通过 `new PtcInspectableValue(value, text)`，为无损 JSON 对象或数组关联宿主提供的文本。提供方向程序交付数据本身，不暴露描述符，也不添加程序可见属性。只有直接 `inspect` 原结果，且其数据仍与初始快照一致时，才使用附带文本；空文本不产生输出。拷贝、字段选择、修改后的结果和嵌套值使用普通格式。该关联由 Node 进程拥有，不序列化到 Session 日志，复制程序值也不会传递该关联。参见 [`src/inspectable-value.ts`](../../packages/ptc-runtime/ptc-runtime/src/inspectable-value.ts)。
+`@omega-ai/dsh-ptc-runtime` 导出的 `PtcInspectableValue` 通过 `new PtcInspectableValue(value, text)`，为无损 JSON 对象或数组关联宿主提供的文本。提供方向程序交付数据本身，不暴露描述符，也不添加程序可见属性。只有直接 `inspect` 原结果，且其数据仍与初始快照一致时，才使用附带文本；空文本不产生输出。拷贝、字段选择、修改后的结果和嵌套值使用普通格式。该关联由 Node 进程拥有，不序列化到 Session 日志，复制程序值也不会传递该关联。参见 [`src/inspectable-value.ts`](../../packages/ptc-runtime/ptc-runtime/src/inspectable-value.ts)。
 
 数据中可以包含宿主提供的 `PtcImage` 描述符。提供方在展示快照中保留对应程序 `Image` 的身份。直接展示未修改的容器时输出附带文本；展示 Image 字段时输出该图片。
 

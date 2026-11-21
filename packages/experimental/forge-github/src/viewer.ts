@@ -2,7 +2,7 @@
 
 import type {
   ChangeRequestSummary, ForgeFailure, ForgeViewerFilter, ForgeViewerList, ForgeViewerQuery,
-} from '@deepseek-ai/dsh-experimental-forge'
+} from '@omega-ai/dsh-experimental-forge'
 import { z } from 'zod'
 import type { GraphqlReader } from './commits.ts'
 import { checksRollup, closingIssuesSchema, reviewDecision, VERDICTS } from './graphql.ts'

@@ -4,13 +4,13 @@
  * mapped interfaces make the content, source, and finish unions extensible.
  */
 
-import type { Branded } from '@deepseek-ai/dsh-brand'
-import type { FileAttachmentRef, ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
-import type { LocalizedText } from '@deepseek-ai/dsh-package-manifest'
+import type { Branded } from '@omega-ai/dsh-brand'
+import type { FileAttachmentRef, ImageAttachmentRef } from '@omega-ai/dsh-attachment'
+import type { LocalizedText } from '@omega-ai/dsh-package-manifest'
 import type { MessageId, ToolCallId, ProviderRequestId, ReasoningEffortId } from './brand.ts'
 import type { Message, UserMessage } from './message.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Events {
     /**
      * The provider topology changed: an adapter registered or unregistered
@@ -177,7 +177,7 @@ export type FinishReason = FinishReasonMap[keyof FinishReasonMap]
  * Counts are DISJOINT: `inputTokens` is uncached input only; cached input is
  * reported separately as `cacheReadTokens`/`cacheWriteTokens` (billed input =
  * sum of the three). Adapters whose providers fold cache hits into a total
- * prompt count (DeepSeek's `prompt_tokens`) subtract them out.
+ * prompt count (Omega's `prompt_tokens`) subtract them out.
  */
 export interface TokenUsage {
   inputTokens: number
@@ -323,7 +323,7 @@ export interface LlmModelDiscoveryOperation extends LlmModelDiscoveryRequest {
   signal?: AbortSignal
 }
 
-declare module '@deepseek-ai/dsh-typert-protocol' {
+declare module '@omega-ai/dsh-typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** A draft provider interrogation refused or failed. */
     'llm/model-discovery-rejected': {

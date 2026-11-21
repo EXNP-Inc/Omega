@@ -1,16 +1,16 @@
 // @vitest-environment jsdom
-import type { FileActionSource } from '@deepseek-ai/dsh-client-ui-file-actions/client'
+import type { FileActionSource } from '@omega-ai/dsh-client-ui-file-actions/client'
 import { Blob as NodeBlob } from 'node:buffer'
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { afterEach, expect, it, vi } from 'vitest'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import { MenuRegistry } from '@deepseek-ai/dsh-client-ui-context-menu/src/client/registry.ts'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import type { SessionId } from '@omega-ai/dsh-session'
+import { MenuRegistry } from '@omega-ai/dsh-client-ui-context-menu/src/client/registry.ts'
 import { OpenInAppPathController } from '../src/client/open-path.ts'
 import { OpenInAppController } from '../src/client/controller.ts'
-import { registerFileMenus } from '@deepseek-ai/dsh-client-ui-file-actions/src/client/context-menus.tsx'
+import { registerFileMenus } from '@omega-ai/dsh-client-ui-file-actions/src/client/context-menus.tsx'
 import { registerContextMenus } from '../src/client/context-menus.tsx'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 afterEach(() => { vi.unstubAllGlobals() })
 

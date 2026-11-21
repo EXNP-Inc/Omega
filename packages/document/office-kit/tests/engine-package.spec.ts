@@ -22,7 +22,7 @@ afterEach(() => { vi.resetAllMocks() })
 function engineTree() {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'dsh-engine-package-')))
   onTestFinished(() => { rmSync(root, { recursive: true, force: true, maxRetries: 3, retryDelay: 10 }) })
-  const kitDirectory = join(root, 'node_modules', '@deepseek-ai', 'libreoffice-kit')
+  const kitDirectory = join(root, 'node_modules', '@omega-ai', 'libreoffice-kit')
   const kitSource = join(kitDirectory, 'lib', 'index.js')
   mkdirSync(dirname(kitSource), { recursive: true })
   writeFileSync(join(kitDirectory, 'package.json'), JSON.stringify({ main: 'lib/index.js' }))
@@ -50,8 +50,8 @@ function thrownBy(action: () => void): unknown {
 it.each([
   ['/App.app/Contents/Resources/app.asar/dsh/node_modules/@deepseek-ai/libreoffice-kit-darwin-arm64/package.json',
     '/App.app/Contents/Resources/app.asar.unpacked/dsh/node_modules/@deepseek-ai/libreoffice-kit-darwin-arm64/package.json'],
-  ['C:\\DSH\\resources\\app.asar\\dsh\\node_modules\\@deepseek-ai\\libreoffice-kit-win32-x64\\package.json',
-    'C:\\DSH\\resources\\app.asar.unpacked\\dsh\\node_modules\\@deepseek-ai\\libreoffice-kit-win32-x64\\package.json'],
+  ['C:\\DSH\\resources\\app.asar\\dsh\\node_modules\\@omega-ai\\libreoffice-kit-win32-x64\\package.json',
+    'C:\\DSH\\resources\\app.asar.unpacked\\dsh\\node_modules\\@omega-ai\\libreoffice-kit-win32-x64\\package.json'],
   ['/App/resources/app.asar.unpacked/dsh/node_modules/x/package.json', '/App/resources/app.asar.unpacked/dsh/node_modules/x/package.json'],
   ['/workspace/node_modules/x/package.json', '/workspace/node_modules/x/package.json'],
   ['/workspace/notes.asar.txt/package.json', '/workspace/notes.asar.txt/package.json'],

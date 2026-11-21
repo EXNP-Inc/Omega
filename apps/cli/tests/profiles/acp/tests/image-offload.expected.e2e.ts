@@ -7,7 +7,7 @@ import { expect, it } from 'vitest'
 import {
   runScenario,
   type InputScript,
-} from '@deepseek-ai/dsh-session-snapshot'
+} from '@omega-ai/dsh-session-snapshot'
 
 const AGENT = {
   binScript: fileURLToPath(new URL('../../../../src/bin.ts', import.meta.url)),
@@ -68,7 +68,7 @@ it('pins Messages Files offload and inline fallback in assembled requests', asyn
         response.writeHead(200, { 'content-type': 'text/event-stream' })
         const toolCall = requests.length === 1
         const events = [
-          { type: 'message_start', message: { id: 'offload-response', model: 'deepseek-v4-flash-vision-exp', usage: { input_tokens: 3, output_tokens: 0 } } },
+          { type: 'message_start', message: { id: 'offload-response', model: 'omega-v4-flash-vision-exp', usage: { input_tokens: 3, output_tokens: 0 } } },
           { type: 'content_block_start', index: 0, content_block: toolCall
             ? { type: 'tool_use', id: 'native-read-image', name: 'read_image', input: { file_path: 'red.png' } }
             : { type: 'text', text: 'DONE' } },
@@ -144,7 +144,7 @@ it('pins Messages Files offload and inline fallback in assembled requests', asyn
     // The Session header records the canonical spelling of the scenario's directory, which is removed by now.
     const runtimeContext = (cwd: string): string => '<system-reminder>\nThe following information describes your current session:\n\n'
       + `Current working directory: ${JSON.stringify(join(realpathSync.native(dirname(cwd)), basename(cwd)))}.\n\n`
-      + 'Current DSH file policy: danger-full-access. The DSH file sandbox does not restrict file modifications by available operations.\n\n'
+      + 'Current Omega file policy: danger-full-access. The Omega file sandbox does not restrict file modifications by available operations.\n\n'
       + 'Approval prompts are disabled in this session: actions that require approval are rejected automatically — do not request sandbox escalation (do not set `sandbox_permissions`).\n\n'
       + 'You are the root agent. Your name is "lead".\n\n'
       + 'To message other agents, use send_message({ agent: "<agent-name>", message: "..." }).\n'

@@ -1,8 +1,8 @@
-import type { FileSaveResult } from '@deepseek-ai/dsh-client-ui-file-actions/types'
+import type { FileSaveResult } from '@omega-ai/dsh-client-ui-file-actions/types'
 /** Origin-scoped boot, native directory selection, host paths of picked files, and update presentation with native confirmation actions. */
 
-import type { DesktopChannelState, DesktopChannelChangeResult } from '@deepseek-ai/dsh-client-ui-settings-general/types'
-import type { DesktopShortcutInput, ShortcutConfigSnapshot, ShortcutSaveResult } from '@deepseek-ai/dsh-client-shortcuts/protocol'
+import type { DesktopChannelState, DesktopChannelChangeResult } from '@omega-ai/dsh-client-ui-settings-general/types'
+import type { DesktopShortcutInput, ShortcutConfigSnapshot, ShortcutSaveResult } from '@omega-ai/dsh-client-shortcuts/protocol'
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import { DESKTOP_IPC, SCHEME, type DshDesktopProductApi, type DesktopUpdatePresentation } from './ipc.ts'
 import { PLATFORM_IPC } from './platform-ipc.ts'
@@ -11,7 +11,7 @@ import { syncNativeTheme } from './preload-theme.ts'
 import { syncWindowsAppearance } from './preload-windows.ts'
 import { installMandatoryUpdateOverlay } from './preload-mandatory-overlay.ts'
 import { createDesktopBrowserBridge } from './preload-browser.ts'
-import type { FileDragHandle } from '@deepseek-ai/dsh-util-file-drag'
+import type { FileDragHandle } from '@omega-ai/dsh-util-file-drag'
 
 function createProductApi(): DshDesktopProductApi {
   return {

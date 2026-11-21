@@ -1,36 +1,36 @@
 /**
- * Active Loader-backed plugin package inventory for official DeepSeek requests.
+ * Active Loader-backed plugin package inventory for official Omega requests.
  * Host entries and the requesting agent's standing preset are resolved at request time;
  * installed dependencies and plugin fibers without Loader-backed package identity are excluded.
- * @module @deepseek-ai/dsh-plugin-package-inventory-deepseek
+ * @module @omega-ai/dsh-plugin-package-inventory-omega
  */
 
 import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, isAbsolute, join, parse } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { FiberState, type Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { EntryTree } from '@deepseek-ai/cordis-plugin-loader'
-import type {} from '@deepseek-ai/dsh-agent'
-import type {} from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-agent-preset-registry'
-import type {} from '@deepseek-ai/dsh-app-boot'
-import type { DeepSeekPluginPackageIdentity, DeepSeekPluginPackageInventoryExtension } from './types.ts'
+import { FiberState, type Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { EntryTree } from '@omega-ai/cordis-plugin-loader'
+import type {} from '@omega-ai/dsh-agent'
+import type {} from '@omega-ai/dsh-omega-llm-api-extensions'
+import type { SessionId } from '@omega-ai/dsh-session'
+import type {} from '@omega-ai/dsh-agent-preset-registry'
+import type {} from '@omega-ai/dsh-app-boot'
+import type { OmegaPluginPackageIdentity, OmegaPluginPackageInventoryExtension } from './types.ts'
 import type {} from './types.ts'
 
 export type * from './types.ts'
 
 /** Cordis plugin name. */
-export const name = 'plugin-package-inventory-deepseek'
+export const name = 'plugin-package-inventory-omega'
 /** Services required to locate host/requesting-agent entries and contribute the field. */
-export const inject = ['agents', 'deepseekLlmApiExtensions', 'loader']
+export const inject = ['agents', 'omegaLlmApiExtensions', 'loader']
 
 /** Plugin-package request contribution configuration. */
 export interface Config {
-  /** Contribute `dsh_plugin_packages` to official DeepSeek requests. Defaults to `true`. */
+  /** Contribute `dsh_plugin_packages` to official Omega requests. Defaults to `true`. */
   enabled?: boolean
 }
 
@@ -60,7 +60,7 @@ function barePackageName(specifier: string): string | undefined {
 }
 
 /** Read a named identity, including its version only when it is a non-blank string. */
-function identityFromManifest(path: string): DeepSeekPluginPackageIdentity | undefined {
+function identityFromManifest(path: string): OmegaPluginPackageIdentity | undefined {
   const manifest = JSON.parse(readFileSync(path, 'utf8')) as PackageManifest
   if (typeof manifest.name !== 'string' || manifest.name.trim().length === 0) return undefined
   return typeof manifest.version === 'string' && manifest.version.trim().length > 0
@@ -99,7 +99,7 @@ function nearestManifest(modulePath: string): string | undefined {
 /** Exact package identity resolver with immutable per-process manifest caching. */
 class PackageIdentityResolver {
   // TODO: Invalidate manifest identities if in-process package-version replacement becomes a supported upgrade path.
-  private readonly cache = new Map<string, DeepSeekPluginPackageIdentity | undefined>()
+  private readonly cache = new Map<string, OmegaPluginPackageIdentity | undefined>()
 
   constructor(
     private readonly hostBaseUrl: string,
@@ -107,7 +107,7 @@ class PackageIdentityResolver {
   ) {}
 
   /** Resolve one Loader entry's owning package, or absence for a non-package loose module. */
-  resolve({ moduleName, baseUrl, bareBaseUrl }: ActiveEntry): DeepSeekPluginPackageIdentity | undefined {
+  resolve({ moduleName, baseUrl, bareBaseUrl }: ActiveEntry): OmegaPluginPackageIdentity | undefined {
     /* v8 ignore next -- Loader entry trees inherit a base URL; the fallback supports direct embedders. */
     const treeBase = baseUrl ?? this.hostBaseUrl
     const anchors = [...new Set([bareBaseUrl ?? treeBase, treeBase, this.hostBaseUrl, import.meta.url])]
@@ -119,7 +119,7 @@ class PackageIdentityResolver {
     if (packageName !== undefined) {
       manifest = barePackageManifest(packageName, anchors, this.packages)
       if (manifest === undefined) {
-        throw new Error(`plugin-package-inventory-deepseek: cannot resolve active package ${JSON.stringify(packageName)}`)
+        throw new Error(`plugin-package-inventory-omega: cannot resolve active package ${JSON.stringify(packageName)}`)
       }
     } else if (!moduleName.startsWith('cordis:')) {
       const moduleUrl = isAbsolute(moduleName)
@@ -157,7 +157,7 @@ function collectActivePluginPackages(
   hostBaseUrl: string,
   unreadable: Set<string>,
   sessionId?: string,
-): DeepSeekPluginPackageIdentity[] {
+): OmegaPluginPackageIdentity[] {
   const entries = activeEntries(ctx.loader)
   const presets = ctx.get('agentPresets')
   if (sessionId !== undefined && presets !== undefined) {
@@ -171,15 +171,15 @@ function collectActivePluginPackages(
       }
     }
   }
-  const unique = new Map<string, DeepSeekPluginPackageIdentity>()
+  const unique = new Map<string, OmegaPluginPackageIdentity>()
   for (const activeEntry of entries) {
-    let identity: DeepSeekPluginPackageIdentity | undefined
+    let identity: OmegaPluginPackageIdentity | undefined
     try {
       identity = resolver.resolve(activeEntry)
     } catch (error) {
       if (!unreadable.has(activeEntry.moduleName)) {
         unreadable.add(activeEntry.moduleName)
-        ctx.logger.warn('plugin-package-inventory-deepseek: omitting unreadable package identity for %s: %o', activeEntry.moduleName, error)
+        ctx.logger.warn('plugin-package-inventory-omega: omitting unreadable package identity for %s: %o', activeEntry.moduleName, error)
       }
       continue
     }
@@ -193,7 +193,7 @@ function collectActivePluginPackages(
 
 /**
  * Register the complete `dsh_plugin_packages` request contribution when enabled.
- * @param ctx - plugin context carrying Loader entry metadata and the DeepSeek request-extension registry.
+ * @param ctx - plugin context carrying Loader entry metadata and the Omega request-extension registry.
  * @param config - validated default-on configuration.
  */
 export function apply(ctx: Context, config: Config): void {
@@ -202,9 +202,9 @@ export function apply(ctx: Context, config: Config): void {
   const resolver = new PackageIdentityResolver(hostBaseUrl, ctx.get('pluginPackages'))
   // Unreadable identities are re-resolved on every request; log each module once.
   const unreadable = new Set<string>()
-  ctx.deepseekLlmApiExtensions.register('dsh_plugin_packages', {
+  ctx.omegaLlmApiExtensions.register('dsh_plugin_packages', {
     prepare: (request) => {
-      const value: DeepSeekPluginPackageInventoryExtension = {
+      const value: OmegaPluginPackageInventoryExtension = {
         version: 1,
         packages: collectActivePluginPackages(ctx, resolver, hostBaseUrl, unreadable, request.sessionId),
       }

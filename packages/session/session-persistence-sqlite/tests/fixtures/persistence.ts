@@ -1,13 +1,13 @@
 /** Isolated persistence providers sharing one test-owned storage directory. @module */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { onTestFinished } from 'vitest'
 import * as SqlitePersistence from '../../src/index.ts'
-import * as JsonlPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
-import type { JsonlCompression } from '@deepseek-ai/dsh-session-persistence-jsonl'
-import SessionStore from '@deepseek-ai/dsh-session'
+import * as JsonlPersistence from '@omega-ai/dsh-session-persistence-jsonl'
+import type { JsonlCompression } from '@omega-ai/dsh-session-persistence-jsonl'
+import SessionStore from '@omega-ai/dsh-session'
 
 /**
  * Allocate private storage and close every mounted provider before removing it.

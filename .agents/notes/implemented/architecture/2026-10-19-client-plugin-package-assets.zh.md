@@ -19,9 +19,9 @@ Client 插件包把原始图片放在 `src/client/assets/`。共享预设把每�
 Client 代码用 import 引用图片（`import art from './assets/a.webp'`），包自己的样式表用相对 `url()` 引用，两者都编译成参数为同一个引用的 `require.asset(reference)` 调用；样式表变成字符串字面量与这些调用的拼接，在构建注入文本时执行。模块系统通过 `resolveAsset` 选项回答每次调用；除非载体提供了自己的实现，否则原样返回引用。产出文件名在扩展名前插入内容 revision，即文件字节 SHA-1 摘要的前 12 位十六进制，因此一个 URL 永远只对应一份内容：
 
 ```text
-src/client/assets/running-whale@2x.png
-lib/assets/running-whale@2x-06738fa29b2f.png
-plugins/@deepseek-ai/dsh-client-ui-chat/assets/running-whale%402x-06738fa29b2f.png
+src/client/assets/running-omega@2x.png
+lib/assets/running-omega@2x-3e4f0507d168.png
+plugins/@omega-ai/dsh-client-ui-chat/assets/running-omega%402x-3e4f0507d168.png
 ```
 
 路径逐段先用 `encodeURIComponent` 编码，再编码 `!`、`'`、`(`、`)` 和 `*`，因此引用本身也是合法的无引号 CSS `url()`；包名原样输出。URL 和其他应用自有路由一样相对外壳文档，在任意挂载下、以及在注入的 `<style>` 文本中都能正确解析。组件不需要 hook、注入值或 service：URL 就是模块首次运行时算出的常量。

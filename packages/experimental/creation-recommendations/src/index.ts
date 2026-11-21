@@ -4,18 +4,18 @@ import { cp, mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { z } from 'zod'
-import type { Context } from '@deepseek-ai/cordis'
-import { HarnessError } from '@deepseek-ai/dsh-llm'
-import type {} from '@deepseek-ai/dsh-tools'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { isPluginStopping } from '@deepseek-ai/dsh-action-cards'
-import type { ActionCardFields, ActionCardId, ActionCardProposalOf, ActionCardResult } from '@deepseek-ai/dsh-action-cards'
-import type {} from '@deepseek-ai/dsh-plugin-manager'
-import type {} from '@deepseek-ai/dsh-subagent'
-import type {} from '@deepseek-ai/dsh-app-boot'
-import type {} from '@deepseek-ai/dsh-skill'
+import type { Context } from '@omega-ai/cordis'
+import { HarnessError } from '@omega-ai/dsh-llm'
+import type {} from '@omega-ai/dsh-tools'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { Agent } from '@omega-ai/dsh-agent'
+import { isPluginStopping } from '@omega-ai/dsh-action-cards'
+import type { ActionCardFields, ActionCardId, ActionCardProposalOf, ActionCardResult } from '@omega-ai/dsh-action-cards'
+import type {} from '@omega-ai/dsh-plugin-manager'
+import type {} from '@omega-ai/dsh-subagent'
+import type {} from '@omega-ai/dsh-app-boot'
+import type {} from '@omega-ai/dsh-skill'
 import { registerCreationSkill } from './skill.ts'
 import { validateGeneratedBundle } from './generated-bundle.ts'
 import type { PageData, PageDetails } from './types.ts'
@@ -278,11 +278,11 @@ class PersonalizedPages {
           directory: sourceDirectory, packageName: bundleName,
           packaging: 'Write a package.json with the exact reserved name, version, and dsh.bundle.patch="./cordis.patch.yml". Write cordis.patch.yml as a plain YAML or JSON array containing only {insert:[...]} operations. Do not use groups, aliases, custom tags or includes. Every inserted id must start with the package name plus a colon, and each module name must be this package or one of its exports. Use existing DSH slots and theme tokens. Build and export all runtime entry points before reporting ready. Symlinks must be relative and remain inside this package; the installed copy must work without the source directory.',
           ...(card.customLocation === undefined ? {
-            uiReference: fileURLToPath(import.meta.resolve('@deepseek-ai/dsh-creation-recommendations/references/'
+            uiReference: fileURLToPath(import.meta.resolve('@omega-ai/dsh-creation-recommendations/references/'
               + { 'sidebar-right': 'sidebar-right.md', page: 'session-tab.md', 'sidebar-left': 'sidebar-entry.md' }[card.slot])),
             locationPolicy: 'location and uiReference are the user’s final choice in the card. They override any earlier location described in brief; preserve the requested behavior and data scope while adapting the interface to this chosen location.',
           } : {
-            uiReferences: ['sidebar-right.md', 'session-tab.md', 'sidebar-entry.md'].map(file => fileURLToPath(import.meta.resolve('@deepseek-ai/dsh-creation-recommendations/references/' + file))),
+            uiReferences: ['sidebar-right.md', 'session-tab.md', 'sidebar-entry.md'].map(file => fileURLToPath(import.meta.resolve('@omega-ai/dsh-creation-recommendations/references/' + file))),
             locationPolicy: 'location.request is the user’s final placement instruction, overriding earlier placement in brief. Resolve it using existing documented DSH extension points; the references describe common placements, not a new custom slot. Preserve the requested behavior and data scope. Do not change the application shell or install anything outside this removable plugin. If the placement cannot be implemented, report ready:false instead of silently substituting another location.',
           }),
           lifecycle: 'Read the relevant absolute uiReference or uiReferences bundled with this plugin before implementation; they supplement the dsh-doc plugin-development guide. Follow their registration, persistence and teardown guidance. Unloading must remove only this plugin’s UI and tabs, preserving unrelated content. Generate and build only; the caller installs and validates the live result.',

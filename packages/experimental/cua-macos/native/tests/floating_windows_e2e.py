@@ -30,7 +30,7 @@ def main():
             contents = root / 'FloatingFixture.app/Contents'
             (contents / 'MacOS').mkdir(parents=True)
             (contents / 'Info.plist').write_bytes(plistlib.dumps({
-                'CFBundleIdentifier': 'org.deepseek-harness.' + root.name,
+                'CFBundleIdentifier': 'org.omega-harness.' + root.name,
                 'CFBundleExecutable': 'fixture', 'CFBundleName': 'Floating fixture', 'CFBundlePackageType': 'APPL',
             }))
             binary = contents / 'MacOS/fixture'

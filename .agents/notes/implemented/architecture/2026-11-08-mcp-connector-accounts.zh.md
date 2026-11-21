@@ -10,7 +10,7 @@ Linear、Notion、腾讯文档等连接器插件在 Host 上向 MCP 管理器注
 
 ## 决定
 
-[`@deepseek-ai/dsh-mcp-account`](../../../../packages/mcp/mcp-account/README.zh.md) 提供 `ctx.mcpAccounts`。连接器的 Host 行注册其服务器名、插件包以及点出服务名称的文案；该服务以 `mcp:<server>` 为键，把账号注册到 `ctx.connectorAccounts`。
+[`@omega-ai/dsh-mcp-account`](../../../../packages/mcp/mcp-account/README.zh.md) 提供 `ctx.mcpAccounts`。连接器的 Host 行注册其服务器名、插件包以及点出服务名称的文案；该服务以 `mcp:<server>` 为键，把账号注册到 `ctx.connectorAccounts`。
 
 | 部分 | 选择 |
 |---|---|

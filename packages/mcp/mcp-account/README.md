@@ -3,7 +3,7 @@ description: "Show the OAuth server account of each MCP connector plugin on the 
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-mcp-account
+# @omega-ai/dsh-mcp-account
 
 English | [中文](README.zh.md)
 
@@ -28,7 +28,7 @@ MCP connector plugins such as Linear and Notion register their OAuth server with
 A connector's Host row registers its server with the MCP manager and its account with this service, inside `ctx.inject`, so a composition without the service, such as a headless profile, loads the connector without the page:
 
 ```ts ignore-check
-import type {} from '@deepseek-ai/dsh-mcp-account'
+import type {} from '@omega-ai/dsh-mcp-account'
 
 export function apply(ctx: Context): void {
   ctx.inject(['mcpAccounts'], (scope) => {

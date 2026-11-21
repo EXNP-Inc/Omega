@@ -4,8 +4,8 @@
  * @module
  */
 
-import type { Context } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
+import type { Context } from '@omega-ai/cordis'
+import type { Agent } from '@omega-ai/dsh-agent'
 import { BrowserSessionError } from './error.ts'
 
 export { BROWSER_SESSION_ERROR_CODES, BrowserSessionError, type BrowserSessionErrorCode } from './error.ts'

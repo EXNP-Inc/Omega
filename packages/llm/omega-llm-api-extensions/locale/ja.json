@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "DeepSeek API 拡張",
-    "description": "他のプラグインが DeepSeek モデルのリクエストに拡張フィールドを追加できます。"
+    "title": "Omega API 拡張",
+    "description": "他のプラグインが Omega モデルのリクエストに拡張フィールドを追加できます。"
   }
 }

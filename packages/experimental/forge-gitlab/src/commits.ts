@@ -1,6 +1,6 @@
 /** The commits of a merge request through the REST commit listing, oldest first. */
 
-import type { ChangeRequestRef, ForgeCommit, ForgeCommitList, ForgeFailure } from '@deepseek-ai/dsh-experimental-forge'
+import type { ChangeRequestRef, ForgeCommit, ForgeCommitList, ForgeFailure } from '@omega-ai/dsh-experimental-forge'
 import { z } from 'zod'
 import type { GitLabApi } from './api.ts'
 import { mergeRequestPath } from './urls.ts'

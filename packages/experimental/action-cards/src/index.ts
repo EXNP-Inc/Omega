@@ -1,19 +1,19 @@
 /** Optional action cards below an answer: card state, user actions and status notices for registered kinds. */
-import { FiberState, Service, type Context } from '@deepseek-ai/cordis'
+import { FiberState, Service, type Context } from '@omega-ai/cordis'
 import type { ZodType } from 'zod'
-import { Remote, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
-import { appendPluginRecord, SessionSeq, type Session } from '@deepseek-ai/dsh-session'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import type { ProjectionHandle } from '@deepseek-ai/dsh-session-projection'
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
-import type {} from '@deepseek-ai/dsh-api-remote-access'
-import type {} from '@deepseek-ai/dsh-sandbox-policy'
+import { Remote, TypertRemoteService } from '@omega-ai/dsh-typert-protocol'
+import { createUserMessage } from '@omega-ai/dsh-llm'
+import { appendPluginRecord, SessionSeq, type Session } from '@omega-ai/dsh-session'
+import type { Agent } from '@omega-ai/dsh-agent'
+import type { ProjectionHandle } from '@omega-ai/dsh-session-projection'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
+import type {} from '@omega-ai/dsh-api-remote-access'
+import type {} from '@omega-ai/dsh-sandbox-policy'
 import { actionCardProjection, type ActionCardState } from './projection.ts'
 import type { ActionCardDecision, ActionCardFields, ActionCardId, ActionCardProposal, ActionCardResult, ActionCardView } from './types.ts'
 export type * from './types.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context { actionCards: ActionCards }
 }
 

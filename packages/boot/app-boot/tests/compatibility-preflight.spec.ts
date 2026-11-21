@@ -3,9 +3,9 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync,
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { Context } from '@deepseek-ai/cordis'
-import { parseEntryYaml, type PatchOptions } from '@deepseek-ai/cordis-plugin-include'
-import type { EntryOptions } from '@deepseek-ai/cordis-plugin-loader'
+import { Context } from '@omega-ai/cordis'
+import { parseEntryYaml, type PatchOptions } from '@omega-ai/cordis-plugin-include'
+import type { EntryOptions } from '@omega-ai/cordis-plugin-loader'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import {
   PROFILE_COMPATIBILITY_FILENAME, PluginPackages, boot, getDshRuntimeVersion,
@@ -35,7 +35,7 @@ function fixture() {
     mkdirSync(packageDir, { recursive: true })
     writeFileSync(join(packageDir, 'package.json'), JSON.stringify({
       name, version: options.version ?? '1.0.0', type: 'module', exports: './index.mjs',
-      ...options.peer === undefined ? {} : { peerDependencies: { '@deepseek-ai/dsh-test': options.peer } },
+      ...options.peer === undefined ? {} : { peerDependencies: { '@omega-ai/dsh-test': options.peer } },
     }))
     writeFileSync(join(packageDir, 'index.mjs'), `import { appendFileSync } from 'node:fs'
 const record = (value) => appendFileSync(new URL('${pathToFileURL(effects).href}'), value + '\\n')
@@ -120,7 +120,7 @@ it('blocks a denied plugin reached through a package-imports alias', async () =>
   mkdirSync(aliased)
   writeFileSync(join(aliased, 'package.json'), JSON.stringify({
     name: 'denied-plugin', version: '1.0.0', type: 'module', exports: './index.mjs',
-    peerDependencies: { '@deepseek-ai/dsh-test': '^9.0.0' },
+    peerDependencies: { '@omega-ai/dsh-test': '^9.0.0' },
   }))
   writeFileSync(join(aliased, 'index.mjs'), `import { appendFileSync } from 'node:fs'
 appendFileSync(new URL('${pathToFileURL(join(f.dir, 'effects')).href}'), 'import:denied-plugin\\n')
@@ -172,7 +172,7 @@ it('denies a row whose peer metadata cannot be validated', async () => {
   const f = fixture()
   f.plugin('malformed-plugin')
   writeFileSync(join(f.dir, 'node_modules', 'malformed-plugin', 'package.json'),
-    JSON.stringify({ name: 'malformed-plugin', version: '1.0.0', peerDependencies: ['@deepseek-ai/dsh'] }))
+    JSON.stringify({ name: 'malformed-plugin', version: '1.0.0', peerDependencies: ['@omega-ai/dsh'] }))
   expect(await f.run(insert('malformed-plugin'))).toEqual([])
   expect(f.warnings.join('\n')).toContain('cannot be validated')
 })

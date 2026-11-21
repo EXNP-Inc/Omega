@@ -3,7 +3,7 @@ description: "Complete V3-to-V4 Session conversion and native admission: tool-ro
 kind: "package-library"
 ---
 
-# @deepseek-ai/dsh-session-format-v3-to-v4
+# @omega-ai/dsh-session-format-v3-to-v4
 
 English | [中文](README.zh.md)
 
@@ -124,8 +124,8 @@ A plugin source requires a string `plugin`, including the empty string. Conversi
 | `compact` | `compact-checkpoint` |
 | `tools-code-mode`, `tools-ptc` | `ptc-mode` |
 | `dsh-compaction-basic` | `compact-basic` |
-| `@deepseek-ai/dsh-system-prompt`, on a system-role message | `system-prompt` |
-| `@deepseek-ai/dsh-system-prompt`, on another role | `runtime-context` |
+| `@omega-ai/dsh-system-prompt`, on a system-role message | `system-prompt` |
+| `@omega-ai/dsh-system-prompt`, on another role | `runtime-context` |
 | Same-name first-party producers listed below | The exact plugin string |
 | Any other plugin name | `plugin:` followed by the complete original name |
 
@@ -170,7 +170,7 @@ For a seeded Session, the last `session/end-seed` carrying `inherited: true` ide
 
 | Delivery record | Admission and preservation |
 |---|---|
-| Any interpreted `session-log-deepseek/delivery-accepted` | Generation must be a nonnegative safe integer; omission identifies V0. |
+| Any interpreted `session-log-omega/delivery-accepted` | Generation must be a nonnegative safe integer; omission identifies V0. |
 | V3 source marker claiming generation 4 | Refuse: advancing the header must not activate a target-generation watermark. |
 | V3 source marker for generation 3 | Require a nonempty Session id and nonnegative safe-integer `throughSeq` before the marker; a foreign id is allowed only before the inherited cut with `parentSession`. |
 | Other source generations, including values above 4 | Retain their event type and payload coordinates unchanged; they remain inactive in V4. |

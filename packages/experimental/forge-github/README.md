@@ -3,7 +3,7 @@ description: "Serve the experimental forge registry for GitHub hosts through the
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-experimental-forge-github
+# @omega-ai/dsh-experimental-forge-github
 
 English | [中文](README.zh.md)
 
@@ -28,13 +28,13 @@ Read GitHub and GitHub Enterprise pull requests for `ctx.forge` with the GitHub 
 Mount the provider after the forge registry and list every GitHub Enterprise host explicitly.
 
 ```yaml
-- name: '@deepseek-ai/dsh-experimental-forge'
-- name: '@deepseek-ai/dsh-experimental-forge-github'
+- name: '@omega-ai/dsh-experimental-forge'
+- name: '@omega-ai/dsh-experimental-forge-github'
   config:
     hosts: [github.com, ghe.example.com]
 ```
 
-The provider runs `gh` as a host process, even when Sessions execute commands in another execution world. Sign in once per host with `gh auth login --hostname <host>`. The child receives the host environment without `DSH_*` variables and without variables whose names contain `KEY`, `PASSWORD`, `SECRET`, or `TOKEN`, so `GH_TOKEN` and `GITHUB_TOKEN` are not forwarded and `gh` uses its own credential store. Prompts, update notices, pagers, and colors are disabled. `maxOutputBytes`, `maxReviewThreads`, `maxCommits`, `maxViewedFiles`, and `maxViewerItems` must be positive safe integers, and `maxViewerItems` at most 100; only `timeoutMs` is bounded by the runtime timer limit. `ghCommand`, `hosts`, `timeoutMs`, `maxOutputBytes`, `maxReviewThreads`, `maxCommits`, `maxViewedFiles`, and `maxViewerItems` are listed in the [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-experimental-forge-github).
+The provider runs `gh` as a host process, even when Sessions execute commands in another execution world. Sign in once per host with `gh auth login --hostname <host>`. The child receives the host environment without `DSH_*` variables and without variables whose names contain `KEY`, `PASSWORD`, `SECRET`, or `TOKEN`, so `GH_TOKEN` and `GITHUB_TOKEN` are not forwarded and `gh` uses its own credential store. Prompts, update notices, pagers, and colors are disabled. `maxOutputBytes`, `maxReviewThreads`, `maxCommits`, `maxViewedFiles`, and `maxViewerItems` must be positive safe integers, and `maxViewerItems` at most 100; only `timeoutMs` is bounded by the runtime timer limit. `ghCommand`, `hosts`, `timeoutMs`, `maxOutputBytes`, `maxReviewThreads`, `maxCommits`, `maxViewedFiles`, and `maxViewerItems` are listed in the [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-experimental-forge-github).
 
 While [forge-session](../forge-session/README.md) runs, the plugin registers the `gh` command rule with it. `gh pr create` and `gh pr new` bind the pull requests they print. `gh pr view`, `gh pr edit`, and `gh pr checkout` bind the pull request that a URL selects, or a number with `--repo`, `--repo=`, or `-R` before or after it; a repository that contains its host, or a literal `GH_HOST` assignment, supplies the URL directly, and any other repository resolves through `gh pr view <number> --repo <repository> --json url --jq .url` in the call's shell. `gh api` binds the pull request its REST path names, such as `repos/octo/demo/pulls/7/files`: directly when `--hostname` or a literal `GH_HOST` assignment names the host, else through the same `gh pr view` lookup, without `--repo` for the `{owner}/{repo}` placeholders.
 

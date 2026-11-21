@@ -3,7 +3,7 @@ import {
   SessionFormatUnsupportedMigrationError,
   defineSessionFormatMigration,
   sessionFormatCount,
-} from '@deepseek-ai/dsh-session-format'
+} from '@omega-ai/dsh-session-format'
 import type {
   SessionFormatEvent,
   SessionFormatEventRun,
@@ -13,7 +13,7 @@ import type {
   SessionFormatMigrationContext,
   SessionFormatMigrationStage,
   SessionFormatMigrationStageInput,
-} from '@deepseek-ai/dsh-session-format'
+} from '@omega-ai/dsh-session-format'
 import { isReleasedAssistantChunkRun } from './codec.ts'
 import {
   assertReleasedEventPayload,
@@ -25,7 +25,7 @@ const LEGACY_ASSISTANT_SOURCE_KEY = ['pro', 'venance'].join('')
 
 /** Identity format edge that promotes released v0 into released v1. */
 export const sessionFormatV0ToV1 = defineSessionFormatMigration({
-  name: '@deepseek-ai/dsh-session-format-v0-to-v1',
+  name: '@omega-ai/dsh-session-format-v0-to-v1',
   fromVersion: 0,
   toVersion: 1,
   migrateHeader(header) {
@@ -122,7 +122,7 @@ function assertSourceDeliveryMarker(
   event: SessionFormatEvent,
   input: SessionFormatMigrationStageInput,
 ): void {
-  if (event.type !== 'session-log-deepseek/delivery-accepted') return
+  if (event.type !== 'session-log-omega/delivery-accepted') return
   const data = releasedV0Record(event.data, `${event.type} ${event.seq} data`)
   const acceptedVersion = data['sessionFormatVersion'] ?? 0
   const inherited = input.sourceHeader.parentSession !== undefined

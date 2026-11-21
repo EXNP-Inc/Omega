@@ -4,7 +4,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { DeepSeekHarness } from '@deepseek-ai/dsh-sdk-client'
+import { OmegaHarness } from '@omega-ai/dsh-sdk-client'
 import { expect, it } from 'vitest'
 import { z } from 'zod'
 import { profileEnvironment } from './fixtures/profile-environment.ts'
@@ -33,7 +33,7 @@ it.for(['standard', 'ptc'] as const)('keeps %s plugin changes pending until the 
           const messages = current.messages as { content: { type: string; content?: { text: string }[] }[] }[]
           const result = messages.flatMap(message => message.content).findLast(block => block.type === 'tool_result')
           const page = listPage.parse(JSON.parse(result!.content![0]!.text))
-          const row = page.entries.find(entry => entry.moduleName === '@deepseek-ai/dsh-tool-web')
+          const row = page.entries.find(entry => entry.moduleName === '@omega-ai/dsh-tool-web')
           if (row !== undefined) {
             args = { action: 'set_plugin', target: row.entryId, enabled: false }
             phase = 'set'
@@ -68,11 +68,11 @@ it.for(['standard', 'ptc'] as const)('keeps %s plugin changes pending until the 
   if (address === null || typeof address === 'string') throw new Error('model fixture has no TCP address')
   const env = profileEnvironment(root, `http://127.0.0.1:${address.port}`)
   const options = {
-    cwd: root, processCwd: root, dshHome: join(root, 'home'), env, model: 'deepseek-v4-pro',
+    cwd: root, processCwd: root, dshHome: join(root, 'home'), env, model: 'omega-v4-pro',
     patches: mode === 'ptc' ? [fileURLToPath(new URL('../../../config/examples/ptc.yml', import.meta.url))] : [],
   }
   async function run(restarted: boolean): Promise<void> {
-    const harness = new DeepSeekHarness(options)
+    const harness = new OmegaHarness(options)
     const abort = (): void => { void harness.close() }
     test.signal.addEventListener('abort', abort, { once: true })
     try {
@@ -117,7 +117,7 @@ it.for(['unavailable', 'approved', 'missing-pnpm'] as const)('reports the %s plu
       try { requests.push(JSON.parse(body) as Record<string, unknown>) }
       catch (error) { fixtureError = error }
       const args = scenario === 'missing-pnpm'
-        ? { action: 'install_bundle', target: '@deepseek-ai/dsh-subagent-codex' }
+        ? { action: 'install_bundle', target: '@omega-ai/dsh-subagent-codex' }
         : { action: 'list_plugins', limit: 1 }
       const call = { type: 'tool_use', id: 'prerequisite', name: 'plugin_manager', input: args }
       response.writeHead(200, { 'content-type': 'text/event-stream' })
@@ -138,8 +138,8 @@ it.for(['unavailable', 'approved', 'missing-pnpm'] as const)('reports the %s plu
     for (const key of Object.keys(env)) if (key.toLowerCase() === 'path') Reflect.deleteProperty(env, key)
     env.PATH = root
   }
-  const harness = new DeepSeekHarness({ cwd: root, processCwd: root, dshHome: join(root, 'home'),
-    env, model: 'deepseek-v4-pro', approvalRequests: scenario === 'approved' })
+  const harness = new OmegaHarness({ cwd: root, processCwd: root, dshHome: join(root, 'home'),
+    env, model: 'omega-v4-pro', approvalRequests: scenario === 'approved' })
   let approvals = 0
   const abort = (): void => { void harness.close() }
   test.signal.addEventListener('abort', abort, { once: true })

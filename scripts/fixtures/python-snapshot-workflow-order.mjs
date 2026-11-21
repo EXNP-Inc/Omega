@@ -2,7 +2,7 @@
 export const name = 'python-snapshot-workflow-order'
 
 /**
- * @param {import('@deepseek-ai/cordis').Context} ctx - Scenario-local host context.
+ * @param {import('@omega-ai/cordis').Context} ctx - Scenario-local host context.
  * @param {{ parentSessionId: string, prompt: string, direct?: { prompt: string, callId: string } }} config - Exact advanced scenario identities.
  */
 export function apply(ctx, config) {
@@ -30,7 +30,7 @@ export function apply(ctx, config) {
     if (event.type === 'tool/result' && event.data.message.source.callId === config.direct.callId) directResultSeq = event.seq
     if (directResultSeq === undefined) return
     if (event.type === 'step/start') directStep = true
-    if (event.type === 'session-log-deepseek/delivery-accepted' && event.data.throughSeq >= directResultSeq) {
+    if (event.type === 'session-log-omega/delivery-accepted' && event.data.throughSeq >= directResultSeq) {
       directDelivered = true
     }
     if (directStep && directDelivered) {

@@ -23,7 +23,7 @@ jobs:
           node-version: '24'
           package-manager-cache: false
 
-      - uses: deepseek-harness/deepseek-harness-check@master
+      - uses: omega-harness/omega-harness-check@master
         with:
           check: recheck
           base-branch: ${{ github.ref_name }}

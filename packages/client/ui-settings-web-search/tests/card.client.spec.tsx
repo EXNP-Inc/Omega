@@ -3,9 +3,9 @@
 
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { bindSnapshotSelector } from '@deepseek-ai/dsh-client-test-runtime'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { SettingsFieldState, SettingsFormShell } from '@deepseek-ai/dsh-client-ui-primitives'
+import { bindSnapshotSelector } from '@omega-ai/dsh-client-test-runtime'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import type { SettingsFieldState, SettingsFormShell } from '@omega-ai/dsh-client-ui-primitives'
 import { WebSearchCard, type WebSearchCardProps } from '../src/client/WebSearchCard.tsx'
 import type { WebProviderOption, WebSearchCardState } from '../src/client/web-search-card-controller.ts'
 import { en, zh } from '../src/client/locales.ts'
@@ -23,14 +23,14 @@ function field(text: string, rest: Partial<SettingsFieldState> = {}): SettingsFi
 
 /** Each official provider's registered description; the page shows the active language's entry. */
 const DESCRIPTIONS: Record<string, { en: string; zh: string }> = {
-  'deepseek-search-api': {
-    en: 'Search API description. Incurs charges, billed to the DeepSeek account or DeepSeek API key that the Billing setting selects.',
-    zh: 'Search API 说明。会产生费用，按「计费方式」向 DeepSeek 账号或 DeepSeek API Key 计费。',
+  'omega-search-api': {
+    en: 'Search API description. Incurs charges, billed to the Omega account or Omega API key that the Billing setting selects.',
+    zh: 'Search API 说明。会产生费用，按「计费方式」向 Omega 账号或 Omega API Key 计费。',
   },
   'http': { en: 'Direct fetch description.', zh: '本机获取说明' },
   'deepseek-fetch-api': {
-    en: 'Fetch API description. Incurs charges, billed to the DeepSeek account or DeepSeek API key that the Billing setting selects.',
-    zh: 'Fetch API 说明。会产生费用，按「计费方式」向 DeepSeek 账号或 DeepSeek API Key 计费。',
+    en: 'Fetch API description. Incurs charges, billed to the Omega account or Omega API key that the Billing setting selects.',
+    zh: 'Fetch API 说明。会产生费用，按「计费方式」向 Omega 账号或 Omega API Key 计费。',
   },
 }
 
@@ -39,19 +39,19 @@ function options(...ids: string[]): WebProviderOption[] {
 }
 
 /** Menu entries as the controller orders them. */
-const SEARCH_OPTIONS = options('deepseek-search-api', 'deepseek-official')
+const SEARCH_OPTIONS = options('omega-search-api', 'omega-official')
 const FETCH_OPTIONS = options('http', 'deepseek-fetch-api')
 
 /** The locale service's resolution, with Chinese active. */
 const resolveText = vi.fn((text: string | { en: string; [locale: string]: string }) => typeof text === 'string' ? text : text.zh ?? text.en)
 
-/** The shipped selection: the DeepSeek Search API with local fetch. */
+/** The shipped selection: the Omega Search API with local fetch. */
 function shipped(): WebSearchCardState {
   return {
     ...settled,
     selectionBlocked: false,
     providersFailed: false,
-    search: { selected: 'deepseek-search-api', options: SEARCH_OPTIONS, kind: 'deepseek', auto: false },
+    search: { selected: 'omega-search-api', options: SEARCH_OPTIONS, kind: 'omega', auto: false },
     fetch: { selected: 'http', options: FETCH_OPTIONS, kind: 'local', auto: false },
     count: field('10'),
     searchBilling: { value: 'auto', overridden: false, advancedOverride: [] },
@@ -62,11 +62,11 @@ function shipped(): WebSearchCardState {
   }
 }
 
-/** Both DeepSeek API providers selected. */
+/** Both Omega API providers selected. */
 function apis(): WebSearchCardState {
   const base = shipped()
   return {
-    ...base, fetch: { ...base.fetch, selected: 'deepseek-fetch-api', kind: 'deepseek' }, fetchBilling: { value: 'account', overridden: true, advancedOverride: [] },
+    ...base, fetch: { ...base.fetch, selected: 'deepseek-fetch-api', kind: 'omega' }, fetchBilling: { value: 'account', overridden: true, advancedOverride: [] },
   }
 }
 
@@ -75,9 +75,9 @@ function legacy(key: Partial<NonNullable<WebSearchCardState['legacyKey']>> = {})
   const base = shipped()
   return {
     ...base,
-    search: { ...base.search, selected: 'deepseek-official', kind: 'legacy' },
+    search: { ...base.search, selected: 'omega-official', kind: 'legacy' },
     searchBilling: undefined,
-    legacyKey: { ...field(''), ref: 'DEEPSEEK_API_KEY', configured: false, writable: true, ...key },
+    legacyKey: { ...field(''), ref: 'OMEGA_API_KEY', configured: false, writable: true, ...key },
   }
 }
 
@@ -118,15 +118,15 @@ const paragraphs = (name: string) => [...screen.getByRole('region', { name }).qu
 const billingMenu = (name: string) => region(name).getByRole('button', { name: new RegExp(`^${en.billing} `) })
 
 describe('WebSearchCard billing', () => {
-  it('shows each DeepSeek API billing menu with the selected billing and its explanation', () => {
+  it('shows each Omega API billing menu with the selected billing and its explanation', () => {
     renderPage(apis())
     expect(billingMenu(en.searchSection).textContent).toBe('Automatic')
-    expect(billingMenu(en.fetchSection).textContent).toBe('Signed-in DeepSeek account')
+    expect(billingMenu(en.fetchSection).textContent).toBe('Signed-in Omega account')
     expect(region(en.searchSection).getByText(
-      "Follows the conversation's DeepSeek account or API key; with other models, uses the API key first, then the signed-in account.",
+      "Follows the conversation's Omega account or API key; with other models, uses the API key first, then the signed-in account.",
       { exact: true },
     )).toBeTruthy()
-    expect(region(en.fetchSection).getByText('Requires signing in to DeepSeek.', { exact: true }))
+    expect(region(en.fetchSection).getByText('Requires signing in to Omega.', { exact: true }))
       .toBeTruthy()
     expect(screen.queryByText(/^Overridden by /)).toBeNull()
   })
@@ -153,8 +153,8 @@ describe('WebSearchCard billing', () => {
     const { actions } = renderPage(apis())
     fireEvent.click(billingMenu(en.fetchSection))
     expect(screen.getAllByRole('menuitem').map(item => item.textContent))
-      .toEqual(['Automatic', 'Signed-in DeepSeek account', 'DeepSeek API key'])
-    fireEvent.click(screen.getByRole('menuitem', { name: 'DeepSeek API key' }))
+      .toEqual(['Automatic', 'Signed-in Omega account', 'Omega API key'])
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Omega API key' }))
     fireEvent.click(billingMenu(en.searchSection))
     fireEvent.click(screen.getByRole('menuitem', { name: 'Automatic' }))
     expect(actions.selectBilling.mock.calls).toEqual([['fetch', 'api-key']])
@@ -162,7 +162,7 @@ describe('WebSearchCard billing', () => {
 
   it('explains API-key billing', () => {
     renderPage({ ...shipped(), searchBilling: { value: 'api-key', overridden: true, advancedOverride: [] } })
-    expect(billingMenu(en.searchSection).textContent).toBe('DeepSeek API key')
+    expect(billingMenu(en.searchSection).textContent).toBe('Omega API key')
     expect(region(en.searchSection).getByText('Uses the API key from the Models page; set one first.', { exact: true }))
       .toBeTruthy()
   })
@@ -186,18 +186,18 @@ describe('WebSearchCard billing', () => {
 
   it('carries the approved billing copy in both locales', () => {
     expect([en.billing, en.billingAuto, en.billingAccount, en.billingApiKey])
-      .toEqual(['Billing', 'Automatic', 'Signed-in DeepSeek account', 'DeepSeek API key'])
+      .toEqual(['Billing', 'Automatic', 'Signed-in Omega account', 'Omega API key'])
     expect([zh.billing, zh.billingAuto, zh.billingAccount, zh.billingApiKey])
-      .toEqual(['计费方式', '自动', '已登录的 DeepSeek 账号', 'DeepSeek API Key'])
+      .toEqual(['计费方式', '自动', '已登录的 Omega 账号', 'Omega API Key'])
     expect([zh.billingAutoHint, zh.billingAccountHint, zh.billingApiKeyHint, zh.billingAdvancedOverride]).toEqual([
-      '跟随当前会话的 DeepSeek 账号或 API Key；会话用其他模型时，优先用 API Key，没有则用已登录账号。',
-      '需要先登录 DeepSeek 账号。',
+      '跟随当前会话的 Omega 账号或 API Key；会话用其他模型时，优先用 API Key，没有则用已登录账号。',
+      '需要先登录 Omega 账号。',
       '使用「模型」页配置的 API Key，需要先配置。',
       '已被 {fields} 覆盖',
     ])
     expect([en.billingAutoHint, en.billingAccountHint, en.billingApiKeyHint, en.billingAdvancedOverride]).toEqual([
-      "Follows the conversation's DeepSeek account or API key; with other models, uses the API key first, then the signed-in account.",
-      'Requires signing in to DeepSeek.',
+      "Follows the conversation's Omega account or API key; with other models, uses the API key first, then the signed-in account.",
+      'Requires signing in to Omega.',
       'Uses the API key from the Models page; set one first.',
       'Overridden by {fields}',
     ])
@@ -207,8 +207,8 @@ describe('WebSearchCard billing', () => {
 describe('WebSearchCard', () => {
   it('offers legacy search in both locales and renders its own settings', () => {
     const { actions } = renderPage(legacy())
-    expect(searchMenu().textContent).toBe('DeepSeek server-side search')
-    expect(zh.providerLegacy).toBe('DeepSeek 服务端搜索')
+    expect(searchMenu().textContent).toBe('Omega server-side search')
+    expect(zh.providerLegacy).toBe('Omega 服务端搜索')
     expect(screen.queryByLabelText(en.count)).toBeNull()
     fireEvent.change(screen.getByLabelText(en.credential), { target: { value: 'new-key' } })
     fireEvent.change(screen.getByLabelText(en.baseUrl), { target: { value: 'https://messages.test/v1' } })
@@ -247,7 +247,7 @@ describe('WebSearchCard', () => {
   it('names each provider menu by its section title and the selected provider, with no label of its own', () => {
     renderPage()
     expect(searchMenu().getAttribute('aria-labelledby')).toBe('plugin-config-web-search-section plugin-config-web-search-provider-value')
-    expect(screen.getByRole('button', { name: `${en.searchSection} ${en.providerDeepSeek}` })).toBe(searchMenu())
+    expect(screen.getByRole('button', { name: `${en.searchSection} ${en.providerOmega}` })).toBe(searchMenu())
     expect(screen.getByRole('button', { name: `${en.fetchSection} ${en.providerLocal}` })).toBe(fetchMenu())
     for (const title of [en.searchSection, en.fetchSection]) expect(screen.getAllByText(title)).toHaveLength(1)
     expect(document.querySelectorAll('label[for="plugin-config-web-search-provider"], label[for="plugin-config-web-fetch-provider"]')).toHaveLength(0)
@@ -255,18 +255,18 @@ describe('WebSearchCard', () => {
 
   it('shows the Search API result count in a panel, and gives local fetch no panel', () => {
     renderPage()
-    expect(searchMenu().textContent).toBe(en.providerDeepSeek)
+    expect(searchMenu().textContent).toBe(en.providerOmega)
     expect(fetchMenu().textContent).toBe(en.providerLocal)
-    expect(region(en.searchSection).getByText(DESCRIPTIONS['deepseek-search-api']!.zh)).toBeTruthy()
+    expect(region(en.searchSection).getByText(DESCRIPTIONS['omega-search-api']!.zh)).toBeTruthy()
     expect(region(en.fetchSection).getByText('本机获取说明')).toBeTruthy()
     expect(region(en.searchSection).getByLabelText(en.count)).toHaveProperty('value', '10')
     for (const label of [en.credential, en.baseUrl]) expect(screen.queryByLabelText(label)).toBeNull()
     expect(region(en.fetchSection).queryByRole('textbox')).toBeNull()
   })
 
-  it('shows the DeepSeek Fetch API description under its provider menu, and its billing panel after it', () => {
+  it('shows the Omega Fetch API description under its provider menu, and its billing panel after it', () => {
     renderPage(apis())
-    expect(fetchMenu().textContent).toBe(en.providerDeepSeekFetch)
+    expect(fetchMenu().textContent).toBe(en.providerOmegaFetch)
     expect(region(en.fetchSection).getByText(DESCRIPTIONS['deepseek-fetch-api']!.zh)).toBeTruthy()
     expect(screen.getAllByRole('button').filter(button => button.hasAttribute('aria-expanded')).map(button => button.id)).toEqual([
       'plugin-config-web-search-provider', 'plugin-config-web-search-billing',
@@ -287,15 +287,15 @@ describe('WebSearchCard', () => {
     expect(actions.resetField.mock.calls).toEqual([['count']])
   })
 
-  it('shows the DeepSeek search guide after the Search API description, and the Fetch API description', () => {
+  it('shows the Omega search guide after the Search API description, and the Fetch API description', () => {
     renderPage(apis())
-    expect(fetchMenu().textContent).toBe(en.providerDeepSeekFetch)
+    expect(fetchMenu().textContent).toBe(en.providerOmegaFetch)
     const guide = screen.getByRole('link', { name: en.searchGuide })
     expect(guide).toHaveProperty('href', en.searchGuideUrl)
     expect(guide.getAttribute('target')).toBe('_blank')
     expect(guide.getAttribute('rel')).toBe('noopener noreferrer')
     // The description comes first; the guide link is the page's own line after it.
-    expect(paragraphs(en.searchSection).slice(0, 2)).toEqual([DESCRIPTIONS['deepseek-search-api']!.zh, en.searchGuide])
+    expect(paragraphs(en.searchSection).slice(0, 2)).toEqual([DESCRIPTIONS['omega-search-api']!.zh, en.searchGuide])
   })
 
   it('shows no settings while neither provider takes them', () => {
@@ -308,15 +308,15 @@ describe('WebSearchCard', () => {
     const { actions } = renderPage()
     fireEvent.click(searchMenu())
     expect(searchMenu().getAttribute('aria-expanded')).toBe('true')
-    expect(screen.getAllByRole('menuitem').map(item => item.textContent)).toEqual([en.providerDeepSeek, en.providerLegacy])
-    fireEvent.click(screen.getByRole('menuitem', { name: en.providerDeepSeek }))
+    expect(screen.getAllByRole('menuitem').map(item => item.textContent)).toEqual([en.providerOmega, en.providerLegacy])
+    fireEvent.click(screen.getByRole('menuitem', { name: en.providerOmega }))
     expect(screen.queryByRole('menuitem')).toBeNull()
     fireEvent.click(fetchMenu())
-    expect(screen.getAllByRole('menuitem').map(item => item.textContent)).toEqual([en.providerLocal, en.providerDeepSeekFetch])
+    expect(screen.getAllByRole('menuitem').map(item => item.textContent)).toEqual([en.providerLocal, en.providerOmegaFetch])
     fireEvent.click(screen.getByRole('menuitem', { name: en.providerLocal }))
     expect(actions.selectProvider).not.toHaveBeenCalled()
     fireEvent.click(fetchMenu())
-    fireEvent.click(screen.getByRole('menuitem', { name: en.providerDeepSeekFetch }))
+    fireEvent.click(screen.getByRole('menuitem', { name: en.providerOmegaFetch }))
     expect(actions.selectProvider).toHaveBeenLastCalledWith('fetchProvider', 'deepseek-fetch-api')
     expect(actions.save).not.toHaveBeenCalled()
   })
@@ -368,7 +368,7 @@ describe('WebSearchCard', () => {
     expect(screen.queryByText(en.credential)).toBeNull()
     fireEvent.click(searchMenu())
     expect(screen.getAllByRole('menuitem').map(item => item.textContent))
-      .toEqual([en.providerDeepSeek, en.providerLegacy, 'Exa', 'perplexity (not loaded)'])
+      .toEqual([en.providerOmega, en.providerLegacy, 'Exa', 'perplexity (not loaded)'])
   })
 
   it('explains a plugin Search provider and an unselected Fetch provider', () => {
@@ -387,7 +387,7 @@ describe('WebSearchCard', () => {
     })
     expect(fetchMenu().textContent).toBe(en.providerAuto)
     fireEvent.click(searchMenu())
-    expect(screen.getAllByRole('menuitem').map(item => item.textContent)).toEqual([en.providerAuto, en.providerDeepSeek, en.providerLegacy])
+    expect(screen.getAllByRole('menuitem').map(item => item.textContent)).toEqual([en.providerAuto, en.providerOmega, en.providerLegacy])
     fireEvent.click(screen.getByRole('menuitem', { name: en.providerAuto }))
     expect(actions.selectProvider).toHaveBeenCalledWith('searchProvider', '')
     fireEvent.click(fetchMenu())
@@ -408,7 +408,7 @@ describe('WebSearchCard', () => {
     const base = shipped()
     renderPage({
       ...base,
-      search: { ...base.search, selected: 'deepseek-official', kind: 'none', auto: true },
+      search: { ...base.search, selected: 'omega-official', kind: 'none', auto: true },
       fetch: { ...base.fetch, selected: '', kind: 'none', auto: true },
     })
     expect(fetchMenu().textContent).toBe(en.providerAuto)
@@ -424,7 +424,7 @@ describe('WebSearchCard', () => {
     }
     expect(zh.providersFailed).toBe('无法读取提供方列表，此菜单可能不完整')
     expect(actions.retryProviders).toHaveBeenCalledTimes(2)
-    expect(searchMenu().textContent).toBe(en.providerDeepSeek)
+    expect(searchMenu().textContent).toBe(en.providerOmega)
   })
 
   it('shows no provider list notice while the list read succeeds', () => {

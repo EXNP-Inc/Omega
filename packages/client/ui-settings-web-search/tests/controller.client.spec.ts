@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { SettingsPathOpView } from '@deepseek-ai/dsh-api-remotes/client'
-import { RemoteError, stubConfigForm, type StubConfigForm } from '@deepseek-ai/dsh-client-test-runtime'
+import type { SettingsPathOpView } from '@omega-ai/dsh-api-remotes/client'
+import { RemoteError, stubConfigForm, type StubConfigForm } from '@omega-ai/dsh-client-test-runtime'
 import {
   WebSearchCardController,
   type WebApiSettings, type WebLegacySettings, type WebProviderSelection,
@@ -35,7 +35,7 @@ function ctxWith(namespaces: object) {
 
 /** Providers the shipped composition registers, in registration order. */
 const SHIPPED_PROVIDERS = {
-  search: [{ id: 'deepseek-search-api' }, { id: 'deepseek-official' }],
+  search: [{ id: 'omega-search-api' }, { id: 'omega-official' }],
   fetch: [{ id: 'http' }, { id: 'deepseek-fetch-api' }],
 }
 
@@ -44,7 +44,7 @@ type ProviderList = { search: ProviderEntry[]; fetch: ProviderEntry[] }
 type ProviderResponse = { ok: true; value: ProviderList } | { ok: false; error: RemoteError }
 
 /** The legacy key's default reference. */
-const LEGACY_KEY = 'DEEPSEEK_API_KEY'
+const LEGACY_KEY = 'OMEGA_API_KEY'
 
 function remoteApi(configured: boolean | Record<string, boolean>) {
   const answer = (ref: string) => typeof configured === 'boolean' ? configured : configured[ref] ?? false
@@ -57,11 +57,11 @@ function remoteApi(configured: boolean | Record<string, boolean>) {
   return { ctx: ctxWith({ credentials: { describe, set }, web: { listProviders } }), describe, set, listProviders }
 }
 
-/** The shipped composition's selection: the DeepSeek Search API and local HTTP fetch. */
-const SHIPPED_SELECTION = { searchProvider: 'deepseek-search-api', fetchProvider: 'http' }
+/** The shipped composition's selection: the Omega Search API and local HTTP fetch. */
+const SHIPPED_SELECTION = { searchProvider: 'omega-search-api', fetchProvider: 'http' }
 
 /** Legacy Messages search with local HTTP fetch, the selection that shows the key control. */
-const LEGACY_SELECTION = { searchProvider: 'deepseek-official', fetchProvider: 'http' }
+const LEGACY_SELECTION = { searchProvider: 'omega-official', fetchProvider: 'http' }
 
 /**
  * Mount the controller over three stub scopes.
@@ -105,8 +105,8 @@ function serve(
   b.legacy.publish({ status: 'ready', writable: true, value: legacy, base: legacy, user: {} })
 }
 
-/** Both DeepSeek API providers selected. */
-const API_SELECTION = { searchProvider: 'deepseek-search-api', fetchProvider: 'deepseek-fetch-api' }
+/** Both Omega API providers selected. */
+const API_SELECTION = { searchProvider: 'omega-search-api', fetchProvider: 'deepseek-fetch-api' }
 
 /** The shipped providers plus the plugin providers `exa` (Search) and `jina` (Fetch). */
 const WITH_PLUGINS = {
@@ -228,7 +228,7 @@ describe('WebSearchCardController legacy key', () => {
       serve(b, { value: API_SELECTION })
       await vi.waitFor(() => { expect(b.credentials.describe).toHaveBeenCalledTimes(2) })
       expect(b.state().legacyKey).toBeUndefined()
-      b.face.selectProvider('searchProvider', 'deepseek-official')
+      b.face.selectProvider('searchProvider', 'omega-official')
       await vi.waitFor(() => { expect(b.state().legacyKey).toMatchObject({ text: '', overridden: false, ref: LEGACY_KEY, configured: true }) })
     } finally { b.controller.dispose() }
   })
@@ -422,9 +422,9 @@ describe('WebSearchCardController legacy key drafts', () => {
     const b = await keyBench()
     try {
       b.face.edit('legacyApiKey', 'draft')
-      b.face.selectProvider('searchProvider', 'deepseek-search-api')
+      b.face.selectProvider('searchProvider', 'omega-search-api')
       expect(b.state()).toMatchObject({ dirty: false, legacyKey: undefined })
-      b.face.selectProvider('searchProvider', 'deepseek-official')
+      b.face.selectProvider('searchProvider', 'omega-official')
       expect(b.state()).toMatchObject({ dirty: false, legacyKey: { text: '' } })
       b.face.save()
       await Promise.resolve()
@@ -464,7 +464,7 @@ describe('WebSearchCardController legacy key drafts', () => {
       serve(b, { value: API_SELECTION })
       b.face.edit('legacyApiKey', 'hidden-draft')
       expect(b.state()).toMatchObject({ dirty: false, legacyKey: undefined })
-      b.face.selectProvider('searchProvider', 'deepseek-official')
+      b.face.selectProvider('searchProvider', 'omega-official')
       expect(b.state().legacyKey).toMatchObject({ text: '' })
     } finally { b.controller.dispose() }
   })
@@ -567,7 +567,7 @@ describe('WebSearchCardController sections', () => {
 
   it.each(['0', '51', '1.5', 'many', 'Infinity'])('rejects an unsupported Search API result count: %s', (text) => {
     const b = bench()
-    serve(b, { value: { searchProvider: 'deepseek-search-api' } })
+    serve(b, { value: { searchProvider: 'omega-search-api' } })
     b.face.edit('count', text)
     expect(b.state()).toMatchObject({ invalid: true, selectionBlocked: true, count: { text, invalid: true } })
     b.face.save()
@@ -577,7 +577,7 @@ describe('WebSearchCardController sections', () => {
 
   it.each(['1', '50', '   '])('saves a supported Search API result count or restores its default: %j', async (text) => {
     const b = bench({ accept: true })
-    serve(b, { value: { searchProvider: 'deepseek-search-api' } })
+    serve(b, { value: { searchProvider: 'omega-search-api' } })
     b.api.publish({ value: { count: 20 }, base: { count: 10 }, user: { count: 20 } })
     b.face.edit('count', text)
     expect(b.state().invalid).toBe(false)
@@ -592,14 +592,14 @@ describe('WebSearchCardController sections', () => {
 })
 
 describe('WebSearchCardController billing', () => {
-  it('shows each billing only while its DeepSeek API is selected, reading an unset billing as automatic', async () => {
+  it('shows each billing only while its Omega API is selected, reading an unset billing as automatic', async () => {
     const b = bench()
     try {
       serve(b)
-      await vi.waitFor(() => { expect(b.state().search.kind).toBe('deepseek') })
+      await vi.waitFor(() => { expect(b.state().search.kind).toBe('omega') })
       expect(b.state()).toMatchObject({ searchBilling: { value: 'auto', overridden: false }, fetchBilling: undefined })
       b.face.selectProvider('fetchProvider', 'deepseek-fetch-api')
-      b.face.selectProvider('searchProvider', 'deepseek-official')
+      b.face.selectProvider('searchProvider', 'omega-official')
       expect(b.state()).toMatchObject({ searchBilling: undefined, fetchBilling: { value: 'auto', overridden: false } })
     } finally { b.controller.dispose() }
   })
@@ -609,7 +609,7 @@ describe('WebSearchCardController billing', () => {
     try {
       serve(b, { value: API_SELECTION, base: API_SELECTION })
       b.api.publish({ value: { count: 10, searchBilling: 'account', fetchBilling: 'session' as never }, user: { searchBilling: 'account' } })
-      await vi.waitFor(() => { expect(b.state().fetch.kind).toBe('deepseek') })
+      await vi.waitFor(() => { expect(b.state().fetch.kind).toBe('omega') })
       expect(b.state()).toMatchObject({
         searchBilling: { value: 'account', overridden: true }, fetchBilling: { value: 'auto' },
       })
@@ -620,7 +620,7 @@ describe('WebSearchCardController billing', () => {
     const b = bench({ accept: true })
     try {
       serve(b, { value: API_SELECTION, base: API_SELECTION })
-      await vi.waitFor(() => { expect(b.state().fetch.kind).toBe('deepseek') })
+      await vi.waitFor(() => { expect(b.state().fetch.kind).toBe('omega') })
       b.face.selectBilling('search', 'api-key')
       expect(b.state()).toMatchObject({ dirty: true, searchBilling: { value: 'api-key', overridden: true } })
       b.face.save()
@@ -655,7 +655,7 @@ describe('WebSearchCardController advanced override', () => {
     const b = bench()
     try {
       serve(b, { value: API_SELECTION, base: API_SELECTION })
-      await vi.waitFor(() => { expect(b.state().fetch.kind).toBe('deepseek') })
+      await vi.waitFor(() => { expect(b.state().fetch.kind).toBe('omega') })
       expect(b.state()).toMatchObject({ searchBilling: { advancedOverride: [] }, fetchBilling: { advancedOverride: [] } })
       b.api.publish({ value: { count: 10, searchApiKeyEnv: 'OWN_KEY', searchBaseURL: 'https://own.test/v1/tools', fetchBaseURL: '' } })
       expect(b.state().searchBilling?.advancedOverride).toEqual(['searchBaseURL', 'searchApiKeyEnv'])
@@ -671,7 +671,7 @@ describe('WebSearchCardController advanced override', () => {
     try {
       const composed = { count: 10, searchBaseURL: 'https://own.test/v1/tools', fetchApiKeyEnv: 'OWN_KEY' }
       serve(b, { value: API_SELECTION, base: API_SELECTION }, composed)
-      await vi.waitFor(() => { expect(b.state().fetch.kind).toBe('deepseek') })
+      await vi.waitFor(() => { expect(b.state().fetch.kind).toBe('omega') })
       b.face.selectBilling('fetch', 'api-key')
       b.face.edit('count', '20')
       b.face.save()
@@ -693,7 +693,7 @@ describe('WebSearchCardController providers', () => {
       b.credentials.listProviders.mockResolvedValue({
         ok: true,
         value: {
-          search: [{ id: 'exa' }, { id: 'brave' }, { id: 'deepseek-search-api' }],
+          search: [{ id: 'exa' }, { id: 'brave' }, { id: 'omega-search-api' }],
           fetch: [{ id: 'jina' }, { id: 'deepseek-fetch-api' }, { id: 'http' }],
         },
       })
@@ -701,7 +701,7 @@ describe('WebSearchCardController providers', () => {
       serve(b, { value: { searchProvider: 'perplexity', fetchProvider: 'http' } })
       await vi.waitFor(() => { expect(b.state().search.options).toHaveLength(4) })
       expect(b.state().search.options).toEqual([
-        { id: 'deepseek-search-api', missing: false },
+        { id: 'omega-search-api', missing: false },
         { id: 'exa', missing: false }, { id: 'brave', missing: false }, { id: 'perplexity', missing: true },
       ])
       expect(b.state().fetch.options.map(option => option.id)).toEqual(['http', 'deepseek-fetch-api', 'jina'])
@@ -742,8 +742,8 @@ describe('WebSearchCardController providers', () => {
       expect(b.state().search).toMatchObject({
         selected: 'exa', kind: 'plugin',
         options: [
-          { id: 'deepseek-search-api', missing: false },
-          { id: 'deepseek-official', missing: false },
+          { id: 'omega-search-api', missing: false },
+          { id: 'omega-official', missing: false },
           { id: 'exa', title: 'Exa', description: { en: 'Exa search.', zh: 'Exa 搜索' }, missing: false },
         ],
       })
@@ -790,7 +790,7 @@ describe('WebSearchCardController providers', () => {
       b.controller.refreshProviders()
       await vi.waitFor(() => { expect(b.credentials.listProviders).toHaveBeenCalledTimes(3) })
       await vi.waitFor(() => { expect(b.state().providersFailed).toBe(true) })
-      expect(b.state().search.options.map(option => option.id)).toEqual(['deepseek-search-api', 'deepseek-official', 'exa'])
+      expect(b.state().search.options.map(option => option.id)).toEqual(['omega-search-api', 'omega-official', 'exa'])
       b.face.retryProviders()
       await vi.waitFor(() => { expect(b.state().providersFailed).toBe(false) })
       expect(b.credentials.listProviders).toHaveBeenCalledTimes(4)
@@ -851,10 +851,10 @@ describe('WebSearchCardController providers', () => {
       b.controller.refreshProviders()
       b.credentials.listProviders.mockResolvedValueOnce({ ok: true, value: { search: [{ id: 'exa' }], fetch: [] } })
       b.controller.refreshProviders()
-      await vi.waitFor(() => { expect(b.state().search.options.map(option => option.id)).toEqual(['exa', 'deepseek-search-api']) })
+      await vi.waitFor(() => { expect(b.state().search.options.map(option => option.id)).toEqual(['exa', 'omega-search-api']) })
       stale.resolve({ ok: true, value: SHIPPED_PROVIDERS })
       await Promise.resolve()
-      expect(b.state().search.options.map(option => option.id)).toEqual(['exa', 'deepseek-search-api'])
+      expect(b.state().search.options.map(option => option.id)).toEqual(['exa', 'omega-search-api'])
     } finally { b.controller.dispose() }
   })
 
@@ -879,8 +879,8 @@ describe('WebSearchCardController provider selection', () => {
     const b = bench({ accept: true })
     try {
       serve(b)
-      await vi.waitFor(() => { expect(b.state().search.options.map(option => option.id)).toEqual(['deepseek-search-api', 'deepseek-official']) })
-      b.face.selectProvider('searchProvider', 'deepseek-official')
+      await vi.waitFor(() => { expect(b.state().search.options.map(option => option.id)).toEqual(['omega-search-api', 'omega-official']) })
+      b.face.selectProvider('searchProvider', 'omega-official')
       expect(b.state().search).toMatchObject({ kind: 'legacy' })
       b.face.edit('messagesBaseURL', 'https://messages.test/anthropic/v1')
       b.face.edit('maxUses', '8')
@@ -893,16 +893,16 @@ describe('WebSearchCardController provider selection', () => {
       ], undefined)
       expect(b.credentials.set).toHaveBeenCalledExactlyOnceWith(LEGACY_KEY, 'legacy-secret')
       expect(b.api.mutate).not.toHaveBeenCalled()
-      b.face.selectProvider('searchProvider', 'deepseek-search-api')
+      b.face.selectProvider('searchProvider', 'omega-search-api')
       b.face.save()
       await vi.waitFor(() => { expect(b.state().dirty).toBe(false) })
       expect(b.web.mutate).toHaveBeenLastCalledWith([{ op: 'unset', path: ['searchProvider'] }], undefined)
       expect(b.state().legacyKey).toBeUndefined()
-      b.face.selectProvider('searchProvider', 'deepseek-official')
+      b.face.selectProvider('searchProvider', 'omega-official')
       expect(b.state().messagesBaseURL.text).toBe('https://messages.test/anthropic/v1')
       b.face.edit('legacyApiKey', 'must-not-save')
-      b.face.selectProvider('searchProvider', 'deepseek-search-api')
-      b.face.selectProvider('searchProvider', 'deepseek-official')
+      b.face.selectProvider('searchProvider', 'omega-search-api')
+      b.face.selectProvider('searchProvider', 'omega-official')
       expect(b.state().legacyKey?.text).toBe('')
       b.face.edit('maxUses', '1.5')
       expect(b.state().selectionBlocked).toBe(true)
@@ -915,12 +915,12 @@ describe('WebSearchCardController provider selection', () => {
       b.credentials.listProviders.mockResolvedValue({ ok: true, value: WITH_PLUGINS })
       serve(b)
       await vi.waitFor(() => { expect(b.state().search.options).toHaveLength(3) })
-      expect(b.state()).toMatchObject({ search: { selected: 'deepseek-search-api', kind: 'deepseek' }, fetch: { selected: 'http', kind: 'local' } })
+      expect(b.state()).toMatchObject({ search: { selected: 'omega-search-api', kind: 'omega' }, fetch: { selected: 'http', kind: 'local' } })
       b.face.selectProvider('searchProvider', 'exa')
       expect(b.state()).toMatchObject({ dirty: true, search: { selected: 'exa', kind: 'plugin' }, fetch: { selected: 'http' } })
       expect(b.web.mutate).not.toHaveBeenCalled()
       b.face.discard()
-      expect(b.state().search.selected).toBe('deepseek-search-api')
+      expect(b.state().search.selected).toBe('omega-search-api')
       b.face.selectProvider('searchProvider', 'exa')
       b.face.save()
       await vi.waitFor(() => { expect(b.state().dirty).toBe(false) })
@@ -929,7 +929,7 @@ describe('WebSearchCardController provider selection', () => {
       b.face.save()
       await vi.waitFor(() => { expect(b.state().dirty).toBe(false) })
       expect(b.web.mutate).toHaveBeenLastCalledWith([{ op: 'set', path: ['fetchProvider'], value: 'deepseek-fetch-api' }], undefined)
-      b.face.selectProvider('searchProvider', 'deepseek-search-api')
+      b.face.selectProvider('searchProvider', 'omega-search-api')
       b.face.selectProvider('fetchProvider', 'http')
       b.face.save()
       await vi.waitFor(() => { expect(b.state().dirty).toBe(false) })
@@ -944,7 +944,7 @@ describe('WebSearchCardController provider selection', () => {
   it('writes explicit selections when the deployment composes the APIs', async () => {
     const b = bench({ accept: true })
     serve(b, { value: API_SELECTION, base: API_SELECTION })
-    expect(b.state()).toMatchObject({ search: { kind: 'deepseek' }, fetch: { kind: 'deepseek' } })
+    expect(b.state()).toMatchObject({ search: { kind: 'omega' }, fetch: { kind: 'omega' } })
     b.face.selectProvider('fetchProvider', 'http')
     b.face.save()
     await vi.waitFor(() => { expect(b.state().dirty).toBe(false) })
@@ -1045,14 +1045,14 @@ describe('WebSearchCardController automatic selection', () => {
     try {
       serve(b, { value: { fetchProvider: 'http' }, base: { fetchProvider: 'http' } })
       expect(b.state()).toMatchObject({ search: { selected: '', auto: true }, fetch: { selected: 'http', auto: false } })
-      b.face.selectProvider('searchProvider', 'deepseek-search-api')
+      b.face.selectProvider('searchProvider', 'omega-search-api')
       b.face.selectProvider('searchProvider', '')
       expect(b.state()).toMatchObject({ dirty: false, search: { selected: '' } })
-      b.face.selectProvider('searchProvider', 'deepseek-search-api')
+      b.face.selectProvider('searchProvider', 'omega-search-api')
       b.face.save()
       await vi.waitFor(() => { expect(b.state().dirty).toBe(false) })
-      expect(b.web.mutate).toHaveBeenLastCalledWith([{ op: 'set', path: ['searchProvider'], value: 'deepseek-search-api' }], undefined)
-      expect(b.state().search).toMatchObject({ selected: 'deepseek-search-api', auto: true })
+      expect(b.web.mutate).toHaveBeenLastCalledWith([{ op: 'set', path: ['searchProvider'], value: 'omega-search-api' }], undefined)
+      expect(b.state().search).toMatchObject({ selected: 'omega-search-api', auto: true })
       b.face.selectProvider('searchProvider', '')
       expect(b.state()).toMatchObject({ dirty: true, search: { selected: '', kind: 'none' } })
       b.face.save()

@@ -1,15 +1,15 @@
 [
   {
-    "provider": "deepseek-official",
-    "model": "deepseek-v4-flash",
-    "name": "DeepSeek-V4-Flash",
+    "provider": "omega-official",
+    "model": "omega-v4-flash",
+    "name": "Omega-V4-Flash",
     "slot": "conversation.input.model.label",
     "inline": true
   },
   {
-    "provider": "deepseek-official",
-    "model": "deepseek-v4-flash-vision-exp",
-    "name": "DeepSeek-V4-Flash-Vision-Exp",
+    "provider": "omega-official",
+    "model": "omega-v4-flash-vision-exp",
+    "name": "Omega-V4-Flash-Vision-Exp",
     "slot": "conversation.input.model.label",
     "inline": true
   },

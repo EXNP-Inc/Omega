@@ -1,8 +1,8 @@
 /** Normalize HTTP and in-band Messages errors into provider-neutral failures. */
 
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { isContextWindowExceededError, isQuotaExceededError, LlmError, type ProviderRequestId } from '@deepseek-ai/dsh-llm'
-import type { BuiltinLlmFailureCode } from '@deepseek-ai/dsh-llm'
+import { brandString } from '@omega-ai/dsh-brand'
+import { isContextWindowExceededError, isQuotaExceededError, LlmError, type ProviderRequestId } from '@omega-ai/dsh-llm'
+import type { BuiltinLlmFailureCode } from '@omega-ai/dsh-llm'
 
 /** Read only provider error fields used by bounded Files recovery.
  * @param raw - decoded HTTP error response.
@@ -34,7 +34,7 @@ export function retryAfterMs(headers?: Headers): number | undefined {
 export function providerError(raw: unknown, status: number | undefined, headers?: Headers): LlmError {
   const envelope = typeof raw === 'object' && raw !== null ? raw as Record<string, unknown> : {}
   const error = typeof envelope.error === 'object' && envelope.error !== null ? envelope.error as Record<string, unknown> : {}
-  const message = typeof error.message === 'string' ? error.message : `DeepSeek Messages request failed (${status ?? 'stream error'})`
+  const message = typeof error.message === 'string' ? error.message : `Omega Messages request failed (${status ?? 'stream error'})`
   const type = typeof error.type === 'string' ? error.type : ''
   const detail = `${type} ${typeof error.code === 'string' ? error.code : ''} ${message}`
   let code: BuiltinLlmFailureCode
@@ -46,7 +46,7 @@ export function providerError(raw: unknown, status: number | undefined, headers?
   else if ((status !== undefined && status >= 500) || ['api_error', 'overloaded_error'].includes(type)) code = 'SERVER'
   else code = status === undefined ? 'SERVER' : `HTTP_${status}`
   const delay = retryAfterMs(headers)
-  const id = headers?.get('request-id') ?? headers?.get('x-request-id') ?? headers?.get('x-deepseek-request-id')
+  const id = headers?.get('request-id') ?? headers?.get('x-request-id') ?? headers?.get('x-omega-request-id')
   return new LlmError(message, code, {
     ...status === undefined ? {} : { status },
     ...id ? { requestId: brandString<ProviderRequestId>(id) } : {},

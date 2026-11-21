@@ -3,7 +3,7 @@ description: "Share DSH Sessions through a separate Liveshare server, with verif
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-experimental-liveshare
+# @omega-ai/dsh-experimental-liveshare
 
 English | [中文](README.zh.md)
 
@@ -42,7 +42,7 @@ Enable it by inserting its one entry into the active profile's patch file, `$DSH
 ```yaml
 - insert:
     - id: liveshare-share-host
-      name: '@deepseek-ai/dsh-experimental-liveshare'
+      name: '@omega-ai/dsh-experimental-liveshare'
       config:
         ownerIdentityProvider: <provider-id>
         ownerIdentityTenant: <tenant-id>
@@ -53,7 +53,7 @@ Enable it by inserting its one entry into the active profile's patch file, `$DSH
 
 Replace every `<...>` placeholder with the deployment's own value: the identity provider, tenant, and subject are the ones its Liveshare server deployment was configured with, and the example holdings are placeholders rather than real identities. The environment layer works too: set `LIVESHARE_*` in `$DSH_HOME/.env` and keep the bundle's own `!!js process.env.…` expressions. The Liveshare server address is not part of this configuration: the owner enters it in the Share dialog on first use, as Owner configuration below describes.
 
-The profile can select the bundle instead of patching it: add `"@deepseek-ai/dsh-experimental-liveshare"` to `dsh.profile.bundles` in `$DSH_HOME/profiles/<profile>/package.json`, which is the write the card's switch performs once the card is listed.
+The profile can select the bundle instead of patching it: add `"@omega-ai/dsh-experimental-liveshare"` to `dsh.profile.bundles` in `$DSH_HOME/profiles/<profile>/package.json`, which is the write the card's switch performs once the card is listed.
 
 Either route takes effect only on a recomposition. With the profile's HMR row enabled, the change applies when the profile is re-read; without it, the next `dsh` start applies it. Once at least one row the bundle declares runs, its card appears under **Experimental plugins** and on the **More** page. Removing the entries, disabling them, or removing the bundle from `dsh.profile.bundles` stops those rows and the card leaves both lists again.
 

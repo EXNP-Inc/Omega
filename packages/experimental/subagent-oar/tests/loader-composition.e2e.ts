@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { expect, it } from 'vitest'
-import { runLoaderSmoke } from '@deepseek-ai/dsh-loader-smoke'
+import { runLoaderSmoke } from '@omega-ai/dsh-loader-smoke'
 
 const driver = fileURLToPath(new URL('./fixtures/loader/driver.ts', import.meta.url))
 const configPath = fileURLToPath(new URL('./fixtures/loader/composition.patch.yml', import.meta.url))

@@ -1,6 +1,6 @@
 /** Host Loader entry declaring the account notification polling interval; polling belongs to the Client. */
-import type { Context } from '@deepseek-ai/cordis'
-import Schema from '@deepseek-ai/schemastery'
+import type { Context } from '@omega-ai/cordis'
+import Schema from '@omega-ai/schemastery'
 import type { AccountNotificationsConfig } from './types.ts'
 
 /** Initial polling interval; the browser receives it through its synced Config. */

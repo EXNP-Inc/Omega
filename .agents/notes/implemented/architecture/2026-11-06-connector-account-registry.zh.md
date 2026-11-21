@@ -10,7 +10,7 @@ Status: implemented
 
 ## 决定
 
-[`@deepseek-ai/dsh-client-ui-connector-account`](../../../../packages/client/ui-connector-account/README.zh.md) 为所有连接器类型提供一个 Host 注册表 `ctx.connectorAccounts`、一个 `connectorAccounts` Remote 和一个浏览器一半。
+[`@omega-ai/dsh-client-ui-connector-account`](../../../../packages/client/ui-connector-account/README.zh.md) 为所有连接器类型提供一个 Host 注册表 `ctx.connectorAccounts`、一个 `connectorAccounts` Remote 和一个浏览器一半。
 
 | 部分 | 约定 |
 |---|---|

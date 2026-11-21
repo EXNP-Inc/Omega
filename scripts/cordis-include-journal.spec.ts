@@ -3,9 +3,9 @@ import { chmod, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { Context, FiberState } from '@deepseek-ai/cordis'
-import Loader, { Group, type EntryOptions } from '@deepseek-ai/cordis-plugin-loader'
-import Include from '@deepseek-ai/cordis-plugin-include'
+import { Context, FiberState } from '@omega-ai/cordis'
+import Loader, { Group, type EntryOptions } from '@omega-ai/cordis-plugin-loader'
+import Include from '@omega-ai/cordis-plugin-include'
 import { expect, it, onTestFinished, vi } from 'vitest'
 
 const row = (id: string, value: number): EntryOptions => ({ id, name: 'cordis:example', config: { value } })

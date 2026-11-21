@@ -1,8 +1,8 @@
 /** Computer Use presentation over the existing pending-question answer channel. */
-import type { PropsLocale, PropsRenderFactories, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
-import type { ComposerChainProps } from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type {} from '@deepseek-ai/dsh-client-ui-user-questions/client'
-import type {} from '@deepseek-ai/dsh-client-ui-approval/client'
+import type { PropsLocale, PropsRenderFactories, PropsRuntime } from '@omega-ai/dsh-client-ui-slots'
+import type { ComposerChainProps } from '@omega-ai/dsh-client-ui-conversation/client'
+import type {} from '@omega-ai/dsh-client-ui-user-questions/client'
+import type {} from '@omega-ai/dsh-client-ui-approval/client'
 
 /**
  * Select application access and mouse-control questions; other interactions keep their renderer.

@@ -2,11 +2,11 @@
 /** Attention indicator, refresh glyph, changes tab title, and action toast rendering. */
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import { bindSnapshotSelector, makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import toastCss from '@deepseek-ai/dsh-client-ui-primitives/src/Toast.module.css'
-import type { PaneId, SidebarRightTabInfo, TabId } from '@deepseek-ai/dsh-client-ui-sidebar-right/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import { bindSnapshotSelector, makeTranslate } from '@omega-ai/dsh-client-test-runtime'
+import toastCss from '@omega-ai/dsh-client-ui-primitives/src/Toast.module.css'
+import type { PaneId, SidebarRightTabInfo, TabId } from '@omega-ai/dsh-client-ui-sidebar-right/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import { ActionToast } from '../src/client/ActionToast.tsx'
 import { changesAddress } from '../src/client/changes-address.ts'
 import { ChangesTabTitle } from '../src/client/ChangesTabTitle.tsx'
@@ -16,7 +16,7 @@ import { RefreshGlyph } from '../src/client/RefreshGlyph.tsx'
 import { createNoticeSource, type PanelSnapshot } from '../src/client/source.ts'
 import type { ForgePanelState } from '../src/types.ts'
 import { entry, ready, snapshot } from './client-fixtures.client.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 afterEach(() => {
   cleanup()

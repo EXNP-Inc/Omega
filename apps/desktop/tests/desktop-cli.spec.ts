@@ -2,10 +2,10 @@
 
 import { delimiter, join } from 'node:path'
 import { afterEach, expect, it, vi } from 'vitest'
-import { runCli } from '@deepseek-ai/dsh/lib/bin.js'
+import { runCli } from '@omega-ai/dsh/lib/bin.js'
 import { runDesktopCli, runtimeArchivePath } from '../../desktop-host/src/cli.ts'
 
-vi.mock('@deepseek-ai/dsh/lib/bin.js', () => ({ runCli: vi.fn() }))
+vi.mock('@omega-ai/dsh/lib/bin.js', () => ({ runCli: vi.fn() }))
 
 afterEach(() => {
   vi.unstubAllEnvs()

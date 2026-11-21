@@ -1,5 +1,5 @@
 /** Host face of the synced-configuration fixture: the only Config schema, with an ordinary field and two volatile fields. */
-import z from '@deepseek-ai/schemastery'
+import z from '@omega-ai/schemastery'
 
 /** Ordinary `cacheDir` stays on the Host; volatile `greeting` and `account` reach the browser without `account.token`. */
 export const Config = z.object({

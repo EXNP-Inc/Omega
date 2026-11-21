@@ -3,8 +3,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Profiler } from 'react'
 import { act, cleanup, fireEvent, render, within, type RenderResult } from '@testing-library/react'
-import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import type { ForgeReviewId } from '@deepseek-ai/dsh-experimental-forge/types'
+import { makeTranslate } from '@omega-ai/dsh-client-test-runtime'
+import type { ForgeReviewId } from '@omega-ai/dsh-experimental-forge/types'
 import type { ForgeDiffFile } from '../src/types.ts'
 import {
   formatReviewComment, reviewQuoteSummary, selectReviewLines, reviewMatches, settleQuote, type QuoteCopy, type ReviewSelection,

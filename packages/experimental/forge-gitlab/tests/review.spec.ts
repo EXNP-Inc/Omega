@@ -1,4 +1,4 @@
-import type { ForgeCommentId, ForgeThreadId } from '@deepseek-ai/dsh-experimental-forge'
+import type { ForgeCommentId, ForgeThreadId } from '@omega-ai/dsh-experimental-forge'
 import { describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
 import { GitLabApi } from '../src/api.ts'

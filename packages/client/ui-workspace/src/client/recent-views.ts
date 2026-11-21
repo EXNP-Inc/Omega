@@ -1,11 +1,11 @@
 /** Recently viewed Sessions that keep their history stream after leaving the main view. */
 import type {
   ISessions, SessionListState, SessionReference,
-} from '@deepseek-ai/dsh-api-session-controller/client'
-import type { IWorkspaces, WorkspaceSnapshot } from '@deepseek-ai/dsh-api-workspace-controller/client'
-import type { SessionStatusSnapshot } from '@deepseek-ai/dsh-client-ui-session-status/client'
-import type { ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+} from '@omega-ai/dsh-api-session-controller/client'
+import type { IWorkspaces, WorkspaceSnapshot } from '@omega-ai/dsh-api-workspace-controller/client'
+import type { SessionStatusSnapshot } from '@omega-ai/dsh-client-ui-session-status/client'
+import type { ObservableSnapshot } from '@omega-ai/dsh-client-store'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 
 /**
  * Attention-ordered retention of non-blank Sessions left by the main view.

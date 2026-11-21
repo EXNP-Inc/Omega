@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 /** Theme plugin owns DPR presentation; compiled module resources own CSS installation. */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { installThemeStyles } from '../src/client/styles.ts'
 

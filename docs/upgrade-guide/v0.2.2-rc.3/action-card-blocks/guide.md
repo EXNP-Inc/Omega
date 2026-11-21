@@ -9,7 +9,7 @@ English | [中文](guide.zh.md)
 
 ## Change
 
-The experimental Personalized recommendations bundle offered its cards through the `propose_action` tool. The model now ends its final answer with a fenced `action-card` block holding the same `action`, `title`, `brief` and `details`, and `@deepseek-ai/dsh-action-cards` reads the card from the logged answer. The tool is no longer declared, and the service has no `queuedMessageLimit` configuration field: a value left under `id: action-cards` in a profile's `cordis.patch.yml` is ignored.
+The experimental Personalized recommendations bundle offered its cards through the `propose_action` tool. The model now ends its final answer with a fenced `action-card` block holding the same `action`, `title`, `brief` and `details`, and `@omega-ai/dsh-action-cards` reads the card from the logged answer. The tool is no longer declared, and the service has no `queuedMessageLimit` configuration field: a value left under `id: action-cards` in a profile's `cordis.patch.yml` is ignored.
 
 For plugins that register a card kind or call the service:
 

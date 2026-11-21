@@ -5,7 +5,7 @@
     "kind": "aborted",
     "reason": {
       "kind": "hook",
-      "reason": "deepseek-account/signed-out"
+      "reason": "omega-account/signed-out"
     }
   }
 }

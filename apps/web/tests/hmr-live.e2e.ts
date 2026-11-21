@@ -6,10 +6,10 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { chromium } from 'playwright'
 import { expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import type { Fiber } from '@deepseek-ai/cordis'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
-import type { SubprocessHandle, SubprocessSpawnSpec } from '@deepseek-ai/dsh-subprocess'
+import { Context } from '@omega-ai/cordis'
+import type { Fiber } from '@omega-ai/cordis'
+import LocalSubprocessRuntime from '@omega-ai/dsh-subprocess-local'
+import type { SubprocessHandle, SubprocessSpawnSpec } from '@omega-ai/dsh-subprocess'
 import { readClientBuildRecord } from '../../../scripts/client-build-environment.ts'
 import { REPO_ROOT } from './support.ts'
 
@@ -120,7 +120,7 @@ it('hot-reloads a real client-plugin source edit without refreshing the page', a
       [process.execPath, binPath, 'web', '--no-open', '--port', '0'],
       world,
       {
-        DEEPSEEK_API_KEY: 'keyless-hmr-no-call',
+        OMEGA_API_KEY: 'keyless-hmr-no-call',
         DSH_HOME: join(world, '.dsh'),
       },
     ))

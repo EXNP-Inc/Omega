@@ -1,20 +1,20 @@
 /** The optional permission namespace and existing page slots share one disposal lifetime. */
 import assert from 'node:assert/strict'
 import { setImmediate } from 'node:timers/promises'
-import { Context, Service } from '@deepseek-ai/cordis'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { PluginEntryId } from '@deepseek-ai/dsh-api-remotes/client'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import { RemoteError, type RemoteResult, type TypertRemoteContribution } from '@deepseek-ai/dsh-typert-protocol'
+import { Context, Service } from '@omega-ai/cordis'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { PluginEntryId } from '@omega-ai/dsh-api-remotes/client'
+import { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
+import { SlotRegistry } from '@omega-ai/dsh-client-ui-renderer/client'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import { RemoteError, type RemoteResult, type TypertRemoteContribution } from '@omega-ai/dsh-typert-protocol'
 import type { CuaApplicationState, CuaSystemPermissionState } from '../src/access-types.ts'
 import { expect, it, vi } from 'vitest'
 import type { PermissionFace } from '../src/client/controller.ts'
 import { mountCuaPermissions, inject } from '../src/client/mount.ts'
 import type { ApplicationApprovalProps } from '../src/client/ApplicationApproval.tsx'
 
-const contribution: TypertRemoteContribution = { package: '@deepseek-ai/dsh-cua', descriptors: [] }
+const contribution: TypertRemoteContribution = { package: '@omega-ai/dsh-cua', descriptors: [] }
 const value: CuaApplicationState & { system: CuaSystemPermissionState } = {
   system: { platform: 'darwin' as const, accessibility: false, screenRecording: false, helper: { pid: 9 }, parent: { pid: 8 } },
   allowedApps: [], blockedApps: [], persistentAvailable: true }
@@ -41,7 +41,7 @@ async function fixture(fail = false) {
   await ctx.plugin((scope) => { scope.provide('remote.pluginInventory', { list }) })
   const changes = createSnapshotStore(false)
   ctx.provide('pluginChanges', { bundle: (name) => {
-    expect(name).toBe('@deepseek-ai/dsh-cua-bundle')
+    expect(name).toBe('@omega-ai/dsh-cua-bundle')
     return changes
   } })
   const setDefault = vi.fn(async () => true)
@@ -84,7 +84,7 @@ it('reads the Windows provider from the Host inventory when the helper cannot re
     f.systemStatus.mockRejectedValue(new Error('helper missing'))
     const failed = { ok: false, error: new RemoteError('gateway/internal', 'inventory unavailable', {}) } as const
     f.list.mockResolvedValueOnce(failed).mockResolvedValue({ ok: true, value: { entries: [
-      { moduleName: '@deepseek-ai/dsh-cua-windows', enabled: true, fiberPhase: 'failed', entryId: brandString<PluginEntryId>('cua-windows') },
+      { moduleName: '@omega-ai/dsh-cua-windows', enabled: true, fiberPhase: 'failed', entryId: brandString<PluginEntryId>('cua-windows') },
     ] } })
     await f.ctx.plugin({ inject: [...inject], apply: ctx => mountCuaPermissions(ctx, contribution) })
     const actions = f.ctx.slots.entries('plugins.bundle.config')[0]!.inject!()

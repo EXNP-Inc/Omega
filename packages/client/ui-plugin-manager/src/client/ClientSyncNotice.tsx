@@ -1,7 +1,7 @@
 /** This page's client plugin synchronization: an ongoing line while it runs, and the failures with a retry. */
 import type { ReactNode } from 'react'
-import { Button, StateDot } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { ClientEntryState } from '@deepseek-ai/dsh-client-modules/client'
+import { Button, StateDot } from '@omega-ai/dsh-client-ui-primitives'
+import type { ClientEntryState } from '@omega-ai/dsh-client-modules/client'
 import type { Translate } from './presentation.ts'
 import css from './PluginManagerPage.module.css'
 

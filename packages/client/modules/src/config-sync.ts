@@ -3,12 +3,12 @@
  * of its Loader entry's plugin, and a change of those values republishes the graph.
  */
 import { isDeepStrictEqual } from 'node:util'
-import { FiberState } from '@deepseek-ai/cordis'
-import type { Context, Fiber } from '@deepseek-ai/cordis'
-import type { Entry } from '@deepseek-ai/cordis-plugin-loader'
-import type z from '@deepseek-ai/schemastery'
-import type { SyncedConfigValues } from '@deepseek-ai/dsh-client-config/types'
-import type { Principal } from '@deepseek-ai/dsh-typert-protocol'
+import { FiberState } from '@omega-ai/cordis'
+import type { Context, Fiber } from '@omega-ai/cordis'
+import type { Entry } from '@omega-ai/cordis-plugin-loader'
+import type z from '@omega-ai/schemastery'
+import type { SyncedConfigValues } from '@omega-ai/dsh-client-config/types'
+import type { Principal } from '@omega-ai/dsh-typert-protocol'
 import type { WebBootEntry, WebBootGraph } from './client/manifest.ts'
 import { hasSyncedFields, syncedValues } from './config-projection.ts'
 

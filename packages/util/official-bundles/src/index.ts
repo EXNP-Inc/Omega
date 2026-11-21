@@ -1,9 +1,9 @@
 /**
  * Installation-owned bundle lists and the plugin manager's protected and presented packages, kept apart from the code that applies them.
- * @module @deepseek-ai/dsh-official-bundles
+ * @module @omega-ai/dsh-official-bundles
  */
 
-import type { DshBundleManifest, PluginLocalizedMeta } from '@deepseek-ai/dsh-package-manifest'
+import type { DshBundleManifest, PluginLocalizedMeta } from '@omega-ai/dsh-package-manifest'
 
 export {
   DEFAULT_PROFILE_BUNDLES, INSTALLATION_OWNED_PROFILE_TUPLES, ON_DEMAND_BUNDLES, OPTIONAL_BUNDLES, PROFILE_TEMPLATES,

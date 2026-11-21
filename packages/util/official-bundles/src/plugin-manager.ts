@@ -6,15 +6,15 @@
  * entry, installation-carried bundles, and unaddressable rows stay protected by their own rules.
  */
 export const PROTECTED_PLUGINS: ReadonlySet<string> = new Set([
-  '@deepseek-ai/dsh-plugin-manager', '@deepseek-ai/cordis-plugin-loader',
-  '@deepseek-ai/cordis-plugin-include', '@deepseek-ai/dsh-api-gateway',
-  '@deepseek-ai/dsh-host-webserver', '@deepseek-ai/dsh-client-modules',
-  '@deepseek-ai/dsh-client-ui-plugin-manager',
-  '@deepseek-ai/dsh-host-plugin-inventory', '@deepseek-ai/dsh-typert-registry',
-  '@deepseek-ai/dsh-api-remotes', '@deepseek-ai/dsh-api-remote-access',
-  '@deepseek-ai/cordis-plugin-timer', '@deepseek-ai/dsh-client-connection',
-  '@deepseek-ai/dsh-host-frontend-static', '@deepseek-ai/dsh-tools',
-  '@deepseek-ai/dsh-hmr',
+  '@omega-ai/dsh-plugin-manager', '@omega-ai/cordis-plugin-loader',
+  '@omega-ai/cordis-plugin-include', '@omega-ai/dsh-api-gateway',
+  '@omega-ai/dsh-host-webserver', '@omega-ai/dsh-client-modules',
+  '@omega-ai/dsh-client-ui-plugin-manager',
+  '@omega-ai/dsh-host-plugin-inventory', '@omega-ai/dsh-typert-registry',
+  '@omega-ai/dsh-api-remotes', '@omega-ai/dsh-api-remote-access',
+  '@omega-ai/cordis-plugin-timer', '@omega-ai/dsh-client-connection',
+  '@omega-ai/dsh-host-frontend-static', '@omega-ai/dsh-tools',
+  '@omega-ai/dsh-hmr',
 ])
 
 /**
@@ -23,14 +23,14 @@ export const PROTECTED_PLUGINS: ReadonlySet<string> = new Set([
  * Their Host availability and activation stay intact.
  */
 export const HIDDEN_BUNDLES: ReadonlySet<string> = new Set([
-  '@deepseek-ai/dsh-base',
-  '@deepseek-ai/dsh-web-app',
-  '@deepseek-ai/dsh-headless',
-  '@deepseek-ai/dsh-sdk-app',
-  '@deepseek-ai/dsh-acp-app',
-  '@deepseek-ai/dsh-sdk-minimal',
-  '@deepseek-ai/dsh-experimental-tool-worktree',
-  '@deepseek-ai/dsh-cua-mcp',
+  '@omega-ai/dsh-base',
+  '@omega-ai/dsh-web-app',
+  '@omega-ai/dsh-headless',
+  '@omega-ai/dsh-sdk-app',
+  '@omega-ai/dsh-acp-app',
+  '@omega-ai/dsh-sdk-minimal',
+  '@omega-ai/dsh-experimental-tool-worktree',
+  '@omega-ai/dsh-cua-mcp',
 ])
 
 /**
@@ -38,9 +38,9 @@ export const HIDDEN_BUNDLES: ReadonlySet<string> = new Set([
  * this list, decides whether a bundle appears on the main list.
  */
 export const EXTENSION_BUNDLES: readonly string[] = [
-  '@deepseek-ai/dsh-experimental-voice-input-bundle',
-  '@deepseek-ai/dsh-experimental-plugin-market-bundle',
-  '@deepseek-ai/dsh-experimental-auto-review',
+  '@omega-ai/dsh-experimental-voice-input-bundle',
+  '@omega-ai/dsh-experimental-plugin-market-bundle',
+  '@omega-ai/dsh-experimental-auto-review',
 ]
 
 /**
@@ -48,39 +48,39 @@ export const EXTENSION_BUNDLES: readonly string[] = [
  * which includes every eligible bundle, ranks them last in this order.
  */
 export const MORE_BUNDLES: readonly string[] = [
-  '@deepseek-ai/dsh-personalized-recommendations',
-  '@deepseek-ai/dsh-experimental-inspector-profile',
-  '@deepseek-ai/dsh-cua-bundle',
-  '@deepseek-ai/dsh-timeline',
-  '@deepseek-ai/dsh-experimental-terminal-bundle',
-  '@deepseek-ai/dsh-experimental-cot-translation-bundle',
-  '@deepseek-ai/dsh-experimental-session-search',
-  '@deepseek-ai/dsh-experimental-session-titles-bundle',
-  '@deepseek-ai/dsh-experimental-badge-skill-bundle',
-  '@deepseek-ai/dsh-experimental-ralph-bundle',
-  '@deepseek-ai/dsh-deepseek-chat-import',
-  '@deepseek-ai/dsh-subagent-codex',
-  '@deepseek-ai/dsh-subagent-claude-code',
+  '@omega-ai/dsh-personalized-recommendations',
+  '@omega-ai/dsh-experimental-inspector-profile',
+  '@omega-ai/dsh-cua-bundle',
+  '@omega-ai/dsh-timeline',
+  '@omega-ai/dsh-experimental-terminal-bundle',
+  '@omega-ai/dsh-experimental-cot-translation-bundle',
+  '@omega-ai/dsh-experimental-session-search',
+  '@omega-ai/dsh-experimental-session-titles-bundle',
+  '@omega-ai/dsh-experimental-badge-skill-bundle',
+  '@omega-ai/dsh-experimental-ralph-bundle',
+  '@omega-ai/dsh-omega-chat-import',
+  '@omega-ai/dsh-subagent-codex',
+  '@omega-ai/dsh-subagent-claude-code',
 ]
 
 /** Official bundles the plugin manager marks with the Experimental badge. */
 export const EXPERIMENTAL_BUNDLES: ReadonlySet<string> = new Set([
-  '@deepseek-ai/dsh-personalized-recommendations',
-  '@deepseek-ai/dsh-cua-bundle',
-  '@deepseek-ai/dsh-cua-mcp',
-  '@deepseek-ai/dsh-timeline',
-  '@deepseek-ai/dsh-experimental-terminal-bundle',
-  '@deepseek-ai/dsh-experimental-voice-input-bundle',
-  '@deepseek-ai/dsh-experimental-auto-review',
-  '@deepseek-ai/dsh-experimental-inspector-profile',
-  '@deepseek-ai/dsh-experimental-forge-bundle',
-  '@deepseek-ai/dsh-experimental-tool-worktree',
-  '@deepseek-ai/dsh-experimental-cot-translation-bundle',
-  '@deepseek-ai/dsh-experimental-session-search',
-  '@deepseek-ai/dsh-experimental-session-titles-bundle',
-  '@deepseek-ai/dsh-experimental-badge-skill-bundle',
-  '@deepseek-ai/dsh-experimental-ralph-bundle',
-  '@deepseek-ai/dsh-experimental-plugin-market-bundle',
-  '@deepseek-ai/dsh-experimental-liveshare',
-  '@deepseek-ai/dsh-deepseek-chat-import',
+  '@omega-ai/dsh-personalized-recommendations',
+  '@omega-ai/dsh-cua-bundle',
+  '@omega-ai/dsh-cua-mcp',
+  '@omega-ai/dsh-timeline',
+  '@omega-ai/dsh-experimental-terminal-bundle',
+  '@omega-ai/dsh-experimental-voice-input-bundle',
+  '@omega-ai/dsh-experimental-auto-review',
+  '@omega-ai/dsh-experimental-inspector-profile',
+  '@omega-ai/dsh-experimental-forge-bundle',
+  '@omega-ai/dsh-experimental-tool-worktree',
+  '@omega-ai/dsh-experimental-cot-translation-bundle',
+  '@omega-ai/dsh-experimental-session-search',
+  '@omega-ai/dsh-experimental-session-titles-bundle',
+  '@omega-ai/dsh-experimental-badge-skill-bundle',
+  '@omega-ai/dsh-experimental-ralph-bundle',
+  '@omega-ai/dsh-experimental-plugin-market-bundle',
+  '@omega-ai/dsh-experimental-liveshare',
+  '@omega-ai/dsh-omega-chat-import',
 ])

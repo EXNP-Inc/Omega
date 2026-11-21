@@ -1,11 +1,11 @@
 /** Cordis-owned file transfers and localized feedback shared across independent entries. */
-import type { Context } from '@deepseek-ai/cordis'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { DesktopFileDrag } from '@deepseek-ai/dsh-util-file-drag'
-import type { FileDragActions } from '@deepseek-ai/dsh-client-ui-primitives'
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type {} from '@deepseek-ai/dsh-client-ui-layout/client'
-import type {} from '@deepseek-ai/dsh-client-locale/client'
+import type { Context } from '@omega-ai/cordis'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import type { DesktopFileDrag } from '@omega-ai/dsh-util-file-drag'
+import type { FileDragActions } from '@omega-ai/dsh-client-ui-primitives'
+import type {} from '@omega-ai/dsh-client-ui-renderer/client'
+import type {} from '@omega-ai/dsh-client-ui-layout/client'
+import type {} from '@omega-ai/dsh-client-locale/client'
 import { FileDragFeedback, type FileDragFailure, type FileDragFeedbackInjected } from './feedback.tsx'
 import { FileTransfers } from './transfers.ts'
 import { en, ja, es, fr, de, ru, pt, zh } from './locales.ts'
@@ -17,7 +17,7 @@ export interface FileDragService {
   readonly read: (transfer: DataTransfer) => File | undefined
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context {
     /** File transfer ownership scoped to this plugin's lifetime. */
     fileDrag: FileDragService

@@ -1,5 +1,5 @@
-import Schema from '@deepseek-ai/schemastery'
-import type { Volatile } from '@deepseek-ai/cordis'
+import Schema from '@omega-ai/schemastery'
+import type { Volatile } from '@omega-ai/cordis'
 import defaults from './defaults.ts'
 import { appLanguage, defaultReportCadence, languages, MINUTE_MS, PROMPT_LIMIT, progressPrecisions } from './policy.ts'
 import type { Language, OutputLanguage, ProgressPrecision } from './policy.ts'

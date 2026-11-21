@@ -6,8 +6,8 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { PROTOCOL_VERSION } from '@agentclientprotocol/sdk'
-import { startMockLlmServer } from '@deepseek-ai/dsh-llm-mock-server'
-import { launchAcpTestAgent, type AgentUnderTest, type LaunchedAcpTestAgent } from '@deepseek-ai/dsh-session-snapshot'
+import { startMockLlmServer } from '@omega-ai/dsh-llm-mock-server'
+import { launchAcpTestAgent, type AgentUnderTest, type LaunchedAcpTestAgent } from '@omega-ai/dsh-session-snapshot'
 import { expect, it } from 'vitest'
 import { cleanupAcpExampleTest } from './cleanup.ts'
 
@@ -36,10 +36,10 @@ it('keeps account model-listing diagnostics on stderr during API-key session cre
     response.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({
       data: [
         {
-          id: 'deepseek-flash', name: 'Account fixture model', input_modalities: ['text'], output_modalities: ['text'],
+          id: 'omega-flash', name: 'Account fixture model', input_modalities: ['text'], output_modalities: ['text'],
           context_window: 1_048_576, max_output_tokens: 393_216, api_capabilities: { anthropic_messages: {} },
         },
-        { id: 'deepseek-v4-pro' },
+        { id: 'omega-v4-pro' },
       ],
     }))
   })
@@ -54,18 +54,18 @@ it('keeps account model-listing diagnostics on stderr during API-key session cre
     await writeFile(join(cwd, '.dsh', '.credentials.yaml'), JSON.stringify({
       version: 1,
       records: {
-        'deepseek-account-platform/default': { kind: 'grant', payload: { version: 1, token, issuer: origin } },
+        'omega-account-platform/default': { kind: 'grant', payload: { version: 1, token, issuer: origin } },
       },
     }) + '\n', { mode: 0o600 })
     const configPath = join(cwd, 'catalog.patch.yml')
     await writeFile(configPath, JSON.stringify([
-      { id: 'deepseek-account', config: { platformOrigin: origin, inferenceOrigin: origin, allowLoopbackHttp: true } },
-      { id: 'llm-deepseek-account', config: { baseURL: `${origin}/anthropic` } },
-      { id: 'llm-deepseek', config: { baseURL: `${origin}/anthropic`, models: [{ id: 'fixture-api-key-model' }] } },
+      { id: 'omega-account', config: { platformOrigin: origin, inferenceOrigin: origin, allowLoopbackHttp: true } },
+      { id: 'llm-omega-account', config: { baseURL: `${origin}/anthropic` } },
+      { id: 'llm-omega', config: { baseURL: `${origin}/anthropic`, models: [{ id: 'fixture-api-key-model' }] } },
       // Catalog discovery requires the account service to have loaded the stored grant.
       {
-        id: 'acp', inject: ['acpAppStartup', 'deepseekAccount'],
-        config: { provider: 'deepseek-official', model: 'fixture-api-key-model' },
+        id: 'acp', inject: ['acpAppStartup', 'omegaAccount'],
+        config: { provider: 'omega-official', model: 'fixture-api-key-model' },
       },
       { id: 'session-persistence-jsonl', config: { root: join(cwd, 'sessions'), compression: 'none' } },
     ]) + '\n')
@@ -78,12 +78,12 @@ it('keeps account model-listing diagnostics on stderr during API-key session cre
     launched = launchAcpTestAgent({
       agent,
       cwd,
-      env: { DEEPSEEK_API_KEY: 'acp-fixture-api-key', DEEPSEEK_BASE_URL: `${origin}/anthropic`, DSH_TELEMETRY_DISABLED: '1' },
+      env: { OMEGA_API_KEY: 'acp-fixture-api-key', OMEGA_BASE_URL: `${origin}/anthropic`, DSH_TELEMETRY_DISABLED: '1' },
     })
     await launched.client.initialize({ protocolVersion: PROTOCOL_VERSION, clientCapabilities: {} })
     const created = await launched.client.newSession({ cwd, mcpServers: [] })
     expect(created.configOptions).toContainEqual(expect.objectContaining({
-      id: 'model', currentValue: JSON.stringify(['deepseek-official', 'fixture-api-key-model']),
+      id: 'model', currentValue: JSON.stringify(['omega-official', 'fixture-api-key-model']),
     }))
     await launched.client.closeSession({ sessionId: created.sessionId })
     // Closing joins both pipes; receiving a stdout response alone does not drain stderr.
@@ -95,8 +95,8 @@ it('keeps account model-listing diagnostics on stderr during API-key session cre
     const frames = launched.rawStdout().trim().split('\n').map(line => JSON.parse(line) as Record<string, unknown>)
     expect(frames.length).toBeGreaterThanOrEqual(3)
     for (const frame of frames) expect(frame).toMatchObject({ jsonrpc: '2.0' })
-    expect(launched.stderr()).toContain(`[llm-deepseek-account] model listing from ${origin}/models loaded 2 model(s), skipped 0 row(s)`)
-    expect(launched.stderr()).toContain('[llm-deepseek-account] model "deepseek-v4-pro" declares no api_capabilities.anthropic_messages')
+    expect(launched.stderr()).toContain(`[llm-omega-account] model listing from ${origin}/models loaded 2 model(s), skipped 0 row(s)`)
+    expect(launched.stderr()).toContain('[llm-omega-account] model "omega-v4-pro" declares no api_capabilities.anthropic_messages')
     expect(launched.stderr()).not.toContain(token)
   } finally {
     const cleanup = await Promise.allSettled([cleanupAcpExampleTest(launched, cwd)])
@@ -124,14 +124,14 @@ it('keeps MCP resource-listing diagnostics off stdout for a tools-only client se
   try {
     const configPath = join(cwd, 'mcp.patch.yml')
     await writeFile(configPath, JSON.stringify([
-      { id: 'llm-deepseek', config: { baseURL: llm.baseURL, models: [{ id: 'fixture-api-key-model' }] } },
-      { id: 'acp', config: { provider: 'deepseek-official', model: 'fixture-api-key-model' } },
+      { id: 'llm-omega', config: { baseURL: llm.baseURL, models: [{ id: 'fixture-api-key-model' }] } },
+      { id: 'acp', config: { provider: 'omega-official', model: 'fixture-api-key-model' } },
       { id: 'session-persistence-jsonl', config: { root: join(cwd, 'sessions'), compression: 'none' } },
     ]) + '\n')
     launched = launchAcpTestAgent({
       agent: { binScript, configPath, profile: 'acp', tsconfigPath },
       cwd,
-      env: { DEEPSEEK_API_KEY: 'acp-fixture-api-key', DEEPSEEK_BASE_URL: llm.baseURL, DSH_TELEMETRY_DISABLED: '1' },
+      env: { OMEGA_API_KEY: 'acp-fixture-api-key', OMEGA_BASE_URL: llm.baseURL, DSH_TELEMETRY_DISABLED: '1' },
     })
     await launched.client.initialize({ protocolVersion: PROTOCOL_VERSION, clientCapabilities: {} })
     // The fixture server advertises only the tools capability.

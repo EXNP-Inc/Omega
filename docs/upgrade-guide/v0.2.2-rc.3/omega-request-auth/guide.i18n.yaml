@@ -1,0 +1,16 @@
+# Bilingual-pair consistency record for guide.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/upgrade-guide/v0.2.2-rc.3/omega-request-auth/guide.md
+/:
+  en: 1a482249799a3d5f
+  zh: 95805d83185c2f6e
+/omega-consumers-authenticate-through-ctx-omegaauth:
+  en: b0c56925c2874f2d
+  zh: a9ed8ce69c4d7c51
+/omega-consumers-authenticate-through-ctx-omegaauth/change:
+  en: ed3eeb31a7b25ec7
+  zh: 36929eed725ca832
+/omega-consumers-authenticate-through-ctx-omegaauth/migration:
+  en: 0fb435c7607cc6de
+  zh: 79ff8ab9d239d110

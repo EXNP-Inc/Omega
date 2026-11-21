@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from deepseek_harness import DeepSeekHarness, Notification
+from omega_harness import OmegaHarness, Notification
 import test_commands_runtime as runtime_helpers
 from test_commands_runtime import _Completion, _ModelServer, _dsh_bin, _of_type, _read_events
 
@@ -48,14 +48,14 @@ def test_plan_example_reports_truncation_and_accepts_explicit_dismissal(
                                      "--workspace", str(workspace), "Plan a small change."])
     with terminal_input.open(encoding="utf-8") as terminal, _ModelServer([completion]) as model:
         monkeypatch.setattr(sys, "stdin", terminal)
-        def configured_harness(**options: object) -> DeepSeekHarness:
-            return DeepSeekHarness(
+        def configured_harness(**options: object) -> OmegaHarness:
+            return OmegaHarness(
                 **options, dsh_bin=_dsh_bin(), patches=(str(patch),),
                 base_url=model.url, api_key="keyless-plan-example",
                 initialize_timeout_seconds=30, request_timeout_seconds=20, shutdown_timeout_seconds=20,
             )
 
-        monkeypatch.setitem(example["main"].__globals__, "DeepSeekHarness", configured_harness)
+        monkeypatch.setitem(example["main"].__globals__, "OmegaHarness", configured_harness)
         if outcome == "max-tokens":
             with pytest.raises(RuntimeError, match="max-tokens"):
                 example["main"]()

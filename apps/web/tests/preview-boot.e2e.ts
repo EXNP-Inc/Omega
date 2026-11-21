@@ -32,14 +32,14 @@ import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
 import type { Browser, Page } from 'playwright'
 import { expect, it } from 'vitest'
-import { OPTIONAL_BUNDLES } from '@deepseek-ai/dsh-official-bundles'
+import { OPTIONAL_BUNDLES } from '@omega-ai/dsh-official-bundles'
 import {
   packPreviewFixture, packRepositoryImage, previewFixtures, WRAPPER_CONTRACT,
-} from '@deepseek-ai/dsh-experimental-webworker-packer'
+} from '@omega-ai/dsh-experimental-webworker-packer'
 import {
   IMAGE_FILE_NAME, IMAGE_MANIFEST_PATH, parseImageManifest, parseTar, PREVIEW_FIXTURE_MANIFEST_FILE,
   PREVIEW_FIXTURE_MANIFEST_VERSION, type ImageManifest, type PreviewFixtureManifest,
-} from '@deepseek-ai/dsh-experimental-webworker-runtime'
+} from '@omega-ai/dsh-experimental-webworker-runtime'
 import {
   VFS_EXAMPLE_SESSION_IDS,
   VFS_EXAMPLE_REASONING,
@@ -52,7 +52,7 @@ import { expandOwningTurnProcess, hideSessionPanel, newEnglishPage, REPO_ROOT, s
 
 const DIST_ROOT = fileURLToPath(new URL('../dist', import.meta.url))
 /** Optional bundles that compose a profile of their own; the Web plugin page hides them, the Host inventory still reports them. */
-const STANDALONE_PROFILE_BUNDLES: readonly string[] = ['@deepseek-ai/dsh-cua-mcp']
+const STANDALONE_PROFILE_BUNDLES: readonly string[] = ['@omega-ai/dsh-cua-mcp']
 
 /** Where the client looks for the image: the runtime's own name, beside the page. */
 const IMAGE_FILE = join(DIST_ROOT, 'preview', IMAGE_FILE_NAME)
@@ -66,15 +66,15 @@ const SNAPSHOT_MODE = webSnapshotMode()
 const PROFILE = 'web'
 
 /** Optional bundle whose patch layer disables a base row and inserts its replacement. */
-const SESSION_TITLES_BUNDLE = '@deepseek-ai/dsh-experimental-session-titles-bundle'
-const BASE_TITLE_MODULE = '@deepseek-ai/dsh-session-title-first-prompt-llm'
-const BUNDLE_TITLE_MODULE = '@deepseek-ai/dsh-session-title-all-prompts-llm'
-const INSPECTOR_BUNDLE = '@deepseek-ai/dsh-experimental-inspector-profile'
-const INSPECTOR_MODULE = '@deepseek-ai/dsh-experimental-inspector'
-const SESSION_INSPECTOR_MODULE = '@deepseek-ai/dsh-experimental-session-inspector'
+const SESSION_TITLES_BUNDLE = '@omega-ai/dsh-experimental-session-titles-bundle'
+const BASE_TITLE_MODULE = '@omega-ai/dsh-session-title-first-prompt-llm'
+const BUNDLE_TITLE_MODULE = '@omega-ai/dsh-session-title-all-prompts-llm'
+const INSPECTOR_BUNDLE = '@omega-ai/dsh-experimental-inspector-profile'
+const INSPECTOR_MODULE = '@omega-ai/dsh-experimental-inspector'
+const SESSION_INSPECTOR_MODULE = '@omega-ai/dsh-experimental-session-inspector'
 
 /** Package whose terminal chunk the page requests through `require.async`. */
-const TERMINAL_PACKAGE = '@deepseek-ai/dsh-client-ui-sidebar-terminal'
+const TERMINAL_PACKAGE = '@omega-ai/dsh-client-ui-sidebar-terminal'
 const TERMINAL_CHUNK = `node_modules/${TERMINAL_PACKAGE}/lib/client.terminal.js`
 
 /** Stable labels authored by the deterministic VFS example fixture. */
@@ -625,10 +625,10 @@ async function toggleOptionalBundles(page: Page): Promise<void> {
   expect(listed.filter(name => name !== null && OPTIONAL_BUNDLES.includes(name)).length).toBeGreaterThan(0)
   // Package assets resolve from the Worker image: ui-chat's injected mask is a Blob URL that decodes.
   const mask = await page.evaluate(async () => {
-    const styles = [...document.querySelectorAll('style[data-plugin="@deepseek-ai/dsh-client-ui-chat"]')]
+    const styles = [...document.querySelectorAll('style[data-plugin="@omega-ai/dsh-client-ui-chat"]')]
       .map(style => style.textContent).join('\n')
     const url = /url\((blob:[^)]+)\)/u.exec(styles)?.[1]
-    const unresolved = styles.includes('plugins/@deepseek-ai/dsh-client-ui-chat/assets/')
+    const unresolved = styles.includes('plugins/@omega-ai/dsh-client-ui-chat/assets/')
     if (url === undefined) return { url: null, width: 0, unresolved }
     const image = new Image()
     image.src = url
@@ -687,7 +687,7 @@ async function toggleOptionalBundles(page: Page): Promise<void> {
     // composes a profile of its own is reported by the Host inventory but never layered over the Web profile, so the
     // toggle list skips it too.
     for (const entry of bundles.filter(candidate => candidate.optional
-      && candidate.name !== '@deepseek-ai/dsh-experimental-liveshare' && !standalone.includes(candidate.name))) {
+      && candidate.name !== '@omega-ai/dsh-experimental-liveshare' && !standalone.includes(candidate.name))) {
       const enable = await remote<{ application: string; error?: unknown }>('pluginManager/setBundleEnabled', { name: entry.name, enabled: true })
       const plugins = await remote<Plugin[]>('pluginManager/listPlugins', {})
       const disable = await remote<{ application: string }>('pluginManager/setBundleEnabled', { name: entry.name, enabled: false })
@@ -719,18 +719,18 @@ async function toggleOptionalBundles(page: Page): Promise<void> {
   expect(result.toggles.map(toggle => toggle.name).filter(name => standalone.includes(name))).toEqual([])
   expect(result.optional.filter(entry => entry.enabled || entry.availability !== 'installation')).toEqual([])
   expect(result.optional.filter(entry => entry.error !== null)).toEqual([
-    expect.objectContaining({ name: '@deepseek-ai/dsh-cua-bundle', error: { code: 'unsupported-platform' } }),
+    expect.objectContaining({ name: '@omega-ai/dsh-cua-bundle', error: { code: 'unsupported-platform' } }),
   ])
   // Metadata resolves through the Worker's Node internal modules: every optional bundle shows its title and icon.
   expect(result.optional.filter(entry => entry.metaError !== null || entry.title !== 'object' || entry.icon !== 'string')).toEqual([])
   expect(result.inventoryErrors).toEqual([])
   console.info(`preview boot: optional bundle toggles ${JSON.stringify(result.toggles.map(({ name, enable, disable, error }) => ({ name, enable, disable, error })))}`)
-  expect(result.toggles.find(toggle => toggle.name === '@deepseek-ai/dsh-cua-bundle')).toMatchObject({
+  expect(result.toggles.find(toggle => toggle.name === '@omega-ai/dsh-cua-bundle')).toMatchObject({
     enable: 'failed', disable: 'applied', error: { code: 'unsupported-platform' },
     changed: 0, inactive: [], restored: true,
   })
   // Computer Use refuses enablement on this non-macOS worker Host, as asserted above, so the generic check omits it.
-  const supported = result.toggles.filter(toggle => toggle.name !== '@deepseek-ai/dsh-cua-bundle')
+  const supported = result.toggles.filter(toggle => toggle.name !== '@omega-ai/dsh-cua-bundle')
   expect(supported.filter(toggle => toggle.enable !== 'applied' || toggle.disable !== 'applied')
     .map(({ name, enable, disable }) => ({ name, enable, disable }))).toEqual([])
   // Each bundle changes Loader rows, every enabled row it changes runs, and switching it off restores the prior rows.

@@ -49,7 +49,7 @@ export function publishedDocuments(): ReadonlySet<string> {
  *
  * The copy follows the working tree, so a pack publishes the `docs/` contents
  * the checkout holds rather than the committed tree. Runs from the `prepack`
- * lifecycle of `@deepseek-ai/dsh`, so packing the package and packing the
+ * lifecycle of `@omega-ai/dsh`, so packing the package and packing the
  * release set both publish the same files.
  * @param source - Documentation root to copy; defaults to the repository `docs`.
  * @param destination - Package directory to replace; defaults to `apps/cli/docs`.
@@ -103,9 +103,9 @@ async function upgradeGuideIndex(source: string, files: readonly string[]): Prom
   const lines = [
     '# Upgrade guides',
     '',
-    'Generated when `@deepseek-ai/dsh` is packed. A `v<T>` section lists what to change when upgrading from release vT to the release after it; vT is the release being left, not the target. Paths are relative to this file.',
+    'Generated when `@omega-ai/dsh` is packed. A `v<T>` section lists what to change when upgrading from release vT to the release after it; vT is the release being left, not the target. Paths are relative to this file.',
     '',
-    '打包 `@deepseek-ai/dsh` 时生成。`v<T>` 一节列出从 vT 版本升级到其下一个版本时需要做的修改；vT 是升级前的版本，不是目标版本。路径相对于本文件。',
+    '打包 `@omega-ai/dsh` 时生成。`v<T>` 一节列出从 vT 版本升级到其下一个版本时需要做的修改；vT 是升级前的版本，不是目标版本。路径相对于本文件。',
   ]
   for (const [version, guides] of [...versions].sort(([left], [right]) => rcompare(left, right))) {
     lines.push('', `## v${version}`, '', '| Item | Summary | 摘要 | English | 中文 |', '| --- | --- | --- | --- | --- |')

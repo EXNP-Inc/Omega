@@ -1,18 +1,18 @@
 /** Loader-owned anonymous provider, live Sessions, and restartable real JSONL storage. */
-import type { Context, Fiber } from '@deepseek-ai/cordis'
-import type { ModuleLoaderV2 } from '@deepseek-ai/cordis-plugin-loader'
-import { boot } from '@deepseek-ai/dsh-app-boot'
-import { createAssistantMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
-import SessionStore, { SESSION_FORMAT_VERSION, type SessionId, SessionSeq, type Session, type SessionEvent, type SessionHeader } from '@deepseek-ai/dsh-session'
-import type { SessionHandle } from '@deepseek-ai/dsh-session-persistence'
-import * as JsonlPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
+import type { Context, Fiber } from '@omega-ai/cordis'
+import type { ModuleLoaderV2 } from '@omega-ai/cordis-plugin-loader'
+import { boot } from '@omega-ai/dsh-app-boot'
+import { createAssistantMessage, createUserMessage } from '@omega-ai/dsh-llm'
+import SessionStore, { SESSION_FORMAT_VERSION, type SessionId, SessionSeq, type Session, type SessionEvent, type SessionHeader } from '@omega-ai/dsh-session'
+import type { SessionHandle } from '@omega-ai/dsh-session-persistence'
+import * as JsonlPersistence from '@omega-ai/dsh-session-persistence-jsonl'
 import { once } from 'node:events'
 import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import Translator from '../src/index.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 /** One external anonymous request, with only the relevant protocol facts. */
 export interface StorageWireCall { provider: 'bing' | 'google'; path: string; text: string; source: string; target: string }
@@ -96,16 +96,16 @@ export async function storageFixture(cleanups: Array<() => Promise<void>>, optio
   const origin = `http://127.0.0.1:${address.port}`, path = join(root, 'cordis.yml'), storedRoot = join(root, 'sessions')
   const config = { bingEndpoint: `${origin}/bing`, googleEndpoint: `${origin}/google`, timeoutMs: 60_000 }
   await writeFile(path, JSON.stringify([
-    ...options.withSessions === false ? [] : [{ id: 'sessions', name: '@deepseek-ai/dsh-session' }],
+    ...options.withSessions === false ? [] : [{ id: 'sessions', name: '@omega-ai/dsh-session' }],
     ...options.withPersistence === false ? [] : [
-      { id: 'storage', name: '@deepseek-ai/dsh-session-persistence-jsonl', config: { root: storedRoot, compression: 'none' } },
+      { id: 'storage', name: '@omega-ai/dsh-session-persistence-jsonl', config: { root: storedRoot, compression: 'none' } },
     ],
-    { id: 'translator', name: '@deepseek-ai/dsh-experimental-translator', config },
+    { id: 'translator', name: '@omega-ai/dsh-experimental-translator', config },
   ]))
   const start = () => boot('translator-storage', path, [], (host) => {
     const modules = new Map<string, unknown>([
-      ['@deepseek-ai/dsh-session', SessionStore], ['@deepseek-ai/dsh-session-persistence-jsonl', JsonlPersistence],
-      ['@deepseek-ai/dsh-experimental-translator', Translator],
+      ['@omega-ai/dsh-session', SessionStore], ['@omega-ai/dsh-session-persistence-jsonl', JsonlPersistence],
+      ['@omega-ai/dsh-experimental-translator', Translator],
     ])
     const loader: ModuleLoaderV2 = {
       version: 'v2', loadCache: new Map(),

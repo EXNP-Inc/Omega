@@ -24,21 +24,21 @@ Both values become runtime context and the system prompt keeps only value-free g
 
 | Package | Responsibility |
 |---|---|
-| `@deepseek-ai/dsh-harness-dev-context` (`packages/context/harness-dev-context`) | Both sections, both contexts, and the earlier-format projection; all module-private, exporting only the plugin protocol (`name`, `inject`, `apply`) |
-| `@deepseek-ai/dsh-host-webserver` | `WebServer.getOrigin()` (the bind address's URL form with protocol and bound port) and `bindUrlHost(host)` |
-| `@deepseek-ai/dsh-web-app` | The `web-runtime` row provides `webApp`, whose `getAdvertisedUrl()` returns the configured `publicUrl`, otherwise the listener origin, the same value as `DSH_WEB_URL` and the startup URL; the bundle patch mounts the `harness-dev-context` row |
-| `@deepseek-ai/dsh-system-prompt` | `CONTEXT_ORDERS.HARNESS_SOURCE = 200` and `WEB_SURFACE = 210` |
+| `@omega-ai/dsh-harness-dev-context` (`packages/context/harness-dev-context`) | Both sections, both contexts, and the earlier-format projection; all module-private, exporting only the plugin protocol (`name`, `inject`, `apply`) |
+| `@omega-ai/dsh-host-webserver` | `WebServer.getOrigin()` (the bind address's URL form with protocol and bound port) and `bindUrlHost(host)` |
+| `@omega-ai/dsh-web-app` | The `web-runtime` row provides `webApp`, whose `getAdvertisedUrl()` returns the configured `publicUrl`, otherwise the listener origin, the same value as `DSH_WEB_URL` and the startup URL; the bundle patch mounts the `harness-dev-context` row |
+| `@omega-ai/dsh-system-prompt` | `CONTEXT_ORDERS.HARNESS_SOURCE = 200` and `WEB_SURFACE = 210` |
 
-The plugin injects `systemPrompt`, `sessionProjections`, and `webApp` and reads those services in code; its patch row carries no configuration expression. The checkout path is four directories above this package's source or built entry, the same depth as the former web-app location, so source, npm, and Desktop installations resolve the same root. The URL is `webApp.getAdvertisedUrl()`, so a profile that overrides the `web-runtime` row's `publicUrl` reaches the model as well. The plugin reaches the `webApp` type through `import type {} from '@deepseek-ai/dsh-web-app'`; the import is erased at runtime, so the web-app bundle's dependency on this package remains the only runtime edge.
+The plugin injects `systemPrompt`, `sessionProjections`, and `webApp` and reads those services in code; its patch row carries no configuration expression. The checkout path is four directories above this package's source or built entry, the same depth as the former web-app location, so source, npm, and Desktop installations resolve the same root. The URL is `webApp.getAdvertisedUrl()`, so a profile that overrides the `web-runtime` row's `publicUrl` reaches the model as well. The plugin reaches the `webApp` type through `import type {} from '@omega-ai/dsh-web-app'`; the import is erased at runtime, so the web-app bundle's dependency on this package remains the only runtime edge.
 
 ### New Sessions
 
 | Registration | Content |
 |---|---|
-| Section `harness:source` (the `HARNESS_SOURCE` slot) | `The runtime context names the DeepSeek Harness implementation checkout. …`, the remaining guidance unchanged |
-| Context `harness:source` (`CONTEXT_ORDERS.HARNESS_SOURCE = 200`) | `Current DeepSeek Harness implementation checkout: "<path>".` |
-| Section `app:web-surface` (the `WEB_SURFACE` slot) | `You are interacting with the user through the DeepSeek Harness Web GUI whose URL the runtime context names. …`, the remaining guidance unchanged |
-| Context `app:web-surface` (`CONTEXT_ORDERS.WEB_SURFACE = 210`) | `Current DeepSeek Harness Web GUI URL: "<url>".` |
+| Section `harness:source` (the `HARNESS_SOURCE` slot) | `The runtime context names the Omega implementation checkout. …`, the remaining guidance unchanged |
+| Context `harness:source` (`CONTEXT_ORDERS.HARNESS_SOURCE = 200`) | `Current Omega implementation checkout: "<path>".` |
+| Section `app:web-surface` (the `WEB_SURFACE` slot) | `You are interacting with the user through the Omega Web GUI whose URL the runtime context names. …`, the remaining guidance unchanged |
+| Context `app:web-surface` (`CONTEXT_ORDERS.WEB_SURFACE = 210`) | `Current Omega Web GUI URL: "<url>".` |
 
 Both contexts are optional (no `required`). The only complete persona, web-app's minimal preset, also disables optional runtime context, so it still sees neither value. Runtime context follows the existing mechanism: an unchanged value emits no snapshot, a change appends a complete snapshot before the step's user message, and resume compares against the latest logged snapshot, never rewriting a committed message.
 
@@ -48,8 +48,8 @@ The plugin registers the host-only session projection `harnessDevLegacyPrompt`, 
 
 | Earlier template | Matching rule |
 |---|---|
-| `harness:source` | Starts with `The DeepSeek Harness implementation checkout is at `, ends with the earlier fixed guidance, no line break between |
-| `app:web-surface` | Starts with `You are interacting with the user through the DeepSeek Harness Web GUI at `, ends with `. ` plus the guidance as earlier releases rendered it, frozen as a literal, no line break between |
+| `harness:source` | Starts with `The Omega implementation checkout is at `, ends with the earlier fixed guidance, no line break between |
+| `app:web-surface` | Starts with `You are interacting with the user through the Omega Web GUI at `, ends with `. ` plus the guidance as earlier releases rendered it, frozen as a literal, no line break between |
 
 Both section text providers read the projection state of `AssembleContext.agent.session`: with an earlier paragraph they return it verbatim (`interpolate: false`), otherwise the current guidance. Diagnostic assemblies without an agent use the current guidance. `sessionProjections` is a required injection and the plugin registers its own unit, so the state is readable whenever an agent exists.
 

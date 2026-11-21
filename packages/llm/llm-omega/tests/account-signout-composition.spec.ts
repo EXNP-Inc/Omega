@@ -1,5 +1,5 @@
 /**
- * Real Loader composition of the account service, the account route, and the Agent loop against a loopback DeepSeek
+ * Real Loader composition of the account service, the account route, and the Agent loop against a loopback Omega
  * stand-in: a sign-out ends the requests that carry its token, whether or not their route is still mounted.
  */
 import { once } from 'node:events'
@@ -9,31 +9,31 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, expect, it, vi } from 'vitest'
-import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
-import { Context } from '@deepseek-ai/cordis'
-import Include from '@deepseek-ai/cordis-plugin-include'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import AuthorizationService from '@deepseek-ai/dsh-authorization'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { credentialKey } from '@deepseek-ai/dsh-credentials'
-import LocalCredentials from '@deepseek-ai/dsh-credentials-local'
-import DeepSeekAccount, { type AccountClientMetadata } from '@deepseek-ai/dsh-deepseek-account'
-import LlmRuntime, { type StreamChunk } from '@deepseek-ai/dsh-llm'
-import * as AccountRoute from '@deepseek-ai/dsh-llm-deepseek-account'
-import DeepSeekAuth from '@deepseek-ai/dsh-deepseek-auth'
-import SessionStore, { type SessionId } from '@deepseek-ai/dsh-session'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
+import * as NativeToolExecutor from '@omega-ai/dsh-tool-executor-native'
+import { Context } from '@omega-ai/cordis'
+import Include from '@omega-ai/cordis-plugin-include'
+import Loader from '@omega-ai/cordis-plugin-loader'
+import AgentRegistry from '@omega-ai/dsh-agent'
+import AgentLoop from '@omega-ai/dsh-agent-loop'
+import AuthorizationService from '@omega-ai/dsh-authorization'
+import { brandString } from '@omega-ai/dsh-brand'
+import { credentialKey } from '@omega-ai/dsh-credentials'
+import LocalCredentials from '@omega-ai/dsh-credentials-local'
+import OmegaAccount, { type AccountClientMetadata } from '@omega-ai/dsh-omega-account'
+import LlmRuntime, { type StreamChunk } from '@omega-ai/dsh-llm'
+import * as AccountRoute from '@omega-ai/dsh-llm-omega-account'
+import OmegaAuth from '@omega-ai/dsh-omega-auth'
+import SessionStore, { type SessionId } from '@omega-ai/dsh-session'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import ToolRuntime from '@omega-ai/dsh-tools'
 import { profileComposition } from '../../../settings/settings/tests/profile-composition.ts'
 import { sourceModuleLoader, sse, start, user } from './helpers.ts'
 
-const PROVIDER = 'deepseek-account'
-const MODEL = 'deepseek-flash'
+const PROVIDER = 'omega-account'
+const MODEL = 'omega-flash'
 const CLIENT: AccountClientMetadata = { version: '1.2.3', locale: 'en', timezoneOffsetSeconds: 28_800 }
-const SIGNED_OUT = { kind: 'aborted', reason: { kind: 'hook', reason: 'deepseek-account/signed-out' } }
+const SIGNED_OUT = { kind: 'aborted', reason: { kind: 'hook', reason: 'omega-account/signed-out' } }
 
 const cleanup: Array<() => Promise<unknown>> = []
 afterEach(async () => {
@@ -49,7 +49,7 @@ interface OpenResponse {
   closed: Promise<undefined>
 }
 
-/** Loopback DeepSeek stand-in: the account listing, the logout call, and Messages responses that stream until closed. */
+/** Loopback Omega stand-in: the account listing, the logout call, and Messages responses that stream until closed. */
 async function upstream() {
   const responses: OpenResponse[] = []
   const http = createServer((request, response) => {
@@ -58,8 +58,10 @@ async function upstream() {
       if (request.method === 'GET' && request.url === '/models') {
         response.setHeader('content-type', 'application/json')
         response.end(JSON.stringify({ data: [{
-          id: MODEL, name: 'DeepSeek-V4.1-Flash', context_window: 1_048_576, max_output_tokens: 100_000,
+          id: MODEL, name: 'Omega-V4.1-Flash', context_window: 1_048_576, max_output_tokens: 100_000,
           input_modalities: ['text'], output_modalities: ['text'], api_capabilities: { anthropic_messages: {} },
+          // This build ships an empty built-in catalog, so the listed model admits only via a satisfied client requirement.
+          client_requirements: { 'omega-harness': { min_version: '0.0.1' } },
         }] }))
         return
       }
@@ -103,21 +105,21 @@ async function boot(origin: string) {
   const home = await mkdtemp(join(tmpdir(), 'dsh-account-signout-'))
   cleanup.push(() => rm(home, { recursive: true, force: true }))
   vi.stubEnv('DSH_HOME', home)
-  vi.stubEnv('DEEPSEEK_BASE_URL', '')
+  vi.stubEnv('OMEGA_BASE_URL', '')
   const ctx = new Context()
   cleanup.push(() => ctx.fiber.dispose())
   const modules = new Map<string, { module: unknown; config?: object }>([
-    ['@deepseek-ai/dsh-llm', { module: LlmRuntime }], ['@deepseek-ai/dsh-session', { module: SessionStore }],
-    ['@deepseek-ai/dsh-session-projection', { module: SessionProjectionRegistry }], ['@deepseek-ai/dsh-system-prompt', { module: SystemPrompt }],
-    ['@deepseek-ai/dsh-tools', { module: ToolRuntime }], ['@deepseek-ai/dsh-tool-executor-native', { module: NativeToolExecutor }],
-    ['@deepseek-ai/dsh-agent', { module: AgentRegistry }], ['@deepseek-ai/dsh-agent-loop', { module: AgentLoop, config: { agents: [] } }],
-    ['@deepseek-ai/dsh-credentials-local', { module: LocalCredentials, config: { path: join(home, '.credentials.yaml'), watch: false } }],
-    ['@deepseek-ai/dsh-authorization', { module: AuthorizationService }],
-    ['@deepseek-ai/dsh-deepseek-account', { module: DeepSeekAccount, config: {
+    ['@omega-ai/dsh-llm', { module: LlmRuntime }], ['@omega-ai/dsh-session', { module: SessionStore }],
+    ['@omega-ai/dsh-session-projection', { module: SessionProjectionRegistry }], ['@omega-ai/dsh-system-prompt', { module: SystemPrompt }],
+    ['@omega-ai/dsh-tools', { module: ToolRuntime }], ['@omega-ai/dsh-tool-executor-native', { module: NativeToolExecutor }],
+    ['@omega-ai/dsh-agent', { module: AgentRegistry }], ['@omega-ai/dsh-agent-loop', { module: AgentLoop, config: { agents: [] } }],
+    ['@omega-ai/dsh-credentials-local', { module: LocalCredentials, config: { path: join(home, '.credentials.yaml'), watch: false } }],
+    ['@omega-ai/dsh-authorization', { module: AuthorizationService }],
+    ['@omega-ai/dsh-omega-account', { module: OmegaAccount, config: {
       platformOrigin: origin, inferenceOrigin: origin, allowLoopbackHttp: true, logoutRetryDelayMs: 1,
     } }],
-    ['@deepseek-ai/dsh-deepseek-auth', { module: DeepSeekAuth }],
-    ['@deepseek-ai/dsh-llm-deepseek-account', { module: AccountRoute, config: { baseURL: `${origin}/anthropic` } }],
+    ['@omega-ai/dsh-omega-auth', { module: OmegaAuth }],
+    ['@omega-ai/dsh-llm-omega-account', { module: AccountRoute, config: { baseURL: `${origin}/anthropic` } }],
   ])
   await writeFile(join(home, 'cordis.yml'), JSON.stringify(
     [...modules].map(([name, { config }]) => ({ name, ...config === undefined ? {} : { config } })),
@@ -137,12 +139,12 @@ async function boot(origin: string) {
     return found.module
   })
   const patchPath = await profileComposition(ctx, home, join(home, 'cordis.yml'))
-  await ctx.credentials.modifyRecord(credentialKey('deepseek-account-platform', 'default'), () => Promise.resolve({
+  await ctx.credentials.modifyRecord(credentialKey('omega-account-platform', 'default'), () => Promise.resolve({
     kind: 'grant', payload: { version: 1, issuer: origin, token: 'test-platform-grant' },
   }))
   /** Switch the account route off through the profile patch, as the plugin switch does. */
   const disableRoute = async (): Promise<void> => {
-    await writeFile(patchPath, '- id: llm-deepseek-account\n  disabled: true\n')
+    await writeFile(patchPath, '- id: llm-omega-account\n  disabled: true\n')
     await ctx.hmr.runExclusive(() => ctx.hmr.reconcileProfile())
   }
   return { ctx, disableRoute }
@@ -167,7 +169,7 @@ it.each([
     expect(agent.status).toBe('running')
   }
   const response = await http.streaming(0)
-  await ctx.deepseekAccount.signOut(CLIENT)
+  await ctx.omegaAccount.signOut(CLIENT)
   await agent.whenIdle()
   await response.closed
   const end = agent.session.snapshotEvents().at(-1)
@@ -182,11 +184,11 @@ it('ends an account model request outside an Agent turn at sign-out, as a sign-i
     for await (const chunk of ctx.llm.stream({ provider: PROVIDER, model: MODEL, messages: [user()] })) chunks.push(chunk)
   })()
   const response = await http.streaming(2)
-  await ctx.deepseekAccount.signOut(CLIENT)
+  await ctx.omegaAccount.signOut(CLIENT)
   await consumed
   await response.closed
   expect(chunks.at(-1)).toMatchObject({ type: 'finish', reason: { kind: 'error', failure: {
     code: 'ACCOUNT_SIGN_IN_REQUIRED',
-    message: 'The DeepSeek account signed out before this request finished. Sign in to DeepSeek to use the account provider.',
+    message: 'The Omega account signed out before this request finished. Sign in to Omega to use the account provider.',
   } } })
 })

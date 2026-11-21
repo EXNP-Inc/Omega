@@ -5,20 +5,20 @@
  * Under the `ask` approval policy a reviewer denial asks the user; under
  * `never` it is final.
  *
- * @module @deepseek-ai/dsh-experimental-auto-review
+ * @module @omega-ai/dsh-experimental-auto-review
  */
 
-declare module '@deepseek-ai/dsh-llm/types' {
+declare module '@omega-ai/dsh-llm/types' {
   interface LlmRequestPurposeMap {
     'auto-review': true
   }
 }
 
-import type {} from '@deepseek-ai/dsh-tool-executor-ptc/types'
-import type {} from '@deepseek-ai/dsh-working-directory'
-import { Context, FiberState } from '@deepseek-ai/cordis'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import type {} from '@deepseek-ai/dsh-agent-instructions'
+import type {} from '@omega-ai/dsh-tool-executor-ptc/types'
+import type {} from '@omega-ai/dsh-working-directory'
+import { Context, FiberState } from '@omega-ai/cordis'
+import type { Agent } from '@omega-ai/dsh-agent'
+import type {} from '@omega-ai/dsh-agent-instructions'
 import {
   BlockAssembler,
   type ContentBlock,
@@ -28,17 +28,17 @@ import {
   type StreamChunk,
   type ToolCallId,
   type ToolSchema,
-} from '@deepseek-ai/dsh-llm'
-import { deepFreeze } from '@deepseek-ai/dsh-util-values'
-import { AUTO_PRESET } from '@deepseek-ai/dsh-permission-presets'
-import type { Session, SessionEvent } from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-subagent'
-import type {} from '@deepseek-ai/dsh-user-approval'
+} from '@omega-ai/dsh-llm'
+import { deepFreeze } from '@omega-ai/dsh-util-values'
+import { AUTO_PRESET } from '@omega-ai/dsh-permission-presets'
+import type { Session, SessionEvent } from '@omega-ai/dsh-session'
+import type {} from '@omega-ai/dsh-subagent'
+import type {} from '@omega-ai/dsh-user-approval'
 import {
   RUN_CODE_NAME,
   type PreToolDecision,
   type ToolExecution,
-} from '@deepseek-ai/dsh-tools'
+} from '@omega-ai/dsh-tools'
 import { deniedDisplayReason } from './locales.ts'
 
 /** Structured error name persisted for every final reviewer denial. */

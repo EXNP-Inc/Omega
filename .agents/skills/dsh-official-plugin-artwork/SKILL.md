@@ -1,6 +1,6 @@
 ---
 name: dsh-official-plugin-artwork
-description: Draw and review official DeepSeek Harness plugin icons and optional feature previews, including experimental plugins. Use for package artwork and PluginArtwork glyphs; covers official references and palettes, feature previews, package metadata gates, and designer review, and links the shared drawing rules that the `dsh-doc` skill ships. Not for toolbar or action icons.
+description: Draw and review official Omega plugin icons and optional feature previews, including experimental plugins. Use for package artwork and PluginArtwork glyphs; covers official references and palettes, feature previews, package metadata gates, and designer review, and links the shared drawing rules that the `dsh-doc` skill ships. Not for toolbar or action icons.
 ---
 
 # Official plugin artwork

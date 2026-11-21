@@ -1,5 +1,5 @@
-import type { Context } from '@deepseek-ai/cordis'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import type { Context } from '@omega-ai/cordis'
+import { brandString } from '@omega-ai/dsh-brand'
 import {
   type ToolCallId,
   LlmAdapter,
@@ -7,8 +7,8 @@ import {
   type GenerateOptions,
   type LlmResolvedModelInfo,
   type StreamChunk,
-} from '@deepseek-ai/dsh-llm'
-import type {} from '@deepseek-ai/dsh-tools'
+} from '@omega-ai/dsh-llm'
+import type {} from '@omega-ai/dsh-tools'
 
 const HIGH = brandString<ReasoningEffortId>('high')
 const OFF = brandString<ReasoningEffortId>('off')

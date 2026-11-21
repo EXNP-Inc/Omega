@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /** Test driver: one delegation turn through a headless Loader composition. */
 
-import { resolveConfigPath } from '@deepseek-ai/dsh-app-boot'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import { runFixtureTurn } from '@deepseek-ai/dsh-loader-smoke'
+import { resolveConfigPath } from '@omega-ai/dsh-app-boot'
+import type { SessionId } from '@omega-ai/dsh-session'
+import { runFixtureTurn } from '@omega-ai/dsh-loader-smoke'
 import { bootProductionProfile } from '../../../../../test-support/loader-smoke/tests/fixtures/production-profile.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const configPath = process.argv[2]
 if (configPath === undefined) throw new Error('acp-subagent cwd driver requires a config path')

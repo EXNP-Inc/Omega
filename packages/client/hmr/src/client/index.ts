@@ -1,10 +1,10 @@
 /** Remote-stream transport for page-owned client entry reconciliation, rebuilt code replacement, and synced configuration. */
-import type { Context } from '@deepseek-ai/cordis'
-import { RemoteSnapshotStream, RemoteStreamCarrierError, type RemoteStreamCarrierFailure } from '@deepseek-ai/dsh-api-gateway/client'
-import type {} from '@deepseek-ai/dsh-api-remote-access/client'
-import type {} from '@deepseek-ai/dsh-client-modules/client'
+import type { Context } from '@omega-ai/cordis'
+import { RemoteSnapshotStream, RemoteStreamCarrierError, type RemoteStreamCarrierFailure } from '@omega-ai/dsh-api-gateway/client'
+import type {} from '@omega-ai/dsh-api-remote-access/client'
+import type {} from '@omega-ai/dsh-client-modules/client'
 // This package mounts its own namespace, so the channel does not depend on the api-remotes assembly being replaceable.
-import pluginEventsRemote from '@deepseek-ai/dsh-client-hmr/remote'
+import pluginEventsRemote from '@omega-ai/dsh-client-hmr/remote'
 import type { PluginsEventBaseline, PluginsEventFrame, PluginsEventIncrement } from '../types.ts'
 
 export type * from '../types.ts'

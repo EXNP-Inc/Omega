@@ -2,11 +2,11 @@
 import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Service, type Context } from '@deepseek-ai/cordis'
+import { Service, type Context } from '@omega-ai/cordis'
 import { expect, it, vi } from 'vitest'
-import { boot, initProfile, readProfilePatches, type ProfileContext } from '@deepseek-ai/dsh-app-boot'
-import ConfigEditor from '@deepseek-ai/dsh-config-editor'
-import Settings from '@deepseek-ai/dsh-settings'
+import { boot, initProfile, readProfilePatches, type ProfileContext } from '@omega-ai/dsh-app-boot'
+import ConfigEditor from '@omega-ai/dsh-config-editor'
+import Settings from '@omega-ai/dsh-settings'
 import PluginMarket from '../src/index.ts'
 
 /** The `pluginManager` reads the market makes, with an empty profile. */

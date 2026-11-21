@@ -1,5 +1,5 @@
 /** The registry serves every registered account to the Plugins page and routes page operations to the account that owns them. */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import ConnectorAccounts from '../src/index.ts'
 import type {

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createClientModuleSystem, type ClientModuleLoaderTarget, type ClientModuleRecord } from '@deepseek-ai/dsh-client-modules/client'
-import type { DshClientModuleManifest } from '@deepseek-ai/dsh-package-manifest'
+import { createClientModuleSystem, type ClientModuleLoaderTarget, type ClientModuleRecord } from '@omega-ai/dsh-client-modules/client'
+import type { DshClientModuleManifest } from '@omega-ai/dsh-package-manifest'
 import { DocumentStyles } from '../src/client/styles/document-styles.ts'
 
 const disposers: (() => void)[] = []

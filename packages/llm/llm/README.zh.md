@@ -3,13 +3,13 @@ description: "面向用户与维护者的提供方无关模型调用服务说明
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-llm
+# @omega-ai/dsh-llm
 
 [English](README.md) | 中文
 
 ## 概述
 
-使用 `@deepseek-ai/dsh-llm` 可通过已配置的提供方适配器流式调用模型、发现模型，并解析模型能力与调用默认值。调用方必须确保所有模型可见输入都可以从会话日志重建。Loop 构建的请求以深度冻结状态到达，因此扩展与适配器不能改写。每个流只尝试调用提供方一次：提供方特定的转换由对应适配器完成，可选包 `@deepseek-ai/dsh-llm-retry` 负责重跑失败的请求。流始终以终止结果结束，因此调用方可以一致地处理成功、失败与取消。
+使用 `@omega-ai/dsh-llm` 可通过已配置的提供方适配器流式调用模型、发现模型，并解析模型能力与调用默认值。调用方必须确保所有模型可见输入都可以从会话日志重建。Loop 构建的请求以深度冻结状态到达，因此扩展与适配器不能改写。每个流只尝试调用提供方一次：提供方特定的转换由对应适配器完成，可选包 `@omega-ai/dsh-llm-retry` 负责重跑失败的请求。流始终以终止结果结束，因此调用方可以一致地处理成功、失败与取消。
 
 ## 目录
 
@@ -29,30 +29,30 @@ kind: "package-reference"
 
 任何调用模型提供方的组合——agent loop（智能体循环）、会话标题生成器、压缩（compaction）摘要器——都会通过本服务流式发起请求。与至少一个提供方适配器一起挂载它；服务本身没有任何配置，也不包含提供方协议代码。
 
-使用 `import type` 从 `@deepseek-ai/dsh-llm/types` 或包根入口导入消息、工具调用、提供方请求、尝试和推理强度标识符类型。通过 `@deepseek-ai/dsh-brand` 的 `brandString<IdentifierType>(value)` 为字符串添加品牌；此操作保留原字符串，不执行校验。
+使用 `import type` 从 `@omega-ai/dsh-llm/types` 或包根入口导入消息、工具调用、提供方请求、尝试和推理强度标识符类型。通过 `@omega-ai/dsh-brand` 的 `brandString<IdentifierType>(value)` 为字符串添加品牌；此操作保留原字符串，不执行校验。
 
 ### 何时选择
 
-当插件或组合需要调用模型时选择本包：它是进入提供方适配器的唯一受支持路径，并在 loop、会话日志与每个消费方之间保持同一套词汇。当需要提供方特定的协议行为（那属于 `dsh-llm-deepseek` 或 `dsh-llm-pi-ai` 之类的适配器）或重试执行（那属于 `dsh-llm-retry`）时，不要选择它。
+当插件或组合需要调用模型时选择本包：它是进入提供方适配器的唯一受支持路径，并在 loop、会话日志与每个消费方之间保持同一套词汇。当需要提供方特定的协议行为（那属于 `dsh-llm-omega` 或 `dsh-llm-pi-ai` 之类的适配器）或重试执行（那属于 `dsh-llm-retry`）时，不要选择它。
 
 ### 最小组合
 
-挂载服务与至少一个适配器，然后在每个请求中按名称选择提供方。下面的 DeepSeek 路由还要求挂载 [`dsh-deepseek-auth`](../../account/deepseek-auth/README.zh.md)，由它释放 API 密钥：
+挂载服务与至少一个适配器，然后在每个请求中按名称选择提供方。下面的 Omega 路由还要求挂载 [`dsh-omega-auth`](../../account/omega-auth/README.zh.md)，由它释放 API 密钥：
 
 ```yaml
-- name: '@deepseek-ai/dsh-llm'
-- name: '@deepseek-ai/dsh-deepseek-auth'
-- name: '@deepseek-ai/dsh-llm-deepseek-api-key'
+- name: '@omega-ai/dsh-llm'
+- name: '@omega-ai/dsh-omega-auth'
+- name: '@omega-ai/dsh-llm-omega-api-key'
   config:
-    apiKeyEnv: DEEPSEEK_API_KEY
+    apiKeyEnv: OMEGA_API_KEY
 ```
 
 流会返回 token 级分片，并始终以一个终止 `finish` 分片结束。`BlockAssembler` 把分片组装为内容块与消息；`AssistantStreamAccumulator` 在紧凑表示中保留其精确时间戳与 token 边界，loop 再把它嵌入一个持久 attempt settlement：
 
 ```text
 for await (const chunk of ctx.llm.stream({
-  provider: 'deepseek-official',
-  model: 'deepseek-v4-flash',
+  provider: 'omega-official',
+  model: 'omega-v4-flash',
   messages: [{ role: 'user', content: [{ type: 'text', text: 'Hello' }] }],
 })) {
   // chunks: block-start, text-delta, ..., usage, finish
@@ -61,7 +61,7 @@ for await (const chunk of ctx.llm.stream({
 
 挂载成功后，`ctx.llm.listProviders()` 会按注册顺序报告已注册路由。
 
-辅助请求的生产方通过扩展 `@deepseek-ai/dsh-llm/types` 中的 `LlmRequestPurposeMap` 声明自己的 `purpose`，每个键映射到 `true`。`GenerateOptions.purpose` 接受已声明的键，普通对话请求则省略它。构造辅助请求前，应导入生产方包或其公开类型。适配器将用途作为模型不可见的传输元数据传递，并在遇到不熟悉的用途时继续处理请求。
+辅助请求的生产方通过扩展 `@omega-ai/dsh-llm/types` 中的 `LlmRequestPurposeMap` 声明自己的 `purpose`，每个键映射到 `true`。`GenerateOptions.purpose` 接受已声明的键，普通对话请求则省略它。构造辅助请求前，应导入生产方包或其公开类型。适配器将用途作为模型不可见的传输元数据传递，并在遇到不熟悉的用途时继续处理请求。
 
 `GenerateOptions.messages` 接受持久 `Message` 值和仅供请求使用的 `RequestUserInput` 值。仅供请求使用的输入包含 user-role 内容，不含 `id` 或 `source`；Session 写入和 Agent 投递仍然要求持久消息。调用方必须在流结束前保持辅助输入不变。会记录完整请求的调用方（例如会话标题生成）必须使用持久消息。
 
@@ -70,7 +70,7 @@ for await (const chunk of ctx.llm.stream({
 配置函数在适配器默认值物化之前选择控制项。例如，将最低强度选择与显式输出上限组合，再将 `configure(maxTokens)` 作为第三个参数传入：
 
 ```ts
-import type { ConfigureCall } from '@deepseek-ai/dsh-llm'
+import type { ConfigureCall } from '@omega-ai/dsh-llm'
 
 const leastReasoning: ConfigureCall = (controls, model) => {
   const first = model.reasoning?.efforts[0]
@@ -86,7 +86,7 @@ const configure = (maxTokens: number): ConfigureCall =>
 
 ### 你可以做什么
 
-- **提取内容文本**——从 `@deepseek-ai/dsh-llm/message` 导入的 `extractTextContent(content, options?)` 按顺序仅拼接 `text` 块，保留空白与空文本块，忽略所有其他块类型且不生成占位符。可选的 `options.separator` 默认为 `''`。它接受只读内容，没有文本块时返回 `''`。
+- **提取内容文本**——从 `@omega-ai/dsh-llm/message` 导入的 `extractTextContent(content, options?)` 按顺序仅拼接 `text` 块，保留空白与空文本块，忽略所有其他块类型且不生成占位符。可选的 `options.separator` 默认为 `''`。它接受只读内容，没有文本块时返回 `''`。
 - **流式发起一次模型调用**——`ctx.llm.stream(options)` 为任何已注册提供方与模型产出原始分片（token 级增量）；消费方用 `BlockAssembler` 组装。
 - **注册提供方适配器**——一个适配器拥有一个或多个提供方路由，其注册会捕获该路由的重试策略；重复注册同一路由会以 `DUPLICATE_ADAPTER` 失败。
 - **通过配置暴露并激活提供方**——适配器声明可配置提供方路由与 settings namespace，配置界面因此可以激活休眠提供方并编辑连接信息，无需重启。`LlmConfigurableProvider.error` 报告供修复的配置诊断；未受影响的模型仍可提供服务。条目还可携带 `defaultBaseURL`，即配置未设置端点时适配器使用的端点；以及 `nativeAuth`，即配置未指定凭据引用时适配器认证读取的环境变量与 OAuth 登录；`baseURLEnv` 列出配置端点所用的环境变量。配置界面直接从目录读取这些字段，无需调用适配器。
@@ -153,11 +153,11 @@ const configure = (maxTokens: number): ConfigureCall =>
 当包级约定不够用时阅读以下页面。它们从共享类型逐步进入具体适配器、重试执行器与计量服务。
 
 - [LLM（大语言模型）流式子系统](../../../docs/subsystems/llm-streaming.zh.md)——消息与块类型、紧凑的 Assistant 流记录、`StreamChunk` 协议与适配器约定。
-- [llm-deepseek 适配器](../llm-deepseek/README.zh.md)——DeepSeek Messages 直连实现。
+- [llm-omega 适配器](../llm-omega/README.zh.md)——Omega Messages 直连实现。
 - [llm-pi-ai 适配器](../llm-pi-ai/README.zh.md)——基于 pi-ai 的多提供方实现。
 - [llm-retry](../llm-retry/README.zh.md)——重跑失败模型请求的重试执行器。
 - [Token 计量](../token-meter/README.zh.md)——具备回放感知的请求与上下文压力测量。
-- [孪生 LLM 适配器](../../../.agents/notes/implemented/architecture/2026-06-13-twin-llm-adapters.zh.md)——为什么 DeepSeek 路由交付两个结构不同的适配器。
+- [孪生 LLM 适配器](../../../.agents/notes/implemented/architecture/2026-06-13-twin-llm-adapters.zh.md)——为什么 Omega 路由交付两个结构不同的适配器。
 - [LLM 流终止失败](../../../.agents/notes/implemented/architecture/2026-07-29-terminal-llm-stream-failures.zh.md)——模型请求结果与插件失败之间的服务边界。
 
 -----
@@ -178,8 +178,8 @@ const configure = (maxTokens: number): ConfigureCall =>
 
 这些限制说明本服务在哪里停止、由其他包或未来工作接续。它们是当前包约束，不是任务积压。
 
-- **本服务不提供重试执行、缓存或速率限制**——提供方注册会存储重试策略，但一次流仍是一次提供方尝试；`@deepseek-ai/dsh-llm-retry` 在持久 agent 步骤边界上执行该策略。
-- **只有 `attributionHeaders()` 携带 `DSH_USER_AGENT_SUFFIX` 标记**——DeepSeek 网页搜索和 web API 插件发送各自固定的 `User-Agent`，因此 profile 后缀不会出现在这些请求中。
+- **本服务不提供重试执行、缓存或速率限制**——提供方注册会存储重试策略，但一次流仍是一次提供方尝试；`@omega-ai/dsh-llm-retry` 在持久 agent 步骤边界上执行该策略。
+- **只有 `attributionHeaders()` 携带 `DSH_USER_AGENT_SUFFIX` 标记**——Omega 网页搜索和 web API 插件发送各自固定的 `User-Agent`，因此 profile 后缀不会出现在这些请求中。
 - **`GenerateOptions` 采样只包含 `temperature`／`maxTokens`／`stop`**——没有 `tool_choice`、`top_p` 或 penalty 字段；有产生方落地时词汇才会增长（见[已删除惰性旋钮](../../../.agents/notes/archived/simplification/2026-07-04-drop-inert-request-knobs.md)）。
 - **变体通常要求实际产生方**——`prefill`、逐工具 `strict`、内容块 `cache` 提示和 `agent` 消息来源变体都没有产生方（见 [Agent Note](../../../.agents/notes/archived/simplification/2026-07-04-prune-producerless-vocabulary-variants.md)）。
 - **`BlockAssembler` 只处理核心块类型**——插件添加块类型的流若从未由 `block-end` 关闭，`blocks()` 会抛出异常。

@@ -1,15 +1,15 @@
 /** Source-safe task-board browser registration. */
 
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-api-session-controller/client'
-import type {} from '@deepseek-ai/dsh-client-ui-session-panel/client'
-import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type {} from '@deepseek-ai/dsh-client-locale/client'
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type {} from '@deepseek-ai/dsh-api-remotes/client'
-import type {} from '@deepseek-ai/dsh-client-ui-model-selection/client'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import type { Context as ClientContext } from '@omega-ai/cordis'
+import type {} from '@omega-ai/dsh-api-session-controller/client'
+import type {} from '@omega-ai/dsh-client-ui-session-panel/client'
+import type {} from '@omega-ai/dsh-client-ui-conversation/client'
+import type {} from '@omega-ai/dsh-client-locale/client'
+import type {} from '@omega-ai/dsh-client-ui-renderer/client'
+import type {} from '@omega-ai/dsh-api-remotes/client'
+import type {} from '@omega-ai/dsh-client-ui-model-selection/client'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import { TeamDisableConfirmation, type TeamDisableConfirmationInjected, type TeamDisableRequest } from './TeamDisableConfirmation.tsx'
 import { TeamModePane, TeamModeToggle, type TeamModePaneInjected } from './TeamModeToggle.tsx'
 import { TeamBoard, TeamProgress } from './TeamBoard.tsx'
@@ -17,7 +17,7 @@ import { createTeamBoardStore } from './team-board-store.ts'
 import { TeamCommandRow } from './TeamCommandRow.tsx'
 import { en, ja, es, fr, de, ru, pt, NS, zh, type TeamKey } from './locales.ts'
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@omega-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Shared task-board copy. */
     'agent-team': TeamKey

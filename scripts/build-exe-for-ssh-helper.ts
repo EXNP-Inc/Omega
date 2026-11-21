@@ -16,7 +16,7 @@ import { verifyNativePayload } from './ssh-helper/native.ts'
 
 const root = resolve(import.meta.dirname, '..')
 const closureDirectory = 'packages/ssh/ssh-helper-runtime'
-const closureName = '@deepseek-ai/dsh-ssh-helper-runtime'
+const closureName = '@omega-ai/dsh-ssh-helper-runtime'
 const assets = ['package.json', 'lib/**/*.js', ...['js', 'cjs', 'mjs', 'json', 'node', 'so', 'so.*', 'dylib', 'wasm', 'sh', 'bash'].map(extension => `node_modules/**/*.${extension}`)]
 
 interface Manifest { name: string; version: string; license?: string; dependencies?: Record<string, string> }
@@ -95,7 +95,7 @@ async function copyLicenses(staging: string, product: string): Promise<void> {
       await copyFile(source, output)
     }
   }
-  await copyFile(join(root, 'LICENSE'), join(destination, 'deepseek-harness-MIT.txt'))
+  await copyFile(join(root, 'LICENSE'), join(destination, 'omega-harness-MIT.txt'))
   await copyFile(join(root, 'native/system/LICENSE'), join(destination, 'node-addon-system-BSD.txt'))
   await writeFile(join(destination, 'packages.json'), `${JSON.stringify(inventory, null, 2)}\n`)
 }
@@ -143,7 +143,7 @@ export async function buildSshHelper(argv: string[]): Promise<void> {
     const stagedManifest = await manifest(join(staging, 'package.json'))
     await writeFile(join(staging, 'runtime-bootstrap.mjs'), 'import { runSshHelperRuntime } from "./lib/index.js";\nawait runSshHelperRuntime();\n')
     await writeFile(join(staging, 'package.json'), `${JSON.stringify({ ...stagedManifest,
-      bin: 'runtime-bootstrap.mjs', pkg: { assets, ignore: ['node_modules/@deepseek-ai/node-addon-system-*/**/*'] },
+      bin: 'runtime-bootstrap.mjs', pkg: { assets, ignore: ['node_modules/@omega-ai/node-addon-system-*/**/*'] },
     }, null, 2)}\n`)
     const executable = join(product, 'dsh-ssh-helper')
     await pnpm('exec', 'pkg', staging, '--sea', '--targets', target, '--output', executable)

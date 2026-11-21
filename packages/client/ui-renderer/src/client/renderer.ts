@@ -2,7 +2,7 @@
 import { createElement, useLayoutEffect, useState, type ReactNode } from 'react'
 import { flushSync } from 'react-dom'
 import { createRoot, hydrateRoot, type Root } from 'react-dom/client'
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@omega-ai/cordis'
 import type { UiRendererService } from './index.ts'
 import { buildRenderApp } from './app.tsx'
 import { DocumentStyles } from './styles/document-styles.ts'

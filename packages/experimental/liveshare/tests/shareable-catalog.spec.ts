@@ -60,11 +60,11 @@ describe('shareableViewerCatalog', () => {
 
   it('reads the plugin package locale titles', () => {
     const groups = shareableViewerCatalog(registryOf(
-      '@deepseek-ai/dsh-experimental-client-ui-forge', 'forgePanel/follow',
+      '@omega-ai/dsh-experimental-client-ui-forge', 'forgePanel/follow',
     ))
     expect(groups[0]).toMatchObject({
       plugin: 'forgePanel',
-      package: '@deepseek-ai/dsh-experimental-client-ui-forge',
+      package: '@omega-ai/dsh-experimental-client-ui-forge',
       titles: { zh: '变更请求面板', en: 'Change request panel' },
     })
   })
@@ -122,9 +122,9 @@ describe('shareableViewerCatalog', () => {
   })
 
   it('keeps the package name when the installed package ships no titles', () => {
-    expect(shareableViewerCatalog(registryOf('@deepseek-ai/dsh-brand', 'brand/key')).at(0)).toEqual({
+    expect(shareableViewerCatalog(registryOf('@omega-ai/dsh-brand', 'brand/key')).at(0)).toEqual({
       plugin: 'brand',
-      package: '@deepseek-ai/dsh-brand',
+      package: '@omega-ai/dsh-brand',
       endpoints: ['brand/key'],
     })
   })
@@ -155,7 +155,7 @@ describe('shareableViewerCatalog', () => {
   it('omits components mounted by a core profile bundle', () => {
     expect(shareableViewerCatalog(registry('webRuntime/info'), () => ({
       package: '@fixture/core',
-      bundle: '@deepseek-ai/dsh-web-app',
+      bundle: '@omega-ai/dsh-web-app',
       core: true,
     }))).toEqual([])
   })
@@ -205,7 +205,7 @@ describe('packageRoot', () => {
   })
 
   it('uses the resolver search paths when none are supplied', () => {
-    expect(packageRoot('@deepseek-ai/dsh-experimental-client-ui-forge'))
+    expect(packageRoot('@omega-ai/dsh-experimental-client-ui-forge'))
       .toMatch(/dsh-experimental-client-ui-forge$/u)
     expect(packageRoot('fs')).toBeUndefined()
   })

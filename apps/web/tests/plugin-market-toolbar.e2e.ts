@@ -5,7 +5,7 @@ import { createServer } from 'node:http'
 import { fileURLToPath } from 'node:url'
 import { chromium, type Locator, type Page } from 'playwright'
 import { expect, it } from 'vitest'
-import type {} from '@deepseek-ai/dsh-plugin-market'
+import type {} from '@omega-ai/dsh-plugin-market'
 import { compareOrRefreshGolden, launchWebScaffold, watchConsole, webSnapshotMode } from './scaffold.ts'
 import { ZH_BROWSER_LOCALE } from './support.ts'
 
@@ -112,7 +112,7 @@ it('keeps Discover controls reachable when the toolbar wraps and retains search 
     if (address === null || typeof address === 'string') throw new Error('The plugin index fixture has no TCP port')
     const scaffold = await launchWebScaffold({
       extraOverlayPath: fileURLToPath(new URL('./pin-browse-picker.overlay.yml', import.meta.url)),
-      profile: { packages: [], bundles: ['@deepseek-ai/dsh-experimental-plugin-market-bundle'] },
+      profile: { packages: [], bundles: ['@omega-ai/dsh-experimental-plugin-market-bundle'] },
     })
     try {
       await scaffold.ctx.pluginMarket.setIndexes([`http://127.0.0.1:${address.port}/index.json`])

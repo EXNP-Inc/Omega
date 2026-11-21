@@ -1,5 +1,5 @@
-import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-settings'
+import type { Context } from '@omega-ai/cordis'
+import type {} from '@omega-ai/dsh-settings'
 import { TimelineError } from './error.ts'
 import { Config, liveConfig } from './config.ts'
 import type { PluginConfig } from './config.ts'

@@ -4,12 +4,12 @@
  * One global switch opens every installed plugin's offered methods, closes them all, or follows the
  * per-plugin list. Each plugin is then closed, open for every offered method, or a subset. A full
  * selection is stored as `all`; a subset stores its explicit endpoints.
- * @module @deepseek-ai/dsh-experimental-liveshare/src/client/ShareCapabilitiesPicker
+ * @module @omega-ai/dsh-experimental-liveshare/src/client/ShareCapabilitiesPicker
  */
 
 import type { ReactNode } from 'react'
-import { Checkbox, SegmentedControl, type SegmentedControlOption } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
+import { Checkbox, SegmentedControl, type SegmentedControlOption } from '@omega-ai/dsh-client-ui-primitives'
+import type { PropsLocale } from '@omega-ai/dsh-client-ui-slots'
 import type { NS } from './locales.ts'
 import type { OfferedPlugin, ViewerPluginPolicy } from './share-types.ts'
 import css from './ShareDialog.module.css'

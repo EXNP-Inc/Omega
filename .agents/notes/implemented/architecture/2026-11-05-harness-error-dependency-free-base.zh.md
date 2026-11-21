@@ -12,7 +12,7 @@ Status: implemented
 
 ## 决策
 
-`HarnessError` 位于 `@deepseek-ai/dsh-error`（`packages/util/error`）。这个包没有任何依赖，只包含该基类。`dsh-llm` 依赖它，并从自身入口重新导出同一个类，因此现有的 `import { HarnessError } from '@deepseek-ai/dsh-llm'` 继续可用，两种导入路径指向同一个构造函数，`instanceof` 判断保持一致。LLM 专属的失败码以及 `isHarnessError` 等辅助函数仍留在 `dsh-llm`。
+`HarnessError` 位于 `@omega-ai/dsh-error`（`packages/util/error`）。这个包没有任何依赖，只包含该基类。`dsh-llm` 依赖它，并从自身入口重新导出同一个类，因此现有的 `import { HarnessError } from '@omega-ai/dsh-llm'` 继续可用，两种导入路径指向同一个构造函数，`instanceof` 判断保持一致。LLM 专属的失败码以及 `isHarnessError` 等辅助函数仍留在 `dsh-llm`。
 
 当导入方本身不需要 `dsh-llm` 时，新代码从 `dsh-error` 导入 `HarnessError`，这样只需要基类的包不必依赖 LLM 运行时。`dsh-attachment` 等位于 `dsh-llm` 之下的包可以继承该基类而不形成依赖环。
 

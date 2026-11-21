@@ -7,7 +7,7 @@ import argparse
 import os
 from pathlib import Path
 
-from deepseek_harness import DeepSeekHarness, RunResult
+from omega_harness import OmegaHarness, RunResult
 
 
 def display(result: RunResult) -> None:
@@ -23,13 +23,13 @@ def main() -> None:
     parser.add_argument("--dsh-home", required=True, type=Path)
     parser.add_argument("--workspace", type=Path, default=Path.cwd())
     parser.add_argument("--preset", required=True)
-    parser.add_argument("--provider", default="deepseek-official")
-    parser.add_argument("--model", default=os.environ.get("DSH_MODEL", "deepseek-v4-flash"))
+    parser.add_argument("--provider", default="omega-official")
+    parser.add_argument("--model", default=os.environ.get("DSH_MODEL", "omega-v4-flash"))
     args = parser.parse_args()
     if not args.preset.strip():
         parser.error("--preset must be non-blank")
 
-    with DeepSeekHarness(
+    with OmegaHarness(
         dsh_home=str(args.dsh_home.resolve()), cwd=str(args.workspace.resolve()),
         profile="sdk", provider=args.provider, model=args.model,
         env={"DSH_PERMISSION_MODE": "workspace-write"},

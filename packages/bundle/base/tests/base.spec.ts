@@ -7,8 +7,8 @@ import { existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { parseEntryYaml } from '@deepseek-ai/cordis-plugin-include'
-import { evaluate } from '@deepseek-ai/cordis-plugin-loader'
+import { parseEntryYaml } from '@omega-ai/cordis-plugin-include'
+import { evaluate } from '@omega-ai/cordis-plugin-loader'
 
 describe('dsh-base bundle', () => {
   it('declares a parseable patch list through the dsh.bundle.patch manifest field', () => {
@@ -38,17 +38,17 @@ describe('dsh-base bundle', () => {
     expect(rows.filter(row => row.id === 'subagent-codex')).toHaveLength(0)
     expect(rows.filter(row => row.id === 'subagent-claude-code')).toHaveLength(0)
     expect(rows.find(row => row.id === 'web')?.config).toEqual({ fetchProvider: 'http' })
-    expect(rows.find(row => row.id === 'web-deepseek-api')).toEqual({ id: 'web-deepseek-api', name: '@deepseek-ai/dsh-web-deepseek-api' })
+    expect(rows.find(row => row.id === 'web-omega-api')).toEqual({ id: 'web-omega-api', name: '@omega-ai/dsh-web-omega-api' })
     expect(rows.find(row => row.id === 'web-fetch-http')).toBeDefined()
-    expect(rows.find(row => row.id === 'web-search-deepseek')).toMatchObject({
-      name: '@deepseek-ai/dsh-web-search-deepseek', config: { apiKeyEnv: 'DEEPSEEK_API_KEY' },
+    expect(rows.find(row => row.id === 'web-search-omega')).toMatchObject({
+      name: '@omega-ai/dsh-web-search-omega', config: { apiKeyEnv: 'OMEGA_API_KEY' },
     })
     expect(rows.find(row => row.id === 'tool-web')?.config).toMatchObject({ fetch: true })
-    expect(manifest.dependencies).not.toHaveProperty('@deepseek-ai/dsh-subagent-codex')
-    expect(manifest.dependencies).not.toHaveProperty('@deepseek-ai/dsh-subagent-claude-code')
-    expect(manifest.dependencies).toHaveProperty('@deepseek-ai/dsh-web-fetch-http')
-    expect(manifest.dependencies).toHaveProperty('@deepseek-ai/dsh-web-deepseek-api')
-    expect(manifest.dependencies).toHaveProperty('@deepseek-ai/dsh-web-search-deepseek')
+    expect(manifest.dependencies).not.toHaveProperty('@omega-ai/dsh-subagent-codex')
+    expect(manifest.dependencies).not.toHaveProperty('@omega-ai/dsh-subagent-claude-code')
+    expect(manifest.dependencies).toHaveProperty('@omega-ai/dsh-web-fetch-http')
+    expect(manifest.dependencies).toHaveProperty('@omega-ai/dsh-web-omega-api')
+    expect(manifest.dependencies).toHaveProperty('@omega-ai/dsh-web-search-omega')
   })
 
   it('gates each shell stack by platform with a symmetric disabled expression', () => {

@@ -26,7 +26,7 @@ kind: "package-library"
 操作和 hunk（修改块）只包含可 JSON 序列化的值；解析按输入顺序保留重复路径，路径保持为未解析的字符串。
 
 ```ts
-import { applyHunks, parsePatch } from '@deepseek-ai/dsh-fs-patch'
+import { applyHunks, parsePatch } from '@omega-ai/dsh-fs-patch'
 
 const operations = parsePatch('*** Begin Patch\n*** Update File: hello.txt\n-hello\n+hi\n*** End Patch')
 const operation = operations[0]
@@ -42,7 +42,7 @@ if (operation?.kind === 'update') {
 <a id="compatibility"></a>
 ## 兼容性
 
-参照实现为 [OpenAI Codex rust-v0.158.0](https://github.com/openai/codex/tree/rust-v0.158.0/codex-rs/apply-patch/src)：语法参照 `parser.rs` 和 `streaming_parser.rs`，匹配及 `NormalizeToLf` 重建参照 `seek_sequence.rs` 和 `file_update.rs`。`text_file.rs` 说明独立的换行保留表示。[解析器测试](tests/parse.spec.ts) 与[文本测试](tests/apply.spec.ts) 改编选定的上游用例，包括 `file_update_tests.rs` 和 `lib.rs`。[LICENSE](LICENSE) 在 DeepSeek 贡献的 MIT 许可证之外，保留 OpenAI 署名与 Apache-2.0 条款。
+参照实现为 [OpenAI Codex rust-v0.158.0](https://github.com/openai/codex/tree/rust-v0.158.0/codex-rs/apply-patch/src)：语法参照 `parser.rs` 和 `streaming_parser.rs`，匹配及 `NormalizeToLf` 重建参照 `seek_sequence.rs` 和 `file_update.rs`。`text_file.rs` 说明独立的换行保留表示。[解析器测试](tests/parse.spec.ts) 与[文本测试](tests/apply.spec.ts) 改编选定的上游用例，包括 `file_update_tests.rs` 和 `lib.rs`。[LICENSE](LICENSE) 在 Omega 贡献的 MIT 许可证之外，保留 OpenAI 署名与 Apache-2.0 条款。
 
 ### 解析
 

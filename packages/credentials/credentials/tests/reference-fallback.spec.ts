@@ -1,7 +1,7 @@
 /** Reference reads fall back to the launch environment only when no credentials service is mounted. */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { describe, expect, it, vi } from 'vitest'
-import { createLaunchEnvironmentSnapshot, DSH_LAUNCH_ENVIRONMENT_KEY } from '@deepseek-ai/dsh-launch-environment'
+import { createLaunchEnvironmentSnapshot, DSH_LAUNCH_ENVIRONMENT_KEY } from '@omega-ai/dsh-launch-environment'
 import { credentialRef, credentialRefConfigured, resolveCredentialRef } from '../src/index.ts'
 import { MemoryCredentials } from './memory.ts'
 

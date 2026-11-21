@@ -3,17 +3,17 @@
  * this service shows the server's account through `ctx.connectorAccounts`: the MCP manager's status and authorization
  * decide what the section shows, and the page's operations authorize, cancel, sign out, and restart through the manager
  * on the Host.
- * @module @deepseek-ai/dsh-mcp-account
+ * @module @omega-ai/dsh-mcp-account
  */
-import { Service, type Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-client-ui-connector-account'
-import type {} from '@deepseek-ai/dsh-mcp-manager'
+import { Service, type Context } from '@omega-ai/cordis'
+import type {} from '@omega-ai/dsh-client-ui-connector-account'
+import type {} from '@omega-ai/dsh-mcp-manager'
 import { present, sectionCopy, ServerAccount } from './account.ts'
 import type { McpAccountRegistration } from './types.ts'
 
 export type * from './types.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context {
     /** MCP connector accounts on the Plugins page. */
     mcpAccounts: McpAccounts

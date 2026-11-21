@@ -9,11 +9,11 @@ description: "挂载存储时，已保存凭据现在优先于环境后备；随
 
 ## 变更
 
-早期版本会先使用导出的环境变量，再使用 `$DSH_HOME/.credentials.yaml`（默认为 `~/.dsh/.credentials.yaml`）中同名的 `refs` 条目。这适用于 `DEEPSEEK_API_KEY=… dsh`、shell 配置文件中的导出、CI 机密和容器 `-e` 值。该名字被导出期间，Models 页面无法为其保存密钥。
+早期版本会先使用导出的环境变量，再使用 `$DSH_HOME/.credentials.yaml`（默认为 `~/.dsh/.credentials.yaml`）中同名的 `refs` 条目。这适用于 `OMEGA_API_KEY=… dsh`、shell 配置文件中的导出、CI 机密和容器 `-e` 值。该名字被导出期间，Models 页面无法为其保存密钥。
 
 现在存储的条目优先。只有当文件没有为该名字存储值时，导出的变量才会生效；`$cwd/.env` 和 `$DSH_HOME/.env` 仍排在两者之后。即使该名字已被导出，Models 页面也可以保存和替换密钥。
 
-随附的 `headless` profile 则禁用凭据存储、authorization 和 DeepSeek account 提供方。它依次使用启动环境、项目 `.env` 和 Harness home `.env`，并保持 `.credentials.yaml` 原样。已保存 API 密钥和登录凭据默认不再为 headless 任务提供认证。Web、SDK 和 ACP 保留存储。
+随附的 `headless` profile 则禁用凭据存储、authorization 和 Omega account 提供方。它依次使用启动环境、项目 `.env` 和 Harness home `.env`，并保持 `.credentials.yaml` 原样。已保存 API 密钥和登录凭据默认不再为 headless 任务提供认证。Web、SDK 和 ACP 保留存储。
 
 如果某个 harness home 在 `refs` 下存储了值，而启动 `dsh` 的进程导出了同名变量，你就会受到影响。挂载了这类 home 的容器也包括在内。请求现在使用存储的密钥，而不是导出的密钥。以全新 harness home 启动、没有 `.credentials.yaml` 的 CI 作业或容器不受影响。[存储凭据优先级](../../../../.agents/notes/implemented/architecture/2026-10-09-stored-credential-precedence.zh.md) Agent Note 记录了原因。
 

@@ -3,7 +3,7 @@ description: "通过可选的只读工具列出 Workspace 和 Session 元数据�
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-tool-session-list
+# @omega-ai/dsh-tool-session-list
 
 [English](README.md) | 中文
 
@@ -36,16 +36,16 @@ kind: "package-reference"
 ```yaml
 - insert:
     - id: workspace-registry
-      name: '@deepseek-ai/dsh-workspace'
+      name: '@omega-ai/dsh-workspace'
     - id: tool-session-list
-      name: '@deepseek-ai/dsh-tool-session-list'
+      name: '@omega-ai/dsh-tool-session-list'
 ```
 
 如果组合已经挂载 `workspaceRegistry`，只添加工具条目。Workspace 初始化遵循[注册表现有的历史引导行为](../../workspace/workspace/README.zh.md)；列表调用不会创建或接入会话，也不会修改注册表记录。
 
 ### 列表行为
 
-两个工具都直接返回数组。[工具目录](../../../docs/tool-catalog.zh.md#deepseek-aidsh-tool-session-list)定义参数。先过滤和排序，再分页；每次调用默认返回 20 条，最多接受 100 条，起始偏移为零。继续遍历时，将偏移增加已返回的条目数；空数组表示遍历结束。
+两个工具都直接返回数组。[工具目录](../../../docs/tool-catalog.zh.md#omega-aidsh-tool-session-list)定义参数。先过滤和排序，再分页；每次调用默认返回 20 条，最多接受 100 条，起始偏移为零。继续遍历时，将偏移增加已返回的条目数；空数组表示遍历结束。
 
 `list_workspace` 保留注册表顺序，并包含没有会话的工作区。`list_session` 从不返回 subagent 会话。它默认包含未归档会话；没有指定 `workspace_id` 时，也包含不属于任何 Workspace 的会话。显式选择 Workspace 时使用已记录的成员关系，而非相同的工作目录。归档筛选匹配每个 Session 自身的 ID。
 
@@ -93,7 +93,7 @@ kind: "package-reference"
 
 #### 模型可见内容
 
-[工具目录](../../../docs/tool-catalog.zh.md#deepseek-aidsh-tool-session-list)拥有 `list_workspace` 和 `list_session` 的 schema。每个结果渲染为 JSON 数组。插件不增加独立的系统提示词段落。
+[工具目录](../../../docs/tool-catalog.zh.md#omega-aidsh-tool-session-list)拥有 `list_workspace` 和 `list_session` 的 schema。每个结果渲染为 JSON 数组。插件不增加独立的系统提示词段落。
 
 #### Token 影响
 

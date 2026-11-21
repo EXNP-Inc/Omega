@@ -2,13 +2,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useSyncExternalStore } from 'react'
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
-import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import type { JobsSnapshot, JobView, ObservedJob } from '@deepseek-ai/dsh-api-job-controller/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { makeTranslate } from '@omega-ai/dsh-client-test-runtime'
+import type { JobsSnapshot, JobView, ObservedJob } from '@omega-ai/dsh-api-job-controller/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import { JobsRunningIndicator, JobsSection, type JobsRunningIndicatorProps, type JobsSectionProps } from '../src/client/JobsSection.tsx'
 import { createJobsSectionStore } from '../src/client/jobs-store.ts'
 import { en, zh, ru } from '../src/client/locales.ts'
-import type { PanelDetailsProps, PanelFoldProps } from '@deepseek-ai/dsh-client-ui-session-panel/client'
+import type { PanelDetailsProps, PanelFoldProps } from '@omega-ai/dsh-client-ui-session-panel/client'
 
 beforeEach(() => {
   class TooltipObserver implements ResizeObserver {

@@ -1,7 +1,7 @@
 // The executable is a private helper launched by the dsh Windows provider.
 using System.CommandLine;
-using DeepSeek.Cua.Protocol;
-using DeepSeek.Cua.Windows;
+using Omega.Cua.Protocol;
+using Omega.Cua.Windows;
 
 using var exceptionLog = args.Contains("--shared-server", StringComparer.Ordinal) ? new NativeExceptionLog() : null;
 

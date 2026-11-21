@@ -3,7 +3,7 @@ description: "会话面板：会话标题栏开关与 Chat 视图侧边层中的
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-ui-session-panel
+# @omega-ai/dsh-client-ui-session-panel
 
 [English](README.md) | 中文
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-`@deepseek-ai/dsh-web-app` 套件默认加载本包。开关是会话标题栏的第一个工具按钮，位于共享和计划任务目录之前。它是图标按钮：无障碍名称由面板名称和其角标组成，提示文字说明按下后是显示还是隐藏面板（悬停 500ms 后显示，键盘聚焦时立即显示），`aria-expanded` /var/folders/_g/59jgff8x2gqd39f5vy1wnbfc0000gn/T/tmpkeajpmxo/theirs 表示面板当前是否显示。
+`@omega-ai/dsh-web-app` 套件默认加载本包。开关是会话标题栏的第一个工具按钮，位于共享和计划任务目录之前。它是图标按钮：无障碍名称由面板名称和其角标组成，提示文字说明按下后是显示还是隐藏面板（悬停 500ms 后显示，键盘聚焦时立即显示），`aria-expanded` /var/folders/_g/59jgff8x2gqd39f5vy1wnbfc0000gn/T/tmpkeajpmxo/theirs 表示面板当前是否显示。
 
 ### 停靠与浮层
 

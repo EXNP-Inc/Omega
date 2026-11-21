@@ -1,5 +1,5 @@
 /** Browser wire client: Remote transport and connection generations. */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@omega-ai/cordis'
 import {
   ConnectionController,
   type ConnectionRecoveryConfig,
@@ -12,7 +12,7 @@ import { createWebConnectionRpc, type RpcFetch, type RpcStreamOpen } from './rpc
 import { isLoopbackHostname } from '../loopback-hostname.ts'
 import type { ClientConnectionRpc } from '../rpc.ts'
 import { resolveConnectionConfig } from '../recovery-config.ts'
-import type { SyncedConfig } from '@deepseek-ai/dsh-client-config/types'
+import type { SyncedConfig } from '@omega-ai/dsh-client-config/types'
 import type { ConnectionConfig } from '../types.ts'
 import type { ConnectionInteractions } from '../connect-protocol.ts'
 import { openConnectionWebSocket, type ConnectionWebSocket, type ConnectionWebSocketFactory } from './socket.ts'
@@ -20,7 +20,7 @@ import { openConnectionWebSocket, type ConnectionWebSocket, type ConnectionWebSo
 export type { ConnectionInteractions } from '../connect-protocol.ts'
 export type { ConnectionWebSocket, ConnectionWebSocketFactory } from './socket.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Events {
     /**
      * A connection generation was established. Wire-derived caches must

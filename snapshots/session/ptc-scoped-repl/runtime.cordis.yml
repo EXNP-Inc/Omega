@@ -3,8 +3,8 @@
     executionMode: persistent-in-memory
     replScoped: true
 
-# The live recording and its replay both use the DeepSeek flash model.
+# The live recording and its replay both use the Omega flash model.
 - id: agent-default-model
   config:
-    provider: deepseek-official
-    model: deepseek-flash
+    provider: omega-official
+    model: omega-flash

@@ -3,24 +3,24 @@
  * deterministic ordering and labels, quoted-path suppression, pick projections, codec
  * round-trip, and registration lifecycle.
  */
-import { Context, Service } from '@deepseek-ai/cordis'
+import { Context, Service } from '@omega-ai/cordis'
 import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type { PropsRenderSlots } from '@deepseek-ai/dsh-client-ui-slots'
-import { UiConversation } from '@deepseek-ai/dsh-client-ui-conversation/src/client/conversation/assembly.ts'
+import { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
+import { SlotRegistry } from '@omega-ai/dsh-client-ui-renderer/client'
+import type { PropsRenderSlots } from '@omega-ai/dsh-client-ui-slots'
+import { UiConversation } from '@omega-ai/dsh-client-ui-conversation/src/client/conversation/assembly.ts'
 import {
   FileReference, FolderReference, type FileReferenceInjected, type PathPresenceInjected,
 } from '../src/client/FileReference.tsx'
 import type { PathStat } from '../src/client/path-presence.ts'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import { RemoteError, TestSessions } from '@deepseek-ai/dsh-client-test-runtime'
-import type { SessionFixture } from '@deepseek-ai/dsh-client-test-runtime'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import { RemoteError, TestSessions } from '@omega-ai/dsh-client-test-runtime'
+import type { SessionFixture } from '@omega-ai/dsh-client-test-runtime'
 import type {
   CandidateRequest, ClientSessionContext, InputTriggerCandidate, InputTriggerSource,
-} from '@deepseek-ai/dsh-client-ui-input-trigger/client'
-import type { FileReferenceCandidate } from '@deepseek-ai/dsh-file-reference/types'
-import type { SessionReferenceMentionCandidate } from '@deepseek-ai/dsh-session-reference/types'
+} from '@omega-ai/dsh-client-ui-input-trigger/client'
+import type { FileReferenceCandidate } from '@omega-ai/dsh-file-reference/types'
+import type { SessionReferenceMentionCandidate } from '@omega-ai/dsh-session-reference/types'
 import { apply, inject } from '../src/client/index.ts'
 import { apply as nodeApply } from '../src/index.ts'
 

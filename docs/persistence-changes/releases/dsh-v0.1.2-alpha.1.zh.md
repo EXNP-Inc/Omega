@@ -130,7 +130,7 @@ changes:
   - root: event:schedule/change
     before: 2a7f86849ae54b3398ee49661a757c4fcb59a6192b7036ee2ff514617e13fb42
     after: 19b014756dd1882e2708c7b1ec02d5eef60fea523cf5b0c59cb320177bc4136c
-  - root: event:session-log-deepseek/delivery-accepted
+  - root: event:session-log-omega/delivery-accepted
     before: null
     after: 15fc803b92d6a4b340991f978cf74b530f7cee6a36e565038e7ceff51a708258
   - root: event:session/end-seed
@@ -202,7 +202,7 @@ changes:
   - root: event:user/message
     before: 70a39b3639ca6c2eeabf1e2c8ef4cbc23e24c947e72bf0c28754e7c2f713be26
     after: de7d01b9a4bd2fbdcab0a901dbd221086ee5e3a4a7bc123496b5c4e45b6c5384
-  - root: event:web/deepseek-search-llm-request
+  - root: event:web/omega-search-llm-request
     before: cf6e3aaf1e2de6480aa0157730a41b9a492108a55304100b0f7e112711dd4331
     after: 0c5c79711e02bd8faed288bb89a39c77af15ad28010a0ee3d5c98adb1e5c3fe5
 ```
@@ -249,7 +249,7 @@ changes:
 | `event:request/header.ignorable` | `property-removed` | `review-required` |
 | `event:sandbox/mode.ignorable` | `property-removed` | `review-required` |
 | `event:schedule/change.ignorable` | `property-removed` | `review-required` |
-| `event:session-log-deepseek/delivery-accepted` | `root-added` | `not-required` |
+| `event:session-log-omega/delivery-accepted` | `root-added` | `not-required` |
 | `event:session/end-seed.ignorable` | `property-removed` | `review-required` |
 | `event:session/title.ignorable` | `property-removed` | `review-required` |
 | `event:session/title-llm-request.data.messages[].source` | `union-variants-changed` | `review-required` |
@@ -276,7 +276,7 @@ changes:
 | `event:turn/start.ignorable` | `property-removed` | `review-required` |
 | `event:user/message.data.source` | `union-variants-changed` | `review-required` |
 | `event:user/message.ignorable` | `property-removed` | `review-required` |
-| `event:web/deepseek-search-llm-request.ignorable` | `property-removed` | `review-required` |
+| `event:web/omega-search-llm-request.ignorable` | `property-removed` | `review-required` |
 
 <!-- persistence-release-changes:end -->
 

@@ -10,9 +10,7 @@ it('recognizes the built-in catalog however it was supplied', () => {
 })
 
 it('treats any other catalog as customized', () => {
-  const [flash, pro] = resolveAdapterOptions({}).models
-  expect(isBuiltInCatalog([flash!])).toBe(false)
-  expect(isBuiltInCatalog([{ ...flash!, contextWindow: 524_288 }, pro!])).toBe(false)
-  expect(isBuiltInCatalog([pro!, flash!])).toBe(false)
-  expect(isBuiltInCatalog([])).toBe(false)
+  expect(isBuiltInCatalog(resolveAdapterOptions({ models: [{ id: 'omega-flash', inputModalities: ['text'] }] }).models)).toBe(false)
+  expect(isBuiltInCatalog(resolveAdapterOptions({ models: [{ id: 'omega-flash' }, { id: 'omega-v4-pro' }] }).models)).toBe(false)
+  expect(isBuiltInCatalog(resolveAdapterOptions({ models: [{ id: 'omega-flash', maxTokens: 321 }] }).models)).toBe(false)
 })

@@ -1,13 +1,13 @@
 /** Lazy saved delivery pages owned by the selected task's mounted records view. */
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
-import type { RemoteResult } from '@deepseek-ai/dsh-api-remotes/client'
-import type { PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
+import type { RemoteResult } from '@omega-ai/dsh-api-remotes/client'
+import type { PropsLocale } from '@omega-ai/dsh-client-ui-slots'
 import {
   Button, IconChevronDownOutlineRegular, IconChevronUpOutlineRegular, IconClockOutlineRegular, IconInfoOutlineRegular,
   IconWarningOutlineRegular, StateDot, Tooltip,
-} from '@deepseek-ai/dsh-client-ui-primitives'
-import type { ScheduleDeliveryHistoryRequest, ScheduleDeliveryHistoryResult } from '@deepseek-ai/dsh-schedule/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+} from '@omega-ai/dsh-client-ui-primitives'
+import type { ScheduleDeliveryHistoryRequest, ScheduleDeliveryHistoryResult } from '@omega-ai/dsh-schedule/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import { formatScheduleNextRun } from './schedule-format.ts'
 import css from './TaskManagerPage.module.css'
 

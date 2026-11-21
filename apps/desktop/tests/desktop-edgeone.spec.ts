@@ -23,10 +23,10 @@ describe('production EdgeOne configuration', () => {
   })
 
   it('uses the upload plan URL verbatim and derives only cache-only destinations', () => {
-    const url = 'https://download.deepseek.com/changed/installer.dmg'
+    const url = 'https://download.omega.com/changed/installer.dmg'
     expect(resolveDesktopPurgeConfig(environment, 'mac-arm64', url).publicUrl).toBe(url)
-    expect(resolveDesktopPurgeConfig(environment, 'win-x64').publicUrl).toBe('https://download.deepseek.com/desktop/dsh-latest-windows-x64.exe')
-    expect(resolveDesktopPurgeConfig(environment, 'mac-x64').publicUrl).toBe('https://download.deepseek.com/desktop/dsh-latest-macos-x64.dmg')
+    expect(resolveDesktopPurgeConfig(environment, 'win-x64').publicUrl).toBe('https://download.omega.com/desktop/dsh-latest-windows-x64.exe')
+    expect(resolveDesktopPurgeConfig(environment, 'mac-x64').publicUrl).toBe('https://download.omega.com/desktop/dsh-latest-macos-x64.dmg')
   })
 })
 

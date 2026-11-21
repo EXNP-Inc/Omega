@@ -1,6 +1,6 @@
 /** Shared file-delivery guidance for clients that render desktop-style file references. */
-import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-system-prompt'
+import type { Context } from '@omega-ai/cordis'
+import type {} from '@omega-ai/dsh-system-prompt'
 
 /** Stable Loader identity. */
 export const name = 'deliverable-file-references'

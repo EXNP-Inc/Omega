@@ -1,7 +1,7 @@
 /** Diff note positions on the lines of one file of a GitLab merge request diff version. */
 
 import { createHash } from 'node:crypto'
-import type { ForgeLineComment } from '@deepseek-ai/dsh-experimental-forge'
+import type { ForgeLineComment } from '@omega-ai/dsh-experimental-forge'
 import { parsePatch } from 'diff'
 
 /** One changed file of a diff version. */

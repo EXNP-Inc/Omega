@@ -3,7 +3,7 @@ description: "Configure explicit product usage events, OTLP/HTTP routing, batchi
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-host-product-telemetry-otel
+# @omega-ai/dsh-host-product-telemetry-otel
 
 English | [中文](README.zh.md)
 
@@ -28,11 +28,11 @@ Send selected product usage events to an OTLP/HTTP collector. Events carry a nam
 Mount the plugin in a Cordis composition with the application identity; override the collector endpoint when needed. The Desktop composition mounts it when [product analytics](../../client/product-analytics/README.md) is enabled; ordinary Web does not. The standalone example below reads `DSH_APP_VERSION`; Desktop supplies `DSH_CLIENT_VERSION` through its native launcher. Both must name the running release; the schema rejects an absent version.
 
 ```yaml
-- name: '@deepseek-ai/dsh-otel'
-- name: '@deepseek-ai/dsh-host-product-telemetry-otel'
+- name: '@omega-ai/dsh-otel'
+- name: '@omega-ai/dsh-host-product-telemetry-otel'
   config:
-    endpoint: https://dsh-otel-collector.deepseeksvc.com/v1/logs
-    serviceName: deepseek-harness
+    endpoint: https://dsh-otel-collector.omegasvc.com/v1/logs
+    serviceName: omega-harness
     serviceVersion: !!js process.env.DSH_APP_VERSION
     compression: gzip
     scheduledDelayMillis: 30000
@@ -40,7 +40,7 @@ Mount the plugin in a Cordis composition with the application identity; override
 
 | Field | Default | Meaning |
 |---|---|---|
-| `endpoint` | `https://dsh-otel-collector.deepseeksvc.com/v1/logs` | Full HTTP(S) logs URL |
+| `endpoint` | `https://dsh-otel-collector.omegasvc.com/v1/logs` | Full HTTP(S) logs URL |
 | `serviceName`, `serviceVersion` | required | Application identity on the OTel resource |
 | `channel` | `dsh_otel_report` | Collector `x-channel` header |
 | `compression` | SDK environment | `gzip` or `none`; omission honors OTel compression environment variables |

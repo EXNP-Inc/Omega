@@ -1,10 +1,10 @@
 /** Client Session object layer, Agent scopes, and Remote lifecycle wiring. */
 
-import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-agent/types'
-import type { ConnectionHandle } from '@deepseek-ai/dsh-client-connection/client'
-import type {} from '@deepseek-ai/dsh-client-file-upload/client'
-import { typertOwnedValue } from '@deepseek-ai/dsh-typert-protocol'
+import type { Context } from '@omega-ai/cordis'
+import type {} from '@omega-ai/dsh-agent/types'
+import type { ConnectionHandle } from '@omega-ai/dsh-client-connection/client'
+import type {} from '@omega-ai/dsh-client-file-upload/client'
+import { typertOwnedValue } from '@omega-ai/dsh-typert-protocol'
 import { createSessionControlStream } from './transport.ts'
 import { ClientSessions } from './sessions/service.ts'
 import type { SessionRemotes } from './sessions/remotes.ts'
@@ -96,7 +96,7 @@ export interface SessionRetainFacetMap {}
 /** Declaration-merge-extensible facet names a reference may retain. */
 export type SessionRetainFacet = Extract<keyof SessionRetainFacetMap, string>
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context {
     /** Client Session object layer and Agent scope owner. */
     sessions: import('./contract/sessions.ts').ISessions

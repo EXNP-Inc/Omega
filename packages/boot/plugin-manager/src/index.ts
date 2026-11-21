@@ -4,19 +4,19 @@ import { existsSync, readFileSync } from 'node:fs'
 import { readFile, rm } from 'node:fs/promises'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { withFileLock, writeFileAtomic } from '@deepseek-ai/dsh-atomic-write'
-import { Context } from '@deepseek-ai/cordis'
-import type { EntryOptions } from '@deepseek-ai/cordis-plugin-loader'
-import type { PatchOptions } from '@deepseek-ai/cordis-plugin-include'
-import z from '@deepseek-ai/schemastery'
+import { withFileLock, writeFileAtomic } from '@omega-ai/dsh-atomic-write'
+import { Context } from '@omega-ai/cordis'
+import type { EntryOptions } from '@omega-ai/cordis-plugin-loader'
+import type { PatchOptions } from '@omega-ai/cordis-plugin-include'
+import z from '@omega-ai/schemastery'
 import semver from 'semver'
-import { TypertRemoteService, Remote, RemoteError, remoteErrorOf } from '@deepseek-ai/dsh-typert-protocol'
-import { detailImageResponse, NPM_FILE_SOURCES } from '@deepseek-ai/dsh-plugin-detail'
-import type { NpmFileSource } from '@deepseek-ai/dsh-plugin-detail/types'
-import { MAX_TIMER_DELAY_MS } from '@deepseek-ai/dsh-timeout'
-import type {} from '@deepseek-ai/dsh-client-connection'
+import { TypertRemoteService, Remote, RemoteError, remoteErrorOf } from '@omega-ai/dsh-typert-protocol'
+import { detailImageResponse, NPM_FILE_SOURCES } from '@omega-ai/dsh-plugin-detail'
+import type { NpmFileSource } from '@omega-ai/dsh-plugin-detail/types'
+import { MAX_TIMER_DELAY_MS } from '@omega-ai/dsh-timeout'
+import type {} from '@omega-ai/dsh-client-connection'
 import { readBundleDocument, readBundleImage, type BundleDetailOptions } from './bundle-detail.ts'
-import { pluginEntryId, readPluginInventory } from '@deepseek-ai/dsh-host-plugin-inventory'
+import { pluginEntryId, readPluginInventory } from '@omega-ai/dsh-host-plugin-inventory'
 import {
   readPluginMeta, readProfileManifest, resolveBundleDir, loadOverlayPatches, composeEntries,
   readProfilePatches, bundlePatchPaths,
@@ -24,10 +24,10 @@ import {
   setProfileVersionExemption, validatePluginVersionExemption, PROFILE_COMPATIBILITY_FILENAME,
   getDshRuntimeVersion, ResolutionRestartRequired,
   assertBundlePlatform, UnsupportedBundlePlatformError,
-} from '@deepseek-ai/dsh-app-boot'
-import { OPTIONAL_BUNDLES, OFFICIAL_ON_DEMAND_CATALOG, PROTECTED_PLUGINS } from '@deepseek-ai/dsh-official-bundles'
-import type {} from '@deepseek-ai/dsh-hmr'
-import type { ProfileContext, ProfileManifest } from '@deepseek-ai/dsh-app-boot'
+} from '@omega-ai/dsh-app-boot'
+import { OPTIONAL_BUNDLES, OFFICIAL_ON_DEMAND_CATALOG, PROTECTED_PLUGINS } from '@omega-ai/dsh-official-bundles'
+import type {} from '@omega-ai/dsh-hmr'
+import type { ProfileContext, ProfileManifest } from '@omega-ai/dsh-app-boot'
 import { bundleManifest, readProfileRegistry, registryArguments, runProfilePnpm, saveManifest, viewProfilePackage } from './operations.ts'
 import { classifyInstallFailure } from './install-failure.ts'
 import { officialBundleInstallTarget } from './official-install-target.ts'
@@ -314,7 +314,7 @@ function diagnosticVersion(value: unknown): string | undefined {
   return typeof value === 'string' && value.length <= 128 ? value : undefined
 }
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context {
     /** Persistent management of the current profile's composition and packages. */
     pluginManager: PluginManager
@@ -458,7 +458,7 @@ export class PluginManager extends TypertRemoteService {
 
   /** Grant or revoke one exact plugin/runtime exemption and reevaluate live plugins.
    * @param packageVersion Exact manifest package name followed by @ and its version; never an installation spec or alias.
-   * @param runtimeVersion Exact current DSH version for grants; revocation may name a previous runtime.
+   * @param runtimeVersion Exact current Omega version for grants; revocation may name a previous runtime.
    * @param enabled Whether to grant rather than revoke the exemption.
    * @param acceptRisk Required true for grants after the user accepts possible crashes and data loss.
    * @returns Saved and runtime outcomes. Startup-only profiles require restart.
@@ -677,12 +677,12 @@ export class PluginManager extends TypertRemoteService {
   }
 
   /** Read the published versions newer than an installed registry package's version, from the first registry that answers.
-   * Official bundles follow the DSH version and are not listed.
+   * Official bundles follow the Omega version and are not listed.
    * @param name Installed profile dependency name.
    * @param options The registry asked first; absent, the one the package was installed from in this process, else the configured one.
    * @param signal Ends the lookups early.
    * @returns At most `versionListLimit` newer versions, newest first, with their tags, deprecation, bundle declaration,
-   * and DSH compatibility, and the registry that answered; or why no list could be read, with every registry asked.
+   * and Omega compatibility, and the registry that answered; or why no list could be read, with every registry asked.
    */
   @Remote
   async listVersions(name: string, options?: ListVersionsOptions, signal?: AbortSignal): Promise<PluginVersionList> {
@@ -726,7 +726,7 @@ export class PluginManager extends TypertRemoteService {
 
   /**
    * Replace an installed bundle with a newer version. A registry copy updates to `name@version`, checked on the registry
-   * first: it must exist, declare a bundle, and accept the running DSH version, or nothing changes. A Git copy updates
+   * first: it must exist, declare a bundle, and accept the running Omega version, or nothing changes. A Git copy updates
    * to the Git spec `options.spec` names, which must pin a full commit of the repository directory the copy came from;
    * with HMR, a network failure or timeout reaching its repository stops the update before anything changes. pnpm reads
    * a Git package only while installing it, so its bundle and compatibility are checked then. Either target

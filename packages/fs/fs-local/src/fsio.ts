@@ -2,7 +2,7 @@
  * Cordis-free local filesystem mechanics. This provider layer returns validated UTF-8 text,
  * streams large files, and rejects binary data; line windows belong to `dsh-tool-fs`. Writes
  * stage an exclusive owner-only file in a private sibling directory and atomically publish it.
- * @module @deepseek-ai/dsh-fs-local/fsio
+ * @module @omega-ai/dsh-fs-local/fsio
  */
 
 import { randomUUID } from 'node:crypto'
@@ -12,9 +12,9 @@ import type { BigIntStats, Dirent, Stats } from 'node:fs'
 import { basename, dirname, isAbsolute, join, resolve, sep } from 'node:path'
 import { TextDecoder, promisify } from 'node:util'
 import { homedir } from 'node:os'
-import { FsError, type FsTargetKey, type FsVersion, fsErrorFromErrno } from '@deepseek-ai/dsh-fs'
+import { FsError, type FsTargetKey, type FsVersion, fsErrorFromErrno } from '@omega-ai/dsh-fs'
 import { copyFileDaclWin32, replaceFileWin32 } from './win32.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const BINARY_SAMPLE_BYTES = 8192
 const realpath = promisify(realpathCallback.native)

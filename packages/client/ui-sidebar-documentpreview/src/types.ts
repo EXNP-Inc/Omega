@@ -1,5 +1,5 @@
 /** Document preview configuration shared by the Host and Client faces; types only. */
-import type { Volatile } from '@deepseek-ai/cordis'
+import type { Volatile } from '@omega-ai/cordis'
 
 /** Retained PDF limits; pending conversions share cancellation by reader lifetime. */
 export interface OfficeLimits {

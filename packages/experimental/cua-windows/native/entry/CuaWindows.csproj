@@ -12,7 +12,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
-	<RootNamespace>DeepSeek.Cua.Windows</RootNamespace>
+	<RootNamespace>Omega.Cua.Windows</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

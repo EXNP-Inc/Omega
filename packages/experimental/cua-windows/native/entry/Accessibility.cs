@@ -3,9 +3,9 @@ using System.Globalization;
 using System.Text;
 using System.Windows.Automation;
 using System.Windows.Automation.Text;
-using DeepSeek.Cua.Protocol;
+using Omega.Cua.Protocol;
 
-namespace DeepSeek.Cua.Windows;
+namespace Omega.Cua.Windows;
 
 internal sealed record ElementReference(AutomationElement Element, WindowState Window);
 internal sealed record Snapshot(string Id, nint Scope, WindowState[] Windows, IReadOnlyDictionary<string, ElementReference> Elements);

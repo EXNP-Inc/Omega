@@ -1,9 +1,9 @@
 // Explorer owns user-launched applications, independently of the helper's managed process Job.
 using System.Reflection;
 using System.Runtime.InteropServices;
-using DeepSeek.Cua.Protocol;
+using Omega.Cua.Protocol;
 
-namespace DeepSeek.Cua.Windows;
+namespace Omega.Cua.Windows;
 
 internal static class ShellBroker
 {

@@ -12,12 +12,12 @@
  * disposing the old instance and creating a new one; identical `serverName`
  * reproduces identical public tool names.
  *
- * @module @deepseek-ai/dsh-mcp-client
+ * @module @omega-ai/dsh-mcp-client
  */
 
-import { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import { scopeOf } from '@deepseek-ai/dsh-scope'
+import { Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
+import { scopeOf } from '@omega-ai/dsh-scope'
 import { resolveReconnectPolicy, startConnection } from './connection.ts'
 import type { ReconnectConfig } from './connection.ts'
 import { hasOAuthWithAuthorizationHeader, StdioSchema, StreamableHttpSchema } from './config.ts'
@@ -27,7 +27,7 @@ import { registerStatusCell } from './status.ts'
 import { McpOAuthCredentials } from './oauth-credentials.ts'
 import type { McpOAuthConfig } from './oauth-options.ts'
 // Side-effect type import: declaration-merges `ctx.tools` onto Context.
-import type {} from '@deepseek-ai/dsh-tools'
+import type {} from '@omega-ai/dsh-tools'
 
 export { createMcpToolDefinition } from './tools.ts'
 export { McpLocalError, McpToolError } from './diagnostic.ts'

@@ -19,9 +19,9 @@ A Client plugin package keeps raw images under `src/client/assets/`. The shared 
 Client code imports an image (`import art from './assets/a.webp'`), and the package's own stylesheets reference one with a relative `url()`. Both compile to a `require.asset(reference)` call whose argument is the same reference; a stylesheet becomes string literals joined with those calls, which run when its injected text is built. The module system answers each call through its `resolveAsset` option, which returns the reference unchanged unless a carrier supplies one. The emitted file name inserts the content revision, the first 12 hexadecimal digits of the SHA-1 digest of the bytes, before the extension, so one URL always names one content:
 
 ```text
-src/client/assets/running-whale@2x.png
-lib/assets/running-whale@2x-06738fa29b2f.png
-plugins/@deepseek-ai/dsh-client-ui-chat/assets/running-whale%402x-06738fa29b2f.png
+src/client/assets/running-omega@2x.png
+lib/assets/running-omega@2x-3e4f0507d168.png
+plugins/@omega-ai/dsh-client-ui-chat/assets/running-omega%402x-3e4f0507d168.png
 ```
 
 Each path segment is percent-encoded with `encodeURIComponent` and then `!`, `'`, `(`, `)`, and `*`, so the reference is also a valid unquoted CSS `url()`, and the package name is emitted verbatim. The URL is relative to the shell document, like every app-owned route, so it resolves under any mount and from injected `<style>` text. Components need no hook, injected value, or service: the URL is a module constant computed when the module first runs.

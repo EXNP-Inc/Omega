@@ -3,25 +3,25 @@ import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { expect, it, onTestFinished, vi } from 'vitest'
-import type { Context } from '@deepseek-ai/cordis'
-import Timer from '@deepseek-ai/cordis-plugin-timer'
-import { boot, initProfile, loadProfileDirectory, readProfilePatches, readProfileManifest, type ProfileContext } from '@deepseek-ai/dsh-app-boot'
-import Hmr from '@deepseek-ai/dsh-hmr'
-import PluginManager from '@deepseek-ai/dsh-plugin-manager'
-import Sessions, { type SessionId } from '@deepseek-ai/dsh-session'
-import Projections from '@deepseek-ai/dsh-session-projection'
-import Agents from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import Llm, { LlmAdapter, createUserMessage, type GenerateOptions, type StreamChunk } from '@deepseek-ai/dsh-llm'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import Tools from '@deepseek-ai/dsh-tools'
-import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
-import Skills from '@deepseek-ai/dsh-skill'
-import Access from '@deepseek-ai/dsh-api-remote-access'
-import * as ActionCards from '@deepseek-ai/dsh-action-cards'
+import type { Context } from '@omega-ai/cordis'
+import Timer from '@omega-ai/cordis-plugin-timer'
+import { boot, initProfile, loadProfileDirectory, readProfilePatches, readProfileManifest, type ProfileContext } from '@omega-ai/dsh-app-boot'
+import Hmr from '@omega-ai/dsh-hmr'
+import PluginManager from '@omega-ai/dsh-plugin-manager'
+import Sessions, { type SessionId } from '@omega-ai/dsh-session'
+import Projections from '@omega-ai/dsh-session-projection'
+import Agents from '@omega-ai/dsh-agent'
+import AgentLoop from '@omega-ai/dsh-agent-loop'
+import Llm, { LlmAdapter, createUserMessage, type GenerateOptions, type StreamChunk } from '@omega-ai/dsh-llm'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import Tools from '@omega-ai/dsh-tools'
+import * as NativeToolExecutor from '@omega-ai/dsh-tool-executor-native'
+import Skills from '@omega-ai/dsh-skill'
+import Access from '@omega-ai/dsh-api-remote-access'
+import * as ActionCards from '@omega-ai/dsh-action-cards'
 import * as Recommendations from '../src/index.ts'
 import { ACTION, logProposal } from './fixture.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 class Model extends LlmAdapter {
   readonly requests: GenerateOptions[] = []
@@ -40,7 +40,7 @@ it.each(['normal', 'consumer-unload'] as const)('enables through the real Loader
   onTestFinished(async () => { await owner?.fiber.dispose(); await rm(home, { recursive: true, force: true }) })
   const dir = join(home, 'profiles', 'test')
   const anchor = join(home, 'package.json')
-  const name = '@deepseek-ai/dsh-experimental-session-search'
+  const name = '@omega-ai/dsh-experimental-session-search'
   await writeFile(anchor, JSON.stringify({ name: 'installation', dependencies: { [name]: '1.0.0' } }))
   initProfile(dir, ['fixture-base'])
   async function bundle(root: string, name: string, patch: string) {

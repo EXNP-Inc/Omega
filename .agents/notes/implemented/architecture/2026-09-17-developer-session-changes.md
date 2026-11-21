@@ -32,4 +32,4 @@ Session V4 reserves the persisted representation needed by issue #4146. Producti
 
 ## Consequences
 
-Session V4 persists the tool-change representation for issue #4146. Emission, route projection, DeepSeek serialization, and Chat and Trajectory presentation are owned by the [dynamic tool update decision](2026-09-20-dynamic-tool-updates.md).
+Session V4 persists the tool-change representation for issue #4146. Emission, route projection, Omega serialization, and Chat and Trajectory presentation are owned by the [dynamic tool update decision](2026-09-20-dynamic-tool-updates.md).

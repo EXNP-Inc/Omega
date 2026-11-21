@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/upgrade-guide/v0.2.1-rc.2/model-badge-package-removal/guide.md
 /:
-  en: e3db78299cefc568
-  zh: 0c1892abef438638
+  en: 8b52aa04bd9614ce
+  zh: 22abe45216c09379
 /the-ui-deepseek-model-label-1017-package-is-removed:
   en: 772b7e3479b2e52b
   zh: 9d7a225cf77c2664
 /the-ui-deepseek-model-label-1017-package-is-removed/change:
-  en: 48543e623bac7b47
-  zh: a22640ced4b587fa
+  en: d0e151e5d5b10cc3
+  zh: aab580e813e758a4
 /the-ui-deepseek-model-label-1017-package-is-removed/migration:
-  en: 3e366a0f2daf220c
-  zh: 859d6bc103213809
+  en: 563e0cdd337ab153
+  zh: 506675ee074335b4

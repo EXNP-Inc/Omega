@@ -1,4 +1,4 @@
-/** Deterministic serialization of credential headers for credential-scoped caches. @module dsh-llm-deepseek/auth-headers */
+/** Deterministic serialization of credential headers for credential-scoped caches. @module dsh-llm-omega/auth-headers */
 
 /**
  * Serialize credential headers so caches scoped by credential digest the same

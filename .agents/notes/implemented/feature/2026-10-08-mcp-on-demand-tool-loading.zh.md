@@ -8,7 +8,7 @@ Status: implemented
 
 已连接的 MCP 服务器会在每次请求中发送全部工具定义。Notion 托管服务器提供 46 个工具，定义合计约 214,500 字符；其中一个工具的输入 schema 就约有 83,000 字符。因此，只注册服务器的 Notion 插件在模型使用任何 Notion 工具之前，就会让每次请求都承担这部分上下文。
 
-现有的 `ToolSchema.deferLoading` 标记解决不了这个问题。只有声明了 `toolUpdate` 的路由才会遵循它，而目录中只有默认的 `deepseek-flash` 条目声明了。该标记能保留可复用的前缀，但不会减少上下文。
+现有的 `ToolSchema.deferLoading` 标记解决不了这个问题。只有声明了 `toolUpdate` 的路由才会遵循它，而目录中只有默认的 `omega-flash` 条目声明了。该标记能保留可复用的前缀，但不会减少上下文。
 
 ## Decision
 

@@ -3,13 +3,13 @@ description: "The provider-neutral model-call service for users and maintainers 
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-llm
+# @omega-ai/dsh-llm
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-Use `@deepseek-ai/dsh-llm` to stream model calls through configured provider adapters, discover models, and resolve model capabilities and call defaults. Callers must keep all model-visible input reconstructable from the session log. Loop-built requests arrive deep-frozen, so extensions and adapters cannot rewrite them. Each stream is one provider attempt: provider-specific translation stays with its adapter, while the optional `@deepseek-ai/dsh-llm-retry` package re-runs failed requests. Streams always end with a terminal result, so callers can handle success, failure, and cancellation consistently.
+Use `@omega-ai/dsh-llm` to stream model calls through configured provider adapters, discover models, and resolve model capabilities and call defaults. Callers must keep all model-visible input reconstructable from the session log. Loop-built requests arrive deep-frozen, so extensions and adapters cannot rewrite them. Each stream is one provider attempt: provider-specific translation stays with its adapter, while the optional `@omega-ai/dsh-llm-retry` package re-runs failed requests. Streams always end with a terminal result, so callers can handle success, failure, and cancellation consistently.
 
 ## Table of Contents
 
@@ -29,30 +29,30 @@ Use `@deepseek-ai/dsh-llm` to stream model calls through configured provider ada
 
 Any composition that calls a model provider — an agent loop, a session-title generator, a compaction summarizer — streams its requests through this service. Mount it together with at least one provider adapter; the service itself has no configuration and no provider wire code.
 
-Import message, tool-call, provider-request, attempt, and reasoning-effort identifier types from `@deepseek-ai/dsh-llm/types` or the package root using `import type`. Brand strings with `brandString<IdentifierType>(value)` from `@deepseek-ai/dsh-brand`; branding preserves the string without validation.
+Import message, tool-call, provider-request, attempt, and reasoning-effort identifier types from `@omega-ai/dsh-llm/types` or the package root using `import type`. Brand strings with `brandString<IdentifierType>(value)` from `@omega-ai/dsh-brand`; branding preserves the string without validation.
 
 ### When to choose it
 
-Choose this package whenever a plugin or composition needs to call a model: it is the only supported path into provider adapters, and it keeps one vocabulary across the loop, the session log, and every consumer. Do not reach for it when you need provider-specific wire behavior (that belongs in an adapter such as `dsh-llm-deepseek` or `dsh-llm-pi-ai`) or retry execution (that belongs in `dsh-llm-retry`).
+Choose this package whenever a plugin or composition needs to call a model: it is the only supported path into provider adapters, and it keeps one vocabulary across the loop, the session log, and every consumer. Do not reach for it when you need provider-specific wire behavior (that belongs in an adapter such as `dsh-llm-omega` or `dsh-llm-pi-ai`) or retry execution (that belongs in `dsh-llm-retry`).
 
 ### Minimal composition
 
-Mount the service and at least one adapter, then select the provider by name in every request. The DeepSeek route below also requires [`dsh-deepseek-auth`](../../account/deepseek-auth/README.md), which releases its API key:
+Mount the service and at least one adapter, then select the provider by name in every request. The Omega route below also requires [`dsh-omega-auth`](../../account/omega-auth/README.md), which releases its API key:
 
 ```yaml
-- name: '@deepseek-ai/dsh-llm'
-- name: '@deepseek-ai/dsh-deepseek-auth'
-- name: '@deepseek-ai/dsh-llm-deepseek-api-key'
+- name: '@omega-ai/dsh-llm'
+- name: '@omega-ai/dsh-omega-auth'
+- name: '@omega-ai/dsh-llm-omega-api-key'
   config:
-    apiKeyEnv: DEEPSEEK_API_KEY
+    apiKeyEnv: OMEGA_API_KEY
 ```
 
 A stream returns token-level chunks and always ends with one terminal `finish` chunk. `BlockAssembler` turns the chunks into content blocks and messages; `AssistantStreamAccumulator` preserves their exact timestamps and token boundaries in a compact representation that the loop embeds in one durable attempt settlement:
 
 ```text
 for await (const chunk of ctx.llm.stream({
-  provider: 'deepseek-official',
-  model: 'deepseek-v4-flash',
+  provider: 'omega-official',
+  model: 'omega-v4-flash',
   messages: [{ role: 'user', content: [{ type: 'text', text: 'Hello' }] }],
 })) {
   // chunks: block-start, text-delta, ..., usage, finish
@@ -61,7 +61,7 @@ for await (const chunk of ctx.llm.stream({
 
 After a successful mount, `ctx.llm.listProviders()` reports the registered routes in registration order.
 
-Auxiliary request producers declare their `purpose` in `LlmRequestPurposeMap` through module augmentation of `@deepseek-ai/dsh-llm/types`; each key maps to `true`. `GenerateOptions.purpose` accepts the declared keys, while ordinary conversation requests omit it. Import the producer package or its public types before constructing that auxiliary request. Adapters carry the purpose as model-hidden transport metadata and handle unfamiliar purposes without rejecting the request.
+Auxiliary request producers declare their `purpose` in `LlmRequestPurposeMap` through module augmentation of `@omega-ai/dsh-llm/types`; each key maps to `true`. `GenerateOptions.purpose` accepts the declared keys, while ordinary conversation requests omit it. Import the producer package or its public types before constructing that auxiliary request. Adapters carry the purpose as model-hidden transport metadata and handle unfamiliar purposes without rejecting the request.
 
 `GenerateOptions.messages` accepts durable `Message` values and request-only `RequestUserInput` values. Request-only inputs carry user-role content with no `id` or `source`; Session writes and Agent delivery still require durable messages. Callers keep auxiliary inputs unchanged until the stream settles. A caller that records its exact request, such as session-title generation, must use durable messages.
 
@@ -70,7 +70,7 @@ Auxiliary request producers declare their `purpose` in `LlmRequestPurposeMap` th
 Configuration functions select controls before adapter defaults are materialized. For example, combine least-effort selection with an explicit output cap, then pass `configure(maxTokens)` as the third argument:
 
 ```ts
-import type { ConfigureCall } from '@deepseek-ai/dsh-llm'
+import type { ConfigureCall } from '@omega-ai/dsh-llm'
 
 const leastReasoning: ConfigureCall = (controls, model) => {
   const first = model.reasoning?.efforts[0]
@@ -86,7 +86,7 @@ const configure = (maxTokens: number): ConfigureCall =>
 
 ### What you can do
 
-- **Extract content text** — `extractTextContent(content, options?)` from `@deepseek-ai/dsh-llm/message` joins only `text` blocks in order, preserving whitespace and empty text blocks while omitting all other block types without placeholders. The optional `options.separator` defaults to `''`. It accepts read-only content and returns `''` when no text blocks exist.
+- **Extract content text** — `extractTextContent(content, options?)` from `@omega-ai/dsh-llm/message` joins only `text` blocks in order, preserving whitespace and empty text blocks while omitting all other block types without placeholders. The optional `options.separator` defaults to `''`. It accepts read-only content and returns `''` when no text blocks exist.
 - **Stream one model call** — `ctx.llm.stream(options)` yields raw chunks (token-level deltas) for any registered provider and model; consumers assemble them with `BlockAssembler`.
 - **Register provider adapters** — an adapter owns one or more provider routes, and its registration captures that route's retry policy; registering the same route twice fails with `DUPLICATE_ADAPTER`.
 - **Expose and activate providers through configuration** — adapters declare configurable-provider routes plus a settings namespace, so configuration surfaces can activate dormant providers and edit connection facts without a restart. `LlmConfigurableProvider.error` reports a configuration diagnostic for repair; unaffected models can remain serviceable. An entry can also carry `defaultBaseURL`, the endpoint the adapter uses when the profile sets none, and `nativeAuth`, the environment variables and OAuth sign-in that the adapter's authentication reads when the profile names no credential reference; `baseURLEnv` lists environment variables used to configure the endpoint. Configuration UIs read these fields from the directory without calling the adapter.
@@ -153,11 +153,11 @@ File detection reads current content, including tool-role result content, on eve
 Read these pages when the package-level contract is not enough. They move from the shared types to the concrete adapters, the retry executor, and the measurement service.
 
 - [LLM streaming subsystem](../../../docs/subsystems/llm-streaming.md) — the message and block types, compact Assistant stream records, the `StreamChunk` protocol, and the adapter contract.
-- [llm-deepseek adapter](../llm-deepseek/README.md) — the direct DeepSeek Messages implementation.
+- [llm-omega adapter](../llm-omega/README.md) — the direct Omega Messages implementation.
 - [llm-pi-ai adapter](../llm-pi-ai/README.md) — the pi-ai-backed multi-provider implementation.
 - [llm-retry](../llm-retry/README.md) — the retry executor that re-runs failed model requests.
 - [Token meter](../token-meter/README.md) — replay-aware request and context pressure measurement.
-- [Twin LLM adapters](../../../.agents/notes/implemented/architecture/2026-06-13-twin-llm-adapters.md) — why the DeepSeek route ships two structurally different adapters.
+- [Twin LLM adapters](../../../.agents/notes/implemented/architecture/2026-06-13-twin-llm-adapters.md) — why the Omega route ships two structurally different adapters.
 - [Terminal LLM stream failures](../../../.agents/notes/implemented/architecture/2026-07-29-terminal-llm-stream-failures.md) — the service boundary between model-request outcomes and plugin failures.
 
 -----
@@ -178,8 +178,8 @@ Reasoning-effort materialization preserves the assembled request prefix. Image i
 
 These limits define where this service stops and other packages or future work begin. They are current package constraints, not a task backlog.
 
-- **No retry execution, caching, or rate limiting ships in this service** — provider registration stores the retry policy, but a stream remains a single provider attempt; `@deepseek-ai/dsh-llm-retry` executes the policy at durable agent-step boundaries.
-- **Only `attributionHeaders()` carries the `DSH_USER_AGENT_SUFFIX` token** — DeepSeek web search and web API plugins send their own fixed `User-Agent`, so the profile suffix does not reach those requests.
+- **No retry execution, caching, or rate limiting ships in this service** — provider registration stores the retry policy, but a stream remains a single provider attempt; `@omega-ai/dsh-llm-retry` executes the policy at durable agent-step boundaries.
+- **Only `attributionHeaders()` carries the `DSH_USER_AGENT_SUFFIX` token** — Omega web search and web API plugins send their own fixed `User-Agent`, so the profile suffix does not reach those requests.
 - **`GenerateOptions` sampling is `temperature`/`maxTokens`/`stop` only** — no `tool_choice`, `top_p`, or penalty fields; the vocabulary grows when a producer lands ([dropped inert knobs](../../../.agents/notes/archived/simplification/2026-07-04-drop-inert-request-knobs.md)).
 - **Variants normally require a producer** — `prefill`, per-tool `strict`, block `cache` hints, and the `agent` message-source variant have no producer ([Agent Note](../../../.agents/notes/archived/simplification/2026-07-04-prune-producerless-vocabulary-variants.md)).
 - **`BlockAssembler` handles core block kinds only** — a plugin-added block type whose stream is never closed by `block-end` makes `blocks()` throw.

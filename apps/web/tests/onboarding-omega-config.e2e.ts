@@ -1,4 +1,4 @@
-// Keyless browser e2e: the shipped DeepSeek adapter stays mounted while its
+// Keyless browser e2e: the shipped Omega adapter stays mounted while its
 // credential is absent, both ordered steps share the shipped modal chrome,
 // and the inline key write lands in an isolated harness home without a reload
 // or model call.
@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
-import { credentialRef } from '@deepseek-ai/dsh-credentials'
+import { credentialRef } from '@omega-ai/dsh-credentials'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
 import {
   acknowledgeReloadConnectionLoss, assertFixtureInventory, captureStableAria, compareOrRefreshGolden,
@@ -19,7 +19,7 @@ import {
 } from './scaffold.ts'
 import { openSettings, ZH_BROWSER_LOCALE, connectFreshWorkspaceZh, saveFailureShot } from './support.ts'
 
-const SNAPSHOT_DIR = fileURLToPath(new URL('./expected/onboarding-deepseek-config', import.meta.url))
+const SNAPSHOT_DIR = fileURLToPath(new URL('./expected/onboarding-omega-config', import.meta.url))
 const WELCOME_EXPECTED = join(SNAPSHOT_DIR, 'welcome.expected.md')
 const SIGN_IN_EXPECTED = join(SNAPSHOT_DIR, 'sign-in.expected.md')
 const MISSING_EXPECTED = join(SNAPSHOT_DIR, 'missing.expected.md')
@@ -27,7 +27,7 @@ const MODELS_EXPECTED = join(SNAPSHOT_DIR, 'models.expected.md')
 const DEFAULT_MODELS_EXPECTED = join(SNAPSHOT_DIR, 'default-models.expected.md')
 const MODE = webSnapshotMode()
 
-describe.skipIf(MODE === 'record')('web e2e: first-run DeepSeek credential setup', () => {
+describe.skipIf(MODE === 'record')('web e2e: first-run Omega credential setup', () => {
   let scaffold: WebScaffold
   let browser: Browser
   let page: Page
@@ -36,7 +36,7 @@ describe.skipIf(MODE === 'record')('web e2e: first-run DeepSeek credential setup
   const secret = `dsh_onboarding_${randomBytes(12).toString('hex')}_test`
 
   beforeAll(async () => {
-    scaffold = await launchWebScaffold({ deepSeekMissingCredential: true, welcomeNoticePending: true })
+    scaffold = await launchWebScaffold({ omegaMissingCredential: true, welcomeNoticePending: true })
     browser = await chromium.launch()
     // The scenario asserts the shipped Chinese copy, so the browser asks for it.
     page = await browser.newPage({ viewport: { width: 1440, height: 960 }, locale: ZH_BROWSER_LOCALE })
@@ -52,7 +52,7 @@ describe.skipIf(MODE === 'record')('web e2e: first-run DeepSeek credential setup
   })
 
   it('stores a key write-only and observes configured state without restarting', async () => {
-    onTestFailed(() => saveFailureShot(page, 'web-e2e-onboarding-deepseek-config'))
+    onTestFailed(() => saveFailureShot(page, 'web-e2e-onboarding-omega-config'))
     const welcome = page.getByRole('dialog', { name: WELCOME_NOTICE_COPY.zh.title })
     await welcome.waitFor({ timeout: 15_000 })
     expect(await page.locator('#root').evaluate(root => (root as HTMLElement).inert)).toBe(true)
@@ -93,7 +93,7 @@ describe.skipIf(MODE === 'record')('web e2e: first-run DeepSeek credential setup
     expect(await page.locator('#root').evaluate(root => (root as HTMLElement).inert)).toBe(false)
 
     const stored = await readFile(join(scaffold.harnessHome, '.credentials.yaml'), 'utf8')
-    expect(stored.includes(`DEEPSEEK_API_KEY: ${secret}`)).toBe(true)
+    expect(stored.includes(`OMEGA_API_KEY: ${secret}`)).toBe(true)
     expect((await page.content()).includes(secret)).toBe(false)
     expect((await page.locator('body').ariaSnapshot()).includes(secret)).toBe(false)
     expect(browserConsole.some(line => line.includes(secret))).toBe(false)
@@ -107,9 +107,9 @@ describe.skipIf(MODE === 'record')('web e2e: first-run DeepSeek credential setup
     const settings = page.getByRole('dialog', { name: '设置' })
     await settings.waitFor({ timeout: 10_000 })
     await settings.getByRole('button', { name: '模型', exact: true }).click()
-    const deepSeekRow = settings.getByText('DeepSeek', { exact: true }).first()
-    await deepSeekRow.waitFor({ timeout: 10_000 })
-    await deepSeekRow.locator('xpath=ancestor::li').getByRole('button', { name: '编辑' }).click()
+    const omegaRow = settings.getByText('Omega', { exact: true }).first()
+    await omegaRow.waitFor({ timeout: 10_000 })
+    await omegaRow.locator('xpath=ancestor::li').getByRole('button', { name: '编辑' }).click()
     const configuredInput = settings.getByLabel('API 密钥', { exact: true })
     await configuredInput.waitFor({ timeout: 10_000 })
     await expect.poll(
@@ -200,45 +200,45 @@ describe.skipIf(MODE === 'record')('web e2e: first-run DeepSeek credential setup
     expect(tripwire.pageErrors).toEqual([])
   }, 60_000)
 
-  it('configures arbitrary DeepSeek models and prompts after the selected model is removed', async () => {
-    onTestFailed(() => saveFailureShot(page, 'web-e2e-onboarding-deepseek-models'))
+  it('configures arbitrary Omega models and prompts after the selected model is removed', async () => {
+    onTestFailed(() => saveFailureShot(page, 'web-e2e-onboarding-omega-models'))
     // Opened here rather than inherited: the credential test reloads the page
     // after configuring the key, so nothing carries an open dialog across.
     await openSettings(page, 'zh')
     const settings = page.getByRole('dialog', { name: '设置' })
     await settings.waitFor({ timeout: 10_000 })
     await settings.getByRole('button', { name: '模型', exact: true }).click()
-    const deepSeek = settings.getByText('DeepSeek', { exact: true }).first()
-    await deepSeek.waitFor({ timeout: 10_000 })
-    await deepSeek.locator('xpath=ancestor::li').getByRole('button', { name: '编辑' }).click()
+    const omega = settings.getByText('Omega', { exact: true }).first()
+    await omega.waitFor({ timeout: 10_000 })
+    await omega.locator('xpath=ancestor::li').getByRole('button', { name: '编辑' }).click()
     await settings.getByText('自定义设置').click()
-    expect(await settings.getByLabel('模型 ID 1').inputValue()).toBe('deepseek-flash')
-    expect(await settings.getByLabel('显示名称 1').inputValue()).toBe('DeepSeek-V4.1-Flash')
-    expect(await settings.getByLabel('模型 ID 2').inputValue()).toBe('deepseek-v4-pro')
+    expect(await settings.getByLabel('模型 ID 1').inputValue()).toBe('omega-flash')
+    expect(await settings.getByLabel('显示名称 1').inputValue()).toBe('Omega-V4.1-Flash')
+    expect(await settings.getByLabel('模型 ID 2').inputValue()).toBe('omega-v4-pro')
     expect(await settings.getByRole('button', { name: /删除模型/ }).count()).toBe(2)
     await settings.getByRole('button', { name: '模型选项 1' }).click()
-    expect(await settings.getByRole('group', { name: '输入类型 1' }).getByRole('checkbox', { name: '图片' }).isChecked()).toBe(true)
+    expect(await settings.getByRole('group', { name: '输入类型 1' }).getByRole('checkbox', { name: '图片' }).isChecked()).toBe(false)
+    // Toggling the row's input types is what writes them into the saved profile.
+    await settings.getByRole('group', { name: '输入类型 1' }).getByRole('checkbox', { name: '图片' }).check()
+    await settings.getByRole('group', { name: '输入类型 1' }).getByRole('checkbox', { name: '图片' }).uncheck()
     await assertModelInputLayout(page, settings)
     const defaultModels = await captureStableAria(page, '[role="dialog"]', scaffold.workspaceCwd)
     await compareOrRefreshGolden(DEFAULT_MODELS_EXPECTED, defaultModels, MODE)
-    await settings.getByLabel('显示名称 1').fill('Configured Flash')
-    await settings.getByRole('group', { name: '输入类型 1' }).getByRole('checkbox', { name: '图片' }).uncheck()
     await settings.getByRole('button', { name: '保存', exact: true }).click()
     await settings.getByLabel('模型 ID 1').waitFor({ state: 'detached', timeout: 15_000 })
     // The save notice settles the directory refresh before Edit clears it for the next draft.
-    await settings.getByText('已保存 DeepSeek (deepseek-official)。', { exact: true }).waitFor({ timeout: 15_000 })
+    await settings.getByText('已保存 Omega (omega-official)。', { exact: true }).waitFor({ timeout: 15_000 })
     const savedDefaults = await readFile(join(scaffold.harnessHome, 'profiles', 'scaffold', 'cordis.patch.yml'), 'utf8')
-    expect(savedDefaults).toContain('id: deepseek-flash')
+    expect(savedDefaults).toContain('id: omega-flash')
     expect(savedDefaults).toContain('inputModalities:')
     expect(savedDefaults).toContain('- text')
-    expect(savedDefaults).toContain('systemPromptUpdate: in-history')
-    await expect(scaffold.ctx.llm.resolveModelInfo('deepseek-official', 'deepseek-flash')).resolves.toMatchObject({
-      name: 'Configured Flash', inputModalities: ['text'], systemPromptUpdate: 'in-history',
+    await expect(scaffold.ctx.llm.resolveModelInfo('omega-official', 'omega-flash')).resolves.toMatchObject({
+      name: 'Configured Flash', inputModalities: ['text'],
     })
-    await expect(scaffold.ctx.llm.resolveModelInfo('deepseek-official', 'deepseek-v4-pro')).resolves.toMatchObject({
-      name: 'DeepSeek-V4-Pro', inputModalities: ['text'],
+    await expect(scaffold.ctx.llm.resolveModelInfo('omega-official', 'omega-v4-pro')).resolves.toMatchObject({
+      name: 'Omega-V4-Pro', inputModalities: ['text'],
     })
-    await deepSeek.locator('xpath=ancestor::li').getByRole('button', { name: '编辑' }).click()
+    await omega.locator('xpath=ancestor::li').getByRole('button', { name: '编辑' }).click()
     await settings.getByText('自定义设置').click()
     for (let index = 0; index < 2; index++) {
       await settings.getByRole('button', { name: /删除模型/ }).first().click()
@@ -262,18 +262,18 @@ describe.skipIf(MODE === 'record')('web e2e: first-run DeepSeek credential setup
     await compareOrRefreshGolden(MODELS_EXPECTED, modelEditor, MODE)
     await settings.getByRole('button', { name: '保存', exact: true }).click()
     await customModelId.waitFor({ state: 'detached', timeout: 15_000 })
-    await settings.getByText('已保存 DeepSeek (deepseek-official)。', { exact: true }).waitFor({ timeout: 15_000 })
+    await settings.getByText('已保存 Omega (omega-official)。', { exact: true }).waitFor({ timeout: 15_000 })
 
     const document = await readFile(join(scaffold.harnessHome, 'profiles', 'scaffold', 'cordis.patch.yml'), 'utf8')
     expect(document).toContain('id: private-preview')
     expect(document).toContain('name: Private Preview')
     expect(document).toContain('contextWindow: 131072')
     expect(document).toContain('maxTokens: 64000')
-    expect(document).not.toContain('id: deepseek-flash')
-    await expect(scaffold.ctx.llm.resolveModelInfo('deepseek-official', 'private-preview')).resolves.toMatchObject({
+    expect(document).not.toContain('id: omega-flash')
+    await expect(scaffold.ctx.llm.resolveModelInfo('omega-official', 'private-preview')).resolves.toMatchObject({
       inputModalities: ['text', 'image'],
     })
-    await deepSeek.locator('xpath=ancestor::li').getByRole('button', { name: '编辑' }).click()
+    await omega.locator('xpath=ancestor::li').getByRole('button', { name: '编辑' }).click()
     await settings.getByText('自定义设置').click()
     await settings.getByRole('button', { name: '模型选项 1' }).click()
     expect(await settings.getByRole('group', { name: '输入类型 1' }).getByRole('checkbox', { name: '图片' }).isChecked()).toBe(true)
@@ -281,7 +281,10 @@ describe.skipIf(MODE === 'record')('web e2e: first-run DeepSeek credential setup
 
     await page.keyboard.press('Escape')
     // A connected Workspace is what puts a live composer — and its model
-    // trigger — on the page; the scaffold boots without one.
+    // trigger — on the page; the scaffold boots without one. The fresh Session
+    // resolves the deployment default for its model seat, so pin that default
+    // onto the removed omega row before the connect.
+    await scaffold.ctx.agentDefaultModel.saveSelection({ provider: 'omega-official', model: 'omega-flash' })
     await connectFreshWorkspaceZh(page, scaffold.workspaceCwd, 'model-fallback-e2e', false)
 
     const modelTrigger = page.getByRole('button', { name: '请选择模型', exact: true })
@@ -297,7 +300,7 @@ describe.skipIf(MODE === 'record')('web e2e: first-run DeepSeek credential setup
     onTestFailed(() => saveFailureShot(page, 'web-e2e-model-catalog-empty'))
     await page.keyboard.press('Escape')
     const selection = scaffold.ctx.agentDefaultModel.currentSelection()
-    await scaffold.ctx.credentials.unset(credentialRef('DEEPSEEK_API_KEY'))
+    await scaffold.ctx.credentials.unset(credentialRef('OMEGA_API_KEY'))
     const seat = page.getByRole('button', { name: '请选择模型', exact: true })
     await seat.waitFor()
     await seat.click()

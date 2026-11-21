@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-mcp-account",
+  "name": "@omega-ai/dsh-mcp-account",
   "description": "MCP connector accounts on the Plugins page: each connector's OAuth server in the connector account registry, authorized through the MCP manager",
   "version": "0.2.2-rc.5",
   "publishConfig": {
@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/mcp/mcp-account"
   },
   "type": "module",
@@ -35,17 +35,17 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@deepseek-ai/dsh-brand": "workspace:*",
-    "@deepseek-ai/dsh-util-values": "workspace:*"
+    "@omega-ai/dsh-brand": "workspace:*",
+    "@omega-ai/dsh-util-values": "workspace:*"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~"
+    "@omega-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-client-ui-connector-account": "workspace:*",
-    "@deepseek-ai/dsh-mcp-client": "workspace:*",
-    "@deepseek-ai/dsh-mcp-manager": "workspace:*",
-    "@deepseek-ai/dsh-package-manifest": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-client-ui-connector-account": "workspace:*",
+    "@omega-ai/dsh-mcp-client": "workspace:*",
+    "@omega-ai/dsh-mcp-manager": "workspace:*",
+    "@omega-ai/dsh-package-manifest": "workspace:*"
   }
 }

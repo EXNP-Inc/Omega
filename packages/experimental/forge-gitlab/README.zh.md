@@ -3,7 +3,7 @@ description: "通过宿主上的 GitLab CLI 为实验性 forge 注册表服务 G
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-forge-gitlab
+# @omega-ai/dsh-forge-gitlab
 
 [English](README.md) | 中文
 
@@ -28,13 +28,13 @@ kind: "package-reference"
 在 forge 注册表之后挂载提供方，并显式列出每个自建主机。Forge 插件包以 `gitlab.com` 挂载它。
 
 ```yaml
-- name: '@deepseek-ai/dsh-experimental-forge'
-- name: '@deepseek-ai/dsh-forge-gitlab'
+- name: '@omega-ai/dsh-experimental-forge'
+- name: '@omega-ai/dsh-forge-gitlab'
   config:
     hosts: [gitlab.com, gitlab.example.com]
 ```
 
-即使 Session 在其他执行环境中运行命令，提供方也以宿主进程的形式运行 `glab`。每个主机执行一次 `glab auth login --hostname <host>` 完成登录。子进程继承的宿主环境去掉了 `DSH_*` 变量、名称包含 `KEY`、`PASSWORD`、`SECRET` 或 `TOKEN` 的变量，以及让 `glab` 改选其他主机、仓库或远端的变量，例如 `GITLAB_HOST`、`GITLAB_REPO` 和 `GLAB_REMOTE_ALIAS`；它在临时目录中运行，因为在检出目录里 `glab` 会按该检出的远端解析项目路径。提示、更新检查、遥测、分页器和颜色都已关闭，每个请求都用 `--hostname` 指明主机。数值上限必须是正的安全整数；只有 `timeoutMs` 受运行时定时器上限约束。`glabCommand`、`hosts`、`timeoutMs`、`maxOutputBytes`、`maxReviewThreads`、`maxCommits`、`statusBatchSize`、`maxConcurrentRequests` 和 `maxCachedVersionBytes` 列在[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-forge-gitlab)中。
+即使 Session 在其他执行环境中运行命令，提供方也以宿主进程的形式运行 `glab`。每个主机执行一次 `glab auth login --hostname <host>` 完成登录。子进程继承的宿主环境去掉了 `DSH_*` 变量、名称包含 `KEY`、`PASSWORD`、`SECRET` 或 `TOKEN` 的变量，以及让 `glab` 改选其他主机、仓库或远端的变量，例如 `GITLAB_HOST`、`GITLAB_REPO` 和 `GLAB_REMOTE_ALIAS`；它在临时目录中运行，因为在检出目录里 `glab` 会按该检出的远端解析项目路径。提示、更新检查、遥测、分页器和颜色都已关闭，每个请求都用 `--hostname` 指明主机。数值上限必须是正的安全整数；只有 `timeoutMs` 受运行时定时器上限约束。`glabCommand`、`hosts`、`timeoutMs`、`maxOutputBytes`、`maxReviewThreads`、`maxCommits`、`statusBatchSize`、`maxConcurrentRequests` 和 `maxCachedVersionBytes` 列在[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-forge-gitlab)中。
 
 提供方以小写形式在 `hosts` 中列出配置的主机，自称 `GitLab`，并把变更请求称为合并请求。当主机在配置中时，它服务 `https`、`http`、`ssh`、`git` 形式的远端 URL，以及 `git@gitlab.com:group/sub/app.git` 这类 scp 形式；嵌套群组组成仓库的 owner，例如 `group/sub`。HTTP(S) 远端在主机标识中保留自定义端口；SSH 和 Git 传输端口不计入主机标识。它服务 `https://<host>/<namespace>/<project>/-/merge_requests/<number>` 形式的合并请求 URL，允许其后附带任意路径、查询或片段，并以去掉这些后缀的形式作为规范 URL；`fileUrl` 返回 `https://<host>/<namespace>/<project>/-/blob/<commit>/<path>`。就绪探测读取 REST 的 `user` 资源：成功时为 `ready`；凭据被拒绝时为 `unauthenticated`，并以 `glab auth login --hostname <host>` 作为登录命令；其他失败（包括 `glab` 无法启动）为 `unavailable`。按 head 分支查找时，最多返回 20 个源分支为该分支、且源项目就是目标项目的打开状态合并请求，按创建时间从新到旧排列；查找项目默认分支时返回空结果。
 

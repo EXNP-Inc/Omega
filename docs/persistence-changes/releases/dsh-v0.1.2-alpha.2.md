@@ -130,7 +130,7 @@ changes:
   - root: event:schedule/change
     before: 19b014756dd1882e2708c7b1ec02d5eef60fea523cf5b0c59cb320177bc4136c
     after: 2a7f86849ae54b3398ee49661a757c4fcb59a6192b7036ee2ff514617e13fb42
-  - root: event:session-log-deepseek/delivery-accepted
+  - root: event:session-log-omega/delivery-accepted
     before: 15fc803b92d6a4b340991f978cf74b530f7cee6a36e565038e7ceff51a708258
     after: 9c413656ca5600ea33812d43c4e7923a541cfb6ab8b5bc98e415f295f44e40da
   - root: event:session/end-seed
@@ -202,7 +202,7 @@ changes:
   - root: event:user/message
     before: de7d01b9a4bd2fbdcab0a901dbd221086ee5e3a4a7bc123496b5c4e45b6c5384
     after: e23368db1646a9ac10d2bd4629084fdff583a1db2c83ffaa3f2f201d0c45f3e4
-  - root: event:web/deepseek-search-llm-request
+  - root: event:web/omega-search-llm-request
     before: 0c5c79711e02bd8faed288bb89a39c77af15ad28010a0ee3d5c98adb1e5c3fe5
     after: cf6e3aaf1e2de6480aa0157730a41b9a492108a55304100b0f7e112711dd4331
 ```
@@ -243,7 +243,7 @@ Detected 52 changed roots and 52 structural differences. The review requirement 
 | `event:request/header.ignorable` | `optional-property-added` | `review-required` |
 | `event:sandbox/mode.ignorable` | `optional-property-added` | `review-required` |
 | `event:schedule/change.ignorable` | `optional-property-added` | `review-required` |
-| `event:session-log-deepseek/delivery-accepted.ignorable` | `optional-property-added` | `review-required` |
+| `event:session-log-omega/delivery-accepted.ignorable` | `optional-property-added` | `review-required` |
 | `event:session/end-seed.ignorable` | `optional-property-added` | `review-required` |
 | `event:session/title.ignorable` | `optional-property-added` | `review-required` |
 | `event:session/title-llm-request.ignorable` | `optional-property-added` | `review-required` |
@@ -267,7 +267,7 @@ Detected 52 changed roots and 52 structural differences. The review requirement 
 | `event:turn/end.ignorable` | `optional-property-added` | `review-required` |
 | `event:turn/start.ignorable` | `optional-property-added` | `review-required` |
 | `event:user/message.ignorable` | `optional-property-added` | `review-required` |
-| `event:web/deepseek-search-llm-request.ignorable` | `optional-property-added` | `review-required` |
+| `event:web/omega-search-llm-request.ignorable` | `optional-property-added` | `review-required` |
 
 <!-- persistence-release-changes:end -->
 

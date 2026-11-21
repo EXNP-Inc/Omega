@@ -5,8 +5,8 @@
  * every section fold through one control.
  */
 import type { ReactNode } from 'react'
-import { IconChevronDownOutlineRegular, IconChevronUpOutlineRegular } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { FactoryComponentPropsOf } from '@deepseek-ai/dsh-client-ui-slots'
+import { IconChevronDownOutlineRegular, IconChevronUpOutlineRegular } from '@omega-ai/dsh-client-ui-primitives'
+import type { FactoryComponentPropsOf } from '@omega-ai/dsh-client-ui-slots'
 import type {} from './slots.ts'
 
 /**

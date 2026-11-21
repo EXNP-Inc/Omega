@@ -1,4 +1,4 @@
-- id: llm-deepseek
+- id: llm-omega
   disabled: true
 
 - id: llm-pi-ai

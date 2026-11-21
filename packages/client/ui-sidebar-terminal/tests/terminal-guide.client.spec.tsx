@@ -1,14 +1,14 @@
 // @vitest-environment jsdom
-import { contextMenuHook } from '@deepseek-ai/dsh-client-test-runtime'
+import { contextMenuHook } from '@omega-ai/dsh-client-test-runtime'
 /** Guide shell discovery, direct launch and cancellation stay within the entry lifetime. */
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
-import { allowAllAccess, makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import type { TerminalLaunchShells } from '@deepseek-ai/dsh-api-terminal-controller/client'
-import type { GlobalStandardProps, SessionStandardProps } from '@deepseek-ai/dsh-client-ui-slots'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { PaneId, TabId } from '@deepseek-ai/dsh-client-ui-dockkit'
-import type { ShortcutCommandId, ShortcutCatalogEntry } from '@deepseek-ai/dsh-client-shortcuts/client'
+import { allowAllAccess, makeTranslate } from '@omega-ai/dsh-client-test-runtime'
+import type { TerminalLaunchShells } from '@omega-ai/dsh-api-terminal-controller/client'
+import type { GlobalStandardProps, SessionStandardProps } from '@omega-ai/dsh-client-ui-slots'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { PaneId, TabId } from '@omega-ai/dsh-client-ui-dockkit'
+import type { ShortcutCommandId, ShortcutCatalogEntry } from '@omega-ai/dsh-client-shortcuts/client'
 import { TerminalGuide, type TerminalGuideProps } from '../src/client/TerminalGuide.tsx'
 import { en } from '../src/client/locales.ts'
 

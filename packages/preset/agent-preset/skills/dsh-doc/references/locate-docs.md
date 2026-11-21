@@ -6,11 +6,11 @@ Answer for the running installation, not an unrelated checkout in the current wo
 
 These runtime facts are not necessarily in model context. Print only the needed variables: in bash, `printf '%s\n' "$DSH_PROFILE" "$DSH_INSTALL_DIR" "$DSH_NODE_EXECUTABLE"`; in PowerShell, `$env:DSH_PROFILE; $env:DSH_INSTALL_DIR; $env:DSH_NODE_EXECUTABLE`. Keep the loaded skill's reported Base directory. `DSH_PROFILE=desktop` identifies the Desktop profile, including development launches; `web` can run from npm or source. Profile and distribution are not one-to-one: verify ASAR or checkout markers below. `DSH_PROFILE_DIR` holds the user's profile and added plugins, not the DSH installation root. Standard and Creator are agent modes, not installation layouts.
 
-When `cordis_inspect` is available, its Host `Runtime` provider's `getVersion` returns the running DSH version. Verify that `DSH_INSTALL_DIR/package.json` names `@deepseek-ai/dsh`; its `version` identifies the running CLI package. Copies of `@deepseek-ai/dsh` under the profile's `node_modules` may be stale and do not identify the running version. Resolve symlinks before comparing directories. Missing variables alone do not establish that there is no profile or no source. Use the loaded skill's location or an inspected package directory to verify a candidate; if none is verifiable, report what remains unlocated. Do not change the profile to obtain tools.
+When `cordis_inspect` is available, its Host `Runtime` provider's `getVersion` returns the running DSH version. Verify that `DSH_INSTALL_DIR/package.json` names `@omega-ai/dsh`; its `version` identifies the running CLI package. Copies of `@omega-ai/dsh` under the profile's `node_modules` may be stale and do not identify the running version. Resolve symlinks before comparing directories. Missing variables alone do not establish that there is no profile or no source. Use the loaded skill's location or an inspected package directory to verify a candidate; if none is verifiable, report what remains unlocated. Do not change the profile to obtain tools.
 
 ## Source checkout
 
-A source launch normally points `DSH_INSTALL_DIR` at `<root>/apps/cli`. Verify `<root>/pnpm-workspace.yaml`, `<root>/package.json` with name `@deepseek-ai/dsh-root`, and `<root>/apps/cli/package.json` with name `@deepseek-ai/dsh`. The loaded skill may instead locate the candidate root: its real directory is `<root>/packages/preset/agent-preset/skills/dsh-doc`, five parents below the root. Verify the same markers; a matching working-directory name is not evidence of the running installation.
+A source launch normally points `DSH_INSTALL_DIR` at `<root>/apps/cli`. Verify `<root>/pnpm-workspace.yaml`, `<root>/package.json` with name `@omega-ai/dsh-root`, and `<root>/apps/cli/package.json` with name `@omega-ai/dsh`. The loaded skill may instead locate the candidate root: its real directory is `<root>/packages/preset/agent-preset/skills/dsh-doc`, five parents below the root. Verify the same markers; a matching working-directory name is not evidence of the running installation.
 
 Read `<root>/docs/user/index.md` for user documentation and `<root>/docs/upgrade-guide/` for migration guides. The checkout's `apps/cli/docs` need not exist. Use `<root>/packages/README.md` to find the owning group, then `<root>/packages/<group>/<directory>/package.json` to verify the package name. Read that package's `README.md` and the owning file under `src/`; do not assume every package resolves from `apps/cli/node_modules`. Use the verified CLI manifest's version and identify the checkout used.
 
@@ -31,7 +31,7 @@ Native grep/glob, `ls`, `cat`, and a Node executable chosen from `PATH` cannot t
 With Inspect available, `Config.listConfigs` filtered by `name` lists mounted entries; querying an `entry` supplies `packageDir`. Otherwise use the installation anchor and executable verified above. In bash:
 
 ```sh
-ELECTRON_RUN_AS_NODE=1 "$DSH_NODE_EXECUTABLE" -e "console.log(require('node:path').dirname(require.resolve(process.argv[1] + '/package.json', { paths: [process.env.DSH_INSTALL_DIR] })))" @deepseek-ai/dsh-tool-bash
+ELECTRON_RUN_AS_NODE=1 "$DSH_NODE_EXECUTABLE" -e "console.log(require('node:path').dirname(require.resolve(process.argv[1] + '/package.json', { paths: [process.env.DSH_INSTALL_DIR] })))" @omega-ai/dsh-tool-bash
 ```
 
 In PowerShell, use redirected process output and wait for the exit code. Windows Desktop's Electron is a GUI-subsystem executable, for which `&` does not reliably wait. Replace `$script` and `$arguments` for other reads:
@@ -40,7 +40,7 @@ In PowerShell, use redirected process output and wait for the exit code. Windows
 $script = @'
 console.log(require('node:path').dirname(require.resolve(process.argv[1] + '/package.json', { paths: [process.env.DSH_INSTALL_DIR] })))
 '@
-$arguments = @('@deepseek-ai/dsh-tool-bash')
+$arguments = @('@omega-ai/dsh-tool-bash')
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 $start = [System.Diagnostics.ProcessStartInfo]::new($env:DSH_NODE_EXECUTABLE)
 foreach ($argument in @('-e', $script, '--') + $arguments) { $start.ArgumentList.Add($argument) }
@@ -59,7 +59,7 @@ $process.WaitForExit()
 exit $process.ExitCode
 ```
 
-If the executable or anchor is absent, do not substitute an unrelated Node from PATH. Inspect or directly read verified files. A checkout found only from the skill locates source but does not prove the running CLI version. Verify that `../../package.json` relative to the skill's base names `@deepseek-ai/dsh-agent-preset` before using its version as the shipping skill package's version. For a custom or single-executable layout, report only locations and versions actually verified.
+If the executable or anchor is absent, do not substitute an unrelated Node from PATH. Inspect or directly read verified files. A checkout found only from the skill locates source but does not prove the running CLI version. Verify that `../../package.json` relative to the skill's base names `@omega-ai/dsh-agent-preset` before using its version as the shipping skill package's version. For a custom or single-executable layout, report only locations and versions actually verified.
 
 ## Bounded lookup
 

@@ -2,20 +2,20 @@
 import { readFile, realpath, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import { provideWorkingDirectoryFixture } from '@deepseek-ai/dsh-agent-loop-testkit'
-import { FsError } from '@deepseek-ai/dsh-fs'
-import { LocalFileSystem } from '@deepseek-ai/dsh-fs-local'
-import * as FsPolicy from '@deepseek-ai/dsh-fs-observation-policy'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import { type ToolCallId, createAssistantMessage, createToolResultMessage } from '@deepseek-ai/dsh-llm'
-import SessionStore, { type SessionId } from '@deepseek-ai/dsh-session'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import * as ToolFs from '@deepseek-ai/dsh-tool-fs'
-import { executeToolFixture } from '@deepseek-ai/dsh-tool-testkit'
-import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
-import ToolRuntime from '@deepseek-ai/dsh-tools'
+import { Context } from '@omega-ai/cordis'
+import { provideWorkingDirectoryFixture } from '@omega-ai/dsh-agent-loop-testkit'
+import { FsError } from '@omega-ai/dsh-fs'
+import { LocalFileSystem } from '@omega-ai/dsh-fs-local'
+import * as FsPolicy from '@omega-ai/dsh-fs-observation-policy'
+import { brandString } from '@omega-ai/dsh-brand'
+import { type ToolCallId, createAssistantMessage, createToolResultMessage } from '@omega-ai/dsh-llm'
+import SessionStore, { type SessionId } from '@omega-ai/dsh-session'
+import LocalSubprocessRuntime from '@omega-ai/dsh-subprocess-local'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import * as ToolFs from '@omega-ai/dsh-tool-fs'
+import { executeToolFixture } from '@omega-ai/dsh-tool-testkit'
+import * as NativeToolExecutor from '@omega-ai/dsh-tool-executor-native'
+import ToolRuntime from '@omega-ai/dsh-tools'
 import * as captures from '../src/capture.ts'
 import * as WorkspaceChanges from '../src/index.ts'
 import { changes, endTurn, scratchDir, settle, startTurn } from './support.ts'
@@ -66,7 +66,7 @@ async function boot(environment: string) {
     session.append('assistant/message', {
       stream: [], turn: 1, step: 1,
       message: createAssistantMessage({ content: [{ type: 'tool-call', id: callId, name, arguments: serialized }],
-        source: { provider: 'deepseek-official', model: 'deepseek-v4-flash' } }),
+        source: { provider: 'omega-official', model: 'omega-v4-flash' } }),
     }, { surfaceOp: 'append' })
     const source = session.append('tool/call', { turn: 1, step: 1, callId, name, arguments: serialized })
     const result = await executeToolFixture(ctx, { signal, callId, name, arguments: args,

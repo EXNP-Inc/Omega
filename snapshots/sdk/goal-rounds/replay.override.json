@@ -48,9 +48,9 @@
             },
             "replayState": {
               "response": {
-                "kind": "deepseek-messages",
+                "kind": "omega-messages",
                 "version": 1,
-                "model": "deepseek-v4-flash"
+                "model": "omega-v4-flash"
               },
               "blocks": [
                 {

@@ -5,10 +5,10 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execa } from 'execa'
 import { describe, expect, it, onTestFinished } from 'vitest'
-import { runLoaderSmoke } from '@deepseek-ai/dsh-loader-smoke'
-import { readImageFile } from '@deepseek-ai/dsh-attachment-local'
-import { parseSessionLog } from '@deepseek-ai/dsh-llm-replay'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
+import { runLoaderSmoke } from '@omega-ai/dsh-loader-smoke'
+import { readImageFile } from '@omega-ai/dsh-attachment-local'
+import { parseSessionLog } from '@omega-ai/dsh-llm-replay'
+import type { SessionEvent } from '@omega-ai/dsh-session'
 import { expectNoRenderContext, officeCalls, officeImages, officeModelPatches, officeToolPatches } from './fixtures/real-office.ts'
 
 const repo = fileURLToPath(new URL('../../../../', import.meta.url))
@@ -56,7 +56,7 @@ const cases = [
   },
 ] as const
 
-describe.skipIf(!process.env.DEEPSEEK_API_KEY || !runtime).each(['native', 'ptc'])('Excel validation scope (%s)', (mode) => {
+describe.skipIf(!process.env.OMEGA_API_KEY || !runtime).each(['native', 'ptc'])('Excel validation scope (%s)', (mode) => {
   it.each(mode === 'native' ? cases : cases.filter(({ kind }) => kind === 'layout'))('$name', async ({ task, kind }) => {
     let events: SessionEvent[] = []
     let original: Buffer | undefined
@@ -90,9 +90,9 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY || !runtime).each(['native', 'ptc'
         await execa(python!, ['-c', seed, kind], { cwd })
         original = await readFile(join(cwd, 'input.xlsx'))
         await writeFile(configPath, JSON.stringify([
-          { insert: [{ id: 'skill-office', name: '@deepseek-ai/dsh-skill-office', config: { assetRoot } }] },
+          { insert: [{ id: 'skill-office', name: '@omega-ai/dsh-skill-office', config: { assetRoot } }] },
           ...officeToolPatches(),
-          { insert: [{ id: 'workspace-dependencies', name: '@deepseek-ai/dsh-tool-workspace-dependencies', config: { source: runtime! } }] },
+          { insert: [{ id: 'workspace-dependencies', name: '@omega-ai/dsh-tool-workspace-dependencies', config: { source: runtime! } }] },
           ...officeModelPatches(),
           { id: 'attachment-local', config: { dshHome: imageRoot } },
           { id: 'session-persistence-jsonl', config: { root: sessionRoot, compression: 'none' } },

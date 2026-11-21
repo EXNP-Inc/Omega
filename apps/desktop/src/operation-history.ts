@@ -3,7 +3,7 @@ import type { BigIntStats } from 'node:fs'
 import { open, type FileHandle } from 'node:fs/promises'
 import { join } from 'node:path'
 import { setImmediate, setTimeout as wait } from 'node:timers/promises'
-import { parsePluginOperationRecord, type PluginOperationRecord } from '@deepseek-ai/dsh-plugin-manager/diagnostic'
+import { parsePluginOperationRecord, type PluginOperationRecord } from '@omega-ai/dsh-plugin-manager/diagnostic'
 
 /** Windows reports these while another handle temporarily owns an otherwise readable file. */
 const WINDOWS_TRANSIENT_OPEN_ERRORS: ReadonlySet<string> = new Set(['EACCES', 'EBUSY', 'EPERM'])

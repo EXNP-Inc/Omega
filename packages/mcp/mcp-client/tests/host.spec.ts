@@ -1,10 +1,10 @@
 /** The MCP client host: configuration validation, instances below the host, probes, and authorization owners. */
 
 import { expect, it, onTestFinished } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import Tools from '@deepseek-ai/dsh-tools'
-import { McpClientHost, type ConfigInput } from '@deepseek-ai/dsh-mcp-client'
+import { Context } from '@omega-ai/cordis'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import Tools from '@omega-ai/dsh-tools'
+import { McpClientHost, type ConfigInput } from '@omega-ai/dsh-mcp-client'
 import { authorize, oauthWorld } from './oauth-fixture.ts'
 import { startHttpMcpFixture } from './http-fixture.ts'
 

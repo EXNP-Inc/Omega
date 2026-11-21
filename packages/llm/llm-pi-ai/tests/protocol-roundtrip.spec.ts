@@ -1,11 +1,11 @@
 /** Cross-protocol requests must not overwrite the history needed by its original provider. */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import LlmRuntime, { createToolResultMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
-import type { Message } from '@deepseek-ai/dsh-llm'
-import * as LlmPiAi from '@deepseek-ai/dsh-llm-pi-ai'
-import * as DeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
-import DeepSeekAuth from '@deepseek-ai/dsh-deepseek-auth'
+import { Context } from '@omega-ai/cordis'
+import LlmRuntime, { createToolResultMessage, createUserMessage } from '@omega-ai/dsh-llm'
+import type { Message } from '@omega-ai/dsh-llm'
+import * as LlmPiAi from '@omega-ai/dsh-llm-pi-ai'
+import * as Omega from '@omega-ai/dsh-llm-omega-api-key'
+import OmegaAuth from '@omega-ai/dsh-omega-auth'
 import { assemble } from './assemble.ts'
 import { anthropicFrame, closeMockServers, mockServer } from './mock-server.ts'
 
@@ -111,29 +111,29 @@ function expectToolPairs(request: unknown, api: Api): void {
 }
 
 const tool = { name: 'lookup', description: 'Look up a value.', parameters: { type: 'object', properties: { key: { type: 'number' } }, required: ['key'] } }
-const pairs: { a: Api; b: Api | 'deepseek-messages' }[] = [
+const pairs: { a: Api; b: Api | 'omega-messages' }[] = [
   ...apis.flatMap(a => apis.map(b => ({ a, b }))),
-  ...apis.map(a => ({ a, b: 'deepseek-messages' as const })),
+  ...apis.map(a => ({ a, b: 'omega-messages' as const })),
 ]
 
 describe('protocol history round trips', () => {
   it.each(pairs)('$a → $b → $a preserves saved content and restores native replay', async ({ a, b }) => {
     vi.stubEnv('PROTOCOL_ROUNDTRIP_KEY', 'test-key')
     const source = await mockServer([{ events: frames(a, true) }, { events: frames(a) }, { events: frames(a) }])
-    const targetApi = b === 'deepseek-messages' ? 'anthropic-messages' : b
-    const targetProvider = b === 'deepseek-messages' ? 'deepseek-official' : 'route-b'
+    const targetApi = b === 'omega-messages' ? 'anthropic-messages' : b
+    const targetProvider = b === 'omega-messages' ? 'omega-official' : 'route-b'
     const target = await mockServer([{ events: frames(targetApi) }])
     const ctx = new Context()
     contexts.push(ctx)
     await ctx.plugin(LlmRuntime)
     await ctx.plugin(LlmPiAi, { providers: {
       'route-a': { api: a, baseURL: source.url, apiKeyEnv: 'PROTOCOL_ROUNDTRIP_KEY', cacheRetention: 'none', models: [{ id: 'model' }] },
-      ...b === 'deepseek-messages' ? {} : {
+      ...b === 'omega-messages' ? {} : {
         'route-b': { api: b, baseURL: target.url, apiKeyEnv: 'PROTOCOL_ROUNDTRIP_KEY', cacheRetention: 'none', models: [{ id: 'model' }] },
       },
     } })
-    await ctx.plugin(DeepSeekAuth)
-    if (b === 'deepseek-messages') await ctx.plugin(DeepSeek, {
+    await ctx.plugin(OmegaAuth)
+    if (b === 'omega-messages') await ctx.plugin(Omega, {
       baseURL: target.url, apiKeyEnv: 'PROTOCOL_ROUNDTRIP_KEY', models: [{ id: 'model' }], thinking: 'disabled',
     })
     let history: Message[] = [createUserMessage({ source: { kind: 'user' }, content: [{ type: 'text', text: 'Look up both values.' }] })]

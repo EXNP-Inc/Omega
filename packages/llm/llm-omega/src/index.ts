@@ -1,6 +1,6 @@
-/** DeepSeek Messages transport, request configuration, and model capabilities. */
-export { catalogModelFields, deepSeekConfigFields, Config, isBuiltInCatalog, plainOptions, resolveAdapterOptions, PUBLIC_BASE_URL } from './config.ts'
-export type { Options, ResolvedDeepSeekOptions } from './config.ts'
+/** Omega Messages transport, request configuration, and model capabilities. */
+export { catalogModelFields, omegaConfigFields, Config, isBuiltInCatalog, plainOptions, resolveAdapterOptions, PUBLIC_BASE_URL } from './config.ts'
+export type { Options, ResolvedOmegaOptions } from './config.ts'
 export {
   DEFAULT_CONTEXT_WINDOW,
   DEFAULT_FILE_EXPIRY_SECONDS,
@@ -14,31 +14,31 @@ export {
   DEFAULT_MAX_TOKENS,
   DEFAULT_STREAM_IDLE_TIMEOUT_MS,
 } from './defaults.ts'
-export { DeepSeekAdapter } from './adapter.ts'
-export type { DeepSeekRequestAuth, DeepSeekAdapterOptions, DeepSeekCatalogModel, DeepSeekConnectionOptions } from './types.ts'
+export { OmegaAdapter } from './adapter.ts'
+export type { OmegaRequestAuth, OmegaAdapterOptions, OmegaCatalogModel, OmegaConnectionOptions } from './types.ts'
 export {
   DEFAULT_LOW_DETAIL_IMAGE_PIXEL_BUDGET,
   DEFAULT_MAX_IMAGES_PER_REQUEST,
   DEFAULT_MAX_REQUEST_FILES_BYTES,
   DEFAULT_REQUEST_IMAGE_MAX_BYTES,
   REQUEST_IMAGE_MAX_DIMENSION,
-  deepSeekImageRequestPricing,
+  omegaImageRequestPricing,
   resolveRequestImageMaxBytes,
   resolveRequestImageTarget,
 } from './request-pricing.ts'
-export { deepSeekImageTokens, deepSeekRequestImageDimensions } from './image-tokens.ts'
-export { DeepSeekFileStore, MAX_IMAGE_BYTES } from './file-store.ts'
-export type { DeepSeekFileConnection, DeepSeekFilePolicy, DeepSeekFileReference } from './file-store.ts'
-export { DeepSeekFilesClient, MAX_FILE_EXPIRY_SECONDS, MAX_FILE_UPLOAD_BYTES, MAX_STORED_FILE_BYTES, MAX_STORED_FILE_COUNT, MIN_FILE_EXPIRY_SECONDS } from './files-api.ts'
-export type { DeepSeekFileObject, DeepSeekFilePage } from './files-api.ts'
-export { DeepSeekFileId } from './file-id.ts'
-export type { DeepSeekFileId as DeepSeekFileIdType } from './file-id.ts'
-export { DeepSeekUploadIndex, deepSeekFileScope } from './upload-index.ts'
-export type { DeepSeekUploadRecord } from './upload-index.ts'
+export { omegaImageTokens, omegaRequestImageDimensions } from './image-tokens.ts'
+export { OmegaFileStore, MAX_IMAGE_BYTES } from './file-store.ts'
+export type { OmegaFileConnection, OmegaFilePolicy, OmegaFileReference } from './file-store.ts'
+export { OmegaFilesClient, MAX_FILE_EXPIRY_SECONDS, MAX_FILE_UPLOAD_BYTES, MAX_STORED_FILE_BYTES, MAX_STORED_FILE_COUNT, MIN_FILE_EXPIRY_SECONDS } from './files-api.ts'
+export type { OmegaFileObject, OmegaFilePage } from './files-api.ts'
+export { OmegaFileId } from './file-id.ts'
+export type { OmegaFileId as OmegaFileIdType } from './file-id.ts'
+export { OmegaUploadIndex, omegaFileScope } from './upload-index.ts'
+export type { OmegaUploadRecord } from './upload-index.ts'
 export type { RequestDefaults } from './types.ts'
 
 export { catalogModelInfo } from './model-info.ts'
-export { createModelListingCache, registerDeepSeekProvider } from './host.ts'
+export { createModelListingCache, registerOmegaProvider } from './host.ts'
 export { LISTING_TIMEOUT, modelListingURL, parseModelListing, requestModelListing } from './listing.ts'
 export type { ClientRequirement, ListedBadge, ListedCapabilities, ListedFacts, ListingEntry, ModelListing } from './listing.ts'
 export { DEFAULT_MODELS_MAX_AGE_MS, DEFAULT_MODELS_TIMEOUT_MS, modelListingConfigFields, resolveListingTiming } from './listing-config.ts'

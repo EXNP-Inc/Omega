@@ -5,14 +5,14 @@
  * their lists end with and the details their rows show on hover, and ships the
  * Environment section with the working folder row.
  */
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
-import type { ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
-import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type {} from '@deepseek-ai/dsh-client-ui-chat/client'
-import type { RemoteHostFacts } from '@deepseek-ai/dsh-api-remotes/client'
-import type {} from '@deepseek-ai/dsh-client-connection/client'
-import type {} from '@deepseek-ai/dsh-client-locale/client'
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
+import type { Context as ClientContext } from '@omega-ai/cordis'
+import type { ObservableSnapshot } from '@omega-ai/dsh-client-store'
+import type {} from '@omega-ai/dsh-client-ui-conversation/client'
+import type {} from '@omega-ai/dsh-client-ui-chat/client'
+import type { RemoteHostFacts } from '@omega-ai/dsh-api-remotes/client'
+import type {} from '@omega-ai/dsh-client-connection/client'
+import type {} from '@omega-ai/dsh-client-locale/client'
+import type {} from '@omega-ai/dsh-client-ui-renderer/client'
 import { EnvironmentSection } from './EnvironmentSection.tsx'
 import { PanelDetails } from './PanelDetails.tsx'
 import { PanelFold } from './PanelFold.tsx'
@@ -24,7 +24,7 @@ import type { ProjectRowInjected, SessionPanelInjected, SessionPanelToggleInject
 import { SessionPanelState } from './visibility.ts'
 import { de, en, es, fr, ja, NS, pt, ru, zh, type SessionPanelKey } from './locales.ts'
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@omega-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Session panel copy. */
     sessionPanel: SessionPanelKey

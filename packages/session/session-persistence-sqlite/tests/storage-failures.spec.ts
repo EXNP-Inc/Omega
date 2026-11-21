@@ -3,11 +3,11 @@ import { mkdir, mkdtemp, rm, readdir, readFile, stat, writeFile } from 'node:fs/
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { DatabaseSync } from 'node:sqlite'
-import { Context } from '@deepseek-ai/cordis'
-import { SessionId, SessionLogOffset, SessionSeq, SESSION_FORMAT_VERSION } from '@deepseek-ai/dsh-session'
-import type { SessionEvent, SessionHeader } from '@deepseek-ai/dsh-session'
+import { Context } from '@omega-ai/cordis'
+import { SessionId, SessionLogOffset, SessionSeq, SESSION_FORMAT_VERSION } from '@omega-ai/dsh-session'
+import type { SessionEvent, SessionHeader } from '@omega-ai/dsh-session'
 import { SessionAlreadyExistsError, SessionAlreadyOwnedError, SessionFormatUnsupportedError, SessionHandleClosedError,
-  SessionPersistenceCorruptionError, SessionPersistenceNotFoundError } from '@deepseek-ai/dsh-session-persistence'
+  SessionPersistenceCorruptionError, SessionPersistenceNotFoundError } from '@omega-ai/dsh-session-persistence'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import { z } from 'zod'
 import { SessionWriteLease } from '../src/lease.ts'
@@ -608,7 +608,7 @@ it('refuses a missing parent Session row before appending and preserves the comm
 
 it('reports listener failures and joins successful consumer teardown through the owning scope', async () => {
   const { logs } = await raw()
-  const { SessionStore } = await import('@deepseek-ai/dsh-session')
+  const { SessionStore } = await import('@omega-ai/dsh-session')
   const ctx = new Context()
   onTestFinished(() => ctx.fiber.dispose())
   await ctx.plugin(SessionStore)

@@ -2,11 +2,11 @@
 
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
-import type { Context } from '@deepseek-ai/cordis'
-import { SessionId } from '@deepseek-ai/dsh-session'
-import type {} from '@deepseek-ai/dsh-session-title'
-import type {} from '@deepseek-ai/dsh-storage-domain'
-import WorkspaceRegistry, { WorkspaceId, workspaceDomainSpec } from '@deepseek-ai/dsh-workspace'
+import type { Context } from '@omega-ai/cordis'
+import { SessionId } from '@omega-ai/dsh-session'
+import type {} from '@omega-ai/dsh-session-title'
+import type {} from '@omega-ai/dsh-storage-domain'
+import WorkspaceRegistry, { WorkspaceId, workspaceDomainSpec } from '@omega-ai/dsh-workspace'
 
 /** Loader fixture identity. */
 export const name = 'session-list-seed'

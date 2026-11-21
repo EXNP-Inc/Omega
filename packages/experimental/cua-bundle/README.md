@@ -3,7 +3,7 @@ description: "Enable optional Computer Use on macOS and Windows with its permiss
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-cua-bundle
+# @omega-ai/dsh-cua-bundle
 
 English | [中文](README.zh.md)
 

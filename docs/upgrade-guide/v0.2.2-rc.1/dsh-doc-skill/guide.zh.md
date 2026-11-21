@@ -9,7 +9,7 @@ description: "创造模式用一个 `dsh-doc` skill 取代原有的四个 skill�
 
 ## 变更
 
-创造模式原先从 `@deepseek-ai/dsh-agent-preset` 提供四个 skill（技能）：`cordis-plugin-development`、`editing-cordis-compositions`、`cordis-composition-reference` 和 `agent-experience`。现在只提供一个 skill：`dsh-doc`。原有内容位于该包 `skills/dsh-doc/references/` 和 `skills/dsh-doc/templates/` 下的文件中，由 `dsh-doc` 按需读取。旧 skill 名称不再出现在 skill 目录中，按名称加载旧 skill 会失败。
+创造模式原先从 `@omega-ai/dsh-agent-preset` 提供四个 skill（技能）：`cordis-plugin-development`、`editing-cordis-compositions`、`cordis-composition-reference` 和 `agent-experience`。现在只提供一个 skill：`dsh-doc`。原有内容位于该包 `skills/dsh-doc/references/` 和 `skills/dsh-doc/templates/` 下的文件中，由 `dsh-doc` 按需读取。旧 skill 名称不再出现在 skill 目录中，按名称加载旧 skill 会失败。
 
 在 DSH 源码 checkout 中，文档编写 skill `.agents/skills/dsh-doc` 现为 `.agents/skills/dsh-doc-writing`，名称为 `dsh-doc-writing`。
 
@@ -18,7 +18,7 @@ description: "创造模式用一个 `dsh-doc` skill 取代原有的四个 skill�
 ## 迁移
 
 1. 将提示词、指令和 skill 中的每个旧 skill 名称替换为 `dsh-doc`；源码 checkout 中的文档 skill 改用 `dsh-doc-writing`。
-2. 按下表替换 `@deepseek-ai/dsh-agent-preset/skills/` 下的文件路径：
+2. 按下表替换 `@omega-ai/dsh-agent-preset/skills/` 下的文件路径：
 
    | 旧路径 | 新路径 |
    |---|---|

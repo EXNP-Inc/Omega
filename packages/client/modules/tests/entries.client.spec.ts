@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
+import { Context } from '@omega-ai/cordis'
+import Loader from '@omega-ai/cordis-plugin-loader'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import z from '@deepseek-ai/schemastery'
+import z from '@omega-ai/schemastery'
 import { createClientModuleSystem } from '../src/client/index.ts'
-import type { SyncedConfigRef } from '@deepseek-ai/dsh-client-config/types'
+import type { SyncedConfigRef } from '@omega-ai/dsh-client-config/types'
 import type { ClientBundleRegistration, ClientModuleLoaderTarget, WebBootRelease, WebBootEntry, WebBootGraph } from '../src/client/index.ts'
 
 type Factory = ClientBundleRegistration['factory']

@@ -3,14 +3,14 @@
  * reference, the Agent's `cua_run_code` registration, and `cua_reset` to an external MCP client. Help exits
  * without claiming stdio; a served connection owns one Agent, created in the configured workspace before the
  * transport opens, until the client closes stdin.
- * @module @deepseek-ai/dsh-cua-mcp
+ * @module @omega-ai/dsh-cua-mcp
  */
 import { mkdir } from 'node:fs/promises'
 import { isAbsolute } from 'node:path'
-import type { Context } from '@deepseek-ai/cordis'
-import Schema from '@deepseek-ai/schemastery'
-import type {} from '@deepseek-ai/dsh-app-boot'
-import { exitOnStdinEnd, internals, parseCmdline } from '@deepseek-ai/dsh-cmdline'
+import type { Context } from '@omega-ai/cordis'
+import Schema from '@omega-ai/schemastery'
+import type {} from '@omega-ai/dsh-app-boot'
+import { exitOnStdinEnd, internals, parseCmdline } from '@omega-ai/dsh-cmdline'
 import { StdioServerTransport } from '@modelcontextprotocol/server/stdio'
 import { Command } from 'commander'
 import type { ConsentMode } from './consent.ts'
@@ -73,7 +73,7 @@ export function apply(ctx: Context, config: Config): void {
   if (ready === undefined || exit === undefined || profile === undefined) throw new Error('Computer Use MCP requires the dsh profile launcher')
   const commandName = `dsh --profile ${profile.name}`
   const program = new Command(commandName)
-    .description('Serve DeepSeek Harness Computer Use to an MCP client over stdio.')
+    .description('Serve Omega Computer Use to an MCP client over stdio.')
     .addHelpText('after', `
 Examples:
   ${commandName}                          serve one MCP client until it closes stdin

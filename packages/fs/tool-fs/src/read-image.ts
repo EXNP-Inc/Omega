@@ -8,21 +8,21 @@
  * image-reading tool is useful only when the exact calling route can inspect
  * its result, so unknown capability refuses instead of relying on an adapter
  * failure after filesystem and attachment work.
- * @module @deepseek-ai/dsh-tool-fs/src/read-image
+ * @module @omega-ai/dsh-tool-fs/src/read-image
  */
 
 import { basename, extname } from 'node:path'
-import type { Context } from '@deepseek-ai/cordis'
-import { AttachmentError, type AttachmentId } from '@deepseek-ai/dsh-attachment'
-import type { AttachmentStore, ImageAttachmentRef, ImageMediaType } from '@deepseek-ai/dsh-attachment'
-import type { ContentBlock } from '@deepseek-ai/dsh-llm'
-import { defineTool, ToolArgsError, ToolContextUnavailableError } from '@deepseek-ai/dsh-tools'
-import type { GenericCallView, ToolExecution } from '@deepseek-ai/dsh-tools'
-import type {} from '@deepseek-ai/dsh-fs'
-import { assertNever } from '@deepseek-ai/dsh-util-values'
+import type { Context } from '@omega-ai/cordis'
+import { AttachmentError, type AttachmentId } from '@omega-ai/dsh-attachment'
+import type { AttachmentStore, ImageAttachmentRef, ImageMediaType } from '@omega-ai/dsh-attachment'
+import type { ContentBlock } from '@omega-ai/dsh-llm'
+import { defineTool, ToolArgsError, ToolContextUnavailableError } from '@omega-ai/dsh-tools'
+import type { GenericCallView, ToolExecution } from '@omega-ai/dsh-tools'
+import type {} from '@omega-ai/dsh-fs'
+import { assertNever } from '@omega-ai/dsh-util-values'
 import { ImageInputError } from './image-error.ts'
 import { resolveRegularReadTarget } from './read-target.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 /** Extensions `read_image` accepts; magic-byte validation at the attachment service stays authoritative. */
 const IMAGE_EXTENSIONS: Readonly<Record<string, ImageMediaType>> = {

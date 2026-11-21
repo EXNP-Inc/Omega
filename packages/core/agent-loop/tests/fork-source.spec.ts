@@ -1,16 +1,16 @@
 /** Fork creation stores the supplied history; a sharing backend persists the parent prefix first. */
-import { Context } from '@deepseek-ai/cordis'
+import { Context } from '@omega-ai/cordis'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
 import { expect, it, onTestFinished, vi } from 'vitest'
-import { SessionId, SessionSeq, SessionLogOffset } from '@deepseek-ai/dsh-session'
-import { buildForkSeed } from '@deepseek-ai/dsh-session/fork'
-import * as persistence from '@deepseek-ai/dsh-session-persistence-jsonl'
-import * as sqlitePersistence from '@deepseek-ai/dsh-session-persistence-sqlite'
+import { SessionId, SessionSeq, SessionLogOffset } from '@omega-ai/dsh-session'
+import { buildForkSeed } from '@omega-ai/dsh-session/fork'
+import * as persistence from '@omega-ai/dsh-session-persistence-jsonl'
+import * as sqlitePersistence from '@omega-ai/dsh-session-persistence-sqlite'
 import { storedEvents, tailSegment } from '../../../session/session-persistence-sqlite/tests/fixtures/store.ts'
-import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@deepseek-ai/dsh-agent-loop-testkit'
+import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@omega-ai/dsh-agent-loop-testkit'
 
 async function fixture(storage: 'sqlite' | 'jsonl' = 'sqlite') {
   const root = await mkdtemp(join(tmpdir(), 'dsh-agent-fork-source-'))

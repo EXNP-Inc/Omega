@@ -3,13 +3,13 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
-import { SessionId } from '@deepseek-ai/dsh-session'
-import { SessionAlreadyOwnedError } from '@deepseek-ai/dsh-session-persistence'
+import { SessionId } from '@omega-ai/dsh-session'
+import { SessionAlreadyOwnedError } from '@omega-ai/dsh-session-persistence'
 import { SessionWriteLease, LEASE_FILENAME } from '../src/lease.ts'
 
 const faults = vi.hoisted(() => ({ flock: '', stat: false, swap: 0, remove: false }))
-vi.mock('@deepseek-ai/node-addon-system/flock', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@deepseek-ai/node-addon-system/flock')>()
+vi.mock('@omega-ai/node-addon-system/flock', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@omega-ai/node-addon-system/flock')>()
   return { ...actual, tryLockExclusive: async (fd: number) => {
     if (faults.flock !== '') {
       const code = faults.flock

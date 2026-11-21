@@ -7,7 +7,7 @@ import {
   resolveDesktopAutoUpdateEnvironment,
   resolveDesktopAutoUpdateTarget,
   resolveDesktopUploadConfig,
-} from '@deepseek-ai/dsh-desktop-publisher/desktop-auto-update-environment.mjs'
+} from '@omega-ai/dsh-desktop-publisher/desktop-auto-update-environment.mjs'
 
 const RELEASE_ID = '0123456789abcdef0123456789abcdef'
 
@@ -66,7 +66,7 @@ describe('desktop auto-update environment', () => {
     }, 'win32', 'x64')).toMatchObject({
       environment: 'production',
       target: 'win-x64',
-      publicUrl: 'https://download.deepseek.com/dsh-desk/feeds/win-x64/',
+      publicUrl: 'https://download.omega.com/dsh-desk/feeds/win-x64/',
       binaryKeyPrefix: 'dsh-desk/bin/win-x64',
     })
     expect(resolveDesktopUploadConfig({
@@ -126,7 +126,7 @@ it.each([
   ['mac-x64', 'dsh-latest-macos-x64.dmg'],
   ['win-x64', 'dsh-latest-windows-x64.exe'],
 ] as const)('uses the production origin for website target %s', (target, filename) => {
-  expect(desktopWebsiteInstallerUrl(target)).toBe(`https://download.deepseek.com/desktop/${filename}`)
+  expect(desktopWebsiteInstallerUrl(target)).toBe(`https://download.omega.com/desktop/${filename}`)
 })
 
 it.each([['darwin', 'arm64', 'mac-arm64', 'stable-mac.yml'], ['darwin', 'x64', 'mac-x64', 'stable-mac.yml'], ['win32', 'x64', 'win-x64', 'stable.yml']] as const)

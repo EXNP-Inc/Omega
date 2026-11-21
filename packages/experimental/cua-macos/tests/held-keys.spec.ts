@@ -1,16 +1,16 @@
 /** Held-key cleanup through real native byte streams and the tool execution wrapper. */
 import { PassThrough, Writable } from 'node:stream'
 import { finished } from 'node:stream/promises'
-import { Context } from '@deepseek-ai/cordis'
-import { NativeClient } from '@deepseek-ai/dsh-cua/native-client'
-import type { ToolCallId } from '@deepseek-ai/dsh-llm'
-import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
-import Tools, { defineTool } from '@deepseek-ai/dsh-tools'
-import { executeToolFixture } from '@deepseek-ai/dsh-tool-testkit'
+import { Context } from '@omega-ai/cordis'
+import { NativeClient } from '@omega-ai/dsh-cua/native-client'
+import type { ToolCallId } from '@omega-ai/dsh-llm'
+import SystemPrompt from '@omega-ai/dsh-system-prompt'
+import Tools, { defineTool } from '@omega-ai/dsh-tools'
+import { executeToolFixture } from '@omega-ai/dsh-tool-testkit'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import { z } from 'zod'
 import { installHeldKeys } from '../src/held-keys.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const Request = z.object({ id: z.string(), method: z.string(), params: z.record(z.string(), z.json()) })
 

@@ -12,14 +12,14 @@
   en: a15c7c13f167e5ac
   zh: a15c7c13f167e5ac
 /agent-note-browser-plugin-configuration-sync/decision/design-principles:
-  en: 1678ec9cbc83e49e
-  zh: 1548e5e08774de78
+  en: 4aeadde41f41b5a2
+  zh: 0b30a359cf10fcac
 /agent-note-browser-plugin-configuration-sync/decision/plugin-authoring:
-  en: 201c029071cc3812
-  zh: 03a7245772a95b54
+  en: 7f41f1659332fc65
+  zh: 36addc965fd18567
 /agent-note-browser-plugin-configuration-sync/decision/ownership:
-  en: cb3e66c7d61b706b
-  zh: a255f85e9c411db9
+  en: 33f6771c2ca2c192
+  zh: dcc852b558239236
 /agent-note-browser-plugin-configuration-sync/decision/ordering:
   en: 5de9319764101262
   zh: 4a5c5c417cf36d8e
@@ -27,8 +27,8 @@
   en: 5714f023a439e068
   zh: 5d5ec5d5847fb2d4
 /agent-note-browser-plugin-configuration-sync/decision/delivery:
-  en: 9b8e644702108ef6
-  zh: 0d4f551c6007e989
+  en: e2a4dd734efc7064
+  zh: d61f137139d153c3
 /agent-note-browser-plugin-configuration-sync/decision/push-channel:
   en: 5596a32a26042882
   zh: fbeae944656b39ac
@@ -39,8 +39,8 @@
   en: b7ab56a86ef63b85
   zh: b5fc8aae610659fc
 /agent-note-browser-plugin-configuration-sync/alternatives-considered:
-  en: 15ae5cd610d7208c
-  zh: 5f25271e318dbfe1
+  en: eceb879d5b78ceac
+  zh: 8b936473891c879f
 /agent-note-browser-plugin-configuration-sync/consequences:
   en: f85e3339246a9f84
   zh: 11cbff9deeb78f88

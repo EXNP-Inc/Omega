@@ -24,7 +24,7 @@
  * module; distinct active Loader sources for that package are a composition
  * error. Bundle rebuilds outside
  * an entry restart reach the graph through {@link ClientModuleRegistry.rebuilt}.
- * @module @deepseek-ai/dsh-client-modules
+ * @module @omega-ai/dsh-client-modules
  */
 
 import { createHash } from 'node:crypto'
@@ -35,11 +35,11 @@ import { dirname, isAbsolute, join } from 'node:path'
 import { Readable } from 'node:stream'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { isDeepStrictEqual } from 'node:util'
-import { Service } from '@deepseek-ai/cordis'
-import type { Context } from '@deepseek-ai/cordis'
-import type { Entry } from '@deepseek-ai/cordis-plugin-loader'
-import type { IndexInjection } from '@deepseek-ai/dsh-host-webserver'
-import type { Principal } from '@deepseek-ai/dsh-typert-protocol'
+import { Service } from '@omega-ai/cordis'
+import type { Context } from '@omega-ai/cordis'
+import type { Entry } from '@omega-ai/cordis-plugin-loader'
+import type { IndexInjection } from '@omega-ai/dsh-host-webserver'
+import type { Principal } from '@omega-ai/dsh-typert-protocol'
 import { PACKAGE_ASSET_SEGMENT, packageAssetMediaType } from './assets.ts'
 import { exactPackageSpecifier, parseDshClient, stripClientSuffix } from './client/manifest.ts'
 import { SyncedConfigPublisher } from './config-sync.ts'
@@ -50,7 +50,7 @@ export type {
   BootManifest, BootModuleRow, BootPluginRow, WebBootBatch, WebBootBatchPhase, WebBootEntry, WebBootGraph, WebBootRelease,
 } from './client/manifest.ts'
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context {
     /** The web plugin table (provided by the client-modules node half). */
     clientModules: ClientModuleRegistry
@@ -585,7 +585,7 @@ export function orderByModuleGraph(entries: readonly WebBootEntry[]): WebBootEnt
 }
 
 /** Bootstrap package whose ordinary client bundle supplies the module-system implementation. */
-const CLIENT_MODULES_ID = '@deepseek-ai/dsh-client-modules'
+const CLIENT_MODULES_ID = '@omega-ai/dsh-client-modules'
 
 /** Dynamic bundles grouped into the parser bootstrap batch before the Vite shell. */
 const PARSER_PRELOAD_IDS = [CLIENT_MODULES_ID] as const

@@ -1,5 +1,5 @@
 /** Models settings plugin configuration shared by the Host and Client faces; types only. */
-import type { Volatile } from '@deepseek-ai/cordis'
+import type { Volatile } from '@omega-ai/cordis'
 
 /** Credential-onboarding choice; the browser receives it through its synced Config. */
 export interface ModelsConfig {

@@ -4,10 +4,10 @@
  * this browser's state and calls the Host through the injected callbacks.
  */
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Button, IconWarningOutlineRegular, Modal, StateDot, Tag, Toast, type StateDotState, type TagTone } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { InjectFace, PropsRuntime, Translate } from '@deepseek-ai/dsh-client-ui-slots'
-import type {} from '@deepseek-ai/dsh-client-ui-plugin-manager/client'
-import { assertNever } from '@deepseek-ai/dsh-util-values'
+import { Button, IconWarningOutlineRegular, Modal, StateDot, Tag, Toast, type StateDotState, type TagTone } from '@omega-ai/dsh-client-ui-primitives'
+import type { InjectFace, PropsRuntime, Translate } from '@omega-ai/dsh-client-ui-slots'
+import type {} from '@omega-ai/dsh-client-ui-plugin-manager/client'
+import { assertNever } from '@omega-ai/dsh-util-values'
 import type { ConnectorAccountButton, ConnectorAccountCommand, ConnectorAccountEntry, ConnectorAccountPhase } from '../types.ts'
 import css from './ConnectorAccount.module.css'
 import type { ConnectorAccountKey } from './locales.ts'

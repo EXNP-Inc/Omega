@@ -9,7 +9,7 @@ description: "ProfileContext 以 overlay 文件路径取代已解析的 overlay�
 
 ## 变更
 
-`@deepseek-ai/dsh-app-boot` 的 `ProfileContext`（以 `ctx.profileContext` 提供）不再包含 `overlays: readonly PatchOptions[]`，改为 `overlayPaths: readonly string[]`：按命令行顺序排列的 `--patch` 文件绝对路径。`readProfilePatches()` 每次调用都会读取这些文件，因此返回当前的 overlay 内容，并在 overlay 文件缺失或无效时抛出异常。启用 `dsh-hmr` 时，编辑 `--patch` 文件会重新组合运行中的 profile。读取 `profileContext.overlays` 的插件，以及构造 `ProfileContext` 的启动器或测试会受到影响。
+`@omega-ai/dsh-app-boot` 的 `ProfileContext`（以 `ctx.profileContext` 提供）不再包含 `overlays: readonly PatchOptions[]`，改为 `overlayPaths: readonly string[]`：按命令行顺序排列的 `--patch` 文件绝对路径。`readProfilePatches()` 每次调用都会读取这些文件，因此返回当前的 overlay 内容，并在 overlay 文件缺失或无效时抛出异常。启用 `dsh-hmr` 时，编辑 `--patch` 文件会重新组合运行中的 profile。读取 `profileContext.overlays` 的插件，以及构造 `ProfileContext` 的启动器或测试会受到影响。
 
 ## 迁移
 

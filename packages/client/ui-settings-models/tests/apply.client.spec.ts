@@ -1,24 +1,24 @@
 /** Models section registration: slot declaration injection, the locale-following label thunk, and HMR recovery. */
-import type { JsonValue } from '@deepseek-ai/dsh-util-values'
-import Schema from '@deepseek-ai/schemastery'
-import { Context } from '@deepseek-ai/cordis'
+import type { JsonValue } from '@omega-ai/dsh-util-values'
+import Schema from '@omega-ai/schemastery'
+import { Context } from '@omega-ai/cordis'
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
-import { resolveSlotLabel } from '@deepseek-ai/dsh-client-ui-slots'
-import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import { syncedConfig, TestRemote } from '@deepseek-ai/dsh-client-test-runtime'
-import { remoteDefaultResponses } from '@deepseek-ai/dsh-client-test-runtime/src/assembly/remote-default-responses.ts'
-import { ok, RemoteMock } from '@deepseek-ai/dsh-remote-mock'
-import { apply as settingsApply, inject as settingsInject } from '@deepseek-ai/dsh-client-ui-settings/client'
-import { apply, inject, refreshIfLoaded } from '@deepseek-ai/dsh-client-ui-settings-models/client'
+import { resolveSlotLabel } from '@omega-ai/dsh-client-ui-slots'
+import { SlotRegistry } from '@omega-ai/dsh-client-ui-renderer/client'
+import { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
+import { syncedConfig, TestRemote } from '@omega-ai/dsh-client-test-runtime'
+import { remoteDefaultResponses } from '@omega-ai/dsh-client-test-runtime/src/assembly/remote-default-responses.ts'
+import { ok, RemoteMock } from '@omega-ai/dsh-remote-mock'
+import { apply as settingsApply, inject as settingsInject } from '@omega-ai/dsh-client-ui-settings/client'
+import { apply, inject, refreshIfLoaded } from '@omega-ai/dsh-client-ui-settings-models/client'
 import {
   WELCOME_NOTICE_ACK_FIELD, WELCOME_NOTICE_SETTINGS_NAMESPACE, WELCOME_NOTICE_VERSION,
 } from '../src/onboarding-copy.ts'
 import { ModelsSection } from '../src/client/ModelsSection.tsx'
-import { DeepSeekOnboardingDialog } from '../src/client/DeepSeekOnboardingDialog.tsx'
+import { OmegaOnboardingDialog } from '../src/client/OmegaOnboardingDialog.tsx'
 import { WelcomeNotice } from '../src/client/WelcomeNotice.tsx'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import type { ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import type { ObservableSnapshot } from '@omega-ai/dsh-client-store'
 import * as hostPlugin from '../src/index.ts'
 
 afterEach(() => { vi.unstubAllGlobals() })
@@ -66,9 +66,9 @@ function declare(slots: SlotRegistry): () => void {
   )
 }
 
-/** The official-DeepSeek step's injected automatic-onboarding source. */
+/** The official-Omega step's injected automatic-onboarding source. */
 function automaticSource(slots: SlotRegistry): ObservableSnapshot<boolean> {
-  const entry = slots.entries('settings.onboarding').find(candidate => candidate.options.id === 'deepseek-official')!
+  const entry = slots.entries('settings.onboarding').find(candidate => candidate.options.id === 'omega-official')!
   return (entry.inject as () => { hooks: { automatic: ObservableSnapshot<boolean> } })().hooks.automatic
 }
 
@@ -86,7 +86,7 @@ describe('ui-settings-models apply', () => {
     try {
       const plugin = ctx.plugin({ inject: [...inject], apply }, syncedConfig({ credentialOnboarding: false }))
       await plugin.await()
-      expect(slots.entries('settings.onboarding').map(entry => entry.options.id)).toEqual(['welcome-notice', 'deepseek-official'])
+      expect(slots.entries('settings.onboarding').map(entry => entry.options.id)).toEqual(['welcome-notice', 'omega-official'])
       expect(automaticSource(slots).getSnapshot()).toBe(false)
       expect(slots.entries('settings.section').map(entry => entry.options.id)).toEqual(['models'])
       await plugin.dispose()
@@ -123,7 +123,7 @@ describe('ui-settings-models apply', () => {
     declare(slots)
     try {
       await ctx.plugin({ inject: [...inject], apply }, syncedConfig({ credentialOnboarding: true })).await()
-      expect(slots.entries('settings.onboarding').map(entry => entry.options.id)).toEqual(['deepseek-official'])
+      expect(slots.entries('settings.onboarding').map(entry => entry.options.id)).toEqual(['omega-official'])
       expect(automaticSource(slots).getSnapshot()).toBe(false)
     } finally {
       await ctx.fiber.dispose()
@@ -161,20 +161,20 @@ describe('ui-settings-models apply', () => {
       component: WelcomeNotice,
       options: { id: 'welcome-notice', order: -100 },
     })
-    const deepSeek = onboarding.find(entry => entry.options.id === 'deepseek-official')!
-    expect(deepSeek.component).toBe(DeepSeekOnboardingDialog)
-    const analytics = (deepSeek.inject!() as object) as import('../src/client/DeepSeekOnboardingDialog.tsx').DeepSeekOnboardingInjected
+    const omega = onboarding.find(entry => entry.options.id === 'omega-official')!
+    expect(omega.component).toBe(OmegaOnboardingDialog)
+    const analytics = (omega.inject!() as object) as import('../src/client/OmegaOnboardingDialog.tsx').OmegaOnboardingInjected
     analytics.track?.('api_key_save_click', {})
     const track = vi.fn()
     before.ctx.provide('productAnalytics', { track } as never)
     analytics.track?.('api_key_save_click', {})
     expect(track).toHaveBeenCalledWith('api_key_save_click', {})
-    expect(deepSeek.options).toMatchObject({ id: 'deepseek-official', order: 0 })
-    const deepSeekInjected = (
-      deepSeek.inject as unknown as () => import('../src/client/DeepSeekOnboardingDialog.tsx').DeepSeekOnboardingInjected
+    expect(omega.options).toMatchObject({ id: 'omega-official', order: 0 })
+    const omegaInjected = (
+      omega.inject as unknown as () => import('../src/client/OmegaOnboardingDialog.tsx').OmegaOnboardingInjected
     )()
-    expect(deepSeekInjected.hooks.models).toBe(injected.controller.store)
-    expect(typeof deepSeekInjected.operations.storeCredential).toBe('function')
+    expect(omegaInjected.hooks.models).toBe(injected.controller.store)
+    expect(typeof omegaInjected.operations.storeCredential).toBe('function')
 
     const after = await bench()
     await after.ctx.plugin({ inject: [...inject], apply }, syncedConfig({})).await()
@@ -299,14 +299,14 @@ describe('pushed invalidations', () => {
     declare(b.slots)
     await b.ctx.plugin({ inject: [...inject], apply }, syncedConfig({})).await()
     const entry = b.slots.entries('settings.onboarding')
-      .find(candidate => candidate.options.id === 'deepseek-official')!
+      .find(candidate => candidate.options.id === 'omega-official')!
     const injected = (
       entry.inject as unknown as
-      () => import('../src/client/DeepSeekOnboardingDialog.tsx').DeepSeekOnboardingInjected
+      () => import('../src/client/OmegaOnboardingDialog.tsx').OmegaOnboardingInjected
     )()
     injected.controller.store.update((state) => { state.status = 'ready' })
     const load = vi.spyOn(injected.controller, 'load').mockResolvedValue()
-    b.remote.emit('credentials/reference-updated', ['DEEPSEEK_API_KEY'])
+    b.remote.emit('credentials/reference-updated', ['OMEGA_API_KEY'])
     expect(load).toHaveBeenCalledTimes(1)
   })
 

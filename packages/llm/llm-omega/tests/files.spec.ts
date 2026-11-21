@@ -1,20 +1,20 @@
 /** Messages file-reference admission, bounded recovery and request-wide inline fallback. */
-import type { AnonymousUserId } from '@deepseek-ai/dsh-anonymous-user-id'
+import type { AnonymousUserId } from '@omega-ai/dsh-anonymous-user-id'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { AttachmentId, ImageVariantId } from '@deepseek-ai/dsh-attachment/types'
-import type { ImageAttachmentRef, RequestImageAttachment } from '@deepseek-ai/dsh-attachment'
-import { createAssistantMessage, createToolResultMessage, LlmError, type ToolCallId } from '@deepseek-ai/dsh-llm'
-import type { DeepSeekFileId } from '../src/file-id.ts'
-import { DeepSeekFileStore } from '../src/file-store.ts'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { AttachmentId, ImageVariantId } from '@omega-ai/dsh-attachment/types'
+import type { ImageAttachmentRef, RequestImageAttachment } from '@omega-ai/dsh-attachment'
+import { createAssistantMessage, createToolResultMessage, LlmError, type ToolCallId } from '@omega-ai/dsh-llm'
+import type { OmegaFileId } from '../src/file-id.ts'
+import { OmegaFileStore } from '../src/file-store.ts'
 import { resolveAdapterOptions } from '../src/config.ts'
 import type { Options as Config } from '../src/config.ts'
-import { DeepSeekAdapter } from '../src/adapter.ts'
+import { OmegaAdapter } from '../src/adapter.ts'
 import { prepareImages } from '../src/images.ts'
 import { providerErrorDetail } from '../src/transport.ts'
 import { chunks, options, prepareExtensions, sse, textEvents, user, requestImageStore } from './helpers.ts'
 
-const model = 'deepseek-flash'
+const model = 'omega-flash'
 const ref: ImageAttachmentRef = { attachmentId: brandString<AttachmentId>(`sha256:${'a'.repeat(64)}`), width: 1, height: 1, mediaType: 'image/png', bytes: 3 }
 const second = { ...ref, attachmentId: brandString<AttachmentId>(`sha256:${'c'.repeat(64)}`) }
 const version = (attachment: ImageAttachmentRef): RequestImageAttachment => ({
@@ -29,17 +29,21 @@ function body(init: RequestInit | undefined): string {
 }
 const rejected = (message: string, status = 400) => new Response(JSON.stringify({ error: { type: 'invalid_request_error', message } }), { status })
 function harness(config: Config = {}, revoked?: AbortSignal) {
-  const ensureUploaded = vi.fn<DeepSeekFileStore['ensureUploaded']>(async image => ({
-    record: { fileId: brandString<DeepSeekFileId>(image.attachment.attachmentId === ref.attachmentId ? 'file-a' : 'file-b') }, uploaded: false,
-  } as Awaited<ReturnType<DeepSeekFileStore['ensureUploaded']>>))
-  const invalidate = vi.fn<DeepSeekFileStore['invalidate']>(async () => {})
-  const files = Object.assign(new DeepSeekFileStore(), { ensureUploaded, invalidate })
+  const ensureUploaded = vi.fn<OmegaFileStore['ensureUploaded']>(async image => ({
+    record: { fileId: brandString<OmegaFileId>(image.attachment.attachmentId === ref.attachmentId ? 'file-a' : 'file-b') }, uploaded: false,
+  } as Awaited<ReturnType<OmegaFileStore['ensureUploaded']>>))
+  const invalidate = vi.fn<OmegaFileStore['invalidate']>(async () => {})
+  const files = Object.assign(new OmegaFileStore(), { ensureUploaded, invalidate })
   const readImageRequest = vi.fn(async (attachment: ImageAttachmentRef) => version(attachment))
   // The codec and remote upload are the expensive boundaries; request projection and recovery stay real.
   const attachments = requestImageStore(readImageRequest)
   const prepare = vi.fn(prepareExtensions)
-  const adapter = new DeepSeekAdapter({
-    options: () => resolveAdapterOptions(Object.assign({ baseURL: 'https://gateway.example/custom' }, config)),
+  const adapter = new OmegaAdapter({
+    // The catalog ships empty, so the harness supplies the vision capability the file tests exercise.
+    options: () => resolveAdapterOptions(Object.assign({
+      baseURL: 'https://gateway.example/custom',
+      models: [{ id: model, inputModalities: ['text', 'image'] }],
+    }, config)),
     resolveAuth: async () => ({ headers: { 'x-api-key': 'test-key' }, ...revoked === undefined ? {} : { revoked } }),
     resolveUserId: () => 'test-user' as AnonymousUserId, resolveAttachments: () => attachments,
     resolveImageAccess: () => ({ readonlyPath: '/workspace/image.png' }), resolveFiles: () => files, prepareExtensions: prepare,
@@ -61,7 +65,7 @@ describe('Messages Files requests', () => {
       gates[index]!.started.resolve(undefined)
       await gates[index]!.finish.promise
       const result = await resolve(...args)
-      return { ...result, record: { ...result.record, fileId: brandString<DeepSeekFileId>(`file-${index}`) } }
+      return { ...result, record: { ...result.record, fileId: brandString<OmegaFileId>(`file-${index}`) } }
     })
     const stream = chunks(h.adapter.stream(request([...images, images[0]!])))
     const parallel = limit ?? 3
@@ -108,7 +112,7 @@ describe('Messages Files requests', () => {
     vi.stubGlobal('fetch', fetchImpl)
     const h = harness()
     const callId = brandString<ToolCallId>('image-tool')
-    const messages = [user(), createAssistantMessage({ source: { provider: 'deepseek-official', model }, content: [{ type: 'tool-call', id: callId, name: 'read_image', arguments: '{}' }] }),
+    const messages = [user(), createAssistantMessage({ source: { provider: 'omega-official', model }, content: [{ type: 'tool-call', id: callId, name: 'read_image', arguments: '{}' }] }),
       createToolResultMessage({ callId, isError: false, content: [{ type: 'image', attachment: ref }, { type: 'image', attachment: ref }] })]
     await chunks(h.adapter.stream(options({ model, messages })))
     expect(h.readImageRequest).toHaveBeenCalledTimes(1)
@@ -162,7 +166,7 @@ describe('Messages Files requests', () => {
     vi.stubGlobal('fetch', fetchImpl)
     const h = harness()
     h.ensureUploaded
-      .mockResolvedValueOnce({ record: { fileId: brandString<DeepSeekFileId>('file-a') }, uploaded: true } as Awaited<ReturnType<DeepSeekFileStore['ensureUploaded']>>)
+      .mockResolvedValueOnce({ record: { fileId: brandString<OmegaFileId>('file-a') }, uploaded: true } as Awaited<ReturnType<OmegaFileStore['ensureUploaded']>>)
       .mockRejectedValueOnce(new LlmError('quota exhausted', 'FILES_API'))
     await chunks(h.adapter.stream(request([ref, second])))
     const init = fetchImpl.mock.calls[0]?.[1]
@@ -201,7 +205,7 @@ describe('Messages Files requests', () => {
     const images = [{ type: 'image' as const, attachment: ref, offloaded: true as const }, { type: 'image' as const, attachment: second }]
     await chunks(h.adapter.stream(options({ model, messages: [{ ...user(), content: images }] })))
     expect(h.readImageRequest).toHaveBeenCalledExactlyOnceWith(second, expect.anything(), expect.any(AbortSignal))
-    expect(h.adapter.imageRequestPricing('deepseek-official', model).priceImages(images).map(image => image.visualTokens)).toEqual([0, expect.any(Number)])
+    expect(h.adapter.imageRequestPricing('omega-official', model).priceImages(images).map(image => image.visualTokens)).toEqual([0, expect.any(Number)])
   })
 
   it.each([

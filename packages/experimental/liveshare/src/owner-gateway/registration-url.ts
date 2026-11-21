@@ -11,7 +11,7 @@ import {
   LIVESHARE_CAPABILITIES,
   LIVESHARE_PROTOCOL_VERSION,
   type TunnelShareSpec,
-} from '@deepseek-ai/dsh-experimental-liveshare-protocol'
+} from '@omega-ai/dsh-experimental-liveshare-protocol'
 import { relayEndpoint } from '../host/relay-url.ts'
 
 /**

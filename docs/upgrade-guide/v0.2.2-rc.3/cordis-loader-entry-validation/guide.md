@@ -9,7 +9,7 @@ English | [中文](guide.zh.md)
 
 ## Change
 
-`@deepseek-ai/cordis-plugin-loader` now carries upstream Loader 1.0.0-rc.9, and `@deepseek-ai/cordis-plugin-include` carries Include 1.2.0. Hand-written `cordis.yml`, `cordis.patch.yml` and overlay files, and code that calls the Include or Loader exports, are affected:
+`@omega-ai/cordis-plugin-loader` now carries upstream Loader 1.0.0-rc.9, and `@omega-ai/cordis-plugin-include` carries Include 1.2.0. Hand-written `cordis.yml`, `cordis.patch.yml` and overlay files, and code that calls the Include or Loader exports, are affected:
 
 - Include and `parseEntryYaml` parse YAML 1.2 under the core schema instead of the js-yaml JSON schema. A binary integer such as `0b101` now reads as the string `'0b101'`. An empty `!!js` scalar now reads as an empty expression, which evaluates to `undefined`, instead of failing to parse.
 - Entry options are validated before an entry is created or updated. `name` must be a string; `group` a boolean; `disabled` a boolean or `!!js` expression; an entry with `group: true` must have a `config` list, even an empty one; `inject` a string list or a mapping; `isolate` a mapping whose values are `true` or a string. An entry that loaded before with such a value is now rejected and its siblings still start; `dsh` stops startup when the rejected entry is required, such as `webserver`, and warns otherwise. An Include file with an entry that is not a mapping is rejected as a whole. Ids containing `:` remain accepted.

@@ -34,7 +34,7 @@ jobs:
           package-manager-cache: false
 
       - id: check
-        uses: deepseek-harness/deepseek-harness-check@master
+        uses: omega-harness/omega-harness-check@master
         env:
           CHECK_MODE: ${{ vars.MERGE_POLICY_MASTER_DIFF }}
         with:

@@ -1,6 +1,6 @@
 /** The GitLab CLI commands that bind merge requests to a Session through forge-session. */
 
-import type { ForgeCommandArguments, ForgeCommandRule, ForgeCommandSelection } from '@deepseek-ai/dsh-experimental-forge-session'
+import type { ForgeCommandArguments, ForgeCommandRule, ForgeCommandSelection } from '@omega-ai/dsh-experimental-forge-session'
 
 const MERGE_REQUEST_URL = /^(https?:\/\/[^\s/]+\/(?:[^\s/]+\/)+-\/merge_requests\/[1-9]\d*)(?:[/?#].*)?$/
 const PROJECT_URL = /^(https?:\/\/[a-z\d.-]+(?::\d+)?)\/((?:[\w.-]+\/)+[\w.-]+?)(?:\.git)?\/?$/i

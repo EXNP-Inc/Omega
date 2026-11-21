@@ -6,12 +6,12 @@ import { homedir } from 'node:os'
 import type { Browser, Locator, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed, onTestFinished, vi } from 'vitest'
-import type {} from '@deepseek-ai/dsh-agent-team'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { CommandId } from '@deepseek-ai/dsh-commands/types'
-import { createMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
-import { abbreviateHomePath } from '@deepseek-ai/dsh-util-workspace-path'
+import type {} from '@omega-ai/dsh-agent-team'
+import type { SessionId } from '@omega-ai/dsh-session'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { CommandId } from '@omega-ai/dsh-commands/types'
+import { createMessage, createUserMessage } from '@omega-ai/dsh-llm'
+import { abbreviateHomePath } from '@omega-ai/dsh-util-workspace-path'
 import {
   acknowledgeReloadConnectionLoss, assertFixtureInventory, captureStableAria, compareOrRefreshGolden,
   launchWebScaffold, watchConsole, webSnapshotMode, type WebScaffold,
@@ -163,14 +163,14 @@ describe('web e2e: agent teamwork panel', () => {
     const summary = menu.getByRole('menuitem', { name: 'Agent teamwork Off', exact: true })
     await summary.waitFor()
     const stateColor = await summary.getByText('Off', { exact: true }).evaluate(element => getComputedStyle(element).color)
-    const modelColor = await menu.getByRole('menuitem', { name: 'Model DeepSeek-V4-Flash', exact: true })
-      .getByText('DeepSeek-V4-Flash', { exact: true }).evaluate(element => getComputedStyle(element).color)
+    const modelColor = await menu.getByRole('menuitem', { name: 'Model Omega-V4-Flash', exact: true })
+      .getByText('Omega-V4-Flash', { exact: true }).evaluate(element => getComputedStyle(element).color)
     expect(stateColor).toBe(modelColor)
     const inspectArrow = (element: HTMLElement | SVGElement) => {
       const { left, right, width, height } = element.getBoundingClientRect()
       return { left, right, width, height, color: getComputedStyle(element).color, glyph: element.innerHTML }
     }
-    const peerArrow = menu.getByRole('menuitem', { name: 'Model DeepSeek-V4-Flash', exact: true }).locator('svg').last()
+    const peerArrow = menu.getByRole('menuitem', { name: 'Model Omega-V4-Flash', exact: true }).locator('svg').last()
     expect(await summary.locator('svg').evaluate(inspectArrow)).toEqual(await peerArrow.evaluate(inspectArrow))
     expect(await menu.getByRole('switch').count()).toBe(0)
     expect(await page.getByRole('button', { name: 'About agent teamwork', exact: true }).count()).toBe(0)

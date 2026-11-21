@@ -6,17 +6,17 @@ import { join } from 'node:path'
 import type { Browser, Locator, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import type { ReplayOverrideDoc } from '@deepseek-ai/dsh-llm-replay'
-import type { SessionId } from '@deepseek-ai/dsh-session'
-import { formatSessionReferenceMention } from '@deepseek-ai/dsh-session-reference'
-import { formatQuoteText } from '@deepseek-ai/dsh-client-ui-primitives'
+import type { ReplayOverrideDoc } from '@omega-ai/dsh-llm-replay'
+import type { SessionId } from '@omega-ai/dsh-session'
+import { formatSessionReferenceMention } from '@omega-ai/dsh-session-reference'
+import { formatQuoteText } from '@omega-ai/dsh-client-ui-primitives'
 import {
   assertFixtureInventory, captureStableAria, compareOrRefreshGolden, launchWebScaffold,
   parseSeedFixture, renderSeedFixture, seedSession, selectedSessionFixture, watchConsole, webSnapshotMode,
   type WebScaffold,
 } from './scaffold.ts'
 import { newEnglishPage, pinBrowserClock, pinHostClock, saveFailureShot } from './support.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const SNAPSHOT_DIR = fileURLToPath(new URL('../../../snapshots/web/rich-text-quotes', import.meta.url))
 const BORROWED = fileURLToPath(new URL('../../../snapshots/web/seeded-history/session.jsonl', import.meta.url))

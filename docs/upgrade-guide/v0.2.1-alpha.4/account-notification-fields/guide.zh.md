@@ -9,7 +9,7 @@ description: "AccountBonusNotification 提供未经校验的可选元数据，�
 
 ## 变更
 
-`DeepSeekAccount.getUnnotifiedBonuses()` 和 `account/getUnnotifiedBonuses` 返回的公开类型 `AccountBonusNotification` 保留 `campaign`、`amount`、`currency` 和 `grantedAt`，作为类型为 `JsonValue` 的可选元数据，不做校验。通知保留 `orderId`、`message` 和 `expiresAt`，并新增可选的 `title`。空字符串 `expiresAt` 表示通知永不过期。`orderId` 接受任意字符串，不再要求 UUID 格式。
+`OmegaAccount.getUnnotifiedBonuses()` 和 `account/getUnnotifiedBonuses` 返回的公开类型 `AccountBonusNotification` 保留 `campaign`、`amount`、`currency` 和 `grantedAt`，作为类型为 `JsonValue` 的可选元数据，不做校验。通知保留 `orderId`、`message` 和 `expiresAt`，并新增可选的 `title`。空字符串 `expiresAt` 表示通知永不过期。`orderId` 接受任意字符串，不再要求 UUID 格式。
 
 ## 迁移
 

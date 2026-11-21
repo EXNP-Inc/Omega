@@ -5,9 +5,9 @@
  */
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import { bindSnapshotSelector, makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
-import { RemoteError, type RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import { bindSnapshotSelector, makeTranslate } from '@omega-ai/dsh-client-test-runtime'
+import { RemoteError, type RemoteResult } from '@omega-ai/dsh-typert-protocol'
 import { en, zh } from '../src/client/locales.ts'
 import type { PanelSnapshot } from '../src/client/source.ts'
 import type { WorktreeRequestResult } from '../src/client/WorktreeNameDialog.tsx'

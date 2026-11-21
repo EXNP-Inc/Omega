@@ -22,7 +22,7 @@ describe.skipIf(MODE === 'record').each([false, true])('web e2e: native credenti
 
   beforeAll(async () => {
     scaffold = await launchWebScaffold({
-      deepSeekMissingCredential: true,
+      omegaMissingCredential: true,
       welcomeNoticePending: true,
       ...desktop ? {} : { extraOverlayPath: fileURLToPath(new URL('./fixtures/onboarding-native/cordis.patch.yml', import.meta.url)) },
     })

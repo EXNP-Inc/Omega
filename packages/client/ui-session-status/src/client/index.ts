@@ -1,9 +1,9 @@
 /** Client Session status plugin: the `uiSession.sessionStatus` service, the `useSessionStatus` root hook, and reading. */
-import type { Context } from '@deepseek-ai/cordis'
+import type { Context } from '@omega-ai/cordis'
 // Type-only: declares the `sessions` Controller service.
-import type {} from '@deepseek-ai/dsh-api-session-controller/client'
+import type {} from '@omega-ai/dsh-api-session-controller/client'
 // Type-only service merge for ctx.slots.
-import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
+import type {} from '@omega-ai/dsh-client-ui-renderer/client'
 import { installReading } from './read.ts'
 import { UiSessionStatus } from './status.ts'
 

@@ -3,7 +3,7 @@ name: dsh-error-handling
 description: Apply error-handling principles when designing or reviewing failures, error classes and codes, tool failures, recovery, retries, background tasks, and user-visible error reports.
 ---
 
-# DeepSeek Harness Error Handling
+# Omega Error Handling
 
 Define failures, their owners, and what remains safe after failure.
 

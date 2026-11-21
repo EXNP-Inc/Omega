@@ -1,6 +1,6 @@
 /**
- * DeepSeek vision-token accounting: the provider's published image-token
- * calculator (api-docs.deepseek.com, Token & Token Usage) ported verbatim in
+ * Omega vision-token accounting: the provider's published image-token
+ * calculator (api-docs.omega.com, Token & Token Usage) ported verbatim in
  * its current `v41` configuration. The provider scales an image below
  * 544×544 total pixels up, aligns it to a 14px-patch grid, downsamples 3:1
  * per axis into token cells, and caps one image at 1024 tokens by solving the
@@ -8,11 +8,11 @@
  * configuration has no alignment pad and no aspect-ratio clamp. Actual usage
  * remains authoritative.
  *
- * @module dsh-llm-deepseek/image-tokens
+ * @module dsh-llm-omega/image-tokens
  */
 
-import { longEdgeDimensions } from '@deepseek-ai/dsh-attachment'
-import type { ProjectedDimensions } from '@deepseek-ai/dsh-attachment'
+import { longEdgeDimensions } from '@omega-ai/dsh-attachment'
+import type { ProjectedDimensions } from '@omega-ai/dsh-attachment'
 /** Vision patch edge in pixels. */
 const PATCH_SIZE = 14
 /** Per-axis patch-to-token downsampling ratio. */
@@ -90,7 +90,7 @@ function safeResize(height: number, width: number, paddedHeight: number, paddedW
   /* v8 ignore next 3 -- the published solver's assertion; the closed-form
      solve stays within the budget for every positive geometry. */
   if (solved.numTokens > MAX_IMAGE_TOKENS) {
-    throw new Error(`deepseek image tokens: no grid fits the token budget for ${width}x${height}`)
+    throw new Error(`omega image tokens: no grid fits the token budget for ${width}x${height}`)
   }
   return solved
 }
@@ -129,7 +129,7 @@ function sameResize(a: GridResize, b: GridResize): boolean {
  * @param height - positive integer source height in pixels.
  * @returns the request dimensions to encode.
  */
-export function deepSeekRequestImageDimensions(width: number, height: number): ProjectedDimensions {
+export function omegaRequestImageDimensions(width: number, height: number): ProjectedDimensions {
   const paddedWidth = ceilDiv(width, PATCH_SIZE) * PATCH_SIZE
   const paddedHeight = ceilDiv(height, PATCH_SIZE) * PATCH_SIZE
   if (gridTokens(gridCells(paddedHeight), gridCells(paddedWidth)) <= MAX_IMAGE_TOKENS) return { width, height }
@@ -138,13 +138,13 @@ export function deepSeekRequestImageDimensions(width: number, height: number): P
 }
 
 /**
- * Vision tokens DeepSeek charges for one request image of the given
+ * Vision tokens Omega charges for one request image of the given
  * dimensions.
  * @param width - positive integer request-image width in pixels.
  * @param height - positive integer request-image height in pixels.
  * @returns the provider vision-token price, at most 1024.
  */
-export function deepSeekImageTokens(width: number, height: number): number {
+export function omegaImageTokens(width: number, height: number): number {
   let result = resizeOnce(width, height)
   for (let iteration = 1; iteration < 10; iteration += 1) {
     const next = resizeOnce(result.bestWidth, result.bestHeight)
@@ -153,5 +153,5 @@ export function deepSeekImageTokens(width: number, height: number): number {
   }
   /* v8 ignore next 2 -- the published solver's non-convergence guard; every
      pass is a projection, so a second identical pass is a fixpoint. */
-  throw new Error(`deepseek image tokens: resize did not converge for ${width}x${height}`)
+  throw new Error(`omega image tokens: resize did not converge for ${width}x${height}`)
 }

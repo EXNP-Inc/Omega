@@ -3,11 +3,11 @@
  * forge-session runs, the `gh` commands that bind pull requests to a Session.
  */
 
-import type { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import type {} from '@deepseek-ai/dsh-experimental-forge'
-import type {} from '@deepseek-ai/dsh-experimental-forge-session'
-import { MAX_TIMER_DELAY_MS } from '@deepseek-ai/dsh-timeout'
+import type { Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
+import type {} from '@omega-ai/dsh-experimental-forge'
+import type {} from '@omega-ai/dsh-experimental-forge-session'
+import { MAX_TIMER_DELAY_MS } from '@omega-ai/dsh-timeout'
 import { GH_COMMANDS } from './commands.ts'
 import { ghRunner } from './gh.ts'
 import { GitHubProvider } from './provider.ts'

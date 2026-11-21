@@ -1,11 +1,11 @@
 /** Account-route quota classification stays separate from API-key and third-party quota. */
-import { Context } from '@deepseek-ai/cordis'
-import { BlockAssembler, LlmRuntime } from '@deepseek-ai/dsh-llm'
-import { accountStub } from '../../../account/deepseek-account/tests/account-stub.ts'
-import * as ApiKey from '@deepseek-ai/dsh-llm-deepseek-api-key'
+import { Context } from '@omega-ai/cordis'
+import { BlockAssembler, LlmRuntime } from '@omega-ai/dsh-llm'
+import { accountStub } from '../../../account/omega-account/tests/account-stub.ts'
+import * as ApiKey from '@omega-ai/dsh-llm-omega-api-key'
 import { afterEach, expect, it, vi } from 'vitest'
 import * as Account from '../src/index.ts'
-import DeepSeekAuth from '@deepseek-ai/dsh-deepseek-auth'
+import OmegaAuth from '@omega-ai/dsh-omega-auth'
 
 const contexts: Context[] = []
 afterEach(async () => {
@@ -25,27 +25,27 @@ function messagesOnly(response: () => Response) {
 /** Drive one streamed request through the runtime and return its terminal failure. */
 async function finishOf(ctx: Context, provider: string) {
   const assembler = new BlockAssembler()
-  for await (const chunk of ctx.llm.stream({ provider, model: 'deepseek-flash', messages: [] })) assembler.push(chunk)
+  for await (const chunk of ctx.llm.stream({ provider, model: 'omega-flash', messages: [] })) assembler.push(chunk)
   return assembler.finish
 }
 
 /** Mount the shared runtime plus the one credential plugin that owns `provider`. */
-async function routeFor(token: string | undefined, provider: 'deepseek-account' | 'deepseek-official'): Promise<Context> {
+async function routeFor(token: string | undefined, provider: 'omega-account' | 'omega-official'): Promise<Context> {
   const ctx = new Context()
   contexts.push(ctx)
   await ctx.plugin(LlmRuntime)
-  ctx.provide('deepseekAccount', accountStub({ token: () => token }))
-  await ctx.plugin(DeepSeekAuth)
-  await ctx.plugin(provider === 'deepseek-account' ? Account : ApiKey)
+  ctx.provide('omegaAccount', accountStub({ token: () => token }))
+  await ctx.plugin(OmegaAuth)
+  await ctx.plugin(provider === 'omega-account' ? Account : ApiKey)
   return ctx
 }
 
 it.each([
-  { provider: 'deepseek-account', apiKey: '', code: 'ACCOUNT_QUOTA' },
-  { provider: 'deepseek-account', apiKey: 'fixture-api-key', code: 'ACCOUNT_QUOTA' },
-  { provider: 'deepseek-official', apiKey: 'fixture-api-key', code: 'QUOTA' },
+  { provider: 'omega-account', apiKey: '', code: 'ACCOUNT_QUOTA' },
+  { provider: 'omega-account', apiKey: 'fixture-api-key', code: 'ACCOUNT_QUOTA' },
+  { provider: 'omega-official', apiKey: 'fixture-api-key', code: 'QUOTA' },
 ] as const)('reports a 402 balance rejection on $provider with apiKey "$apiKey" as $code', async ({ provider, apiKey, code }) => {
-  vi.stubEnv('DEEPSEEK_API_KEY', apiKey)
+  vi.stubEnv('OMEGA_API_KEY', apiKey)
   const ctx = await routeFor('account-token', provider)
   vi.spyOn(globalThis, 'fetch').mockImplementation(messagesOnly(() => new Response(JSON.stringify({
     error: { code: 'insufficient_balance', message: 'Insufficient balance' },
@@ -54,13 +54,13 @@ it.each([
 })
 
 it('reports an in-band account balance stream error as ACCOUNT_QUOTA', async () => {
-  vi.stubEnv('DEEPSEEK_API_KEY', 'fixture-api-key')
-  const ctx = await routeFor('account-token', 'deepseek-account')
+  vi.stubEnv('OMEGA_API_KEY', 'fixture-api-key')
+  const ctx = await routeFor('account-token', 'omega-account')
   vi.spyOn(globalThis, 'fetch').mockImplementation(messagesOnly(() => new Response(
     'event: error\ndata: {"type":"error","error":{"type":"invalid_request_error","code":"insufficient_balance","message":"Insufficient balance"}}\n\n',
     { status: 200 },
   )))
-  await expect(finishOf(ctx, 'deepseek-account')).resolves.toMatchObject({
+  await expect(finishOf(ctx, 'omega-account')).resolves.toMatchObject({
     kind: 'error', failure: { code: 'ACCOUNT_QUOTA' },
   })
 })
@@ -70,11 +70,11 @@ it('still expires the stored credential on an account-route 401', async () => {
   contexts.push(ctx)
   await ctx.plugin(LlmRuntime)
   const rejectToken = vi.fn(async (_token: string): Promise<void> => {})
-  ctx.provide('deepseekAccount', accountStub({ token: () => 'account-token', reject: rejectToken }))
-  await ctx.plugin(DeepSeekAuth)
+  ctx.provide('omegaAccount', accountStub({ token: () => 'account-token', reject: rejectToken }))
+  await ctx.plugin(OmegaAuth)
   await ctx.plugin(Account)
   vi.spyOn(globalThis, 'fetch').mockImplementation(messagesOnly(() => new Response('Unauthorized', { status: 401 })))
-  await expect(finishOf(ctx, 'deepseek-account')).resolves.toMatchObject({
+  await expect(finishOf(ctx, 'omega-account')).resolves.toMatchObject({
     kind: 'error', failure: { code: 'ACCOUNT_TOKEN_INVALID' },
   })
   expect(rejectToken.mock.calls).toEqual([['account-token']])

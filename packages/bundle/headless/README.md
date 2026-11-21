@@ -3,7 +3,7 @@ description: "One-shot task mode for dsh: run a single task from the command lin
 kind: "package-bundle"
 ---
 
-# @deepseek-ai/dsh-headless
+# @omega-ai/dsh-headless
 
 English | [中文](README.zh.md)
 
@@ -48,14 +48,14 @@ The task and run options use these settings:
 | `json` | `false` | Project the run as newline-delimited events on stdout |
 | `permissionMode` | session policy | Apply a configured permission preset before submitting the task, including on resume |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-headless) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-headless) is the exhaustive source for every accepted field and its JSDoc.
 
 <a id="credentials"></a>
 ### Credentials
 
-The shipped headless profile disables the managed credential store and its authorization and DeepSeek account consumers. API-key routes use the launch environment, then `<invocation cwd>/.env`, then `$DSH_HOME/.env`. Keys and sign-ins saved by the GUI are ignored without changing their file. Providers that require a saved sign-in fail unless stored authentication is restored; external provider credential chains, such as AWS profiles, remain available.
+The shipped headless profile disables the managed credential store and its authorization and Omega account consumers. API-key routes use the launch environment, then `<invocation cwd>/.env`, then `$DSH_HOME/.env`. Keys and sign-ins saved by the GUI are ignored without changing their file. Providers that require a saved sign-in fail unless stored authentication is restored; external provider credential chains, such as AWS profiles, remain available.
 
-The DeepSeek Search and Fetch APIs [follow the session's DeepSeek credentials](../../web/web-deepseek-api/README.md#authentication). In the shipped headless profile, they send the DeepSeek model route's `DEEPSEEK_API_KEY` to that route's origin, so no sign-in is needed. Without that key, the model request omits `web_search`.
+The Omega Search and Fetch APIs [follow the session's Omega credentials](../../web/web-omega-api/README.md#authentication). In the shipped headless profile, they send the Omega model route's `OMEGA_API_KEY` to that route's origin, so no sign-in is needed. Without that key, the model request omits `web_search`.
 
 Unset an empty launch variable to allow its `.env` fallback; an exported empty value shadows that fallback.
 
@@ -66,7 +66,7 @@ To restore stored authentication, add these rows to `$DSH_HOME/profiles/headless
   disabled: false
 - id: authorization
   disabled: false
-- id: deepseek-account
+- id: omega-account
   disabled: false
 ```
 
@@ -160,7 +160,7 @@ Read these pages when you want to go deeper into the shared core, the sibling GU
 - [dsh-base](../base/README.md) — the shared core headless runs on.
 - [dsh-web-app](../web-app/README.md) — the interactive browser sibling for multi-turn work.
 - [dsh-cmdline](../../boot/cmdline/README.md) — how the launcher hands the command line to the app.
-- [Generated configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-headless) — every accepted config field and its source declaration.
+- [Generated configuration catalog](../../../docs/config-catalog.md#omega-aidsh-headless) — every accepted config field and its source declaration.
 
 -----
 

@@ -1,6 +1,6 @@
 /**
  * The escalation vocabulary and choreography shared by every sandbox-enforcing
- * tool family (`@deepseek-ai/dsh-tool-bash`, `@deepseek-ai/dsh-tool-fs`): the
+ * tool family (`@omega-ai/dsh-tool-bash`, `@omega-ai/dsh-tool-fs`): the
  * strictly-wider ladder, the argument-pairing validation, the model-facing
  * denial/hint markers, and {@link approveEscalation} — the ordered fail-closed
  * sequence that resolves a `sandbox_permissions` request through a
@@ -16,8 +16,8 @@
  * @module dsh-sandbox/escalation
  */
 
-import { HarnessError } from '@deepseek-ai/dsh-error'
-import { assertNever } from '@deepseek-ai/dsh-util-values'
+import { HarnessError } from '@omega-ai/dsh-error'
+import { assertNever } from '@omega-ai/dsh-util-values'
 import { escalationDisplayReason } from './locales.ts'
 import type { SandboxMode } from './index.ts'
 

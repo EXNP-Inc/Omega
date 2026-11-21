@@ -11,17 +11,17 @@
  */
 import { useEffect, useRef } from 'react'
 import clsx from 'clsx'
-import type { PropsRenderSlots } from '@deepseek-ai/dsh-client-ui-slots'
+import type { PropsRenderSlots } from '@omega-ai/dsh-client-ui-slots'
 import {
   HoverCard, IconArchiveOutlineRegular, MarqueeText,
   IconFolderCloseRegular, IconFolderOpenRegular,
   IconNewChatOutlineRegular, IconPinFillRegular,
   IconTriangleRightFillRegular, IconUnarchiveOutlineRegular, relativeTime, StateDot, Tooltip, useHoverMarquee, useRowDragPreview,
-} from '@deepseek-ai/dsh-client-ui-primitives'
-import type { ShortcutCatalogEntry } from '@deepseek-ai/dsh-client-shortcuts/client'
-import type { StateDotState } from '@deepseek-ai/dsh-client-ui-primitives'
-import { abbreviateHomePath } from '@deepseek-ai/dsh-util-workspace-path'
-import type { WorkspaceId } from '@deepseek-ai/dsh-api-workspace-controller/client'
+} from '@omega-ai/dsh-client-ui-primitives'
+import type { ShortcutCatalogEntry } from '@omega-ai/dsh-client-shortcuts/client'
+import type { StateDotState } from '@omega-ai/dsh-client-ui-primitives'
+import { abbreviateHomePath } from '@omega-ai/dsh-util-workspace-path'
+import type { WorkspaceId } from '@omega-ai/dsh-api-workspace-controller/client'
 import type { WorkspaceBrowserProps } from '../contract/slots.ts'
 import type { GroupNode, SearchResultNode, SessionNode } from '../tree.ts'
 import css from './Rows.module.css'

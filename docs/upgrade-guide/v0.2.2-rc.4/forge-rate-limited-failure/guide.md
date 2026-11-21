@@ -9,7 +9,7 @@ English | [中文](guide.zh.md)
 
 ## Change
 
-`ForgeFailure['code']` from `@deepseek-ai/dsh-experimental-forge` adds `'rate-limited'`: the host refused the read under its rate limit, and reading again succeeds only after the limit resets. [forge-github](../../../../packages/experimental/forge-github/README.md#use-this-package) now returns it for a GraphQL `RATE_LIMITED` error, HTTP 429, or a message that names a primary or secondary rate limit, which it reported as `unavailable` before. Status polls, check reads, review reads, diffs, file reads, viewer lists, and descriptions can all carry it.
+`ForgeFailure['code']` from `@omega-ai/dsh-experimental-forge` adds `'rate-limited'`: the host refused the read under its rate limit, and reading again succeeds only after the limit resets. [forge-github](../../../../packages/experimental/forge-github/README.md#use-this-package) now returns it for a GraphQL `RATE_LIMITED` error, HTTP 429, or a message that names a primary or secondary rate limit, which it reported as `unavailable` before. Status polls, check reads, review reads, diffs, file reads, viewer lists, and descriptions can all carry it.
 
 A third-party plugin is affected when it switches exhaustively over `ForgeFailure['code']`, ending in `assertNever` or typing a `Record<ForgeFailure['code'], …>`, which then fails to compile, or when it treats every code other than the documented ones as impossible. A provider that never returns `rate-limited` keeps working unchanged.
 

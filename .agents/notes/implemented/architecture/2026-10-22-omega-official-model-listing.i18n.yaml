@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-10-22-omega-official-model-listing.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-10-22-omega-official-model-listing.md
+/agent-note-the-official-omega-route-follows-the-official-model-listing-until-its-catalog-is-customized:
+  en: 442cc6979c23d901
+  zh: 2dd415626e9f4d3e
+/agent-note-the-official-omega-route-follows-the-official-model-listing-until-its-catalog-is-customized/problem:
+  en: edbaba64842e9739
+  zh: 3758c12421ac4c6c
+/agent-note-the-official-omega-route-follows-the-official-model-listing-until-its-catalog-is-customized/decision:
+  en: c2de11b99a3c0cbe
+  zh: 8a15633f59d39a94
+/agent-note-the-official-omega-route-follows-the-official-model-listing-until-its-catalog-is-customized/alternatives-considered:
+  en: fa126e4f4e0790b4
+  zh: c4f6d266d1ba6753
+/agent-note-the-official-omega-route-follows-the-official-model-listing-until-its-catalog-is-customized/consequences:
+  en: 047e30a0f55acb24
+  zh: 804e15532d172157

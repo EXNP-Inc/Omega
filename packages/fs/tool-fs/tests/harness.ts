@@ -1,13 +1,13 @@
-import { Context } from '@deepseek-ai/cordis'
-import WorkingDirectory from '@deepseek-ai/dsh-working-directory'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import AgentLoop from '@deepseek-ai/dsh-agent-loop'
-import { mountAgentLoopTestDependencies } from '@deepseek-ai/dsh-agent-loop-testkit'
-import LocalFileSystem from '@deepseek-ai/dsh-fs-local'
-import * as FsPolicy from '@deepseek-ai/dsh-fs-observation-policy'
-import * as ToolFs from '@deepseek-ai/dsh-tool-fs'
-import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
-import DeepSeekAuth from '@deepseek-ai/dsh-deepseek-auth'
+import { Context } from '@omega-ai/cordis'
+import WorkingDirectory from '@omega-ai/dsh-working-directory'
+import type { Agent } from '@omega-ai/dsh-agent'
+import AgentLoop from '@omega-ai/dsh-agent-loop'
+import { mountAgentLoopTestDependencies } from '@omega-ai/dsh-agent-loop-testkit'
+import LocalFileSystem from '@omega-ai/dsh-fs-local'
+import * as FsPolicy from '@omega-ai/dsh-fs-observation-policy'
+import * as ToolFs from '@omega-ai/dsh-tool-fs'
+import * as LlmOmega from '@omega-ai/dsh-llm-omega-api-key'
+import OmegaAuth from '@omega-ai/dsh-omega-auth'
 
 /**
  * Build the real fs-tool stack for with-key e2e tests. Agents have no session
@@ -18,8 +18,8 @@ export async function fsHarness(fsCwd: string, persona = ''): Promise<Context> {
   const ctx = new Context()
   await mountAgentLoopTestDependencies(ctx, { systemPrompt: { personaPrefix: persona } })
   await ctx.plugin(AgentLoop, { agents: [] })
-  await ctx.plugin(DeepSeekAuth)
-  await ctx.plugin(LlmDeepSeek)
+  await ctx.plugin(OmegaAuth)
+  await ctx.plugin(LlmOmega)
   await ctx.plugin(LocalFileSystem, { cwd: fsCwd })
   await ctx.plugin(WorkingDirectory, { defaultDirectory: fsCwd })
   await ctx.plugin(FsPolicy)

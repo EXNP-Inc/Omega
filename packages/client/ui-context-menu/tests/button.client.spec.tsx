@@ -1,19 +1,19 @@
 // @vitest-environment jsdom
-import { syncedConfig } from '@deepseek-ai/dsh-client-test-runtime'
+import { syncedConfig } from '@omega-ai/dsh-client-test-runtime'
 import { act, cleanup, fireEvent } from '@testing-library/react'
 import { afterEach, expect, it, onTestFinished, vi } from 'vitest'
-import { SlotTestRuntime } from '@deepseek-ai/dsh-client-test-runtime'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { Context } from '@deepseek-ai/cordis'
+import { SlotTestRuntime } from '@omega-ai/dsh-client-test-runtime'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { Context } from '@omega-ai/cordis'
 import { useState } from 'react'
 import { apply, inject } from '../src/client/index.ts'
 import type { ContextMenuTarget, MenuAction } from '../src/client/types.ts'
 import { isContextMenuTrigger } from '../src/client/external-trigger.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
-declare module '@deepseek-ai/dsh-client-ui-context-menu/client' {
+declare module '@omega-ai/dsh-client-ui-context-menu/client' {
   interface ContextMenuTargetMap {
     header: { readonly sessionId: SessionId }
     entity: { readonly id: string; readonly title: string }

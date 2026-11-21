@@ -9,9 +9,9 @@ import threading
 import pytest
 from pathlib import Path
 
-from deepseek_harness.models import CommandExecution
-from deepseek_harness import RunResult, Session
-from deepseek_harness.client import NotificationSubscription
+from omega_harness.models import CommandExecution
+from omega_harness import RunResult, Session
+from omega_harness.client import NotificationSubscription
 from test_commands_runtime import (
     _Completion, _Runtime, _SESSION_ID, _WAIT_SECONDS, _WaitResult, _assert_request_permission,
     _command_pair, _of_type, _permission_facts, _read_events,

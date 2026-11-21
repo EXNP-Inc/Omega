@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Omega-Anfrageauthentifizierung",
+    "description": "Wählt für jede Anfrage an Omega den API-Schlüssel oder die Kontoanmeldung aus und stellt die Anfrage-Header bereit."
+  }
+}

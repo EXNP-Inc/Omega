@@ -9,14 +9,14 @@ description: "Node PTC 的 persistent-in-memory 执行默认使用 scoped REPL�
 
 ## 变更
 
-`@deepseek-ai/dsh-ptc-runtime-node` 在 `executionMode: persistent-in-memory` 下省略 `replScoped` 时，原先用 Node 的 REPL 求值器运行程序；现在按 scoped REPL 语句运行，并报告程序格式 `scoped-repl`。每次调用是独立的严格模式脚本，开始时拿到之前调用留下的顶层绑定的拷贝，因此之后的调用可以再次声明同名的 `let`、`const` 或 `class`。`require`、`_`、`_error`，以及给未声明的名字赋值而产生的全局变量都不可用。模型说明描述了这些行为；包 README 列出了它的[已知限制](../../../../packages/ptc-runtime/ptc-runtime-node/README.zh.md#known-limitations-and-deferred-work)。
+`@omega-ai/dsh-ptc-runtime-node` 在 `executionMode: persistent-in-memory` 下省略 `replScoped` 时，原先用 Node 的 REPL 求值器运行程序；现在按 scoped REPL 语句运行，并报告程序格式 `scoped-repl`。每次调用是独立的严格模式脚本，开始时拿到之前调用留下的顶层绑定的拷贝，因此之后的调用可以再次声明同名的 `let`、`const` 或 `class`。`require`、`_`、`_error`，以及给未声明的名字赋值而产生的全局变量都不可用。模型说明描述了这些行为；包 README 列出了它的[已知限制](../../../../packages/ptc-runtime/ptc-runtime-node/README.zh.md#known-limitations-and-deferred-work)。
 
 受影响的有：
 
 - `ptc-runtime` 条目设置了 `executionMode: persistent-in-memory` 但没写 `replScoped` 的 profile，包括在该运行时上运行的 workflow-ptc 脚本；
 - 在 Computer Use 详情页打开的持久化 PTC，现在会写入 `replScoped: true`；
 - Computer Use 的 `cua_run_code` 工具，其专用运行时在没有设置 `standaloneRunCode.runtime.replScoped` 时省略 `replScoped`；
-- 合并 `@deepseek-ai/dsh-ptc-runtime-node/configuration` 中 `resolvePersistentExecution` 结果的 profile 编辑器，该函数现在对函数体和 REPL 语句返回 `replScoped: true`。
+- 合并 `@omega-ai/dsh-ptc-runtime-node/configuration` 中 `resolvePersistentExecution` 结果的 profile 编辑器，该函数现在对函数体和 REPL 语句返回 `replScoped: true`。
 
 `per-call` 和 `vm-script` 执行（包括默认 profile）不变，设置了 `replScoped: false` 的条目继续使用 Node 的 REPL 求值器。
 

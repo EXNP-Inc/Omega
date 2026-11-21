@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-client-config",
+  "name": "@omega-ai/dsh-client-config",
   "description": "Types of browser-synced plugin configuration",
   "version": "0.2.2-rc.5",
   "publishConfig": {
@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/omega-ai/omega-harness.git",
     "directory": "packages/client/config"
   },
   "type": "module",
@@ -41,12 +41,12 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/cordis": "workspace:~"
+    "@omega-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "workspace:~",
-    "@deepseek-ai/dsh-client-store": "workspace:*",
-    "@deepseek-ai/dsh-util-values": "workspace:*"
+    "@omega-ai/cordis": "workspace:~",
+    "@omega-ai/dsh-client-store": "workspace:*",
+    "@omega-ai/dsh-util-values": "workspace:*"
   },
   "files": [
     "locale/*.json",

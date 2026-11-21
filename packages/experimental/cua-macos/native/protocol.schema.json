@@ -403,7 +403,7 @@
           ]
         }
       },
-      "$id": "urn:deepseek-harness:cua:request:performAction"
+      "$id": "urn:omega-harness:cua:request:performAction"
     },
     {
       "type": "object",
@@ -843,7 +843,7 @@
           ]
         }
       },
-      "$id": "urn:deepseek-harness:cua:request:setValue"
+      "$id": "urn:omega-harness:cua:request:setValue"
     },
     {
       "type": "object",

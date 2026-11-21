@@ -5,7 +5,7 @@
 // layer stack the profile boot composes), patched the
 // snapshot way — so a real chromium exercises the real HTTP uplink/WebSocket
 // downlink, api-gateway, agent loop, tools, and persistence. Modes ride $DSH_SNAPSHOT:
-// replay (default, keyless: normally disables the direct DeepSeek rows and
+// replay (default, keyless: normally disables the direct Omega rows and
 // inserts dsh-llm-replay in providers mode), record (real adapter + key,
 // harvests fixtures from live session memory), refresh (keyless replay that
 // rewrites goldens). A first-run option keeps the real adapter mounted while
@@ -30,10 +30,10 @@ import { basename, dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import type { Page } from 'playwright'
 import { expect } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import { DSH_LAUNCH_ENVIRONMENT_KEY, type LaunchEnvironmentSnapshot } from '@deepseek-ai/dsh-launch-environment'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import { stringifyEntryYaml, type PatchOptions } from '@deepseek-ai/cordis-plugin-include'
+import { Context } from '@omega-ai/cordis'
+import { DSH_LAUNCH_ENVIRONMENT_KEY, type LaunchEnvironmentSnapshot } from '@omega-ai/dsh-launch-environment'
+import Loader from '@omega-ai/cordis-plugin-loader'
+import { stringifyEntryYaml, type PatchOptions } from '@omega-ai/cordis-plugin-include'
 import {
   captureExpectedWorkspaceSnapshot,
   captureWorkspaceSnapshot,
@@ -56,39 +56,39 @@ import {
   stabilizeRefreshLog,
   writesCurrentSessionFixtures,
   type NormalizeContext,
-} from '@deepseek-ai/dsh-session-snapshot'
-import type { Profile, ProfileContext } from '@deepseek-ai/dsh-app-boot'
-import type { PresetDefinition } from '@deepseek-ai/dsh-agent-preset-registry'
-import { dshHomePath } from '@deepseek-ai/dsh-home-paths'
-import { LlmAdapter } from '@deepseek-ai/dsh-llm'
+} from '@omega-ai/dsh-session-snapshot'
+import type { Profile, ProfileContext } from '@omega-ai/dsh-app-boot'
+import type { PresetDefinition } from '@omega-ai/dsh-agent-preset-registry'
+import { dshHomePath } from '@omega-ai/dsh-home-paths'
+import { LlmAdapter } from '@omega-ai/dsh-llm'
 import type {
   LlmModelInfo, LlmProviderInfo, LlmResolvedModelInfo, RetryPolicyConfig, StreamChunk,
-} from '@deepseek-ai/dsh-llm'
-import type { ReplayHandle, ReplayProviderConfig } from '@deepseek-ai/dsh-llm-replay'
+} from '@omega-ai/dsh-llm'
+import type { ReplayHandle, ReplayProviderConfig } from '@omega-ai/dsh-llm-replay'
 import {
   installLlmReplay,
   parseSessionLog,
   prepareSessionSnapshotFixtureForComparison,
-} from '@deepseek-ai/dsh-llm-replay'
-import type { SessionFormatEvent } from '@deepseek-ai/dsh-session-format'
-import { sessionFormatCatalog } from '@deepseek-ai/dsh-session-format-catalog'
+} from '@omega-ai/dsh-llm-replay'
+import type { SessionFormatEvent } from '@omega-ai/dsh-session-format'
+import { sessionFormatCatalog } from '@omega-ai/dsh-session-format-catalog'
 import {
   SESSION_FORMAT_VERSION,
   type SessionId,
   type Session,
   type SessionEvent,
   type SessionHeader,
-} from '@deepseek-ai/dsh-session'
-import * as JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
+} from '@omega-ai/dsh-session'
+import * as JsonlSessionPersistence from '@omega-ai/dsh-session-persistence-jsonl'
 // Empty type imports carry the webServer/agents/sessionPersistence Context merges.
-import type {} from '@deepseek-ai/dsh-host-webserver'
-import type {} from '@deepseek-ai/dsh-agent'
-import { provideCmdline } from '@deepseek-ai/dsh-cmdline'
+import type {} from '@omega-ai/dsh-host-webserver'
+import type {} from '@omega-ai/dsh-agent'
+import { provideCmdline } from '@omega-ai/dsh-cmdline'
 import { startPrefixProxy, type PrefixProxy } from './prefix-proxy.ts'
 import { REPO_ROOT, requireBuilt, requireDist } from './support.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
-type AppBoot = typeof import('@deepseek-ai/dsh-app-boot')
+type AppBoot = typeof import('@omega-ai/dsh-app-boot')
 let builtAppBoot: AppBoot | undefined
 
 /**
@@ -99,7 +99,7 @@ let builtAppBoot: AppBoot | undefined
  * helpers this module also exports load without one.
  */
 function appBoot(): AppBoot {
-  builtAppBoot ??= requireBuilt('@deepseek-ai/dsh-app-boot') as AppBoot
+  builtAppBoot ??= requireBuilt('@omega-ai/dsh-app-boot') as AppBoot
   return builtAppBoot
 }
 
@@ -110,7 +110,7 @@ function appBoot(): AppBoot {
 // import {
 //   WELCOME_NOTICE_ACK_FIELD, WELCOME_NOTICE_SETTINGS_NAMESPACE,
 //   WELCOME_NOTICE_VERSION, WELCOME_NOTICE_COPY,
-// } from '@deepseek-ai/dsh-client-ui-settings-models'
+// } from '@omega-ai/dsh-client-ui-settings-models'
 export const WELCOME_NOTICE_SETTINGS_NAMESPACE = 'ui-settings-general'
 /** The installed bundle carrying the scaffold's deployment defaults; the plugin manager lists it beside fixture bundles. */
 export const SCAFFOLD_DEFAULTS_BUNDLE = 'dsh-web-scaffold-defaults'
@@ -119,7 +119,7 @@ export const WELCOME_NOTICE_VERSION = '2026-09-28.1'
 export const WELCOME_NOTICE_COPY = {
   zh: {
     title: '预览版说明',
-    body: 'DeepSeek Harness 目前的 0.2 版本仍处于预览阶段，还有许多地方需要持续改进和打磨，希望听取广大开发者和用户的反馈建议。现在，新的桌面端面向广泛用户，开发者相关的进阶功能可在配置中开启使用。预计 DeepSeek Harness 的产品功能以及插件 API 都会继续快速迭代、持续演化，并逐渐趋于稳定。\n\n我们期待与全球用户和开发者一起，在开源、可复用、可组合的基础设施之上，共同探索智能上限。欢迎大家用 DeepSeek Harness 将想法变成现实，与社区一起丰富插件生态。',
+    body: 'Omega 目前的 0.2 版本仍处于预览阶段，还有许多地方需要持续改进和打磨，希望听取广大开发者和用户的反馈建议。现在，新的桌面端面向广泛用户，开发者相关的进阶功能可在配置中开启使用。预计 Omega 的产品功能以及插件 API 都会继续快速迭代、持续演化，并逐渐趋于稳定。\n\n我们期待与全球用户和开发者一起，在开源、可复用、可组合的基础设施之上，共同探索智能上限。欢迎大家用 Omega 将想法变成现实，与社区一起丰富插件生态。',
     continueLabel: '继续',
   },
 } as const
@@ -210,13 +210,13 @@ const INSTALL_ANCHOR = join(REPO_ROOT, 'apps/cli/package.json')
 // post-step pressure check would warn every step). The published
 // contextWindow keeps that pressure path provably inert for small fixtures.
 const REPLAY_PROVIDERS = [{
-  id: 'deepseek-official',
-  name: 'DeepSeek',
+  id: 'omega-official',
+  name: 'Omega',
   models: [
-    { id: 'deepseek-v4-flash', name: 'DeepSeek-V4-Flash', contextWindow: 128_000 },
+    { id: 'omega-v4-flash', name: 'Omega-V4-Flash', contextWindow: 128_000 },
     {
-      id: 'deepseek-v4-flash-vision-exp',
-      name: 'DeepSeek-V4-Flash-Vision-Exp',
+      id: 'omega-v4-flash-vision-exp',
+      name: 'Omega-V4-Flash-Vision-Exp',
       contextWindow: 1_000_000,
       inputModalities: ['text', 'image'] as const,
       defaultMaxTokens: 256_000,
@@ -387,30 +387,30 @@ export interface LaunchOptions {
   /** Synthetic model capacity for UI scenarios whose seeded history must remain uncompacted. */
   replayContextWindow?: number
   /**
-   * Keep the shipped DeepSeek adapter mounted while masking the process
-   * environment's DEEPSEEK_API_KEY for this scaffold lifetime. This is the
+   * Keep the shipped Omega adapter mounted while masking the process
+   * environment's OMEGA_API_KEY for this scaffold lifetime. This is the
    * keyless first-run configuration lane; the default disables the adapter.
    */
-  deepSeekMissingCredential?: boolean
+  omegaMissingCredential?: boolean
   /** Leave the current welcome notice pending; ordinary scenarios pre-acknowledge it before browser boot. */
   welcomeNoticePending?: boolean
   /** Leave first-use Workspace initialization eligible; ordinary scenarios start after the default was removed. */
   firstUse?: boolean
   /** Pin the legacy Messages search endpoint and credential reference. */
-  deepSeekSearch?: {
+  omegaSearch?: {
     /** Anthropic-compatible base URL; `/messages` is appended. */
     baseURL?: string
     /** Credential reference read for each search. */
     apiKeyEnv: string
   }
   /**
-   * Give both sections of the shipped DeepSeek Search and Fetch API row their
+   * Give both sections of the shipped Omega Search and Fetch API row their
    * own credential reference and, when given, endpoint, so neither follows the
-   * conversation's DeepSeek credential. Browser search scenarios keep the real
+   * conversation's Omega credential. Browser search scenarios keep the real
    * providers and credentials seam while avoiding external search traffic and
    * ambient keys.
    */
-  deepSeekWebApi?: {
+  omegaWebApi?: {
     /** Base URL of both sections; omitted uses the official base. The providers append `/search` or `/fetch`. */
     baseURL?: string
     /** Credential reference of both sections. */
@@ -419,7 +419,7 @@ export interface LaunchOptions {
   /** Preset selection default and additional declarative definitions for this scenario. */
   agentPresets?: {
     default: string
-    definitions?: import('@deepseek-ai/dsh-agent-preset-registry').PresetDefinition[]
+    definitions?: import('@omega-ai/dsh-agent-preset-registry').PresetDefinition[]
   }
   /**
    * Patch the telemetry exporter URL while preserving the shipped enabled
@@ -490,28 +490,28 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
   if (mode === 'record') {
     // Both owning vitest configs (web unconditionally, snapshot in record
     // mode) load the repo-root .env before this file runs.
-    if (process.env.DEEPSEEK_API_KEY === undefined || process.env.DEEPSEEK_API_KEY.length === 0) {
-      throw new Error('web e2e record mode needs DEEPSEEK_API_KEY (env or repo-root .env)')
+    if (process.env.OMEGA_API_KEY === undefined || process.env.OMEGA_API_KEY.length === 0) {
+      throw new Error('web e2e record mode needs OMEGA_API_KEY (env or repo-root .env)')
     }
   }
-  if (mode === 'record' && options.deepSeekMissingCredential === true) {
-    throw new Error('deepSeekMissingCredential is a keyless replay/refresh option')
+  if (mode === 'record' && options.omegaMissingCredential === true) {
+    throw new Error('omegaMissingCredential is a keyless replay/refresh option')
   }
-  const maskDeepSeekCredential = mode !== 'record' && options.deepSeekMissingCredential === true
+  const maskOmegaCredential = mode !== 'record' && options.omegaMissingCredential === true
   // A keyless run that replays recorded model calls pins the snapshot replay placeholder: shipped
-  // compositions offer web_search only while a DeepSeek search key is configured, and recordings
+  // compositions offer web_search only while a Omega search key is configured, and recordings
   // ran with a real key. Other runs keep the launching environment, as their goldens do.
-  const pinDeepSeekCredential = mode !== 'record' && !maskDeepSeekCredential
+  const pinOmegaCredential = mode !== 'record' && !maskOmegaCredential
     && options.replayFixture !== undefined && options.replayProvidersOnly !== true
-  const originalDeepSeekCredential = process.env.DEEPSEEK_API_KEY
+  const originalOmegaCredential = process.env.OMEGA_API_KEY
   let credentialEnvironmentRestored = false
   const restoreCredentialEnvironment = (): void => {
-    if (credentialEnvironmentRestored || (!maskDeepSeekCredential && !pinDeepSeekCredential)) return
+    if (credentialEnvironmentRestored || (!maskOmegaCredential && !pinOmegaCredential)) return
     credentialEnvironmentRestored = true
-    if (originalDeepSeekCredential === undefined) {
-      Reflect.deleteProperty(process.env, 'DEEPSEEK_API_KEY')
+    if (originalOmegaCredential === undefined) {
+      Reflect.deleteProperty(process.env, 'OMEGA_API_KEY')
     } else {
-      process.env.DEEPSEEK_API_KEY = originalDeepSeekCredential
+      process.env.OMEGA_API_KEY = originalOmegaCredential
     }
   }
   const workspaceParent = await realpath(tmpdir())
@@ -567,8 +567,8 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
     if (failures.length > 1) throw new AggregateError(failures, 'web scaffold temp-root setup failed')
     throw error
   }
-  if (maskDeepSeekCredential) Reflect.deleteProperty(process.env, 'DEEPSEEK_API_KEY')
-  if (pinDeepSeekCredential) Object.assign(process.env, REPLAY_CREDENTIAL_ENV)
+  if (maskOmegaCredential) Reflect.deleteProperty(process.env, 'OMEGA_API_KEY')
+  if (pinOmegaCredential) Object.assign(process.env, REPLAY_CREDENTIAL_ENV)
 
   // The include patch set — the same layer stack the profile boot composes
   // (bundle patches in dsh.profile.bundles order), applied over the SAME empty root (a
@@ -589,11 +589,11 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
   const overlayPatches: PatchOptions[] = [
     // Without HMR the profile applies configuration changes at its next start.
     ...options.profile?.hmr === false ? [{ id: 'hmr', disabled: true }] : [],
-    { id: 'session-log-deepseek', config: { enabled: false } },
+    { id: 'session-log-omega', config: { enabled: false } },
     { id: 'ui-plugin-manager', config: { registryProbeEnabled: false } },
-    ...mode === 'record' || options.deepSeekMissingCredential === true
+    ...mode === 'record' || options.omegaMissingCredential === true
       ? []
-      : [{ id: 'agent-default-model', config: { provider: 'deepseek-official', model: 'deepseek-v4-flash' } }],
+      : [{ id: 'agent-default-model', config: { provider: 'omega-official', model: 'omega-v4-flash' } }],
     ...extraOverlayPatches,
     { id: 'agent-preset-registry', config: { default: 'standard' } },
     { id: 'session-persistence-jsonl', config: { root: persistenceRoot } },
@@ -653,7 +653,7 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
       },
     },
     // The bundle's web-runtime row resolves the same built dist under test
-    // (apps/web IS @deepseek-ai/dsh-web-frontend). The scaffold captures the real
+    // (apps/web IS @omega-ai/dsh-web-frontend). The scaffold captures the real
     // WebApp-published login URL; Playwright owns browser opening.
     // Preserve the composed surface-context choice because a patch replaces
     // the row's complete config.
@@ -678,8 +678,8 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
     // disable+insert pair.
     { id: 'directory-picker', disabled: true },
     { insert: [
-      { id: 'directory-picker-browse', name: '@deepseek-ai/dsh-host-directory-picker-browse' },
-      { id: 'ui-directory-picker-browse', name: '@deepseek-ai/dsh-client-ui-directory-picker-browse' },
+      { id: 'directory-picker-browse', name: '@omega-ai/dsh-host-directory-picker-browse' },
+      { id: 'ui-directory-picker-browse', name: '@omega-ai/dsh-client-ui-directory-picker-browse' },
     ] },
     // Ordinary scenarios exclude host-dependent application discovery. The
     // Open In scenario supplies launch facts that suppress every native probe.
@@ -687,28 +687,28 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
     { id: 'ui-open-in-app', disabled: options.openInAppEnvironment === undefined },
     ...options.agentPresets === undefined ? [] : [
       { id: 'agent-preset-registry', config: { default: options.agentPresets.default } },
-      { insert: (options.agentPresets.definitions ?? []).map(config => ({ id: `preset-${config.id}`, name: '@deepseek-ai/dsh-agent-preset', config })) },
+      { insert: (options.agentPresets.definitions ?? []).map(config => ({ id: `preset-${config.id}`, name: '@omega-ai/dsh-agent-preset', config })) },
     ],
-    ...options.deepSeekWebApi === undefined ? [] : [
+    ...options.omegaWebApi === undefined ? [] : [
       {
-        id: 'web-deepseek-api',
+        id: 'web-omega-api',
         config: {
-          searchApiKeyEnv: options.deepSeekWebApi.apiKeyEnv,
-          fetchApiKeyEnv: options.deepSeekWebApi.apiKeyEnv,
-          ...options.deepSeekWebApi.baseURL === undefined ? {} : {
-            searchBaseURL: options.deepSeekWebApi.baseURL, fetchBaseURL: options.deepSeekWebApi.baseURL,
+          searchApiKeyEnv: options.omegaWebApi.apiKeyEnv,
+          fetchApiKeyEnv: options.omegaWebApi.apiKeyEnv,
+          ...options.omegaWebApi.baseURL === undefined ? {} : {
+            searchBaseURL: options.omegaWebApi.baseURL, fetchBaseURL: options.omegaWebApi.baseURL,
           },
         },
       },
     ],
-    ...options.deepSeekSearch === undefined ? [] : [{
-      id: 'web-search-deepseek',
+    ...options.omegaSearch === undefined ? [] : [{
+      id: 'web-search-omega',
       config: {
-        apiKeyEnv: options.deepSeekSearch.apiKeyEnv,
-        ...options.deepSeekSearch.baseURL === undefined ? {} : { baseURL: options.deepSeekSearch.baseURL },
+        apiKeyEnv: options.omegaSearch.apiKeyEnv,
+        ...options.omegaSearch.baseURL === undefined ? {} : { baseURL: options.omegaSearch.baseURL },
       },
     }],
-    { id: 'llm-deepseek', disabled: mode !== 'record' && !maskDeepSeekCredential },
+    { id: 'llm-omega', disabled: mode !== 'record' && !maskOmegaCredential },
   ]
 
   // Recorded standard sessions pin the optional patch tool in their request headers.
@@ -726,9 +726,9 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
   }
 
   // Live fields use a shared deployment layer; process-specific ports and roots stay in CLI overlays.
-  const formEntries = new Set(['agent-default-model', 'agent-preset-registry', 'llm-deepseek', 'llm-pi-ai',
-    'web', 'web-search-deepseek', 'web-deepseek-api', 'agent-loop', 'subagent', 'bash-sandbox', 'pwsh-sandbox',
-    'session-log-deepseek', 'ui-theme', 'locale', 'ui-chat', 'ui-conversation', 'ui-settings', 'ui-settings-general', 'permission'])
+  const formEntries = new Set(['agent-default-model', 'agent-preset-registry', 'llm-omega', 'llm-pi-ai',
+    'web', 'web-search-omega', 'web-omega-api', 'agent-loop', 'subagent', 'bash-sandbox', 'pwsh-sandbox',
+    'session-log-omega', 'ui-theme', 'locale', 'ui-chat', 'ui-conversation', 'ui-settings', 'ui-settings-general', 'permission'])
   const formDefaults: PatchOptions[] = []
   const processOverlays = overlayPatches.map((patch) => {
     if (patch.id === undefined || !formEntries.has(patch.id) || patch.config === undefined) return patch
@@ -797,7 +797,7 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
       // A real profile: the shipped web bundles plus each fixture package,
       // installed the way `dsh plugin add` leaves them.
       const dependencies: Record<string, string> = {}
-      const bundles = ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', ...options.profile?.bundles ?? []]
+      const bundles = ['@omega-ai/dsh-base', '@omega-ai/dsh-web-app', ...options.profile?.bundles ?? []]
       for (const entry of options.profile?.packages ?? []) {
         const manifest = JSON.parse(await readFile(join(entry.dir, 'package.json'), 'utf8')) as { name: string }
         dependencies[manifest.name] = `file:${entry.dir}`
@@ -943,7 +943,7 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
         ...(replayChildFixtures === undefined ? {} : { childFiles: replayChildFixtures }),
         ...(options.paceMs === undefined ? {} : { paceMs: options.paceMs }),
       })
-    } else if (mode !== 'record' && options.deepSeekMissingCredential !== true) {
+    } else if (mode !== 'record' && options.omegaMissingCredential !== true) {
       // No fixture and no shipped adapter would leave the tree with ZERO
       // provider routes — a state no product composition has, and one the
       // composer refuses to type into. Register the same routes
@@ -1207,12 +1207,12 @@ export function normalizeWebSessionVolatiles(log: string, workspaceCwd?: string)
       let normalized = value
         .replace(/Anonymous user: [0-9a-f-]{36}(?=\.$)/gi, 'Anonymous user: {{anonymousUserId}}')
         // The checkout path and listener port differ per machine and run.
-        .replace(/Current DeepSeek Harness implementation checkout: "(?:[^"\\]|\\.)*"\./g, 'Current DeepSeek Harness implementation checkout: "{{sourceRoot}}".')
-        .replace(/Current DeepSeek Harness Web GUI URL: "(?:[^"\\]|\\.)*"\./g, 'Current DeepSeek Harness Web GUI URL: "{{webUrl}}".')
+        .replace(/Current Omega implementation checkout: "(?:[^"\\]|\\.)*"\./g, 'Current Omega implementation checkout: "{{sourceRoot}}".')
+        .replace(/Current Omega Web GUI URL: "(?:[^"\\]|\\.)*"\./g, 'Current Omega Web GUI URL: "{{webUrl}}".')
       for (const cwd of cwdSpellings) normalized = replaceWebCwd(normalized, cwd)
       return normalized
     })) as { type?: unknown; data?: { endpoint?: unknown } }
-    if (record.type === 'web/deepseek-search-llm-request' && typeof record.data?.endpoint === 'string') {
+    if (record.type === 'web/omega-search-llm-request' && typeof record.data?.endpoint === 'string') {
       record.data.endpoint = '{{webSearchEndpoint}}'
     }
     if (isTimeContextReading(record)) {

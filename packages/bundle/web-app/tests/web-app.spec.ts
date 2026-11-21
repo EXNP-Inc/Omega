@@ -3,9 +3,9 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path'
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import { createLaunchEnvironmentSnapshot, DSH_LAUNCH_ENVIRONMENT_KEY } from '@deepseek-ai/dsh-launch-environment'
-import { bindUrlHost, type WebServer } from '@deepseek-ai/dsh-host-webserver'
+import { Context } from '@omega-ai/cordis'
+import { createLaunchEnvironmentSnapshot, DSH_LAUNCH_ENVIRONMENT_KEY } from '@omega-ai/dsh-launch-environment'
+import { bindUrlHost, type WebServer } from '@omega-ai/dsh-host-webserver'
 import { apply, Config, internals } from '../src/index.ts'
 
 let dist: string | undefined

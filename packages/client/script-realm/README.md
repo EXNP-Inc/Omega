@@ -3,7 +3,7 @@ description: "Register optional script-environment providers and create caller-o
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-client-script-realm
+# @omega-ai/dsh-client-script-realm
 
 English | [中文](README.zh.md)
 

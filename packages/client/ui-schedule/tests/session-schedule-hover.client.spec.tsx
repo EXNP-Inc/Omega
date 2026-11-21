@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
 import { act, cleanup, render, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { makeTranslate, RemoteError } from '@deepseek-ai/dsh-client-test-runtime'
-import type { RemoteResult } from '@deepseek-ai/dsh-api-remotes/client'
-import type { ScheduleDeleteResult, ScheduleCatalogEntry as ScheduleCatalogEntry, ScheduleId } from '@deepseek-ai/dsh-schedule/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import { bindSnapshotSelector } from '@deepseek-ai/dsh-client-ui-renderer/src/client/bind.ts'
+import { makeTranslate, RemoteError } from '@omega-ai/dsh-client-test-runtime'
+import type { RemoteResult } from '@omega-ai/dsh-api-remotes/client'
+import type { ScheduleDeleteResult, ScheduleCatalogEntry as ScheduleCatalogEntry, ScheduleId } from '@omega-ai/dsh-schedule/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import { bindSnapshotSelector } from '@omega-ai/dsh-client-ui-renderer/src/client/bind.ts'
 import { createCatalogSource, type CatalogInjected } from '../src/client/catalog-source.ts'
 import {
   formatScheduleAbsolute, formatScheduleFrequency, formatScheduleRelative,
@@ -14,7 +14,7 @@ import { SessionScheduleHover, type SessionScheduleHoverProps } from '../src/cli
 import { en, zh } from '../src/client/locales.ts'
 import css from '../src/client/SessionScheduleMark.module.css'
 import { pinSystemZone } from './zone-fixture.ts'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const SESSION = 'hover-session' as SessionId
 const OTHER_SESSION = 'other-hover-session' as SessionId

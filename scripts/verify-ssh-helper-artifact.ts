@@ -83,15 +83,15 @@ export async function runArtifactDriver(config: string, report: string, sandbox:
  */
 export function artifactComposition(connection: { id: string; name: string; config: object }, workspace: string): string {
   const rows = [
-    { id: 'projections', name: '@deepseek-ai/dsh-session-projection' },
-    { id: 'policy', name: '@deepseek-ai/dsh-sandbox-policy', config: { mode: 'workspace-write', workspaceRoot: workspace } },
+    { id: 'projections', name: '@omega-ai/dsh-session-projection' },
+    { id: 'policy', name: '@omega-ai/dsh-sandbox-policy', config: { mode: 'workspace-write', workspaceRoot: workspace } },
     connection,
-    { id: 'fs', name: '@deepseek-ai/dsh-fs-ssh' },
-    { id: 'subprocess', name: '@deepseek-ai/dsh-subprocess-ssh' },
-    { id: 'sandbox', name: '@deepseek-ai/dsh-sandbox-ssh' },
+    { id: 'fs', name: '@omega-ai/dsh-fs-ssh' },
+    { id: 'subprocess', name: '@omega-ai/dsh-subprocess-ssh' },
+    { id: 'sandbox', name: '@omega-ai/dsh-sandbox-ssh' },
   ]
   return rows.map(row => `- ${JSON.stringify(row)}`).join('\n')
-    + '\n- id: ptc\n  name: "@deepseek-ai/dsh-ptc-runtime-node"\n  inject: [ssh]\n  config:\n    launch: !!js ctx.ssh.ptcLaunch\n'
+    + '\n- id: ptc\n  name: "@omega-ai/dsh-ptc-runtime-node"\n  inject: [ssh]\n  config:\n    launch: !!js ctx.ssh.ptcLaunch\n'
 }
 
 /**

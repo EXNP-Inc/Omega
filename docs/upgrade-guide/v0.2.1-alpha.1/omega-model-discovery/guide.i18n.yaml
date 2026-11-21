@@ -1,0 +1,16 @@
+# Bilingual-pair consistency record for guide.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/upgrade-guide/v0.2.1-alpha.1/omega-model-discovery/guide.md
+/:
+  en: 14a1357e1b017e11
+  zh: 17dcbdf8fbabb940
+/omega-api-key-model-visibility:
+  en: 36e61bd5ae6044fe
+  zh: c98a41e5ab210165
+/omega-api-key-model-visibility/change:
+  en: cabb8121f77a53b3
+  zh: 4c2f8bd6f79f5283
+/omega-api-key-model-visibility/migration:
+  en: 15b8b501f5fe72dc
+  zh: 05d9a2ac14a9b65e

@@ -3,7 +3,7 @@ description: "面向用户与维护者的默认 agent（智能体）驱动器说
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-agent-loop
+# @omega-ai/dsh-agent-loop
 
 [English](README.md) | 中文
 
@@ -32,12 +32,12 @@ kind: "package-reference"
 配置中声明的 agent 会在插件加载时自动启动。每个条目需要一个 `id` 标签；模型步骤还要求 Session 选择或初始选项在提示词组装前同时提供 `provider` 与 `model`。
 
 ```yaml
-- name: '@deepseek-ai/dsh-agent-loop'
+- name: '@omega-ai/dsh-agent-loop'
   config:
     agents:
       - id: 'main'
-        provider: deepseek
-        model: deepseek-chat
+        provider: omega
+        model: omega-chat
         reasoningEffort: high
         cwd: /workspace
 ```
@@ -52,7 +52,7 @@ kind: "package-reference"
 | `agents[].sessionId` | — | 确切身份：首次使用创建，重新挂载时恢复已实体化的历史 |
 | `agents[].resumeSessionId` | — | 加载这个持久化会话而不是创建新会话；与 `sessionId` 互斥 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-agent-loop) 列出所有接受的字段。`maxParallelToolCalls` 仍是 volatile 正整数 Config 字段，默认值为 `10`；`1` 表示串行执行。循环在每个批次调用 `execute()` 时传入当前值，其优先级高于执行器配置。实时修改从下一个批次生效；`agents` 仍是启动配置。
+生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-agent-loop) 列出所有接受的字段。`maxParallelToolCalls` 仍是 volatile 正整数 Config 字段，默认值为 `10`；`1` 表示串行执行。循环在每个批次调用 `execute()` 时传入当前值，其优先级高于执行器配置。实时修改从下一个批次生效；`agents` 仍是启动配置。
 
 配置式恢复会在发布前将声明的路由记录为 Session 选择。程序化恢复保留 Session 选择，除非其 setup 显式记录另一条路由；仅传入初始 `agentOptions` 不会覆盖已有历史。
 
@@ -63,7 +63,7 @@ kind: "package-reference"
 ```text
 const handle = await ctx.agents.create({
   sessionId,
-  agentOptions: { provider: 'deepseek', model: 'deepseek-chat' },
+  agentOptions: { provider: 'omega', model: 'omega-chat' },
   setup: (agentCtx, agent) => { /* scoped registrations plus explicit unpublished Agent */ },
 })
 ```

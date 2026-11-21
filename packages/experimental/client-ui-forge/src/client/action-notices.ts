@@ -1,6 +1,6 @@
 /** Notices that report the outcome of an action on a change request, shared by the Session panel and the review page. */
 
-import type { RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
+import type { RemoteResult } from '@omega-ai/dsh-typert-protocol'
 import type { ForgePanelKey } from './locales.ts'
 import type { NoticeSource } from './source.ts'
 import type { ChangeRequestEntry } from './status.ts'

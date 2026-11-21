@@ -18,7 +18,7 @@ import {
   expandHomePath,
   resolveAgentsHome,
   resolveDshHome,
-} from '@deepseek-ai/dsh-home-paths'
+} from '@omega-ai/dsh-home-paths'
 
 afterEach(() => {
   vi.unstubAllEnvs()

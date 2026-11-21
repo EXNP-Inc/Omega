@@ -1,10 +1,10 @@
 /** A request the account route authenticated ends with the sign-out of its credential and ends the route's running tasks. */
-import { Context } from '@deepseek-ai/cordis'
-import { BlockAssembler, LlmRuntime } from '@deepseek-ai/dsh-llm'
+import { Context } from '@omega-ai/cordis'
+import { BlockAssembler, LlmRuntime } from '@omega-ai/dsh-llm'
 import { afterEach, expect, it, vi } from 'vitest'
-import { accountStub } from '../../../account/deepseek-account/tests/account-stub.ts'
+import { accountStub } from '../../../account/omega-account/tests/account-stub.ts'
 import * as Account from '../src/index.ts'
-import DeepSeekAuth from '@deepseek-ai/dsh-deepseek-auth'
+import OmegaAuth from '@omega-ai/dsh-omega-auth'
 
 const contexts: Context[] = []
 afterEach(async () => {
@@ -12,10 +12,10 @@ afterEach(async () => {
   vi.restoreAllMocks()
 })
 
-const SIGNED_OUT_CANCEL = [{ kind: 'hook', reason: 'deepseek-account/signed-out' }, { keepInbox: true }]
+const SIGNED_OUT_CANCEL = [{ kind: 'hook', reason: 'omega-account/signed-out' }, { keepInbox: true }]
 const SIGNED_OUT_FAILURE = {
   code: 'ACCOUNT_SIGN_IN_REQUIRED',
-  message: 'The DeepSeek account signed out before this request finished. Sign in to DeepSeek to use the account provider.',
+  message: 'The Omega account signed out before this request finished. Sign in to Omega to use the account provider.',
 }
 
 /**
@@ -34,16 +34,16 @@ async function route(options: { reject?: (token: string) => void; agents?: boole
   const cancelApiKeyTask = vi.fn()
   if (options.agents !== false) {
     ctx.provide('agents', { list: () => [
-      { status: 'running', session: { requestContext: () => ({ provider: 'deepseek-account' }) }, cancel: cancelAccountTask },
-      { status: 'running', session: { requestContext: () => ({ provider: 'deepseek-official' }) }, cancel: cancelApiKeyTask },
+      { status: 'running', session: { requestContext: () => ({ provider: 'omega-account' }) }, cancel: cancelAccountTask },
+      { status: 'running', session: { requestContext: () => ({ provider: 'omega-official' }) }, cancel: cancelApiKeyTask },
     ] } as never)
   }
   // The route registers its running-task report once Agents and the account service are both mounted.
-  ctx.provide('deepseekAccount', Object.assign(
+  ctx.provide('omegaAccount', Object.assign(
     accountStub({ token: () => 'account-token', signedOut: signedOut.signal, ...reject === undefined ? {} : { reject } }),
     { registerRunningTaskReport: () => () => {} },
   ))
-  await ctx.plugin(DeepSeekAuth)
+  await ctx.plugin(OmegaAuth)
   const plugin = ctx.plugin(Account)
   await plugin
   return { ctx, signedOut, cancelAccountTask, cancelApiKeyTask, plugin }
@@ -72,7 +72,7 @@ function heldUpstream() {
 /** Drive one streamed request through the runtime and return its terminal outcome. */
 async function finishOf(ctx: Context) {
   const assembler = new BlockAssembler()
-  for await (const chunk of ctx.llm.stream({ provider: 'deepseek-account', model: 'deepseek-flash', messages: [] })) assembler.push(chunk)
+  for await (const chunk of ctx.llm.stream({ provider: 'omega-account', model: 'omega-flash', messages: [] })) assembler.push(chunk)
   return assembler.finish
 }
 
@@ -87,7 +87,7 @@ it.each([
   if (unload) await plugin.dispose()
   expect(request.aborted).toBe(false)
   // The account service runs the sign-out listeners first; an unloaded route has none left.
-  ctx.emit('deepseek-account/signed-out')
+  ctx.emit('omega-account/signed-out')
   expect(cancelAccountTask.mock.calls).toEqual(unload ? [] : [SIGNED_OUT_CANCEL])
   signedOut.abort()
   expect(request.aborted).toBe(true)

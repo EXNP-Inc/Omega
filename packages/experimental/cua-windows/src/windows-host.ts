@@ -2,10 +2,10 @@
 import { createHash } from 'node:crypto'
 import { mkdir, readFile } from 'node:fs/promises'
 import { join, win32 } from 'node:path'
-import { isWsl, type HostEnvironmentFacts } from '@deepseek-ai/dsh-native-command'
-import { writeFileAtomic } from '@deepseek-ai/dsh-atomic-write'
-import { NativeError } from '@deepseek-ai/dsh-cua/native-client'
-import type { SubprocessRuntime } from '@deepseek-ai/dsh-subprocess'
+import { isWsl, type HostEnvironmentFacts } from '@omega-ai/dsh-native-command'
+import { writeFileAtomic } from '@omega-ai/dsh-atomic-write'
+import { NativeError } from '@omega-ai/dsh-cua/native-client'
+import type { SubprocessRuntime } from '@omega-ai/dsh-subprocess'
 import { z } from 'zod'
 import type { NativeArchitecture } from './native-build.ts'
 
@@ -55,7 +55,7 @@ async function command(spec: WslPreparation, argv: string[]): Promise<string> {
  * @returns Windows architecture and a WSL-visible cache directory on the Windows filesystem.
  */
 export async function prepareWsl(spec: WslPreparation): Promise<{ architecture: NativeArchitecture; cacheDirectory: string }> {
-  const script = "[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false); @{ architecture = [Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant(); cache = [IO.Path]::Combine([Environment]::GetFolderPath('LocalApplicationData'), 'DeepSeekHarness', 'cua') } | ConvertTo-Json -Compress"
+  const script = "[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false); @{ architecture = [Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant(); cache = [IO.Path]::Combine([Environment]::GetFolderPath('LocalApplicationData'), 'OmegaHarness', 'cua') } | ConvertTo-Json -Compress"
   try {
     const output = await command(spec, [spec.powershellPath, '-NoProfile', '-NonInteractive', '-Command', script])
     const result = z.object({ architecture: z.enum(['x64', 'arm64']), cache: z.string().refine(value => win32.isAbsolute(value)) }).strict().parse(JSON.parse(output))

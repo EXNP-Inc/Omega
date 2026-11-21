@@ -9,7 +9,7 @@ English | [中文](guide.zh.md)
 
 ## Change
 
-`ProfileContext` from `@deepseek-ai/dsh-app-boot`, provided as `ctx.profileContext`, no longer has `overlays: readonly PatchOptions[]`. It now carries `overlayPaths: readonly string[]`: the absolute `--patch` file paths in argv order. `readProfilePatches()` reads those files on each call, so it returns current overlay contents and throws while an overlay file is missing or invalid. With `dsh-hmr` enabled, editing a `--patch` file recomposes the running profile. Plugins that read `profileContext.overlays` and launchers or tests that construct a `ProfileContext` are affected.
+`ProfileContext` from `@omega-ai/dsh-app-boot`, provided as `ctx.profileContext`, no longer has `overlays: readonly PatchOptions[]`. It now carries `overlayPaths: readonly string[]`: the absolute `--patch` file paths in argv order. `readProfilePatches()` reads those files on each call, so it returns current overlay contents and throws while an overlay file is missing or invalid. With `dsh-hmr` enabled, editing a `--patch` file recomposes the running profile. Plugins that read `profileContext.overlays` and launchers or tests that construct a `ProfileContext` are affected.
 
 ## Migration
 

@@ -5,8 +5,8 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execa } from 'execa'
 import { expect, it } from 'vitest'
-import { runLoaderSmoke } from '@deepseek-ai/dsh-loader-smoke'
-import { parseSessionLog } from '@deepseek-ai/dsh-llm-replay'
+import { runLoaderSmoke } from '@omega-ai/dsh-loader-smoke'
+import { parseSessionLog } from '@omega-ai/dsh-llm-replay'
 import { officeCalls, officeModelPatches, officeToolPatches } from './real-office.ts'
 
 const repo = fileURLToPath(new URL('../../../../../', import.meta.url))
@@ -67,7 +67,7 @@ export function registerVisualIntentCases(selected: readonly DocumentFormat[]): 
       : [],
   ])
 
-  it.skipIf(!process.env.DEEPSEEK_API_KEY || !runtime).each(cases)('$format $kind $intent visual intent', async ({ format, kind, task, seed, verify, intent, suffix, rendersUnrequested }) => {
+  it.skipIf(!process.env.OMEGA_API_KEY || !runtime).each(cases)('$format $kind $intent visual intent', async ({ format, kind, task, seed, verify, intent, suffix, rendersUnrequested }) => {
     const controlRoot = await mkdtemp(join(tmpdir(), 'dsh-office-control-test-'))
     try {
       const previewRoot = join(controlRoot, 'tmp')
@@ -89,9 +89,9 @@ export function registerVisualIntentCases(selected: readonly DocumentFormat[]): 
           await execa(python!, ['-c', seed], { cwd })
           const testAssetRoot = process.env.DSH_OFFICE_TEST_ASSET_ROOT ?? assetRoot
           await writeFile(configPath, JSON.stringify([
-            { insert: [{ id: 'skill-office', name: '@deepseek-ai/dsh-skill-office', config: { assetRoot: testAssetRoot } }] },
+            { insert: [{ id: 'skill-office', name: '@omega-ai/dsh-skill-office', config: { assetRoot: testAssetRoot } }] },
             ...officeToolPatches(),
-            { insert: [{ id: 'workspace-dependencies', name: '@deepseek-ai/dsh-tool-workspace-dependencies', config: { source: runtime! } }] },
+            { insert: [{ id: 'workspace-dependencies', name: '@omega-ai/dsh-tool-workspace-dependencies', config: { source: runtime! } }] },
             ...officeModelPatches(),
             { id: 'session-persistence-jsonl', config: { root: sessionRoot, compression: 'none' } },
           ]))

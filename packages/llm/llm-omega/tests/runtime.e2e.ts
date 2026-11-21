@@ -1,20 +1,20 @@
-import * as Protocol from '@deepseek-ai/dsh-llm-deepseek'
+import * as Protocol from '@omega-ai/dsh-llm-omega'
 import { readFileSync } from 'node:fs'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { randomBytes } from 'node:crypto'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import Loader from '@deepseek-ai/cordis-plugin-loader'
-import AgentRegistry from '@deepseek-ai/dsh-agent'
-import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
-import LlmRuntime, { createToolResultMessage, createUserMessage, type ToolCallId, type ReasoningEffortId, createMessage, createSystemMessage } from '@deepseek-ai/dsh-llm'
-import type { Message, ToolSchema } from '@deepseek-ai/dsh-llm'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import AttachmentStore from '@deepseek-ai/dsh-attachment'
-import type { AttachmentId, ImageVariantId } from '@deepseek-ai/dsh-attachment/types'
-import LocalAttachments from '@deepseek-ai/dsh-attachment-local'
+import { Context } from '@omega-ai/cordis'
+import Loader from '@omega-ai/cordis-plugin-loader'
+import AgentRegistry from '@omega-ai/dsh-agent'
+import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
+import LlmRuntime, { createToolResultMessage, createUserMessage, type ToolCallId, type ReasoningEffortId, createMessage, createSystemMessage } from '@omega-ai/dsh-llm'
+import type { Message, ToolSchema } from '@omega-ai/dsh-llm'
+import { brandString } from '@omega-ai/dsh-brand'
+import AttachmentStore from '@omega-ai/dsh-attachment'
+import type { AttachmentId, ImageVariantId } from '@omega-ai/dsh-attachment/types'
+import LocalAttachments from '@omega-ai/dsh-attachment-local'
 import type {
   ImageAttachmentLimits,
   ImageAttachmentRef,
@@ -22,31 +22,34 @@ import type {
   RequestImageAttachment,
   SaveImageAttachment,
   StoredImageAttachment,
-} from '@deepseek-ai/dsh-attachment'
-import { LocalCredentialProvider } from '@deepseek-ai/dsh-credentials-local'
-import SessionStore, { type SessionId } from '@deepseek-ai/dsh-session'
-import DeepSeekLlmApiExtensionRegistry from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
-import * as PluginPackageInventoryDeepSeek from '@deepseek-ai/dsh-plugin-package-inventory-deepseek'
-import * as SessionLogDeepSeek from '@deepseek-ai/dsh-session-log-deepseek'
-import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
-import type { Options as Config } from '@deepseek-ai/dsh-llm-deepseek'
-import DeepSeekAuth from '@deepseek-ai/dsh-deepseek-auth'
+} from '@omega-ai/dsh-attachment'
+import { LocalCredentialProvider } from '@omega-ai/dsh-credentials-local'
+import SessionStore, { type SessionId } from '@omega-ai/dsh-session'
+import OmegaLlmApiExtensionRegistry from '@omega-ai/dsh-omega-llm-api-extensions'
+import * as PluginPackageInventoryOmega from '@omega-ai/dsh-plugin-package-inventory-omega'
+import * as SessionLogOmega from '@omega-ai/dsh-session-log-omega'
+import * as LlmOmega from '@omega-ai/dsh-llm-omega-api-key'
+import type { Options as Config } from '@omega-ai/dsh-llm-omega'
+import OmegaAuth from '@omega-ai/dsh-omega-auth'
 import type { WireRequest } from '../src/wire-types.ts'
 import { assemble, type AssembledResult } from './assemble.ts'
 
 /**
  * Real-API e2e for the direct-fetch adapter: V4 Flash across thinking modes
  * and a max-effort tool round trip with reasoning passback. The suite skips
- * entirely without $DEEPSEEK_API_KEY; the pre-release vision smoke additionally
- * requires $DEEPSEEK_VISION_E2E=1, and the Flash image/system-update smoke
- * requires $DEEPSEEK_FLASH_E2E=1.
+ * without $OMEGA_API_KEY and the real endpoint $OMEGA_BASE_URL (the product
+ * default is the local gateway); the pre-release vision smoke additionally
+ * requires $OMEGA_VISION_E2E=1, and the Flash image/system-update smoke
+ * requires $OMEGA_FLASH_E2E=1.
  */
 
-const FLASH = 'deepseek-v4-flash'
-const VISION = 'deepseek-v4-flash-vision-exp'
-const VISION_E2E_ENABLED = process.env.DEEPSEEK_VISION_E2E === '1'
+const FLASH = 'omega-v4-flash'
+const VISION = 'omega-v4-flash-vision-exp'
+const VISION_E2E_ENABLED = process.env.OMEGA_VISION_E2E === '1'
+/** Real endpoint for these round trips; the product default is the local gateway, so a real host is explicit. */
+const REAL_API_BASE = process.env.OMEGA_BASE_URL
 /** A model whose endpoint reads the latest `system` message at any position; unset skips the in-history smoke. */
-const IN_HISTORY_MODEL = process.env.DEEPSEEK_IN_HISTORY_MODEL
+const IN_HISTORY_MODEL = process.env.OMEGA_IN_HISTORY_MODEL
 const TEST_PNG = Uint8Array.from(readFileSync(
   new URL('../../llm-pi-ai/tests/fixtures/qr-code.png', import.meta.url),
 ))
@@ -114,8 +117,8 @@ async function harness(model: string, config: Partial<Config> = {}) {
   contexts.push(ctx)
   await ctx.plugin(LlmRuntime)
   await ctx.plugin(E2eAttachmentStore)
-  await ctx.plugin(DeepSeekAuth)
-  await ctx.plugin(LlmDeepSeek, {
+  await ctx.plugin(OmegaAuth)
+  await ctx.plugin(LlmOmega, {
     baseURL: Protocol.PUBLIC_BASE_URL,
     ...model === VISION ? { models: [{ id: VISION, inputModalities: ['text', 'image'] }] } : {},
     ...config,
@@ -154,16 +157,16 @@ const weatherTool: ToolSchema = {
   },
 }
 
-describe.skipIf(!process.env.DEEPSEEK_API_KEY)('llm-deepseek e2e (real API)', () => {
-  it.skipIf(process.env.DEEPSEEK_FLASH_E2E !== '1')('deepseek-flash accepts images and retains system updates', async () => {
+describe.skipIf(!process.env.OMEGA_API_KEY || !REAL_API_BASE)('llm-omega e2e (real API)', () => {
+  it.skipIf(process.env.OMEGA_FLASH_E2E !== '1')('omega-flash accepts images and retains system updates', async () => {
     const ctx = new Context()
     contexts.push(ctx)
     await ctx.plugin(LlmRuntime)
     await ctx.plugin(LocalAttachments)
-    await ctx.plugin(DeepSeekAuth)
-    await ctx.plugin(LlmDeepSeek, { baseURL: Protocol.PUBLIC_BASE_URL, maxTokens: 4096 })
-    const model = 'deepseek-flash'
-    await expect(ctx.llm.resolveModelInfo('deepseek-official', model)).resolves.toMatchObject({
+    await ctx.plugin(OmegaAuth)
+    await ctx.plugin(LlmOmega, { baseURL: Protocol.PUBLIC_BASE_URL, maxTokens: 4096 })
+    const model = 'omega-flash'
+    await expect(ctx.llm.resolveModelInfo('omega-official', model)).resolves.toMatchObject({
       inputModalities: ['text', 'image'], systemPromptUpdate: 'in-history',
     })
     const attachment = await ctx.attachments.saveImage({ data: readFileSync(new URL('fixtures/red.png', import.meta.url)), mediaType: 'image/png' })
@@ -186,13 +189,13 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('llm-deepseek e2e (real API)', ()
   })
 
   it.skipIf(!VISION_E2E_ENABLED)('uses the built-in official route to upload, reference, and delete one image', async () => {
-    const key = process.env.DEEPSEEK_API_KEY
-    if (key === undefined) throw new Error('e2e ran without DEEPSEEK_API_KEY')
-    const baseURL = Protocol.PUBLIC_BASE_URL
+    const key = process.env.OMEGA_API_KEY
+    if (key === undefined) throw new Error('e2e ran without OMEGA_API_KEY')
+    const baseURL = REAL_API_BASE!
     const ctx = await harness(VISION, { baseURL })
     await ctx.plugin(E2eAttachmentStore)
     const attachments = ctx.attachments as E2eAttachmentStore
-    let uploadedFile: Protocol.DeepSeekFileIdType | undefined
+    let uploadedFile: Protocol.OmegaFileIdType | undefined
     const nativeFetch = globalThis.fetch
     const observedFetch: typeof fetch = async (input, init) => {
       const response = await nativeFetch(input, init)
@@ -200,12 +203,12 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('llm-deepseek e2e (real API)', ()
       const method = init?.method ?? (input instanceof Request ? input.method : 'GET')
       if (method === 'POST' && url.pathname.endsWith('/files') && response.ok) {
         const value = await response.clone().json() as { id?: unknown }
-        if (typeof value.id === 'string') uploadedFile = brandString<Protocol.DeepSeekFileId>(value.id)
+        if (typeof value.id === 'string') uploadedFile = brandString<Protocol.OmegaFileId>(value.id)
       }
       return response
     }
     vi.stubGlobal('fetch', observedFetch)
-    const files = new Protocol.DeepSeekFilesClient({ baseURL, headers: { 'x-api-key': key } })
+    const files = new Protocol.OmegaFilesClient({ baseURL, headers: { 'x-api-key': key } })
 
     try {
       const result = await assemble(ctx, {
@@ -221,7 +224,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('llm-deepseek e2e (real API)', ()
       })
       expect(
         result.finish.kind,
-        `DeepSeek vision result: ${JSON.stringify(result.finish)}`,
+        `Omega vision result: ${JSON.stringify(result.finish)}`,
       ).toBe('stop')
       expect(textOf(result).trim().length).toBeGreaterThan(0)
       expect(uploadedFile).toMatch(/^file-api-/u)
@@ -238,11 +241,11 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('llm-deepseek e2e (real API)', ()
     await ctx.plugin(AgentRegistry)
     await ctx.plugin(LlmRuntime)
     await ctx.plugin(SessionStore)
-    await ctx.plugin(DeepSeekLlmApiExtensionRegistry)
-    await ctx.plugin(SessionLogDeepSeek, { enabled: true })
-    await ctx.plugin(PluginPackageInventoryDeepSeek)
-    await ctx.plugin(DeepSeekAuth)
-    await ctx.plugin(LlmDeepSeek, { baseURL: Protocol.PUBLIC_BASE_URL, thinking: 'disabled' })
+    await ctx.plugin(OmegaLlmApiExtensionRegistry)
+    await ctx.plugin(SessionLogOmega, { enabled: true })
+    await ctx.plugin(PluginPackageInventoryOmega)
+    await ctx.plugin(OmegaAuth)
+    await ctx.plugin(LlmOmega, { baseURL: Protocol.PUBLIC_BASE_URL, thinking: 'disabled' })
     const session = ctx.sessions.create(brandString<SessionId>('real-extension-fields'))
     session.append('turn/start', { turn: 1 })
 
@@ -254,26 +257,26 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('llm-deepseek e2e (real API)', ()
     })
     expect(result.finish.kind).toBe('stop')
     expect(textOf(result).toLowerCase()).toContain('pong')
-    expect(SessionLogDeepSeek.acceptedThrough(session)).toBe(0)
+    expect(SessionLogOmega.acceptedThrough(session)).toBe(0)
   })
 
   it('serves a real request with the key held only by a credentials-local document', async () => {
-    const key = process.env.DEEPSEEK_API_KEY
-    if (key === undefined) throw new Error('e2e ran without DEEPSEEK_API_KEY')
+    const key = process.env.OMEGA_API_KEY
+    if (key === undefined) throw new Error('e2e ran without OMEGA_API_KEY')
     const dir = await mkdtemp(join(tmpdir(), 'dsh-e2e-credentials-'))
     try {
       // JSON.stringify quotes the value: YAML is a JSON superset, so a real
       // key survives whatever characters it happens to carry.
-      await writeFile(join(dir, '.credentials.yaml'), `version: 1\nrefs:\n  DEEPSEEK_API_KEY: ${JSON.stringify(key)}\n`, { mode: 0o600 })
+      await writeFile(join(dir, '.credentials.yaml'), `version: 1\nrefs:\n  OMEGA_API_KEY: ${JSON.stringify(key)}\n`, { mode: 0o600 })
       // Scrub the ambient variable so only the credential seam can supply the
       // key: this request proves the per-request resolution path end to end.
-      vi.stubEnv('DEEPSEEK_API_KEY', '')
+      vi.stubEnv('OMEGA_API_KEY', '')
       const ctx = new Context()
       contexts.push(ctx)
       await ctx.plugin(LlmRuntime)
       await ctx.plugin(LocalCredentialProvider, { path: join(dir, '.credentials.yaml'), watch: false })
-      await ctx.plugin(DeepSeekAuth)
-      await ctx.plugin(LlmDeepSeek, { baseURL: Protocol.PUBLIC_BASE_URL })
+      await ctx.plugin(OmegaAuth)
+      await ctx.plugin(LlmOmega, { baseURL: Protocol.PUBLIC_BASE_URL })
 
       const result = await assemble(ctx, {
         model: FLASH,
@@ -328,7 +331,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('llm-deepseek e2e (real API)', ()
       })
       expect(
         first.finish.kind,
-        `DeepSeek Flash tool-call turn finished as ${JSON.stringify(first.finish)}`,
+        `Omega Flash tool-call turn finished as ${JSON.stringify(first.finish)}`,
       ).toBe('tool-calls')
       const call = first.message.content.find(block => block.type === 'tool-call')
       expect(call).toBeDefined()
@@ -344,7 +347,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('llm-deepseek e2e (real API)', ()
           ...ask('What is the weather in Paris right now? Use the get_weather tool.'),
           createMessage({
             role: 'assistant', content: first.message.content,
-            source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+            source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
           }),
           createToolResultMessage({
             callId: brandString<ToolCallId>(call!.id),
@@ -357,7 +360,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('llm-deepseek e2e (real API)', ()
       })
       expect(
         second.finish.kind,
-        `DeepSeek Flash tool-result turn finished as ${JSON.stringify(second.finish)}`,
+        `Omega Flash tool-result turn finished as ${JSON.stringify(second.finish)}`,
       ).toBe('stop')
       expect(textOf(second).toLowerCase()).toMatch(/sunny|22/)
     },
@@ -371,7 +374,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('llm-deepseek e2e (real API)', ()
         thinking: 'disabled',
         models: [{ id: model, systemPromptUpdate: 'in-history' }],
       })
-      await expect(ctx.llm.resolveModelInfo('deepseek-official', model))
+      await expect(ctx.llm.resolveModelInfo('omega-official', model))
         .resolves.toMatchObject({ systemPromptUpdate: 'in-history' })
       const system = (text: string) => createSystemMessage(text)
       // A nonce before the padding isolates the provider cache across runs and retries.
@@ -456,7 +459,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('llm-deepseek e2e (real API)', ()
     const ctx = await harness(FLASH, { thinking: 'disabled' })
     const kinds: string[] = []
     for await (const chunk of ctx.llm.stream({
-      provider: 'deepseek-official',
+      provider: 'omega-official',
       model: FLASH,
       messages: ask('Count from 1 to 5, digits only.'),
       maxTokens: 50,

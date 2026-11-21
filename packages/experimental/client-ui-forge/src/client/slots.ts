@@ -1,7 +1,7 @@
 /** The forge panel's extension slots and the props their owners pass. */
 
-import type { WorkspaceSelectedHandler } from '@deepseek-ai/dsh-client-ui-conversation/client'
-import type { ChangeRequestRef, ChangeRequestState } from '@deepseek-ai/dsh-experimental-forge/types'
+import type { WorkspaceSelectedHandler } from '@omega-ai/dsh-client-ui-conversation/client'
+import type { ChangeRequestRef, ChangeRequestState } from '@omega-ai/dsh-experimental-forge/types'
 import type { ForgeLensFile } from '../types.ts'
 import type { ChangesTarget } from './changes-address.ts'
 import type { ForgeLineAnnotation } from './changes-service.ts'
@@ -74,7 +74,7 @@ export interface ForgeReviewConversationProps {
   readonly onWorkspaceSelected: WorkspaceSelectedHandler
 }
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
+declare module '@omega-ai/dsh-client-ui-slots' {
   interface SlotMap {
     /** The review page's conversation about one change request, in the Session its chat tab shows. */
     'forge.review.conversation': { kind: 'single'; scope: 'session'; owner: ForgeReviewConversationProps }

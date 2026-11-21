@@ -1,7 +1,7 @@
 /** Durable OAuth validation and refresh through the real SDK and credential store. */
 import { randomUUID } from 'node:crypto'
-import { Context } from '@deepseek-ai/cordis'
-import { credentialRef, parseCredentialKey, type CredentialRecord } from '@deepseek-ai/dsh-credentials'
+import { Context } from '@omega-ai/cordis'
+import { credentialRef, parseCredentialKey, type CredentialRecord } from '@omega-ai/dsh-credentials'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import { McpOAuthCredentials, oauthFetch, oauthRecord } from '../src/oauth-credentials.ts'
 import { probeServer } from '../src/probe.ts'
@@ -24,8 +24,8 @@ it('requires the configured credential provider', async () => {
 
 it('refuses credential keys owned by other plugins', async () => {
   const world = await oauthWorld()
-  const key = parseCredentialKey('deepseek-account-platform/default')
-  const record = { kind: 'grant', payload: { version: 1, token: 'platform-token', issuer: 'https://platform.deepseek.com' } } satisfies CredentialRecord
+  const key = parseCredentialKey('omega-account-platform/default')
+  const record = { kind: 'grant', payload: { version: 1, token: 'platform-token', issuer: 'https://platform.omega.com' } } satisfies CredentialRecord
   await world.ctx.credentials.modifyRecord(key, async () => record)
   expect(() => new McpOAuthCredentials(world.ctx, { ...world.config.oauth, credentialKey: key })).toThrow('mcp-client')
   expect(await world.ctx.credentials.readRecord(key)).toEqual(record)

@@ -5,7 +5,7 @@
 - id: headless-runner
   disabled: true
 
-- id: llm-deepseek
+- id: llm-omega
   config:
     baseURL: !!js process.env.DSH_SNAPSHOT_BASE_URL
     thinking: enabled
@@ -16,8 +16,8 @@
   config:
     agents:
       - id: main
-        provider: deepseek-official
-        model: deepseek-v4-flash
+        provider: omega-official
+        model: omega-v4-flash
         cwd: !!js process.cwd()
 
 - id: agent-instructions

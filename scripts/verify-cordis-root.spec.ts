@@ -12,7 +12,7 @@ import {
 
 const baselinePath = 'scripts/cordis-root.baseline.json'
 const sourcePath = 'packages/example/src/index.ts'
-const header = "import { Context } from '@deepseek-ai/cordis'\n"
+const header = "import { Context } from '@omega-ai/cordis'\n"
 const read = `${header}export const root = (ctx: Context) => ctx[Context.root]\n`
 const none = {}
 
@@ -37,24 +37,24 @@ describe('Cordis root read syntax', () => {
     ['a string-keyed read', `${header}ctx[Context['root']]`, 1],
     ['a destructured read', `${header}const { root } = Context`, 1],
     ['a renamed destructured read', `${header}const { root: key } = Context`, 1],
-    ['a renamed import', "import { Context as CordisContext } from '@deepseek-ai/cordis'\nctx[CordisContext.root]", 1],
-    ['a namespace import', "import * as cordis from '@deepseek-ai/cordis'\nctx[cordis.Context.root]", 1],
+    ['a renamed import', "import { Context as CordisContext } from '@omega-ai/cordis'\nctx[CordisContext.root]", 1],
+    ['a namespace import', "import * as cordis from '@omega-ai/cordis'\nctx[cordis.Context.root]", 1],
     ['a global symbol key', "ctx[Symbol.for('cordis.root')]", 1],
     ['a template symbol key', 'ctx[Symbol.for(`cordis.root`)]', 1],
     ['a symbol key held in a constant', "const key = 'cordis.root'", 1],
     ['several reads', `${header}ctx[Context.root].on('a', f); ctx[Context.root].on('b', g)`, 2],
     ['a TSX expression', `${header}export const view = <View ctx={ctx[Context.root]} />`, 1],
-    ['the symbols table', "import { symbols } from '@deepseek-ai/cordis'\nctx[symbols.root]", 1],
-    ['a renamed symbols table', "import { symbols as cordisSymbols } from '@deepseek-ai/cordis'\nctx[cordisSymbols['root']]", 1],
-    ['the symbols table of a namespace', "import * as cordis from '@deepseek-ai/cordis'\nctx[cordis.symbols.root]", 1],
-    ['root destructured from the symbols table', "import { symbols } from '@deepseek-ai/cordis'\nconst { root } = symbols", 1],
-    ['a subpath import', "import { Context } from '@deepseek-ai/cordis/src/index.ts'\nctx[Context.root]", 1],
-    ['a default import', "import cordis from '@deepseek-ai/cordis'\nctx[cordis.Context.root]", 1],
-    ['an import-equals namespace', "import cordis = require('@deepseek-ai/cordis')\nctx[cordis.Context.root]", 1],
-    ['a destructured dynamic import', "const { Context } = await import('@deepseek-ai/cordis')\nctx[Context.root]", 1],
-    ['a renamed destructured dynamic import', "const { Context: C } = await import('@deepseek-ai/cordis')\nctx[C.root]", 1],
-    ['a namespace dynamic import', "const cordis = await import('@deepseek-ai/cordis')\nctx[cordis.Context.root]", 1],
-    ['a destructured require', "const { Context } = require('@deepseek-ai/cordis')\nctx[Context.root]", 1],
+    ['the symbols table', "import { symbols } from '@omega-ai/cordis'\nctx[symbols.root]", 1],
+    ['a renamed symbols table', "import { symbols as cordisSymbols } from '@omega-ai/cordis'\nctx[cordisSymbols['root']]", 1],
+    ['the symbols table of a namespace', "import * as cordis from '@omega-ai/cordis'\nctx[cordis.symbols.root]", 1],
+    ['root destructured from the symbols table', "import { symbols } from '@omega-ai/cordis'\nconst { root } = symbols", 1],
+    ['a subpath import', "import { Context } from '@omega-ai/cordis/src/index.ts'\nctx[Context.root]", 1],
+    ['a default import', "import cordis from '@omega-ai/cordis'\nctx[cordis.Context.root]", 1],
+    ['an import-equals namespace', "import cordis = require('@omega-ai/cordis')\nctx[cordis.Context.root]", 1],
+    ['a destructured dynamic import', "const { Context } = await import('@omega-ai/cordis')\nctx[Context.root]", 1],
+    ['a renamed destructured dynamic import', "const { Context: C } = await import('@omega-ai/cordis')\nctx[C.root]", 1],
+    ['a namespace dynamic import', "const cordis = await import('@omega-ai/cordis')\nctx[cordis.Context.root]", 1],
+    ['a destructured require', "const { Context } = require('@omega-ai/cordis')\nctx[Context.root]", 1],
     ['a destructuring assignment', `${header}let key; ({ root: key } = Context)`, 1],
     ['a shorthand destructuring assignment', `${header}let root; ({ root } = Context)`, 1],
     ['a parameter default', `${header}function f({ root } = Context) { return root }`, 1],
@@ -71,22 +71,22 @@ describe('Cordis root read syntax', () => {
     ['source text embedded in a template', "const code = `ctx[Symbol.for('cordis.root')]`"],
     ['a type query', `${header}type Root = typeof Context.root`],
     ['a literal type', "type Key = 'cordis.root'"],
-    ['a type-only import', "import type { Context } from '@deepseek-ai/cordis'\nctx[Context.root]"],
-    ['a type-only specifier', "import { type Context } from '@deepseek-ai/cordis'\nctx[Context.root]"],
+    ['a type-only import', "import type { Context } from '@omega-ai/cordis'\nctx[Context.root]"],
+    ['a type-only specifier', "import { type Context } from '@omega-ai/cordis'\nctx[Context.root]"],
     ['a Context from another module', "import { Context } from './context.ts'\nctx[Context.root]"],
     ['another static of Context', `${header}ctx[Context.isolate]`],
     ['a root member of another value', `${header}const dir = project.root`],
     ['a destructured root of another value', `${header}const { root } = project`],
     ['a parameter that shadows the import', `${header}function f(Context: { root: string }) { return Context.root }`],
     ['a local that shadows the import', `${header}{ const Context = project; Context.root }`],
-    ['a parameter that shadows a namespace', "import * as cordis from '@deepseek-ai/cordis'\nfunction f(cordis: any) { return cordis.Context.root }"],
+    ['a parameter that shadows a namespace', "import * as cordis from '@omega-ai/cordis'\nfunction f(cordis: any) { return cordis.Context.root }"],
     ['an interface member', `${header}interface Holder { [Context.root]: Context }`],
     ['a type literal member', `${header}type Holder = { [Context.root]: Context }`],
     ['an ambient class member', `${header}declare class Holder { [Context.root]: Context }`],
     ['an ambient module member', `${header}declare module 'x' { const key: typeof Context.root; export const value = Context.root }`],
     ['an ambient class field', `${header}class Holder { declare [Context.root]: Context }`],
     ['an implements clause', `${header}class Holder implements Base<typeof Context.root> {}`],
-    ['another member of the symbols table', "import { symbols } from '@deepseek-ai/cordis'\nctx[symbols.original]"],
+    ['another member of the symbols table', "import { symbols } from '@omega-ai/cordis'\nctx[symbols.original]"],
     ['a dynamic import of another module', "const { Context } = await import('./context.ts')\nctx[Context.root]"],
     ['a destructuring assignment of another member', `${header}let isolate; ({ isolate } = Context)`],
   ])('ignores %s', (_name, text) => {
@@ -94,8 +94,8 @@ describe('Cordis root read syntax', () => {
   })
 
   it('resolves bindings in JavaScript modules', () => {
-    expect(findCordisRootReads('input.mjs', "const { Context } = await import('@deepseek-ai/cordis')\nctx[Context.root]")).toHaveLength(1)
-    expect(findCordisRootReads('input.cjs', "const { symbols } = require('@deepseek-ai/cordis')\nfunction f(symbols) { return symbols.root }")).toEqual([])
+    expect(findCordisRootReads('input.mjs', "const { Context } = await import('@omega-ai/cordis')\nctx[Context.root]")).toHaveLength(1)
+    expect(findCordisRootReads('input.cjs', "const { symbols } = require('@omega-ai/cordis')\nfunction f(symbols) { return symbols.root }")).toEqual([])
   })
 
   it('skips declaration files', () => {

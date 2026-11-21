@@ -1,14 +1,14 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
-import { brandString } from '@deepseek-ai/dsh-brand'
-import type { ActionCardId } from '@deepseek-ai/dsh-action-cards/types'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import { FoldedText } from '@deepseek-ai/dsh-client-ui-action-cards/src/client/Card.tsx'
-import type { ActionCardFields, ActionCardResult } from '@deepseek-ai/dsh-action-cards/types'
+import { brandString } from '@omega-ai/dsh-brand'
+import type { ActionCardId } from '@omega-ai/dsh-action-cards/types'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import { FoldedText } from '@omega-ai/dsh-client-ui-action-cards/src/client/Card.tsx'
+import type { ActionCardFields, ActionCardResult } from '@omega-ai/dsh-action-cards/types'
 import { PageCardBody, type PageCardProps } from '../src/client/Card.tsx'
-import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
+import { makeTranslate } from '@omega-ai/dsh-client-test-runtime'
 import { en, zh } from '../src/client/locales.ts'
 
 afterEach(() => { cleanup(); vi.restoreAllMocks() })

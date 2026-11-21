@@ -1,7 +1,7 @@
 /**
  * Model-facing PowerShell Consumer of the `ctx.shell` capability seam. Intended for
  * Windows compositions where a PowerShell executor (e.g.
- * `@deepseek-ai/dsh-pwsh-local`) backs `ctx.shell`; the tool contract is
+ * `@omega-ai/dsh-pwsh-local`) backs `ctx.shell`; the tool contract is
  * PowerShell-dialect: native `C:\...` paths and `$env:NAME` variables.
  *
  * Behavior mirrors `dsh-tool-bash` call-for-call: foreground and
@@ -15,34 +15,34 @@
  * `ctx.approval`), and the bash marker/truncation rendering story. UI
  * presentation mirrors the bash tool's too: a completed foreground call is
  * a terminal card with the parsed exit-status pill, using the shared
- * exit-status parse from `@deepseek-ai/dsh-shell`.
+ * exit-status parse from `@omega-ai/dsh-shell`.
  *
- * @module @deepseek-ai/dsh-tool-pwsh
+ * @module @omega-ai/dsh-tool-pwsh
  */
 
 import { isAbsolute, resolve as resolvePath } from 'node:path'
-import type {} from '@deepseek-ai/dsh-working-directory'
-import { FiberState } from '@deepseek-ai/cordis'
-import type { Context } from '@deepseek-ai/cordis'
-import z from '@deepseek-ai/schemastery'
-import { defineTool, TOOL_ABORTED, ToolArgsError, ToolContextUnavailableError } from '@deepseek-ai/dsh-tools'
-import type { GenericCallView, TerminalCallView, ToolDefinition, ToolExecution, ToolResult, ToolResultView } from '@deepseek-ai/dsh-tools'
-import { HarnessError } from '@deepseek-ai/dsh-llm'
-import type { JobId, JobRegistry, JobView } from '@deepseek-ai/dsh-jobs'
-import type {} from '@deepseek-ai/dsh-shell-env'
-import type {} from '@deepseek-ai/dsh-user-approval'
-import type { SandboxExecutionPolicy, SandboxMode } from '@deepseek-ai/dsh-sandbox'
-import { ESCALATION_TARGETS, approveEscalation, sandboxPermissionsDescription, validateEscalationArgs } from '@deepseek-ai/dsh-sandbox'
-import { subprocessSpawnFailure } from '@deepseek-ai/dsh-subprocess'
-import type { SandboxPolicyService } from '@deepseek-ai/dsh-sandbox-policy'
-import type { ShellExecRequest, ShellExecSpec, ShellExecution, ShellRunResult } from '@deepseek-ai/dsh-shell'
-import { parseExitStatus } from '@deepseek-ai/dsh-shell'
+import type {} from '@omega-ai/dsh-working-directory'
+import { FiberState } from '@omega-ai/cordis'
+import type { Context } from '@omega-ai/cordis'
+import z from '@omega-ai/schemastery'
+import { defineTool, TOOL_ABORTED, ToolArgsError, ToolContextUnavailableError } from '@omega-ai/dsh-tools'
+import type { GenericCallView, TerminalCallView, ToolDefinition, ToolExecution, ToolResult, ToolResultView } from '@omega-ai/dsh-tools'
+import { HarnessError } from '@omega-ai/dsh-llm'
+import type { JobId, JobRegistry, JobView } from '@omega-ai/dsh-jobs'
+import type {} from '@omega-ai/dsh-shell-env'
+import type {} from '@omega-ai/dsh-user-approval'
+import type { SandboxExecutionPolicy, SandboxMode } from '@omega-ai/dsh-sandbox'
+import { ESCALATION_TARGETS, approveEscalation, sandboxPermissionsDescription, validateEscalationArgs } from '@omega-ai/dsh-sandbox'
+import { subprocessSpawnFailure } from '@omega-ai/dsh-subprocess'
+import type { SandboxPolicyService } from '@omega-ai/dsh-sandbox-policy'
+import type { ShellExecRequest, ShellExecSpec, ShellExecution, ShellRunResult } from '@omega-ai/dsh-shell'
+import { parseExitStatus } from '@omega-ai/dsh-shell'
 import { processJob, processOutcome, processSources, ringDelta } from './background.ts'
 import type { ProcessJobHooks } from './background.ts'
 import { renderPwshJobRead, renderPwshPromoted, renderPwshResult } from './render.ts'
 import type { RenderablePwshResult } from './render.ts'
 
-declare module '@deepseek-ai/dsh-jobs' {
+declare module '@omega-ai/dsh-jobs' {
   interface JobKindMap {
     pwsh: 'pwsh'
   }
@@ -564,7 +564,7 @@ export function apply(ctx: Context, config: Config = {}): void {
         }
         if (args.run_in_background === true) {
           if (jobs === undefined) {
-            throw new ToolContextUnavailableError('background jobs unavailable: load @deepseek-ai/dsh-jobs and @deepseek-ai/dsh-tool-jobs')
+            throw new ToolContextUnavailableError('background jobs unavailable: load @omega-ai/dsh-jobs and @omega-ai/dsh-tool-jobs')
           }
           // The caller owns cancellation until ctx.jobs commits detached ownership.
           if (exec.signal.aborted) throw toolAborted()

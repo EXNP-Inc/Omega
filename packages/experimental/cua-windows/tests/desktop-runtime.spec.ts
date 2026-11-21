@@ -1,7 +1,7 @@
 /** Opt-in real desktop admission through the shipped managed subprocess provider. */
-import { Context } from '@deepseek-ai/cordis'
-import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
-import { NativeClient } from '@deepseek-ai/dsh-cua/native-client'
+import { Context } from '@omega-ai/cordis'
+import LocalSubprocessRuntime from '@omega-ai/dsh-subprocess-local'
+import { NativeClient } from '@omega-ai/dsh-cua/native-client'
 import { expect, it, onTestFinished } from 'vitest'
 import { Config } from '../src/index.ts'
 import { WindowsNativeRuntime } from '../src/native-runtime.ts'

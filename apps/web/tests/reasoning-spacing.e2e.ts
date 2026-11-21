@@ -1,7 +1,7 @@
 /** Reasoning rows of one Assistant message keep the 4px process-row gap, and display-empty reasoning adds none. */
 import { chromium } from 'playwright'
 import { expect, it, onTestFinished } from 'vitest'
-import { SESSION_FORMAT_VERSION } from '@deepseek-ai/dsh-session'
+import { SESSION_FORMAT_VERSION } from '@omega-ai/dsh-session'
 import { launchWebScaffold, seedSession, watchConsole } from './scaffold.ts'
 import { newEnglishPage } from './support.ts'
 
@@ -60,7 +60,7 @@ function sessionLog(): string {
           turn, step, stream: [],
           message: {
             role: 'assistant', content: blocks.map(content), id: id(),
-            source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+            source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
           },
         },
       })

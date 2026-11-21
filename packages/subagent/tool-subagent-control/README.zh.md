@@ -3,7 +3,7 @@ description: "通过消息、中断和收件箱等待发现并协调 subagent �
 kind: "package-reference"
 ---
 
-# @deepseek-ai/dsh-tool-subagent-control
+# @omega-ai/dsh-tool-subagent-control
 
 [English](README.md) | 中文
 
@@ -32,15 +32,15 @@ kind: "package-reference"
 所需服务可用后，加载 subagent 服务、一个后端、委派工具和此包，即可提供全部四个控制与发现工具：
 
 ```yaml
-- name: '@deepseek-ai/dsh-subagent'
-- name: '@deepseek-ai/dsh-subagent-spawn-in-process'
-- name: '@deepseek-ai/dsh-tool-subagent'
+- name: '@omega-ai/dsh-subagent'
+- name: '@omega-ai/dsh-subagent-spawn-in-process'
+- name: '@omega-ai/dsh-tool-subagent'
   config:
     provider: spawn
-- name: '@deepseek-ai/dsh-tool-subagent-control'
+- name: '@omega-ai/dsh-tool-subagent-control'
 ```
 
-设置 `config.interrupt: false` 可省略 `interrupt_agent`。默认值为 `true`。其余三个工具和 `ctx.subagents.interrupt()` 仍然可用。参见生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-tool-subagent-control)。
+设置 `config.interrupt: false` 可省略 `interrupt_agent`。默认值为 `true`。其余三个工具和 `ctx.subagents.interrupt()` 仍然可用。参见生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-tool-subagent-control)。
 
 ### send_message
 
@@ -100,7 +100,7 @@ kind: "package-reference"
 
 - [Subagent 子系统](../../../docs/subsystems/subagent.zh.md)——可继续子级、Activation、inbox、中断与后续消息权限。
 - [dsh-tool-subagent](../tool-subagent/README.zh.md)——启动可继续子级的委派工具。
-- [生成工具目录](../../../docs/tool-catalog.zh.md#deepseek-aidsh-tool-subagent-control)——工具 schema。
+- [生成工具目录](../../../docs/tool-catalog.zh.md#omega-aidsh-tool-subagent-control)——工具 schema。
 
 -----
 
@@ -111,7 +111,7 @@ kind: "package-reference"
 
 #### 模型看到什么
 
-生成的 [schema](../../../docs/tool-catalog.zh.md#deepseek-aidsh-tool-subagent-control) 定义按名称寻址的通信与中断、整树发现，以及带 `timeout_ms` 的收件箱等待。`wait_agent` 在输入可用时返回 `{ "timedOut": false }`，超时时返回 `{ "timedOut": true }`。它不返回消息正文或其他成员活动诊断。
+生成的 [schema](../../../docs/tool-catalog.zh.md#omega-aidsh-tool-subagent-control) 定义按名称寻址的通信与中断、整树发现，以及带 `timeout_ms` 的收件箱等待。`wait_agent` 在输入可用时返回 `{ "timedOut": false }`，超时时返回 `{ "timedOut": true }`。它不返回消息正文或其他成员活动诊断。
 
 #### Token 影响
 

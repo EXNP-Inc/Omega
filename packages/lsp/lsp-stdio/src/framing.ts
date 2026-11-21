@@ -2,10 +2,10 @@
  * LSP base-protocol framing: `Content-Length`-delimited JSON-RPC over a byte stream. The encoder
  * produces one framed buffer; the decoder buffers incoming bytes and yields complete message bodies,
  * bounding the header and total message size so a hostile or broken server cannot exhaust memory.
- * @module @deepseek-ai/dsh-lsp-stdio/framing
+ * @module @omega-ai/dsh-lsp-stdio/framing
  */
 
-import { LspError } from '@deepseek-ai/dsh-lsp'
+import { LspError } from '@omega-ai/dsh-lsp'
 
 /** The header/body separator in the LSP base protocol. */
 const HEADER_SEPARATOR = '\r\n\r\n'

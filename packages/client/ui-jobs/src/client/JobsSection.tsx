@@ -1,14 +1,14 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
-import type { JobsSnapshot, JobView, ObservedJob } from '@deepseek-ai/dsh-api-job-controller/client'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import type { JobsSnapshot, JobView, ObservedJob } from '@omega-ai/dsh-api-job-controller/client'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import {
   HoverCard, HoverCardGroup, IconChevronDownOutlineRegular, IconStopFillRegular, MarqueeText,
   StateDot, type StateDotState, TerminalBlock, type TerminalBlockLabels, Tooltip, useHoverMarquee,
-} from '@deepseek-ai/dsh-client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRenderFactories, PropsRuntime, PropsStore, TranslateNS } from '@deepseek-ai/dsh-client-ui-slots'
+} from '@omega-ai/dsh-client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRenderFactories, PropsRuntime, PropsStore, TranslateNS } from '@omega-ai/dsh-client-ui-slots'
 import type { createJobsSectionStore, JobGroup } from './jobs-store.ts'
 import { NS } from './locales.ts'
-import type {} from '@deepseek-ai/dsh-client-ui-session-panel/client'
+import type {} from '@omega-ai/dsh-client-ui-session-panel/client'
 import css from './JobsSection.module.css'
 
 /** Registration-side business face for the background-jobs section. */

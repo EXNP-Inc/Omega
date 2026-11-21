@@ -1,12 +1,12 @@
 /** The card frame below a completed answer (title, folded brief, the kind's body or a dismiss-only fallback) and the hidden card block. */
 import { useCallback, useId, useMemo, useState, type ReactNode } from 'react'
-import { Button } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { HostObservable, InjectFace, PropsLocale, PropsRuntime, Translate } from '@deepseek-ai/dsh-client-ui-slots'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { Button } from '@omega-ai/dsh-client-ui-primitives'
+import type { HostObservable, InjectFace, PropsLocale, PropsRuntime, Translate } from '@omega-ai/dsh-client-ui-slots'
+import type { SessionId } from '@omega-ai/dsh-session/types'
 import type {
   ActionCardDecision, ActionCardFence, ActionCardFields, ActionCardId, ActionCardProposal, ActionCardResult, ActionCardView,
-} from '@deepseek-ai/dsh-action-cards/types'
-import type {} from '@deepseek-ai/dsh-client-ui-chat/client'
+} from '@omega-ai/dsh-action-cards/types'
+import type {} from '@omega-ai/dsh-client-ui-chat/client'
 import type { ActionCardKey } from './locales.ts'
 import type { FoldedTextProps, RegisteredBody } from './registry.ts'
 import css from './Card.module.css'

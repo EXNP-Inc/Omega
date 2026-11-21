@@ -1,11 +1,11 @@
-import type { ContextMenuBindings } from '@deepseek-ai/dsh-client-ui-context-menu/client'
+import type { ContextMenuBindings } from '@omega-ai/dsh-client-ui-context-menu/client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
-import { IconLoadingOutlineRegular, IconRefreshOutlineRegular, DraggableImage, ImageLightbox, type FileDragActions } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { MessageImageLabels } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { ImageAttachmentRef } from '@omega-ai/dsh-attachment'
+import { IconLoadingOutlineRegular, IconRefreshOutlineRegular, DraggableImage, ImageLightbox, type FileDragActions } from '@omega-ai/dsh-client-ui-primitives'
+import type { MessageImageLabels } from '@omega-ai/dsh-client-ui-conversation/client'
 import css from './MessageImage.module.css'
 
-export type { MessageImageLabels } from '@deepseek-ai/dsh-client-ui-conversation/client'
+export type { MessageImageLabels } from '@omega-ai/dsh-client-ui-conversation/client'
 
 /** Loads a Gateway-authorized durable image URL and may expose a cached URL synchronously. */
 export type ImageLoader = ((attachment: ImageAttachmentRef) => Promise<string>) & {
@@ -28,7 +28,7 @@ export type MessageImageSpec =
     }
   }
 
-/** Display box for a lone image (DeepSeek Chat rule): long edge 240px with
+/** Display box for a lone image (Omega Chat rule): long edge 240px with
  * the rendered aspect ratio clamped to [0.25, 4] — the overflow is cropped by
  * `object-fit: cover` — and never upscaled past the image's natural size. The
  * crop anchor keeps the top of very tall images and the left of very wide

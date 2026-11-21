@@ -1,13 +1,13 @@
 /** Explicit-need official plugin recommendations: an `enable_official_plugin` card offers one plugin, and only a human click enables it. */
 import { z } from 'zod'
-import { Service, type Context } from '@deepseek-ai/cordis'
-import { Remote, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
-import type { Agent } from '@deepseek-ai/dsh-agent'
-import { isPluginStopping } from '@deepseek-ai/dsh-action-cards'
-import type { ActionCardDecision, ActionCardId, ActionCardProposalOf, ActionCardResult } from '@deepseek-ai/dsh-action-cards'
-import type {} from '@deepseek-ai/dsh-plugin-manager'
-import type { ChangeResult } from '@deepseek-ai/dsh-plugin-manager/types'
-import type {} from '@deepseek-ai/dsh-skill'
+import { Service, type Context } from '@omega-ai/cordis'
+import { Remote, TypertRemoteService } from '@omega-ai/dsh-typert-protocol'
+import type { Agent } from '@omega-ai/dsh-agent'
+import { isPluginStopping } from '@omega-ai/dsh-action-cards'
+import type { ActionCardDecision, ActionCardId, ActionCardProposalOf, ActionCardResult } from '@omega-ai/dsh-action-cards'
+import type {} from '@omega-ai/dsh-plugin-manager'
+import type { ChangeResult } from '@omega-ai/dsh-plugin-manager/types'
+import type {} from '@omega-ai/dsh-skill'
 import { eligible, registerOfficialPluginsSkill } from './skill.ts'
 import type { PluginData, PluginDetails, PluginPhase, RecommendationDetails } from './types.ts'
 export type * from './types.ts'
@@ -17,7 +17,7 @@ export const name = 'plugin-recommendations'
 /** Services the plugin uses; `actionCards` owns card state and user actions. */
 export const inject = ['pluginManager', 'agents', 'skills', 'actionCards']
 
-declare module '@deepseek-ai/cordis' {
+declare module '@omega-ai/cordis' {
   interface Context { pluginRecommendations: PluginRecommendations }
 }
 

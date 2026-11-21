@@ -53,12 +53,12 @@ it('omits development artifacts while preserving executable modules, assets and 
     '@deepseek-ai/libreoffice-kit-win32-x64/bin/dsoffice.exe',
     '@deepseek-ai/libreoffice-kit-win32-x64/sources/core-source.json',
     '@deepseek-ai/libreoffice-kit-win32-x64/licenses/MPL-2.0.txt',
-    '@deepseek-ai/dsh/lib/index.js', '@deepseek-ai/dsh/lib/bin.js',
-    '@deepseek-ai/dsh-session/lib/index.js',
-    '@deepseek-ai/dsh/src/bin.ts', '@deepseek-ai/dsh/docs/architecture.md',
-    '@deepseek-ai/dsh/docs/upgrade-guide/v0.2.0/example/guide.md',
-    '@deepseek-ai/dsh-session/src/index.ts',
-    '@deepseek-ai/dsh-client-ui-chat/src/client/Page.tsx',
+    '@omega-ai/dsh/lib/index.js', '@omega-ai/dsh/lib/bin.js',
+    '@omega-ai/dsh-session/lib/index.js',
+    '@omega-ai/dsh/src/bin.ts', '@omega-ai/dsh/docs/architecture.md',
+    '@omega-ai/dsh/docs/upgrade-guide/v0.2.0/example/guide.md',
+    '@omega-ai/dsh-session/src/index.ts',
+    '@omega-ai/dsh-client-ui-chat/src/client/Page.tsx',
   ]
   try {
     const runtime = runtimeFixture(source)

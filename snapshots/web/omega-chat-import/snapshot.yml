@@ -1,0 +1,8 @@
+version: 1
+scenario: omega-chat-import
+profile: web
+composition: web-omega-chat-import
+recording: live
+header:
+  class: web-omega-chat-import
+  pin: true

@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { contextMenuHook } from '@deepseek-ai/dsh-client-test-runtime'
+import { contextMenuHook } from '@omega-ai/dsh-client-test-runtime'
 /**
  * ui-deliverables browser half: the derivation contract of produced paths,
  * recorded changes, and deliveries over engine-published Turn data, the
@@ -8,24 +8,24 @@ import { contextMenuHook } from '@deepseek-ai/dsh-client-test-runtime'
  * SlotRegistry.
  */
 import { renderFileActions } from './file-actions.tsx'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
-import { Context } from '@deepseek-ai/cordis'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import { Context } from '@omega-ai/cordis'
 import { cleanup, fireEvent, render, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { SessionLiveEventEntry, SessionListState } from '@deepseek-ai/dsh-api-session-controller/client'
+import type { SessionLiveEventEntry, SessionListState } from '@omega-ai/dsh-api-session-controller/client'
 import {
   ConversationNodeAssembler, UiConversation,
-} from '@deepseek-ai/dsh-client-ui-conversation/client'
+} from '@omega-ai/dsh-client-ui-conversation/client'
 import type {
   ConversationLocationDataSource, ConversationLocationDataStore, ConversationMatch, ConversationNodeDefinition,
   ConversationStartMatch, ConversationTimelineSnapshot, ConversationTurnDataMap, ConversationViewDefinition,
   ConversationViewNode, TurnLocation,
-} from '@deepseek-ai/dsh-client-ui-conversation/client'
-import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
-import type { GlobalStandardProps, SessionStandardProps } from '@deepseek-ai/dsh-client-ui-slots'
-import { apply as applyLocale, inject as localeInject } from '@deepseek-ai/dsh-client-locale/client'
-import type { ChatFileMentions, TurnTailOwnerProps } from '@deepseek-ai/dsh-client-ui-chat/client'
-import { makeTranslate, stubConfigForm } from '@deepseek-ai/dsh-client-test-runtime'
+} from '@omega-ai/dsh-client-ui-conversation/client'
+import { SlotRegistry } from '@omega-ai/dsh-client-ui-renderer/client'
+import type { GlobalStandardProps, SessionStandardProps } from '@omega-ai/dsh-client-ui-slots'
+import { apply as applyLocale, inject as localeInject } from '@omega-ai/dsh-client-locale/client'
+import type { ChatFileMentions, TurnTailOwnerProps } from '@omega-ai/dsh-client-ui-chat/client'
+import { makeTranslate, stubConfigForm } from '@omega-ai/dsh-client-test-runtime'
 import { Deliverables, DeliverablesTail, selectDeliverables, type DeliverablesInjected } from '../src/client/Deliverables.tsx'
 import type { ReviewInjected } from '../src/client/ReviewTab.tsx'
 import { ChangesDiffStore } from '../src/client/changes-diff.ts'
@@ -38,9 +38,9 @@ import {
 } from '../src/client/turn-deliverables.ts'
 import { apply, inject } from '../src/client/index.ts'
 import { en, zh } from '../src/client/locales.ts'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
-import type { SessionEvent } from '@deepseek-ai/dsh-session/types'
-import { brandString } from '@deepseek-ai/dsh-brand'
+import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { SessionEvent } from '@omega-ai/dsh-session/types'
+import { brandString } from '@omega-ai/dsh-brand'
 
 const unusedStandardHook = (): never => { throw new Error('isolated deliverables fixture does not consume this framework hook') }
 const standardProps: GlobalStandardProps & Omit<SessionStandardProps, 'sessionId'> = {
@@ -914,7 +914,7 @@ describe('plugin registration', () => {
     expect(entry?.inject).toBeDefined()
     expect(registered).toMatchObject({ kind: 'changes-review', patterns: ['dsh-resource://changes-review/**'] })
     const [tabEntry] = ctx.slots.entries('sidebar.right.pane.tab')
-    expect(tabEntry?.options.key).toBe('@deepseek-ai/dsh-client-ui-deliverables')
+    expect(tabEntry?.options.key).toBe('@omega-ai/dsh-client-ui-deliverables')
 
     // The prose face is live while the plugin is: a produced turn yields a
     // resolver whose matches open through the owner-supplied opener.

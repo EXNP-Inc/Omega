@@ -1,8 +1,8 @@
 /** Environment row naming the Session's working folder. */
 import type { ReactNode } from 'react'
-import { IconFolderCloseRegular, Tooltip } from '@deepseek-ai/dsh-client-ui-primitives'
-import { abbreviateHomePath, pathPartsOf } from '@deepseek-ai/dsh-util-workspace-path'
-import type {} from '@deepseek-ai/dsh-working-directory/types'
+import { IconFolderCloseRegular, Tooltip } from '@omega-ai/dsh-client-ui-primitives'
+import { abbreviateHomePath, pathPartsOf } from '@omega-ai/dsh-util-workspace-path'
+import type {} from '@omega-ai/dsh-working-directory/types'
 import type { ProjectRowProps } from './slots.ts'
 import css from './ProjectRow.module.css'
 

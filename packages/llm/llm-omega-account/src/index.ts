@@ -1,26 +1,26 @@
-/** Account-token authentication, the account model listing, and version gating for the DeepSeek account route. */
-import type {} from '@deepseek-ai/cordis-plugin-loader'
-import type { Context } from '@deepseek-ai/cordis'
-import { ACCOUNT_QUOTA_EXCEEDED_CODE, APP_IDENTITY, LlmError, QUOTA_EXCEEDED_CODE } from '@deepseek-ai/dsh-llm'
-import type { DeepSeekAuthorization } from '@deepseek-ai/dsh-deepseek-auth'
-import { launchEnvironmentOf } from '@deepseek-ai/dsh-launch-environment'
+/** Account-token authentication, the account model listing, and version gating for the Omega account route. */
+import type {} from '@omega-ai/cordis-plugin-loader'
+import type { Context } from '@omega-ai/cordis'
+import { ACCOUNT_QUOTA_EXCEEDED_CODE, APP_IDENTITY, LlmError, QUOTA_EXCEEDED_CODE } from '@omega-ai/dsh-llm'
+import type { OmegaAuthorization } from '@omega-ai/dsh-omega-auth'
+import { launchEnvironmentOf } from '@omega-ai/dsh-launch-environment'
 import {
-  catalogModelInfo, createModelListingCache, refuseListedModel, registerDeepSeekProvider, resolveAdapterOptions, resolveListedCatalog,
-} from '@deepseek-ai/dsh-llm-deepseek'
-import type { DeepSeekRequestAuth, ListedCatalog, ListingView, ModelListing, ResolvedDeepSeekOptions } from '@deepseek-ai/dsh-llm-deepseek'
+  catalogModelInfo, createModelListingCache, refuseListedModel, registerOmegaProvider, resolveAdapterOptions, resolveListedCatalog,
+} from '@omega-ai/dsh-llm-omega'
+import type { OmegaRequestAuth, ListedCatalog, ListingView, ModelListing, ResolvedOmegaOptions } from '@omega-ai/dsh-llm-omega'
 import { cancelAccountTasks, installAccountTaskCancellation } from './account-tasks.ts'
 import { Config, plainAccountOptions, resolveAccountOptions } from './config.ts'
 
 export { Config } from './config.ts'
-export const name = 'llm-deepseek-account'
-export const inject = ['llm', 'deepseekAuth']
+export const name = 'llm-omega-account'
+export const inject = ['llm', 'omegaAuth']
 
-const PROVIDER = 'deepseek-account'
+const PROVIDER = 'omega-account'
 /** Console tag of listing diagnostics; product profiles mount no console exporter for `ctx.logger`. */
-const LOG_TAG = '[llm-deepseek-account]'
+const LOG_TAG = '[llm-omega-account]'
 
 /** Connection facts of one account operation: protocol settings plus the catalog resolved with them. */
-interface AccountConnection extends ResolvedDeepSeekOptions {
+interface AccountConnection extends ResolvedOmegaOptions {
   readonly catalog: ListedCatalog
 }
 
@@ -28,24 +28,24 @@ export function apply(ctx: Context, config: Config): void {
   const environment = launchEnvironmentOf(ctx)
   const settings = () => resolveAccountOptions(plainAccountOptions(config), environment)
   settings()
-  // Every other DeepSeek consumer billed by the account sends the sign-in to this route's deployment.
-  ctx.effect(() => ctx.deepseekAuth.connect('account', PROVIDER, () => ({ baseURL: settings().protocol.baseURL })), 'llm-deepseek-account: account deployment')
+  // Every other Omega consumer billed by the account sends the sign-in to this route's deployment.
+  ctx.effect(() => ctx.omegaAuth.connect('account', PROVIDER, () => ({ baseURL: settings().protocol.baseURL })), 'llm-omega-account: account deployment')
   const supported = resolveAdapterOptions({}).models
   /**
-   * The account sign-in `ctx.deepseekAuth` releases for one destination under the deployment at `baseURL`; absent
+   * The account sign-in `ctx.omegaAuth` releases for one destination under the deployment at `baseURL`; absent
    * without an allowed signed-in account or without the account service.
    */
-  const requestCredential = (baseURL: string, endpoint: string): Promise<DeepSeekAuthorization | undefined> =>
-    ctx.deepseekAuth.authorize({
+  const requestCredential = (baseURL: string, endpoint: string): Promise<OmegaAuthorization | undefined> =>
+    ctx.omegaAuth.authorize({
       consumer: name, accepts: ['account'], billing: 'account', destination: { url: endpoint }, connections: { account: { baseURL } },
     })
   /** The failure of a request whose account signed out before it finished: the code a request made after the sign-out fails with. */
   const signedOutMidRequest = (cause: unknown) => new LlmError(
-    'The DeepSeek account signed out before this request finished. Sign in to DeepSeek to use the account provider.',
+    'The Omega account signed out before this request finished. Sign in to Omega to use the account provider.',
     'ACCOUNT_SIGN_IN_REQUIRED',
     { cause },
   )
-  const resolveAuth = async (connection: ResolvedDeepSeekOptions, endpoint: string): Promise<DeepSeekRequestAuth | undefined> => {
+  const resolveAuth = async (connection: ResolvedOmegaOptions, endpoint: string): Promise<OmegaRequestAuth | undefined> => {
     const credential = await requestCredential(connection.baseURL, endpoint)
     if (credential === undefined) return undefined
     return {
@@ -71,7 +71,7 @@ export function apply(ctx: Context, config: Config): void {
     }
   }
   const missingCredential = () => new LlmError(
-    'Sign in to DeepSeek to use the account provider. The request destination must allow account authentication.',
+    'Sign in to Omega to use the account provider. The request destination must allow account authentication.',
     'ACCOUNT_SIGN_IN_REQUIRED',
   )
   const catalog = createModelListingCache(ctx, name, PROVIDER, {
@@ -95,7 +95,7 @@ export function apply(ctx: Context, config: Config): void {
     }
     return { ...resolved.protocol, models: result.resolution, catalog: result }
   }
-  const entry = { provider: PROVIDER, displayName: 'DeepSeek Account', settingsNs: ctx.fiber.entry?.options.id ?? name, settingsPath: [] }
+  const entry = { provider: PROVIDER, displayName: 'Omega Account', settingsNs: ctx.fiber.entry?.options.id ?? name, settingsPath: [] }
   const directory = ctx.llm.registerConfigurableProviders([entry])
   let reportedError: string | undefined
   /** Publish override diagnostics on the provider directory. */
@@ -108,8 +108,8 @@ export function apply(ctx: Context, config: Config): void {
     }
     return connection
   }
-  registerDeepSeekProvider<AccountConnection>(ctx, PROVIDER, {
-    providerName: 'DeepSeek Account',
+  registerOmegaProvider<AccountConnection>(ctx, PROVIDER, {
+    providerName: 'Omega Account',
     options: () => connectionOf(catalog.current()),
     connect: async signal => connectionOf(await catalog.view(settings().catalog, signal)),
     resolveAuth,
