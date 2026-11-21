@@ -1,7 +1,7 @@
 /**
  * Content identity for workspace instruction duplicate suppression.
  *
- * @module @omega-ai/dsh-agent-instructions/digest
+ * @module @deepseek-ai/dsh-agent-instructions/digest
  */
 
 import { createHash } from 'node:crypto'

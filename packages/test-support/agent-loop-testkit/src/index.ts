@@ -1,24 +1,29 @@
 /**
- * Shared service mounting, real AgentLoop drivers, and structural Inbox stubs
+ * Shared service mounting, real AgentLoop drivers, and structural Agent stubs
  * for agent-loop tests. Callers retain ownership of their contexts, adapters,
  * optional plugins, agents, and teardown.
- * @module @omega-ai/dsh-agent-loop-testkit
+ * @module @deepseek-ai/dsh-agent-loop-testkit
  */
 
-import type { Context } from '@omega-ai/cordis'
-import AgentRegistry from '@omega-ai/dsh-agent'
-import type { Agent, AgentOptions, Inbox, InboxTarget } from '@omega-ai/dsh-agent'
-import AgentLoop from '@omega-ai/dsh-agent-loop'
-import LlmRuntime from '@omega-ai/dsh-llm'
-import SessionStore from '@omega-ai/dsh-session'
-import type { SessionHeader, SessionId, UserMessage } from '@omega-ai/dsh-session'
-import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
-import SystemPrompt from '@omega-ai/dsh-system-prompt'
-import type { Config as SystemPromptConfig } from '@omega-ai/dsh-system-prompt'
-import ToolRuntime from '@omega-ai/dsh-tools'
-import type { Config as ToolRuntimeConfig } from '@omega-ai/dsh-tools'
+import type { Context } from '@deepseek-ai/cordis'
+import AgentRegistry from '@deepseek-ai/dsh-agent'
+import type { Agent, AgentOptions, Inbox, InboxTarget } from '@deepseek-ai/dsh-agent'
+import AgentLoop from '@deepseek-ai/dsh-agent-loop'
+import LlmRuntime from '@deepseek-ai/dsh-llm'
+import SessionStore from '@deepseek-ai/dsh-session'
+import type { SessionHeader, SessionId, UserMessage } from '@deepseek-ai/dsh-session'
+import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
+import type { Config as SystemPromptConfig } from '@deepseek-ai/dsh-system-prompt'
+import ToolRuntime from '@deepseek-ai/dsh-tools'
+import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
+import * as PtcToolExecutor from '@deepseek-ai/dsh-tool-executor-ptc'
+import FsLocal from '@deepseek-ai/dsh-fs-local'
+import WorkingDirectory from '@deepseek-ai/dsh-working-directory'
 
 export { createInboxStub, unsupportedInbox } from './inbox.ts'
+export { unsupportedModel } from './model.ts'
+export { provideWorkingDirectoryFixture } from './working-directory-fixture.ts'
 
 interface DriverInbox extends Inbox {
   claim(target: InboxTarget, turn: number): UserMessage[]
@@ -46,10 +51,12 @@ export interface AgentLoopTestHarness {
 
 /** Configuration forwarded to the prerequisite service plugins. */
 export interface AgentLoopTestDependenciesOptions {
+  /** Mount the real directory owner and a local filesystem for directory-aware tests. */
+  readonly workingDirectory?: boolean
   /** Configuration for the system-prompt registry. */
   readonly systemPrompt?: SystemPromptConfig
   /** Configuration for the tool registry. */
-  readonly tools?: ToolRuntimeConfig
+  readonly tools?: { mode?: 'native' | 'ptc'; maxParallelSubCalls?: number }
 }
 
 /**
@@ -72,7 +79,13 @@ export async function mountAgentLoopTestDependencies(
   await ctx.plugin(SessionStore)
   await ctx.plugin(SessionProjectionRegistry)
   await ctx.plugin(SystemPrompt, options.systemPrompt ?? {})
-  await ctx.plugin(ToolRuntime, options.tools ?? {})
+  if (options.workingDirectory) {
+    if (ctx.get('fs') === undefined) await ctx.plugin(FsLocal)
+    await ctx.plugin(WorkingDirectory)
+  }
+  await ctx.plugin(ToolRuntime)
+  if (options.tools?.mode === 'ptc') await ctx.plugin(PtcToolExecutor, { ...options.tools.maxParallelSubCalls !== undefined ? { maxParallelSubCalls: options.tools.maxParallelSubCalls } : {} })
+  else await ctx.plugin(NativeToolExecutor)
   await ctx.plugin(AgentRegistry)
 }
 

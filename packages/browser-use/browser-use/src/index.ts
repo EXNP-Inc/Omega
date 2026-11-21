@@ -1,12 +1,12 @@
 /**
  * Exclusive named registration for the browser-use capability.
- * @module @omega-ai/dsh-browser-use
+ * @module @deepseek-ai/dsh-browser-use
  */
 
-import { Context, Service } from '@omega-ai/cordis'
-import type { BrowserUseProviderName } from './brand.ts'
+import { Context, Service } from '@deepseek-ai/cordis'
+import type { BrowserUseProviderName } from './types.ts'
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
     browserUse: BrowserUseRegistry
   }

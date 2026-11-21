@@ -1,17 +1,21 @@
 /**
  * Computer use through the in-process Cua Driver native SDK and its own tools.
- * @module @omega-ai/dsh-experimental-computer-use-cua-driver-native
+ * @module @deepseek-ai/dsh-experimental-computer-use-cua-driver-native
  */
 
-import type { Context } from '@omega-ai/cordis'
-import Schema from '@omega-ai/schemastery'
-import { ComputerUseProviderName } from '@omega-ai/dsh-computer-use/brand'
-import { createMcpToolDefinition } from '@omega-ai/dsh-mcp-client'
+import type { Context } from '@deepseek-ai/cordis'
+import Schema from '@deepseek-ai/schemastery'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { ComputerUseProviderName } from '@deepseek-ai/dsh-computer-use/types'
+import { createMcpToolDefinition } from '@deepseek-ai/dsh-mcp-client'
 import { z } from 'zod'
 import type { CuaDriver as NativeDriver } from '@trycua/cua-driver'
-import type {} from '@omega-ai/dsh-computer-use'
-import type {} from '@omega-ai/dsh-system-prompt'
-import type {} from '@omega-ai/dsh-tools'
+import type {} from '@deepseek-ai/dsh-computer-use'
+import type {} from '@deepseek-ai/dsh-system-prompt'
+import type {} from '@deepseek-ai/dsh-tools'
+import { CuaDriverError } from './error.ts'
+
+export { CuaDriverError, type CuaDriverErrorCode } from './error.ts'
 
 /** Cordis plugin identity for the native Cua Driver provider. */
 export const name = 'experimental-computer-use-cua-driver-native'
@@ -31,7 +35,7 @@ const ToolCatalog = z.object({
   })),
 })
 
-/** Omega's function-name alphabet and maximum length are protocol constants. */
+/** DeepSeek's function-name alphabet and maximum length are protocol constants. */
 const TOOL_NAME = /^[A-Za-z0-9_-]{1,64}$/u
 
 const GUIDANCE = `Cua Driver native computer-use tools operate the host desktop. Discover the exact app and window, then get a fresh window snapshot before acting. Use element_token from that snapshot, or coordinates from its screenshot. A new snapshot of that window invalidates its earlier element tokens. Select either target or the legacy pid/window_id fields; do not combine them.
@@ -57,7 +61,7 @@ export async function apply(ctx: Context): Promise<void> {
   }, { global: true })
   let ready: Promise<void> = Promise.resolve()
   const dispose = ctx.effect(function* () {
-    yield ctx.computerUse.register(ComputerUseProviderName('cua-driver-native'))
+    yield ctx.computerUse.register(brandString<ComputerUseProviderName>('cua-driver-native'))
     yield async () => {
       lifetime.abort()
       // apply() reports startup failure; teardown still owns its native handle.
@@ -109,9 +113,16 @@ export async function apply(ctx: Context): Promise<void> {
         async call(args, execution) {
           const combined = AbortSignal.any([execution.signal, lifetime.signal])
           combined.throwIfAborted()
-          const result = await activeDriver.callTool(tool.name, JSON.stringify(args), { signal: combined })
+          const result = await activeDriver.callTool(tool.name, JSON.stringify(args), { signal: combined }).catch((error: unknown) => {
+            combined.throwIfAborted()
+            throw new CuaDriverError(error instanceof Error ? error.message : String(error), 'CUA_DRIVER_FAILED', { cause: error })
+          })
           combined.throwIfAborted()
-          return JSON.parse(result.rawJson) as unknown
+          try {
+            return JSON.parse(result.rawJson) as unknown
+          } catch (error) {
+            throw new CuaDriverError(`Cua Driver tool "${tool.name}" returned a result that is not JSON`, 'CUA_DRIVER_INVALID_RESULT', { cause: error })
+          }
         },
       })
       inner.tools.register(definition)

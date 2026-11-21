@@ -1,13 +1,13 @@
 {
-  "name": "@omega-ai/dsh-client-product-analytics",
+  "name": "@deepseek-ai/dsh-client-product-analytics",
   "description": "Desktop product event collection and authenticated Host reporting",
-  "version": "0.2.1-alpha.1",
+  "version": "0.2.2-rc.5",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/omega-ai/omega-harness.git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
     "directory": "packages/client/product-analytics"
   },
   "type": "module",
@@ -34,12 +34,13 @@
     },
     "./types": {
       "types": "./lib/types/events.d.ts"
-    }
+    },
+    "./locale/*.json": "./locale/*.json"
   },
   "dsh": {
     "client": {
       "inject": [
-        "@omega-ai/dsh-api-gateway"
+        "@deepseek-ai/dsh-api-gateway"
       ],
       "platform": "web"
     }
@@ -50,33 +51,41 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@omega-ai/cordis": "workspace:~"
+    "@deepseek-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@omega-ai/cordis": "workspace:~",
-    "@omega-ai/dsh-api-gateway": "workspace:*",
-    "@omega-ai/dsh-compaction": "workspace:*",
-    "@omega-ai/dsh-llm": "workspace:*",
-    "@omega-ai/dsh-session": "workspace:*",
-    "@omega-ai/dsh-host-product-telemetry-otel": "workspace:*",
-    "@omega-ai/dsh-omega-account": "workspace:*",
-    "@omega-ai/dsh-host-webserver": "workspace:*",
-    "@omega-ai/dsh-settings": "workspace:*",
-    "@omega-ai/cordis-plugin-loader": "workspace:~",
-    "@omega-ai/dsh-otel": "workspace:*"
+    "@deepseek-ai/dsh-brand": "workspace:*",
+    "@deepseek-ai/cordis": "workspace:~",
+    "@deepseek-ai/dsh-api-gateway": "workspace:*",
+    "@deepseek-ai/dsh-compaction": "workspace:*",
+    "@deepseek-ai/dsh-llm": "workspace:*",
+    "@deepseek-ai/dsh-session": "workspace:*",
+    "@deepseek-ai/dsh-host-product-telemetry-otel": "workspace:*",
+    "@deepseek-ai/dsh-deepseek-account": "workspace:*",
+    "@deepseek-ai/dsh-host-webserver": "workspace:*",
+    "@deepseek-ai/dsh-settings": "workspace:*",
+    "@deepseek-ai/cordis-plugin-loader": "workspace:~",
+    "@deepseek-ai/dsh-otel": "workspace:*",
+    "@deepseek-ai/dsh-app-boot": "workspace:*",
+    "@deepseek-ai/dsh-loader-smoke": "workspace:*"
   },
   "files": [
+    "locale/*.json",
     "lib/index.js",
     "lib/client.js",
     "lib/types/**/*.d.ts",
+    "lib/types/**/*.d.ts.map",
+    "lib/**/*.js.map",
     "lib/typert.host.js",
     "lib/typert.host.d.ts",
     "lib/typert.remote-client.js",
-    "lib/typert.remote-client.d.ts"
+    "lib/typert.remote-client.d.ts",
+    "lib/typert.remote-client.d.ts.map",
+    "src"
   ],
   "dependencies": {
-    "@omega-ai/dsh-typert-protocol": "workspace:*",
-    "@omega-ai/schemastery": "workspace:~",
-    "zod": "^4.4.3"
+    "@deepseek-ai/dsh-typert-protocol": "workspace:*",
+    "@deepseek-ai/schemastery": "workspace:~",
+    "zod": "4.6.6"
   }
 }

@@ -1,6 +1,6 @@
 /** Localized plan-owned failures and unmodified external diagnostics. */
-import type { RemoteFailure } from '@omega-ai/dsh-typert-protocol'
-import type { TranslateNS } from '@omega-ai/dsh-client-locale/client'
+import type { RemoteFailure } from '@deepseek-ai/dsh-typert-protocol'
+import type { TranslateNS } from '@deepseek-ai/dsh-client-locale/client'
 
 /**
  * Explain a failed plan read in the current locale.
@@ -11,7 +11,6 @@ import type { TranslateNS } from '@omega-ai/dsh-client-locale/client'
 export function planFailureLine(t: TranslateNS<'plan'>, failure: RemoteFailure): string {
   switch (failure.code) {
     case 'plan/invalid-address': return t('preview.invalidAddress')
-    case 'plan/unavailable': return t('preview.historyUnavailable')
     case 'plan/not-found': return t('preview.notFound')
     // Transport failures, including plan/read-failed, retain the carrier's diagnostic.
     default: return failure.message

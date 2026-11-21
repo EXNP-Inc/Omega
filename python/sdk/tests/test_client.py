@@ -9,8 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from omega_harness import OmegaHarness, HarnessClient, HarnessConfig, Notification, RunResult, SdkProtocolError
-from omega_harness.errors import JsonRpcError
+from deepseek_harness import DeepSeekHarness, HarnessClient, HarnessConfig, Notification, RunResult, SdkProtocolError
+from deepseek_harness.errors import JsonRpcError
 
 
 def test_high_level_sdk_runs_turn_and_preserves_auto_review_errors(tmp_path: Path) -> None:
@@ -25,8 +25,8 @@ import sys
 
 env_dump = os.environ["ENV_DUMP"]
 json.dump({
-    "OMEGA_API_KEY": os.environ.get("OMEGA_API_KEY"),
-    "OMEGA_BASE_URL": os.environ.get("OMEGA_BASE_URL"),
+    "DEEPSEEK_API_KEY": os.environ.get("DEEPSEEK_API_KEY"),
+    "DEEPSEEK_BASE_URL": os.environ.get("DEEPSEEK_BASE_URL"),
     "DSH_CWD": os.environ.get("DSH_CWD"),
     "DSH_SESSION_ROOT": os.environ.get("DSH_SESSION_ROOT"),
     "DSH_CORDIS_CONFIG": os.environ.get("DSH_CORDIS_CONFIG"),
@@ -38,11 +38,11 @@ for line in sys.stdin:
     if method == "initialize":
         json.dump(msg.get("params"), open(os.environ["INIT_DUMP"], "w"))
         print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"serverInfo": {"name": "fake-runtime"}}}), flush=True)
-    elif method == "session/prompt":
+    elif method == "session/query":
         params = msg.get("params") or {}
         print(json.dumps({"jsonrpc": "2.0", "method": "session.event", "params": {"sessionId": params["sessionId"], "event": {"type": "agent/inbox/spliced", "data": {"target": "next-turn", "start": 0, "inserted": [{"id": "message-1"}]}}}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "session.status", "params": {"sessionId": params["sessionId"], "status": "running"}}), flush=True)
-        print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"messageId": "message-1"}}), flush=True)
+        print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"kind": "prompt", "messageId": "message-1"}}), flush=True)
         print(json.dumps({
             "jsonrpc": "2.0",
             "method": "session.event",
@@ -105,6 +105,7 @@ for line in sys.stdin:
                         "arguments": {"command": "git push --force"},
                         "isError": True,
                         "content": [{"type": "text", "text": "Error: blocked by policy"}],
+                        "meta": {"cwd": "/selected", "path": "/selected/note.txt", "view": {"line": 3}},
                         "error": {
                             "name": "AutoReviewDeniedError",
                             "code": "AUTO_REVIEW_DENIED",
@@ -163,8 +164,9 @@ for line in sys.stdin:
 """.strip()
     )
 
-    with OmegaHarness(
-        model="omega-v4-flash",
+    with DeepSeekHarness(
+        approval_requests=True,
+        model="deepseek-v4-flash",
         reasoning_effort="max",
         max_tokens=4096,
         cwd=str(tmp_path),
@@ -172,11 +174,11 @@ for line in sys.stdin:
         env={
             "ENV_DUMP": str(env_dump),
             "INIT_DUMP": str(init_dump),
-            "OMEGA_API_KEY": "env-key",
-            "OMEGA_BASE_URL": "http://127.0.0.1:4321",
+            "DEEPSEEK_API_KEY": "env-key",
+            "DEEPSEEK_BASE_URL": "http://127.0.0.1:4321",
         },
     ) as harness:
-        result = harness.run("say hello", session_id="main")
+        result = harness.run([{"type": "text", "text": "say hello"}], session_id="main")
 
     assert result.final_response == "hello from runtime"
     assert result.finish_reason == "max-tokens"
@@ -200,18 +202,20 @@ for line in sys.stdin:
     ]
     ptc_events = [event for event in result.events if event["type"].startswith("tool/ptc-dispatch")]
     assert [event["type"] for event in ptc_events] == ["tool/ptc-dispatch-start", "tool/ptc-dispatch"]
+    assert ptc_events[-1]["data"]["meta"] == {"cwd": "/selected", "path": "/selected/note.txt", "view": {"line": 3}}
     for event in ptc_events:
         assert not {"description", "parameters", "schema"}.intersection(event["data"])
     dumped_env = json.loads(env_dump.read_text())
-    assert dumped_env["OMEGA_API_KEY"] == "env-key"
-    assert dumped_env["OMEGA_BASE_URL"] == "http://127.0.0.1:4321"
+    assert dumped_env["DEEPSEEK_API_KEY"] == "env-key"
+    assert dumped_env["DEEPSEEK_BASE_URL"] == "http://127.0.0.1:4321"
     assert dumped_env["DSH_CWD"] is None
     assert dumped_env["DSH_SESSION_ROOT"] is None
     assert dumped_env["DSH_CORDIS_CONFIG"] is None
     assert json.loads(init_dump.read_text()) == {
+        "approvalRequests": True,
         "cwd": str(tmp_path),
-        "provider": "omega-official",
-        "model": "omega-v4-flash",
+        "provider": "deepseek-official",
+        "model": "deepseek-v4-flash",
         "reasoningEffort": "max",
         "maxTokens": 4096,
     }
@@ -229,10 +233,10 @@ for line in sys.stdin:
     method = msg.get("method")
     if method == "initialize":
         print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"serverInfo": {"name": "fake-runtime"}}}), flush=True)
-    elif method == "session/prompt":
+    elif method == "session/query":
         print(json.dumps({"jsonrpc": "2.0", "method": "session.event", "params": {"sessionId": "main", "event": {"type": "agent/inbox/spliced", "data": {"target": "next-turn", "start": 0, "inserted": [{"id": "message-1"}]}}}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "session.status", "params": {"sessionId": "main", "status": "running"}}), flush=True)
-        print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"messageId": "message-1"}}), flush=True)
+        print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"kind": "prompt", "messageId": "message-1"}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "subagent.started", "params": {"parentSessionId": "main", "childSessionId": "child"}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "session.status", "params": {"sessionId": "main", "status": "idle"}}), flush=True)
     elif method == "shutdown":
@@ -242,13 +246,13 @@ for line in sys.stdin:
     )
 
     seen: list[str] = []
-    with OmegaHarness(
+    with DeepSeekHarness(
         _launch_args=(sys.executable, str(script)),
         cwd=str(tmp_path),
     ) as harness:
         session = harness.start_session("main")
         result = session.run(
-            "spawn a helper",
+            [{"type": "text", "text": "spawn a helper"}],
             on_notification=lambda notification: seen.append(notification.method),
         )
 
@@ -268,10 +272,10 @@ for line in sys.stdin:
     method = msg.get("method")
     if method == "initialize":
         print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"serverInfo": {"name": "fake-runtime"}}}), flush=True)
-    elif method == "session/prompt":
+    elif method == "session/query":
         params = msg.get("params") or {}
         print(json.dumps({"jsonrpc": "2.0", "method": "session.event", "params": {"sessionId": params["sessionId"], "event": {"type": "agent/inbox/spliced", "data": {"target": "next-turn", "start": 0, "inserted": [{"id": "message-1"}]}}}}), flush=True)
-        print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"messageId": "message-1"}}), flush=True)
+        print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"kind": "prompt", "messageId": "message-1"}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "session.event", "params": {"sessionId": params["sessionId"], "event": {"type": "turn/end", "data": {"turn": 1, "reason": {}}}}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "session.status", "params": {"sessionId": params["sessionId"], "status": "idle"}}), flush=True)
     elif method == "shutdown":
@@ -280,7 +284,7 @@ for line in sys.stdin:
 """.strip()
     )
 
-    with OmegaHarness(
+    with DeepSeekHarness(
         _launch_args=(sys.executable, str(script)),
         cwd=str(tmp_path),
     ) as harness:
@@ -288,7 +292,7 @@ for line in sys.stdin:
             SdkProtocolError,
             match=r"turn/end event requires a string data\.reason\.kind",
         ):
-            harness.run("reject malformed turn ending", session_id="main")
+            harness.run([{"type": "text", "text": "reject malformed turn ending"}], session_id="main")
 
 
 def test_relative_cwd_is_absolute_in_process_environment_and_wire(
@@ -314,7 +318,7 @@ for line in sys.stdin:
     )
     monkeypatch.chdir(tmp_path)
 
-    with OmegaHarness(
+    with DeepSeekHarness(
         cwd=".",
         runtime_cwd=".",
         _launch_args=(sys.executable, str(script)),
@@ -342,10 +346,10 @@ for line in sys.stdin:
     method = msg.get("method")
     if method == "initialize":
         print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"serverInfo": {"name": "fake-runtime"}}}), flush=True)
-    elif method == "session/prompt":
+    elif method == "session/query":
         print(json.dumps({"jsonrpc": "2.0", "method": "session.event", "params": {"sessionId": "main", "event": {"type": "agent/inbox/spliced", "data": {"target": "next-turn", "start": 0, "inserted": [{"id": "message-1"}]}}}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "session.status", "params": {"sessionId": "main", "status": "running"}}), flush=True)
-        print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"messageId": "message-1"}}), flush=True)
+        print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"kind": "prompt", "messageId": "message-1"}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "subagent.started", "params": {"parentSessionId": "main", "childSessionId": "child"}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "subagent.finished", "params": {"parentSessionId": "main", "childSessionId": "child", "status": "ok", "stopReason": "completed"}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "session.status", "params": {"sessionId": "main", "status": "idle"}}), flush=True)
@@ -355,11 +359,11 @@ for line in sys.stdin:
 """.strip()
     )
 
-    with OmegaHarness(
+    with DeepSeekHarness(
         _launch_args=(sys.executable, str(script)),
         cwd=str(tmp_path),
     ) as harness:
-        result = harness.run("spawn a helper", session_id="main")
+        result = harness.run([{"type": "text", "text": "spawn a helper"}], session_id="main")
 
     assert [notification.method for notification in result.notifications] == [
         "session.event",
@@ -384,11 +388,11 @@ for line in sys.stdin:
     method = msg.get("method")
     if method == "initialize":
         print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"serverInfo": {"name": "fake-runtime"}}}), flush=True)
-    elif method == "session/prompt":
+    elif method == "session/query":
         root = (msg.get("params") or {})["sessionId"]
         print(json.dumps({"jsonrpc": "2.0", "method": "session.event", "params": {"sessionId": root, "event": {"type": "agent/inbox/spliced", "data": {"target": "next-turn", "start": 0, "inserted": [{"id": "message-1"}]}}}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "session.status", "params": {"sessionId": root, "status": "running"}}), flush=True)
-        print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"messageId": "message-1"}}), flush=True)
+        print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"kind": "prompt", "messageId": "message-1"}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "subagent.started", "params": {"parentSessionId": root, "childSessionId": "child"}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "session.event", "params": {"sessionId": "child", "event": {"type": "assistant/message", "data": {"content": [{"type": "text", "text": "child response"}]}}}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "subagent.started", "params": {"parentSessionId": "child", "childSessionId": "grandchild"}}), flush=True)
@@ -404,12 +408,12 @@ for line in sys.stdin:
     )
 
     seen: list[str] = []
-    with OmegaHarness(
+    with DeepSeekHarness(
         _launch_args=(sys.executable, str(script)),
         cwd=str(tmp_path),
     ) as harness:
         result = harness.run(
-            "delegate recursively",
+            [{"type": "text", "text": "delegate recursively"}],
             session_id="main",
             on_notification=lambda notification: seen.append(notification.method),
         )
@@ -444,13 +448,13 @@ for line in sys.stdin:
     method = msg.get("method")
     if method == "initialize":
         print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"serverInfo": {"name": "fake-runtime"}}}), flush=True)
-    elif method == "session/prompt":
+    elif method == "session/query":
         params = msg.get("params") or {}
         print(json.dumps({"jsonrpc": "2.0", "method": "session.event", "params": {"sessionId": "other", "event": {"type": "assistant/message", "data": {"content": [{"type": "text", "text": "wrong session"}]}}}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "session.status", "params": {"sessionId": "other", "status": "idle"}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "session.event", "params": {"sessionId": params["sessionId"], "event": {"type": "agent/inbox/spliced", "data": {"target": "next-turn", "start": 0, "inserted": [{"id": "message-1"}]}}}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "session.status", "params": {"sessionId": params["sessionId"], "status": "running"}}), flush=True)
-        print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"messageId": "message-1"}}), flush=True)
+        print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"kind": "prompt", "messageId": "message-1"}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "session.event", "params": {"sessionId": params["sessionId"], "event": {"type": "assistant/message", "data": {"content": [{"type": "text", "text": "right session"}]}}}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "session.status", "params": {"sessionId": params["sessionId"], "status": "idle"}}), flush=True)
     elif method == "shutdown":
@@ -459,11 +463,11 @@ for line in sys.stdin:
 """.strip()
     )
 
-    with OmegaHarness(
+    with DeepSeekHarness(
         _launch_args=(sys.executable, str(script)),
         cwd=str(tmp_path),
     ) as harness:
-        result = harness.run("stay in your lane", session_id="main")
+        result = harness.run([{"type": "text", "text": "stay in your lane"}], session_id="main")
 
     assert result.final_response == "right session"
     assert [notification.payload.get("sessionId") for notification in result.notifications] == ["main"] * 4
@@ -481,11 +485,11 @@ for line in sys.stdin:
     method = msg.get("method")
     if method == "initialize":
         print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"serverInfo": {"name": "fake-runtime"}}}), flush=True)
-    elif method == "session/prompt":
+    elif method == "session/query":
         params = msg.get("params") or {}
         print(json.dumps({"jsonrpc": "2.0", "method": "session.event", "params": {"sessionId": params["sessionId"], "event": {"type": "agent/inbox/spliced", "data": {"target": "next-turn", "start": 0, "inserted": [{"id": "message-1"}]}}}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "session.status", "params": {"sessionId": params["sessionId"], "status": "running"}}), flush=True)
-        print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"messageId": "message-1"}}), flush=True)
+        print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"kind": "prompt", "messageId": "message-1"}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "session.event", "params": {"sessionId": params["sessionId"], "event": {"type": "assistant/message", "data": {"content": [{"type": "text", "text": "ok"}]}}}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "session.status", "params": {"sessionId": params["sessionId"], "status": "idle"}}), flush=True)
     elif method == "shutdown":
@@ -494,8 +498,8 @@ for line in sys.stdin:
 """.strip()
     )
 
-    with OmegaHarness(_launch_args=(sys.executable, str(script)), cwd=str(tmp_path)) as harness:
-        result = harness.run("one turn", session_id="main")
+    with DeepSeekHarness(_launch_args=(sys.executable, str(script)), cwd=str(tmp_path)) as harness:
+        result = harness.run([{"type": "text", "text": "one turn"}], session_id="main")
         assert harness.client._notifications.qsize() == 0
 
 
@@ -513,14 +517,14 @@ for line in sys.stdin:
     method = msg.get("method")
     if method == "initialize":
         print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"serverInfo": {"name": "fake-runtime"}}}), flush=True)
-    elif method == "session/prompt":
+    elif method == "session/query":
         turn += 1
         params = msg.get("params") or {}
         session_id = params["sessionId"]
         message_id = f"message-{turn}"
         print(json.dumps({"jsonrpc": "2.0", "method": "session.event", "params": {"sessionId": session_id, "event": {"type": "agent/inbox/spliced", "data": {"target": "next-turn", "start": 0, "inserted": [{"id": message_id}]}}}}), flush=True)
         print(json.dumps({"jsonrpc": "2.0", "method": "session.status", "params": {"sessionId": session_id, "status": "running"}}), flush=True)
-        print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"messageId": message_id}}), flush=True)
+        print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": {"kind": "prompt", "messageId": message_id}}), flush=True)
         if turn == 1:
             print(json.dumps({"jsonrpc": "2.0", "method": "session.event", "params": {"sessionId": session_id, "event": {"type": "assistant/message", "data": {"content": [{"type": "text", "text": "first"}]}}}}), flush=True)
             print(json.dumps({"jsonrpc": "2.0", "method": "session.status", "params": {"sessionId": session_id, "status": "idle"}}), flush=True)
@@ -534,9 +538,9 @@ for line in sys.stdin:
 """.strip()
     )
 
-    with OmegaHarness(_launch_args=(sys.executable, str(script)), cwd=str(tmp_path)) as harness:
-        first = harness.run("first turn", session_id="main")
-        second = harness.run("second turn", session_id="main")
+    with DeepSeekHarness(_launch_args=(sys.executable, str(script)), cwd=str(tmp_path)) as harness:
+        first = harness.run([{"type": "text", "text": "first turn"}], session_id="main")
+        second = harness.run([{"type": "text", "text": "second turn"}], session_id="main")
 
     assert first.final_response == "first"
     assert second.final_response == "second"
@@ -566,7 +570,7 @@ for line in sys.stdin:
     )
 
     with HarnessClient(_launch_args=(sys.executable, str(script))) as client:
-        init = client.initialize(provider="omega-official", cwd="/workspace", model="dsagent")
+        init = client.initialize(provider="deepseek-official", cwd="/workspace", model="dsagent")
         assert init.serverInfo.name == "fake-dsh"
 
         client.session_prompt("main", [{"type": "text", "text": "fix it"}])
@@ -590,6 +594,15 @@ def test_client_keeps_unmatched_notifications_available_globally_while_subscribe
         assert not isinstance(notification, BaseException)
         assert notification.method == "session.event"
         assert notification.payload["sessionId"] == "other"
+
+
+def test_notification_timeout_keeps_subscription_available_for_later_events() -> None:
+    client = HarnessClient()
+    with client.subscribe_notifications() as subscription:
+        with pytest.raises(TimeoutError, match="timed out waiting for an SDK notification"):
+            subscription.next(timeout_seconds=0)
+        client._handle_message({"jsonrpc": "2.0", "method": "tick", "params": {"value": 1}})
+        assert subscription.next(timeout_seconds=0).payload == {"value": 1}
 
 
 def test_session_subscription_keeps_descendant_relationships_across_subscriptions() -> None:
@@ -626,6 +639,22 @@ def test_session_subscription_keeps_descendant_relationships_across_subscription
         assert second.next().payload["sessionId"] == "grandchild"
 
     assert client._notifications.qsize() == 0
+
+
+def test_subtree_keeps_descendant_completion_after_creator_finishes() -> None:
+    client = HarnessClient()
+    with client.subscribe_session_notifications("child") as subtree:
+        for method, parent, child in [
+            ("subagent.started", "root", "child"),
+            ("subagent.started", "child", "leaf"),
+            ("subagent.finished", "root", "child"),
+            ("subagent.finished", "child", "leaf"),
+        ]:
+            client._handle_message({"jsonrpc": "2.0", "method": method,
+                                   "params": {"parentSessionId": parent, "childSessionId": child}})
+            received: list[Notification] = []
+            subtree.drain(received.append)
+            assert [item.payload for item in received] == [{"parentSessionId": parent, "childSessionId": child}]
 
 
 def test_session_subscription_preserves_reused_child_ancestry_after_late_finish() -> None:
@@ -713,7 +742,7 @@ for line in sys.stdin:
         raise RuntimeError("bad notification filter")
 
     with HarnessClient(_launch_args=(sys.executable, str(script))) as client:
-        client.initialize(provider="omega-official", cwd="/workspace", model="dsagent")
+        client.initialize(provider="deepseek-official", cwd="/workspace", model="dsagent")
         with (
             client.subscribe_notifications(broken_filter) as broken,
             client.subscribe_notifications(lambda notification: notification.method == "tick") as healthy,
@@ -750,7 +779,7 @@ for line in sys.stdin:
     )
 
     with HarnessClient(_launch_args=(sys.executable, str(script))) as client:
-        client.initialize(provider="omega-official", cwd="/workspace", model="dsagent")
+        client.initialize(provider="deepseek-official", cwd="/workspace", model="dsagent")
         with pytest.raises(ValueError):
             client.session_prompt("main", [{"type": "text", "text": "fix it"}])
 
@@ -777,7 +806,7 @@ for line in sys.stdin:
     )
 
     with HarnessClient(_launch_args=(sys.executable, str(script))) as client:
-        client.initialize(provider="omega-official", cwd="/workspace", model="dsagent")
+        client.initialize(provider="deepseek-official", cwd="/workspace", model="dsagent")
 
         request = client.next_request()
         assert request.id == "bridge-req-1"
@@ -809,7 +838,7 @@ for line in sys.stdin:
     )
 
     with HarnessClient(_launch_args=(sys.executable, str(script))) as client:
-        init = client.initialize(provider="omega-official", cwd="/workspace", model="dsagent")
+        init = client.initialize(provider="deepseek-official", cwd="/workspace", model="dsagent")
         assert init.serverInfo.name == "fake-dsh"
 
 
@@ -834,7 +863,7 @@ time.sleep(60)
     ) as client:
         start = time.monotonic()
         try:
-            client.initialize(provider="omega-official", cwd="/workspace", model="dsagent")
+            client.initialize(provider="deepseek-official", cwd="/workspace", model="dsagent")
         except TimeoutError as exc:
             assert time.monotonic() - start < 2
             assert "bridge is still starting" in str(exc)
@@ -872,7 +901,7 @@ for line in sys.stdin:
     client.start()
     proc = client._proc
     assert proc is not None
-    client.initialize(provider="omega-official", cwd="/workspace", model="dsagent")
+    client.initialize(provider="deepseek-official", cwd="/workspace", model="dsagent")
     start = time.monotonic()
     client.close()
     assert time.monotonic() - start < 2
@@ -911,7 +940,7 @@ Path(os.environ["QUIESCED_MARKER"]).write_text("quiesced")
         _launch_args=(sys.executable, str(script)),
     )
     client.start()
-    client.initialize(provider="omega-official", cwd="/workspace", model="dsagent")
+    client.initialize(provider="deepseek-official", cwd="/workspace", model="dsagent")
     client.close()
 
     assert marker.read_text() == "quiesced"
@@ -941,7 +970,7 @@ for line in sys.stdin:
     assert proc is not None
 
     with pytest.raises(JsonRpcError, match="bad initialize") as excinfo:
-        client.initialize(provider="omega-official", cwd=".", model="dsagent")
+        client.initialize(provider="deepseek-official", cwd=".", model="dsagent")
 
     assert excinfo.value.code == -32000
     assert "initialize diagnostic" in str(excinfo.value)
@@ -950,32 +979,32 @@ for line in sys.stdin:
 
 
 def test_public_signatures_omit_unsupported_wire_parameters() -> None:
-    from omega_harness import OmegaHarnessConfig, Session
+    from deepseek_harness import DeepSeekHarnessConfig, Session
 
     assert "session_root" not in inspect.signature(HarnessClient.initialize).parameters
     assert "system_prompt" not in inspect.signature(HarnessClient.initialize).parameters
     assert "profile" not in inspect.signature(HarnessClient.session_prompt).parameters
-    assert "profile" not in inspect.signature(OmegaHarness.run).parameters
+    assert "profile" not in inspect.signature(DeepSeekHarness.run).parameters
     assert "profile" not in inspect.signature(Session.run).parameters
-    assert "system_prompt" not in OmegaHarnessConfig.__dataclass_fields__
-    assert "max_tokens" in OmegaHarnessConfig.__dataclass_fields__
-    assert "reasoning_effort" in OmegaHarnessConfig.__dataclass_fields__
+    assert "system_prompt" not in DeepSeekHarnessConfig.__dataclass_fields__
+    assert "max_tokens" in DeepSeekHarnessConfig.__dataclass_fields__
+    assert "reasoning_effort" in DeepSeekHarnessConfig.__dataclass_fields__
     assert "max_tokens" in inspect.signature(HarnessClient.initialize).parameters
     assert "reasoning_effort" in inspect.signature(HarnessClient.initialize).parameters
     assert "client_name" not in HarnessConfig.__dataclass_fields__
     assert "client_version" not in HarnessConfig.__dataclass_fields__
     assert {"dsh_bin", "profile", "patches", "dsh_home"} <= set(
-        OmegaHarnessConfig.__dataclass_fields__
+        DeepSeekHarnessConfig.__dataclass_fields__
     )
     assert {"dsh_bin", "profile", "patches", "dsh_home"} <= set(
         HarnessConfig.__dataclass_fields__
     )
-    assert "initialize_timeout_seconds" in OmegaHarnessConfig.__dataclass_fields__
+    assert "initialize_timeout_seconds" in DeepSeekHarnessConfig.__dataclass_fields__
     assert "initialize_timeout_seconds" in HarnessConfig.__dataclass_fields__
-    assert OmegaHarnessConfig().initialize_timeout_seconds == 30.0
+    assert DeepSeekHarnessConfig().initialize_timeout_seconds == 30.0
     assert HarnessConfig().initialize_timeout_seconds == 30.0
     for removed in ("cordis", "session_root", "runtime_bin", "bridge_bin", "launch_args_override"):
-        assert removed not in OmegaHarnessConfig.__dataclass_fields__
+        assert removed not in DeepSeekHarnessConfig.__dataclass_fields__
         assert removed not in HarnessConfig.__dataclass_fields__
     assert "_launch_args" not in HarnessConfig.__dataclass_fields__
     assert "session_root" not in RunResult.__dataclass_fields__
@@ -1002,7 +1031,7 @@ for line in sys.stdin:
 
     client = HarnessClient(_launch_args=(sys.executable, str(script)))
     client.start()
-    client.initialize(provider="omega-official", cwd="/workspace", model="dsagent")
+    client.initialize(provider="deepseek-official", cwd="/workspace", model="dsagent")
     client.close()
     client.close()
 
@@ -1025,7 +1054,7 @@ sys.exit(42)
         _launch_args=(sys.executable, str(script)),
     ) as client:
         with pytest.raises(Exception, match="fatal bridge exploded"):
-            client.initialize(provider="omega-official", cwd="/workspace", model="dsagent")
+            client.initialize(provider="deepseek-official", cwd="/workspace", model="dsagent")
 
 
 def test_client_serializes_concurrent_writes(tmp_path: Path) -> None:
@@ -1056,7 +1085,7 @@ with open(os.environ["SEEN"], "w") as seen:
         ),
         _launch_args=(sys.executable, str(script)),
     ) as client:
-        client.initialize(provider="omega-official", cwd="/workspace", model="dsagent")
+        client.initialize(provider="deepseek-official", cwd="/workspace", model="dsagent")
         threads = [
             threading.Thread(target=client.notify, args=(f"notice-{index}", {"index": index}))
             for index in range(50)
@@ -1096,7 +1125,7 @@ for line in sys.stdin:
 """.strip()
     )
 
-    module_dir = tmp_path / "omega_harness_runtime"
+    module_dir = tmp_path / "deepseek_harness_runtime"
     module_dir.mkdir()
     (module_dir / "__init__.py").write_text(
         f"""
@@ -1106,7 +1135,7 @@ def resolve_bundled_launch_args(mode=None):
     )
 
     monkeypatch.syspath_prepend(str(tmp_path))
-    monkeypatch.delitem(sys.modules, "omega_harness_runtime", raising=False)
+    monkeypatch.delitem(sys.modules, "deepseek_harness_runtime", raising=False)
 
 
 def test_client_default_launch_uses_bundled_dsh_sdk_profile_and_explicit_home(
@@ -1127,7 +1156,7 @@ def test_client_default_launch_uses_bundled_dsh_sdk_profile_and_explicit_home(
         dsh_home=str(home),
         env={"ENV_DUMP": str(env_dump), "DSH_HOME": str(tmp_path / "env-home")},
     )) as client:
-        init = client.initialize(provider="omega-official", cwd="/workspace", model="omega-v4-pro")
+        init = client.initialize(provider="deepseek-official", cwd="/workspace", model="deepseek-v4-pro")
 
     assert init.serverInfo.name == "bundled-runtime"
     assert json.loads(env_dump.read_text()) == {
@@ -1147,7 +1176,7 @@ def test_client_accepts_explicit_environment_dsh_home(
     with HarnessClient(
         HarnessConfig(profile="custom", env={"ENV_DUMP": str(env_dump), "DSH_HOME": str(home)})
     ) as client:
-        client.initialize(provider="omega-official", cwd="/workspace", model="omega-v4-pro")
+        client.initialize(provider="deepseek-official", cwd="/workspace", model="deepseek-v4-pro")
 
     assert json.loads(env_dump.read_text()) == {
         "argv": ["--profile", "custom"],
@@ -1167,8 +1196,8 @@ def test_client_rejects_an_implicit_default_dsh_home(
 
 
 def test_client_reports_missing_bundled_runtime_dependency(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delitem(sys.modules, "omega_harness_runtime", raising=False)
+    monkeypatch.delitem(sys.modules, "deepseek_harness_runtime", raising=False)
     monkeypatch.setattr(sys, "path", [])
 
-    with pytest.raises(FileNotFoundError, match="Install omega-harness-runtime-bin"):
+    with pytest.raises(FileNotFoundError, match="Install deepseek-harness-runtime-bin"):
         HarnessClient(HarnessConfig(dsh_home="/explicit/home")).start()

@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import type { SessionFormatEvent } from '@omega-ai/dsh-session-format'
+import type { SessionFormatEvent } from '@deepseek-ai/dsh-session-format'
 import { createSessionFormatCatalogWithChildren, historicalSessionFormatCatalog, sessionFormatCatalog } from '../src/index.ts'
 import { currentSessionMessageProjections } from '../src/message-projections.ts'
-import { MESSAGE_PROJECTION_EVENT_TYPES } from '@omega-ai/dsh-session/src/known-event-types.ts'
+import { MESSAGE_PROJECTION_EVENT_TYPES } from '@deepseek-ai/dsh-session/src/known-event-types.ts'
 import { validateInstalledCurrentSessionArtifact } from '../src/current.ts'
-import { SESSION_FORMAT_VERSION, Session, SessionId } from '@omega-ai/dsh-session'
-import { createUserMessage } from '@omega-ai/dsh-llm'
+import { SESSION_FORMAT_VERSION, Session, type SessionId } from '@deepseek-ai/dsh-session'
+import { createUserMessage } from '@deepseek-ai/dsh-llm'
+import { brandString } from '@deepseek-ai/dsh-brand'
 
 function deepFreeze<T>(value: T): T {
   if (value !== null && typeof value === 'object') {
@@ -19,7 +20,7 @@ describe('first-party Session format catalog', () => {
   it('supplies every required current message interpreter and validates its durable references', () => {
     expect(currentSessionMessageProjections.map(projection => projection.type).sort())
       .toEqual([...MESSAGE_PROJECTION_EVENT_TYPES].sort())
-    const session = Session.create(SessionId('projection-catalog'))
+    const session = Session.create(brandString<SessionId>('projection-catalog'))
     session.append('user/message', createUserMessage({ content: [{ type: 'text', text: 'no image' }], source: { kind: 'user' } }), { surfaceOp: 'append' })
     const artifact = {
       header: { ...session.header, delegationDepth: 0 }, inheritedEventCount: 0,
@@ -257,7 +258,7 @@ describe('first-party Session format catalog', () => {
     const restore = createSessionFormatCatalogWithChildren([]).createRestore(header, { recovery: 'strict', validation })
     restore.decodeRow({ type: 'feedback/record', seq: 0, time: 1, data: { text: 'unaccepted' } })
     expect(() => {
-      restore.decodeRow({ type: 'session-log-omega/delivery-accepted', seq: 1, time: 2,
+      restore.decodeRow({ type: 'session-log-deepseek/delivery-accepted', seq: 1, time: 2,
         data: { sessionId: header.id, throughSeq: 0, sessionFormatVersion: 3 } })
       restore.finish()
     }).toThrow(/format v2 delivery marker claims target format v3/)

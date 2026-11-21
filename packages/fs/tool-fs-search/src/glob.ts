@@ -6,14 +6,14 @@
  * argument validation, argv construction, result parsing, inline sampling,
  * and formatting; process concerns (spawn execution, tree termination,
  * environment scrubbing, output capture) stay behind `ctx.subprocess`.
- * @module @omega-ai/dsh-tool-fs-search/glob
+ * @module @deepseek-ai/dsh-tool-fs-search/glob
  */
 
-import type { Context } from '@omega-ai/cordis'
+import type { Context } from '@deepseek-ai/cordis'
 import { sep } from 'node:path'
-import { defineTool } from '@omega-ai/dsh-tools'
-import type { GenericCallView, SearchResultView, ToolResult } from '@omega-ai/dsh-tools'
-import type { SpillRef } from '@omega-ai/dsh-spill'
+import { ToolArgsError, defineTool } from '@deepseek-ai/dsh-tools'
+import type { GenericCallView, SearchResultView, ToolResult } from '@deepseek-ai/dsh-tools'
+import type { SpillRef } from '@deepseek-ai/dsh-spill'
 import { runRipgrep, toWorkdirRelative, trySaveFormattedResult } from './search-core.ts'
 import { globSearchMeta, searchViewFromMeta } from './presentation.ts'
 import { acceptedDirectCallValue } from './direct-call.ts'
@@ -62,15 +62,15 @@ export interface GlobInput {
 
 /**
  * Validate value constraints the schema DSL can't express: a non-blank
- * `pattern`, and a non-blank `path` when given. Throws a plain `Error` (an
- * ordinary tool argument error) otherwise.
+ * `pattern`, and a non-blank `path` when given. Throws `ToolArgsError`
+ * (`INVALID_ARGS`) otherwise.
  *
  * @param args - the schema-validated `glob` arguments.
  * @returns the accepted input, unchanged.
  */
 export function parseGlobArgs(args: { pattern: string; path?: string }): GlobInput {
-  if (args.pattern.trim().length === 0) throw new Error('pattern must be a non-empty string')
-  if (args.path !== undefined && args.path.trim().length === 0) throw new Error('path must be a non-empty string when given')
+  if (args.pattern.trim().length === 0) throw new ToolArgsError(['pattern must be a non-empty string'])
+  if (args.path !== undefined && args.path.trim().length === 0) throw new ToolArgsError(['path must be a non-empty string when given'])
   return { pattern: args.pattern, ...args.path !== undefined ? { path: args.path } : {} }
 }
 
@@ -81,14 +81,29 @@ export function parseGlobArgs(args: { pattern: string; path?: string }): GlobInp
  * search root rides behind `--` so a leading-dash path can never be parsed as
  * a flag. `--sort=modified` orders by modification time, `--no-ignore
  * --hidden` searches ignored and hidden files, and
- * {@link GLOB_VCS_EXCLUDES} keeps VCS metadata out.
+ * {@link GLOB_VCS_EXCLUDES} keeps VCS metadata out. Simple directory prefixes
+ * prune unrelated subtrees through directory-name globs without changing the
+ * search root, path separators, or symlink handling. The last matching glob
+ * wins. A fixed 8 KiB budget bounds added argv bytes; larger additions retain
+ * the original traversal, since even linear growth can exceed command-line limits.
  *
  * @param input - the validated arguments.
  * @returns the complete ripgrep argument vector (excluding the binary itself).
  */
 export function buildGlobCommand(input: GlobInput): string[] {
+  const directories = input.pattern.split('/').slice(0, -1)
+  const pruning: string[] = []
+  if (input.path === undefined && directories.length > 0
+    && directories.every(part => /^[\w .-]+$/.test(part) && part !== '.' && part !== '..' && !GLOB_VCS_EXCLUDES.includes(part))) {
+    // Trailing slashes admit directories only, never files with the same names.
+    const directoryGlob = `--glob={${[...new Set(directories)].join(',')}}/`
+    if (directoryGlob.length + '--glob=!**'.length + 2 <= 8 * 1024) {
+      pruning.push('--glob=!**', directoryGlob)
+    }
+  }
   const parts = [
     '--files',
+    ...pruning,
     `--glob=${input.pattern}`,
     '--sort=modified',
     '--no-ignore',
@@ -318,6 +333,8 @@ export function applyGlobTool(ctx: Context, caps: GlobToolCaps): void {
       path: { type: 'string', description: 'Directory to search in. Defaults to the session workspace; a relative path resolves against it.' },
     },
     timeoutMs: caps.timeoutMs,
+    // Path listing records no file observation; over-cap spilling runs in model-ordered post-execute.
+    isConcurrencySafe: () => true,
     output: {
       schema: {
         type: 'object',

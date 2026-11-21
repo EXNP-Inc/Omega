@@ -1,13 +1,13 @@
 {
-  "name": "@omega-ai/dsh-tmux-context",
+  "name": "@deepseek-ai/dsh-tmux-context",
   "description": "Opt-in durable per-step context with this agent's tmux pane and window location",
-  "version": "0.2.1-alpha.1",
+  "version": "0.2.2-rc.5",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/omega-ai/omega-harness.git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
     "directory": "packages/context/tmux-context"
   },
   "type": "module",
@@ -19,32 +19,38 @@
       "default": "./lib/index.js"
     },
     "./src/*": "./src/*",
+    "./locale/*.json": "./locale/*.json",
     "./package.json": "./package.json"
   },
   "files": [
+    "locale/*.json",
     "lib/index.js",
-    "lib/types/**/*.d.ts"
+    "lib/types/**/*.d.ts",
+    "lib/types/**/*.d.ts.map",
+    "lib/**/*.js.map",
+    "src"
   ],
   "license": "MIT",
   "dependencies": {
-    "@omega-ai/schemastery": "workspace:~",
-    "zod": "^4.4.3"
+    "@deepseek-ai/schemastery": "workspace:~",
+    "zod": "4.6.6"
   },
   "peerDependencies": {
-    "@omega-ai/dsh-agent": "workspace:*",
-    "@omega-ai/dsh-shell": "workspace:*",
-    "@omega-ai/dsh-session": "workspace:*",
-    "@omega-ai/cordis": "workspace:~",
-    "@omega-ai/dsh-session-projection": "workspace:*"
+    "@deepseek-ai/dsh-agent": "workspace:*",
+    "@deepseek-ai/dsh-shell": "workspace:*",
+    "@deepseek-ai/dsh-session": "workspace:*",
+    "@deepseek-ai/cordis": "workspace:~",
+    "@deepseek-ai/dsh-session-projection": "workspace:*"
   },
   "devDependencies": {
-    "@omega-ai/dsh-agent": "workspace:*",
-    "@omega-ai/dsh-agent-loop-testkit": "workspace:*",
-    "@omega-ai/dsh-shell": "workspace:*",
-    "@omega-ai/dsh-llm": "workspace:*",
-    "@omega-ai/dsh-session": "workspace:*",
-    "@omega-ai/dsh-system-prompt": "workspace:*",
-    "@omega-ai/cordis": "workspace:~",
-    "@omega-ai/dsh-session-projection": "workspace:*"
+    "@deepseek-ai/dsh-brand": "workspace:*",
+    "@deepseek-ai/dsh-agent": "workspace:*",
+    "@deepseek-ai/dsh-agent-loop-testkit": "workspace:*",
+    "@deepseek-ai/dsh-shell": "workspace:*",
+    "@deepseek-ai/dsh-llm": "workspace:*",
+    "@deepseek-ai/dsh-session": "workspace:*",
+    "@deepseek-ai/dsh-system-prompt": "workspace:*",
+    "@deepseek-ai/cordis": "workspace:~",
+    "@deepseek-ai/dsh-session-projection": "workspace:*"
   }
 }

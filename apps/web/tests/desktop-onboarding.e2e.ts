@@ -7,18 +7,20 @@ import { fileURLToPath } from 'node:url'
 import { connectDesktopWelcome } from '../../desktop/src/welcome-backend.ts'
 import { chromium, type Browser, type Page } from 'playwright'
 import { afterEach, beforeEach, describe, expect, it, onTestFailed } from 'vitest'
-import { credentialKey, credentialRef } from '@omega-ai/dsh-credentials'
-import type {} from '@omega-ai/dsh-settings'
+import { credentialKey, credentialRef } from '@deepseek-ai/dsh-credentials'
+import type {} from '@deepseek-ai/dsh-settings'
+import { isDraggableAt } from '@deepseek-ai/dsh-client-web/src/window-drag/regions.ts'
 import {
   acknowledgeReloadConnectionLoss, captureStableAria, compareOrRefreshGolden,
   launchWebScaffold, watchConsole, webSnapshotMode, type WebScaffold,
 } from './scaffold.ts'
-import { REPO_ROOT, saveFailureShot, ZH_BROWSER_LOCALE } from './support.ts'
+import { collectWindowSurface, REPO_ROOT, saveFailureShot, ZH_BROWSER_LOCALE } from './support.ts'
 
 const MODE = webSnapshotMode()
 const EXPECTED = fileURLToPath(new URL('./expected/desktop-onboarding', import.meta.url))
 const NS = 'ui-settings-account'
 const INITIAL = { version: 1, step: 'welcome', purpose: null, process: null, completion: null, usage: 'compact', developerTools: false }
+const ACCOUNT_ASSET = /\/plugins\/@deepseek-ai\/dsh-client-ui-settings-account\/assets\/onboarding-[a-z-]+-[0-9a-f]{12}\.(?:svg|webp)$/
 
 describe.skipIf(MODE === 'record')('web e2e: App-only desktop onboarding', () => {
   let root: string
@@ -32,9 +34,15 @@ describe.skipIf(MODE === 'record')('web e2e: App-only desktop onboarding', () =>
   let balanceReads = 0
   let walletBalance = '0E-16'
   let bonusBalance = '0'
+  let bonusOffered = false
+  let bonusReads = 0
+  let bonusAcks = 0
   let screenshots: string | undefined
 
   beforeEach(async () => {
+    bonusOffered = false
+    bonusReads = 0
+    bonusAcks = 0
     balanceFailure = false
     balanceReads = 0
     walletBalance = '0E-16'
@@ -42,6 +50,23 @@ describe.skipIf(MODE === 'record')('web e2e: App-only desktop onboarding', () =>
     screenshots = undefined
     root = await mkdtemp(join(tmpdir(), 'dsh-desktop-onboarding-'))
     server = createServer((request, response) => {
+      if (request.url === '/api/v0/users/notifications/list') {
+        bonusReads++
+        response.setHeader('content-type', 'application/json')
+        response.end(JSON.stringify({ code: 0, data: { biz_code: 0, biz_data: { next_poll_after: 600, notifications: bonusOffered ? [{
+          id: '88888888-8888-4888-8888-888888888888', type: 'account.bonus_granted',
+          created_at: new Date().toISOString(), title: '赠金已到账', actions: [],
+          display_until: new Date(Date.now() + 86_400_000).toISOString(), body: '已赠送您 5.00 元 DSH 体验赠金。',
+        }] : [] } } }))
+        return
+      }
+      if (request.url === '/api/v0/users/notifications/events') {
+        bonusAcks++
+        bonusOffered = false
+        response.setHeader('content-type', 'application/json')
+        response.end(JSON.stringify({ code: 0, data: { biz_code: 0, biz_data: { acked: true } } }))
+        return
+      }
       if (request.url !== '/auth-api/v0/users/current' && request.url !== '/api/v0/users/get_user_summary') {
         response.writeHead(404).end()
         return
@@ -59,9 +84,9 @@ describe.skipIf(MODE === 'record')('web e2e: App-only desktop onboarding', () =>
     if (address === null || typeof address === 'string') throw new Error('fixture server address unavailable')
     origin = `http://127.0.0.1:${address.port}`
     const overlay = join(root, 'account.patch.yml')
-    await writeFile(overlay, `- id: omega-account\n  config:\n    platformOrigin: ${origin}\n    allowLoopbackHttp: true\n`)
-    scaffold = await launchWebScaffold({ omegaMissingCredential: true, extraOverlayPath: overlay })
-    await scaffold.ctx.credentials.modifyRecord(credentialKey('omega-account-platform', 'default'), async () => ({
+    await writeFile(overlay, `- id: deepseek-account\n  config:\n    platformOrigin: ${origin}\n    harnessOrigin: ${origin}\n    allowLoopbackHttp: true\n`)
+    scaffold = await launchWebScaffold({ deepSeekMissingCredential: true, extraOverlayPath: overlay })
+    await scaffold.ctx.credentials.modifyRecord(credentialKey('deepseek-account-platform', 'default'), async () => ({
       kind: 'grant', payload: { version: 1, issuer: origin, token: 'onboarding-fixture-token' },
     }))
     browser = await chromium.launch()
@@ -83,7 +108,10 @@ describe.skipIf(MODE === 'record')('web e2e: App-only desktop onboarding', () =>
 
   async function desktopPage(locale = ZH_BROWSER_LOCALE): Promise<Page> {
     const opened = await browser.newPage({ viewport: { width: 1280, height: 840 }, locale, reducedMotion: 'reduce' })
-    const welcome = await connectDesktopWelcome(scaffold.authenticatedUrl, (input, init) => scaffold.hostFetch(input, init))
+    const welcome = connectDesktopWelcome(scaffold.baseUrl, '', (input, init) => {
+      const target = new URL(input)
+      return scaffold.hostFetch(`${target.pathname}${target.search}`, init)
+    })
     await opened.exposeFunction('__onboardingHasApiKey', async () => (await welcome.read()).hasApiKey)
     await opened.addInitScript(() => {
       Object.defineProperty(globalThis, 'dshOnboarding', { value: {
@@ -100,6 +128,19 @@ describe.skipIf(MODE === 'record')('web e2e: App-only desktop onboarding', () =>
 
   async function snapshot(name: string): Promise<void> {
     await expect.poll(() => page.locator('[data-desktop-onboarding]').getAttribute('aria-busy')).toBe('false')
+    const hasIllustration = name.startsWith('welcome') || name.startsWith('credit')
+    // Illustrations and card icons are package assets fetched after the step renders.
+    const images = await page.locator('[data-desktop-onboarding] img').evaluateAll(async elements =>
+      Promise.all(elements.map(async (element) => {
+        const image = element as HTMLImageElement
+        await image.decode()
+        return {
+          source: image.currentSrc, illustration: image.matches('[class*="illustration"] > img'),
+          loaded: image.naturalWidth > 0 && image.naturalHeight > 0,
+        }
+      })))
+    expect(images.filter(image => !image.loaded || !ACCOUNT_ASSET.test(image.source)), `${name}: images outside loaded package assets`).toEqual([])
+    expect(images.filter(image => image.illustration), `${name}: illustration images`).toHaveLength(hasIllustration ? 2 : 0)
     const aria = await captureStableAria(page, '[data-desktop-onboarding]', scaffold.workspaceCwd)
     await mkdir(EXPECTED, { recursive: true })
     await compareOrRefreshGolden(join(EXPECTED, `${name}.expected.md`), aria, MODE)
@@ -171,7 +212,7 @@ describe.skipIf(MODE === 'record')('web e2e: App-only desktop onboarding', () =>
         expect(action?.width).toBeCloseTo(240, 0)
         expect(action!.y - (card!.y + card!.height)).toBeCloseTo(40, 0)
       }
-      if (name === 'welcome' || name === 'credit') {
+      if (hasIllustration) {
         const illustrations = await page.locator('[class*="illustration"] > img:visible').evaluateAll(elements => elements.map((element) => {
           const image = element as HTMLImageElement
           const box = image.getBoundingClientRect()
@@ -214,6 +255,16 @@ describe.skipIf(MODE === 'record')('web e2e: App-only desktop onboarding', () =>
       await page.evaluate((value) => { document.documentElement.dataset.platform = value }, platform)
       expect(await page.locator('[data-desktop-onboarding]').evaluate(element => getComputedStyle(element).getPropertyValue('-webkit-app-region'))).toBe('none')
       expect(await page.getByRole('button', { name: '开始设置', exact: true }).evaluate(element => getComputedStyle(element).getPropertyValue('-webkit-app-region'))).toBe(platform === 'darwin' ? 'no-drag' : 'none')
+      if (platform === 'darwin') {
+        expect(await page.locator('[data-window-drag-controls] [data-desktop-onboarding]').count()).toBe(1)
+        const { regions } = await collectWindowSurface(page)
+        const band = await page.locator('[data-window-drag-controls]').locator('..').locator('[data-window-drag]').boundingBox()
+        const button = await page.getByRole('button', { name: '开始设置', exact: true }).boundingBox()
+        if (band === null || button === null) throw new Error('The onboarding drag fixture has no layout box')
+        expect(isDraggableAt(regions, band.x + 4, band.y + 4), 'the introduction keeps its blank drag band').toBe(true)
+        expect(isDraggableAt(regions, button.x + button.width / 2, button.y + button.height / 2),
+          'the introduction action receives clicks over the full-window drag band').toBe(false)
+      }
     }
     await page.evaluate(() => { delete document.documentElement.dataset.platform })
     await page.getByRole('button', { name: '开始设置', exact: true }).click()
@@ -243,11 +294,11 @@ describe.skipIf(MODE === 'record')('web e2e: App-only desktop onboarding', () =>
     expect(await page.locator('[data-desktop-onboarding]').evaluate(element => getComputedStyle(element).filter)).toBe('none')
     expect(await page.getByRole('dialog').evaluate(element => getComputedStyle(element.previousElementSibling!).backdropFilter)).toBe('none')
     await page.getByRole('button', { name: '前往充值', exact: true }).click()
-    await page.getByRole('button', { name: '返回 Omega', exact: true }).waitFor()
+    await page.getByRole('button', { name: '返回 DeepSeek Harness', exact: true }).waitFor()
     expect((scaffold.ctx.settings.describe().find(row => row.ns === NS)?.value as { step: string }).step).toBe('credit')
     balanceFailure = true
     const readsBefore = balanceReads
-    await page.getByRole('button', { name: '返回 Omega', exact: true }).click()
+    await page.getByRole('button', { name: '返回 DeepSeek Harness', exact: true }).click()
     await page.getByRole('heading', { name: '准备可用额度', exact: true }).waitFor()
     await expect.poll(() => balanceReads).toBeGreaterThan(readsBefore)
     await expect.poll(() => page.getByRole('button', { name: '下一步', exact: true }).isEnabled()).toBe(true)
@@ -391,7 +442,8 @@ describe.skipIf(MODE === 'record')('web e2e: App-only desktop onboarding', () =>
     expect(await page.getByRole('button', { name: 'Next', exact: true })
       .evaluate(element => getComputedStyle(element).backgroundColor)).toBe('rgb(72, 73, 76)')
     await snapshot('credit-en-dark')
-    expect(await page.locator('[class*="backIcon"]').evaluate(element => getComputedStyle(element).maskImage)).toContain('data:image/svg+xml')
+    expect(await page.locator('[class*="backIcon"]').evaluate(element => getComputedStyle(element).maskImage))
+      .toMatch(/^url\("[^"]*\/plugins\/@deepseek-ai\/dsh-client-ui-settings-account\/assets\/onboarding-back-[0-9a-f]{12}\.svg"\)$/)
     await page.getByRole('button', { name: 'Next', exact: true }).click()
     await page.getByRole('button', { name: 'Got it', exact: true }).click()
     await page.getByRole('checkbox', { name: 'Coding & development', exact: true }).locator('..').click()
@@ -401,9 +453,42 @@ describe.skipIf(MODE === 'record')('web e2e: App-only desktop onboarding', () =>
     await page.close()
   })
 
+  it('leaves a bonus unacknowledged on onboarding exit and presents it only in the workspace', async () => {
+    bonusOffered = true
+    walletBalance = '5.00'
+    const observations: string[] = []
+    for (const reopen of [false, true]) {
+      const readsBefore = bonusReads
+      page = await desktopPage()
+      onTestFailed(() => saveFailureShot(page, 'desktop-onboarding-bonus'))
+      await page.goto(scaffold.authenticatedUrl, { waitUntil: 'load' })
+      if (!reopen) await page.getByRole('button', { name: '开始设置', exact: true }).click()
+      await expect.poll(() => bonusReads).toBeGreaterThan(readsBefore)
+      await page.getByRole('heading', { name: '准备可用额度', exact: true }).waitFor()
+      expect(await page.getByText('已赠送您 5.00 元 DSH 体验赠金。', { exact: true }).count()).toBe(0)
+      expect(bonusAcks).toBe(0)
+      observations.push(`${reopen ? 'reopened' : 'initial'}.onboarding notice=false acks=${bonusAcks}`)
+      if (!reopen) {
+        await page.close()
+        expect(bonusAcks).toBe(0)
+        observations.push(`closed.onboarding acks=${bonusAcks}`)
+      }
+    }
+    await page.getByRole('button', { name: '下一步', exact: true }).click()
+    await page.getByRole('button', { name: '跳过', exact: true }).click()
+    await page.getByRole('dialog').getByRole('button', { name: '进入应用', exact: true }).click()
+    await page.locator('[data-desktop-onboarding]').waitFor({ state: 'detached' })
+    const notice = page.getByText('已赠送您 5.00 元 DSH 体验赠金。', { exact: true })
+    await notice.waitFor({ state: 'visible' })
+    await expect.poll(() => bonusAcks).toBe(1)
+    observations.push(`workspace.notice=${await notice.innerText()} acks=${bonusAcks}`)
+    await compareOrRefreshGolden(join(EXPECTED, 'bonus-after-onboarding.expected.md'), observations.join('\n'), MODE)
+    await page.close()
+  })
+
   it('applies API-key defaults without opening App onboarding or repeating after account login', async () => {
-    await scaffold.ctx.credentials.deleteRecord(credentialKey('omega-account-platform', 'default'))
-    await scaffold.ctx.credentials.set(credentialRef('OMEGA_API_KEY'), 'fixture-api-key')
+    await scaffold.ctx.credentials.deleteRecord(credentialKey('deepseek-account-platform', 'default'))
+    await scaffold.ctx.credentials.set(credentialRef('DEEPSEEK_API_KEY'), 'fixture-api-key')
     await scaffold.ctx.settings.mutate(NS, Object.entries(INITIAL).map(([field, value]) => ({ op: 'set', path: [field], value })))
     page = await desktopPage()
     // Completion follows client activation, credential metadata, and three ordered Host writes.
@@ -420,7 +505,7 @@ describe.skipIf(MODE === 'record')('web e2e: App-only desktop onboarding', () =>
     expect(scaffold.ctx.settings.describe().find(row => row.ns === NS)?.value).toMatchObject({ completion: 'api-key', process: 'standard', usage: 'detailed', developerTools: true })
     expect(scaffold.ctx.settings.describe().find(row => row.ns === 'ui-chat')?.value).toMatchObject({ transcriptView: 'standard', performanceUsage: 'detailed' })
     expect(scaffold.ctx.settings.describe().find(row => row.ns === 'ui-settings')?.value).toMatchObject({ enabled: true })
-    await scaffold.ctx.credentials.modifyRecord(credentialKey('omega-account-platform', 'default'), async () => ({
+    await scaffold.ctx.credentials.modifyRecord(credentialKey('deepseek-account-platform', 'default'), async () => ({
       kind: 'grant', payload: { version: 1, issuer: origin, token: 'onboarding-fixture-token' },
     }))
     await page.reload({ waitUntil: 'load' })

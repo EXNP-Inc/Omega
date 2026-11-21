@@ -1,6 +1,30 @@
 /** Client-safe payloads and event declarations owned by the agent-preset domain. */
-import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
 
+/** Dictionary keys carrying one shipped preset's display copy. */
+export type BuiltInPresetCopyKey =
+  | 'presetStandardName' | 'presetStandardDescription'
+  | 'presetPtcName' | 'presetPtcDescription'
+  | 'presetMinimalName' | 'presetMinimalDescription'
+  | 'presetCordisName' | 'presetCordisDescription'
+
+/** Preset roster fields needed to resolve display copy. */
+export interface PresetDisplaySource {
+  /** Stable preset id. */
+  readonly id: string
+  /** Unlocalized name published by the preset. */
+  readonly name?: string
+  /** Unlocalized description published by the preset. */
+  readonly description?: string
+}
+
+/** Display copy resolved for the active locale. */
+export interface PresetDisplayText {
+  /** Localized built-in name or the preset's own fallback name. */
+  readonly name: string
+  /** Localized built-in description or the preset's own description. */
+  readonly description?: string
+}
 
 /**
  * One declared preset as a client reads it.
@@ -36,7 +60,7 @@ export interface AgentPresetDocument {
   readonly description?: string
 }
 
-declare module '@omega-ai/dsh-typert-protocol' {
+declare module '@deepseek-ai/dsh-typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** No declaration supplies the requested identity. */
     'agent-preset/not-found': { readonly agentPreset: string; readonly available: readonly string[] }
@@ -47,17 +71,14 @@ declare module '@omega-ai/dsh-typert-protocol' {
   }
 }
 
-declare module '@omega-ai/dsh-session-projection/types' {
-  interface SessionProjectionStateMap {
-    agentPreset: string | null
-  }
+declare module '@deepseek-ai/dsh-session-projection/types' {
   interface SessionProjectionMap {
     /** Preset the Session runs, or null when the deployment composes none. */
     agentPreset: string | null
   }
 }
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Events {
     /**
      * One session committed a different agent preset to its durable log.

@@ -2,8 +2,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react'
 import { useSyncExternalStore } from 'react'
-import type { SessionId } from '@omega-ai/dsh-session/types'
-import type { PaneId, TabId } from '@omega-ai/dsh-client-ui-dockkit'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import type { PaneId, TabId } from '@deepseek-ai/dsh-client-ui-dockkit'
 import { createBrowserControllers, type BrowserControllerState, type BrowserInjected } from '../src/client/browser/BrowserController.ts'
 import { createBrowserStore } from '../src/client/browser/store.ts'
 import type { BrowserBodyProps } from '../src/client/view/BrowserBody.tsx'
@@ -13,7 +13,7 @@ import { createIframePage } from '../src/client/pages.ts'
 import { zh } from '../src/client/locales.ts'
 import { browserAddressCheckpoint, type BrowserTabState } from '../src/client/browser/BrowserPersistence.ts'
 import type { BrowserPageFactory, BrowserPageOptions } from '../src/client/browser/BrowserPage.ts'
-import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
 import { emptyBrowserFrame, type BrowserFrameState } from '../src/client/browser/BrowserFrame.ts'
 
 const SESSION = 'session' as SessionId
@@ -51,7 +51,7 @@ function mountBrowser(navigation?: { readonly url?: string },
     & Omit<BrowserInjected, 'keyedHooks'> = {
       sessionId: SESSION,
       useTabInfo: () => ({
-        sidebar: { expanded: true, fullscreen: false }, panel: { id: 'pane' as PaneId },
+        sidebar: { expanded: true, fullscreen: false }, panel: { id: 'pane' as PaneId, isFloating: false },
         tab: {
           id: TAB, kind: 'browser', title: 'Browser', contentId: 'sidebar://browser/1', visible: true,
           navigation: { address: 'sidebar://browser/1', params: navigation, revision: 0 },

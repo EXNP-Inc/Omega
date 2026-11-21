@@ -1,20 +1,21 @@
 /**
  * `LocalSpillStore`: the host-filesystem implementation of the
- * `@omega-ai/dsh-spill` storage seam. Persists oversized text to a
+ * `@deepseek-ai/dsh-spill` storage seam. Persists oversized text to a
  * private, session-scoped file (see `./store.ts` for the traversal-safe naming
  * and exclusive owner-only write) and returns a path locator plus local
  * read/grep retrieval guidance. After activation it runs one best-effort
  * startup sweep that reclaims spill files older than `cleanupPeriodDays`.
  *
- * @module @omega-ai/dsh-spill-local
+ * @module @deepseek-ai/dsh-spill-local
  */
 
-import { Context } from '@omega-ai/cordis'
+import { Context } from '@deepseek-ai/cordis'
 import { resolve } from 'node:path'
 import { tmpdir } from 'node:os'
-import z from '@omega-ai/schemastery'
-import { SpillLocator, SpillStore } from '@omega-ai/dsh-spill'
-import type { SaveTextSpill, SpillRef } from '@omega-ai/dsh-spill'
+import z from '@deepseek-ai/schemastery'
+import { type SpillLocator, SpillStore } from '@deepseek-ai/dsh-spill'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { SaveTextSpill, SpillRef } from '@deepseek-ai/dsh-spill'
 import { gatherSweepRoots, sweepSpillRoots } from './cleanup.ts'
 import type { SweepRoot, WarnFn } from './cleanup.ts'
 import { privateRoot, saveTextFile } from './store.ts'
@@ -154,7 +155,7 @@ export class LocalSpillStore extends SpillStore {
       content: input.content,
     })
     return {
-      locator: SpillLocator(saved.path),
+      locator: brandString<SpillLocator>(saved.path),
       bytes: saved.bytes,
       retrievalHint: 'Use read with offset/limit, or grep this path to search within it.',
     }

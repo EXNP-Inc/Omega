@@ -2,21 +2,22 @@
  * Browser trajectory plugin contributing one entry to the conversation view
  * slot without defining a service.
  */
-import type { Context } from '@omega-ai/cordis'
-import type { ImageAttachmentRef } from '@omega-ai/dsh-attachment'
-import type { SessionBinding } from '@omega-ai/dsh-api-session-controller/client'
-import type { ObservableSnapshot } from '@omega-ai/dsh-client-store'
-import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { Context } from '@deepseek-ai/cordis'
+import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
+import type { SessionBinding } from '@deepseek-ai/dsh-api-session-controller/client'
+import type { ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
-import type {} from '@omega-ai/dsh-client-locale/client'
+import type {} from '@deepseek-ai/dsh-client-locale/client'
 // Type-only: the 'conversation.view' SlotMap row (declared by the slot's
 // owning package) must be in the program for the register calls to type.
-import type {} from '@omega-ai/dsh-client-ui-conversation/client'
-import type {} from '@omega-ai/dsh-client-ui-renderer/client'
-import type {} from '@omega-ai/dsh-client-ui-session/client'
+import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
+import type {} from '@deepseek-ai/dsh-client-ui-session/client'
+import { createToolResultWatcher } from './watch-tool-result.ts'
 import { createTrajectoryDurationStore } from './duration-store.ts'
 import { createTrajectoryStringWrappingStore } from './string-wrapping-store.ts'
-import { en, NS, zh } from './locales.ts'
+import { en, ja, es, fr, de, ru, pt, NS, zh } from './locales.ts'
 import { registerTrajectoryAssistantDefinition } from './trajectory-assistant-definition.ts'
 import { registerTrajectoryCompactionDefinitions } from './trajectory-compaction-definition.ts'
 import { registerTrajectoryMessageDefinitions } from './trajectory-message-definitions.ts'
@@ -38,7 +39,7 @@ export type {
 } from './trajectory-contract.ts'
 
 /** Required services: the conversation slot, registries, ordinary Session paging, and the locale service. */
-export const inject = ['slots', 'sessions', 'uiSession', 'uiConversation', 'locale']
+export const inject = ['slots', 'sessions', 'uiSession', 'uiConversation', 'locale', 'remote', 'remote.toolResults']
 
 /**
  * Client plugin body: register the trajectory view tab. The registration
@@ -59,7 +60,7 @@ export function apply(ctx: Context): void {
     }
     return source
   }
-  ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-trajectory: dictionaries')
+  ctx.effect(() => ctx.locale.register(NS, { zh, en, ja, es, fr, de, ru, pt }), 'ui-trajectory: dictionaries')
   // Registration-time text (the view tab label) reads through the bound
   // translate as a thunk, so it follows the active locale without
   // re-registration.
@@ -82,9 +83,7 @@ export function apply(ctx: Context): void {
     order: 10,
     locale: NS,
     label: () => t('view.trajectory'),
-    children: {
-      'conversation.trajectory.images': { kind: 'single', scope: 'session' },
-    },
+    children: { 'conversation.trajectory.images': { kind: 'single', scope: 'session' } },
     inject: (sessionId: SessionId): TrajectoryViewInjected => {
       const session = ctx.sessions.binding(sessionId)?.session
       if (session === undefined) {
@@ -93,6 +92,9 @@ export function apply(ctx: Context): void {
       const trajectory = ctx.uiConversation.binding(sessionId).target('trajectory')
       return {
         hooks: { duration },
+        watchToolResult: createToolResultWatcher(ctx.remote, sessionId, (error) => {
+          ctx.logger.warn('live tool result unavailable: %s', error)
+        }),
         jsonStringWrapping: {
           getDefault: () => stringWrapping.getSnapshot(),
           setDefault: (value) => { stringWrapping.set(value) },

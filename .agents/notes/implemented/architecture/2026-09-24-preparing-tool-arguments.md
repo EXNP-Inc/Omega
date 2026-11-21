@@ -8,7 +8,7 @@ English | [中文](2026-09-24-preparing-tool-arguments.zh.md)
 
 [Three-stage tool calls](2026-09-22-tool-call-three-phases.md) make tool identity visible before `tool/call`. A raw argument prefix alone cannot supply field-aware presentation: write/edit need a complete path and decoded content length, while bash/run_code need the description before the command or program finishes streaming.
 
-The order in which the model generates arguments also decides what can appear first. On 2026-09-24, 310 controlled requests against the real Omega V4 API exercised bash/run_code/write/edit:
+The order in which the model generates arguments also decides what can appear first. On 2026-09-24, 310 controlled requests against the real DeepSeek V4 API exercised bash/run_code/write/edit:
 
 | Variant | Change | bash first key is description | run_code first key is description |
 |---|---|---|---|
@@ -49,7 +49,7 @@ Third-party tools receive the same view without registration or a separate subsc
 
 ### Argument declaration order
 
-`tool-bash` and `tool-pwsh` declare `description` before `command` and include the ordering instruction. Both `parameters` declarations of `run_code` put `description` before `code` and share a parameter description requesting that generation order for TypeScript and Python. Write/edit declare `file_path` first and ask for it before `content` or `old_string`/`new_string` in the path parameter description. Read retains its leading `file_path`; other tools retain their argument order.
+`tool-bash` and `tool-pwsh` declare `description` before `command` and include the ordering instruction. `run_code` puts `code` before `description` in both its static parameters and program-format-aware schema; it does not require a JSON member order. Write/edit declare `file_path` first and ask for it before `content` or `old_string`/`new_string` in the path parameter description. Read retains its leading `file_path`; other tools retain their argument order.
 
 ## Alternatives considered
 

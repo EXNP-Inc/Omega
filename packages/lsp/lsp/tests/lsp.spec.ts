@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@omega-ai/cordis'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import { Context } from '@deepseek-ai/cordis'
 import Lsp, {
   finalExtension,
   LspError,
-  LspProviderId,
+  type LspProviderId,
   type LspProvider,
   type LspProviderQuery,
   type LspQueryResult,
-} from '@omega-ai/dsh-lsp'
+} from '@deepseek-ai/dsh-lsp'
 
 /** A scripted provider that records the queries it receives. */
 function makeProvider(
@@ -18,7 +19,7 @@ function makeProvider(
   const seen: LspProviderQuery[] = []
   const seenSignals: (AbortSignal | undefined)[] = []
   return {
-    id: LspProviderId(id),
+    id: brandString<LspProviderId>(id),
     extensionToLanguage,
     seen,
     seenSignals,
@@ -182,6 +183,6 @@ describe('Lsp registration', () => {
   })
 
   it('brands a provider id without altering the string', () => {
-    expect(LspProviderId('ts')).toBe('ts')
+    expect(brandString<LspProviderId>('ts')).toBe('ts')
   })
 })

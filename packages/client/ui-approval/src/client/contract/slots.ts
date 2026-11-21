@@ -1,9 +1,9 @@
 /** Approval composer and optional correlated-detail contracts. */
-import type { ToolCallId } from '@omega-ai/dsh-llm'
-import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { ToolCallId } from '@deepseek-ai/dsh-llm'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import type {
-  PropsLocale, PropsRenderSlots, PropsRuntime,
-} from '@omega-ai/dsh-client-ui-slots'
+  PropsLocale, PropsRenderFactories, PropsRuntime,
+} from '@deepseek-ai/dsh-client-ui-slots'
 import type { ApprovalKey } from '../locales.ts'
 
 /* jscpd:ignore-start -- Approval and Question intentionally own independent pending-settlement lifecycles. */
@@ -19,17 +19,27 @@ function settlePendingComposer(settle: () => void, failureMessage: string): Prom
 }
 /* jscpd:ignore-end */
 
-declare module '@omega-ai/dsh-client-ui-session/client' {
+declare module '@deepseek-ai/dsh-client-ui-session/client' {
   interface SessionPendingInteractionMap {
     /** Pending approval request. */
     approval: PendingApproval
   }
 }
 
-declare module '@omega-ai/dsh-client-ui-slots' {
+declare module '@deepseek-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Approval prompt copy. */
     approval: ApprovalKey
+  }
+
+  interface SlotFactoryMap {
+    /** Shared decision card; the caller owns authorization and persistence. */
+    'conversation.approval.card': {
+      scope: 'session'
+      props: ApprovalCardInput
+      locale: 'approval'
+      children: { 'conversation.approval.detail': { kind: 'single'; scope: 'session' } }
+    }
   }
 
   interface SlotMap {
@@ -188,7 +198,33 @@ export interface ApprovalInjected {
 /** Full props of the approval composer takeover. */
 export type ApprovalComposerProps =
   PropsRuntime<'conversation.composer'>
-  & PropsRenderSlots<'conversation.approval.detail'>
+  & PropsRenderFactories
   & { matched: PendingApproval }
   & PropsLocale<'approval'>
   & ApprovalInjected
+
+/** Data and decisions accepted by the shared approval card. */
+export interface ApprovalCardInput {
+  /** Identity whose change resets the pending submission. */
+  requestKey: string
+  /** Localized question describing the requested operation. */
+  title: string
+  /** Localized scope or consequence of the decision. */
+  description?: string
+  /** Caller-localized warning label and explanation, with paragraphs separated by blank lines (`\n\n`). */
+  warning?: { label: string; title: string; detail: string }
+  /** Subject metadata for human recognition; the caller admits icon URLs. Never an authorization identity. */
+  subject?: { name: string; icon?: string }
+  /** Optional tool-owned detail rendered through the existing child slot. */
+  callId?: ToolCallId
+  /** Caller-specific scope label; ordinary approvals use Allow once. */
+  allowLabel?: string
+  /** Whether the caller still accepts an answer. */
+  canAnswer: () => boolean
+  /** Grant this request with the caller's stated scope. */
+  onAllow: () => Promise<void>
+  /** Refuse this request. */
+  onReject: () => Promise<void>
+  /** Explicit persistent choice; absent when the caller cannot save permission. */
+  onAlways?: () => Promise<void>
+}

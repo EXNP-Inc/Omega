@@ -1,11 +1,11 @@
 /**
  * Client-safe wire vocabulary of the dynamic Cordis plugin runner.
- * @module @omega-ai/dsh-cordis-host-runner/types
+ * @module @deepseek-ai/dsh-cordis-host-runner/types
  */
 
-import type { Branded } from '@omega-ai/dsh-brand'
-import type { SessionId } from '@omega-ai/dsh-session/types'
-import type { JsonValue } from '@omega-ai/dsh-util-values'
+import type { Branded } from '@deepseek-ai/dsh-brand'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import type { JsonValue } from '@deepseek-ai/dsh-util-values'
 
 /** Stable identity of one dynamic plugin instance. */
 export type CordisDynamicPluginId = Branded<'CordisDynamicPluginId'>
@@ -47,7 +47,7 @@ export interface CordisInspectProviderManifest {
   methods: readonly CordisInspectMethodManifest[]
 }
 
-/** Provider directory row returned by `cordis_inspect_list`. */
+/** Provider directory row returned by `cordis_inspect`. */
 export interface CordisInspectProviderView extends CordisInspectProviderManifest {
   /** Runtime plane that executes these methods. */
   platform: CordisInspectPlatform
@@ -361,7 +361,7 @@ export type DynamicCordisInvokeResult =
   | { ok: true; value: JsonValue }
   | ({ ok: false; code: 'plugin-not-running' | 'stale-run' | 'method-not-found' | 'handler-error' } & CordisErrorDetails)
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Events {
     /**
      * A Client-bearing activation needs a browser page, and may require a user decision.

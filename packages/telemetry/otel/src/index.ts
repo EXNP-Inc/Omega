@@ -1,9 +1,9 @@
 /** Cordis entry for independent ordinary-event and Session-log OTLP channels. */
-import { Context, Service } from '@omega-ai/cordis'
+import { Context, Service } from '@deepseek-ai/cordis'
 import { EventLogReporter, type EventLogOptions } from './event-log.ts'
 import { SessionLogReporter, type SessionLogOptions } from './session-log.ts'
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
     otel: OTel
   }
@@ -31,4 +31,5 @@ export default class OTel extends Service {
 }
 
 export type { EventLogOptions, OTelEventRecord, OTelEventScalar, EventLogReporter } from './event-log.ts'
-export type { SessionLogRecord, SessionLogOptions, SessionLogReporter } from './session-log.ts'
+export type { SessionLogProcessorOptions, SessionLogRecord, SessionLogOptions, SessionLogReporter } from './session-log.ts'
+export type { LogExporterOptions } from './transport.ts'

@@ -1,35 +1,41 @@
 /**
  * Public agent types and live-runtime events. Durable transcript facts and
- * turn/step boundaries remain `@omega-ai/dsh-session` events.
+ * turn/step boundaries remain `@deepseek-ai/dsh-session` events.
  *
- * @module @omega-ai/dsh-agent
+ * @module @deepseek-ai/dsh-agent
  */
 
-import type { Context } from '@omega-ai/cordis'
-import type { Scoped } from '@omega-ai/dsh-scope'
+import type { Context } from '@deepseek-ai/cordis'
+import type { Scoped } from '@deepseek-ai/dsh-scope'
 import type {
   LlmAttemptId, LlmCallConfig, LlmFailure, MessageId, ReasoningEffortId, ResolvedRetryPolicy, StreamChunk,
-} from '@omega-ai/dsh-llm'
-import type { AgentCancelCause, Session, SessionSeq, UserMessage } from '@omega-ai/dsh-session'
-export type { AgentCancelCause } from '@omega-ai/dsh-session'
-import type { Agent, InboxTarget } from './types.ts'
+} from '@deepseek-ai/dsh-llm'
+import type { AgentCancelCause, Session, SessionSeq, UserMessage } from '@deepseek-ai/dsh-session'
+export type { AgentCancelCause } from '@deepseek-ai/dsh-session'
+import type { Agent, InboxTarget, ModelSelection } from './types.ts'
 export type { Agent } from './types.ts'
-import type {} from '@omega-ai/dsh-system-prompt'
-declare module '@omega-ai/dsh-system-prompt' {
+import type {} from '@deepseek-ai/dsh-system-prompt'
+declare module '@deepseek-ai/dsh-system-prompt' {
   interface AssembleContext {
     /** Agent for this assembly; absent on diagnostics. When present, `scope` must identify the same agent. */
     agent?: Agent
+    /** Captured step selection, retained across retries; omitted effort uses adapter defaults. Absent outside agent steps. */
+    modelSelection?: Readonly<ModelSelection>
   }
 }
 
-/** Merge-extensible agent creation options. Persona belongs to system-prompt sections. */
+/**
+ * Merge-extensible agent options. Route fields may be live accessors until the
+ * Session records a selection or request; step preparation captures their value.
+ * Persona belongs to system-prompt sections.
+ */
 export interface AgentOptions {
   /** Provider route (must have a registered adapter at call time). */
   provider?: string
   /** Model id interpreted by the selected provider adapter. */
   model?: string
   /** Adapter-owned reasoning effort for the selected provider/model route. */
-  reasoningEffort?: ReasoningEffortId
+  reasoningEffort?: ReasoningEffortId | undefined
   /** Maximum output tokens for each conversation-model request. */
   maxTokens?: number
 }
@@ -42,6 +48,27 @@ export interface CancelOptions {
    * later turn and no canceled inbox splice is logged.
    */
   keepInbox?: boolean | undefined
+}
+
+/** Agent-owned access to the model choice for future steps. */
+export interface Model {
+  /**
+   * Resolve the choice for the next step to begin preparation. Recorded choices
+   * take precedence over the last request and then the Agent's live options.
+   * This read neither starts a step nor changes an already-prepared step.
+   * @returns a detached choice, or undefined when no source names both provider and model.
+   */
+  current(): Readonly<ModelSelection> | undefined
+
+  /**
+   * Replace the next step's complete selection. Omitted effort follows adapter
+   * defaults without inheriting a previous effort or resolving defaults here.
+   * An equal recorded choice is a no-op; an options-only fallback is
+   * always recorded. Callers own model availability and capability validation.
+   * The append uses the Session's existing persistence and failure guarantees.
+   * @param selection - complete provider, model, and optional explicit effort.
+   */
+  select(selection: Readonly<ModelSelection>): void
 }
 
 /** Agent-owned access to pending work; concrete storage belongs to the driver. */
@@ -162,10 +189,12 @@ export type AssistantStreamFrame =
 
 declare module './types.ts' {
   interface Agent {
-    /** The provider route and model this agent's requests use. */
+    /** Route fallback and output controls; live accessors apply until the Session records a selection or request. */
     readonly options: AgentOptions
     /** The live session this agent drives; its log is the durable source of truth. */
     readonly session: Session
+    /** Agent-owned access to durable model selection for future steps. */
+    readonly model: Model
     /** Agent-owned access to durable pending work. */
     readonly inbox: Inbox
     /** The current lifecycle state, mirrored on every `agent/status` transition. */
@@ -177,6 +206,7 @@ declare module './types.ts' {
    * Clear queued and steering work — unless `keepInbox` — and abort the active
    * turn or between-turn task. The first cause wins for that activity. With no
    * active activity, cancellation is a no-op and does not arm later work.
+   * Queue-write failures still abort the activity and propagate to the caller.
    * @param cause - the stable caller intent carried by the active operation signal.
    * @param options - cancellation options; `keepInbox` preserves pending work.
    */
@@ -242,7 +272,7 @@ declare module './types.ts' {
   }
 }
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Events {
     // ---- lifecycle ----
     /**
@@ -255,7 +285,7 @@ declare module '@omega-ai/cordis' {
      * @param payload.agent - the newly registered agent with its live session and completed setup.
      * @param payload.source - fresh creation, resume, clear, or compaction source.
      * @param payload.signal - factory initialization cancellation signal, when provided.
-     * Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.
      * @mode serial
      */
     'agent/created'(this: Scoped<Agent>, payload: { agent: Agent; source: SessionStartSource; signal?: AbortSignal }): undefined | Promise<undefined>
@@ -264,7 +294,7 @@ declare module '@omega-ai/cordis' {
      * and scoped-registration unwind, but before session detachment. Custom
      * registry users own their driver-ordering contract.
      * @param payload.agent - the exact agent removed from the registry.
-     * Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.
      * @mode emit
      */
     'agent/disposed'(this: Scoped<Agent>, payload: { agent: Agent }): void
@@ -274,7 +304,7 @@ declare module '@omega-ai/cordis' {
      * driver remains scheduled or active.
      * @param payload.agent - the agent whose status flipped.
      * @param payload.status - the status just entered (the transition's destination).
-     * Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.
      * @mode emit
      */
     'agent/status'(this: Scoped<Agent>, payload: { agent: Agent; status: AgentStatus }): void
@@ -282,7 +312,7 @@ declare module '@omega-ai/cordis' {
      * One message entered the live inbox.
      * @param payload.agent - the agent whose inbox changed.
      * @param payload.message - the inserted message.
-     * Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.
      * @mode emit
      */
     'agent/inbox/inserted'(this: Scoped<Agent>, payload: { agent: Agent; message: UserMessage }): void
@@ -293,7 +323,7 @@ declare module '@omega-ai/cordis' {
      * @param payload.agent - the agent whose inbox changed.
      * @param payload.message - the claimed message.
      * @param payload.turn - the owning turn.
-     * Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.
      * @mode emit
      */
     'agent/inbox/claimed'(this: Scoped<Agent>, payload: { agent: Agent; message: UserMessage; turn: number }): void
@@ -301,7 +331,7 @@ declare module '@omega-ai/cordis' {
      * One message was discarded from the live inbox.
      * @param payload.agent - the agent whose inbox changed.
      * @param payload.message - the discarded message.
-     * Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.
      * @mode emit
      */
     'agent/inbox/discarded'(this: Scoped<Agent>, payload: { agent: Agent; message: UserMessage }): void
@@ -314,24 +344,31 @@ declare module '@omega-ai/cordis' {
      * @param payload.turn - the turn that will own the step.
      * @param payload.step - the step proposed by the loop.
      * @param payload.signal - the current turn's cancellation signal.
-     * Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.
+     * @param payload.modelSelection - captured step selection, retained across retries; omitted effort uses adapter defaults.
+     * Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.
      * @mode waterfall
      */
-    'agent/pre-step'(this: Scoped<Agent>, payload: { agent: Agent; messages: UserMessage[]; turn: number; step: number; signal: AbortSignal }, next: () => Promise<PreStepDecision>): Promise<PreStepDecision>
+    'agent/pre-step'(this: Scoped<Agent>, payload: { agent: Agent; messages: UserMessage[]; turn: number; step: number; signal: AbortSignal; modelSelection: Readonly<ModelSelection> }, next: () => Promise<PreStepDecision>): Promise<PreStepDecision>
     /**
      * Replace the frozen call configuration. `await next()` yields the config
-     * the machine would use (agent options on the first request, the logged
-     * header afterwards); return a replacement to switch. On step admission,
+     * the machine would use (the step's model selection with agent options on
+     * the first request, the logged header's controls afterwards); a
+     * replacement may adjust controls but must keep the provider, model, and
+     * reasoning effort selection. On step admission,
      * this runs after assembly and `step/start`, before the system prompt and
      * accepted user batch are committed. Cancellation here or during subsequent
      * `prepareCall()` resolution commits neither. The prepared call capability
      * governs prompt admission. Model-visible content must use logged channels;
      * this waterfall cannot mutate messages.
+     * @deprecated Retained for existing listeners; do not add new listeners.
+     * Use agent.model.select() before step preparation for model and reasoning
+     * choices, and AgentOptions.maxTokens for the output cap. Other per-request
+     * control overrides have no replacement API.
      * @param payload.agent - the agent making the model call.
      * @param payload.turn - the open turn number.
      * @param payload.step - the step whose request this is.
      * @param payload.signal - the current turn's explicit abort signal.
-     * Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.
      * @mode waterfall
     */
     'agent/request'(this: Scoped<Agent>, payload: { agent: Agent; turn: number; step: number; signal: AbortSignal }, next: () => Promise<LlmCallConfig>): Promise<LlmCallConfig>
@@ -347,7 +384,7 @@ declare module '@omega-ai/cordis' {
      * @param payload.failure - serializable facts normalized at the final adapter boundary.
      * @param payload.retryPolicy - the policy of the adapter registration that served the failed request.
      * @param payload.signal - the turn abort signal.
-     * Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.
      * @mode waterfall
      */
     'agent/request-error'(this: Scoped<Agent>, payload: { agent: Agent; turn: number; step: number; provider: string; failure: LlmFailure; retryPolicy: ResolvedRetryPolicy | undefined; signal: AbortSignal }, next: () => Promise<RequestErrorAction>): Promise<RequestErrorAction>
@@ -357,7 +394,7 @@ declare module '@omega-ai/cordis' {
      * with the same stream before a committed end frame.
      * @param payload.agent - the agent whose attempt produced the frame.
      * @param payload.frame - one ordered start, chunk, or end publication.
-     * Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.
      * @mode emit
      */
     'agent/assistant-stream'(this: Scoped<Agent>, payload: { agent: Agent; frame: AssistantStreamFrame }): void
@@ -375,7 +412,7 @@ declare module '@omega-ai/cordis' {
      * @param payload.agent - the agent whose turn is at its stop boundary.
      * @param payload.turn - the turn about to close.
      * @param payload.signal - the current turn's explicit abort signal.
-     * Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.
      * @mode serial
      */
     'agent/turn-stopping'(this: Scoped<Agent>, payload: { agent: Agent; turn: number; signal: AbortSignal }): Promise<void> | void
@@ -387,7 +424,7 @@ declare module '@omega-ai/cordis' {
      * @param payload.turn - the turn in which the failure surfaced.
      * @param payload.step - the step at which the failure surfaced.
      * @param payload.error - the failure, verbatim.
-     * Scope-filtered dispatch (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.
      * @mode emit
      */
     'agent/error'(this: Scoped<Agent>, payload: { agent: Agent; turn: number; step: number; error: unknown }): void

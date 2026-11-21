@@ -1,7 +1,7 @@
 /** Shared value rendering for JSON details and lazy runtime objects with identity links. */
 
 import { useCallback, useMemo, useState, useSyncExternalStore } from 'react'
-import type { PropsLocale } from '@omega-ai/dsh-client-ui-slots'
+import type { PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
 import type { InspectorObjects, InspectorObjectReference } from './objects.ts'
 import { InspectorObjectValue, type InspectorObjectEntry } from './object-value.ts'
 import css from './inspector.module.css'
@@ -106,8 +106,8 @@ export function InspectorJsonTree({ text, t }: PropsLocale<'session-inspector'> 
 }
 
 /**
- * Inspect the root and nested Node Data inline; other registered objects remain navigation links.
- * Node Data titles also navigate, while repeated ancestors never expand recursively.
+ * Inspect the root and nested Node data inline; other registered objects remain navigation links.
+ * Node data titles also navigate, while repeated ancestors never expand recursively.
  * Expanded fields are cached until their value or Conversation publication changes.
  * @param props - Original object, weak identity lookup, locale, and reference activation.
  * @returns A lazily expanded, typed tree that retains Map keys and collection identities.

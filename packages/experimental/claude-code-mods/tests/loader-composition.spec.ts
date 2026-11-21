@@ -1,23 +1,31 @@
 /** Real Loader composition: the bridge mounted from a cordis.yml row beside the shipped core plugins. */
 
+import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { afterEach, expect, it } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import Loader from '@omega-ai/cordis-plugin-loader'
-import Include from '@omega-ai/cordis-plugin-include'
-import AgentRegistry from '@omega-ai/dsh-agent'
-import AgentLoop from '@omega-ai/dsh-agent-loop'
-import CommandRuntime from '@omega-ai/dsh-commands'
-import LlmRuntime, { createUserMessage } from '@omega-ai/dsh-llm'
-import SessionStore, { SessionId } from '@omega-ai/dsh-session'
-import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
-import SystemPrompt from '@omega-ai/dsh-system-prompt'
-import ToolRuntime, { defineContentToolFixture } from '@omega-ai/dsh-tools'
+import { afterEach, expect, it, vi } from 'vitest'
+import { Context } from '@deepseek-ai/cordis'
+import Loader from '@deepseek-ai/cordis-plugin-loader'
+import Include from '@deepseek-ai/cordis-plugin-include'
+import AgentRegistry from '@deepseek-ai/dsh-agent'
+import AgentLoop from '@deepseek-ai/dsh-agent-loop'
+import CommandRuntime from '@deepseek-ai/dsh-commands'
+import LocalFileSystem from '@deepseek-ai/dsh-fs-local'
+import WorkingDirectory from '@deepseek-ai/dsh-working-directory'
+import LlmRuntime, { createUserMessage } from '@deepseek-ai/dsh-llm'
+import SessionStore, { type SessionId } from '@deepseek-ai/dsh-session'
+import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
+import ToolRuntime from '@deepseek-ai/dsh-tools'
+import { defineContentToolFixture } from '@deepseek-ai/dsh-tool-testkit'
 import * as ClaudeCodeMods from '../src/index.ts'
 import { MockAdapter, textResponse, toolCallResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
+import { brandString } from '@deepseek-ai/dsh-brand'
+
+// Keep workspace imports in Vitest's source graph even when the config has a package scope.
+vi.mock('@deepseek-ai/cordis-plugin-loader/src/resolve.ts', () => ({ createResolve: () => undefined }))
 
 const FIXTURES = resolve(import.meta.dirname, 'fixtures')
 
@@ -33,17 +41,22 @@ afterEach(async () => {
 
 it('loads from cordis.yml, counts the model\'s tool calls, and answers /tally through the composed command registry', async () => {
   root = await mkdtemp(join(tmpdir(), 'dsh-cc-mods-composition-'))
+  await writeFile(join(root, 'package.json'), JSON.stringify({ type: 'module' }))
   const configPath = join(root, 'cordis.yml')
   const modules = new Map<string, unknown>([
-    ['@omega-ai/dsh-llm', LlmRuntime],
-    ['@omega-ai/dsh-session', SessionStore],
-    ['@omega-ai/dsh-session-projection', SessionProjectionRegistry],
-    ['@omega-ai/dsh-system-prompt', SystemPrompt],
-    ['@omega-ai/dsh-tools', ToolRuntime],
-    ['@omega-ai/dsh-agent', AgentRegistry],
-    ['@omega-ai/dsh-agent-loop', AgentLoop],
-    ['@omega-ai/dsh-commands', CommandRuntime],
-    ['@omega-ai/dsh-experimental-claude-code-mods', ClaudeCodeMods],
+    ['@deepseek-ai/dsh-llm', LlmRuntime],
+    ['@deepseek-ai/dsh-session', SessionStore],
+    ['@deepseek-ai/dsh-session-projection', SessionProjectionRegistry],
+
+    ['@deepseek-ai/dsh-system-prompt', SystemPrompt],
+    ['@deepseek-ai/dsh-fs-local', LocalFileSystem],
+    ['@deepseek-ai/dsh-working-directory', WorkingDirectory],
+    ['@deepseek-ai/dsh-tools', ToolRuntime],
+    ['@deepseek-ai/dsh-tool-executor-native', NativeToolExecutor],
+    ['@deepseek-ai/dsh-agent', AgentRegistry],
+    ['@deepseek-ai/dsh-agent-loop', AgentLoop],
+    ['@deepseek-ai/dsh-commands', CommandRuntime],
+    ['@deepseek-ai/dsh-experimental-claude-code-mods', ClaudeCodeMods],
   ])
   // A mod is a plugin like any other: here the tutorial mod's `defineMod` wrapper, mounted by file URL after the bridge.
   const firstMod = pathToFileURL(resolve(FIXTURES, 'first-mod.ts')).href
@@ -58,8 +71,6 @@ it('loads from cordis.yml, counts the model\'s tool calls, and answers /tally th
   context.baseUrl = pathToFileURL(root).href + '/'
   await context.plugin(Loader)
   context.loader.builtins.include = Include
-  // Without a Node internal loader the Loader imports bare names through this
-  // test runner's module graph, which resolves workspace packages to `src`.
   context.loader.internal = undefined
   await context.loader.create({ name: 'cordis:include', config: { path: pathToFileURL(configPath).href } })
   await context.loader.await()
@@ -71,7 +82,7 @@ it('loads from cordis.yml, counts the model\'s tool calls, and answers /tally th
     name: 'echo', description: 'echo', parameters: { command: { type: 'string' } },
     async execute(args) { return [{ type: 'text', text: `ran ${args.command}` }] },
   }))
-  const agent = await context.agentLoop.create(SessionId('composed'), { provider: 'mock', model: 'mock' })
+  const agent = await context.agentLoop.create(brandString<SessionId>('composed'), { provider: 'mock', model: 'mock' })
   expect(context.commands.list(agent).map(command => command.name)).toEqual(['tally'])
   agent.followup(createUserMessage({ content: [{ type: 'text', text: 'list the files here' }], source: { kind: 'user' } }))
   await agent.whenIdle()

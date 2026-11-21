@@ -1,10 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context, Service } from '@omega-ai/cordis'
+import { Context, Service } from '@deepseek-ai/cordis'
 import { access, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import LlmRuntime, { createUserMessage, INVALID_CREDENTIAL_CODE } from '@omega-ai/dsh-llm'
-import AttachmentStore, { AttachmentId, ImageVariantId } from '@omega-ai/dsh-attachment'
+import LlmRuntime, { createUserMessage, INVALID_CREDENTIAL_CODE } from '@deepseek-ai/dsh-llm'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import AttachmentStore from '@deepseek-ai/dsh-attachment'
+import type { AttachmentId, ImageVariantId } from '@deepseek-ai/dsh-attachment/types'
 import type {
   ImageAttachmentLimits,
   ImageAttachmentRef,
@@ -12,25 +14,26 @@ import type {
   RequestImageAttachment,
   SaveImageAttachment,
   StoredImageAttachment,
-} from '@omega-ai/dsh-attachment'
-import { credentialRef } from '@omega-ai/dsh-credentials'
-import { LocalCredentialProvider } from '@omega-ai/dsh-credentials-local'
+} from '@deepseek-ai/dsh-attachment'
+import { credentialRef } from '@deepseek-ai/dsh-credentials'
+import { LocalCredentialProvider } from '@deepseek-ai/dsh-credentials-local'
 import { liveConfig } from '../../../settings/settings/tests/live-config.ts'
-import * as LlmOmega from '@omega-ai/dsh-llm-omega-api-key'
-import type { ContextFormed } from '@omega-ai/dsh-llm'
+import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
+import DeepSeekAuth from '@deepseek-ai/dsh-deepseek-auth'
+import type { ContextFormed } from '@deepseek-ai/dsh-llm'
 import { assemble } from './assemble.ts'
 import { closeMockServers, mockServer, textEvents } from './mock-server.ts'
 
-declare module '@omega-ai/dsh-llm' {
+declare module '@deepseek-ai/dsh-llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }
 }
 
 const configurations = new WeakMap<Context, Awaited<ReturnType<typeof liveConfig>>>()
-const KEY_REF = credentialRef('OMEGA_API_KEY')
+const KEY_REF = credentialRef('DEEPSEEK_API_KEY')
 const IMAGE_REF: ImageAttachmentRef = {
-  attachmentId: AttachmentId(`sha256:${'a'.repeat(64)}`),
+  attachmentId: brandString<AttachmentId>(`sha256:${'a'.repeat(64)}`),
   mediaType: 'image/png',
   bytes: 3,
   width: 1,
@@ -81,7 +84,7 @@ class StaticAttachmentStore extends AttachmentStore {
     _signal?: AbortSignal,
   ): Promise<RequestImageAttachment> {
     return Promise.resolve({
-      variantId: ImageVariantId(`sha256:${'b'.repeat(64)}`),
+      variantId: brandString<ImageVariantId>(`sha256:${'b'.repeat(64)}`),
       attachment: ref,
       data: Uint8Array.of(1, 2, 3),
       mediaType: ref.mediaType,
@@ -115,7 +118,7 @@ interface Harness {
 
 /**
  * Real dynamic composition: llm + profile Config edits + credentials-local +
- * llm-omega over one temp harness home. `watch: false` keeps every change
+ * llm-deepseek over one temp harness home. `watch: false` keeps every change
  * flowing through the in-process write path, which is deterministic; external
  * file watching is the providers' own covered concern.
  */
@@ -128,19 +131,20 @@ async function boot(dir: string, config: object): Promise<Harness> {
   await ctx.plugin(LlmRuntime)
   await ctx.plugin(StaticAttachmentStore)
   await ctx.plugin(LocalCredentialProvider, { path: join(dir, '.credentials.yaml'), watch: false })
-  configurations.set(ctx, await liveConfig(ctx, LlmOmega, config))
+  await ctx.plugin(DeepSeekAuth)
+  configurations.set(ctx, await liveConfig(ctx, LlmDeepSeek, config))
   return { ctx }
 }
 
 function prompt(ctx: Context) {
-  return assemble(ctx, { model: 'omega-v4-flash', messages: [] })
+  return assemble(ctx, { model: 'deepseek-v4-flash', messages: [] })
 }
 
 describe('request-level dynamic configuration', () => {
   it('routes the next request with the freshly resolved base URL and credential', async () => {
-    vi.stubEnv('OMEGA_API_KEY', '')
+    vi.stubEnv('DEEPSEEK_API_KEY', '')
     const dir = await home()
-    await writeFile(join(dir, '.credentials.yaml'), 'version: 1\nrefs:\n  OMEGA_API_KEY: first-key\n', { mode: 0o600 })
+    await writeFile(join(dir, '.credentials.yaml'), 'version: 1\nrefs:\n  DEEPSEEK_API_KEY: first-key\n', { mode: 0o600 })
     const serverA = await mockServer([{ kind: 'sse', events: textEvents }])
     const serverB = await mockServer([{ kind: 'sse', events: textEvents }])
     const { ctx } = await boot(dir, { baseURL: serverA.url })
@@ -158,7 +162,7 @@ describe('request-level dynamic configuration', () => {
   })
 
   it('starts keyless and serves the next request once the key arrives', async () => {
-    vi.stubEnv('OMEGA_API_KEY', '')
+    vi.stubEnv('DEEPSEEK_API_KEY', '')
     const dir = await home()
     const server = await mockServer([{ kind: 'sse', events: textEvents }])
     const { ctx } = await boot(dir, { baseURL: server.url })
@@ -173,7 +177,7 @@ describe('request-level dynamic configuration', () => {
   })
 
   it('rejects a stored credential no header can carry, never echoing it in the failure', async () => {
-    vi.stubEnv('OMEGA_API_KEY', '')
+    vi.stubEnv('DEEPSEEK_API_KEY', '')
     const dir = await home()
     const { ctx } = await boot(dir, { baseURL: 'http://127.0.0.1:1' })
     const secret = 'sk-\u{1F600}supersecret'
@@ -192,35 +196,27 @@ describe('request-level dynamic configuration', () => {
   })
 
   it('advertises a live settings catalog without re-registration', async () => {
-    vi.stubEnv('OMEGA_API_KEY', 'catalog-fixture-key')
+    vi.stubEnv('DEEPSEEK_API_KEY', 'catalog-fixture-key')
     const dir = await home()
-    // The catalog ships empty, so the live-update case boots a base catalog.
-    const { ctx } = await boot(dir, {
-      baseURL: 'http://127.0.0.1:1',
-      models: [{ id: 'base-a', name: 'Base A' }, { id: 'base-b', name: 'Base B' }],
-    })
+    const { ctx } = await boot(dir, { baseURL: 'http://127.0.0.1:1' })
 
-    await expect(ctx.llm.listModels('omega-official')).resolves.toHaveLength(2)
+    await expect(ctx.llm.listModels('deepseek-official')).resolves.toHaveLength(2)
     await configurations.get(ctx)!.update({
       models: [{ id: 'settings-model', name: 'From Settings', inputModalities: ['text', 'image'] }],
     })
-    await expect(ctx.llm.listModels('omega-official')).resolves.toEqual([
-      { provider: 'omega-official', id: 'settings-model', name: 'From Settings', inputModalities: ['text', 'image'] },
+    await expect(ctx.llm.listModels('deepseek-official')).resolves.toEqual([
+      { provider: 'deepseek-official', id: 'settings-model', name: 'From Settings', inputModalities: ['text', 'image'] },
     ])
   })
 
   it('applies changed request file limits to the next request', async () => {
-    vi.stubEnv('OMEGA_API_KEY', 'test-key')
+    vi.stubEnv('DEEPSEEK_API_KEY', 'test-key')
     const dir = await home()
     const server = await mockServer([
       { kind: 'sse', events: textEvents },
       { kind: 'sse', events: textEvents },
     ])
-    // The catalog ships empty, so the offload case supplies the image capability it exercises.
-    const { ctx } = await boot(dir, {
-      baseURL: server.url,
-      models: [{ id: 'omega-flash', inputModalities: ['text', 'image'] }],
-    })
+    const { ctx } = await boot(dir, { baseURL: server.url })
     await ctx.plugin(MappedFileSystem)
     const messages = [createUserMessage({
       content: [
@@ -230,16 +226,16 @@ describe('request-level dynamic configuration', () => {
       source: { kind: 'test' },
     })]
 
-    await assemble(ctx, { model: 'omega-flash', messages })
+    await assemble(ctx, { model: 'deepseek-flash', messages })
     await configurations.get(ctx)!.update({ maxRequestFilesBytes: 4, imageOffloadByteQuantum: 2 })
     // A request whose retained exact bytes exceed the tightened budget names the occurrences to offload.
-    const rejected = await assemble(ctx, { model: 'omega-flash', messages })
+    const rejected = await assemble(ctx, { model: 'deepseek-flash', messages })
     expect(rejected.finish).toMatchObject({
       kind: 'error',
       failure: { code: 'IMAGE_OFFLOAD_REQUIRED', offloadImages: 1 },
     })
     await assemble(ctx, {
-      model: 'omega-flash',
+      model: 'deepseek-flash',
       messages: [createUserMessage({
         content: [
           { type: 'image', attachment: IMAGE_REF, offloaded: true },
@@ -272,28 +268,28 @@ describe('request-level dynamic configuration', () => {
     await configurations.get(ctx)!.update({
       retryPolicy: { mode: 'always', backoff: { initialDelayMs: 25, maxDelayMs: 100, jitterRatio: 0.2 } },
     })
-    expect(ctx.llm.providerRetryPolicy('omega-official')).toEqual({
+    expect(ctx.llm.providerRetryPolicy('deepseek-official')).toEqual({
       mode: 'always',
       initialDelayMs: 25,
       maxDelayMs: 100,
       jitterRatio: 0.2,
     })
-    expect(ctx.llm.listProviders()).toEqual([{ id: 'omega-official', name: 'Omega' }])
-    expect(observed).toEqual([['omega-official']])
+    expect(ctx.llm.listProviders()).toEqual([{ id: 'deepseek-official', name: 'DeepSeek' }])
+    expect(observed).toEqual([['deepseek-official']])
   })
 
   it('fails catalog reads while a stored snapshot fails beyond-schema validation, and recovers on repair', async () => {
-    vi.stubEnv('OMEGA_API_KEY', 'catalog-fixture-key')
+    vi.stubEnv('DEEPSEEK_API_KEY', 'catalog-fixture-key')
     const dir = await home()
     const { ctx } = await boot(dir, { baseURL: 'http://127.0.0.1:1' })
 
     // Schema-valid but resolver-invalid: duplicate catalog ids pass the array
     // schema; the profile stores them and every resolve step fails until the row is repaired.
     await configurations.get(ctx)!.update({ models: [{ id: 'dup' }, { id: 'dup' }] })
-    await expect(ctx.llm.listModels('omega-official')).rejects.toThrow('duplicate')
+    await expect(ctx.llm.listModels('deepseek-official')).rejects.toThrow('duplicate')
     await configurations.get(ctx)!.update({ models: [{ id: 'recovered' }] })
-    await expect(ctx.llm.listModels('omega-official')).resolves.toEqual([
-      { provider: 'omega-official', id: 'recovered', name: 'recovered', inputModalities: ['text'] },
+    await expect(ctx.llm.listModels('deepseek-official')).resolves.toEqual([
+      { provider: 'deepseek-official', id: 'recovered', name: 'recovered', inputModalities: ['text'] },
     ])
   })
 
@@ -301,7 +297,7 @@ describe('request-level dynamic configuration', () => {
     const dir = await home()
     const good = await mockServer([{ kind: 'sse', events: textEvents }])
     const rejected = await mockServer([{ kind: 'sse', events: textEvents }])
-    vi.stubEnv('OMEGA_API_KEY', 'good-key')
+    vi.stubEnv('DEEPSEEK_API_KEY', 'good-key')
     const { ctx } = await boot(dir, { baseURL: good.url })
 
     // One snapshot moves the endpoint and fails the resolve step beyond the
@@ -311,7 +307,7 @@ describe('request-level dynamic configuration', () => {
     expect(rejected.requests).toHaveLength(0)
     expect(good.requests).toHaveLength(0)
 
-    await configurations.get(ctx)!.update({ models: [{ id: 'omega-v4-flash' }] })
+    await configurations.get(ctx)!.update({ models: [{ id: 'deepseek-v4-flash' }] })
     await prompt(ctx)
     expect(rejected.requests).toHaveLength(1)
     expect(rejected.headers[0]?.['x-api-key']).toBe('good-key')

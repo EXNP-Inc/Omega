@@ -24,7 +24,7 @@
 
 - insert:
     - id: logger-console
-      name: '@omega-ai/cordis-plugin-logger-console'
+      name: '@deepseek-ai/cordis-plugin-logger-console'
       config:
         colors: false
         levels:
@@ -38,3 +38,9 @@
     # shipped telemetry plugin deliberately owns none.
     - id: telemetry-redact-rule
       name: './telemetry-redact-rule.ts'
+
+- id: sandbox-policy
+  inject: []
+  config:
+    mode: !!js process.env.DSH_PERMISSION_MODE ?? 'workspace-write'
+    workspaceRoot: !!js process.cwd()

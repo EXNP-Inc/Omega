@@ -4,11 +4,12 @@
  * @module
  */
 
-import type { Context, Fiber } from '@omega-ai/cordis'
-import z from '@omega-ai/schemastery'
-import { ComputerUseProviderName } from '@omega-ai/dsh-computer-use/brand'
-import * as McpClient from '@omega-ai/dsh-mcp-client'
-import type {} from '@omega-ai/dsh-computer-use'
+import type { Context, Fiber } from '@deepseek-ai/cordis'
+import z from '@deepseek-ai/schemastery'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { ComputerUseProviderName } from '@deepseek-ai/dsh-computer-use/types'
+import * as McpClient from '@deepseek-ai/dsh-mcp-client'
+import type {} from '@deepseek-ai/dsh-computer-use'
 
 /** Cordis plugin identity for the installed Cua Driver provider. */
 export const name = 'experimental-computer-use-cua-driver-mcp'
@@ -63,7 +64,7 @@ export async function apply(ctx: Context, config: Config): Promise<void> {
   // unload concurrently and could otherwise admit another live driver.
   let child!: Fiber
   ctx.effect(function* () {
-    yield ctx.computerUse.register(ComputerUseProviderName('cua-driver-mcp'))
+    yield ctx.computerUse.register(brandString<ComputerUseProviderName>('cua-driver-mcp'))
     child = ctx.plugin(McpClient, connection)
     yield child.dispose
   }, 'computer-use-cua-driver-mcp.connection')

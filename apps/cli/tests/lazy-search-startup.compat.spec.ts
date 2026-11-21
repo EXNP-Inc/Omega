@@ -1,5 +1,5 @@
 /**
- * Node 22 startup-output smoke for the shipped Web CLI composition.
+ * Node 24 startup-output smoke for the shipped Web CLI composition.
  *
  * Only the dedicated Node compatibility gate opts this test in after building
  * both artifacts; ordinary Vitest inventory deterministically skips it.
@@ -15,7 +15,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import yaml from 'js-yaml'
+import { parseEntryYaml } from '@deepseek-ai/cordis-plugin-include'
 import { describe, expect, it } from 'vitest'
 
 const repoRoot = fileURLToPath(new URL('../../../', import.meta.url))
@@ -37,21 +37,15 @@ interface PatchEntry extends ConfigRow {
   insert?: ConfigRow[]
 }
 
-const jsExprType = new yaml.Type('tag:yaml.org,2002:js', {
-  kind: 'scalar',
-  construct: value => String(value),
-})
-const configSchema = yaml.JSON_SCHEMA.extend(jsExprType)
-
 /** Boot the built Web CLI, wait for its settled URL, then dispose through SIGTERM. */
 function runBuiltWeb(cwd: string): Promise<{ stdout: string; stderr: string; code: number }> {
   return new Promise((resolveRun, rejectRun) => {
     const env: NodeJS.ProcessEnv = {
       ...process.env,
-      OMEGA_API_KEY: 'dsh-cli-smoke-dummy-key',
+      DEEPSEEK_API_KEY: 'dsh-cli-smoke-dummy-key',
       DSH_HOME: join(cwd, '.dsh'),
     }
-    delete env.OMEGA_BASE_URL
+    delete env.DEEPSEEK_BASE_URL
     delete env.NODE_OPTIONS
     delete env.NODE_NO_WARNINGS
     const child = spawn(process.execPath, [
@@ -103,9 +97,9 @@ describe.skipIf(!requireBuiltArtifacts)('built CLI lazy-search startup', () => {
   it('boots and disposes the shipped composition with full-text search off by default', async () => {
     expect(existsSync(builtBin), `missing built CLI ${resolve(builtBin)}; run pnpm build`).toBe(true)
     expect(existsSync(webDist), `missing Web dist ${resolve(webDist)}; run pnpm run build:web`).toBe(true)
-    const baseRows = (yaml.load(await readFile(baseConfigPath, 'utf8'), { schema: configSchema }) as PatchEntry[])
+    const baseRows = (parseEntryYaml(await readFile(baseConfigPath, 'utf8')) as PatchEntry[])
       .flatMap(entry => entry.insert ?? [entry])
-    const webRows = (yaml.load(await readFile(webConfigPath, 'utf8'), { schema: configSchema }) as PatchEntry[])
+    const webRows = (parseEntryYaml(await readFile(webConfigPath, 'utf8')) as PatchEntry[])
       .flatMap(entry => entry.insert ?? [entry])
     const baseRow = baseRows.find(row => row.id === 'session-query-sqlite')
     const webRow = webRows.find(row => row.id === 'session-query-sqlite')

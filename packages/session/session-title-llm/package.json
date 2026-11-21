@@ -1,13 +1,13 @@
 {
-  "name": "@omega-ai/dsh-session-title-llm",
-  "description": "Shared LLM generation policy for Omega session-title providers",
-  "version": "0.2.1-alpha.1",
+  "name": "@deepseek-ai/dsh-session-title-llm",
+  "description": "Shared LLM generation policy for DeepSeek Harness session-title providers",
+  "version": "0.2.2-rc.5",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/omega-ai/omega-harness.git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
     "directory": "packages/session/session-title-llm"
   },
   "type": "module",
@@ -23,25 +23,29 @@
   },
   "files": [
     "lib/index.js",
-    "lib/types/**/*.d.ts"
+    "lib/types/**/*.d.ts",
+    "lib/types/**/*.d.ts.map",
+    "lib/**/*.js.map",
+    "src"
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@omega-ai/cordis": "workspace:~",
-    "@omega-ai/dsh-llm": "workspace:*",
-    "@omega-ai/dsh-session": "workspace:*",
-    "@omega-ai/dsh-session-title": "workspace:*",
-    "@omega-ai/dsh-timeout": "workspace:*"
+    "@deepseek-ai/cordis": "workspace:~",
+    "@deepseek-ai/dsh-llm": "workspace:*",
+    "@deepseek-ai/dsh-session": "workspace:*",
+    "@deepseek-ai/dsh-session-title": "workspace:*",
+    "@deepseek-ai/dsh-timeout": "workspace:*"
   },
   "dependencies": {
-    "@omega-ai/dsh-util-values": "workspace:*",
-    "@omega-ai/schemastery": "workspace:~"
+    "@deepseek-ai/dsh-util-values": "workspace:*",
+    "@deepseek-ai/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@omega-ai/cordis": "workspace:~",
-    "@omega-ai/dsh-llm": "workspace:*",
-    "@omega-ai/dsh-session": "workspace:*",
-    "@omega-ai/dsh-session-title": "workspace:*",
-    "@omega-ai/dsh-timeout": "workspace:*"
+    "@deepseek-ai/cordis": "workspace:~",
+    "@deepseek-ai/dsh-brand": "workspace:*",
+    "@deepseek-ai/dsh-llm": "workspace:*",
+    "@deepseek-ai/dsh-session": "workspace:*",
+    "@deepseek-ai/dsh-session-title": "workspace:*",
+    "@deepseek-ai/dsh-timeout": "workspace:*"
   }
 }

@@ -6,7 +6,7 @@ import { dirname, join, parse, resolve } from 'node:path'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import sharp from 'sharp'
-import type { ImageAttachmentLimits } from '@omega-ai/dsh-attachment'
+import type { ImageAttachmentLimits } from '@deepseek-ai/dsh-attachment'
 import type { NormalizationPolicy } from '../src/normalization.ts'
 import {
   commitPreparedImageFile,
@@ -146,6 +146,21 @@ describe('local attachment store', () => {
     await saveImageFile(storageRoot, { data: PNG, mediaType: 'image/png' }, LIMITS, POLICY)
     if (process.platform !== 'win32') expect((await stat(object)).mode & 0o777).toBe(0o400)
     await expect(readImageFile(storageRoot, first)).resolves.toEqual({ ref: first, data: PNG })
+  })
+
+  it.each([
+    { mediaType: 'image/jpeg' }, { bytes: PNG.byteLength + 1 }, { width: 2 }, { height: 2 },
+  ] as const)('rejects supplied metadata that differs from stored bytes: %j', async (mismatch) => {
+    const storageRoot = await root()
+    const saved = await saveImageFile(storageRoot, { data: PNG, mediaType: 'image/png' }, LIMITS, POLICY)
+    await expect(readImageFile(storageRoot, { ...saved, ...mismatch })).rejects.toMatchObject({ code: 'ATTACHMENT_CORRUPT' })
+  })
+
+  it('preserves supplied display fields while verifying stored image facts', async () => {
+    const storageRoot = await root()
+    const saved = await saveImageFile(storageRoot, { data: PNG, mediaType: 'image/png' }, LIMITS, POLICY)
+    const supplied = { ...saved, name: 'display.png', originalDimensions: { width: 8, height: 8 } }
+    await expect(readImageFile(storageRoot, supplied)).resolves.toEqual({ ref: supplied, data: PNG })
   })
 
   it('rejects publication when the supplied digest does not match the staged bytes', async () => {

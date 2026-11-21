@@ -1,14 +1,14 @@
 ---
-description: "Browse Session persistence-type changes across every captured Omega alpha/RC tag and validate the historical snapshots offline."
+description: "Browse Session persistence-type changes across every captured DSH alpha/RC tag and validate the historical snapshots offline."
 ---
 
-# Persistence changes across Omega prereleases
+# Persistence changes across DSH prereleases
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-This archive provides an approximate historical view of 26 Omega alpha/RC tags and their 25 adjacent transitions. Each release includes a short explanation, source tag, before/after digests, and complete snapshots of changed types for reading and format validation. It does not establish historical runtime compatibility or replace [current-source acknowledgements](../README.md).
+This archive provides an approximate historical view of 26 DSH alpha/RC tags and their 25 adjacent transitions. Each release includes a short explanation, source tag, before/after digests, and complete snapshots of changed types for reading and format validation. It does not establish historical runtime compatibility or replace [current-source acknowledgements](../README.md).
 
 ## Table of Contents
 
@@ -23,7 +23,7 @@ This archive provides an approximate historical view of 26 Omega alpha/RC tags a
 <a id="releases"></a>
 ## Archived releases
 
-The [manifest](manifest.json) records every Omega alpha/RC tag captured on 2026-09-12: 16 have release records, and the earliest 10 are tag-only. Entries follow semantic-version order; absent tags are not invented. The first entry establishes the historical starting point, so its change count includes every root.
+The [manifest](manifest.json) records every DSH alpha/RC tag captured on 2026-09-12: 16 have release records, and the earliest 10 are tag-only. Entries follow semantic-version order; absent tags are not invented. The first entry establishes the historical starting point, so its change count includes every root.
 
 <!-- persistence-release-index:start -->
 
@@ -90,7 +90,7 @@ pnpm run doc-sync
 
 The marker-delimited index, inventory cells, and structural-change facts are generated from the snapshots. Default verification rejects stale facts. Run `pnpm run verify-persistence-releases --write` to refresh those regions and pairing records after validating all machine data; authored summaries, source evidence, machine declarations, and schema files are preserved.
 
-Tag completeness is relative to the manifest’s captured scope; offline checks do not discover later tags automatically. Standard documentation checks validate pairing records and Markdown links. The [format template](../../../.agents/skills/dsh-doc/templates/persistence-release.md) defines each record’s fields.
+Tag completeness is relative to the manifest’s captured scope; offline checks do not discover later tags automatically. Standard documentation checks validate pairing records and Markdown links. The [format template](../../../.agents/skills/dsh-doc-writing/templates/persistence-release.md) defines each record’s fields.
 
 <a id="dev-note"></a>
 ## Dev Note

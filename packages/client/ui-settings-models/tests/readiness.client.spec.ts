@@ -1,6 +1,6 @@
 /** Pure first-run readiness projection over the shared Models join. */
 import { describe, expect, it } from 'vitest'
-import type { CredentialInfo } from '@omega-ai/dsh-api-remotes/client'
+import type { CredentialInfo } from '@deepseek-ai/dsh-api-remotes/client'
 import type { ModelsSettingsState, ProviderRow } from '../src/client/store.ts'
 import { onboardingReadiness, providerUsable } from '../src/client/store.ts'
 
@@ -9,15 +9,15 @@ const missingCredential: CredentialInfo = { configured: false, writable: true }
 function row(overrides: Partial<ProviderRow> = {}): ProviderRow {
   return {
     entry: {
-      provider: 'omega-official',
-      displayName: 'Omega',
-      settingsNs: 'llm-omega',
+      provider: 'deepseek-official',
+      displayName: 'DeepSeek',
+      settingsNs: 'llm-deepseek',
       settingsPath: [],
       active: true,
     },
     configured: true,
     removable: false,
-    apiKeyEnv: 'OMEGA_API_KEY',
+    apiKeyEnv: 'DEEPSEEK_API_KEY',
     credential: missingCredential,
     ...overrides,
   }

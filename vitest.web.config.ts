@@ -5,12 +5,12 @@ import { standardDecoratorPlugin, vitestExecArgv } from './vitest.shared.ts'
 // Web browser lane: real host entry points, built-client interaction snapshots,
 // and replayed keyless e2e scenarios outside the unit/e2e includes. Linux PR CI
 // pins DSH_SNAPSHOT=replay and compares committed goldens; record/refresh remain
-// explicit local workflows. Real-model cases self-skip without OMEGA_API_KEY.
+// explicit local workflows. Real-model cases self-skip without DEEPSEEK_API_KEY.
 try {
   // Node >= 21.7 native; throws when the file does not exist.
   process.loadEnvFile(new URL('.env', import.meta.url).pathname)
-} catch {
-  // No .env — fine, the environment may already carry the variables.
+} catch (_missingEnvFile) {
+  // Without a root .env, tests read credentials from the process environment.
 }
 
 export default defineConfig({

@@ -3,7 +3,7 @@ description: "通过共享工具、显式服务器选择和 agent 作用域访�
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-mcp-resources
+# @deepseek-ai/dsh-mcp-resources
 
 [English](README.md) | 中文
 
@@ -37,7 +37,7 @@ kind: "package-reference"
 
 挂载系统提示词组装服务时，提示词列出调用 agent 可见的服务器名称。将其中一个名称作为 `server` 调用 `list_mcp_resources` 或 `list_mcp_resource_templates`。未提供游标时，MCP SDK 收集服务器的全部分页；显式提供游标时返回一页；将其中的 `nextCursor` 原样作为 `cursor` 传入，以请求下一页。使用相同的 `server` 名称和显式 `uri`，通过 `read_mcp_resource` 读取已列出的 URI 或展开后的模板。
 
-每个操作都在调用 agent 的作用域中解析服务器。缺少服务器参数或服务器不可用时，会在派发前失败。连接所有者负责请求取消、超时与恢复；失败的请求仍表现为失败的工具调用。
+每个操作都在调用 agent 的作用域中解析服务器。缺少服务器参数或服务器不可用时，会在派发前失败；服务器不可用时失败为带 `INVALID_ARGS` 的 `ToolArgsError`。连接所有者负责请求取消、超时与恢复；失败的请求仍表现为失败的工具调用。
 
 -----
 
@@ -51,7 +51,7 @@ kind: "package-reference"
 
 ```yaml
 - id: mcp-resources
-  name: '@omega-ai/dsh-mcp-resources'
+  name: '@deepseek-ai/dsh-mcp-resources'
 ```
 
 作用域中的首个提供方注册该作用域的共享工具；移除最后一个提供方会移除本地工具注册，继承的提供方与工具仍然可见。资源服务独立于首个提供方插件拥有共享工具 effect，因此卸载该提供方不会移除其他服务器仍需要的工具。提供方选择与服务器名称提示词使用同一作用域注册表。每次调用都在派发前解析服务器。
@@ -87,7 +87,7 @@ kind: "package-reference"
 
 #### 模型看到什么
 
-[生成的工具 schema](../../../docs/tool-catalog.zh.md#omega-aidsh-mcp-resources)定义了调用方可见的所有已配置服务器共享的三个工具。没有这类服务器时，native schema、PTC 声明与绑定以及服务器名称提示词均不存在。激活的客户端连接、断开或重试时，这些共享工具定义保持不变。挂载系统提示词装配且存在可见提供方时，`MCP resource servers` 段落显示 `Use list_mcp_resources, list_mcp_resource_templates, or read_mcp_resource with one of these names as the server argument: <JSON array>.` 名称来自同一作用域注册表，包括既没有工具也没有指令的服务器。注册表为空时不贡献该段落。
+[生成的工具 schema](../../../docs/tool-catalog.zh.md#deepseek-aidsh-mcp-resources)定义了调用方可见的所有已配置服务器共享的三个工具。没有这类服务器时，native schema、PTC 声明与绑定以及服务器名称提示词均不存在。激活的客户端连接、断开或重试时，这些共享工具定义保持不变。挂载系统提示词装配且存在可见提供方时，`MCP resource servers` 段落显示 `Use list_mcp_resources, list_mcp_resource_templates, or read_mcp_resource with one of these names as the server argument: <JSON array>.` 名称来自同一作用域注册表，包括既没有工具也没有指令的服务器。注册表为空时不贡献该段落。
 
 #### Token 影响
 
@@ -117,7 +117,7 @@ kind: "package-reference"
 
 资源访问由显式调用按需发起。
 
-- 不具备 MCP `resources` 能力的已配置服务器仍会出现在服务器名称提示词中，并保持共享资源工具可用。SDK 返回空的资源列表与模板列表；不受支持的读取会失败。
+- 不具备 MCP `resources` 能力的已配置服务器仍会出现在服务器名称提示词中，并保持共享资源工具可用。MCP 客户端直接返回空的资源列表与模板列表，不联系服务器；不受支持的读取会失败。
 - `tools.restrict()` 在注册过滤条件时检查全局或祖先作用域提供的名称。引用这些作用域中不存在的资源工具名称会报未知工具错误。注册在调用方自身作用域中的资源工具不受 allow/deny 掩码过滤。
 - 不支持资源订阅与更新通知；再次调用列表或读取工具以获取当前内容。
 - 二进制资源不会投影为原生图片或音频。程序化调用方保留其规范 base64 值。

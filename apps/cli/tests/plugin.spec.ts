@@ -3,13 +3,14 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { expect, it, onTestFinished, vi } from 'vitest'
-import { getDshRuntimeVersion, initProfile, PROFILE_TEMPLATES, readProfileVersionExemptions } from '@omega-ai/dsh-app-boot'
-import { runPluginCommand, runProfilePnpm } from '@omega-ai/dsh-plugin-manager/operations'
+import { getDshRuntimeVersion, initProfile, readProfileVersionExemptions } from '@deepseek-ai/dsh-app-boot'
+import { PROFILE_TEMPLATES } from '@deepseek-ai/dsh-official-bundles'
+import { runPluginCommand, runProfilePnpm } from '@deepseek-ai/dsh-plugin-manager/operations'
 import { runPlugin } from '../src/plugin.ts'
 
 vi.mock('../src/profile-boot.ts', () => ({ INSTALL_ANCHOR: '/installation/package.json' }))
-vi.mock('@omega-ai/dsh-plugin-manager/operations', async importOriginal => ({
-  ...await importOriginal<typeof import('@omega-ai/dsh-plugin-manager/operations')>(),
+vi.mock('@deepseek-ai/dsh-plugin-manager/operations', async importOriginal => ({
+  ...await importOriginal<typeof import('@deepseek-ai/dsh-plugin-manager/operations')>(),
   runPluginCommand: vi.fn(),
   runProfilePnpm: vi.fn(),
 }))
@@ -34,7 +35,7 @@ it('requires explicit acknowledgement, grants only the exact pair, lists and rev
   const runtime = getDshRuntimeVersion()
   expect(await runPlugin('test', ['allow-version', '@example/plugin@1.2.3', '--dsh-version', runtime, '--accept-risk'])).toBe(0)
   expect(stderr.mock.calls.map(call => call[0]).join('')).toMatchInlineSnapshot(`
-    "dsh: warning: allowing incompatible plugin versions can break the application or corrupt data. Approval applies only to the exact package and Omega versions.
+    "dsh: warning: allowing incompatible plugin versions can break the application or corrupt data. Approval applies only to the exact package and DSH versions.
     "
   `)
   expect(stderr.mock.invocationCallOrder[0]).toBeLessThan(stdout.mock.invocationCallOrder[0]!)
@@ -87,7 +88,7 @@ it('names the exact grant command for each package a compatibility check refused
   const { stderr } = fixture()
   vi.mocked(runPluginCommand).mockResolvedValue({
     exitCode: 1, output: '', truncated: false, logPath: '/profile/log',
-    incompatible: [{ name: '@example/plugin', version: '1.2.3', runtimeVersion: '0.1.0', peers: { '@omega-ai/dsh': '^9.0.0' } }],
+    incompatible: [{ name: '@example/plugin', version: '1.2.3', runtimeVersion: '0.1.0', requirements: { '@deepseek-ai/dsh': '^9.0.0' } }],
   })
   expect(await runPlugin('test', ['add', '@example/plugin'])).toBe(1)
   expect(stderr.mock.calls.map(call => call[0])).toEqual([
@@ -130,7 +131,7 @@ it.each([
   const args = arguments_.map(value => value === 'CURRENT' ? getDshRuntimeVersion() : value)
   expect(await runPlugin('desktop', args)).toBe(1)
   expect(stderr.mock.calls.map(call => call[0]).join('')).toMatchInlineSnapshot(`
-    "dsh: Error: Open Omega Desktop once to initialize its profile, then fully quit it before running dsh plugin --profile desktop.
+    "dsh: Error: Open DeepSeek Harness Desktop once to initialize its profile, then fully quit it before running dsh plugin --profile desktop.
     "
   `)
   expect(existsSync(join(home, 'profiles', 'desktop'))).toBe(false)

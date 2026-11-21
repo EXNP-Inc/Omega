@@ -1,15 +1,16 @@
 /** Profile package management and explicit, exact-version compatibility approvals. */
-import { runPluginCommand, runProfilePnpm, setProfileVersionExemption, type PackageOperationOptions } from '@omega-ai/dsh-plugin-manager/operations'
+import { runPluginCommand, runProfilePnpm, setProfileVersionExemption, type PackageOperationOptions } from '@deepseek-ai/dsh-plugin-manager/operations'
 import { INSTALL_ANCHOR } from './profile-boot.ts'
-import { DEFAULT_PROFILE_BUNDLES, initProfile, PROFILE_TEMPLATES, readProfileCompatibility, resolveProfileDir, type ProfileContext } from '@omega-ai/dsh-app-boot'
-import { withFileLock } from '@omega-ai/dsh-atomic-write'
+import { initProfile, readProfileCompatibility, resolveProfileDir, type ProfileContext } from '@deepseek-ai/dsh-app-boot'
+import { PROFILE_TEMPLATES, DEFAULT_PROFILE_BUNDLES } from '@deepseek-ai/dsh-official-bundles'
+import { withFileLock } from '@deepseek-ai/dsh-atomic-write'
 import { existsSync } from 'node:fs'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 
 function requireDesktopProfile(dir: string): void {
   if (!existsSync(join(dir, 'package.json'))) {
-    throw new Error('Open Omega Desktop once to initialize its profile, then fully quit it before running dsh plugin --profile desktop.')
+    throw new Error('Open DeepSeek Harness Desktop once to initialize its profile, then fully quit it before running dsh plugin --profile desktop.')
   }
 }
 
@@ -38,7 +39,7 @@ async function versionCommand(profile: string, args: readonly string[]): Promise
       request = { packageVersion, runtimeVersion }
     }
     if (command === 'allow-version') {
-      process.stderr.write('dsh: warning: allowing incompatible plugin versions can break the application or corrupt data. Approval applies only to the exact package and Omega versions.\n')
+      process.stderr.write('dsh: warning: allowing incompatible plugin versions can break the application or corrupt data. Approval applies only to the exact package and DSH versions.\n')
     }
     const dir = resolveProfileDir(profile)
     if (profile !== 'desktop') await mkdir(dir, { recursive: true })
@@ -51,7 +52,7 @@ async function versionCommand(profile: string, args: readonly string[]): Promise
         process.stdout.write(JSON.stringify(exemptions, undefined, 2) + '\n')
       } else {
         await setProfileVersionExemption(dir, request.packageVersion, request.runtimeVersion, command === 'allow-version', acceptRisk)
-        process.stdout.write(`dsh: ${command === 'allow-version' ? 'allowed' : 'revoked'} ${request.packageVersion} for Omega ${request.runtimeVersion}\n`)
+        process.stdout.write(`dsh: ${command === 'allow-version' ? 'allowed' : 'revoked'} ${request.packageVersion} for DSH ${request.runtimeVersion}\n`)
       }
     }, { waitMs: 120000 })
     return 0

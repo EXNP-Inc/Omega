@@ -2,14 +2,14 @@
  * Host owner of the `credentials` Remote namespace: the reference half of
  * `ctx.credentials` as a browser configuration page reads and writes it.
  *
- * @module @omega-ai/dsh-api-settings-controller/src/credentials.ts
+ * @module @deepseek-ai/dsh-api-settings-controller/src/credentials.ts
  */
 
-import { Context } from '@omega-ai/cordis'
-import { credentialRef } from '@omega-ai/dsh-credentials'
-import type { CredentialProvider } from '@omega-ai/dsh-credentials'
-import type { CredentialInfo } from '@omega-ai/dsh-credentials/types'
-import { Remote, RemoteError, TypertRemoteService } from '@omega-ai/dsh-typert-protocol'
+import { Context } from '@deepseek-ai/cordis'
+import { credentialRef } from '@deepseek-ai/dsh-credentials'
+import type { CredentialProvider } from '@deepseek-ai/dsh-credentials'
+import type { CredentialInfo } from '@deepseek-ai/dsh-credentials/types'
+import { Remote, RemoteError, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
 import { z } from 'zod'
 
 /**
@@ -47,10 +47,11 @@ function projectCredentialInfo(info: CredentialInfo): CredentialInfo {
     configured: info.configured,
     ...info.source === undefined ? {} : { source: info.source },
     writable: info.writable,
+    ...info.masked === undefined ? {} : { masked: info.masked },
   }
 }
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
     /** Host owner of the `credentials` Remote namespace. */
     credentialsController: CredentialsController
@@ -61,7 +62,7 @@ declare module '@omega-ai/cordis' {
  * Host service backing the generated `ctx.remote.credentials` namespace. It
  * carries every wire obligation the credential seam itself does not: the batch
  * fan-out bound, the field-by-field view projection, the reference-grammar
- * guard, and the refusal mapping. Secret values cross in one direction only —
+ * guard, and the refusal mapping. Full secret values cross in one direction only —
  * no method here returns one.
  */
 export class CredentialsController extends TypertRemoteService {
@@ -123,7 +124,7 @@ export class CredentialsController extends TypertRemoteService {
     if (credentials === undefined) {
       throw new RemoteError(
         'gateway/internal',
-        'credentials service is absent: this deployment does not mount a credential provider (e.g. @omega-ai/dsh-credentials-local) in its composition',
+        'credentials service is absent: this deployment does not mount a credential provider (e.g. @deepseek-ai/dsh-credentials-local) in its composition',
         {},
       )
     }
@@ -132,11 +133,12 @@ export class CredentialsController extends TypertRemoteService {
 
   /**
    * Run one remote write and report every refusal as `credential/rejected`
-   * carrying the seam's own message: a read-only source shadowing the reference
-   * is what a configuration surface must show verbatim. Callers brand the
-   * reference before entering, so a name outside the grammar never reaches this
-   * path and fails the same way it does on the read side. The details name only
-   * the reference, so no failure path can carry the value back out.
+   * carrying the seam's own message: a provider refusal, such as a stored
+   * document that no longer parses, is what a settings page must show
+   * verbatim. Callers brand the reference before entering, so a name outside
+   * the grammar never reaches this path and fails the same way it does on the
+   * read side. The details name only the reference, so no failure path can
+   * carry the value back out.
    */
   private async write(ref: string, write: () => Promise<void>): Promise<void> {
     try {

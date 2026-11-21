@@ -3,7 +3,7 @@ description: "面向启动持久 harness agent（智能体）的用户与维护�
 kind: "package-bundle"
 ---
 
-# `@omega-ai/dsh-acp-app`
+# `@deepseek-ai/dsh-acp-app`
 
 [English](README.md) | 中文
 
@@ -26,7 +26,7 @@ kind: "package-bundle"
 
 启动提供方把 stdin EOF 绑定到启动器的有界成功关闭。ACP 连接关闭、SIGINT 与 SIGTERM 会在退出前排空 bridge 自有 agent 以及根 profile 树。Stdout 仅保留给换行分隔的 ACP JSON-RPC 帧。ACP 不提供标题呈现能力，因此本组合包禁用模型生成的会话 title；确定性的 fallback title 仍会持久化，但不发起辅助模型请求。继承的投影缓存会为 ACP 创建的会话写入检查点，供后续消费方使用；其持久性屏障会在发布缓存行前 flush 所覆盖的日志前缀，因此可能拆分原本会合并的 JSONL 连续段。部署方通过 profile 组合包与 patch 文件选择另一套完整组合，而不是使用另一个 app bin。
 
-随附配置项使用 `omega-official` 与 `omega-v4-flash` 创建会话；后续 patch 可以替换该配置项的完整配置。base profile 负责适配器、工具、持久化、策略、设置、凭据，以及 ACP client 为每个会话提供的工作区。
+随附配置项使用 `deepseek-official` 与 `deepseek-v4-flash` 创建会话；后续 patch 可以替换该配置项的完整配置。base profile 负责适配器、工具、持久化、策略、设置、凭据，以及 ACP client 为每个会话提供的工作区。
 
 -----
 
@@ -44,7 +44,7 @@ ACP v1 SDK 客户端先初始化 `dsh --profile acp`，再用绝对 `cwd` 与可
 
 #### 模型看到什么
 
-profile 在第一方指导之前提供 `You are a coding agent powered by the {{model}} model.`，并在独立的 persona 后缀中提供 `Your working directory is {{cwd}}.`。ACP 配置项的路由与每个 `session/new` 的 cwd 会解析其中的占位符。
+profile 在第一方指导之前提供 `You are a coding agent powered by the {{model}} model.`；ACP 路由解析 `{{model}}`。每个 Session 通过 [`dsh-working-directory`](../../session/working-directory/README.zh.md) 提供的必需 user-role 上下文接收当前目录。
 
 #### Token 影响
 

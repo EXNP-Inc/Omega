@@ -12,7 +12,7 @@
 import { mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { desktopApplicationIcon } from '@omega-ai/dsh-native-command'
+import { desktopApplicationIcon } from '@deepseek-ai/dsh-native-command'
 import type { OpenInAppApp } from './catalog.ts'
 import {
   findDesktopEntry, output, resolveInternals, specFor, xdgDataDirectories,
@@ -39,13 +39,14 @@ async function extractBundleIconPng(
   const plistJson = await output(
     'plutil', ['-convert', 'json', '-o', '-', join(bundlePath, 'Contents', 'Info.plist')], timeoutMs, internals)
   if (plistJson !== null) {
+    let declared: unknown
     try {
-      const declared: unknown = (JSON.parse(plistJson) as { CFBundleIconFile?: unknown }).CFBundleIconFile
-      if (typeof declared === 'string' && declared !== '') {
-        iconFile = declared.endsWith('.icns') ? declared : `${declared}.icns`
-      }
-    } catch {
+      declared = (JSON.parse(plistJson) as { CFBundleIconFile?: unknown }).CFBundleIconFile
+    } catch (_malformedPlist) {
       // Swallows malformed plutil JSON: the Resources scan below still applies.
+    }
+    if (typeof declared === 'string' && declared !== '') {
+      iconFile = declared.endsWith('.icns') ? declared : `${declared}.icns`
     }
   }
   if (iconFile === null) {

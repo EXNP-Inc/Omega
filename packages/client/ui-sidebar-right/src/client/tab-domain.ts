@@ -16,12 +16,12 @@
  * aborted on that commit. The slot framework binds the navigation sources for
  * each record's `useTabInfo` reader.
  */
-import type { Branded } from '@omega-ai/dsh-brand'
-import { randomUUID } from '@omega-ai/dsh-util-crypto'
-import type { LayoutState, PaneId, TabId, TabRecord } from '@omega-ai/dsh-client-ui-dockkit'
-import { findTabPane } from '@omega-ai/dsh-client-ui-dockkit'
-import { createSnapshotStore, type SnapshotStore } from '@omega-ai/dsh-client-store'
-import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { Branded } from '@deepseek-ai/dsh-brand'
+import { randomUUID } from '@deepseek-ai/dsh-util-crypto'
+import type { LayoutState, PaneId, TabId, TabRecord } from '@deepseek-ai/dsh-client-ui-dockkit'
+import { findTabPane } from '@deepseek-ai/dsh-client-ui-dockkit'
+import { createSnapshotStore, type SnapshotStore } from '@deepseek-ai/dsh-client-store'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import type { SidebarRightNavigationParams } from './contract/params.ts'
 import type { SidebarRightTabActions, SidebarRightTabCommands, SidebarRightTabNavigation, SidebarRightTabPlacement } from './contract/slots.ts'
 import type { SidebarRightOpenResourceOptions, SidebarRightOpenTabOptions, SidebarRightPlacement } from './service.ts'
@@ -194,8 +194,11 @@ export class TabDomain {
           controller.signal.addEventListener('abort', release, { once: true })
           return release
         },
+        // An explicit host ignores this tab's pane and never names it for replacement.
         openResource: (address, options = {}) => {
-          navigator.openResourceIn(sessionId, address, { ...place(options), params: options.params })
+          navigator.openResourceIn(sessionId, address, options.destination === undefined
+            ? { ...place(options), params: options.params }
+            : { destination: options.destination, params: options.params })
         },
         openTab: (kind, options = {}) => {
           navigator.openTabIn(sessionId, kind, { ...place(options), params: options.params })

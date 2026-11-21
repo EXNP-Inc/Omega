@@ -14,11 +14,11 @@
  * portal's synthetic events through the strip, which is why the press guards
  * below remain necessary.
  */
-import { MenuSurface } from '@omega-ai/dsh-client-ui-primitives'
+import { MenuSurface } from '@deepseek-ai/dsh-client-ui-primitives'
 import { Children, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { focusWithoutRing, modalSelector, observeComposition } from '@omega-ai/dsh-client-ui-primitives'
+import { focusWithoutRing, modalSelector, observeComposition } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { DockLabels } from '../contract/adapter.ts'
 import css from './dockkit.module.css'
 
@@ -105,13 +105,11 @@ export function TabMenu({ labels, anchor, onClose, onDismiss, extras }: TabMenuP
       data-dockkit-tab-menu
       // Unplaced for one layout pass: measured, then positioned.
       style={position ?? { visibility: 'hidden', top: 0, left: 0 }}
-      // React bubbles a portal's events to its tab chip, so both halves of a
-      // press must stop here: the press would otherwise start a tab drag and
-      // capture the pointer, which retargets the release and swallows this
-      // item's click; the click would otherwise also focus a tab the item may
-      // have removed.
+      // Portal events reach the owning chip: a press would start its drag,
+      // a click would focus it, and a middle click would close it.
       onPointerDown={(event) => { event.stopPropagation() }}
       onClick={(event) => { event.stopPropagation() }}
+      onAuxClick={(event) => { event.stopPropagation() }}
     >
       {onClose !== undefined && (
         <button type="button" role="menuitem" className={css.menuItem} data-dockkit-menu-close onClick={onClose}>

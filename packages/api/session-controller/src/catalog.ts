@@ -1,10 +1,10 @@
 /** Shared projection of the live LLM registry into the browser model catalog. */
 
-import { RemoteError } from '@omega-ai/dsh-typert-protocol'
-import { credentialRef } from '@omega-ai/dsh-credentials'
-import type {} from '@omega-ai/dsh-settings'
-import type { LlmModelInfo } from '@omega-ai/dsh-llm'
-import type { Context } from '@omega-ai/cordis'
+import { RemoteError } from '@deepseek-ai/dsh-typert-protocol'
+import { credentialRef } from '@deepseek-ai/dsh-credentials'
+import type {} from '@deepseek-ai/dsh-settings'
+import type { LlmModelInfo } from '@deepseek-ai/dsh-llm'
+import type { Context } from '@deepseek-ai/cordis'
 import type {
   ModelCatalog,
   ModelReasoning,
@@ -44,6 +44,7 @@ export async function buildModelCatalog(
           name: model.name,
           ...(model.description === undefined ? {} : { description: model.description }),
           ...(reasoning === undefined ? {} : { reasoning }),
+          ...(model.badge === undefined ? {} : { badge: model.badge }),
         }
       }))
       return {
@@ -102,7 +103,7 @@ export async function hasProviderApiKey(ctx: Context): Promise<boolean> {
   }
   const namespaces = settings.describe({ redactSecrets: true })
   for (const provider of ctx.llm.listConfigurableProviders()) {
-    if (provider.provider === 'omega-account') continue
+    if (provider.provider === 'deepseek-account') continue
     let profile = namespaces.find(namespace => namespace.ns === provider.settingsNs)?.value
     for (const key of provider.settingsPath) {
       profile = typeof profile === 'object' && profile !== null ? Reflect.get(profile, key) : undefined

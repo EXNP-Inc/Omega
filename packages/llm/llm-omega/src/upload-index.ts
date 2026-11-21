@@ -1,23 +1,22 @@
-/** Durable Omega attachment-to-file-id index. @module dsh-llm-omega/upload-index */
+/** Durable DeepSeek attachment-to-file-id index. @module dsh-llm-deepseek/upload-index */
 
 import { createHash } from 'node:crypto'
 import { readFile, mkdir } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
-import { withFileLock, writeFileAtomic } from '@omega-ai/dsh-atomic-write'
-import { resolveDshHome } from '@omega-ai/dsh-home-paths'
-import { ImageVariantId } from '@omega-ai/dsh-attachment'
-import type { AttachmentId, ImageVariantId as ImageVariantIdType } from '@omega-ai/dsh-attachment'
-import { OmegaFileId, OmegaFileScope } from './file-id.ts'
-import type { OmegaFileId as OmegaFileIdType, OmegaFileScope as OmegaFileScopeType } from './file-id.ts'
+import { withFileLock, writeFileAtomic } from '@deepseek-ai/dsh-atomic-write'
+import { resolveDshHome } from '@deepseek-ai/dsh-home-paths'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { AttachmentId, ImageVariantId as ImageVariantIdType } from '@deepseek-ai/dsh-attachment/types'
+import type { DeepSeekFileId as DeepSeekFileIdType, DeepSeekFileScope as DeepSeekFileScopeType } from './file-id.ts'
 
 /** One durable remote upload mapping. Unix times are milliseconds. */
-export interface OmegaUploadRecord {
-  scope: OmegaFileScopeType
+export interface DeepSeekUploadRecord {
+  scope: DeepSeekFileScopeType
   /** Provider-independent normalized attachment from which the uploaded request version was derived. */
   attachmentId: AttachmentId
   /** Complete request transformation identity, including route budgets and encoder parameters. */
   variantId: ImageVariantIdType
-  fileId: OmegaFileIdType
+  fileId: DeepSeekFileIdType
   bytes: number
   createdAt: number
   expiresAt: number
@@ -25,14 +24,14 @@ export interface OmegaUploadRecord {
 
 interface StoredIndex {
   formatVersion: 3
-  records: OmegaUploadRecord[]
+  records: DeepSeekUploadRecord[]
 }
 
 class InvalidUploadIndexError extends Error {}
 
 /** Candidate commit outcome when another process already published a reusable upload. */
 export interface UploadIndexCommit {
-  record: OmegaUploadRecord
+  record: DeepSeekUploadRecord
   accepted: boolean
 }
 
@@ -42,22 +41,22 @@ export interface UploadIndexCommit {
  * @param credentials - serialized authentication headers used only as hash input.
  * @returns branded SHA-256 namespace digest.
  */
-export function omegaFileScope(baseURL: string, credentials: string): OmegaFileScopeType {
+export function deepSeekFileScope(baseURL: string, credentials: string): DeepSeekFileScopeType {
   const digest = createHash('sha256')
     .update(baseURL.replace(/\/+$/u, ''))
     .update('\0')
     .update(credentials)
     .digest('hex')
-  return OmegaFileScope(digest)
+  return brandString<DeepSeekFileScopeType>(digest)
 }
 
 function absent(error: unknown): boolean {
   return (error as NodeJS.ErrnoException | null)?.code === 'ENOENT'
 }
 
-function parseRecord(value: unknown): OmegaUploadRecord {
+function parseRecord(value: unknown): DeepSeekUploadRecord {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) {
-    throw new InvalidUploadIndexError('llm-omega: upload index contains a non-object record')
+    throw new InvalidUploadIndexError('llm-deepseek: upload index contains a non-object record')
   }
   const record = value as Record<string, unknown>
   if (typeof record.scope !== 'string' || !/^[0-9a-f]{64}$/u.test(record.scope)
@@ -67,13 +66,13 @@ function parseRecord(value: unknown): OmegaUploadRecord {
     || !Number.isSafeInteger(record.bytes) || (record.bytes as number) < 0
     || !Number.isSafeInteger(record.createdAt) || (record.createdAt as number) < 0
     || !Number.isSafeInteger(record.expiresAt) || (record.expiresAt as number) < 0) {
-    throw new InvalidUploadIndexError('llm-omega: upload index contains an invalid record')
+    throw new InvalidUploadIndexError('llm-deepseek: upload index contains an invalid record')
   }
   return {
-    scope: OmegaFileScope(record.scope),
+    scope: brandString<DeepSeekFileScopeType>(record.scope),
     attachmentId: record.attachmentId as AttachmentId,
-    variantId: ImageVariantId(record.variantId),
-    fileId: OmegaFileId(record.fileId),
+    variantId: brandString<ImageVariantIdType>(record.variantId),
+    fileId: brandString<DeepSeekFileIdType>(record.fileId),
     bytes: record.bytes as number,
     createdAt: record.createdAt as number,
     expiresAt: record.expiresAt as number,
@@ -85,44 +84,44 @@ function parseIndex(text: string): StoredIndex {
   try {
     value = JSON.parse(text)
   } catch (error: unknown) {
-    throw new InvalidUploadIndexError('llm-omega: upload index is not valid JSON', { cause: error })
+    throw new InvalidUploadIndexError('llm-deepseek: upload index is not valid JSON', { cause: error })
   }
   if (value === null || typeof value !== 'object' || Array.isArray(value)) {
-    throw new InvalidUploadIndexError('llm-omega: upload index is not an object')
+    throw new InvalidUploadIndexError('llm-deepseek: upload index is not an object')
   }
   const index = value as { formatVersion?: unknown; records?: unknown }
   if (index.formatVersion !== 3 || !Array.isArray(index.records)) {
-    throw new InvalidUploadIndexError('llm-omega: unsupported upload index format')
+    throw new InvalidUploadIndexError('llm-deepseek: unsupported upload index format')
   }
   const records = index.records.map(parseRecord)
   const keys = new Set<string>()
   for (const record of records) {
     const key = `${record.scope}\0${record.variantId}`
-    if (keys.has(key)) throw new InvalidUploadIndexError('llm-omega: upload index contains duplicate mappings')
+    if (keys.has(key)) throw new InvalidUploadIndexError('llm-deepseek: upload index contains duplicate mappings')
     keys.add(key)
   }
   return { formatVersion: 3, records }
 }
 
-function reusable(record: OmegaUploadRecord, now: number, refreshMarginMs: number): boolean {
+function reusable(record: DeepSeekUploadRecord, now: number, refreshMarginMs: number): boolean {
   return record.expiresAt - now > refreshMarginMs
 }
 
-/** Atomic local index shared by every Omega session in this DSH home. */
-export class OmegaUploadIndex {
+/** Atomic local index shared by every DeepSeek session in this DSH home. */
+export class DeepSeekUploadIndex {
   /** Absolute owner-private JSON index path. */
   readonly path: string
 
   /**
-   * @param path - explicit test path; omission uses `DSH_HOME/llm-omega/files-v3.json`.
+   * @param path - explicit test path; omission uses `DSH_HOME/llm-deepseek/files-v3.json`.
    */
-  constructor(path = join(resolveDshHome(), 'llm-omega', 'files-v3.json')) {
+  constructor(path = join(resolveDshHome(), 'llm-deepseek', 'files-v3.json')) {
     this.path = path
   }
 
-  private async load(): Promise<StoredIndex> {
+  private async load(signal?: AbortSignal): Promise<StoredIndex> {
     try {
-      return parseIndex(await readFile(this.path, 'utf8'))
+      return parseIndex(await readFile(this.path, { encoding: 'utf8', signal }))
     } catch (error: unknown) {
       if (absent(error) || error instanceof InvalidUploadIndexError) {
         return { formatVersion: 3, records: [] }
@@ -144,15 +143,17 @@ export class OmegaUploadIndex {
    * @param variantId - complete request-image transformation identity.
    * @param now - current Unix time in milliseconds.
    * @param refreshMarginMs - remaining lifetime below which a mapping is not reused.
+   * @param signal - cancellation of the index read.
    * @returns the mapping when it has enough lifetime remaining.
    */
   async get(
-    scope: OmegaFileScopeType,
+    scope: DeepSeekFileScopeType,
     variantId: ImageVariantIdType,
     now: number,
     refreshMarginMs: number,
-  ): Promise<OmegaUploadRecord | undefined> {
-    const record = (await this.load()).records.find(candidate => (
+    signal?: AbortSignal,
+  ): Promise<DeepSeekUploadRecord | undefined> {
+    const record = (await this.load(signal)).records.find(candidate => (
       candidate.scope === scope && candidate.variantId === variantId
     ))
     return record !== undefined && reusable(record, now, refreshMarginMs) ? record : undefined
@@ -166,7 +167,7 @@ export class OmegaUploadIndex {
    * @returns the winning record and whether the candidate entered the index.
    */
   async commit(
-    candidate: OmegaUploadRecord,
+    candidate: DeepSeekUploadRecord,
     now: number,
     refreshMarginMs: number,
   ): Promise<UploadIndexCommit> {
@@ -195,8 +196,8 @@ export class OmegaUploadIndex {
    * @param generations - exact remote generations being invalidated; pairs absent from the index are ignored.
    */
   async remove(
-    scope: OmegaFileScopeType,
-    generations: readonly Pick<OmegaUploadRecord, 'variantId' | 'fileId'>[],
+    scope: DeepSeekFileScopeType,
+    generations: readonly Pick<DeepSeekUploadRecord, 'variantId' | 'fileId'>[],
   ): Promise<void> {
     const invalidated = new Set(generations.map(generation => `${generation.variantId}\0${generation.fileId}`))
     await mkdir(dirname(this.path), { recursive: true, mode: 0o700 })
@@ -213,7 +214,7 @@ export class OmegaUploadIndex {
    * Remove every local mapping for one remote namespace.
    * @param scope - endpoint/API-key namespace.
    */
-  async clear(scope: OmegaFileScopeType): Promise<void> {
+  async clear(scope: DeepSeekFileScopeType): Promise<void> {
     await mkdir(dirname(this.path), { recursive: true, mode: 0o700 })
     await withFileLock(this.path, async () => {
       const index = await this.load()

@@ -1,8 +1,8 @@
 /** Preset roster, the new-task default and the read-only composition viewer for the settings section. */
-import type { Context } from '@omega-ai/cordis'
-import type {} from '@omega-ai/dsh-api-remotes/client'
-import { createSnapshotStore, type SnapshotStore } from '@omega-ai/dsh-client-store'
-import type { AgentPresetRow } from '@omega-ai/dsh-agent-preset-registry/types'
+import type { Context } from '@deepseek-ai/cordis'
+import type {} from '@deepseek-ai/dsh-api-remotes/client'
+import { createSnapshotStore, type SnapshotStore } from '@deepseek-ai/dsh-client-store'
+import type { AgentPresetRow } from '@deepseek-ai/dsh-agent-preset-registry/types'
 import { AGENT_PRESET_SETTINGS_NS, requiresCodingTools, writeDefaultPreset } from './settings-store.ts'
 
 /** The read-only composition viewer over one preset. */
@@ -86,7 +86,7 @@ export class AgentPresetSectionController {
     while (this.pendingSave !== undefined) await this.pendingSave
     if (!shouldReset()) return
     const settings = this.ctx.configForms.get(AGENT_PRESET_SETTINGS_NS).getSnapshot()
-    if (settings.mode !== 'host' || settings.status !== 'ready' || !settings.writable || settings.revision === undefined) return
+    if (settings.status !== 'ready' || !settings.writable || settings.revision === undefined) return
     await this.load()
     if (!shouldReset() || this.store.getSnapshot().status !== 'ready') return
     const rows = this.store.getSnapshot().rows

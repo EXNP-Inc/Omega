@@ -1,15 +1,16 @@
 // @vitest-environment jsdom
 /** Document extension registration and dispatch through the production Sidebar and Slot renderer. */
+import { contextMenuHook, syncedConfig } from '@deepseek-ai/dsh-client-test-runtime'
 import { byteResult } from './fixtures.client.ts'
-import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, fireEvent, screen, waitFor } from '@testing-library/react'
-import { SlotTestRuntime } from '@omega-ai/dsh-client-test-runtime'
-import { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
-import type { SessionId } from '@omega-ai/dsh-session/types'
-import { absoluteFileAddress, sessionFileAddress } from '@omega-ai/dsh-util-workspace-path'
-import { apply as resourcesApply, inject as resourcesInject } from '@omega-ai/dsh-client-resources/src/client/index.ts'
-import { apply as sidebarApply, inject as sidebarInject } from '@omega-ai/dsh-client-ui-sidebar-right/src/client/index.ts'
+import { SlotTestRuntime } from '@deepseek-ai/dsh-client-test-runtime'
+import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { absoluteFileAddress, sessionFileAddress } from '@deepseek-ai/dsh-util-workspace-path'
+import { apply as resourcesApply, inject as resourcesInject } from '@deepseek-ai/dsh-client-resources/src/client/index.ts'
+import { apply as sidebarApply, inject as sidebarInject } from '@deepseek-ai/dsh-client-ui-sidebar-right/src/client/index.ts'
 import { apply, inject } from '../src/client/index.ts'
 import type { DocumentPreviewProps } from '../src/client/document/contract.ts'
 import type { DocumentLoadMode } from '../src/client/document/registry.ts'
@@ -38,7 +39,12 @@ afterEach(async () => {
 
 async function boot() {
   const rt = await SlotTestRuntime.create()
+  rt.ctx.provide('fileDrag', { actions: { prepare: async () => ({ start: () => true, release: () => {} }), reportFailure: () => {} }, read: () => undefined } satisfies import('@deepseek-ai/cordis').Context['fileDrag'])
   runtime = rt
+  rt.ctx.provide('contextMenus', { register: () => () => {}, open: vi.fn(), active: createSnapshotStore(null) } as never)
+  rt.slots.provideRoot({ props: {
+    useContextMenu: contextMenuHook((target, point) => { rt.ctx.contextMenus.open(target, point) }),
+  } })
   rt.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) } } as never)
   rt.ctx.provide('layout', { openRightbar: vi.fn(), closeRightbar: vi.fn(), panelInfo: rt.panelInfo } as never)
   rt.ctx.provide('shortcuts', { register: () => () => {}, catalog: { getSnapshot: () => SHORTCUT_CATALOG, subscribe: () => () => {} } } as never)
@@ -50,7 +56,7 @@ async function boot() {
     'conversation.session.header.corner': { kind: 'single', scope: 'session' },
   })
   await rt.sessions.add({ id: SESSION })
-  await rt.sessions.retainFor(rt.ctx, SESSION, { source: 'mainView' }).ready
+  await rt.sessions.retainFor(rt.ctx, SESSION, { source: 'mainView', facets: { conversation: true } }).ready
   await rt.mount({ inject: [...resourcesInject], apply: resourcesApply })
   const read = vi.fn<WorkspaceFilesReadRemote['workspaceFiles']['read']>().mockImplementation(async (_sessionId, _path, range) => ({
     ok: true,
@@ -65,7 +71,7 @@ async function boot() {
     },
   }))
   await rt.mount({ inject: [...sidebarInject], apply: sidebarApply })
-  await rt.mount({ inject: [...inject], apply })
+  await rt.mount({ inject: [...inject], apply }, syncedConfig({}))
   const view = rt.renderSlot('rightbar', { width: 600, viewportWidth: 1440, canShow: true })
   const open = (name: string): void => {
     act(() => { rt.ctx.sidebarRight.openResource('dsh-resource://file/session/documents/' + name) })

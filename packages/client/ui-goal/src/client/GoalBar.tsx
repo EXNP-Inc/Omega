@@ -1,20 +1,21 @@
 /**
  * GoalBar: the goal indicator docked above the message composer (input dock
  * strip). A present goal shows a goal glyph, a phase label, the truncated
- * objective, and icon actions — resume when active-disarmed or paused, edit
- * (inline form in the same strip), and clear. Goal creation lives on the
- * `/goal` command, not here: loading (undefined), no goal (null), and complete
- * goals render nothing. Durable state arrives as the projected whole snapshot;
+ * objective, and icon actions — edit (inline form in the same strip), clear,
+ * then pause when armed (disabled until activation is known) or resume when
+ * active-disarmed, paused, or blocked.
+ * Goal creation lives on the `/goal` command, not here: loading (undefined), no goal
+ * (null), and complete goals render nothing. Durable state arrives as the projected whole snapshot;
  * process-local activation arrives through the injected activation hook.
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { GoalActivation, GoalSnapshot } from '@omega-ai/dsh-goal/client'
+import type { GoalActivation, GoalSnapshot } from '@deepseek-ai/dsh-goal/client'
 import {
   IconCheckOutlineRegular, IconCloseOutlineRegular, IconEditOutlineRegular, IconGoalOutlineRegular,
   IconPauseOutlineRegular, IconPlayOutlineRegular, IconTrashOutlineRegular, InlineEditor, Tooltip,
-} from '@omega-ai/dsh-client-ui-primitives'
-import type { InjectFace, PropsLocale, TranslateNS } from '@omega-ai/dsh-client-ui-slots'
+} from '@deepseek-ai/dsh-client-ui-primitives'
+import type { InjectFace, PropsLocale, TranslateNS } from '@deepseek-ai/dsh-client-ui-slots'
 import type { GoalActionResult, GoalBarActions, GoalBarInjected } from './slots.ts'
 import type { GoalKey } from './locales.ts'
 import css from './GoalBar.module.css'
@@ -128,8 +129,8 @@ export function GoalBar({ goal, activation, onEdit, onPause, onResume, onClear, 
 
   const title = goal.phase === 'blocked' ? goal.blockedReason?.message : undefined
   const label = goal.phase === 'active' ? activeLabel(activation, t) : t(PHASE_LABELS[goal.phase])
-  const showResume = goal.phase === 'paused'
-    || (goal.phase === 'active' && activation === 'disarmed')
+  const resume = goal.phase !== 'active' || activation === 'disarmed'
+  const toggleLabel = t(resume ? 'action.resume' : 'action.pause')
   return (
     <div className={css.dock} data-goal-bar>
       <div className={css.bar} title={title}>
@@ -138,20 +139,6 @@ export function GoalBar({ goal, activation, onEdit, onPause, onResume, onClear, 
         <span className={css.objective}>{goal.objective}</span>
         {actionError !== null && <span className={css.error} role="alert">{actionError}</span>}
         <div className={css.actions}>
-          {goal.phase === 'active' && activation === 'armed' && (
-            <Tooltip portal label={t('action.pause')} side="bottom" delayMs={500}>
-              <button type="button" className={css.iconBtn} disabled={pending} onClick={() => { void runAction(onPause) }} aria-label={t('action.pause')}>
-                <IconPauseOutlineRegular size={14} />
-              </button>
-            </Tooltip>
-          )}
-          {showResume && (
-            <Tooltip portal label={t('action.resume')} side="bottom" delayMs={500}>
-              <button type="button" className={css.iconBtn} disabled={pending} onClick={() => { void runAction(onResume) }} aria-label={t('action.resume')}>
-                <IconPlayOutlineRegular size={14} />
-              </button>
-            </Tooltip>
-          )}
           <Tooltip portal label={t('action.edit')} side="bottom" delayMs={500}>
             <button
               type="button"
@@ -168,6 +155,18 @@ export function GoalBar({ goal, activation, onEdit, onPause, onResume, onClear, 
               <IconTrashOutlineRegular size={14} />
             </button>
           </Tooltip>
+          {/* Until activation arrives, an active goal keeps a disabled pause so edit and clear stay in place. */}
+          <Tooltip portal label={toggleLabel} side="bottom" delayMs={500}>
+            <button
+              type="button"
+              className={css.iconBtn}
+              disabled={pending || (!resume && activation === undefined)}
+              onClick={() => { void runAction(resume ? onResume : onPause) }}
+              aria-label={toggleLabel}
+            >
+              {resume ? <IconPlayOutlineRegular size={14} /> : <IconPauseOutlineRegular size={14} />}
+            </button>
+          </Tooltip>
         </div>
       </div>
     </div>
@@ -176,7 +175,7 @@ export function GoalBar({ goal, activation, onEdit, onPause, onResume, onClear, 
 
 /** Full props of the dock entry: InputZone owner share + injected verbs/activation hook + the locale seat. */
 export type GoalDockProps =
-  import('@omega-ai/dsh-client-ui-slots').PropsRuntime<'conversation.input.dock'>
+  import('@deepseek-ai/dsh-client-ui-slots').PropsRuntime<'conversation.input.dock'>
   & InjectFace<GoalBarInjected>
   & PropsLocale<'goal'>
 

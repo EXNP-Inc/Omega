@@ -1,25 +1,21 @@
 /** Source, installation, and composition regressions for default-product isolation. */
 
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { dirname, join } from 'node:path'
+import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
+import { EXPERIMENTAL_PACKAGE_NAME_EXCEPTIONS } from './experimental-package-policy.ts'
 import { verifyDefaultProductIsolation } from './verify-default-product-isolation.ts'
+import { writeFixtureFile as write } from './fixture-file.ts'
 
 const roots: string[] = []
-const experimental = '@omega-ai/dsh-experimental-prototype'
-const core = '@omega-ai/dsh-core'
-const base = '@omega-ai/dsh-base'
-const profile = 'packages/boot/app-boot/src/profile.ts'
+const experimental = '@deepseek-ai/dsh-experimental-prototype'
+const core = '@deepseek-ai/dsh-core'
+const base = '@deepseek-ai/dsh-base'
+const profile = 'packages/util/official-bundles/src/bundles.ts'
 const preset = 'packages/bundle/web-app/presets/standard.patch.yml'
 const patch = 'packages/bundle/base/cordis.patch.yml'
-
-function write(root: string, path: string, value: unknown): void {
-  const target = join(root, path)
-  mkdirSync(dirname(target), { recursive: true })
-  writeFileSync(target, typeof value === 'string' ? value : `${JSON.stringify(value)}\n`)
-}
 
 function manifest(root: string, path: string, fields: Record<string, unknown>): void {
   const existing = JSON.parse(readFileSync(join(root, path), 'utf8')) as Record<string, unknown>
@@ -29,18 +25,18 @@ function manifest(root: string, path: string, fields: Record<string, unknown>): 
 function fixture(): string {
   const root = mkdtempSync(join(tmpdir(), 'dsh.default-isolation-'))
   roots.push(root)
-  write(root, 'apps/cli/package.json', { name: '@omega-ai/dsh', dependencies: { [core]: 'workspace:^' } })
+  write(root, 'apps/cli/package.json', { name: '@deepseek-ai/dsh', dependencies: { [core]: 'workspace:^' } })
   write(root, 'apps/cli/src/bin.ts', 'export {}\n')
-  write(root, 'apps/web/package.json', { name: '@omega-ai/dsh-web-frontend' })
+  write(root, 'apps/web/package.json', { name: '@deepseek-ai/dsh-web-frontend' })
   write(root, 'apps/web/index.html', '<script type="module" src="/src/main.ts"></script>')
   write(root, 'apps/web/src/main.ts', 'export {}\n')
-  write(root, 'python/sdk-runtime/package.json', { name: '@omega-ai/dsh-python-runtime' })
+  write(root, 'python/sdk-runtime/package.json', { name: '@deepseek-ai/dsh-python-runtime' })
   write(root, 'packages/core/core/package.json', { name: core })
   write(root, 'packages/core/core/src/index.ts', 'export {}\n')
   write(root, 'packages/bundle/base/package.json', { name: base, dsh: { bundle: { patch: './cordis.patch.yml' } } })
   write(root, patch, [{ insert: [{ name: core }] }])
-  write(root, preset, [{ insert: [{ name: '@omega-ai/dsh-agent-preset', config: { id: 'standard', plugins: [{ name: core }] } }] }])
-  write(root, 'packages/preset/agent-preset/package.json', { name: '@omega-ai/dsh-agent-preset' })
+  write(root, preset, [{ insert: [{ name: '@deepseek-ai/dsh-agent-preset', config: { id: 'standard', plugins: [{ name: core }] } }] }])
+  write(root, 'packages/preset/agent-preset/package.json', { name: '@deepseek-ai/dsh-agent-preset' })
   write(root, profile, `export const PROFILE_TEMPLATES = { web: { bundles: ['${base}'] } }\n`
     + `export const DEFAULT_PROFILE_BUNDLES = ['${base}']\n`)
   write(root, 'packages/experimental/prototype/package.json', { name: experimental })
@@ -52,6 +48,32 @@ afterEach(() => {
 })
 
 describe('default product isolation', () => {
+  describe.each(Object.entries(EXPERIMENTAL_PACKAGE_NAME_EXCEPTIONS))('retained experimental identity %s', (directory, name) => {
+    it.each(['direct dependency', 'transitive dependency', 'npm alias', 'value import', 'subpath import', 'profile row', 'preset row'])(
+      'rejects default product use through a %s', (route) => {
+        const root = fixture()
+        write(root, `${directory}/package.json`, { name })
+        if (route === 'direct dependency') manifest(root, 'apps/cli/package.json', { dependencies: { [name]: 'workspace:*' } })
+        if (route === 'transitive dependency') manifest(root, 'packages/core/core/package.json', { dependencies: { [name]: 'workspace:*' } })
+        if (route === 'npm alias') manifest(root, 'packages/core/core/package.json', { dependencies: { alias: `npm:${name}@1.0.0` } })
+        if (route === 'value import') write(root, 'apps/cli/src/bin.ts', `import '${name}'\n`)
+        if (route === 'subpath import') write(root, 'apps/cli/src/bin.ts', `import '${name}/feature'\n`)
+        if (route === 'profile row') write(root, patch, [{ insert: [{ name }] }])
+        if (route === 'preset row') write(root, preset, [{ insert: [{ name: '@deepseek-ai/dsh-agent-preset', config: { id: 'standard', plugins: [{ name }] } }] }])
+        expect(verifyDefaultProductIsolation(root).failures).toEqual(expect.arrayContaining([
+          expect.stringMatching(new RegExp(`${name}.*default product must not include experimental packages`)),
+        ]))
+      },
+    )
+
+    it('allows a type-only reference without promoting it to runtime use', () => {
+      const root = fixture()
+      write(root, `${directory}/package.json`, { name })
+      write(root, 'apps/cli/src/bin.ts', `import type { Options } from '${name}'\nexport type { Options }\n`)
+      expect(verifyDefaultProductIsolation(root).failures).toEqual([])
+    })
+  })
+
   it.each(['@deepseek-ai/libreoffice-kit'])(
     'accepts independently published %s but rejects unknown workspace packages', (name) => {
       const root = fixture()
@@ -93,7 +115,7 @@ describe('default product isolation', () => {
 
   it.each([true, false])('ships an optional bundle switched off with legacy icon=%s', (legacy) => {
     const root = fixture()
-    const layer = '@omega-ai/dsh-experimental-layer'
+    const layer = '@deepseek-ai/dsh-experimental-layer'
     write(root, 'packages/experimental/layer/package.json', {
       name: layer, ...legacy ? { icon: './icon.svg' } : {},
       exports: { ...legacy ? {} : { './icon': './icon.svg' }, './locale/*.json': './locale/*.json' },
@@ -116,6 +138,31 @@ describe('default product isolation', () => {
     expect(verifyDefaultProductIsolation(root).failures.join('\n')).toContain(`optional bundle ${layer} must not be a default bundle`)
   })
 
+  it.each(['dependencies', 'source', 'patch'])(
+    'checks a nonexperimental optional bundle for experimental %s', (kind) => {
+      const root = fixture()
+      const layer = '@deepseek-ai/dsh-optional-layer'
+      write(root, 'packages/bundle/optional-layer/package.json', {
+        name: layer, icon: './icon.svg', exports: { './locale/*.json': './locale/*.json' },
+        dsh: { bundle: { patch: './cordis.patch.yml' } },
+      })
+      write(root, 'packages/bundle/optional-layer/src/index.ts', 'export {}')
+      write(root, 'packages/bundle/optional-layer/cordis.patch.yml', [])
+      manifest(root, 'apps/cli/package.json', { dependencies: { [core]: 'workspace:*', [layer]: 'workspace:*' } })
+      write(root, profile, `export const PROFILE_TEMPLATES = { web: { bundles: ['${base}'] } }\n`
+        + `export const DEFAULT_PROFILE_BUNDLES = ['${base}']\nexport const OPTIONAL_BUNDLES = ['${layer}']\n`)
+      expect(verifyDefaultProductIsolation(root).failures).toEqual([])
+      if (kind === 'dependencies') {
+        manifest(root, 'packages/bundle/optional-layer/package.json', { dependencies: { [experimental]: 'workspace:*' } })
+      } else if (kind === 'source') {
+        write(root, 'packages/bundle/optional-layer/src/index.ts', `import '${experimental}'`)
+      } else {
+        write(root, 'packages/bundle/optional-layer/cordis.patch.yml', [{ preset: 'preset-standard', insert: [{ name: experimental }] }])
+      }
+      expect(verifyDefaultProductIsolation(root).failures.join('\n')).toContain('must not include experimental packages')
+    },
+  )
+
   it('requires each optional bundle to be a runtime dependency that declares a bundle patch, an icon, and locale metadata', () => {
     const root = fixture()
     write(root, profile, `export const PROFILE_TEMPLATES = { web: { bundles: ['${base}'] } }\n`
@@ -131,7 +178,7 @@ describe('default product isolation', () => {
     write(root, profile, `export const PROFILE_TEMPLATES = { web: { bundles: ['${base}'] } }\n`
       + `export const DEFAULT_PROFILE_BUNDLES = ['${base}']\n`)
     manifest(root, 'apps/cli/package.json', { dependencies: { [core]: 'workspace:^', [experimental]: 'workspace:^' } })
-    expect(verifyDefaultProductIsolation(root).failures.join('\n')).toContain(`@omega-ai/dsh dependencies -> ${experimental}`)
+    expect(verifyDefaultProductIsolation(root).failures.join('\n')).toContain(`@deepseek-ai/dsh dependencies -> ${experimental}`)
   })
 
   it.each(['dependencies', 'optionalDependencies', 'peerDependencies'])(
@@ -157,12 +204,12 @@ describe('default product isolation', () => {
 
   it('rejects experimental names absent from the inventory and paths with another package name', () => {
     const root = fixture()
-    manifest(root, 'apps/cli/package.json', { dependencies: { '@omega-ai/dsh-experimental-missing': '*' } })
+    manifest(root, 'apps/cli/package.json', { dependencies: { '@deepseek-ai/dsh-experimental-missing': '*' } })
     manifest(root, 'packages/experimental/prototype/package.json', { name: '@fixture/innocent' })
     manifest(root, 'python/sdk-runtime/package.json', { dependencies: { '@fixture/innocent': '*' } })
 
     const failures = verifyDefaultProductIsolation(root).failures.join('\n')
-    expect(failures).toContain('@omega-ai/dsh-experimental-missing')
+    expect(failures).toContain('@deepseek-ai/dsh-experimental-missing')
     expect(failures).toContain('@fixture/innocent')
   })
 
@@ -265,8 +312,8 @@ describe('default product isolation', () => {
     [{ name: experimental, disabled: true }],
     [{ group: true, config: [{ name: experimental }] }],
     [{ insert: [{ name: experimental }] }],
-    [{ name: '@omega-ai/cordis-plugin-group', config: [{ name: experimental }] }],
-    [{ name: '@omega-ai/cordis-plugin-include', config: { patches: [{ insert: [{ name: experimental }] }] } }],
+    [{ name: '@deepseek-ai/cordis-plugin-group', config: [{ name: experimental }] }],
+    [{ name: '@deepseek-ai/cordis-plugin-include', config: { patches: [{ insert: [{ name: experimental }] }] } }],
   ].map(entries => ({ entries })))('rejects experimental plugin rows in $entries', ({ entries }) => {
     const root = fixture()
     write(root, patch, entries)
@@ -278,7 +325,7 @@ describe('default product isolation', () => {
     const root = fixture()
     write(root, patch, [{ insert: [{ name: core, config: { name: experimental, insert: [{ name: experimental }] } }] }])
     expect(verifyDefaultProductIsolation(root).failures).toEqual([])
-    write(root, patch, [{ name: '@omega-ai/cordis-plugin-include', config: { path: './nested.yml' } }])
+    write(root, patch, [{ name: '@deepseek-ai/cordis-plugin-include', config: { path: './nested.yml' } }])
     write(root, 'packages/bundle/base/nested.yml', [{ name: experimental }])
     expect(verifyDefaultProductIsolation(root).failures.join('\n')).toContain(experimental)
   })
@@ -358,7 +405,7 @@ describe('default product isolation', () => {
 
   it('checks group contents after an id-only patch changes the composed Web tree', () => {
     const root = fixture()
-    const web = '@omega-ai/dsh-web-app'
+    const web = '@deepseek-ai/dsh-web-app'
     write(root, 'packages/bundle/web-app/package.json', { name: web, dsh: { bundle: { patch: './cordis.patch.yml' } } })
     write(root, patch, [{ insert: [{ id: 'feature-group', group: true, config: [{ name: core }] }] }])
     write(root, 'packages/bundle/web-app/cordis.patch.yml', [
@@ -441,6 +488,6 @@ describe('default product isolation', () => {
   ])('rejects absent, empty, or uninspectable default profile definitions', (source) => {
     const root = fixture()
     write(root, profile, source)
-    expect(() => verifyDefaultProductIsolation(root)).toThrow('profile')
+    expect(() => verifyDefaultProductIsolation(root)).toThrow(`${profile}: `)
   })
 })

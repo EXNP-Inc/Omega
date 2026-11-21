@@ -1,10 +1,11 @@
-/** The `web-search-omega` settings section layered over the composition entry. */
+/** The `web-search-deepseek` settings section layered over the composition entry. */
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@omega-ai/cordis'
+import { Context } from '@deepseek-ai/cordis'
 import { liveConfig } from '../../../settings/settings/tests/live-config.ts'
-import WebRuntime from '@omega-ai/dsh-web'
-import * as omegaPlugin from '@omega-ai/dsh-web-search-omega'
+import WebRuntime from '@deepseek-ai/dsh-web'
+import DeepSeekAuth from '@deepseek-ai/dsh-deepseek-auth'
+import * as deepseekPlugin from '@deepseek-ai/dsh-web-search-deepseek'
 
 function jsonResponse(body: unknown): Response {
   return new Response(JSON.stringify(body), {
@@ -27,7 +28,8 @@ const ONE_RESULT = {
 async function boot() {
   const ctx = new Context()
   await ctx.plugin(WebRuntime, {})
-  const live = await liveConfig(ctx, omegaPlugin, { apiKey: 'ds-key', baseURL: 'https://search.entry.test/v1' })
+  await ctx.plugin(DeepSeekAuth)
+  const live = await liveConfig(ctx, deepseekPlugin, { apiKey: 'ds-key', baseURL: 'https://search.entry.test/v1' })
   return { ctx, live }
 
 }
@@ -51,7 +53,7 @@ async function searchOnce(ctx: Context): Promise<string> {
   return String((fetchSpy.mock.calls.at(-1)?.[0] as URL | string | undefined) ?? '')
 }
 
-describe('web-search-omega settings section', () => {
+describe('web-search-deepseek settings section', () => {
   it('serves a stored endpoint to the next search without re-registering the provider', async () => {
     const bench = await boot()
     expect(await searchOnce(bench.ctx)).toContain('https://search.entry.test/v1')
@@ -64,4 +66,15 @@ describe('web-search-omega settings section', () => {
     await bench.ctx.fiber.dispose()
   })
 
+  it('lists the provider with its description for the Search menu', async () => {
+    const bench = await boot()
+    const [listed] = bench.ctx.web.listProviders().search
+    expect(listed).toMatchObject({ id: 'deepseek-official' })
+    expect(listed).not.toHaveProperty('title')
+    expect(listed?.description).toMatchObject({
+      en: 'No per-search charge, but every search uses extra model tokens. Requires a DeepSeek account or API key.',
+      zh: '搜索不按次收费，每次搜索都会额外消耗模型 token。需要 DeepSeek 账号或 API Key。',
+    })
+    await bench.ctx.fiber.dispose()
+  })
 })

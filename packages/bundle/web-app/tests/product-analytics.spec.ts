@@ -1,13 +1,13 @@
-import OTel from '@omega-ai/dsh-otel'
+import OTel from '@deepseek-ai/dsh-otel'
 /** Desktop-only collector policy and bounded shutdown against an unresponsive receiver. */
 import { createServer } from 'node:http'
 import { once } from 'node:events'
 import { fileURLToPath } from 'node:url'
-import { Context } from '@omega-ai/cordis'
-import Loader from '@omega-ai/cordis-plugin-loader'
-import { loadOverlayPatches } from '@omega-ai/dsh-app-boot'
-import * as Telemetry from '@omega-ai/dsh-host-product-telemetry-otel'
-import Analytics from '@omega-ai/dsh-client-product-analytics'
+import { Context } from '@deepseek-ai/cordis'
+import Loader from '@deepseek-ai/cordis-plugin-loader'
+import { loadOverlayPatches } from '@deepseek-ai/dsh-app-boot'
+import * as Telemetry from '@deepseek-ai/dsh-host-product-telemetry-otel'
+import Analytics from '@deepseek-ai/dsh-client-product-analytics'
 import { afterEach, expect, it, onTestFinished, vi } from 'vitest'
 
 afterEach(() => { vi.unstubAllEnvs() })
@@ -26,10 +26,10 @@ it.each(['desktop', 'web'])('limits collection and its shutdown to the Desktop l
   onTestFinished(() => ctx.fiber.dispose())
   ctx.provide('profileContext', {
     name: profile, dir: '/profile', patchPath: '/profile/cordis.patch.yml', installAnchor: '/profile/package.json',
-    cwd: '/workspace', home: '/home', startedBundles: [], overlays: [], telemetryDisabledEnv: undefined,
+    cwd: '/workspace', home: '/home', startedBundles: [], overlayPaths: [], telemetryDisabledEnv: undefined,
   })
   const identity = vi.fn().mockResolvedValue(undefined)
-  ctx.provide('omegaAccount', { getDeviceIdentity: identity } as never)
+  ctx.provide('deepseekAccount', { getDeviceIdentity: identity } as never)
   await ctx.plugin(OTel)
   ctx.baseUrl = 'file:///'
   await ctx.plugin(Loader).await()
@@ -72,7 +72,11 @@ it.each(['desktop', 'web'])('limits collection and its shutdown to the Desktop l
   }
   const emit = vi.spyOn(ctx.productTelemetry, 'emit')
   await analytics.report({ eventName: 'desktop_app_launch', timestamp: 1, attributes: {} })
-  expect(emit).toHaveBeenCalledWith(expect.objectContaining({ attributes: { app_version: 'test-version' } }))
+  expect(emit).toHaveBeenCalledOnce()
+  const attributes = emit.mock.calls[0]?.[0].attributes
+  expect(attributes?.app_version).toBe('test-version')
+  expect(typeof attributes?.os_name).toBe('string')
+  expect(typeof attributes?.memory_total_bytes).toBe('number')
   lifetime.abort()
   await policy.return?.()
   ctx.productTelemetry.emit({ eventName: 'desktop_upgrade_install_restart_click', body: 'upgrade', timestamp: Date.now() })

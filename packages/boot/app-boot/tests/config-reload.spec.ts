@@ -4,8 +4,8 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import type { Include } from '@omega-ai/cordis-plugin-include'
+import { Context } from '@deepseek-ai/cordis'
+import type { Include } from '@deepseek-ai/cordis-plugin-include'
 import { boot } from '../src/index.ts'
 
 const NAME = 'dsh-test-bin'
@@ -246,13 +246,13 @@ describe('best-effort config failure recovery', () => {
       await ctx.loader.await()
       const entry = [...ctx.loader.entries()].find(candidate => candidate.options.id === 'webserver')!
       expect(entry.options.config).toEqual({ value: 'invalid' })
-      expect(entry.fiber?.config).toEqual({ value: 1 })
+      expect(entry.fiber?.effectiveConfig).toEqual({ value: 1 })
       expect(ctx.get('validatedValue')).toBe(1)
 
       writeFileSync(join(dir, 'cordis.yml'), config(2))
       await include.refresh()
       await ctx.loader.await()
-      expect(entry.fiber?.config).toEqual({ value: 2 })
+      expect(entry.fiber?.effectiveConfig).toEqual({ value: 2 })
       expect(ctx.get('validatedValue')).toBe(2)
     } finally {
       await ctx.fiber.dispose()
@@ -264,7 +264,7 @@ describe('shipped builtins', () => {
   it('lets a booted composition share one isolate realm across a group of rows', async () => {
     // The reason `boot()` registers `cordis:group`: a composition — notably an
     // agent preset living outside this workspace, which cannot resolve
-    // `@omega-ai/cordis-plugin-group` by name — gives a provider and its consumer one
+    // `@deepseek-ai/cordis-plugin-group` by name — gives a provider and its consumer one
     // named realm so the service stays out of the root realm while remaining
     // visible to the rows that need it.
     const { ctx } = await bootTree([
@@ -293,7 +293,7 @@ describe('shipped builtins', () => {
       // implementation is stored under that symbol, so the root realm cannot
       // resolve the service and a second composition mounting the same rows
       // cannot collide with this one.
-      const rootKey = ctx.root[Context.isolate].demoRealmSvc
+      const rootKey = ctx[Context.root][Context.isolate].demoRealmSvc
       expect(rootKey).toBeDefined()
       expect(ctx.reflect.store[rootKey!]).toBeUndefined()
     } finally {

@@ -1,15 +1,15 @@
-- id: llm-omega
+- id: llm-deepseek
   disabled: true
 
 - insert:
     - id: llm-replay
-      name: '@omega-ai/dsh-llm-replay'
+      name: '@deepseek-ai/dsh-llm-replay'
       config:
         providers:
-          - id: omega-official
-            name: Omega
+          - id: deepseek-official
+            name: DeepSeek
             models:
-              - id: omega-v4-flash
+              - id: deepseek-v4-flash
                 contextWindow: 1000000
                 defaultMaxTokens: 256000
                 reasoningEfforts: [off, low, high, max]
@@ -17,13 +17,15 @@
     - id: literal-sdk
       name: '../../../packages/core/tools/tests/fixtures/literal-sdk.ts'
 
-- id: tools
-  config:
-    mode: ptc
+- id: tool-executor-native
+  disabled: true
+
+- id: tool-executor-ptc
+  disabled: false
 
 - id: system-prompt
   config:
     personaPrefix: |
-      You are a coding assistant powered by the {{model}} model. Your working directory is {{cwd}}.
+      You are a coding assistant powered by the {{model}} model.
 
       Verify your work by running the code or tests. Keep answers brief and factual.

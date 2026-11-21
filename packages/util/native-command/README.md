@@ -3,7 +3,7 @@ description: "Host-native command and path-opening utilities with shell-free exe
 kind: "package-library"
 ---
 
-# @omega-ai/dsh-native-command
+# @deepseek-ai/dsh-native-command
 
 English | [中文](README.zh.md)
 
@@ -27,10 +27,12 @@ English | [中文](README.zh.md)
 
 Use this runner when a host-side integration must execute one native command and needs its output, its failure, or both — and must never involve a shell.
 
+`isWsl()` distinguishes Linux processes with WSL environment or kernel markers from ordinary Linux and native Windows processes. Detection remains true when Windows interoperation is disabled; callers must check the requested Windows capability separately.
+
 ### Running a command
 
 ```ts
-import { runNativeCommand } from '@omega-ai/dsh-native-command'
+import { runNativeCommand } from '@deepseek-ai/dsh-native-command'
 
 declare const script: string
 declare const signal: AbortSignal

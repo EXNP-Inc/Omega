@@ -9,15 +9,15 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { FSWatcher, type ChokidarOptions } from 'chokidar'
-import { Context } from '@omega-ai/cordis'
+import { Context } from '@deepseek-ai/cordis'
 import Hmr from '../src/index.ts'
-import Timer from '@omega-ai/cordis-plugin-timer'
+import Timer from '@deepseek-ai/cordis-plugin-timer'
 import {
   boot,
   loadOptionalPatches,
   PROFILE_PATCH_FILENAME,
   reconcileProfilePatches,
-} from '@omega-ai/dsh-app-boot'
+} from '@deepseek-ai/dsh-app-boot'
 
 const NAME = 'dsh-test-bin'
 

@@ -1,5 +1,5 @@
 /** Command contributions and immutable catalog values. */
-import type { ObservableSnapshot } from '@omega-ai/dsh-client-store'
+import type { ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
 import type { BindingIssue, NormalizedBinding, ShortcutConfigSnapshot, ShortcutEdit, ShortcutRevision, ShortcutSaveResult, ShortcutBinding, ShortcutCommandId, ShortcutPlatform, ShortcutProfile, ShortcutRuntime } from '../protocol.ts'
 
 /** Local input owner resolved before an application command. */
@@ -86,6 +86,10 @@ export interface Shortcuts {
   readonly catalog: ObservableSnapshot<readonly ShortcutCatalogEntry[]>
   readonly config: ObservableSnapshot<ShortcutConfigSnapshot>
   readonly fixedCatalog: ObservableSnapshot<readonly ShortcutFixedCatalogEntry[]>
+  /**
+   * Host-configured maximum interval between the two Escape presses of a stop sequence, in milliseconds;
+   * each read returns the latest synced value.
+   */
   readonly stopSequenceMs: number
   /**
    * Contribute one fixed action and reserve its keys against editable bindings.

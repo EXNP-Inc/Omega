@@ -5,15 +5,15 @@
  * contract (double install / not installed / non-root key), store instance
  * resolution and lifecycle on the ledger axis, and the entry-unload cascade.
  */
-import { Context } from '@omega-ai/cordis'
+import { Context } from '@deepseek-ai/cordis'
 import { describe, expect, it, vi } from 'vitest'
 import type { FC } from 'react'
-import { StaleAuthorizationError } from '@omega-ai/dsh-client-ui-slots'
-import type { ScopedStandardSourceBinding, SlotRendererHost } from '@omega-ai/dsh-client-ui-slots'
+import { StaleAuthorizationError } from '@deepseek-ai/dsh-client-ui-slots'
+import type { ScopedStandardSourceBinding, SlotRendererHost } from '@deepseek-ai/dsh-client-ui-slots'
 import { SlotRegistry } from '../src/client/registry.ts'
 
 // Test-only slot keys (merged so the typed entries/spec faces accept them).
-declare module '@omega-ai/dsh-client-ui-slots' {
+declare module '@deepseek-ai/dsh-client-ui-slots' {
   interface SlotMap {
     't.host': { kind: 'single'; scope: 'root' }
     't.maybe': { kind: 'single'; scope: 'session-maybe' }
@@ -242,6 +242,25 @@ describe('Factory definition ledger', () => {
     expect(handle.create).toHaveBeenCalledOnce()
     expect(handle.create).toHaveBeenCalledWith('s1')
     await scope.fiber.dispose()
+  })
+})
+
+describe('registering package', () => {
+  it('stamps the nearest Loader entry name, walking up through nested plugins, and nothing outside an entry', async () => {
+    const b = await boot()
+    b.erased.register({ name: 'root', children: { 't.rows': { kind: 'list', scope: 'root' } } }, C)
+    let outer: Context | undefined, inner: Context | undefined
+    await b.ctx.plugin({ inject: ['slots'], apply: (ctx: Context) => {
+      outer = ctx
+      ctx.plugin({ inject: ['slots'], apply: (child: Context) => { inner = child } })
+    } })
+    Object.assign(outer!.fiber, { entry: { options: { name: '@acme/dsh-rows' } } })
+    inner!.slots.register({ name: 't.rows', id: 'nested' }, C)
+    outer!.slots.register({ name: 't.rows', id: 'outer' }, C)
+    b.erased.register({ name: 't.rows', id: 'root' }, C)
+    expect(b.svc.entries('t.rows').map(entry => [entry.options.id, entry.module])).toEqual([
+      ['nested', '@acme/dsh-rows'], ['outer', '@acme/dsh-rows'], ['root', undefined],
+    ])
   })
 })
 

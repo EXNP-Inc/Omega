@@ -7,7 +7,7 @@ const shared = {
   fixedExtension: false,
   dts: false,
   deps: {
-    neverBundle: [/^@omega-ai\//],
+    neverBundle: [/^@deepseek-ai\//],
     onlyBundle: false as const,
   },
 }
@@ -63,6 +63,13 @@ export default defineConfig([
       'conversation-fold.worker': 'conversation-fold/conversation-fold.worker.client.ts',
     },
     outDir: '.dsh-build/conversation-fold',
+    clean: true,
+    tsconfig: 'tsconfig.client.json',
+  },
+  {
+    ...shared,
+    entry: { 'user-text.worker': 'user-text/user-text.worker.client.ts' },
+    outDir: '.dsh-build/user-text',
     clean: true,
     tsconfig: 'tsconfig.client.json',
   },

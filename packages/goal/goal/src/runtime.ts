@@ -1,6 +1,6 @@
 /** Runtime constructors and protocol constants for the goal domain. */
 
-import { HarnessError } from '@omega-ai/dsh-llm'
+import { HarnessError } from '@deepseek-ai/dsh-llm'
 import type { GoalId as GoalIdType } from './types.ts'
 import type { GoalErrorCode } from './domain.ts'
 
@@ -22,9 +22,8 @@ export class GoalError extends HarnessError {
    * @param message - human-readable rejection reason.
    * @param code - stable machine-routable classification.
    */
-  // Keep the constructor to narrow HarnessError's string code at this boundary.
-  // oxlint-disable-next-line typescript/no-useless-constructor -- type-only narrowing
   constructor(message: string, code: GoalErrorCode) {
     super(message, code)
+    this.name = 'GoalError'
   }
 }

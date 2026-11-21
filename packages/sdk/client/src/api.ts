@@ -1,48 +1,50 @@
 /**
- * High-level run API over {@link HarnessClient}: `OmegaHarness` owns one
- * runtime subprocess across many sessions; `HarnessSession.run` sends a
- * prompt and settles when the whole agent next becomes idle.
+ * High-level run API over {@link HarnessClient}: route text to prompts or native
+ * commands and collect prompt activity for text and image input.
  *
- * @module @omega-ai/dsh-sdk-client/api
+ * @module @deepseek-ai/dsh-sdk-client/api
  */
 
 import { randomUUID } from 'node:crypto'
 import { resolve } from 'node:path'
-import type { SessionEvent, TurnEndReason } from '@omega-ai/dsh-session'
-import { createProcessHarnessClient, HarnessClient, isRecord, SdkProtocolError } from './client.ts'
+import type { SessionResumeParams } from '@deepseek-ai/dsh-sdk-protocol'
+import type { SessionEvent, TurnEndReason } from '@deepseek-ai/dsh-session'
+import { createProcessHarnessClient, HarnessClient, isRecord, queryInput, SdkProtocolError } from './client.ts'
 import type { RuntimeProcessOptions } from './launch.ts'
-import type { ContentBlock, OmegaHarnessOptions, HarnessNotification, RunResult, SdkPromptContentBlock } from './types.ts'
+import type { ContentBlock, DeepSeekHarnessOptions, HarnessNotification, RunResult, SdkPromptContentBlock } from './types.ts'
 
 /**
- * Reusable SDK for running Omega agent turns in a runtime
+ * Reusable SDK for running DeepSeek Harness agent turns in a runtime
  * subprocess. The subprocess starts lazily on first use and stays owned by
  * this instance until {@link close}; always close (or `await using`) so the
  * child is reaped.
  */
-export class OmegaHarness implements AsyncDisposable {
+export class DeepSeekHarness implements AsyncDisposable {
   private clientInstance: HarnessClient
   private readonly createClient: () => HarnessClient
   private readonly cwd: string
   private readonly provider: string
   private readonly model: string
-  private readonly reasoningEffort: OmegaHarnessOptions['reasoningEffort']
+  private readonly reasoningEffort: DeepSeekHarnessOptions['reasoningEffort']
   private readonly maxTokens: number | undefined
+  private readonly approvalRequests: boolean | undefined
   private initialized: Promise<void> | undefined
   private closed = false
 
   /** @param options - dsh launch configuration plus the session route, effort, and output cap. */
-  constructor(options?: OmegaHarnessOptions)
-  constructor(options: OmegaHarnessOptions = {}, clientFactory?: () => HarnessClient) {
+  constructor(options?: DeepSeekHarnessOptions)
+  constructor(options: DeepSeekHarnessOptions = {}, clientFactory?: () => HarnessClient) {
     this.createClient = clientFactory ?? (() => new HarnessClient(options))
     this.clientInstance = this.createClient()
     // Absolute before the handshake: the child spawns relative to THIS
     // process's cwd, but the wire cwd is resolved again inside the child — a
     // relative value would double-resolve (e.g. `worker` → `worker/worker`).
     this.cwd = resolve(options.cwd ?? options.processCwd ?? process.cwd())
-    this.provider = options.provider ?? 'mac'
-    this.model = options.model ?? 'qwen3.8-27b-lite'
+    this.provider = options.provider ?? 'deepseek-official'
+    this.model = options.model ?? 'deepseek-v4-flash'
     this.reasoningEffort = options.reasoningEffort
     this.maxTokens = options.maxTokens
+    this.approvalRequests = options.approvalRequests
   }
 
   /**
@@ -76,6 +78,7 @@ export class OmegaHarness implements AsyncDisposable {
           model: this.model,
           ...this.reasoningEffort === undefined ? {} : { reasoningEffort: this.reasoningEffort },
           ...this.maxTokens === undefined ? {} : { maxTokens: this.maxTokens },
+          ...this.approvalRequests === undefined ? {} : { approvalRequests: this.approvalRequests },
         })
       } catch (error) {
         this.initialized = undefined
@@ -84,7 +87,7 @@ export class OmegaHarness implements AsyncDisposable {
         } catch (cleanupError: unknown) {
           throw new AggregateError(
             [error, cleanupError],
-            'Omega initialization and cleanup failed',
+            'DeepSeek Harness initialization and cleanup failed',
           )
         }
         if (!this.closed) this.clientInstance = this.createClient()
@@ -96,7 +99,7 @@ export class OmegaHarness implements AsyncDisposable {
 
   /**
    * Open a session handle (no wire traffic; the runtime creates the session
-   * on its first prompt).
+   * on its first prompt or working-directory operation).
    * @param sessionId - explicit id to reuse; omitted mints a fresh one.
    * @returns the session handle.
    */
@@ -105,10 +108,23 @@ export class OmegaHarness implements AsyncDisposable {
   }
 
   /**
-   * Run one prompt on a fresh (or named) session.
-   * @param input - prompt text, or content blocks sent verbatim.
-   * @param options - optional session id and per-notification observer.
-   * @returns the owned activity interval.
+   * Start the runtime and restore a persisted session without sending input.
+   * The configured Harness home must contain its history; missing or occupied sessions reject.
+   * @param sessionId - exact persisted identity to continue.
+   * @param options - explicit permission preset to persist before execution; omission retains saved permissions.
+   * @returns a handle ready to run new prompts on the restored history.
+   */
+  async resumeSession(sessionId: string, options: Omit<SessionResumeParams, 'sessionId'> = {}): Promise<HarnessSession> {
+    await this.start()
+    await this.client.resumeSession(sessionId, options)
+    return new HarnessSession(this, sessionId)
+  }
+
+  /**
+   * Run text or content blocks on a fresh or named Session through native input routing.
+   * @param input - prompt or command text, optionally accompanied by image content blocks.
+   * @param options - optional Session identity and notification observer.
+   * @returns the completed input's RunResult, including its Session id.
    */
   run(input: string | SdkPromptContentBlock[], options?: RunOptions): Promise<RunResult> {
     return this.session(options?.sessionId).run(input, options)
@@ -134,26 +150,75 @@ export class OmegaHarness implements AsyncDisposable {
 }
 
 /** Construct the high-level API against a generic process for package-local fake-runtime tests. */
-export function createProcessOmegaHarness(
+export function createProcessDeepSeekHarness(
   runtime: RuntimeProcessOptions,
-  options: OmegaHarnessOptions = {},
-): OmegaHarness {
-  const Constructor = OmegaHarness as new (
-    publicOptions: OmegaHarnessOptions,
+  options: DeepSeekHarnessOptions = {},
+): DeepSeekHarness {
+  const Constructor = DeepSeekHarness as new (
+    publicOptions: DeepSeekHarnessOptions,
     clientFactory: () => HarnessClient,
-  ) => OmegaHarness
+  ) => DeepSeekHarness
   return new Constructor({
     ...runtime.cwd === undefined ? {} : { processCwd: runtime.cwd },
     ...options,
   }, () => createProcessHarnessClient(runtime))
 }
 
-/** Per-run options: target session and streaming observer. */
+/** Per-run Session identity and notification observer. */
 export interface RunOptions {
   /** Session id to run on; omitted mints a fresh session per call. */
   sessionId?: string
-  /** Observer invoked with every notification for this session tree, in wire order. */
+  /**
+   * Observe the input's Session-tree activity in wire order until completion.
+   * The interval can include overlapping work from other inputs.
+   */
   onNotification?: (notification: HarnessNotification) => void
+}
+
+/** Collect one input's root events and Session-tree notifications from its admission. */
+class RunActivity {
+  commandDone = false
+  private received = false
+  private readonly events: SessionEvent[] = []
+  private readonly notifications: HarnessNotification[] = []
+
+  constructor(private readonly sessionId: string, private readonly receipt: { messageId: string } | { commandId: string }) {}
+
+  /** Ignore pre-receipt traffic; validate root events before invoking the observer. */
+  record(notification: HarnessNotification, onNotification?: RunOptions['onNotification']): boolean {
+    if (notification.method === 'session.query.completed') return false
+    if (!this.received) {
+      if (notification.method !== 'session.event' || notification.params.sessionId !== this.sessionId
+        || !this.matchesReceipt(notification.params.event)) return false
+      this.received = true
+    }
+    const event = notification.method === 'session.event' && notification.params.sessionId === this.sessionId
+      ? validatedSessionEvent(notification.params.event) : undefined
+    if (event?.type === 'command/done' && 'commandId' in this.receipt
+      && isRecord(event.data) && event.data.commandId === this.receipt.commandId) this.commandDone = true
+    this.notifications.push(notification)
+    onNotification?.(notification)
+    if (event !== undefined) this.events.push(event)
+    return true
+  }
+
+  private matchesReceipt(event: unknown): boolean {
+    return 'messageId' in this.receipt ? isInboxReceipt(event, this.receipt.messageId)
+      : isRecord(event) && event.type === 'command/run' && isRecord(event.data)
+        && event.data.commandId === this.receipt.commandId
+  }
+
+  result(completed?: { finalResponse: string; finishReason: string }): RunResult {
+    if (completed !== undefined && !this.commandDone) {
+      throw new SdkProtocolError('Command completion is missing matching lifecycle events')
+    }
+    const terminal = this.events.findLast(event => event.type === 'turn/end')
+    return {
+      sessionId: this.sessionId, finalResponse: completed?.finalResponse ?? finalResponse(this.events),
+      finishReason: completed?.finishReason ?? terminal?.data.reason.kind ?? null,
+      events: this.events, notifications: this.notifications,
+    }
+  }
 }
 
 /**
@@ -164,73 +229,79 @@ export class HarnessSession {
    * @param harness - the owning harness (supplies the client and handshake).
    * @param id - the wire session id this handle runs on.
    */
-  constructor(readonly harness: OmegaHarness, readonly id: string) {}
+  constructor(readonly harness: DeepSeekHarness, readonly id: string) {}
 
   /**
-   * Queue one prompt, then observe the whole session through its next idle.
-   * @param input - prompt text, or content blocks sent verbatim.
-   * @param options - optional per-notification observer.
-   * @returns the owned activity interval; rejects on transport loss, timeout,
-   * or a protocol error.
+   * Read the effective directory and recover a missing directory to the Session origin.
+   * @returns the absolute directory used by new independent operations.
+   */
+  async getWorkingDirectory(): Promise<string> {
+    await this.harness.start()
+    return this.harness.client.getWorkingDirectory(this.id)
+  }
+
+  /**
+   * Change the effective directory without moving existing processes; the workspace-write boundary follows it.
+   * @param path - absolute or Session-current-directory-relative directory.
+   * @returns the validated absolute directory.
+   */
+  async setWorkingDirectory(path: string): Promise<string> {
+    await this.harness.start()
+    return this.harness.client.setWorkingDirectory(this.id, path)
+  }
+
+  /**
+   * Run text or content blocks through native prompt-or-command routing.
+   * @param input - prompt or command text, optionally accompanied by image content blocks; image-only input is an ordinary prompt.
+   * @param options - a per-notification observer.
+   * @returns RunResult after prompt activity, a state-only command, or command-started model work ends.
+   * Goal creation and resume include automatic rounds through goal termination and the closing reply.
+   * Native handler refusals return finishReason="error".
+   * @throws on routing, protocol, transport or observer failure; runtime work is not rolled back.
    */
   async run(input: string | SdkPromptContentBlock[], options?: Pick<RunOptions, 'onNotification'>): Promise<RunResult> {
     await this.harness.start()
     const client = this.harness.client
-    const contentBlocks = normalizeInput(input)
-    const events: SessionEvent[] = []
-    const notifications: HarnessNotification[] = []
-
     const subscription = client.subscribeSessionTree(this.id)
-    const collect = (notification: HarnessNotification): void => {
-      if (notification.method === 'session.event' && notification.params.sessionId === this.id) {
-        // Wire boundary: the envelope feeds the typed RunResult, so a
-        // malformed runtime surfaces as a protocol error, not as type-invalid
-        // data (or a TypeError out of finalResponse).
-        const event = validatedSessionEvent(notification.params.event)
-        notifications.push(notification)
-        options?.onNotification?.(notification)
-        events.push(event)
-        return
-      }
-      notifications.push(notification)
-      options?.onNotification?.(notification)
-    }
     try {
-      const messageId = await client.prompt(this.id, contentBlocks)
-      let received = false
+      const response = await queryInput(client, this.id, input)
+      if (response.kind === 'command') {
+        const activity = new RunActivity(this.id, { commandId: response.execution.commandId })
+        while (true) {
+          const notification = await subscription.next()
+          const params = notification.params
+          if (notification.method === 'session.query.completed' && params.sessionId === this.id) {
+            if (typeof params.commandId !== 'string' || params.commandId.length === 0) {
+              throw new SdkProtocolError('Invalid session.query.completed command identity')
+            }
+            if (params.commandId !== response.execution.commandId) continue
+            if (typeof params.finalResponse !== 'string' || typeof params.finishReason !== 'string'
+              || params.finishReason.length === 0) throw new SdkProtocolError('Invalid session.query.completed result')
+            // Failure completion can precede handler settlement; its lifecycle is queued before the RPC response.
+            while (!activity.commandDone) {
+              const queued = subscription.tryNext()
+              if (queued === undefined) break
+              activity.record(queued, options?.onNotification)
+            }
+            return activity.result({ finalResponse: params.finalResponse, finishReason: params.finishReason })
+          }
+          activity.record(notification, options?.onNotification)
+        }
+      }
+      const activity = new RunActivity(this.id, { messageId: response.messageId })
       while (true) {
         const notification = await subscription.next()
-        if (!received) {
-          if (notification.method !== 'session.event'
-            || notification.params.sessionId !== this.id
-            || !isInboxReceipt(notification.params.event, messageId)) continue
-          received = true
-        }
-        collect(notification)
+        if (!activity.record(notification, options?.onNotification)) continue
         if (notification.method === 'session.status'
           && notification.params.sessionId === this.id
           && notification.params.status === 'idle') break
       }
+      return activity.result()
     } finally {
       subscription.close()
     }
-
-    return {
-      sessionId: this.id,
-      finalResponse: finalResponse(events),
-      events,
-      notifications,
-    }
   }
-}
 
-/**
- * Normalize run input: a string becomes one text block; blocks pass verbatim.
- * @param input - prompt text or content blocks.
- * @returns the content blocks to send.
- */
-export function normalizeInput(input: string | SdkPromptContentBlock[]): SdkPromptContentBlock[] {
-  return typeof input === 'string' ? [{ type: 'text', text: input }] : input
 }
 
 /** Validate the provider-read fields of one wire turn-end reason. */
@@ -260,8 +331,12 @@ function validatedTurnEndReason(value: unknown): TurnEndReason {
   return value as TurnEndReason
 }
 
-/** Validate the fields in a wire `session.event` envelope before returning the typed result. */
-function validatedSessionEvent(value: unknown): SessionEvent {
+/**
+ * Validate the event envelope and assistant/turn fields consumed by SDK readers.
+ * @param value - the raw `session.event` event payload.
+ * @returns the event, or throws a protocol error for malformed consumed fields.
+ */
+export function validatedSessionEvent(value: unknown): SessionEvent {
   if (!isRecord(value) || typeof value.type !== 'string') {
     throw new SdkProtocolError(`session.event carried no event envelope: ${JSON.stringify(value)}`)
   }

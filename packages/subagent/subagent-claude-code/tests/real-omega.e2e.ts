@@ -1,3 +1,5 @@
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
+import { startExternalActivation } from '../../subagent/tests/external-activation-helpers.ts'
 import { execFile } from 'node:child_process'
 import { randomUUID } from 'node:crypto'
 import {
@@ -10,18 +12,19 @@ import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
-import { Context } from '@omega-ai/cordis'
+import { Context } from '@deepseek-ai/cordis'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Agent } from '@omega-ai/dsh-agent'
-import SubagentRuntime from '@omega-ai/dsh-subagent'
-import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
-import type { SubprocessHandle } from '@omega-ai/dsh-subprocess'
-import LocalSubprocessRuntime from '@omega-ai/dsh-subprocess-local'
+import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@deepseek-ai/dsh-agent-loop-testkit'
+import SubagentRuntime from '@deepseek-ai/dsh-subagent'
+import type { SessionId } from '@deepseek-ai/dsh-session'
+import type { SubprocessHandle } from '@deepseek-ai/dsh-subprocess'
+import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
 import * as claudeCode from '../src/index.ts'
+import { brandString } from '@deepseek-ai/dsh-brand'
 
 const execFileAsync = promisify(execFile)
-const OFFICIAL_OMEGA_MESSAGES_BASE_URL = 'https://api.omega.com/anthropic'
-const OMEGA_MODEL = 'omega-v4-flash'
+const OFFICIAL_DEEPSEEK_MESSAGES_BASE_URL = 'https://api.deepseek.com/anthropic'
+const DEEPSEEK_MODEL = 'deepseek-v4-flash'
 const sdkRoot = dirname(fileURLToPath(
   import.meta.resolve('@anthropic-ai/claude-agent-sdk'),
 ))
@@ -56,13 +59,13 @@ async function expectQuiescent(handles: readonly SubprocessHandle[]): Promise<vo
   }
 }
 
-describe.skipIf(!process.env.OMEGA_API_KEY)(
-  'Claude Code provider with real Omega API',
+describe.skipIf(!process.env.DEEPSEEK_API_KEY)(
+  'Claude Code provider with real DeepSeek API',
   () => {
     it('returns one unique nonce through the production provider and real SDK/CLI', async () => {
-      const apiKey = process.env.OMEGA_API_KEY
-      if (apiKey === undefined) throw new Error('e2e ran without OMEGA_API_KEY')
-      const root = mkdtempSync(join(tmpdir(), 'dsh-claude-omega-e2e-'))
+      const apiKey = process.env.DEEPSEEK_API_KEY
+      if (apiKey === undefined) throw new Error('e2e ran without DEEPSEEK_API_KEY')
+      const root = mkdtempSync(join(tmpdir(), 'dsh-claude-deepseek-e2e-'))
       roots.push(root)
       const workspace = join(root, 'workspace')
       const claudeConfig = join(root, 'claude-config')
@@ -81,12 +84,12 @@ describe.skipIf(!process.env.OMEGA_API_KEY)(
 
       const env = {
         ANTHROPIC_AUTH_TOKEN: apiKey,
-        ANTHROPIC_BASE_URL: OFFICIAL_OMEGA_MESSAGES_BASE_URL,
-        ANTHROPIC_MODEL: OMEGA_MODEL,
-        ANTHROPIC_DEFAULT_OPUS_MODEL: OMEGA_MODEL,
-        ANTHROPIC_DEFAULT_SONNET_MODEL: OMEGA_MODEL,
-        ANTHROPIC_DEFAULT_HAIKU_MODEL: OMEGA_MODEL,
-        CLAUDE_CODE_SUBAGENT_MODEL: OMEGA_MODEL,
+        ANTHROPIC_BASE_URL: OFFICIAL_DEEPSEEK_MESSAGES_BASE_URL,
+        ANTHROPIC_MODEL: DEEPSEEK_MODEL,
+        ANTHROPIC_DEFAULT_OPUS_MODEL: DEEPSEEK_MODEL,
+        ANTHROPIC_DEFAULT_SONNET_MODEL: DEEPSEEK_MODEL,
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: DEEPSEEK_MODEL,
+        CLAUDE_CODE_SUBAGENT_MODEL: DEEPSEEK_MODEL,
         CLAUDE_CODE_EFFORT_LEVEL: 'max',
         CLAUDE_CONFIG_DIR: claudeConfig,
         HOME: root,
@@ -105,7 +108,9 @@ describe.skipIf(!process.env.OMEGA_API_KEY)(
       }
       const ctx = new Context()
       contexts.push(ctx)
-      await ctx.plugin(SessionProjectionRegistry)
+      await mountAgentLoopTestDependencies(ctx, { workingDirectory: true })
+      const harness = await mountAgentLoopTestHarness(ctx)
+      await mountWorkingDirectoryFixture(ctx)
       await ctx.plugin(SubagentRuntime)
       await ctx.plugin(LocalSubprocessRuntime)
       const handles: SubprocessHandle[] = []
@@ -125,12 +130,9 @@ describe.skipIf(!process.env.OMEGA_API_KEY)(
       })
       expect(version.stdout.trim()).toBe('2.1.263 (Claude Code)')
 
-      const nonce = `DSH_CLAUDE_OMEGA_${randomUUID()}`
-      const parent = {
-        id: 'omega-e2e-parent',
-        session: { header: { cwd: workspace } },
-      } as unknown as Agent
-      const run = await ctx.subagents.start('claude-code', {
+      const nonce = `DSH_CLAUDE_DEEPSEEK_${randomUUID()}`
+      const parent = await harness.create(brandString<SessionId>('deepseek-e2e-parent'), {}, { cwd: workspace })
+      const run = await startExternalActivation(ctx, 'claude-code', {
         prompt: [{
           type: 'text',
           text: `Reply with exactly ${nonce} and nothing else. Do not use tools.`,

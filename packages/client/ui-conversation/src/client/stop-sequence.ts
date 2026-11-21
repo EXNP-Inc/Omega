@@ -1,5 +1,5 @@
 /** Two independent Escape presses addressed to one Conversation occurrence and live turn. */
-import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
 
 /** Freshly resolved cancellation target; occurrence and region preserve focus ownership. */
 export interface StopTarget {
@@ -17,10 +17,10 @@ export class StopSequence {
   private timer: ReturnType<typeof setTimeout> | undefined
 
   /**
-   * @param intervalMs - validated maximum time between independent presses.
+   * @param intervalMs - reads the current validated maximum time between independent presses; each first press reads it.
    * @param release - releases observations retained by the pending first press.
    */
-  constructor(private readonly intervalMs: number, private readonly release: () => void) {}
+  constructor(private readonly intervalMs: () => number, private readonly release: () => void) {}
 
   /** Clear the first press and its expiry timer. */
   reset(): void {
@@ -45,8 +45,9 @@ export class StopSequence {
       target.cancel()
       return true
     }
-    this.first = { target, deadline: performance.now() + this.intervalMs }
-    this.timer = setTimeout(() => { this.reset() }, this.intervalMs + 1)
+    const intervalMs = this.intervalMs()
+    this.first = { target, deadline: performance.now() + intervalMs }
+    this.timer = setTimeout(() => { this.reset() }, intervalMs + 1)
     return false
   }
 }

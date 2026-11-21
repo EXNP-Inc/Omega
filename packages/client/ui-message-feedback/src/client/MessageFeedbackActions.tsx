@@ -4,25 +4,30 @@
  * Session's feedback dialog, whose submission records that judgment with its
  * category and text. Clicking the recorded rating retracts it. A recorded rating
  * shows the filled glyph so the signal survives a pointer leaving the row.
- * @module @omega-ai/dsh-client-ui-message-feedback/client/MessageFeedbackActions
+ * @module @deepseek-ai/dsh-client-ui-message-feedback/client/MessageFeedbackActions
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   IconDislikeFillRegular, IconDislikeOutlineRegular, IconLikeFillRegular, IconLikeOutlineRegular, Tooltip,
-} from '@omega-ai/dsh-client-ui-primitives'
-import type { MessageFeedbackRating } from '@omega-ai/dsh-message-feedback/types'
+} from '@deepseek-ai/dsh-client-ui-primitives'
+import type { MessageFeedbackRating } from '@deepseek-ai/dsh-message-feedback/types'
 import type { MessageFeedbackActionFailure } from './controller.ts'
 import type { MessageFeedbackActionProps } from './slots.ts'
 import css from './MessageFeedbackActions.module.css'
 
 /**
- * One message's feedback controls.
- * @param props - the owner's message identity, the injected verbs, and the
- * shared feedback hook.
- * @returns the rating buttons with any failure notice beside them.
+ * One message's feedback controls, rendered only while the current Peer may
+ * record message feedback in this Session.
+ * @param props - the owner's message identity, the injected verbs, the
+ * shared feedback hook, and the Session access Hook.
+ * @returns the rating buttons with any failure notice beside them, or nothing without access.
  */
-export function MessageFeedbackActions({
+export function MessageFeedbackActions(props: MessageFeedbackActionProps) {
+  return props.useAccess('messageFeedback/put') ? <FeedbackRatingButtons {...props} /> : null
+}
+
+function FeedbackRatingButtons({
   messageId, ensure, current, retract, openDialog, useFeedback, t,
 }: MessageFeedbackActionProps) {
   const item = useFeedback(view => view.items.get(messageId))

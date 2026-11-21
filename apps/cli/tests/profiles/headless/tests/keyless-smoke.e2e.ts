@@ -3,9 +3,9 @@ import { zstdDecompressSync } from 'node:zlib'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { runLoaderSmoke } from '@omega-ai/dsh-loader-smoke'
-import type { SessionEvent } from '@omega-ai/dsh-session'
-import { scanZstdFrames } from '@omega-ai/dsh-session-persistence-jsonl/src/zstd.js'
+import { runLoaderSmoke } from '@deepseek-ai/dsh-loader-smoke'
+import type { SessionEvent } from '@deepseek-ai/dsh-session'
+import { scanZstdFrames } from '@deepseek-ai/dsh-session-persistence-jsonl/src/zstd.js'
 
 const PRODUCTION_PROFILE_PROCESS_TIMEOUT_MS = 60_000
 const PRODUCTION_PROFILE_TEST_TIMEOUT_MS = PRODUCTION_PROFILE_PROCESS_TIMEOUT_MS + 15_000
@@ -60,7 +60,9 @@ describe('headless-agent keyless smoke', () => {
     })
     expect(String(result?.['output'])).toContain('CLI_TOOL_ROUND_TRIP')
     expect(persistedHeader).toMatchObject({ type: 'session' })
-    expect(persistedToolNames).toEqual(expect.arrayContaining(['read', 'write', 'edit', 'web_fetch', 'web_search']))
+    expect(persistedToolNames).toEqual(expect.arrayContaining(['read', 'write', 'edit', 'web_fetch']))
+    // Neither DeepSeek search provider has a key in this composition, so the model request does not offer search.
+    expect(persistedToolNames).not.toContain('web_search')
     expect(persistedToolNames).not.toContain('str_replace_editor')
   }, PRODUCTION_PROFILE_TEST_TIMEOUT_MS)
 })

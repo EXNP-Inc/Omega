@@ -1,14 +1,28 @@
 import { createRequire } from 'node:module'
-import { Context } from '@omega-ai/cordis'
+import { Context } from '@deepseek-ai/cordis'
 import OTel from '../src/index.ts'
 import { Agent, createServer, type IncomingHttpHeaders } from 'node:http'
 import { once } from 'node:events'
 import { gunzipSync } from 'node:zlib'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import type { MeterProvider } from '@opentelemetry/api'
 import { CompressionAlgorithm } from '@opentelemetry/otlp-exporter-base'
 import { JsonLogsSerializer } from '@opentelemetry/otlp-transformer'
-import { SessionId, SessionSeq } from '@omega-ai/dsh-session'
-import { SESSION_LOG_MAX_REQUEST_BYTES, type SessionLogRecord, type SessionLogOptions } from '../src/session-log.ts'
+import { type SessionId, SessionSeq } from '@deepseek-ai/dsh-session'
+import { SESSION_LOG_MAX_REQUEST_BYTES, type SessionLogProcessorOptions, type SessionLogRecord, type SessionLogOptions } from '../src/session-log.ts'
+import type { LogExporterOptions } from '../src/transport.ts'
+import { brandString } from '@deepseek-ai/dsh-brand'
+
+/** Type-only probe: accepted channel options exclude SDK self-observability metering. */
+function meteringOptionsAreExcluded(url: string, meterProvider: MeterProvider): void {
+  // @ts-expect-error -- exporter self-observability metering is not accepted.
+  const exporter: LogExporterOptions = { url, selfObsMeterProvider: meterProvider }
+  // @ts-expect-error -- this processor implements no self-observability metering.
+  const processor: SessionLogProcessorOptions = { selfObsMeterProvider: meterProvider }
+  void exporter
+  void processor
+}
+void meteringOptionsAreExcluded
 
 interface Capture {
   bytes: number
@@ -62,7 +76,7 @@ async function collector(statuses = [200]) {
 
 function sessionRecord(text: string, seq = 0): SessionLogRecord {
   return {
-    sessionId: SessionId('synthetic-session'),
+    sessionId: brandString<SessionId>('synthetic-session'),
     event: { type: 'user/message', seq: SessionSeq(seq), time: 1_800_000_000_000, surfaceOp: 'append',
       data: { content: [{ type: 'text', text }], nested: { items: [null, true, false, 0, 1.5, { text }] } } },
   }
@@ -86,7 +100,7 @@ function parseContent(content: string): unknown {
 function reporter(endpoint: string, overrides: Partial<SessionLogOptions> = {}) {
   const onFailure = vi.fn()
   const sender = ctx.otel.createSessionLogReporter({
-    scope: { name: '@omega-ai/dsh-session-telemetry-otel', version: (createRequire(import.meta.url)('../package.json') as { version: string }).version },
+    scope: { name: '@deepseek-ai/dsh-session-telemetry-otel', version: (createRequire(import.meta.url)('../package.json') as { version: string }).version },
     exporter: { url: endpoint, timeoutMillis: 1000 }, resourceAttributes: { 'service.name': 'session-test' },
     processor: { scheduledDelayMillis: 60000 }, onFailure, ...overrides,
   })
@@ -107,7 +121,7 @@ it('preserves full nested events without truncation or ambient headers and retai
   expect(target.captures[0]!.headers).not.toHaveProperty('authorization')
   expect(target.captures[0]!.headers).not.toHaveProperty('x-channel')
   expect(target.captures[0]!.body.resourceLogs[0]!.scopeLogs[0]).toMatchObject({
-    scope: { name: '@omega-ai/dsh-session-telemetry-otel', version: (createRequire(import.meta.url)('../package.json') as { version: string }).version },
+    scope: { name: '@deepseek-ai/dsh-session-telemetry-otel', version: (createRequire(import.meta.url)('../package.json') as { version: string }).version },
   })
 })
 

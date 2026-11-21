@@ -1,9 +1,11 @@
 /**
  * Host-native command execution and path-opening utilities.
- * @module @omega-ai/dsh-native-command
+ * @module @deepseek-ai/dsh-native-command
  */
 
 export { runNativeCommand } from './runner.ts'
+export { isWsl } from './host-environment.ts'
+export type { HostEnvironmentFacts } from './host-environment.ts'
 export type { NativeCommandRunner } from './runner.ts'
 export {
   canOpenNativePath,

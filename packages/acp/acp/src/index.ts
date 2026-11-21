@@ -6,18 +6,18 @@
  * committed semantic updates, cancellation, and one-shot permission decisions;
  * presentation and human-interaction features stay with the harness's UI modules.
  *
- * @module @omega-ai/dsh-acp
+ * @module @deepseek-ai/dsh-acp
  */
 
-import type { Context } from '@omega-ai/cordis'
+import type { Context } from '@deepseek-ai/cordis'
 import { Buffer } from 'node:buffer'
 import { randomUUID } from 'node:crypto'
 import { realpath } from 'node:fs/promises'
 import { isAbsolute, resolve } from 'node:path'
 import { Readable, Writable } from 'node:stream'
-import Schema from '@omega-ai/schemastery'
-import { brandString } from '@omega-ai/dsh-brand'
-import { errorChain } from '@omega-ai/dsh-llm'
+import Schema from '@deepseek-ai/schemastery'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import { errorChain } from '@deepseek-ai/dsh-llm'
 import {
   agent as createAcpAgentApp,
   methods,
@@ -45,11 +45,10 @@ import {
   type SessionNotification,
   type Stream,
 } from '@agentclientprotocol/sdk'
-import type { ModelSelection } from '@omega-ai/dsh-agent'
-import type { SessionId } from '@omega-ai/dsh-session'
-import type {} from '@omega-ai/dsh-session-persistence'
+import type { SessionId } from '@deepseek-ai/dsh-session'
+import type {} from '@deepseek-ai/dsh-session-persistence'
 // Side-effect type import: declaration-merges the approval waterfall answered below.
-import type {} from '@omega-ai/dsh-user-approval'
+import type {} from '@deepseek-ai/dsh-user-approval'
 import { supportsAcpImagePrompts } from './content.ts'
 import { AcpMcpConfigError } from './mcp.ts'
 import { AcpModelConfigError } from './model-control.ts'
@@ -141,8 +140,12 @@ export function apply(ctx: Context, config: AcpConfig): void {
     ownedRecord(agent)?.onInboxClaimed(message, turn)
   })
 
-  ctx.on('agent/error', ({ agent, turn, error }) => {
-    ownedRecord(agent)?.onAgentError(turn, error)
+  ctx.on('agent/error', ({ agent, error }) => {
+    ownedRecord(agent)?.onAgentError(error)
+  })
+
+  ctx.on('agent/status', ({ agent, status }) => {
+    ownedRecord(agent)?.onAgentStatus(status)
   })
 
   ctx.on('llm/adapters-updated', () => {
@@ -179,7 +182,7 @@ export function apply(ctx: Context, config: AcpConfig): void {
       imagePromptEnabled = await supportsAcpImagePrompts(ctx, config.provider, config.model)
       return {
         protocolVersion: PROTOCOL_VERSION,
-        agentInfo: { name: 'omega-harness-acp', version: '0.0.1' },
+        agentInfo: { name: 'deepseek-harness-acp', version: '0.0.1' },
         agentCapabilities: {
           mcpCapabilities: { http: true },
           promptCapabilities: { image: imagePromptEnabled, audio: false, embeddedContext: false },
@@ -200,7 +203,7 @@ export function apply(ctx: Context, config: AcpConfig): void {
       // No preset composition: the ACP bundle keeps the model-facing rows in
       // the host plane, so this agent reads them from the global layer. A
       // deployment that configures a roster has to join one here first
-      // (@omega-ai/dsh-agent-preset-registry README, "Composing a child agent").
+      // (@deepseek-ai/dsh-agent-preset-registry README, "Composing a child agent").
       let record: AcpSession
       try {
         record = await AcpSession.create(ctx, {
@@ -208,7 +211,6 @@ export function apply(ctx: Context, config: AcpConfig): void {
           cwd: params.cwd,
           mcpServers: params.mcpServers,
           agentOptions: agentOptions(config),
-          fallbackSelection: initialSelection(config),
           signal,
           notify,
         })
@@ -246,7 +248,7 @@ export function apply(ctx: Context, config: AcpConfig): void {
       activating.add(sessionId)
       return (async (): Promise<ResumeSessionResponse> => {
         const persisted = (await persistence.stat(sessionId, { signal }))?.header
-        if (persisted === undefined || persisted.origin === 'subagent' || persisted.parentSession !== undefined) {
+        if (persisted === undefined || persisted.origin === 'subagent') {
           throw invalidParams(`session is not resumable: ${sessionId}`)
         }
         if (!await sameDirectory(persisted.cwd, params.cwd)) {
@@ -259,7 +261,6 @@ export function apply(ctx: Context, config: AcpConfig): void {
             cwd: params.cwd,
             mcpServers: params.mcpServers ?? [],
             agentOptions: agentOptions(config),
-            fallbackSelection: initialSelection(config),
             signal,
             notify,
           })
@@ -307,7 +308,6 @@ export function apply(ctx: Context, config: AcpConfig): void {
             || activating.has(header.id)
             || ctx.sessions.get(header.id) !== undefined
             || header.origin === 'subagent'
-            || header.parentSession !== undefined
             || header.cwd === undefined
             || !isAbsolute(header.cwd)
         ) return undefined
@@ -375,7 +375,7 @@ export function apply(ctx: Context, config: AcpConfig): void {
     Writable.toWeb(process.stdout) as WritableStream<Uint8Array>,
     Readable.toWeb(process.stdin) as ReadableStream<Uint8Array>,
   )
-  const app = createAcpAgentApp({ name: 'omega-harness-acp' })
+  const app = createAcpAgentApp({ name: 'deepseek-harness-acp' })
     .onRequest(methods.agent.initialize, ({ params }) => implementation.initialize(params))
     .onRequest(methods.agent.authenticate, async ({ params }) => {
       await implementation.authenticate(params)
@@ -446,13 +446,6 @@ function agentOptions(config: AcpConfig): { provider?: string; model?: string } 
     ...config.provider !== undefined ? { provider: config.provider } : {},
     ...config.model !== undefined ? { model: config.model } : {},
   }
-}
-
-/** Initial session selection when both deployment fields are present. */
-function initialSelection(config: AcpConfig): ModelSelection | undefined {
-  return config.provider === undefined || config.model === undefined
-    ? undefined
-    : { provider: config.provider, model: config.model }
 }
 
 interface SessionListCursor {

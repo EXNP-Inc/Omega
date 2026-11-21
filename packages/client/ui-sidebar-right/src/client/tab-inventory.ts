@@ -1,7 +1,7 @@
 /** Metadata inventory of saved and adopted layouts without mounting their content. */
-import { createSnapshotStore, type ObservableSnapshot } from '@omega-ai/dsh-client-store'
-import type { SessionId } from '@omega-ai/dsh-session/types'
-import type { TabId, TabRecord } from '@omega-ai/dsh-client-ui-dockkit'
+import { createSnapshotStore, type ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import type { TabId, TabRecord } from '@deepseek-ai/dsh-client-ui-dockkit'
 import { readSidebarLayout, sidebarPersistence } from './persistence.ts'
 
 /** One open occurrence; resource recovery belongs to its kind's provider. */
@@ -21,19 +21,21 @@ export class SidebarTabInventory {
 
   /** Read saved layouts once before the root service is published. */
   constructor() {
+    let keys: readonly (string | null)[] = []
     try {
-      if (typeof localStorage === 'undefined') return
-      const keys = Array.from({ length: localStorage.length }, (_, index) => localStorage.key(index))
-      for (const key of keys) {
-        if (key === null || !key.startsWith(`${sidebarPersistence}.`)) continue
-        const sessionId = key.slice(sidebarPersistence.length + 1) as SessionId
-        const saved = readSidebarLayout(sessionId)
-        if (saved !== undefined) this.sessions.set(sessionId, Object.values(saved.layout.tabs).map(tab => ({
-          sessionId, tabId: tab.id, kind: tab.kind, contentId: tab.contentId,
-        })))
-      }
-      this.publish()
-    } catch (_storageUnavailable) { /* Adopted in-memory layouts still publish their open tabs. */ }
+      keys = typeof localStorage === 'undefined' ? [] : Array.from({ length: localStorage.length }, (_, index) => localStorage.key(index))
+    } catch (_storageUnavailable) {
+      // Inaccessible storage holds no saved layouts; adopted in-memory layouts still publish their open tabs.
+    }
+    for (const key of keys) {
+      if (key === null || !key.startsWith(`${sidebarPersistence}.`)) continue
+      const sessionId = key.slice(sidebarPersistence.length + 1) as SessionId
+      const saved = readSidebarLayout(sessionId)
+      if (saved !== undefined) this.sessions.set(sessionId, Object.values(saved.layout.tabs).map(tab => ({
+        sessionId, tabId: tab.id, kind: tab.kind, contentId: tab.contentId,
+      })))
+    }
+    this.publish()
   }
 
   /**

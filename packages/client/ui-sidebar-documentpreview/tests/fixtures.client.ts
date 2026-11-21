@@ -7,17 +7,18 @@
  * read, behind one documented cast, so the specs exercise the components and
  * not the slot runtime.
  */
+import { contextMenuHook } from '@deepseek-ai/dsh-client-test-runtime'
 import { onTestFinished, vi } from 'vitest'
-import { Context } from '@omega-ai/cordis'
+import { Context } from '@deepseek-ai/cordis'
 import { ResourceRegistry } from '../../resources/src/client/resources.ts'
-import type { PropsRenderSlots } from '@omega-ai/dsh-client-ui-slots'
+import type { PropsRenderSlots } from '@deepseek-ai/dsh-client-ui-slots'
 import type { Mock } from 'vitest'
 import { act } from '@testing-library/react'
 import { createElement, useSyncExternalStore } from 'react'
-import type { RemoteFailure, RemoteResult } from '@omega-ai/dsh-api-remotes/client'
-import type { ResourceSnapshot } from '@omega-ai/dsh-client-resources/client'
-import type { SessionId } from '@omega-ai/dsh-session/types'
-import type { WorkspaceFileStat, WorkspaceFileText } from '@omega-ai/dsh-api-workspace-files/types'
+import type { RemoteFailure, RemoteResult } from '@deepseek-ai/dsh-api-remotes/client'
+import type { ResourceSnapshot } from '@deepseek-ai/dsh-client-resources/client'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import type { WorkspaceFileStat, WorkspaceFileText } from '@deepseek-ai/dsh-api-workspace-files/types'
 import type { TextPreviewProps } from '../src/client/TextPreview.tsx'
 import { textFace } from '../src/client/face.ts'
 import type { TextInjected } from '../src/client/face.ts'
@@ -27,7 +28,7 @@ import type { TextStore } from '../src/client/store.ts'
 import type { DocumentPreviewProps } from '../src/client/document/contract.ts'
 import { TextBody } from '../src/client/text/TextBody.tsx'
 import { textBodyDefinition } from '../src/client/text/index.ts'
-import type { TabId } from '@omega-ai/dsh-client-ui-dockkit'
+import type { TabId } from '@deepseek-ai/dsh-client-ui-dockkit'
 
 type BodySlot = PropsRenderSlots<'sidebar.right.tab.document'>['renderSlot']
 
@@ -140,13 +141,12 @@ export function harness(script: Record<number, RemoteResult<WorkspaceFileText>> 
   onTestFinished(() => { controller.abort() })
   const tabActions = { bindCommands: vi.fn(() => vi.fn()), openResource: vi.fn(), openTab: vi.fn(), close: vi.fn(), replace: vi.fn() }
   const definitions = [textBodyDefinition(() => t('viewer.text'))]
-  // The document seat renders the plain body; the file-handoff seats render a
-  // marker carrying what the owner handed them.
+  // The document slot renders the plain body; other positions mark their input.
   const renderSlot: TextPreviewProps['renderSlot'] = (key: string, owner: unknown, opts?: { hookContext?: unknown }) =>
     key === 'sidebar.right.tab.document'
       ? createElement(TextBody, {
         ...owner as object, useTabInfo: opts?.hookContext, sessionId: SESSION, useResource,
-      } as unknown as DocumentPreviewProps)
+      } as DocumentPreviewProps)
       : key === 'sidebar.right.tab.document.action' ? null : createElement('div', {
         'data-slot': key,
         'data-slot-path': (owner as { absolutePath: string }).absolutePath,
@@ -154,7 +154,7 @@ export function harness(script: Record<number, RemoteResult<WorkspaceFileText>> 
   const props = (navigation: { params?: unknown; revision: number } = { revision: 1 }) => ({
     useTabInfo: () => ({
       sidebar: { expanded: true, fullscreen: false },
-      panel: { id: 'pane-1' },
+      panel: { id: 'pane-1', isFloating: false },
       tab: {
         id: tabId, kind: 'text', contentId: ADDRESS, title: 'notes.md', visible: true,
         navigation: { address: ADDRESS, params: navigation.params, revision: navigation.revision },
@@ -164,6 +164,7 @@ export function harness(script: Record<number, RemoteResult<WorkspaceFileText>> 
     }),
     sessionId: SESSION,
     useResource,
+    useContextMenu: contextMenuHook(),
     useStore: hookOf(instance),
     actions: instance.actions,
     loadPage: face.loadPage,
@@ -173,8 +174,9 @@ export function harness(script: Record<number, RemoteResult<WorkspaceFileText>> 
     addResource: face.addResource, setResources: face.setResources,
     useDocumentPreviews: () => definitions,
     renderSlot,
+    renderFactorySlot: (key: string) => createElement('div', { 'data-navigator-factory': key }),
     t,
-  }) as unknown as TextPreviewProps
+  }) as TextPreviewProps
   return {
     instance,
     face,

@@ -3,9 +3,8 @@
 import { existsSync, mkdtempSync, realpathSync } from 'node:fs'
 import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { Ajv2020 } from 'ajv/dist/2020.js'
-import * as yaml from 'js-yaml'
-import { entryListSchema } from '@omega-ai/cordis-plugin-include'
-import type { ConfigSchemaDump } from '@omega-ai/dsh-app-boot'
+import { parseEntryYaml } from '@deepseek-ai/cordis-plugin-include'
+import type { ConfigSchemaDump } from '@deepseek-ai/dsh-app-boot'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -21,7 +20,7 @@ if (process.env.DSH_EXAMPLE_MODE === 'lib' && !builtArtifactsExist) {
 const packageName = 'dsh-schema-acceptance-fixture'
 const profileName = 'schema-acceptance'
 const processTimeoutMs = 90_000
-const schemaImport = "import Schema from '@omega-ai/schemastery'"
+const schemaImport = "import Schema from '@deepseek-ai/schemastery'"
 const forbiddenApply = `
 import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -49,7 +48,7 @@ async function createFixture(modules: Record<string, string>, patches: string): 
     version: '1.0.0',
     type: 'module',
     exports: Object.fromEntries(Object.keys(modules).map(name => [`./${name}`, `./${name}.mjs`])),
-    peerDependencies: { '@omega-ai/schemastery': '*' },
+    peerDependencies: { '@deepseek-ai/schemastery': '*' },
     dsh: { bundle: { patch: './cordis.patch.yml' } },
   }))
   for (const [name, source] of Object.entries(modules)) {
@@ -67,13 +66,13 @@ async function createFixture(modules: Record<string, string>, patches: string): 
 }
 
 async function installNativeInclude(fixture: Fixture): Promise<void> {
-  const name = '@omega-ai/cordis-plugin-include'
+  const name = '@deepseek-ai/cordis-plugin-include'
   const directory = join(fixture.profile, 'node_modules', name)
   await mkdir(directory, { recursive: true })
   await copyFile(join(repoRoot, 'vendor/include/lib/index.js'), join(directory, 'index.js'))
   await writeFile(join(directory, 'package.json'), JSON.stringify({
     name, version: '1.0.3', type: 'module', exports: './index.js',
-    peerDependencies: { '@omega-ai/cordis': '*', '@omega-ai/cordis-plugin-loader': '*' },
+    peerDependencies: { '@deepseek-ai/cordis': '*', '@deepseek-ai/cordis-plugin-loader': '*' },
     dependencies: { 'js-yaml': '*' },
   }))
   const path = join(fixture.profile, 'package.json')
@@ -162,7 +161,7 @@ describe.skipIf(!builtArtifactsExist)('dsh --dump-config-schema assembled output
     const composed = await dump(fixture, [], '--dump-config')
     const validator = new Ajv2020({ strict: false, validateFormats: false })
     const validate = validator.compile(document)
-    expect(validate(yaml.load(composed.stdout, { schema: entryListSchema })), JSON.stringify(validate.errors)).toBe(true)
+    expect(validate(parseEntryYaml(composed.stdout)), JSON.stringify(validate.errors)).toBe(true)
     expect(validate([{ name: `${packageName}/namespace`, config: { attempts: 'wrong' } }])).toBe(false)
     const patch = validator.compile({ $schema: document.$schema, $defs: document.$defs, $ref: '#/$defs/patchList' })
     expect(patch([{ id: 'schema-class', config: { enabled: 'wrong' } }])).toBe(false)
@@ -172,10 +171,10 @@ describe.skipIf(!builtArtifactsExist)('dsh --dump-config-schema assembled output
 
   it.each([false, true])('expands canonical Include and re-export aliases with profile-local copy: %s', async (localCopy) => {
     const fixture = await createFixture({
-      alias: "export { default } from '@omega-ai/cordis-plugin-include'",
+      alias: "export { default } from '@deepseek-ai/cordis-plugin-include'",
     }, `- insert:
     - id: canonical
-      name: '@omega-ai/cordis-plugin-include'
+      name: '@deepseek-ai/cordis-plugin-include'
       config:
         path: ./nested/plugins.yml
         patches:

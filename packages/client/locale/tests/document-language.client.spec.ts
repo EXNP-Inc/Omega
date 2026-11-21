@@ -9,12 +9,12 @@
  * document language rather than merely looking untidy.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import { SlotRegistry } from '@omega-ai/dsh-client-ui-renderer/client'
-import { apply as settingsApply, inject as settingsInject } from '@omega-ai/dsh-client-ui-settings/client'
-import { TestRemote } from '@omega-ai/dsh-client-test-runtime'
-import { apply, inject } from '@omega-ai/dsh-client-locale/client'
-import type { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
+import { Context } from '@deepseek-ai/cordis'
+import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
+import { apply as settingsApply, inject as settingsInject } from '@deepseek-ai/dsh-client-ui-settings/client'
+import { TestRemote } from '@deepseek-ai/dsh-client-test-runtime'
+import { apply, inject } from '@deepseek-ai/dsh-client-locale/client'
+import type { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
 import { LOCALE_SETTINGS_NAMESPACE, LocaleSettingsSchema } from '../src/locale-settings.ts'
 
 /** Boot the plugin over a stub Host settings document. */
@@ -103,7 +103,7 @@ describe('document language', () => {
     const observer = new MutationObserver(() => {})
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] })
     try {
-      const remove = locale.addLanguage({ id: 'ja', label: '日本語', fallback: 'en' })
+      const remove = locale.addLanguage({ id: 'it', label: 'Italiano', fallback: 'en' })
       expect(observer.takeRecords()).toHaveLength(0)
       remove()
       expect(observer.takeRecords()).toHaveLength(0)

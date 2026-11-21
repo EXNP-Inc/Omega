@@ -1,17 +1,17 @@
 /** Fixed Escape routing into the current Conversation turn's scoped cancellation. */
-import type { ISessions, SessionBinding } from '@omega-ai/dsh-api-session-controller/client'
-import type { Shortcuts } from '@omega-ai/dsh-client-shortcuts/client'
-import type { UiSession } from '@omega-ai/dsh-client-ui-session/client'
-import type { SessionId } from '@omega-ai/dsh-session/types'
-import type { ObservableSnapshot } from '@omega-ai/dsh-client-store'
+import type { ISessions, SessionBinding } from '@deepseek-ai/dsh-api-session-controller/client'
+import type { Shortcuts } from '@deepseek-ai/dsh-client-shortcuts/client'
+import type { UiSession } from '@deepseek-ai/dsh-client-ui-session/client'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import type { ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
 import { StopSequence } from './stop-sequence.ts'
 
 /**
  * Subscribe fixed input to the same Session cancellation used by the stop button.
- * @param shortcuts - window keyboard arbitration and validated sequence interval.
+ * @param shortcuts - window keyboard arbitration and the current validated sequence interval, read at each first press.
  * @param sessions - live Session identities and lifecycle sources.
  * @param openTurn - stable current-turn source for a live Session binding.
- * @param uiSession - current pending-interaction status.
+ * @param uiSession - effective pending interaction of each Session.
  * @param cancel - scoped stop operation that preserves Queue and reports failures.
  * @returns disposer releasing the input subscription, pending watches and expiry timer.
  */
@@ -23,7 +23,7 @@ export function installStopShortcut(
   cancel: (sessionId: SessionId) => void,
 ): () => void {
   let unwatch = (): void => {}
-  const sequence = new StopSequence(shortcuts.stopSequenceMs, () => {
+  const sequence = new StopSequence(() => shortcuts.stopSequenceMs, () => {
     unwatch()
     unwatch = () => {}
   })
@@ -47,7 +47,7 @@ export function installStopShortcut(
       const session = binding.session.getSnapshot()
       if (!session.running || session.removed
         || (session.subagent !== null && session.subagent.address.mode !== 'continuable')
-        || uiSession.sessionStatus.getSnapshot().get(sessionId)?.pendingInteraction !== undefined) return undefined
+        || uiSession.pendingInteractions.getSnapshot().get(sessionId) !== undefined) return undefined
       return turnSource.getSnapshot()
     }
     const turn = currentTurn()
@@ -58,7 +58,7 @@ export function installStopShortcut(
     const changed = (): void => {
       if (sessions.binding(sessionId) !== binding || currentTurn() !== turn) reset()
     }
-    const disposers = [turnSource.subscribe(changed), binding.session.subscribe(changed), uiSession.sessionStatus.subscribe(changed)]
+    const disposers = [turnSource.subscribe(changed), binding.session.subscribe(changed), uiSession.pendingInteractions.subscribe(changed)]
     unwatch = () => { for (const dispose of disposers) dispose() }
   })
   return () => { off(); reset() }

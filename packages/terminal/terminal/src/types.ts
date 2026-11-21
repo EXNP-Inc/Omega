@@ -1,29 +1,14 @@
 /**
  * Types shared by PTY backends, the owner-scoped registry, and tool consumers.
  * Runtime service code lives in `./index.ts`.
- * @module @omega-ai/dsh-terminal/types
+ * @module @deepseek-ai/dsh-terminal/types
  */
 
-import type { Branded } from '@omega-ai/dsh-brand'
-import type { Agent } from '@omega-ai/dsh-agent'
+import type { Branded } from '@deepseek-ai/dsh-brand'
+import type { Agent } from '@deepseek-ai/dsh-agent'
 
-/** Internal exported basis for the public `TerminalSessionId` type/value pair. */
+/** Internal exported basis for the public `TerminalSessionId` type. */
 export type TerminalSessionIdValue = Branded<'TerminalSessionId'>
-
-/**
- * Backend-reported failure to clean partial resources after unpublished setup failed.
- * @param spawnError - original setup or cancellation failure.
- * @param cleanupError - failure that may leave backend-owned resources alive.
- */
-export class TerminalBackendCleanupError extends AggregateError {
-  constructor(
-    readonly spawnError: unknown,
-    readonly cleanupError: unknown,
-  ) {
-    super([spawnError, cleanupError], 'PTY backend startup and cleanup both failed')
-    this.name = 'TerminalBackendCleanupError'
-  }
-}
 
 /** Why one interactive send returned control to its caller. */
 export type TerminalWaitReason = 'stdin_read' | 'inferred_idle' | 'timeout' | 'session_exit'
@@ -31,7 +16,7 @@ export type TerminalWaitReason = 'stdin_read' | 'inferred_idle' | 'timeout' | 's
 /**
  * Signals the model-facing PTY surface permits for foreground process groups.
  * Kept member-identical to `SubprocessTerminalSignal` in
- * `@omega-ai/dsh-subprocess` without a cross-seam dependency; change both together.
+ * `@deepseek-ai/dsh-subprocess` without a cross-seam dependency; change both together.
  */
 export type TerminalSignal = 'SIGINT' | 'SIGTERM' | 'SIGKILL' | 'SIGTSTP' | 'SIGHUP'
 
@@ -166,7 +151,7 @@ export interface TerminalBackendSession {
 export interface TerminalBackend {
   /** Stable type selected by {@link TerminalSpawnRequest.type}. */
   readonly type: string
-  /** Create an unpublished session or reject after cleaning partial resources; cleanup failure uses {@link TerminalBackendCleanupError}. */
+  /** Create an unpublished session or reject after cleaning partial resources; cleanup failure uses `TerminalBackendCleanupError`. */
   spawn(spec: TerminalBackendSpawnSpec): Promise<TerminalBackendSession>
 }
 

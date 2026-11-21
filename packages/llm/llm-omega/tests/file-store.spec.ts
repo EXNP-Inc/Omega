@@ -1,22 +1,28 @@
 import { mkdtemp, rm } from 'node:fs/promises'
+import { setTimeout as wait } from 'node:timers/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { AttachmentId, ImageVariantId } from '@omega-ai/dsh-attachment'
-import type { ImageAttachmentRef, RequestImageAttachment } from '@omega-ai/dsh-attachment'
-import { OmegaFileStore, MAX_IMAGE_BYTES } from '../src/file-store.ts'
-import { OmegaFileId } from '../src/file-id.ts'
-import { omegaFileScope, OmegaUploadIndex } from '../src/upload-index.ts'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { AttachmentId, ImageVariantId } from '@deepseek-ai/dsh-attachment/types'
+import type { ImageAttachmentRef, RequestImageAttachment } from '@deepseek-ai/dsh-attachment'
+import { TimeoutReason } from '@deepseek-ai/dsh-timeout'
+import { DeepSeekFileStore, FILES_API_TIMEOUT, MAX_IMAGE_BYTES } from '../src/file-store.ts'
+import type { DeepSeekFileId } from '../src/file-id.ts'
+import { deepSeekFileScope, DeepSeekUploadIndex } from '../src/upload-index.ts'
+import { adapter, chunks, options, requestImageStore, server, user } from './helpers.ts'
+
+vi.mock('node:timers/promises', { spy: true })
 
 const REF: ImageAttachmentRef = {
-  attachmentId: AttachmentId(`sha256:${'a'.repeat(64)}`),
+  attachmentId: brandString<AttachmentId>(`sha256:${'a'.repeat(64)}`),
   mediaType: 'image/png',
   bytes: 3,
   width: 1,
   height: 1,
 }
 const VERSION: RequestImageAttachment = {
-  variantId: ImageVariantId(`sha256:${'b'.repeat(64)}`),
+  variantId: brandString<ImageVariantId>(`sha256:${'b'.repeat(64)}`),
   attachment: REF,
   data: Uint8Array.of(1, 2, 3),
   mediaType: 'image/png',
@@ -27,8 +33,11 @@ const VERSION: RequestImageAttachment = {
   space: 'srgb',
   hasAlpha: true,
 }
-const CONNECTION = { baseURL: 'https://api.omega.com', headers: { 'x-api-key': 'key' } }
-const POLICY = { expiresAfterSeconds: 604_800, refreshMarginSeconds: 3_600, quotaCleanupBatch: 100 }
+const CONNECTION = { baseURL: 'https://api.deepseek.com', headers: { 'x-api-key': 'key' } }
+const POLICY = {
+  expiresAfterSeconds: 604_800, refreshMarginSeconds: 3_600, quotaCleanupBatch: 100,
+  uploadMaxRetries: 2, uploadRetryDelayMs: 500, uploadConcurrency: 3, uploadTimeoutMs: 60_000,
+}
 const NOW = 1_700_000_000_000
 
 /** Every temp store root created by this file, removed after each test. */
@@ -66,13 +75,140 @@ function uploadFetch(now: () => number = () => NOW) {
   return { fetchImpl, uploads: () => uploads }
 }
 
-describe('OmegaFileStore', () => {
+describe('DeepSeekFileStore', () => {
+  it('skips 1, 2, 4 and 8 upload-bearing requests between timeouts, and resets after an upload', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'dsh-files-backoff-'))
+    roots.push(dir)
+    const fetch = vi.fn(uploadFetch().fetchImpl)
+    const store = new DeepSeekFileStore({ fetch, now: () => NOW, index: new DeepSeekUploadIndex(join(dir, 'index.json')) })
+    const cached = { ...VERSION, variantId: brandString<ImageVariantId>(`sha256:${'c'.repeat(64)}`) }
+    await store.ensureUploaded(cached, CONNECTION, POLICY)
+    async function expire(image: RequestImageAttachment) {
+      const started = Promise.withResolvers<undefined>()
+      fetch.mockImplementationOnce((_url, init) => new Promise((_resolve, reject) => {
+        started.resolve(undefined)
+        init!.signal!.addEventListener('abort', () => { reject(new Error('upload aborted')) }, { once: true })
+      }))
+      const controller = new AbortController()
+      const pending = store.ensureUploaded(image, CONNECTION, POLICY, controller.signal)
+      await started.promise
+      const reason = new TimeoutReason(FILES_API_TIMEOUT, 20_000)
+      controller.abort(reason)
+      await expect(pending).rejects.toBe(reason)
+    }
+
+    for (const count of [1, 2, 4, 8]) {
+      await expire(VERSION)
+      const calls = fetch.mock.calls.length
+      for (let i = 0; i < count; i++) {
+        await expect(store.ensureUploaded(cached, CONNECTION, POLICY)).resolves.toMatchObject({ uploaded: false })
+        await expect(store.ensureUploaded(VERSION, CONNECTION, POLICY))
+          .rejects.toMatchObject({ code: 'FILES_API_SKIPPED', cause: { code: FILES_API_TIMEOUT } })
+      }
+      expect(fetch).toHaveBeenCalledTimes(calls)
+      await expect(store.ensureUploaded(VERSION, { ...CONNECTION, headers: { 'x-api-key': 'other' } }, POLICY)).resolves.toBeDefined()
+      await expect(store.ensureUploaded(VERSION, { ...CONNECTION, baseURL: 'https://other.example' }, POLICY)).resolves.toBeDefined()
+    }
+    await expect(store.ensureUploaded(VERSION, CONNECTION, POLICY)).resolves.toMatchObject({ uploaded: true })
+    const fresh = { ...VERSION, variantId: brandString<ImageVariantId>(`sha256:${'d'.repeat(64)}`) }
+    await expire(fresh)
+    await expect(store.ensureUploaded(fresh, CONNECTION, POLICY)).rejects.toMatchObject({ code: 'FILES_API_SKIPPED' })
+    // The failed probe starts while the old interval still exists; another image succeeds before it times out.
+    const started = Promise.withResolvers<undefined>()
+    fetch.mockImplementationOnce((_url, init) => new Promise((_resolve, reject) => {
+      started.resolve(undefined)
+      init!.signal!.addEventListener('abort', () => { reject(new Error('upload aborted')) }, { once: true })
+    }))
+    const controller = new AbortController()
+    const probe = store.ensureUploaded(fresh, CONNECTION, POLICY, controller.signal)
+    await started.promise
+    const other = { ...VERSION, variantId: brandString<ImageVariantId>(`sha256:${'f'.repeat(64)}`) }
+    await expect(store.ensureUploaded(other, CONNECTION, POLICY)).resolves.toMatchObject({ uploaded: true })
+    const reason = new TimeoutReason(FILES_API_TIMEOUT, 20_000)
+    controller.abort(reason)
+    await expect(probe).rejects.toBe(reason)
+    // Two independent requests race for the last skip. The other must upload.
+    const competing = await Promise.allSettled([
+      store.ensureUploaded(fresh, CONNECTION, POLICY), store.ensureUploaded(fresh, CONNECTION, POLICY),
+    ])
+    expect(competing.find(result => result.status === 'rejected')).toMatchObject({ reason: { code: 'FILES_API_SKIPPED' } })
+    expect(competing.find(result => result.status === 'fulfilled')).toMatchObject({ value: { uploaded: true } })
+  })
+
+  it.each([
+    [503, '{}', 'SERVER'], [200, '{}', 'INVALID_RESPONSE'],
+  ] as const)('retries the next upload after HTTP %i fails with %s', async (status, body, code) => {
+    const dir = await mkdtemp(join(tmpdir(), 'dsh-files-http-failure-'))
+    roots.push(dir)
+    const fetch = vi.fn(uploadFetch().fetchImpl).mockResolvedValueOnce(new Response(body, { status }))
+    const store = new DeepSeekFileStore({ fetch, now: () => NOW, index: new DeepSeekUploadIndex(join(dir, 'index.json')) })
+    await expect(store.ensureUploaded(VERSION, CONNECTION, POLICY)).rejects.toMatchObject({ code })
+    await expect(store.ensureUploaded(VERSION, CONNECTION, POLICY)).resolves.toMatchObject({ uploaded: true })
+    expect(fetch).toHaveBeenCalledTimes(2)
+  })
+
+  it('does not count a Files deadline reached before the upload starts', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'dsh-files-index-timeout-'))
+    roots.push(dir)
+    const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
+    const lookup = Promise.withResolvers<undefined>()
+    vi.spyOn(index, 'get').mockReturnValueOnce(lookup.promise)
+    const remote = uploadFetch()
+    const store = new DeepSeekFileStore({ index, fetch: remote.fetchImpl, now: () => NOW })
+    const controller = new AbortController()
+    const pending = store.ensureUploaded(VERSION, CONNECTION, POLICY, controller.signal)
+    const reason = new TimeoutReason(FILES_API_TIMEOUT, 20_000)
+    controller.abort(reason)
+    lookup.resolve(undefined)
+    await expect(pending).rejects.toBe(reason)
+    await expect(store.ensureUploaded(VERSION, CONNECTION, POLICY)).resolves.toMatchObject({ uploaded: true })
+    expect(remote.uploads()).toBe(1)
+  })
+
+  it('counts overlapping timeouts once and keeps an abandoned response from clearing backoff', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'dsh-files-overlap-'))
+    roots.push(dir)
+    const remote = uploadFetch()
+    const fetch = vi.fn(remote.fetchImpl)
+    const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
+    const writes = Promise.withResolvers<undefined>()
+    let written = 0
+    const commit = index.commit.bind(index)
+    vi.spyOn(index, 'commit').mockImplementation(async (...args) => {
+      const result = await commit(...args)
+      if (++written === 2) writes.resolve(undefined)
+      return result
+    })
+    const store = new DeepSeekFileStore({ fetch, now: () => NOW, index })
+    const stalled = async (variantId: string) => {
+      const started = Promise.withResolvers<undefined>()
+      const response = Promise.withResolvers<Response>()
+      fetch.mockImplementationOnce(() => { started.resolve(undefined); return response.promise })
+      const image = { ...VERSION, variantId: brandString<ImageVariantId>(variantId) }
+      const controller = new AbortController()
+      const pending = store.ensureUploaded(image, CONNECTION, POLICY, controller.signal)
+      await started.promise
+      return { response, pending, controller }
+    }
+    const first = await stalled(`sha256:${'c'.repeat(64)}`)
+    const second = await stalled(`sha256:${'d'.repeat(64)}`)
+    for (const upload of [first, second]) {
+      const reason = new TimeoutReason(FILES_API_TIMEOUT, 20_000)
+      upload.controller.abort(reason)
+      await expect(upload.pending).rejects.toBe(reason)
+      upload.response.resolve(await remote.fetchImpl(CONNECTION.baseURL, { method: 'POST' }))
+    }
+    await writes.promise
+    await expect(store.ensureUploaded(VERSION, CONNECTION, POLICY)).rejects.toMatchObject({ code: 'FILES_API_SKIPPED' })
+    await expect(store.ensureUploaded(VERSION, CONNECTION, POLICY)).resolves.toMatchObject({ uploaded: true })
+  })
+
   it('isolates credential values and header kinds while reusing reordered headers', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'dsh-file-credentials-'))
     roots.push(dir)
     const remote = uploadFetch(() => NOW)
-    const index = new OmegaUploadIndex(join(dir, 'index.json'))
-    const store = new OmegaFileStore({ index, fetch: remote.fetchImpl, now: () => NOW })
+    const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
+    const store = new DeepSeekFileStore({ index, fetch: remote.fetchImpl, now: () => NOW })
     const first = await store.ensureUploaded(VERSION, CONNECTION, POLICY)
     const account = await store.ensureUploaded(VERSION, { ...CONNECTION, headers: { 'x-dsh-auth-token': 'key' } }, POLICY)
     const replacement = await store.ensureUploaded(VERSION, { ...CONNECTION, headers: { 'x-api-key': 'new-key' } }, POLICY)
@@ -88,15 +224,15 @@ describe('OmegaFileStore', () => {
     roots.push(dir)
     let now = NOW
     const remote = uploadFetch(() => now)
-    const index = new OmegaUploadIndex(join(dir, 'index.json'))
-    const store = new OmegaFileStore({ index, fetch: remote.fetchImpl, now: () => now })
+    const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
+    const store = new DeepSeekFileStore({ index, fetch: remote.fetchImpl, now: () => now })
     const alternate = { ...CONNECTION, baseURL: 'https://other.example' }
     const other = await store.ensureUploaded(VERSION, alternate, POLICY)
     const first = await store.ensureUploaded(VERSION, CONNECTION, POLICY)
-    expect(first.record.scope).toBe(omegaFileScope(`${CONNECTION.baseURL}/v1`, JSON.stringify(Object.entries(CONNECTION.headers))))
+    expect(first.record.scope).toBe(deepSeekFileScope(`${CONNECTION.baseURL}/v1`, JSON.stringify(Object.entries(CONNECTION.headers))))
     expect(first.record.scope).not.toBe(other.record.scope)
     expect((await store.ensureUploaded(VERSION, { ...CONNECTION, baseURL: `${CONNECTION.baseURL}/v1/` }, POLICY)).record).toEqual(first.record)
-    const reopened = new OmegaFileStore({ index, fetch: remote.fetchImpl, now: () => now })
+    const reopened = new DeepSeekFileStore({ index, fetch: remote.fetchImpl, now: () => now })
     expect((await reopened.ensureUploaded(VERSION, CONNECTION, POLICY)).record).toEqual(first.record)
     await reopened.invalidate([{ variantId: VERSION.variantId, fileId: other.record.fileId }], CONNECTION)
     expect((await reopened.ensureUploaded(VERSION, CONNECTION, POLICY)).record).toEqual(first.record)
@@ -111,6 +247,139 @@ describe('OmegaFileStore', () => {
     expect(refreshed.record.fileId).not.toBe(replacement.record.fileId)
     expect(refreshed.record.expiresAt).toBe(now + POLICY.expiresAfterSeconds * 1_000)
     expect(remote.uploads()).toBe(4)
+  })
+
+  it.each([
+    { failures: [429, 429], retries: 2, uploads: 3, succeeds: true },
+    { failures: [429, 429, 429], retries: 2, uploads: 3, succeeds: false },
+    { failures: [429], retries: 0, uploads: 1, succeeds: false },
+    { failures: [503], retries: 2, uploads: 1, succeeds: false },
+  ])('bounds upload attempts for $failures with $retries retries', async ({ failures, retries, uploads, succeeds }) => {
+    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-retries-'))
+    roots.push(dir)
+    const remote = uploadFetch()
+    const fetchImpl = vi.fn<typeof fetch>(remote.fetchImpl)
+    for (const status of failures) fetchImpl.mockResolvedValueOnce(new Response('busy', { status }))
+    const store = new DeepSeekFileStore({ index: new DeepSeekUploadIndex(join(dir, 'index.json')), fetch: fetchImpl, now: () => NOW })
+    const result = store.ensureUploaded(VERSION, CONNECTION, { ...POLICY, uploadMaxRetries: retries, uploadRetryDelayMs: 1 })
+    if (succeeds) await expect(result).resolves.toMatchObject({ uploaded: true })
+    else await expect(result).rejects.toMatchObject({ failure: { status: failures.at(-1) } })
+    expect(fetchImpl.mock.calls.map(([, init]) => init?.method)).toEqual(Array<string>(uploads).fill('POST'))
+  })
+
+  it.each([
+    { errors: ['quota'], retries: 0, attempts: 1, cleanups: 0 },
+    { errors: ['quota', 'quota'], retries: 2, attempts: 2, cleanups: 1 },
+    { errors: ['limit', 'quota', 'limit'], retries: 2, attempts: 3, cleanups: 1 },
+  ])('shares the retry budget across $errors with $retries retries', async ({ errors, retries, attempts, cleanups }) => {
+    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-quota-retries-'))
+    roots.push(dir)
+    const fetchImpl = vi.fn<typeof fetch>()
+    for (const message of errors) fetchImpl.mockResolvedValueOnce(Response.json({ error: { message } }, { status: 429 }))
+    const store = new DeepSeekFileStore({ index: new DeepSeekUploadIndex(join(dir, 'index.json')), fetch: fetchImpl })
+    const reclaim = vi.spyOn(store, 'reclaimOldestOwned').mockResolvedValue(1)
+    const policy = { ...POLICY, uploadMaxRetries: retries, uploadRetryDelayMs: 1 }
+    await expect(store.ensureUploaded(VERSION, CONNECTION, policy)).rejects.toMatchObject({ code: 'RATE_LIMIT' })
+    expect(fetchImpl).toHaveBeenCalledTimes(attempts)
+    expect(reclaim).toHaveBeenCalledTimes(cleanups)
+  })
+
+  it('cancels a server-requested retry delay without sending the upload again', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-retry-after-abort-'))
+    roots.push(dir)
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValueOnce(new Response('busy', { status: 429, headers: { 'retry-after': '30' } }))
+    const store = new DeepSeekFileStore({ index: new DeepSeekUploadIndex(join(dir, 'index.json')), fetch: fetchImpl })
+    const scheduled = Promise.withResolvers<number | undefined>()
+    const timers = await vi.importActual<typeof import('node:timers/promises')>('node:timers/promises')
+    vi.mocked(wait).mockImplementationOnce((ms, value, options) => {
+      scheduled.resolve(ms)
+      return timers.setTimeout(ms, value, options)
+    })
+    const controller = new AbortController()
+    const pending = store.ensureUploaded(VERSION, CONNECTION, POLICY, controller.signal)
+    const result = expect(pending).rejects.toThrow('caller cancelled')
+    try {
+      expect(await scheduled.promise).toBe(30_000)
+    } finally {
+      controller.abort(new Error('caller cancelled'))
+      await result
+    }
+    expect(fetchImpl).toHaveBeenCalledTimes(1)
+  })
+
+  it('falls back immediately when Retry-After exceeds the remaining image deadline', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-retry-after-'))
+    roots.push(dir)
+    let now = NOW
+    const fetchImpl = vi.fn<typeof fetch>(async () => {
+      now += 45_000
+      return new Response('busy', { status: 429, headers: { 'retry-after': '20' } })
+    })
+    const store = new DeepSeekFileStore({ index: new DeepSeekUploadIndex(join(dir, 'index.json')), fetch: fetchImpl, now: () => now })
+    await expect(store.ensureUploaded(VERSION, CONNECTION, POLICY))
+      .rejects.toMatchObject({ failure: { providerRetryAfterMs: 20_000 } })
+    expect(fetchImpl).toHaveBeenCalledTimes(1)
+  })
+
+  it.each([1, 3])('reserves distinct file slots across concurrent quota failures with cleanup batch %i', async (batch) => {
+    const dir = await mkdtemp(join(tmpdir(), 'dsh-file-quota-slots-'))
+    roots.push(dir)
+    const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
+    vi.spyOn(index, 'get').mockResolvedValue(undefined)
+    const file = (id: string, created: number) => ({
+      id, type: 'file', size_bytes: 3, created_at: new Date(created).toISOString(), filename: 'dsh-owned.png', mime_type: 'image/png',
+    })
+    const stored = new Map(['old-1', 'old-2', 'old-3'].map(id => [id, file(id, NOW - 1000)]))
+    const deleted: string[] = []
+    let lists = 0
+    let attempts = 0
+    const full = Promise.withResolvers<undefined>()
+    const fetchImpl: typeof fetch = async (url, init) => {
+      if (init?.method === 'POST') {
+        const ordinal = ++attempts
+        if (stored.size === 3) {
+          if (ordinal === 3) full.resolve(undefined)
+          await full.promise
+          return Response.json({ error: { message: 'stored files quota' } }, { status: 429 })
+        }
+        const fresh = file(`new-${ordinal}`, NOW)
+        stored.set(fresh.id, fresh)
+        return Response.json(fresh)
+      }
+      if (init?.method === 'DELETE') {
+        const id = requestUrl(url).split('/').at(-1)!
+        if (!stored.delete(id)) return new Response(null, { status: 404 })
+        deleted.push(id)
+        return Response.json({ id, type: 'file_deleted' })
+      }
+      lists++
+      return Response.json({ data: [...stored.values()], has_more: false })
+    }
+    const store = new DeepSeekFileStore({ index, fetch: fetchImpl, now: () => NOW })
+    const refs = ['c', 'd', 'e'].map(digit => ({ ...REF, attachmentId: brandString<AttachmentId>(`sha256:${digit.repeat(64)}`) }))
+    const attachments = requestImageStore(async ref => ({
+      ...VERSION, attachment: ref, variantId: brandString<ImageVariantId>(ref.attachmentId),
+    }))
+    const messages = await server()
+    try {
+      const route = adapter({ baseURL: messages.url, fileQuotaCleanupBatch: batch }, {
+        resolveAttachments: () => attachments, resolveFiles: () => store,
+      })
+      await chunks(route.stream(options({
+        model: 'deepseek-flash',
+        messages: [{ ...user(), content: refs.map(attachment => ({ type: 'image', attachment })) }],
+      })))
+      expect(deleted.toSorted()).toEqual(['old-1', 'old-2', 'old-3'])
+      expect(lists).toBe(3 / batch)
+      expect(attempts).toBe(6)
+      expect(messages.requests).toHaveLength(1)
+      const body = JSON.stringify(messages.requests[0]!.body)
+      const wireIds = [...body.matchAll(/"file_id":"([^"]+)"/gu)].map(match => match[1])
+      expect(wireIds.toSorted()).toEqual([...stored.keys()].toSorted())
+      expect(body).not.toContain('"base64"')
+    } finally {
+      await messages.close()
+    }
   })
 
   it('reclaims the oldest owned native file across descending pages before retrying an upload', async () => {
@@ -141,7 +410,7 @@ describe('OmegaFileStore', () => {
         ? { data: [file('newest', 1_000), file('middle', 2_000)], last_id: 'middle', has_more: true }
         : { data: [file('oldest-owned', 3_000), file('foreign', 4_000, 'user-file.png')], has_more: false }))
     }
-    const store = new OmegaFileStore({ index: new OmegaUploadIndex(join(dir, 'index.json')), fetch: fetchImpl, now: () => NOW })
+    const store = new DeepSeekFileStore({ index: new DeepSeekUploadIndex(join(dir, 'index.json')), fetch: fetchImpl, now: () => NOW })
     await expect(store.ensureUploaded(VERSION, CONNECTION, { ...POLICY, quotaCleanupBatch: 1 })).resolves.toMatchObject({ record: { fileId: 'file-uploaded' } })
     expect(cursors).toEqual([null, 'middle'])
     expect(deleted).toEqual(['oldest-owned'])
@@ -151,9 +420,9 @@ describe('OmegaFileStore', () => {
   it('singleflights the first upload and reuses the durable mapping across store instances', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
     roots.push(dir)
-    const index = new OmegaUploadIndex(join(dir, 'index.json'))
+    const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
     const remote = uploadFetch()
-    const first = new OmegaFileStore({ index, now: () => NOW, fetch: remote.fetchImpl })
+    const first = new DeepSeekFileStore({ index, now: () => NOW, fetch: remote.fetchImpl })
 
     const [a, b] = await Promise.all([
       first.ensureUploaded(VERSION, CONNECTION, POLICY),
@@ -163,16 +432,16 @@ describe('OmegaFileStore', () => {
     expect(b.record.fileId).toBe('file-api-1')
     expect(remote.uploads()).toBe(1)
 
-    const resumed = new OmegaFileStore({ index, now: () => NOW, fetch: remote.fetchImpl })
+    const resumed = new DeepSeekFileStore({ index, now: () => NOW, fetch: remote.fetchImpl })
     await expect(resumed.ensureUploaded(VERSION, CONNECTION, POLICY))
       .resolves.toMatchObject({ record: { fileId: 'file-api-1' }, uploaded: false })
     expect(remote.uploads()).toBe(1)
   })
 
-  it('keeps a shared upload alive while another waiter remains', async () => {
+  it.each([new Error('cancel one upload waiter'), new TimeoutReason(FILES_API_TIMEOUT, 20_000)])('keeps a shared upload alive after one waiter exits with %s', async (reason) => {
     const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
     roots.push(dir)
-    const index = new OmegaUploadIndex(join(dir, 'index.json'))
+    const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
     let complete: ((response: Response) => void) | undefined
     let uploadSignal: AbortSignal | undefined
     const fetchImpl = vi.fn((_url: string | URL | Request, init?: RequestInit) => {
@@ -184,7 +453,8 @@ describe('OmegaFileStore', () => {
         }, { once: true })
       })
     }) as typeof fetch
-    const store = new OmegaFileStore({ index, now: () => NOW, fetch: fetchImpl })
+    vi.spyOn(index, 'get').mockResolvedValue(undefined)
+    const store = new DeepSeekFileStore({ index, now: () => NOW, fetch: fetchImpl })
     const controller = new AbortController()
 
     const cancelled = store.ensureUploaded(VERSION, CONNECTION, POLICY, controller.signal)
@@ -192,11 +462,13 @@ describe('OmegaFileStore', () => {
     await vi.waitFor(() => {
       expect(fetchImpl).toHaveBeenCalledTimes(1)
     })
-    const reason = new Error('cancel one upload waiter')
     controller.abort(reason)
 
     await expect(cancelled).rejects.toBe(reason)
     expect(uploadSignal?.aborted).toBe(false)
+    if (reason instanceof TimeoutReason) {
+      await expect(store.ensureUploaded(VERSION, CONNECTION, POLICY)).rejects.toMatchObject({ code: 'FILES_API_SKIPPED' })
+    }
     complete?.(new Response(JSON.stringify({
       id: 'file-api-shared',
       type: 'file',
@@ -211,7 +483,7 @@ describe('OmegaFileStore', () => {
   it('aborts the shared upload after its only waiter cancels', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
     roots.push(dir)
-    const index = new OmegaUploadIndex(join(dir, 'index.json'))
+    const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
     let uploadSignal: AbortSignal | undefined
     const fetchImpl = vi.fn((_url: string | URL | Request, init?: RequestInit) => {
       uploadSignal = init?.signal ?? undefined
@@ -221,7 +493,7 @@ describe('OmegaFileStore', () => {
         }, { once: true })
       })
     }) as typeof fetch
-    const store = new OmegaFileStore({ index, now: () => NOW, fetch: fetchImpl })
+    const store = new DeepSeekFileStore({ index, now: () => NOW, fetch: fetchImpl })
     const controller = new AbortController()
     const upload = store.ensureUploaded(VERSION, CONNECTION, POLICY, controller.signal)
     await vi.waitFor(() => {
@@ -245,8 +517,8 @@ describe('OmegaFileStore', () => {
         }, { once: true })
       })
     )) as typeof fetch
-    const store = new OmegaFileStore({
-      index: new OmegaUploadIndex(join(dir, 'index.json')),
+    const store = new DeepSeekFileStore({
+      index: new DeepSeekUploadIndex(join(dir, 'index.json')),
       now: () => NOW,
       fetch: fetchImpl,
     })
@@ -258,7 +530,7 @@ describe('OmegaFileStore', () => {
     controller.abort('cancelled')
 
     await expect(upload).rejects.toMatchObject({
-      message: 'Omega file upload cancelled with a non-Error reason.',
+      message: 'DeepSeek file upload cancelled with a non-Error reason.',
       cause: 'cancelled',
     })
   })
@@ -266,25 +538,18 @@ describe('OmegaFileStore', () => {
   it('starts a fresh upload while the cancelled transport is settling', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
     roots.push(dir)
+    const firstResponse = Promise.withResolvers<Response>()
     let requests = 0
-    const fetchImpl = vi.fn((_url: string | URL | Request, init?: RequestInit) => {
+    const fetchImpl = vi.fn(() => {
       requests += 1
-      if (requests === 1) {
-        return new Promise<Response>((_resolve, reject) => {
-          init?.signal?.addEventListener('abort', () => {
-            queueMicrotask(() => {
-              reject(new Error('upload aborted', { cause: init.signal?.reason }))
-            })
-          }, { once: true })
-        })
-      }
+      if (requests === 1) return firstResponse.promise
       return Promise.resolve(new Response(JSON.stringify({
         id: 'file-api-retry', type: 'file', size_bytes: 3, created_at: new Date(NOW).toISOString(),
         filename: 'dsh-retry.png', mime_type: 'image/png',
       }), { status: 200 }))
     }) as typeof fetch
-    const store = new OmegaFileStore({
-      index: new OmegaUploadIndex(join(dir, 'index.json')),
+    const store = new DeepSeekFileStore({
+      index: new DeepSeekUploadIndex(join(dir, 'index.json')),
       now: () => NOW,
       fetch: fetchImpl,
     })
@@ -297,22 +562,27 @@ describe('OmegaFileStore', () => {
     const retried = store.ensureUploaded(VERSION, CONNECTION, POLICY)
 
     await expect(cancelled).rejects.toThrow('cancel first')
-    await expect(retried).resolves.toMatchObject({ record: { fileId: 'file-api-retry' } })
+    try {
+      await expect(retried).resolves.toMatchObject({ record: { fileId: 'file-api-retry' } })
+      expect(requests).toBe(2)
+    } finally {
+      firstResponse.reject(new Error('cancelled transport closed'))
+    }
   })
 
   it('rejects a request version above the per-image limit before transport', async () => {
     const fetchImpl = vi.fn() as typeof fetch
-    const store = new OmegaFileStore({ now: () => NOW, fetch: fetchImpl })
+    const store = new DeepSeekFileStore({ now: () => NOW, fetch: fetchImpl })
     const oversized = { ...VERSION, bytes: MAX_IMAGE_BYTES + 1 }
     await expect(store.ensureUploaded(oversized, CONNECTION, POLICY))
-      .rejects.toMatchObject({ code: 'INVALID_REQUEST', message: 'Omega image exceeds the 32 MiB per-image limit.' })
+      .rejects.toMatchObject({ code: 'INVALID_REQUEST', message: 'DeepSeek image exceeds the 32 MiB per-image limit.' })
     expect(fetchImpl).not.toHaveBeenCalled()
   })
 
   it('does not persist an upload whose response is missing and retries on the next request', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
     roots.push(dir)
-    const index = new OmegaUploadIndex(join(dir, 'index.json'))
+    const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
     const good = uploadFetch()
     let first = true
     const fetchImpl = vi.fn((url: string | URL | Request, init?: RequestInit) => {
@@ -322,7 +592,7 @@ describe('OmegaFileStore', () => {
       }
       return good.fetchImpl(url, init)
     }) as typeof fetch
-    const store = new OmegaFileStore({ index, now: () => NOW, fetch: fetchImpl })
+    const store = new DeepSeekFileStore({ index, now: () => NOW, fetch: fetchImpl })
 
     await expect(store.ensureUploaded(VERSION, CONNECTION, POLICY))
       .rejects.toBeInstanceOf(Error)
@@ -337,8 +607,8 @@ describe('OmegaFileStore', () => {
       id: 'file-api-wrong-size', type: 'file', size_bytes: 2, created_at: new Date(NOW).toISOString(),
       filename: 'dsh-wrong.png', mime_type: 'image/png',
     }), { status: 200 }))) as typeof fetch
-    const store = new OmegaFileStore({
-      index: new OmegaUploadIndex(join(dir, 'index.json')),
+    const store = new DeepSeekFileStore({
+      index: new DeepSeekUploadIndex(join(dir, 'index.json')),
       now: () => NOW,
       fetch: fetchImpl,
     })
@@ -354,8 +624,8 @@ describe('OmegaFileStore', () => {
     const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
     roots.push(dir)
     const remote = uploadFetch()
-    const store = new OmegaFileStore({
-      index: new OmegaUploadIndex(join(dir, `${extension}.json`)),
+    const store = new DeepSeekFileStore({
+      index: new DeepSeekUploadIndex(join(dir, `${extension}.json`)),
       now: () => NOW,
       fetch: remote.fetchImpl,
     })
@@ -371,12 +641,12 @@ describe('OmegaFileStore', () => {
   it('normalizes a non-Error failure from the durable upload index', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
     roots.push(dir)
-    const index = new OmegaUploadIndex(join(dir, 'index.json'))
+    const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
     vi.spyOn(index, 'get').mockRejectedValue('index unavailable')
-    const store = new OmegaFileStore({ index, now: () => NOW, fetch: vi.fn() as typeof fetch })
+    const store = new DeepSeekFileStore({ index, now: () => NOW, fetch: vi.fn() as typeof fetch })
 
     await expect(store.ensureUploaded(VERSION, CONNECTION, POLICY)).rejects.toMatchObject({
-      message: 'Omega file upload failed with a non-Error reason.',
+      message: 'DeepSeek file upload failed with a non-Error reason.',
       cause: 'index unavailable',
     })
   })
@@ -384,10 +654,10 @@ describe('OmegaFileStore', () => {
   it('reuses the local expiry above the refresh margin and uploads again at the margin', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
     roots.push(dir)
-    const index = new OmegaUploadIndex(join(dir, 'index.json'))
+    const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
     let now = NOW
     const remote = uploadFetch(() => now)
-    const store = new OmegaFileStore({ index, now: () => now, fetch: remote.fetchImpl })
+    const store = new DeepSeekFileStore({ index, now: () => now, fetch: remote.fetchImpl })
 
     await expect(store.ensureUploaded(VERSION, CONNECTION, POLICY))
       .resolves.toMatchObject({ record: { fileId: 'file-api-1' }, uploaded: true })
@@ -405,9 +675,9 @@ describe('OmegaFileStore', () => {
   it('releases an indexed file through DELETE and removes only that mapping', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
     roots.push(dir)
-    const index = new OmegaUploadIndex(join(dir, 'index.json'))
+    const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
     const remote = uploadFetch()
-    const store = new OmegaFileStore({ index, now: () => NOW, fetch: remote.fetchImpl })
+    const store = new DeepSeekFileStore({ index, now: () => NOW, fetch: remote.fetchImpl })
     await store.ensureUploaded(VERSION, CONNECTION, POLICY)
 
     await expect(store.release(VERSION, CONNECTION, POLICY)).resolves.toBe(true)
@@ -418,14 +688,14 @@ describe('OmegaFileStore', () => {
   it('removes a losing upload and keeps the winning durable mapping when duplicate cleanup fails', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
     roots.push(dir)
-    const index = new OmegaUploadIndex(join(dir, 'index.json'))
+    const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
     vi.spyOn(index, 'commit').mockResolvedValue({
       accepted: false,
       record: {
-        scope: omegaFileScope(`${CONNECTION.baseURL}/v1`, JSON.stringify(Object.entries(CONNECTION.headers))),
+        scope: deepSeekFileScope(`${CONNECTION.baseURL}/v1`, JSON.stringify(Object.entries(CONNECTION.headers))),
         attachmentId: VERSION.attachment.attachmentId,
         variantId: VERSION.variantId,
-        fileId: OmegaFileId('file-api-winner'),
+        fileId: brandString<DeepSeekFileId>('file-api-winner'),
         bytes: 3,
         createdAt: NOW,
         expiresAt: NOW + POLICY.expiresAfterSeconds * 1_000,
@@ -436,7 +706,7 @@ describe('OmegaFileStore', () => {
       if (init?.method === 'DELETE') return Promise.resolve(new Response('failed', { status: 500 }))
       return remote.fetchImpl(url, init)
     }) as typeof fetch
-    const store = new OmegaFileStore({ index, now: () => NOW, fetch: fetchImpl })
+    const store = new DeepSeekFileStore({ index, now: () => NOW, fetch: fetchImpl })
 
     await expect(store.ensureUploaded(VERSION, CONNECTION, POLICY)).resolves.toMatchObject({
       record: { fileId: 'file-api-winner' },
@@ -474,8 +744,8 @@ describe('OmegaFileStore', () => {
         first_id: 'file-api-old', last_id: 'file-api-old', has_more: false,
       }), { status: 200 }))
     }) as typeof fetch
-    const store = new OmegaFileStore({
-      index: new OmegaUploadIndex(join(dir, 'index.json')),
+    const store = new DeepSeekFileStore({
+      index: new DeepSeekUploadIndex(join(dir, 'index.json')),
       now: () => NOW,
       fetch: fetchImpl,
     })
@@ -501,8 +771,8 @@ describe('OmegaFileStore', () => {
         has_more: false,
       }), { status: 200 }))
     }) as typeof fetch
-    const store = new OmegaFileStore({
-      index: new OmegaUploadIndex(join(dir, 'index.json')),
+    const store = new DeepSeekFileStore({
+      index: new DeepSeekUploadIndex(join(dir, 'index.json')),
       now: () => NOW,
       fetch: fetchImpl,
     })
@@ -538,8 +808,8 @@ describe('OmegaFileStore', () => {
         has_more: after === null,
       }), { status: 200 })
     }) as typeof fetch
-    const store = new OmegaFileStore({
-      index: new OmegaUploadIndex(join(dir, 'index.json')),
+    const store = new DeepSeekFileStore({
+      index: new DeepSeekUploadIndex(join(dir, 'index.json')),
       now: () => NOW,
       fetch: fetchImpl,
     })
@@ -565,8 +835,8 @@ describe('OmegaFileStore', () => {
           ...lastId === undefined ? {} : { last_id: lastId },
         }), { status: 200 }))
       }) as typeof fetch
-      const store = new OmegaFileStore({
-        index: new OmegaUploadIndex(join(dir, `${mode}.json`)),
+      const store = new DeepSeekFileStore({
+        index: new DeepSeekUploadIndex(join(dir, `${mode}.json`)),
         now: () => NOW,
         fetch: fetchImpl,
       })
@@ -578,8 +848,8 @@ describe('OmegaFileStore', () => {
   it('releases every batch and clears the scoped upload index', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'dsh-file-store-'))
     roots.push(dir)
-    const index = new OmegaUploadIndex(join(dir, 'index.json'))
-    const store = new OmegaFileStore({ index, now: () => NOW, fetch: vi.fn() as typeof fetch })
+    const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
+    const store = new DeepSeekFileStore({ index, now: () => NOW, fetch: vi.fn() as typeof fetch })
     const reclaim = vi.spyOn(store, 'reclaimOldestOwned')
       .mockResolvedValueOnce(1_000)
       .mockResolvedValueOnce(2)

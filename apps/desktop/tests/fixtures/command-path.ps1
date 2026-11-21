@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
 . $Worker
 $identity = [Guid]::NewGuid().ToString('N')
-$keyRoot = 'Software\OmegaHarness\CommandTests\' + $identity
+$keyRoot = 'Software\DeepSeekHarness\CommandTests\' + $identity
 $environmentKey = $keyRoot + '\Environment'
 $ownerKey = $keyRoot + '\Owner'
 $options = @{ EnvironmentKey=$environmentKey; OwnerKey=$ownerKey; MachinePath=''; MutexName=('Local\DshCommandTest-' + $identity) }

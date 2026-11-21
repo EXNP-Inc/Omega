@@ -9,12 +9,12 @@
  * rows' title projection).
  */
 import { describe, expect } from 'vitest'
-import type { SessionId } from '@omega-ai/dsh-api-remotes/client'
-import { SessionSeq } from '@omega-ai/dsh-session/types'
-import { ok, type RemoteMock } from '@omega-ai/dsh-remote-mock'
+import type { SessionId } from '@deepseek-ai/dsh-api-remotes/client'
+import { SessionSeq } from '@deepseek-ai/dsh-session/types'
+import { ok, type RemoteMock } from '@deepseek-ai/dsh-remote-mock'
 import {
   createClientTest, type ClientTestFixtures, webApp,
-} from '@omega-ai/dsh-client-test-runtime/src/assembly/index.ts'
+} from '@deepseek-ai/dsh-client-test-runtime/src/assembly/index.ts'
 import { ProjectionValueStore } from '../src/client/sessions/projection-store.ts'
 import { SessionManager } from '../src/client/sessions/manager.ts'
 import type { SessionRemotes } from '../src/client/sessions/remotes.ts'
@@ -24,7 +24,7 @@ import { FOLLOW, followScript, sessionWorld } from './remote/session.client.ts'
 
 // Test-domain keys merged into the projection map (the Service Definition package's
 // pure-type outlet), the same way domain host plugins merge theirs.
-declare module '@omega-ai/dsh-session-projection/types' {
+declare module '@deepseek-ai/dsh-session-projection/types' {
   interface SessionProjectionMap {
     'test/marks': { marks: string[] }
   }
@@ -32,7 +32,7 @@ declare module '@omega-ai/dsh-session-projection/types' {
 
 const SID = 'fk-s1' as SessionId
 /** A Session talks through the Gateway client; its dependency cone is the Typert registry and the Connection. */
-const API_ROSTER = webApp.closure(['@omega-ai/dsh-api-gateway'])
+const API_ROSTER = webApp.closure(['@deepseek-ai/dsh-api-gateway'])
 const it = createClientTest({ roster: API_ROSTER })
 /** The first client boot pays the cold module transform of the api cone. */
 const COLD_BOOT_TIMEOUT_MS = 60_000
@@ -214,7 +214,7 @@ describe('Session tail-page seeding', () => {
 
   it('treats a blockless response as no reset: pushed values survive', async ({ mock, start }) => {
     const session = await sessionBench(mock, start, SID)
-    mock.stream(FOLLOW, followScript(ok({ records: entries(plainTurn(SessionSeq(0), 0, 'a', 'b')) as never[], hasMore: false })))
+    mock.stream(FOLLOW, followScript(ok({ cursor: 5, records: entries(plainTurn(SessionSeq(0), 0, 'a', 'b')) as never[], hasMore: false })))
     await session.open()
     session.projections.apply('test/marks', { marks: ['pushed'] }, SessionSeq(9))
     await session.resync()
@@ -228,13 +228,13 @@ describe('manager frame routing', () => {
   it('lands projection frames before instantiation and the Session adopts the same store', ({ mock, remote }) => {
     const manager = makeManager(mock, remote)
     manager.handleControlFrame({
-      type: 'projection', sessionId: sid('s1'), key: 'test/marks', value: { marks: ['early'] }, seq: 7,
+      type: 'projection', sessionId: sid('s1'), changes: [{ key: 'test/marks', val: { marks: ['early'] } }], seq: 7,
     })
     const session = manager.get(sid('s1'))
     expect(session.projections.get('test/marks')).toEqual({ marks: ['early'] })
     // Frames after instantiation land in the same store.
     manager.handleControlFrame({
-      type: 'projection', sessionId: sid('s1'), key: 'test/marks', value: { marks: ['later'] }, seq: 9,
+      type: 'projection', sessionId: sid('s1'), changes: [{ key: 'test/marks', val: { marks: ['later'] } }], seq: 9,
     })
     expect(session.projections.get('test/marks')).toEqual({ marks: ['later'] })
   })
@@ -246,7 +246,7 @@ describe('manager frame routing', () => {
     }))
     await manager.refreshList()
     manager.handleControlFrame({
-      type: 'projection', sessionId: sid('s1'), key: 'title', value: 'Projected title', seq: 4,
+      type: 'projection', sessionId: sid('s1'), changes: [{ key: 'title', val: 'Projected title' }], seq: 4,
     })
     await Promise.resolve()
     expect(manager.getListSnapshot().items[0]?.title).toBe('Projected title')
@@ -318,7 +318,7 @@ describe('manager frame routing', () => {
 
     // A frame past the block's watermark still advances it.
     manager.handleControlFrame({
-      type: 'projection', sessionId: sid('s1'), key: 'title', value: 'Frame title', seq: 41,
+      type: 'projection', sessionId: sid('s1'), changes: [{ key: 'title', val: 'Frame title' }], seq: 41,
     })
     await Promise.resolve()
     expect(manager.getListSnapshot().items[0]?.title).toBe('Frame title')
@@ -342,8 +342,8 @@ describe('manager frame routing', () => {
     expect(manager.getListSnapshot().items[0]?.projectionValues).toBe(baseline)
 
     manager.handleControlFrame({
-      type: 'projection', sessionId: sid('s1'), key: 'test/marks',
-      value: { marks: ['live'] }, seq: 3,
+      type: 'projection', sessionId: sid('s1'), changes: [{ key: 'test/marks', val: { marks: ['live'] } }],
+      seq: 3,
     })
     await Promise.resolve()
     expect(manager.getListSnapshot().items[0]?.projectionValues)
@@ -358,10 +358,12 @@ describe('manager frame routing', () => {
     }))
     await manager.refreshList()
     manager.handleControlFrame({
-      type: 'projection', sessionId: sid('s1'), key: 'title', value: 'Doomed', seq: 4,
+      type: 'projection', sessionId: sid('s1'), changes: [{ key: 'title', val: 'Doomed' }], seq: 4,
     })
     if (catalog !== undefined) {
-      manager.handleControlFrame({ type: 'projection', sessionId: sid('s1'), key: 'subagentCatalog', value: catalog, seq: 4 })
+      manager.handleControlFrame({
+        type: 'projection', sessionId: sid('s1'), changes: [{ key: 'subagentCatalog', val: catalog }], seq: 4,
+      })
     }
     manager.handleSessionRemoved(sid('s1'))
     expect(manager.getListSnapshot().projectionsBySession[sid('s1')]).toBeUndefined()

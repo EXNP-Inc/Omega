@@ -3,11 +3,11 @@
  * including the format refusals shared by every backend: a stored log this
  * build cannot faithfully interpret is refused, never misread, and the
  * refusal points at the raw artifact when the backend keeps one per session.
- * @module @omega-ai/dsh-session-persistence/errors
+ * @module @deepseek-ai/dsh-session-persistence/errors
  */
 
-import { SESSION_FORMAT_VERSION } from '@omega-ai/dsh-session'
-import type { SessionId } from '@omega-ai/dsh-session'
+import { SESSION_FORMAT_VERSION } from '@deepseek-ai/dsh-session'
+import type { SessionId } from '@deepseek-ai/dsh-session'
 
 /** The requested Session identity has no durable log visible to this caller. */
 export class SessionPersistenceNotFoundError extends Error {
@@ -77,10 +77,10 @@ export class SessionHandleClosedError extends Error {
 }
 
 /**
- * A backend-resolved, per-session local artifact location. Carried only by
- * refusal diagnostics ({@link SessionFormatUnsupportedError}) so a user can
- * find the raw log a build refused to interpret; it is not a consumer-facing
- * query — log access goes through a session handle's `read`.
+ * A backend-resolved, per-Session local artifact path used by observational
+ * snapshots and refusal diagnostics. It names a backend target for the Session
+ * and does not authorize reads; log access still goes through a session
+ * handle's `read`. It is not persisted Session content.
  */
 export interface SessionLocation {
   /** Backend-specific artifact kind, for example `jsonl`. */

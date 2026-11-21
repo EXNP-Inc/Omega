@@ -1,19 +1,20 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createAssistantMessage, createToolResultMessage, LlmAttemptId, ToolCallId } from '@omega-ai/dsh-llm'
-import { AssistantStreamAccumulator } from '@omega-ai/dsh-llm/assistant-stream'
-import type { StreamChunk } from '@omega-ai/dsh-llm'
-import { SessionSeq, type SessionEvent } from '@omega-ai/dsh-session/types'
-import type { SessionAssistantSettlementEntry, SessionEventLikeEntry, SessionLiveEventEntry } from '@omega-ai/dsh-api-session-controller/client'
-import { ConversationNodeAssembler } from '@omega-ai/dsh-client-ui-conversation/client'
-import type { ChatNode, ChatSnapshot } from '@omega-ai/dsh-client-ui-chat/client'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import { createAssistantMessage, createToolResultMessage, type LlmAttemptId, type ToolCallId } from '@deepseek-ai/dsh-llm'
+import { AssistantStreamAccumulator } from '@deepseek-ai/dsh-llm/assistant-stream'
+import type { StreamChunk } from '@deepseek-ai/dsh-llm'
+import { SessionSeq, type SessionEvent } from '@deepseek-ai/dsh-session/types'
+import type { SessionAssistantSettlementEntry, SessionEventLikeEntry, SessionLiveEventEntry } from '@deepseek-ai/dsh-api-session-controller/client'
+import { ConversationNodeAssembler } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { ChatNode, ChatSnapshot } from '@deepseek-ai/dsh-client-ui-chat/client'
 import { assistantDefinition } from '../src/client/conversation-nodes/assistant.ts'
 import { toolDefinition } from '../src/client/conversation-nodes/tool.ts'
 import { chatViewDefinition } from '../src/client/conversation-nodes/chat-snapshot-builder.ts'
 import { processGroupDefinition } from '../src/client/conversation-nodes/process-groups.ts'
 
-const attemptId = LlmAttemptId('preparing-test')
-const first = ToolCallId('write-one')
-const second = ToolCallId('write-two')
+const attemptId = brandString<LlmAttemptId>('preparing-test')
+const first = brandString<ToolCallId>('write-one')
+const second = brandString<ToolCallId>('write-two')
 const args = '{"file_path":"hello.txt","content":"hello"}'
 
 function entry(event: SessionEvent): SessionLiveEventEntry {
@@ -275,7 +276,7 @@ describe('Tool preparation and durable replay', () => {
 
   it('keeps five command preparations below the Assistant message through dispatch and Step end', () => {
     const h = harness()
-    const ids = Array.from({ length: 5 }, (_, index) => ToolCallId(`command-${index}`))
+    const ids = Array.from({ length: 5 }, (_, index) => brandString<ToolCallId>(`command-${index}`))
     const command = '{"command":"echo hello"}'
     const text = 'Running five commands'
     h.assembler.append({ type: 'transient', event: {

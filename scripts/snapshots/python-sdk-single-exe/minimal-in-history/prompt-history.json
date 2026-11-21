@@ -22,7 +22,7 @@
   ],
   "requestContexts": [
     {
-      "provider": "omega-official",
+      "provider": "deepseek-official",
       "model": "smoke-model",
       "contextWindow": 1000000,
       "systemPromptUpdate": "in-history"

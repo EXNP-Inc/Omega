@@ -5,66 +5,66 @@
 /:
   en: cc97ed79d262bf09
   zh: 90a141669dc844f3
-/omega-ai-dsh-session-persistence-jsonl:
-  en: 2a19ebec36ac8a82
-  zh: a9d63799ea660dfd
-/omega-ai-dsh-session-persistence-jsonl/summary:
+/deepseek-ai-dsh-session-persistence-jsonl:
+  en: 719697c849e36229
+  zh: 466ab1b89c10020c
+/deepseek-ai-dsh-session-persistence-jsonl/summary:
   en: 4821bd83813408c7
   zh: 2e5c721a19f549e7
-/omega-ai-dsh-session-persistence-jsonl/table-of-contents:
+/deepseek-ai-dsh-session-persistence-jsonl/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/omega-ai-dsh-session-persistence-jsonl/use-this-package:
+/deepseek-ai-dsh-session-persistence-jsonl/use-this-package:
   en: d6112142a705ec43
   zh: f0914d9e37216f97
-/omega-ai-dsh-session-persistence-jsonl/use-this-package/when-to-choose-it:
-  en: 37c10302bbbde268
-  zh: 3d5c027bac868efd
-/omega-ai-dsh-session-persistence-jsonl/use-this-package/minimal-configuration:
-  en: a8bed52fada8e972
-  zh: 0cb3f2dff2eca03d
-/omega-ai-dsh-session-persistence-jsonl/use-this-package/on-disk-layout:
+/deepseek-ai-dsh-session-persistence-jsonl/use-this-package/when-to-choose-it:
+  en: 8fca7647035f8795
+  zh: 0bfb12da95611091
+/deepseek-ai-dsh-session-persistence-jsonl/use-this-package/minimal-configuration:
+  en: ee6b7741ed61f1d8
+  zh: e13b6554d1770f0f
+/deepseek-ai-dsh-session-persistence-jsonl/use-this-package/on-disk-layout:
   en: e20cf32540d7c785
   zh: 67e182529e9211ca
-/omega-ai-dsh-session-persistence-jsonl/use-this-package/durability-and-crash-semantics:
-  en: 1eaa87736cac029b
-  zh: 26224e8889786d69
-/omega-ai-dsh-session-persistence-jsonl/use-this-package/reading-the-logs:
-  en: c06983c4a73bebe1
-  zh: 7319f8f44223685f
-/omega-ai-dsh-session-persistence-jsonl/understand-the-implementation:
+/deepseek-ai-dsh-session-persistence-jsonl/use-this-package/durability-and-crash-semantics:
+  en: 96498792672f6d50
+  zh: d767a9c69dced889
+/deepseek-ai-dsh-session-persistence-jsonl/use-this-package/reading-the-logs:
+  en: c9aff3ce6e32f790
+  zh: 1748bb565a366db6
+/deepseek-ai-dsh-session-persistence-jsonl/understand-the-implementation:
   en: a35407bb25671e7e
   zh: 6a00f9510c85adcb
-/omega-ai-dsh-session-persistence-jsonl/understand-the-implementation/design-concept:
-  en: b69d4565a11b6f02
-  zh: c8309690fc931f8d
-/omega-ai-dsh-session-persistence-jsonl/understand-the-implementation/physical-encoding:
+/deepseek-ai-dsh-session-persistence-jsonl/understand-the-implementation/design-concept:
+  en: a422bd0f74a5b31a
+  zh: edc47e9530c87f67
+/deepseek-ai-dsh-session-persistence-jsonl/understand-the-implementation/physical-encoding:
   en: 5aaf80115840318f
   zh: 0b0fb2b2e085a111
-/omega-ai-dsh-session-persistence-jsonl/understand-the-implementation/source-map:
+/deepseek-ai-dsh-session-persistence-jsonl/understand-the-implementation/source-map:
   en: 2a4fd4bde1da0a1b
   zh: d7a8cbdad7beee09
-/omega-ai-dsh-session-persistence-jsonl/further-exploration:
+/deepseek-ai-dsh-session-persistence-jsonl/further-exploration:
   en: 71fbff06a098440a
   zh: d3c07db42668ea18
-/omega-ai-dsh-session-persistence-jsonl/model-experience:
+/deepseek-ai-dsh-session-persistence-jsonl/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/omega-ai-dsh-session-persistence-jsonl/model-experience/resumed-conversation-history:
+/deepseek-ai-dsh-session-persistence-jsonl/model-experience/resumed-conversation-history:
   en: 062875aab7f3f138
   zh: c7285918227e6f5c
-/omega-ai-dsh-session-persistence-jsonl/model-experience/resumed-conversation-history/what-the-model-sees:
+/deepseek-ai-dsh-session-persistence-jsonl/model-experience/resumed-conversation-history/what-the-model-sees:
   en: 2a3b5c6e3860eef6
   zh: 82afe0f0359581b6
-/omega-ai-dsh-session-persistence-jsonl/model-experience/resumed-conversation-history/token-effect:
+/deepseek-ai-dsh-session-persistence-jsonl/model-experience/resumed-conversation-history/token-effect:
   en: 8fb2f7cdba1ff320
   zh: e130ec2a92a53a5c
-/omega-ai-dsh-session-persistence-jsonl/model-experience/resumed-conversation-history/kv-cache-effect:
+/deepseek-ai-dsh-session-persistence-jsonl/model-experience/resumed-conversation-history/kv-cache-effect:
   en: 53ce4da7ce68d21c
   zh: 10f40bc354100f77
-/omega-ai-dsh-session-persistence-jsonl/known-limitations-and-deferred-work:
-  en: e6343e8ad3f6fb71
-  zh: fe632c9711e7921b
-/omega-ai-dsh-session-persistence-jsonl/known-limitations-and-deferred-work/dev-note:
+/deepseek-ai-dsh-session-persistence-jsonl/known-limitations-and-deferred-work:
+  en: c46c91a811abc547
+  zh: 41fb942d4e61e544
+/deepseek-ai-dsh-session-persistence-jsonl/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

@@ -3,7 +3,7 @@ description: "Local-workspace @file completion provider for users and maintainer
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-file-reference-local
+# @deepseek-ai/dsh-file-reference-local
 
 English | [中文](README.zh.md)
 
@@ -25,14 +25,16 @@ Agents and host UIs can complete `@file` mentions with ranked paths from each ag
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount this provider when `@file` completion should discover the Harness host's own filesystem — the namespace the shipped `read` tool operates on. Each agent's workspace is indexed from its session working directory, falling back to the host process directory when the session has none.
+Changing the Session's working directory discards the previous directory's search index; the next completion searches the new directory.
+
+Mount this provider when `@file` completion should discover the Harness host's own filesystem — the namespace the shipped `read` tool operates on. Each agent's workspace is indexed from its Session's current working directory.
 
 ### Enabling the provider
 
 The defaults suit a typical workspace, so the minimal mount needs no configuration:
 
 ```yaml
-- name: '@omega-ai/dsh-file-reference-local'
+- name: '@deepseek-ai/dsh-file-reference-local'
   config:
     maxResults: 20
 ```
@@ -87,7 +89,7 @@ Read these pages when the package-level contract is not enough. They move from t
 
 - [File-reference seam](../file-reference/README.md) — the service contract and `@file` grammar this provider implements.
 - [Session-reference subsystem](../../../docs/subsystems/session-reference.md) — the shared file-reference contract behind host UIs.
-- [Filesystem tool catalog](../../../docs/tool-catalog.md#omega-aidsh-tool-fs) — the `read` tool whose namespace discovery must match.
+- [Filesystem tool catalog](../../../docs/tool-catalog.md#deepseek-aidsh-tool-fs) — the `read` tool whose namespace discovery must match.
 - [Context group map](../README.md) — sibling request-context packages.
 
 -----

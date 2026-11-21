@@ -2,11 +2,11 @@
 /** Reference links stop traversal; expanded collections retain original entry values. */
 
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
-import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
 import { afterEach, expect, it, vi } from 'vitest'
-import { makeTranslate } from '@omega-ai/dsh-client-test-runtime'
-import { SessionSeq, type SessionId } from '@omega-ai/dsh-session/types'
-import { ConversationLocationIndex } from '@omega-ai/dsh-client-ui-conversation/client'
+import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
+import { SessionSeq, type SessionId } from '@deepseek-ai/dsh-session/types'
+import { ConversationLocationIndex } from '@deepseek-ai/dsh-client-ui-conversation/client'
 import { InspectorJsonTree, InspectorObjectTree } from '../src/client/views/InspectorObjectTree.tsx'
 import type { InspectorObjects, InspectorObjectReference } from '../src/client/views/objects.ts'
 import { en } from '../src/client/locales.ts'
@@ -15,7 +15,7 @@ interface TreeProbeData {
   readonly status: string
 }
 
-declare module '@omega-ai/dsh-client-ui-conversation/client' {
+declare module '@deepseek-ai/dsh-client-ui-conversation/client' {
   interface ConversationTurnDataMap {
     'tree-probe': TreeProbeData
   }
@@ -143,7 +143,7 @@ it('expands Node Data inline but keeps its title navigable and cyclic references
     target: { nodeKey: 'node-1' }, read: () => data }
   props.index.set(data, reference)
   const ui = render(<InspectorObjectTree {...props} value={{ data }} />)
-  const link = ui.getByRole('button', { name: '↗ Node Data · 1' })
+  const link = ui.getByRole('button', { name: '↗ Node data · 1' })
   const branch = link.closest('details')!
   expect(branch.open).toBe(false)
   expect(ui.queryByText('"inline node data"')).toBeNull()
@@ -151,7 +151,7 @@ it('expands Node Data inline but keeps its title navigable and cyclic references
   fireEvent(branch, new Event('toggle'))
   expect(ui.getByText('"inline node data"')).toBeTruthy()
   expect(props.navigate).not.toHaveBeenCalled()
-  expect(ui.getAllByRole('button', { name: '↗ Node Data · 1' })).toHaveLength(2)
+  expect(ui.getAllByRole('button', { name: '↗ Node data · 1' })).toHaveLength(2)
   expect(ui.container.querySelectorAll('details')).toHaveLength(2)
   fireEvent.click(link)
   expect(props.navigate).toHaveBeenCalledExactlyOnceWith(reference)

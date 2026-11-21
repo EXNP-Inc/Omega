@@ -3,7 +3,7 @@ description: "The subprocess service (ctx.subprocess) for composition authors an
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-subprocess
+# @deepseek-ai/dsh-subprocess
 
 English | [中文](README.zh.md)
 
@@ -32,8 +32,8 @@ Mount a subprocess provider in any composition that must run child processes, an
 One provider registers `ctx.subprocess` per composition; load it beside the consumers that spawn through it — the bash executors, the LSP host, the PTY shell backend, or an out-of-process subagent backend. Loading a second provider fails loudly (one service per context, Cordis standard).
 
 ```yaml
-- name: '@omega-ai/dsh-subprocess-local'
-- name: '@omega-ai/dsh-bash-local'
+- name: '@deepseek-ai/dsh-subprocess-local'
+- name: '@deepseek-ai/dsh-bash-local'
 ```
 
 ### Starting a managed process
@@ -63,7 +63,7 @@ Reads are offset-based and non-consuming: a background reader and a final batch 
 <a id="using-a-control-pipe"></a>
 ### Using a control pipe
 
-Set `stdio.control: 'pipe'` to receive a separate raw `Duplex` in `handle.control`. The Node child opens fd 7 with `openInheritedControlChannel()` from `@omega-ai/dsh-subprocess/control`; this helper consumes the provider-owned `DSH_SUBPROCESS_CONTROL=pipe` marker. Callers cannot supply that marker through `env`. Control bytes never enter stdout/stderr collectors. The consumer owns framing, validation, backpressure, and closing its endpoint; provider disposal destroys any endpoint remaining after process teardown. Omitting the request returns `control: undefined`. This channel is available only for ordinary processes, and carries no authority to bypass tool approval.
+Set `stdio.control: 'pipe'` to receive a separate raw `Duplex` in `handle.control`. The Node child opens fd 7 with `openInheritedControlChannel()` from `@deepseek-ai/dsh-subprocess/control`; this helper consumes the provider-owned `DSH_SUBPROCESS_CONTROL=pipe` marker. Callers cannot supply that marker through `env`. Control bytes never enter stdout/stderr collectors. The consumer owns framing, validation, backpressure, and closing its endpoint; provider disposal destroys any endpoint remaining after process teardown. Omitting the request returns `control: undefined`. This channel is available only for ordinary processes, and carries no authority to bypass tool approval.
 
 ### Managing process lifetime
 
@@ -81,7 +81,7 @@ Children never inherit the harness's ambient secrets: credential-shaped names an
 
 ### What can go wrong
 
-An executable that cannot be resolved fails loudly with a stable error. A spawn that never starts rejects `done`; there is no buffered output for a process that never ran. `waitForExit()` also rejects when the provider cannot prove its selected range is empty, and a provider fallback may not own descendants that escape its process group or observed session. When a transport owns its own spawn (the SDK client, MCP), route around the service and import `scrubbedParentEnv` directly so environment policy stays single-sourced.
+Coded failures are `SubprocessError` instances whose `code` is one of `SUBPROCESS_ERROR_CODES`: an empty argv is `SUBPROCESS_INVALID_ARGV`, an executable lookup miss is `SubprocessExecutableNotFoundError` (`SUBPROCESS_EXECUTABLE_NOT_FOUND`), a provider's private runner that fails or breaks its channel is `SUBPROCESS_RUNNER_FAILED` or `SUBPROCESS_RUNNER_IPC_FAILED`, and an unloadable terminal implementation is `SUBPROCESS_PTY_UNAVAILABLE`. A spawn requested on an already aborted signal throws an error named `AbortError`. A spawn that never starts rejects `done` with the platform's original error, so consumers can inspect its errno fields; a consumer that reports the rejection as its own failure converts it with `subprocessSpawnFailure()`, which turns an error with a string errno `code` into `SUBPROCESS_SPAWN_NOT_FOUND` for `ENOENT` and `SUBPROCESS_SPAWN_FAILED` for any other errno, and returns every other value unchanged. There is no buffered output for a process that never ran. `waitForExit()` also rejects when the provider cannot prove its selected range is empty, and a provider fallback may not own descendants that escape its process group or observed session. When a transport owns its own spawn (the SDK client, MCP), route around the service and import `scrubbedParentEnv` directly so environment policy stays single-sourced.
 
 -----
 
@@ -103,6 +103,7 @@ The seam is built on one separation: the service owns process coordinates and li
 |---|---|
 | [`src/index.ts`](src/index.ts) | Plugin entry: abstract `SubprocessRuntime`, `ctx.subprocess` registration, the shared `scrubbedParentEnv` scrub |
 | [`src/types.ts`](src/types.ts) | Vocabulary: spawn spec, stdio modes, handles, readers, outcomes, `DSH_*` namespace |
+| [`src/error.ts`](src/error.ts) | `SubprocessError`, its closed code list, and spawn-rejection classification |
 
 ### Data model and flow
 

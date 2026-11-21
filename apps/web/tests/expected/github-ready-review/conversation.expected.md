@@ -1,26 +1,28 @@
 - tree "Sessions":
   - treeitem "{{workspace}}" [expanded]
-  - treeitem "Review omega-ai/omega-harness#314 Session actions for Review omega-ai/omega-harness#314 Archive session Pin session" [selected]:
-    - text: Review omega-ai/omega-harness#314
-    - button "Session actions for Review omega-ai/omega-harness#314"
+  - treeitem "Review deepseek-ai/deepseek-harness#314 Session actions for Review deepseek-ai/deepseek-harness#314 Archive session Pin session" [selected]:
+    - text: Review deepseek-ai/deepseek-harness#314
+    - button "Session actions for Review deepseek-ai/deepseek-harness#314"
     - button "Archive session"
     - button "Pin session"
 
 ---
 
 - banner:
-  - navigation "Session hierarchy": Review omega-ai/omega-harness#314
+  - navigation "Session hierarchy": Review deepseek-ai/deepseek-harness#314
   - text: Standard mode
+  - button "Session panel"
   - button "More actions"
   - button "Open right sidebar"
   - tablist:
     - tab "Chat" [selected]
     - tab "Trajectory"
+  - button "More conversation views"
 - button "GitHub event received {{clock}}":
   - text: GitHub event received
   - time: {{clock}}
 - status: Completed
-- button "Completed in {{duration}}" [disabled]
+- button "Completed in {{duration}}"
 - paragraph: "Review complete: no actionable findings."
 - button "Copy"
 - button "Good response"

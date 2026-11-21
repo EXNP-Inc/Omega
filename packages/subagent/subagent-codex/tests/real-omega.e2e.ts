@@ -1,3 +1,5 @@
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
+import { startExternalActivation } from '../../subagent/tests/external-activation-helpers.ts'
 import { execFile } from 'node:child_process'
 import { randomUUID } from 'node:crypto'
 import {
@@ -11,18 +13,18 @@ import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { promisify } from 'node:util'
-import { Context } from '@omega-ai/cordis'
+import { Context } from '@deepseek-ai/cordis'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Agent } from '@omega-ai/dsh-agent'
-import SubagentRuntime from '@omega-ai/dsh-subagent'
-import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
-import type { SubprocessHandle } from '@omega-ai/dsh-subprocess'
-import LocalSubprocessRuntime from '@omega-ai/dsh-subprocess-local'
+import type { Agent } from '@deepseek-ai/dsh-agent'
+import SubagentRuntime from '@deepseek-ai/dsh-subagent'
+import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import type { SubprocessHandle } from '@deepseek-ai/dsh-subprocess'
+import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
 import * as codex from '../src/index.ts'
 import {
-  startOmegaResponsesBridge,
-  type OmegaResponsesBridge,
-} from './omega-responses-bridge.ts'
+  startDeepSeekResponsesBridge,
+  type DeepSeekResponsesBridge,
+} from './deepseek-responses-bridge.ts'
 
 const execFileAsync = promisify(execFile)
 const codexPackageJson = createRequire(import.meta.url).resolve('@openai/codex/package.json')
@@ -34,7 +36,7 @@ const codexEntry = resolve(dirname(codexPackageJson), codexPackage.bin.codex)
 
 const roots: string[] = []
 const contexts: Context[] = []
-const bridges: OmegaResponsesBridge[] = []
+const bridges: DeepSeekResponsesBridge[] = []
 
 afterEach(async () => {
   await Promise.all(contexts.splice(0).map(ctx => ctx.fiber.dispose()))
@@ -50,33 +52,33 @@ async function expectQuiescent(handles: readonly SubprocessHandle[]): Promise<vo
   }
 }
 
-describe.skipIf(!process.env.OMEGA_API_KEY)(
-  'Codex provider with real Omega API',
+describe.skipIf(!process.env.DEEPSEEK_API_KEY)(
+  'Codex provider with real DeepSeek API',
   () => {
     it('returns one unique nonce through the production provider and real Codex', async () => {
-      const apiKey = process.env.OMEGA_API_KEY
-      if (apiKey === undefined) throw new Error('e2e ran without OMEGA_API_KEY')
-      const root = mkdtempSync(join(tmpdir(), 'dsh-codex-omega-e2e-'))
+      const apiKey = process.env.DEEPSEEK_API_KEY
+      if (apiKey === undefined) throw new Error('e2e ran without DEEPSEEK_API_KEY')
+      const root = mkdtempSync(join(tmpdir(), 'dsh-codex-deepseek-e2e-'))
       roots.push(root)
       const workspace = join(root, 'workspace')
       const codexHome = join(root, 'codex-home')
       mkdirSync(workspace)
       mkdirSync(codexHome)
-      const nonce = `DSH_CODEX_OMEGA_${randomUUID()}`
-      const bridge = await startOmegaResponsesBridge(nonce)
+      const nonce = `DSH_CODEX_DEEPSEEK_${randomUUID()}`
+      const bridge = await startDeepSeekResponsesBridge(nonce)
       bridges.push(bridge)
       writeFileSync(join(codexHome, 'config.toml'), [
-        'model = "omega-v4-flash"',
-        'model_provider = "omega-e2e"',
+        'model = "deepseek-v4-flash"',
+        'model_provider = "deepseek-e2e"',
         'approval_policy = "never"',
         'sandbox_mode = "read-only"',
         'disable_response_storage = true',
         'check_for_update_on_startup = false',
         '',
-        '[model_providers.omega-e2e]',
-        'name = "Omega E2E bridge"',
+        '[model_providers.deepseek-e2e]',
+        'name = "DeepSeek E2E bridge"',
         `base_url = "${bridge.baseUrl}"`,
-        'env_key = "OMEGA_API_KEY"',
+        'env_key = "DEEPSEEK_API_KEY"',
         'wire_api = "responses"',
         'requires_openai_auth = false',
         '',
@@ -85,7 +87,7 @@ describe.skipIf(!process.env.OMEGA_API_KEY)(
         '',
       ].join('\n'))
       const env = {
-        OMEGA_API_KEY: apiKey,
+        DEEPSEEK_API_KEY: apiKey,
         CODEX_HOME: codexHome,
         HOME: root,
         XDG_CONFIG_HOME: join(root, 'xdg-config'),
@@ -98,6 +100,7 @@ describe.skipIf(!process.env.OMEGA_API_KEY)(
       const ctx = new Context()
       contexts.push(ctx)
       await ctx.plugin(SessionProjectionRegistry)
+      await mountWorkingDirectoryFixture(ctx)
       await ctx.plugin(SubagentRuntime)
       await ctx.plugin(LocalSubprocessRuntime)
       const handles: SubprocessHandle[] = []
@@ -115,10 +118,10 @@ describe.skipIf(!process.env.OMEGA_API_KEY)(
       expect(version.stdout.trim()).toBe('codex-cli 0.153.4')
 
       const parent = {
-        id: 'omega-e2e-parent',
+        id: 'deepseek-e2e-parent',
         session: { header: { cwd: workspace } },
       } as unknown as Agent
-      const run = await ctx.subagents.start('codex', {
+      const run = await startExternalActivation(ctx, 'codex', {
         prompt: [{
           type: 'text',
           text: `Reply with exactly ${nonce} and nothing else. Do not use tools.`,

@@ -1,7 +1,7 @@
 import { createServer, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { installProxyFromEnvironment } from '@omega-ai/dsh-http-proxy'
+import { installProxyFromEnvironment } from '@deepseek-ai/dsh-http-proxy'
 
 let seen: string[] = []
 let proxy: Server
@@ -31,10 +31,10 @@ async function observe(run: () => Promise<unknown>): Promise<string[]> {
   try { await run().catch(() => undefined) } finally { await dispose() }
   return seen
 }
-import { OmegaSearchProvider } from '../src/provider.ts'
-describe('omega search egress', () => {
+import { DeepSeekSearchProvider } from '../src/provider.ts'
+describe('deepseek search egress', () => {
   it('goes through the proxy', async () => {
-    const p = new OmegaSearchProvider(() => ({ apiKey: 'probe', baseURL: 'http://dsk-probe.invalid', model: 'm', apiVersion: '2023-06-01', maxTokens: 16, maxUses: 1 }))
+    const p = new DeepSeekSearchProvider(() => ({ apiKey: 'probe', baseURL: 'http://dsk-probe.invalid', model: 'm', apiVersion: '2023-06-01', maxTokens: 16, maxUses: 1 }))
     expect(await observe(() => p.search({ query: 'probe' }))).toEqual(['REQ http://dsk-probe.invalid/messages'])
   })
 })

@@ -1,12 +1,12 @@
-import { Context } from '@omega-ai/cordis'
+import { Context } from '@deepseek-ai/cordis'
 import { onTestFinished } from 'vitest'
-import SessionStore from '@omega-ai/dsh-session'
-import FileSystem from '@omega-ai/dsh-fs-local'
-import Subprocess from '@omega-ai/dsh-subprocess-local'
-import Sandbox from '@omega-ai/dsh-sandbox-local'
-import SandboxPolicy from '@omega-ai/dsh-sandbox-policy'
-import SessionProjections from '@omega-ai/dsh-session-projection'
-import type { SandboxMode } from '@omega-ai/dsh-sandbox'
+import SessionStore from '@deepseek-ai/dsh-session'
+import FileSystem from '@deepseek-ai/dsh-fs-local'
+import Subprocess from '@deepseek-ai/dsh-subprocess-local'
+import Sandbox from '@deepseek-ai/dsh-sandbox-local'
+import SandboxPolicy from '@deepseek-ai/dsh-sandbox-policy'
+import SessionProjections from '@deepseek-ai/dsh-session-projection'
+import type { SandboxMode } from '@deepseek-ai/dsh-sandbox'
 import NodeRuntime from '../src/index.ts'
 import type { Config } from '../src/index.ts'
 
@@ -18,6 +18,6 @@ export async function mountRuntime(ctx: Context, config: Config = {}, policy: { 
   if (!ctx.get('sandbox')) await ctx.plugin(Sandbox, {})
   if (!ctx.get('sessionProjections')) await ctx.plugin(SessionProjections)
   if (!ctx.get('sandboxPolicy')) await ctx.plugin(SandboxPolicy, { mode: 'danger-full-access', ...policy })
-  await ctx.plugin(NodeRuntime, config)
-  return ctx.ptcRuntime as NodeRuntime
+  const fiber = await ctx.plugin(NodeRuntime, config)
+  return { runtime: ctx.ptcRuntime as NodeRuntime, fiber }
 }

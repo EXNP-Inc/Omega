@@ -1,5 +1,5 @@
 /** Loader lifecycle operations shared by live graph reconciliation and code replacement. */
-import type { Entry } from '@omega-ai/cordis-plugin-loader'
+import type { Entry } from '@deepseek-ai/cordis-plugin-loader'
 
 /**
  * Release a runtime before clearing its entry fiber so Loader refresh can import new code.
@@ -14,15 +14,4 @@ export async function tearDownEntryFiber(entry: Entry): Promise<void> {
   if (runtime !== null) entry.ctx.registry.delete(runtime.callback)
   while (fiber.inertia !== undefined) await fiber.inertia
   delete entry.fiber
-}
-
-/**
- * Remove styles after their plugin's effect cleanup has settled.
- * @param id - Package whose factory owns the style tags.
- */
-export function removeOwnedStyles(id: string): void {
-  if (typeof document === 'undefined') return
-  for (const el of document.querySelectorAll('style[data-plugin]')) {
-    if (el.getAttribute('data-plugin') === id) el.remove()
-  }
 }

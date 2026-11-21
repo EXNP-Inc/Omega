@@ -1,12 +1,13 @@
 /** Client Cordis plugin that publishes browser observations directly to the Inspector Worker. */
 
-import type { Context } from '@omega-ai/cordis'
-import type {} from '@omega-ai/dsh-client-connection/client'
+import type { Context } from '@deepseek-ai/cordis'
+import type {} from '@deepseek-ai/dsh-client-connection/client'
 import type { InspectorClientBootstrap } from '../shared/bridge/messages/control.ts'
 import { INSPECTOR_BOOTSTRAP_ROUTE } from '../shared/web.ts'
 import { parseInspectorClientBootstrap } from '../shared/bridge/control-codec.ts'
 import { createInspectorService, type InspectorService as SharedInspectorService } from '../shared/service.ts'
 import { publishCordisTree } from './inspection/cordis.ts'
+import { maxStatePayloadBytes } from '../shared/bridge/buffer.ts'
 import { startInspectorClient } from './bridge/controller.ts'
 import { disposeInspectorResources } from '../shared/dispose.ts'
 
@@ -29,7 +30,7 @@ declare global {
   var __DSH_INSPECTOR__: unknown
 }
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
     /** Publish Client-realm observations and query the shared Inspector state. */
     inspector: InspectorService
@@ -130,7 +131,7 @@ class InspectorClientSession {
       this.lifetime.signal.throwIfAborted()
       disposers.push(publishCordisTree(this.ctx, source, {
         maxNodes: bootstrap.maxCordisNodes,
-        maxBytes: bootstrap.maxFrameBytes - 4_096,
+        maxBytes: maxStatePayloadBytes(bootstrap.maxFrameBytes),
       }))
       disposers.push(this.ctx.provide('inspector', createInspectorService(source)))
       const panel = this.ctx.inject(['slots', 'shortcuts', 'locale'], async (ctx) => {

@@ -1,13 +1,13 @@
 {
-  "name": "@omega-ai/dsh-workflow",
+  "name": "@deepseek-ai/dsh-workflow",
   "description": "Workflow capability seam: ctx.workflowEngine service, run vocabulary, and workflow/* events",
-  "version": "0.2.1-alpha.1",
+  "version": "0.2.2-rc.5",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/omega-ai/omega-harness.git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
     "directory": "packages/workflow/workflow"
   },
   "type": "module",
@@ -28,21 +28,23 @@
   "files": [
     "lib/index.js",
     "lib/types/**/*.js",
-    "lib/types/**/*.d.ts"
+    "lib/types/**/*.d.ts",
+    "lib/types/**/*.d.ts.map",
+    "lib/**/*.js.map",
+    "src"
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@omega-ai/dsh-agent": "workspace:*",
-    "@omega-ai/dsh-brand": "workspace:*",
-    "@omega-ai/dsh-llm": "workspace:*",
-    "@omega-ai/dsh-session": "workspace:*",
-    "@omega-ai/cordis": "workspace:~"
+    "@deepseek-ai/dsh-agent": "workspace:*",
+    "@deepseek-ai/dsh-llm": "workspace:*",
+    "@deepseek-ai/dsh-session": "workspace:*",
+    "@deepseek-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@omega-ai/dsh-agent": "workspace:*",
-    "@omega-ai/dsh-brand": "workspace:*",
-    "@omega-ai/dsh-llm": "workspace:*",
-    "@omega-ai/dsh-session": "workspace:*",
-    "@omega-ai/cordis": "workspace:~"
+    "@deepseek-ai/dsh-agent": "workspace:*",
+    "@deepseek-ai/dsh-brand": "workspace:*",
+    "@deepseek-ai/dsh-llm": "workspace:*",
+    "@deepseek-ai/dsh-session": "workspace:*",
+    "@deepseek-ai/cordis": "workspace:~"
   }
 }

@@ -33,10 +33,13 @@ describe('THIRD_PARTY_NOTICES.md', () => {
   }, async () => {
     const generated = await render()
     expect(generated).toContain('It depends on the third-party software listed below.')
+    expect(generated).toContain('| [`cross-spawn`](https://github.com/moxystudio/node-cross-spawn) | MIT |')
+    expect(generated).not.toContain('https://github.com/git@')
     expect(generated).toContain(`| [\`numpy\`](https://github.com/numpy/numpy) | ${primaryRuntimeLock.pythonPackages.numpy} | BSD-3-Clause |`)
     expect(generated).toContain('## LibreOffice conversion kit')
     expect(generated).toContain('Recipients must have access to those corresponding sources and notices.')
     expect(generated.split('## Development-only npm dependencies')[0]).toContain('| [`chrome-devtools-frontend`]')
+    expect(generated.split('## Development-only npm dependencies')[0]).toContain('| [`@botiverse/oar`]')
     expect(generated).toContain('third-party license and notice files supplied by the npm source')
     expect(readFileSync(resolve(root, 'THIRD_PARTY_NOTICES.md'), 'utf8'), 'stale notices — run `pnpm run gen-third-party-notices`').toBe(generated)
   })
@@ -53,6 +56,43 @@ function workspace(entries: Record<string, Manifest>): { manifests: Map<string, 
 }
 
 describe('tierExternalDeps', () => {
+  it('discloses host-bundled OAR as runtime code and applies runtime license checks', () => {
+    const { manifests, names } = workspace({
+      'packages/experimental/subagent-oar/package.json': {
+        name: '@deepseek-ai/dsh-experimental-subagent-oar',
+        devDependencies: { '@botiverse/oar': '0.67.0', 'host-build-tool': '^1' },
+      },
+    })
+    const tiers = tierExternalDeps(manifests, names)
+    expect(tiers.get('@botiverse/oar')).toBe(true)
+    expect(tiers.get('host-build-tool')).toBe(false)
+    const dependencies = [{ name: '@botiverse/oar', license: 'GPL-3.0-only' }]
+      .filter(dependency => tiers.get(dependency.name))
+    expect(() => { assertRuntimeLicenses(dependencies) }).toThrow('@botiverse/oar (GPL-3.0-only)')
+    expect(() => { assertRuntimeLicenses([{ name: '@botiverse/oar', license: 'Apache-2.0' }]) }).not.toThrow()
+  })
+
+  it('keeps unrelated OAR development declarations out of runtime disclosure', () => {
+    const { manifests, names } = workspace({
+      'packages/experimental/unrelated/package.json': {
+        name: '@deepseek-ai/dsh-experimental-unrelated',
+        devDependencies: { '@botiverse/oar': '0.67.0' },
+      },
+    })
+    expect(tierExternalDeps(manifests, names).get('@botiverse/oar')).toBe(false)
+  })
+
+  it('rejects an OAR embedding owner that omits its required dependency declaration', () => {
+    const { manifests, names } = workspace({
+      'packages/experimental/subagent-oar/package.json': {
+        name: '@deepseek-ai/dsh-experimental-subagent-oar',
+        devDependencies: { 'host-build-tool': '^1' },
+      },
+    })
+    expect(() => tierExternalDeps(manifests, names))
+      .toThrow('@deepseek-ai/dsh-experimental-subagent-oar embeds @botiverse/oar but does not declare it')
+  })
+
   it('limits the LibreOffice exception to its reviewed package identity and MPL terms', () => {
     for (const name of [
       '@deepseek-ai/libreoffice-kit', '@deepseek-ai/libreoffice-kit-wasm',
@@ -64,7 +104,7 @@ describe('tierExternalDeps', () => {
     }
     for (const dependency of [
       { name: 'unrelated-library', license: 'MPL-2.0' },
-      { name: '@omega-ai/dsh-libreoffice-kit', license: 'MPL-2.0' },
+      { name: '@deepseek-ai/dsh-libreoffice-kit', license: 'MPL-2.0' },
       { name: '@deepseek-ai/libreoffice-kit-unreviewed', license: 'MPL-2.0' },
       { name: '@deepseek-ai/libreoffice-kit', license: 'GPL-3.0-only' },
       { name: '@deepseek-ai/libreoffice-kit', license: 'UNKNOWN' },
@@ -109,12 +149,12 @@ describe('tierExternalDeps', () => {
     const { manifests, names } = workspace({
       // Root tooling and test infrastructure never ship, whichever section declares them.
       'package.json': { dependencies: { 'root-runtime-looking': '^1' }, devDependencies: { 'lint-tool': '^1' } },
-      'packages/test-support/loader-smoke/package.json': { name: '@omega-ai/dsh-loader-smoke', dependencies: { 'smoke-helper': '^1' } },
-      'packages/test-support/client-runtime/package.json': { name: '@omega-ai/dsh-client-test-runtime', dependencies: { 'test-lib': '^1' } },
+      'packages/test-support/loader-smoke/package.json': { name: '@deepseek-ai/dsh-loader-smoke', dependencies: { 'smoke-helper': '^1' } },
+      'packages/test-support/client-runtime/package.json': { name: '@deepseek-ai/dsh-client-test-runtime', dependencies: { 'test-lib': '^1' } },
       'website/package.json': { devDependencies: { 'site-tool': '^1' } },
       // A plugin package's runtime dependency ships even when no app mounts it by default.
-      'packages/mcp/mcp-client/package.json': { name: '@omega-ai/dsh-mcp-client', dependencies: { 'protocol-sdk': '^1' }, devDependencies: { 'protocol-fixture-server': '^1' } },
-      'apps/cli/package.json': { name: '@omega-ai/dsh-cli', dependencies: { 'cli-lib': '^1', '@omega-ai/dsh-mcp-client': 'workspace:^' } },
+      'packages/mcp/mcp-client/package.json': { name: '@deepseek-ai/dsh-mcp-client', dependencies: { 'protocol-sdk': '^1' }, devDependencies: { 'protocol-fixture-server': '^1' } },
+      'apps/cli/package.json': { name: '@deepseek-ai/dsh-cli', dependencies: { 'cli-lib': '^1', '@deepseek-ai/dsh-mcp-client': 'workspace:^' } },
     })
 
     expect(tierExternalDeps(manifests, names)).toEqual(new Map([
@@ -133,12 +173,12 @@ describe('tierExternalDeps', () => {
   it('keeps a package runtime when any shipping area declares it, and excludes workspace links', () => {
     const { manifests, names } = workspace({
       'package.json': { devDependencies: { shared: '^1' } },
-      'packages/interaction/tui/package.json': { name: '@omega-ai/dsh-tui', dependencies: { shared: '^1', '@omega-ai/dsh-cli': 'workspace:^' } },
-      'apps/cli/package.json': { name: '@omega-ai/dsh-cli' },
+      'packages/interaction/tui/package.json': { name: '@deepseek-ai/dsh-tui', dependencies: { shared: '^1', '@deepseek-ai/dsh-cli': 'workspace:^' } },
+      'apps/cli/package.json': { name: '@deepseek-ai/dsh-cli' },
     })
 
     expect(tierExternalDeps(manifests, names).get('shared')).toBe(true)
-    expect(tierExternalDeps(manifests, names).has('@omega-ai/dsh-cli')).toBe(false)
+    expect(tierExternalDeps(manifests, names).has('@deepseek-ai/dsh-cli')).toBe(false)
   })
 })
 
@@ -216,7 +256,7 @@ describe('parseVendoredRows', () => {
 
     expect(rows.length).toBeGreaterThan(0)
     expect(rows).toContainEqual({
-      npmName: '@omega-ai/cordis',
+      npmName: '@deepseek-ai/cordis',
       upstreamName: 'cordis',
       upstream: 'https://github.com/cordiverse/cordis',
     })
@@ -225,7 +265,7 @@ describe('parseVendoredRows', () => {
   })
 
   it('yields nothing when the table columns change, so the generator fails loud', () => {
-    expect(parseVendoredRows('| `cordis/` | `@omega-ai/cordis` | cordis | 4.0.0 | https://example.com | `abc123` |\n')).toEqual([])
+    expect(parseVendoredRows('| `cordis/` | `@deepseek-ai/cordis` | cordis | 4.0.0 | https://example.com | `abc123` |\n')).toEqual([])
   })
 
   it('covers every vendored directory, so no package can drop out of the notices', () => {
@@ -259,7 +299,7 @@ describe('parsePyprojectRequirements', () => {
       'docs = ["sphinx>=7"]',
       '',
       '[tool.hatch.build.targets.wheel]',
-      'packages = ["src/omega_harness"]',
+      'packages = ["src/deepseek_harness"]',
       '',
       '[tool.pytest.ini_options]',
       'testpaths = ["tests"]',
@@ -316,11 +356,11 @@ describe('collectPythonDependencies', () => {
 
   it('excludes normalized local project names without exempting a third-party prefix', () => {
     const pyprojects = [
-      '[project]\nname = "omega-harness-runtime-bin"\ndependencies = ["pydantic"]\n',
-      '[project]\nname = "omega-harness-sdk"\ndependencies = ["Omega.Harness_Runtime-Bin", "omega-unrelated"]\n',
+      '[project]\nname = "deepseek-harness-runtime-bin"\ndependencies = ["pydantic"]\n',
+      '[project]\nname = "deepseek-harness-sdk"\ndependencies = ["DeepSeek.Harness_Runtime-Bin", "deepseek-unrelated"]\n',
     ]
     expect(() => collectPythonDependencies(pyprojects)).toThrow(
-      'python dependency omega-unrelated is missing from PYTHON_METADATA',
+      'python dependency deepseek-unrelated is missing from PYTHON_METADATA',
     )
   })
 })

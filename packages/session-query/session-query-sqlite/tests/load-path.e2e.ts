@@ -1,20 +1,21 @@
-import { createUserMessage } from '@omega-ai/dsh-llm'
+import { createUserMessage } from '@deepseek-ai/dsh-llm'
 /**
  * Keyless real-Loader-path smoke for the combined SQLite session-query service.
  *
- * @module @omega-ai/dsh-session-query-sqlite/tests/load-path
+ * @module @deepseek-ai/dsh-session-query-sqlite/tests/load-path
  */
 
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import Loader from '@omega-ai/cordis-plugin-loader'
-import SessionStore, { SessionSeq, SESSION_FORMAT_VERSION, SessionId } from '@omega-ai/dsh-session'
-import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
-import JsonlSessionPersistence from '@omega-ai/dsh-session-persistence-jsonl'
-import SqliteSessionQueryEngine, * as queryModule from '@omega-ai/dsh-session-query-sqlite'
+import { Context } from '@deepseek-ai/cordis'
+import Loader from '@deepseek-ai/cordis-plugin-loader'
+import SessionStore, { SessionSeq, SESSION_FORMAT_VERSION, type SessionId } from '@deepseek-ai/dsh-session'
+import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import * as JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
+import SqliteSessionQueryEngine, * as queryModule from '@deepseek-ai/dsh-session-query-sqlite'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { brandString } from '@deepseek-ai/dsh-brand'
 
 const temporaryDirectories: string[] = []
 
@@ -47,7 +48,7 @@ describe('dsh-session-query-sqlite real Loader path', () => {
     expect(unwrapped).toBe(SqliteSessionQueryEngine)
     const query = await ctx.plugin(unwrapped, { path: searchPath })
 
-    const id = SessionId('loader-path')
+    const id = brandString<SessionId>('loader-path')
     const writer = await ctx.sessionPersistence.create({ version: SESSION_FORMAT_VERSION, id, createdAt: 10, isSeeded: false })
     await writer.append([{
       type: 'user/message',

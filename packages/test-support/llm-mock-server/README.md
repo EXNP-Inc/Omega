@@ -3,13 +3,13 @@ description: "Scriptable Messages-compatible fault server for testing LLM adapte
 kind: "package-library"
 ---
 
-# @omega-ai/dsh-llm-mock-server
+# @deepseek-ai/dsh-llm-mock-server
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-This package gives tests and demos a scriptable Messages-compatible HTTP/SSE endpoint, so they can exercise model-provider failures and successes without a provider key. Each accepted `/v1/messages` request consumes the next scripted behavior, including resets, stalls, malformed chunks, rate limits, server errors, completions, and tool calls. Test authors can run it with `pnpm run mock:llm` or call `startMockLlmServer`, which returns captured requests for assertions. Seeded `random` behavior supports reproducible mixed-failure stress runs.
+This package gives tests and demos a scriptable Messages-compatible HTTP/SSE endpoint with named events for native SDK consumers, so they can exercise model-provider failures and successes without a provider key. Each accepted `/v1/messages` request consumes the next scripted behavior, including resets, stalls, malformed chunks, rate limits, server errors, completions, and tool calls. Test authors can run it with `pnpm run mock:llm` or call `startMockLlmServer`, which returns captured requests for assertions. Seeded `random` behavior supports reproducible mixed-failure stress runs.
 
 ## Table of Contents
 
@@ -39,11 +39,11 @@ pnpm run mock:llm \
   --partial-text "discard this half"
 ```
 
-Point the shipping Omega adapter at the server; it sends requests to `/messages` beneath the server's `/v1` root:
+Point the shipping DeepSeek adapter at the server; it sends requests to `/messages` beneath the server's `/v1` root:
 
 ```sh
-OMEGA_BASE_URL=http://127.0.0.1:8000/v1 \
-OMEGA_API_KEY=mock-key \
+DEEPSEEK_BASE_URL=http://127.0.0.1:8000/v1 \
+DEEPSEEK_API_KEY=mock-key \
 pnpm dsh --profile headless "test provider recovery"
 ```
 

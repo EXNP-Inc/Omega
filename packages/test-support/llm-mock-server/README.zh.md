@@ -3,13 +3,13 @@ description: "用于在无提供方密钥的情况下测试 LLM（大语言模�
 kind: "package-library"
 ---
 
-# @omega-ai/dsh-llm-mock-server
+# @deepseek-ai/dsh-llm-mock-server
 
 [English](README.md) | 中文
 
 ## 概述
 
-本包为测试与演示提供可编脚本的 Messages 兼容 HTTP／SSE（Server-Sent Events）端点，使其无需提供方密钥即可检验模型提供方的失败与成功。每个已接受的 `/v1/messages` 请求依次消费下一个脚本行为，包括重置、停滞、畸形分片、限流、服务器错误、补全与工具调用。测试作者可以通过 `pnpm run mock:llm` 运行服务器，也可以调用 `startMockLlmServer`，后者会返回捕获的请求供断言使用。带种子的 `random` 行为支持可复现的混合故障压力运行。
+本包为测试与演示提供可编脚本的 Messages 兼容 HTTP／SSE（Server-Sent Events）端点，并为原生 SDK 消费方发送具名事件，使其无需提供方密钥即可检验模型提供方的失败与成功。每个已接受的 `/v1/messages` 请求依次消费下一个脚本行为，包括重置、停滞、畸形分片、限流、服务器错误、补全与工具调用。测试作者可以通过 `pnpm run mock:llm` 运行服务器，也可以调用 `startMockLlmServer`，后者会返回捕获的请求供断言使用。带种子的 `random` 行为支持可复现的混合故障压力运行。
 
 ## 目录
 
@@ -39,11 +39,11 @@ pnpm run mock:llm \
   --partial-text "discard this half"
 ```
 
-将发布的 Omega 适配器指向服务器；它会向服务器 `/v1` 根路径下的 `/messages` 发送请求：
+将发布的 DeepSeek 适配器指向服务器；它会向服务器 `/v1` 根路径下的 `/messages` 发送请求：
 
 ```sh
-OMEGA_BASE_URL=http://127.0.0.1:8000/v1 \
-OMEGA_API_KEY=mock-key \
+DEEPSEEK_BASE_URL=http://127.0.0.1:8000/v1 \
+DEEPSEEK_API_KEY=mock-key \
 pnpm dsh --profile headless "test provider recovery"
 ```
 

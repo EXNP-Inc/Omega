@@ -3,8 +3,8 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { join } from 'node:path'
-import { Service, type Context } from '@omega-ai/cordis'
-import type { PluginLocalizedMeta } from '@omega-ai/dsh-package-manifest'
+import { Service, type Context } from '@deepseek-ai/cordis'
+import type { PluginLocalizedMeta } from '@deepseek-ai/dsh-package-manifest'
 import {
   barePackageName,
   installRuntimeInterception,
@@ -14,7 +14,7 @@ import {
 import { ProfileRuntimeResolution, type RuntimeResolution } from '../profile.ts'
 import { readPluginMeta } from '../package-meta.ts'
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
     /** Deterministic package lookup for configured plugin specifiers. */
     pluginPackages: PluginPackages
@@ -76,10 +76,15 @@ export class PluginPackages extends Service {
     }, 'profile package resolution')
   }
 
+  /** The published runtime resolution, or `undefined` when Node resolves packages alone. */
+  get resolution(): RuntimeResolution | undefined {
+    return this.current
+  }
+
   /**
    * Publish a complete successor generation for this process and subsequently created Workers.
    * Profile mappings and local package names may be removed after their plugins stop; linked roots may also be removed.
-   * Retained profile mappings may change their declarer, but not their normalized directory, version, or scope;
+   * Retained profile mappings may change their declarer and version, but not their normalized directory or scope;
    * installation mappings must remain unchanged. Publication does not unload modules or clear Node caches.
    * @param successor - fully constructed generation accepted by {@link RuntimeInterception.replace}.
    */

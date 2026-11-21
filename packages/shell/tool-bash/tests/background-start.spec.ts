@@ -1,5 +1,5 @@
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import type { ShellProcess } from '@omega-ai/dsh-shell'
+import type { ShellProcess } from '@deepseek-ai/dsh-shell'
 import { processJob, processOutcome, processSources } from '../src/background.ts'
 
 function processHandle() {
@@ -43,7 +43,7 @@ describe('background job ownership during asynchronous shell startup', () => {
     child.process.status = 'completed'
     child.process.exitCode = 5
     child.exited.resolve(undefined)
-    expect(await hooks.done).toEqual({ status: 'completed', detail: 'exit code: 5' })
+    expect(await hooks.done).toEqual({ status: 'completed', detail: 'exit code: 5', exitCode: 5 })
   })
 
   it('aborts pending preparation through the job-owned signal', async () => {

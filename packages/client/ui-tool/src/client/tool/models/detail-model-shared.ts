@@ -1,5 +1,5 @@
 /** Recorded-value formatting shared by entity lists and inspection results. */
-import type { TranslateNS } from '@omega-ai/dsh-client-ui-slots'
+import type { TranslateNS } from '@deepseek-ai/dsh-client-ui-slots'
 import type { ToolDetailItem, ToolDetailsModel } from '../components/ToolDetails.tsx'
 
 /** Translator supplied by the conversation slot. */
@@ -39,6 +39,7 @@ export function detailJson(text: string): unknown {
 }
 
 const STATUS_KEYS = {
+  corrupt: 'detail.status.corrupt', unsupported: 'detail.status.unsupported', unavailable: 'detail.status.unavailable',
   running: 'detail.status.running', idle: 'detail.status.idle', ready: 'detail.status.ready',
   inactive: 'detail.status.inactive', provisioning: 'detail.status.provisioning',
   failed: 'detail.status.failed', error: 'detail.status.failed',
@@ -66,7 +67,7 @@ export function detailBadge(status: string, t: DetailTranslate): NonNullable<Det
 const FIELD_KEYS = {
   id: 'detail.field.id', revision: 'detail.field.revision', platform: 'detail.field.platform',
   provider: 'detail.field.provider', model: 'detail.field.model', role: 'detail.field.role',
-  context: 'detail.field.context', ownerName: 'detail.field.owner', ready: 'detail.field.ready',
+  context: 'detail.field.context', ownerId: 'detail.field.owner', ready: 'detail.field.ready',
   blockedBy: 'detail.field.dependencies', writeScopes: 'detail.field.writeScopes',
   writeScopeWarnings: 'detail.field.warnings', diagnostics: 'detail.field.diagnostics',
   methods: 'detail.field.methods', inputSchema: 'detail.field.inputSchema', outputSchema: 'detail.field.outputSchema',

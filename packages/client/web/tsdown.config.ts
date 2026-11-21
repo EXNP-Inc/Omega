@@ -1,6 +1,6 @@
-import { staticLinked } from '../tsdown.client.ts'
+import { clientShell } from '../tsdown.client.ts'
 
-export default staticLinked(
-  '@omega-ai/dsh-client-web',
+export default clientShell(
+  import.meta.dirname,
   ['lib/types/index.js', 'lib/types/apply-injections.js'],
 )

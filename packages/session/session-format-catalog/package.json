@@ -1,13 +1,13 @@
 {
-  "name": "@omega-ai/dsh-session-format-catalog",
+  "name": "@deepseek-ai/dsh-session-format-catalog",
   "description": "Build-static first-party Session format codec and migration catalog",
-  "version": "0.2.1-alpha.1",
+  "version": "0.2.2-rc.5",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/omega-ai/omega-harness.git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
     "directory": "packages/session/session-format-catalog"
   },
   "type": "module",
@@ -28,23 +28,27 @@
   "files": [
     "lib/index.js",
     "lib/types/**/*.js",
-    "lib/types/**/*.d.ts"
+    "lib/types/**/*.d.ts",
+    "lib/types/**/*.d.ts.map",
+    "lib/**/*.js.map",
+    "src"
   ],
   "license": "MIT",
   "dependencies": {
-    "@omega-ai/dsh-session-format": "workspace:*",
-    "@omega-ai/dsh-session-format-v0-to-v1": "workspace:*",
-    "@omega-ai/dsh-session-format-v1-to-v2": "workspace:*",
-    "@omega-ai/dsh-session-format-v2-to-v3": "workspace:*",
-    "@omega-ai/dsh-session-format-v3-to-v4": "workspace:*",
-    "@omega-ai/dsh-compaction-image-offload": "workspace:*"
+    "@deepseek-ai/dsh-brand": "workspace:*",
+    "@deepseek-ai/dsh-session-format": "workspace:*",
+    "@deepseek-ai/dsh-session-format-v0-to-v1": "workspace:*",
+    "@deepseek-ai/dsh-session-format-v1-to-v2": "workspace:*",
+    "@deepseek-ai/dsh-session-format-v2-to-v3": "workspace:*",
+    "@deepseek-ai/dsh-session-format-v3-to-v4": "workspace:*",
+    "@deepseek-ai/dsh-compaction-image-offload": "workspace:*"
   },
   "peerDependencies": {
-    "@omega-ai/cordis": "workspace:~",
-    "@omega-ai/dsh-session": "workspace:*"
+    "@deepseek-ai/cordis": "workspace:~",
+    "@deepseek-ai/dsh-session": "workspace:*"
   },
   "devDependencies": {
-    "@omega-ai/cordis": "workspace:~",
-    "@omega-ai/dsh-session": "workspace:*"
+    "@deepseek-ai/cordis": "workspace:~",
+    "@deepseek-ai/dsh-session": "workspace:*"
   }
 }

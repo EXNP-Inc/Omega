@@ -1,14 +1,15 @@
 /** Session-addressed, cold-readable skill catalog Remote. */
 
-import type { Context } from '@omega-ai/cordis'
-import type {} from '@omega-ai/dsh-agent-preset-registry/types'
-import { SessionQueryError } from '@omega-ai/dsh-session-query'
-import { isUserInvocable } from '@omega-ai/dsh-skill'
-import type { ScopeKey } from '@omega-ai/dsh-scope'
-import { Remote, RemoteError, TypertRemoteService } from '@omega-ai/dsh-typert-protocol'
+import type { Context } from '@deepseek-ai/cordis'
+import type {} from '@deepseek-ai/dsh-agent-preset-registry/types'
+import { SessionQueryError } from '@deepseek-ai/dsh-session-query'
+import { isUserInvocable } from '@deepseek-ai/dsh-skill'
+import type {} from '@deepseek-ai/dsh-working-directory'
+import type { ScopeKey } from '@deepseek-ai/dsh-scope'
+import { Remote, RemoteError, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
 import type { SkillListRequest, SkillListValue } from './types.ts'
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
     /** Host owner of the Session-addressed `skills` Remote namespace. */
     sessionSkillCatalog: SessionSkillCatalog
@@ -17,7 +18,7 @@ declare module '@omega-ai/cordis' {
 
 /** Host service backing `ctx.remote.skills` without activating a cold Agent. */
 export class SessionSkillCatalog extends TypertRemoteService {
-  static inject = ['agents', 'sessionQuery', 'typert']
+  static inject = ['agents', 'sessionQuery', 'typert', 'workingDirectory']
 
   /** @param ctx - Host context carrying Session reads and optional skill/preset services. */
   constructor(ctx: Context) {
@@ -33,17 +34,20 @@ export class SessionSkillCatalog extends TypertRemoteService {
    */
   @Remote
   async list(request: SkillListRequest, signal: AbortSignal): Promise<SkillListValue> {
-    void signal
     const { sessionId } = request
-    let cwd: string | undefined
+    let cwd: string
     let agentPreset: string | undefined
     try {
       using observation = await this.ctx.sessionQuery.observeSession(sessionId)
       if (observation.projections === undefined) {
         throw new Error('skill catalog requires a projected Session observation')
       }
-      cwd = observation.header.cwd
+      cwd = observation.projections.values.workingDirectory
+        ?? observation.header.cwd
+        ?? this.ctx.workingDirectory.defaultDirectory
       agentPreset = observation.projections.values.agentPreset ?? undefined
+      const live = this.ctx.agents.get(sessionId)
+      if (live !== undefined) cwd = await this.ctx.workingDirectory.ensure(live, signal)
     } catch (error: unknown) {
       if (error instanceof SessionQueryError
         && error.code === 'SESSION_QUERY_SESSION_NOT_FOUND') {
@@ -55,9 +59,6 @@ export class SessionSkillCatalog extends TypertRemoteService {
         {},
       )
     }
-    if (cwd === undefined) {
-      throw new RemoteError('gateway/internal', `session "${sessionId}" has no project cwd`, {})
-    }
 
     const live = this.ctx.agents.get(sessionId)
     const presets = this.ctx.get('agentPresets')
@@ -66,7 +67,7 @@ export class SessionSkillCatalog extends TypertRemoteService {
     if (skillRegistry === undefined) {
       throw new RemoteError(
         'gateway/internal',
-        'skill registry is absent: neither this session\'s agent preset nor the host composition mounts @omega-ai/dsh-skill',
+        'skill registry is absent: neither this session\'s agent preset nor the host composition mounts @deepseek-ai/dsh-skill',
         {},
       )
     }

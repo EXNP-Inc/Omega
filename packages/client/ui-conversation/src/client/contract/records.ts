@@ -2,14 +2,14 @@
 // substructure references. Stable node and location stores make old snapshots
 // live readers rather than time-point views.
 
-import type { CommandId } from '@omega-ai/dsh-commands/brand'
-import type { MessageId } from '@omega-ai/dsh-llm/brand'
-import type { ContentBlock } from '@omega-ai/dsh-llm/types'
-import type { ImageAttachmentRef } from '@omega-ai/dsh-attachment'
-import type { LlmRetryEventData } from '@omega-ai/dsh-llm-retry/types'
-import type { TodoItem } from '@omega-ai/dsh-tool-todo/client'
+import type { CommandId } from '@deepseek-ai/dsh-commands/types'
+import type { MessageId } from '@deepseek-ai/dsh-llm/types'
+import type { ContentBlock } from '@deepseek-ai/dsh-llm/types'
+import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
+import type { LlmRetryEventData } from '@deepseek-ai/dsh-llm-retry/types'
+import type { TodoItem } from '@deepseek-ai/dsh-tool-todo/client'
 import type { ContextProducerView, KnownContextForm } from './context-producer.ts'
-import type { PartialArguments } from '@omega-ai/dsh-util-values'
+import type { PartialArguments } from '@deepseek-ai/dsh-util-values'
 export type { TodoItem }
 
 /** Request configuration recorded for one provider call. */
@@ -41,6 +41,8 @@ export type AssistantBlock =
 /** A finalized user message. */
 export interface UserMessageNode {
   kind: 'user'
+  /** Durable identity, absent only in synthetic projections. */
+  messageId?: MessageId
   seq: number
   /** Unix epoch ms from the source session event. */
   time: number
@@ -124,8 +126,9 @@ export type ModelRetryNode = LlmRetryEventData & {
 }
 
 /**
- * Durable terminal failure for a turn that ended with an error reason; the
- * turn's settled retry chain renders separately and never replaces this node.
+ * Durable terminal notice for a turn that ended with an error, a sign-out
+ * cancellation, or an interruption by a DSH stop; the turn's settled retry
+ * chain renders separately and never replaces this node.
  */
 export interface TurnErrorNode {
   kind: 'turn-error'
@@ -137,7 +140,11 @@ export interface TurnErrorNode {
   step: number
   /** Sanitized provider message; empty when a known code owns localized copy. */
   message: string
-  /** Stable provider failure code, when recorded. */
+  /**
+   * Stable provider failure code when recorded, or a Client display code:
+   * `ACCOUNT_SIGNED_OUT` for a sign-out cancellation, `INTERRUPTED` for a
+   * turn closed after DSH stopped.
+   */
   code?: string
 }
 

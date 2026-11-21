@@ -1,13 +1,13 @@
 /**
- * Loader export-shape guard for @omega-ai/dsh-tool-lsp. It is a NAMESPACE plugin with `inject`, so a
+ * Loader export-shape guard for @deepseek-ai/dsh-tool-lsp. It is a NAMESPACE plugin with `inject`, so a
  * stray `export default apply` would make the Loader's `unwrapExports` collapse the module to the
  * bare `apply`, dropping `inject` (postmortem 0001). This verifies the namespace survives
  * `Loader.prototype.unwrapExports`; the `lsp-definition` ACP snapshot owns full app composition.
  */
 
 import { describe, expect, it } from 'vitest'
-import Loader from '@omega-ai/cordis-plugin-loader'
-import * as toolLsp from '@omega-ai/dsh-tool-lsp'
+import Loader from '@deepseek-ai/cordis-plugin-loader'
+import * as toolLsp from '@deepseek-ai/dsh-tool-lsp'
 
 describe('dsh-tool-lsp Loader export-shape guard', () => {
   it('has no default export and keeps name/inject/Config through unwrapExports', () => {
@@ -17,7 +17,7 @@ describe('dsh-tool-lsp Loader export-shape guard', () => {
     const unwrapped = loader.unwrapExports(toolLsp) as Record<string, unknown>
     expect(unwrapped).toBe(toolLsp)
     expect(unwrapped.name).toBe('tool-lsp')
-    expect(unwrapped.inject).toEqual(['tools', 'lsp', 'systemPrompt'])
+    expect(unwrapped.inject).toEqual(['tools', 'lsp', 'systemPrompt', 'workingDirectory'])
     expect(typeof unwrapped.apply).toBe('function')
     expect(unwrapped.Config).toBeDefined()
   })

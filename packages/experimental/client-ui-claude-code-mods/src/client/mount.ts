@@ -1,19 +1,19 @@
 /** Source-safe browser registration of the mods band: the Remote stream behind a store, the dock entry, the press. */
 
-import type { Context } from '@omega-ai/cordis'
-import type {} from '@omega-ai/dsh-api-remotes/client'
-import type {} from '@omega-ai/dsh-api-session-controller/client'
-import type {} from '@omega-ai/dsh-client-locale/client'
-import type {} from '@omega-ai/dsh-client-ui-conversation/client'
-import type {} from '@omega-ai/dsh-client-ui-renderer/client'
-import type {} from '@omega-ai/dsh-experimental-claude-code-mods/remote'
-import type { SurfaceSnapshot } from '@omega-ai/dsh-experimental-claude-code-mods/types'
-import type { SessionId } from '@omega-ai/dsh-session/types'
-import type { TypertRemoteContribution } from '@omega-ai/dsh-typert-protocol'
+import type { Context } from '@deepseek-ai/cordis'
+import type {} from '@deepseek-ai/dsh-api-remotes/client'
+import type {} from '@deepseek-ai/dsh-api-session-controller/client'
+import type {} from '@deepseek-ai/dsh-client-locale/client'
+import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
+import type {} from '@deepseek-ai/dsh-experimental-claude-code-mods/remote'
+import type { SurfaceSnapshot } from '@deepseek-ai/dsh-experimental-claude-code-mods/types'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import type { TypertRemoteContribution } from '@deepseek-ai/dsh-typert-protocol'
 import { Band, type BandInjected } from './Band.tsx'
-import { en, NS, zh, type ModsBandKey } from './locales.ts'
+import { en, ja, es, fr, de, ru, pt, NS, zh, type ModsBandKey } from './locales.ts'
 
-declare module '@omega-ai/dsh-client-ui-slots' {
+declare module '@deepseek-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Chrome copy around a mod's band. */
     'claude-code-mods': ModsBandKey
@@ -75,7 +75,7 @@ function watchSession(ctx: Context, sessionId: SessionId, onEnd: () => void): { 
 }
 
 function registerUi(ctx: Context): void {
-  ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'client-ui-claude-code-mods: dictionaries')
+  ctx.effect(() => ctx.locale.register(NS, { zh, en, ja, es, fr, de, ru, pt }), 'client-ui-claude-code-mods: dictionaries')
   const watches = new Map<SessionId, ReturnType<typeof watchSession>>()
   ctx.effect(() => () => {
     for (const watch of watches.values()) watch.dispose()

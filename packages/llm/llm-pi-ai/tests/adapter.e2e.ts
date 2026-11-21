@@ -1,10 +1,12 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import LlmRuntime, { createToolResultMessage, createUserMessage, ToolCallId, ReasoningEffortId } from '@omega-ai/dsh-llm'
-import type { Message, ToolSchema } from '@omega-ai/dsh-llm'
-import * as LlmPiAi from '@omega-ai/dsh-llm-pi-ai'
-import type { PiAiProviderProfile } from '@omega-ai/dsh-llm-pi-ai'
-import * as LlmOmega from '@omega-ai/dsh-llm-omega-api-key'
+import { Context } from '@deepseek-ai/cordis'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import LlmRuntime, { createToolResultMessage, createUserMessage, type ToolCallId, type ReasoningEffortId } from '@deepseek-ai/dsh-llm'
+import type { Message, ToolSchema } from '@deepseek-ai/dsh-llm'
+import * as LlmPiAi from '@deepseek-ai/dsh-llm-pi-ai'
+import type { PiAiProviderProfile } from '@deepseek-ai/dsh-llm-pi-ai'
+import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
+import DeepSeekAuth from '@deepseek-ai/dsh-deepseek-auth'
 import { assemble, type AssembledResult } from './assemble.ts'
 
 /**
@@ -13,7 +15,7 @@ import { assemble, type AssembledResult } from './assemble.ts'
  * and exercises a replayed tool follow-up. Key-gated.
  */
 
-const FLASH = 'omega-flash'
+const FLASH = 'deepseek-flash'
 const contexts: Context[] = []
 
 async function harness(_model: string, config: Partial<PiAiProviderProfile> = {}) {
@@ -22,8 +24,8 @@ async function harness(_model: string, config: Partial<PiAiProviderProfile> = {}
   await ctx.plugin(LlmRuntime)
   await ctx.plugin(LlmPiAi, {
     providers: {
-      omega: {
-        ...process.env.OMEGA_API_KEY === undefined ? {} : { apiKey: process.env.OMEGA_API_KEY },
+      deepseek: {
+        ...process.env.DEEPSEEK_API_KEY === undefined ? {} : { apiKey: process.env.DEEPSEEK_API_KEY },
         ...config,
       },
     },
@@ -38,7 +40,7 @@ afterEach(async () => {
 function ask(text: string): Message[] {
   return [createUserMessage({
     content: [{ type: 'text', text }],
-    source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
+    source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
   })]
 }
 
@@ -63,7 +65,7 @@ const weatherTool: ToolSchema = {
   },
 }
 
-describe.skipIf(!process.env.OMEGA_API_KEY)('llm-pi-ai e2e (real API)', () => {
+describe.skipIf(!process.env.DEEPSEEK_API_KEY)('llm-pi-ai e2e (real API)', () => {
   it(`${FLASH} + provider-default reasoning: plain text generation`, async () => {
     const ctx = await harness(FLASH)
     const result = await assemble(ctx,{
@@ -79,7 +81,7 @@ describe.skipIf(!process.env.OMEGA_API_KEY)('llm-pi-ai e2e (real API)', () => {
     const ctx = await harness(FLASH)
     const result = await assemble(ctx,{
       model: FLASH,
-      reasoningEffort: ReasoningEffortId('off'),
+      reasoningEffort: brandString<ReasoningEffortId>('off'),
       messages: ask('Reply with exactly the word: pong'),
       maxTokens: 50,
     })
@@ -92,7 +94,7 @@ describe.skipIf(!process.env.OMEGA_API_KEY)('llm-pi-ai e2e (real API)', () => {
     const ctx = await harness(FLASH)
     const result = await assemble(ctx,{
       model: FLASH,
-      reasoningEffort: ReasoningEffortId('high'),
+      reasoningEffort: brandString<ReasoningEffortId>('high'),
       messages: ask('Which is larger, 9.11 or 9.8? Answer with just the number.'),
       maxTokens: 2000,
     })
@@ -106,7 +108,7 @@ describe.skipIf(!process.env.OMEGA_API_KEY)('llm-pi-ai e2e (real API)', () => {
 
     const first = await assemble(ctx,{
       model: FLASH,
-      reasoningEffort: ReasoningEffortId('max'),
+      reasoningEffort: brandString<ReasoningEffortId>('max'),
       messages: ask('What is the weather in Paris right now? Use the get_weather tool.'),
       tools: [weatherTool],
       maxTokens: 2000,
@@ -122,12 +124,12 @@ describe.skipIf(!process.env.OMEGA_API_KEY)('llm-pi-ai e2e (real API)', () => {
 
     const second = await assemble(ctx,{
       model: FLASH,
-      reasoningEffort: ReasoningEffortId('max'),
+      reasoningEffort: brandString<ReasoningEffortId>('max'),
       messages: [
         ...ask('What is the weather in Paris right now? Use the get_weather tool.'),
         first.message,
         createToolResultMessage({
-          callId: ToolCallId(call!.id),
+          callId: brandString<ToolCallId>(call!.id),
           content: [{ type: 'text', text: 'Sunny, 22°C' }],
           isError: false,
         }),
@@ -142,23 +144,24 @@ describe.skipIf(!process.env.OMEGA_API_KEY)('llm-pi-ai e2e (real API)', () => {
     expect(textOf(second).toLowerCase()).toMatch(/sunny|22/)
   })
 
-  it('produces the same block structure as llm-omega for the same prompt', async () => {
+  it('produces the same block structure as llm-deepseek for the same prompt', async () => {
     // Loose structural equivalence between the two independent adapters:
     // same block KINDS in the same order for a deterministic prompt — the
     // cross-implementation check that the StreamChunk design holds.
-    const omegaCtx = new Context()
-    contexts.push(omegaCtx)
-    await omegaCtx.plugin(LlmRuntime)
-    await omegaCtx.plugin(LlmOmega, { thinking: 'disabled' })
+    const deepseekCtx = new Context()
+    contexts.push(deepseekCtx)
+    await deepseekCtx.plugin(LlmRuntime)
+    await deepseekCtx.plugin(DeepSeekAuth)
+    await deepseekCtx.plugin(LlmDeepSeek, { thinking: 'disabled' })
 
     const piCtx = await harness(FLASH)
 
     const prompt = ask('Reply with exactly the word: pong')
-    const [fromOmega, fromPiAi] = await Promise.all([
-      assemble(omegaCtx, { provider: 'omega-official', model: FLASH, messages: prompt, maxTokens: 50 }),
+    const [fromDeepSeek, fromPiAi] = await Promise.all([
+      assemble(deepseekCtx, { provider: 'deepseek-official', model: FLASH, messages: prompt, maxTokens: 50 }),
       assemble(piCtx, { model: FLASH, messages: prompt, maxTokens: 50 }),
     ])
-    expect(blockKinds(fromPiAi)).toEqual(blockKinds(fromOmega))
-    expect(fromPiAi.finish.kind).toBe(fromOmega.finish.kind)
+    expect(blockKinds(fromPiAi)).toEqual(blockKinds(fromDeepSeek))
+    expect(fromPiAi.finish.kind).toBe(fromDeepSeek.finish.kind)
   })
 })

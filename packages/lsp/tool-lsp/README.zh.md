@@ -3,7 +3,7 @@ description: "面向模型的 lsp 工具：四种只读代码导航操作、从 
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-tool-lsp
+# @deepseek-ai/dsh-tool-lsp
 
 [English](README.md) | 中文
 
@@ -25,6 +25,8 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
+查询使用 Session 的当前工作目录作为工作区根目录。切换目录会影响后续查询，但不会改变已运行服务器的根目录。
+
 当文本匹配有歧义，或修改前需要精确的定义、实现或引用时，agent（智能体）使用 `lsp`；该工具的提示词指引会告诉它，普通导航应优先使用 `search`／`read`。
 
 ### 工具
@@ -43,11 +45,11 @@ kind: "package-reference"
 | `maxResultChars` | `16000` | 完整渲染结果的最大长度，包括截断元数据 |
 | `timeoutMs` | `60000` | 由 `dsh-tool-call-timeout-policy` 强制执行的工具调用超时预算；覆盖完整的排队打开／查询／关闭生命周期，且模型不可配置 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-tool-lsp)是每个受支持字段的穷尽式真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-tool-lsp)是每个受支持字段的穷尽式真源。
 
 ### 失败与恢复
 
-该工具要求会话工作区根目录（`header.cwd`），没有回退值；缺失时会在任何查询前以 `LSP_WORKSPACE_REQUIRED` 失败。当没有提供方处理该文件扩展名时，查询以 `LSP_UNAVAILABLE` 失败；格式错误的提供方载荷仍保持为结构化 `LSP_MALFORMED_RESPONSE` 错误。这些会呈现为模型可读、可路由的错误工具结果。
+未知操作、空白 `file_path` 或不是正整数的坐标会在任何查询前以 `ToolArgsError` `INVALID_ARGS` 失败。该工具要求 Agent Session；非 Agent 调用会在任何查询前以 `LSP_WORKSPACE_REQUIRED` 失败。工作目录服务提供并校验当前根目录。当没有提供方处理该文件扩展名时，查询以 `LSP_UNAVAILABLE` 失败；格式错误的提供方载荷仍保持为结构化 `LSP_MALFORMED_RESPONSE` 错误。这些失败以及所有提供方失败都会呈现为保留失败 `name` 与 `code` 的错误工具结果；[LSP 导航子系统](../../../docs/subsystems/lsp.zh.md#failures)列出了这些错误码。
 
 -----
 
@@ -74,7 +76,6 @@ kind: "package-reference"
 |---|---|
 | [`src/index.ts`](src/index.ts) | 插件入口：配置 schema、工具注册、系统提示词区段、执行 |
 | [`src/render.ts`](src/render.ts) | 纯格式化、坐标转换、URI 解析、结果上限、UI 呈现 |
-| [`src/session-cwd.ts`](src/session-cwd.ts) | 从会话 `header.cwd` 取得工作区根目录 |
 
 </details>
 
@@ -119,7 +120,7 @@ Use search/read for ordinary navigation. Use lsp when textual matches are ambigu
 
 #### 模型看到什么
 
-模型会看到生成的 [`lsp` schema](../../../docs/tool-catalog.zh.md#omega-aidsh-tool-lsp)。
+模型会看到生成的 [`lsp` schema](../../../docs/tool-catalog.zh.md#deepseek-aidsh-tool-lsp)。
 
 #### Token 影响
 

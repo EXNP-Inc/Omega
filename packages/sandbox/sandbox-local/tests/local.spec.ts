@@ -12,14 +12,14 @@ import { mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import { LAUNCHER_FAILURE_EXIT } from '@omega-ai/node-addon-system/landlock-run'
-import { SANDBOX_UNAVAILABLE, SandboxUnavailableError } from '@omega-ai/dsh-sandbox'
-import type { SandboxPolicy } from '@omega-ai/dsh-sandbox'
+import { Context } from '@deepseek-ai/cordis'
+import { LAUNCHER_FAILURE_EXIT } from '@deepseek-ai/node-addon-system/landlock-run'
+import { SANDBOX_UNAVAILABLE, SandboxUnavailableError } from '@deepseek-ai/dsh-sandbox'
+import type { SandboxPolicy } from '@deepseek-ai/dsh-sandbox'
 import {
   LocalSandboxProvider,
-} from '@omega-ai/dsh-sandbox-local'
-import type { Config } from '@omega-ai/dsh-sandbox-local'
+} from '@deepseek-ai/dsh-sandbox-local'
+import type { Config } from '@deepseek-ai/dsh-sandbox-local'
 import { bwrapProfileArgs, landlockProfileArgs, seatbeltProfileArgs } from '../src/profiles.ts'
 
 const RO: SandboxPolicy = { mode: 'read-only', workspaceRoot: '/ws' }
@@ -94,6 +94,34 @@ describe('profile dialects', () => {
     expect(landlockProfileArgs(WW)).toEqual(['--ro', '/', '--rw', '/dev/null', '--rw', '/tmp', '--rw', '/ws'])
   })
 
+  it('bwrap workspace-write binds each explicit extra root beside the workspace', () => {
+    const ws = mkdtempSync(join(tmpdir(), 'dsh-ws-'))
+    const extra = realpathSync.native(mkdtempSync(join(tmpdir(), 'dsh-extra-')))
+    tempDirs.push(ws, extra)
+    const realWs = realpathSync.native(ws)
+    const realExtra = realpathSync.native(extra)
+    expect(bwrapProfileArgs({ mode: 'workspace-write', workspaceRoot: ws, additionalWritableRoots: [extra] })).toEqual([
+      '--ro-bind', '/', '/', '--dev', '/dev', '--unshare-pid', '--proc', '/proc', '--die-with-parent',
+      '--tmpfs', '/tmp', '--bind', realWs, realWs, '--bind', realExtra, realExtra,
+    ])
+  })
+
+  it('landlock workspace-write adds each explicit extra root to the writable list', () => {
+    const ws = mkdtempSync(join(tmpdir(), 'dsh-ws-'))
+    const extra = realpathSync.native(mkdtempSync(join(tmpdir(), 'dsh-extra-')))
+    tempDirs.push(ws, extra)
+    expect(landlockProfileArgs({ mode: 'workspace-write', workspaceRoot: ws, additionalWritableRoots: [extra] })).toEqual([
+      '--ro', '/', '--rw', '/dev/null', '--rw', '/tmp', '--rw', realpathSync.native(ws), '--rw', realpathSync.native(extra),
+    ])
+  })
+
+  it('read-only ignores extra roots in every backend dialect', () => {
+    const policy: SandboxPolicy = { mode: 'read-only', workspaceRoot: '/ws', additionalWritableRoots: ['/extra'] }
+    expect(bwrapProfileArgs(policy)).not.toContain('--bind')
+    expect(landlockProfileArgs(policy)).toEqual(['--ro', '/', '--rw', '/dev/null'])
+    expect(seatbeltProfileArgs(policy)).toEqual(['-p', SEATBELT_RO_PROFILE])
+  })
+
   it('seatbelt read-only: allow-default with every file write denied except the /dev/null literal', () => {
     expect(seatbeltProfileArgs(RO)).toEqual(['-p', SEATBELT_RO_PROFILE])
   })
@@ -107,6 +135,18 @@ describe('profile dialects', () => {
     const roots = [...new Set(['/ws', realpathSync('/tmp'), realpathSync(tmpdir())])]
     const allow = `(allow file-write* ${roots.map(root => `(subpath "${root}")`).join(' ')})`
     expect(seatbeltProfileArgs(WW)).toEqual(['-p', `${SEATBELT_RO_PROFILE} ${allow}`])
+  })
+
+  it('seatbelt workspace-write grants every explicit extra root', () => {
+    const ws = mkdtempSync(join(tmpdir(), 'dsh-ws-'))
+    const extra = realpathSync.native(mkdtempSync(join(tmpdir(), 'dsh-extra-')))
+    tempDirs.push(ws, extra)
+    const profile = seatbeltProfileArgs({
+      mode: 'workspace-write',
+      workspaceRoot: ws,
+      additionalWritableRoots: [extra],
+    })[1] as string
+    expect(profile).toContain(`(subpath "${realpathSync.native(extra)}")`)
   })
 
   it('seatbelt workspace-write dedups a workspace root that already IS the temp dir', () => {
@@ -231,7 +271,7 @@ describe('the platform chains', () => {
   })
 
   // The win32 chain's argv contract, denial dialect, and runner-failure rules
-  // live in @omega-ai/dsh-sandbox-windows-acl/tests/provider-chain.spec.ts
+  // live in @deepseek-ai/dsh-sandbox-windows-acl/tests/provider-chain.spec.ts
   // (platform-independent assertions that run in every CI lane, including
   // Windows where this package's POSIX-only suites are excluded).
 
@@ -390,6 +430,26 @@ describe('the default seatbelt probe (sandbox-exec contract)', () => {
 })
 
 describe('the windows-acl probe (runner invocation contract)', () => {
+  it.each([RO, WW])('ignores extra directory grants in $mode runner arguments', async (policy) => {
+    const { ctx, sandbox } = await setup({}, {
+      chain: ['windows-acl'],
+      probeWindowsAcl: () => true,
+      windowsAclRunnerArgs: ['node', 'windows-acl-runner.js'],
+    })
+    const extra = realpathSync.native(mkdtempSync(join(tmpdir(), 'dsh-extra-acl-')))
+    tempDirs.push(extra)
+    const file = join(extra, 'file.txt')
+    writeFileSync(file, 'file')
+    try {
+      const original = await sandbox.confine(['true'], policy)
+      await expect(sandbox.confine(['true'], {
+        ...policy, additionalWritableRoots: [extra, join(extra, 'missing'), file],
+      })).resolves.toEqual(original)
+    } finally {
+      await ctx.fiber.dispose()
+      rmSync(extra, { recursive: true, force: true })
+    }
+  })
   // The product chain reaches windows-acl only unprobed (win32's sole
   // candidate), so the probe case and the runner-entry resolution are pinned
   // through the chain seam, mirroring the seatbelt default-probe contract.

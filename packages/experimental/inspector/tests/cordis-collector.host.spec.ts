@@ -1,11 +1,11 @@
 /** Context and Fiber identities collected from live Cordis plugins. */
 
-import { Context, Service, type Fiber } from '@omega-ai/cordis'
+import { Context, Service, type Fiber } from '@deepseek-ai/cordis'
 import { assert, describe, expect, it, type TestContext } from 'vitest'
 import { CordisTreeCollector } from '../src/shared/cordis/collector.ts'
 import type { CordisTreeNode } from '../src/shared/cordis/snapshot.ts'
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
     collectorSpawner: CollectorSpawner
   }
@@ -52,15 +52,15 @@ describe('Cordis collector live object identities', () => {
     })
     assert(spawned, 'Service consumer did not create a Fiber')
     const fiber = await spawned.await()
-    const canonical: unknown = Object.getPrototypeOf(fiber.ctx)
+    const canonical: unknown = fiber.ctx
     assert(Context.is(canonical))
-    expect(Object.hasOwn(fiber.ctx, SHADOW)).toBe(true)
-    expect(Object.hasOwn(fiber.ctx, 'fiber')).toBe(false)
+    expect(Object.hasOwn(fiber.ctx, SHADOW)).toBe(false)
+    expect(Object.hasOwn(fiber.ctx, 'fiber')).toBe(true)
     expect(Object.hasOwn(canonical, 'fiber')).toBe(true)
     expect(canonical.fiber).toBe(fiber)
     expect(Object.getPrototypeOf(canonical)).toBe(consumer.ctx)
-    expect(Object.getPrototypeOf(fiber.parent)).toBe(consumer.ctx)
-    expect(Reflect.get(fiber.parent, SHADOW)).toBe(provider.ctx)
+    expect(fiber.parent).toBe(consumer.ctx)
+    expect(Reflect.get(fiber.parent, SHADOW)).toBeUndefined()
 
     const snapshot = collector.snapshot()
     expect(snapshot.truncated).toBe(false)

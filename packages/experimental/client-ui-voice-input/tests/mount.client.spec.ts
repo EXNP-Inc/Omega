@@ -1,20 +1,20 @@
 /** The optional namespace and microphone ownership follow Client plugin disposal. */
 import assert from 'node:assert/strict'
 import { Recording } from '../src/client/audio.ts'
-import { Context, Service } from '@omega-ai/cordis'
-import { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
-import { SlotRegistry } from '@omega-ai/dsh-client-ui-renderer/client'
-import type { SpeechProviderId } from '@omega-ai/dsh-experimental-speech-to-text/types'
-import { RemoteError, type TypertRemoteContribution } from '@omega-ai/dsh-typert-protocol'
+import { Context, Service } from '@deepseek-ai/cordis'
+import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
+import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
+import type { SpeechProviderId } from '@deepseek-ai/dsh-experimental-speech-to-text/types'
+import { RemoteError, type TypertRemoteContribution } from '@deepseek-ai/dsh-typert-protocol'
 import { expect, it, vi } from 'vitest'
-import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
 import { mountVoiceInput, inject } from '../src/client/mount.ts'
 import { apply as hostApply } from '../src/index.ts'
 import { VoiceInput, type VoiceInputInjected } from '../src/client/VoiceInput.tsx'
 import { captureFixture } from './audio-fixture.client.ts'
 
 const REMOTE: TypertRemoteContribution = {
-  package: '@omega-ai/dsh-experimental-api-speech-to-text',
+  package: '@deepseek-ai/dsh-experimental-api-speech-to-text',
   descriptors: [],
 }
 
@@ -26,6 +26,7 @@ vi.mock('../src/client/readiness.ts', () => ({ observeReadiness: () => ({
 function assertVoiceActions(value: Record<string, unknown>): asserts value is Record<string, unknown> & VoiceInputInjected {
   assert(typeof value.openSettings === 'function')
   assert(typeof value.createRecording === 'function')
+  assert(typeof value.selectMicrophone === 'function')
   assert(typeof value.configure === 'function')
   assert(typeof value.prepare === 'function')
   assert(typeof value.cancelPreparation === 'function')
@@ -33,7 +34,7 @@ function assertVoiceActions(value: Record<string, unknown>): asserts value is Re
   assert(typeof value.hooks === 'object' && value.hooks !== null)
 }
 
-async function fixture(fail = false) {
+async function fixture(fail = false, navigation = true) {
   const ctx = new Context(), unmount = vi.fn(async () => {})
   class Remote extends Service {
     constructor() { super(ctx, 'remote') }
@@ -44,7 +45,7 @@ async function fixture(fail = false) {
   }
   new Remote()
   const openBundle = vi.fn()
-  ctx.provide('pluginNavigation', { openBundle })
+  if (navigation) ctx.provide('pluginNavigation', { openBundle })
   const configure = vi.fn(async () => ({ ok: true, value: {} }))
   const prepare = vi.fn(async () => ({ ok: true, value: {} }))
   const cancelPreparation = vi.fn(async () => ({ ok: true, value: {} }))
@@ -62,6 +63,28 @@ async function fixture(fail = false) {
   return { ctx, unmount, openBundle, configure, prepare, cancelPreparation, transcribe }
 }
 
+it('starts without the Plugins page navigation and follows its presence', async () => {
+  hostApply()
+  const b = await fixture(false, false)
+  try {
+    await b.ctx.plugin({ inject: [...inject], apply: ctx => mountVoiceInput(ctx, REMOTE) })
+    const entry = b.ctx.slots.entries('conversation.input.activity').find(item => item.component === VoiceInput)
+    const actions = entry!.inject!()
+    assertVoiceActions(actions)
+    expect(actions.hooks.pluginNavigation.getSnapshot()).toBe(false)
+    expect(() => { actions.openSettings() }).not.toThrow()
+    const navigation = b.ctx.plugin({ apply: (ctx: Context) => { ctx.provide('pluginNavigation', { openBundle: b.openBundle } as never) } })
+    await navigation
+    await vi.waitFor(() => { expect(actions.hooks.pluginNavigation.getSnapshot()).toBe(true) })
+    actions.openSettings()
+    expect(b.openBundle).toHaveBeenCalledWith('@deepseek-ai/dsh-experimental-voice-input-bundle')
+    await navigation.dispose()
+    expect(actions.hooks.pluginNavigation.getSnapshot()).toBe(false)
+  } finally {
+    await b.ctx.fiber.dispose()
+  }
+})
+
 it('withdraws its Remote, localized slot and microphone captures on disposal', async () => {
   hostApply()
   const b = await fixture()
@@ -73,7 +96,7 @@ it('withdraws its Remote, localized slot and microphone captures on disposal', a
     const actions = entry!.inject!()
     assertVoiceActions(actions)
     actions.openSettings()
-    expect(b.openBundle).toHaveBeenCalledWith('@omega-ai/dsh-experimental-voice-input-bundle')
+    expect(b.openBundle).toHaveBeenCalledWith('@deepseek-ai/dsh-experimental-voice-input-bundle')
     const finished = actions.createRecording()
     assert(finished instanceof Recording)
     await finished.dispose()
@@ -128,9 +151,12 @@ it('joins the same audio closure when cancellation overlaps Client plugin withdr
     const entry = b.ctx.slots.entries('conversation.input.activity').find(item => item.component === VoiceInput)!
     const actions = entry.inject!()
     assertVoiceActions(actions)
+    actions.selectMicrophone({ id: 'usb', label: 'USB microphone' })
+    expect(actions.hooks.microphoneDevice.getSnapshot()).toEqual({ id: 'usb', label: 'USB microphone' })
     const recording = actions.createRecording()
     assert(recording instanceof Recording)
     await recording.start()
+    expect(audio.getUserMedia.mock.calls.at(-1)?.[0].audio).toMatchObject({ deviceId: { exact: 'usb' } })
     cancelled = recording.dispose()
     const originalDispose = recording.dispose.bind(recording), joined = Promise.withResolvers<{ pending: Promise<void> }>()
     vi.spyOn(recording, 'dispose').mockImplementationOnce(() => {

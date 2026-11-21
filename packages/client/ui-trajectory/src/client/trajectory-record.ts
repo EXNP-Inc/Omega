@@ -1,8 +1,8 @@
 /** Shared trajectory record data and formatting contracts. */
 
 import type { HTMLAttributes } from 'react'
-import type { FileAttachmentRef, ImageAttachmentRef } from '@omega-ai/dsh-attachment'
-import type { ConversationPromptSnapshot } from '@omega-ai/dsh-client-ui-conversation/client'
+import type { FileAttachmentRef, ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
+import type { ConversationPromptSnapshot } from '@deepseek-ai/dsh-client-ui-conversation/client'
 import type { TrajectoryTranslate } from './locales.ts'
 
 /** Closed set of trajectory record kinds. */
@@ -66,6 +66,8 @@ export interface TrajectoryCellProps extends HTMLAttributes<HTMLDivElement> {
   previousPromptDetail?: ConversationPromptSnapshot
   /** Full assistant/tool result content for the details panel. */
   outputDetail?: string
+  /** Committed result event used to inspect a live-only value. */
+  resultSeq?: number
   /** Full assistant reasoning content for the details panel. */
   thinkingDetail?: string
   /** Original message blocks in source order for the details panel. */
@@ -84,7 +86,7 @@ export interface TrajectoryCellProps extends HTMLAttributes<HTMLDivElement> {
   callId?: string
   /** Recorded tool name; independent of the display summary. */
   toolName?: string
-  /** Tool-only result failure state. */
+  /** Failed operation or interrupted assistant output. */
   isError?: boolean
   /** Own duration in seconds, or `null` when no duration is known. */
   timeSeconds: number | null

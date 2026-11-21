@@ -5,8 +5,10 @@
  * serve it — `./types` for host consumers, `./client` for client aggregates —
  * with zero content duplication.
  *
- * @module @omega-ai/dsh-session-stats/types
+ * @module @deepseek-ai/dsh-session-stats/types
  */
+
+import type { SessionProjectionSummaryExcluded } from '@deepseek-ai/dsh-session-projection/types'
 
 // Marks this file a module so the declaration below AUGMENTS the projection
 // table instead of declaring an ambient module.
@@ -38,9 +40,13 @@ export interface SessionStatsProjection {
   decodeTokens: number
 }
 
-declare module '@omega-ai/dsh-session-projection/types' {
+declare module '@deepseek-ai/dsh-session-projection/types' {
   interface SessionProjectionMap {
-    /** Whole-log turn/step counts and wall times; see {@link SessionStatsProjection}. */
-    sessionStats: SessionStatsProjection
+    /**
+     * Whole-log turn/step counts and wall times; see
+     * {@link SessionStatsProjection}. Excluded from Session summary payloads:
+     * no list row renders these figures.
+     */
+    sessionStats: SessionProjectionSummaryExcluded<SessionStatsProjection>
   }
 }

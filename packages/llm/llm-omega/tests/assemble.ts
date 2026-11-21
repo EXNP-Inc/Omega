@@ -5,9 +5,9 @@
  * one-shot convenience method.
  */
 
-import { BlockAssembler } from '@omega-ai/dsh-llm'
-import type { Context } from '@omega-ai/cordis'
-import type { AssistantMessage, FinishReason, GenerateOptions, TokenUsage } from '@omega-ai/dsh-llm'
+import { BlockAssembler } from '@deepseek-ai/dsh-llm'
+import type { Context } from '@deepseek-ai/cordis'
+import type { AssistantMessage, FinishReason, GenerateOptions, TokenUsage } from '@deepseek-ai/dsh-llm'
 
 export interface AssembledResult {
   message: AssistantMessage
@@ -17,7 +17,7 @@ export interface AssembledResult {
 
 export async function assemble(ctx: Context, options: Omit<GenerateOptions, 'provider'> & { provider?: string }): Promise<AssembledResult> {
   const assembler = new BlockAssembler()
-  const request = { provider: 'omega-official', ...options }
+  const request = { provider: 'deepseek-official', ...options }
   for await (const chunk of ctx.llm.stream(request)) assembler.push(chunk)
   return {
     message: assembler.message({

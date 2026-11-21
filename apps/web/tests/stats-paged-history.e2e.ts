@@ -9,8 +9,8 @@
 import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
-import { createSystemMessage } from '@omega-ai/dsh-llm'
-import { SESSION_FORMAT_VERSION } from '@omega-ai/dsh-session'
+import { createSystemMessage } from '@deepseek-ai/dsh-llm'
+import { SESSION_FORMAT_VERSION } from '@deepseek-ai/dsh-session'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
 import {
   assertFixtureInventory, captureStableAria, compareOrRefreshGolden,
@@ -129,6 +129,11 @@ describe('web e2e: whole-session stats survive history paging', () => {
     // counts, wall times, or token groups.
     await page.getByRole('button', { name: 'Load earlier' }).click()
     await expect.poll(() => page.getByText('m1', { exact: true }).count(), { timeout: 10_000 }).toBe(1)
+    const history = page.locator('[data-chat-history]')
+    await expect.poll(() => history.getAttribute('data-chat-history'), { timeout: 10_000 }).toBe('idle')
+    await expect.poll(() => history.getByRole('button', { name: 'Start of conversation', exact: true }).isDisabled(), {
+      timeout: 10_000,
+    }).toBe(true)
     expect(await strip.textContent()).toBe(stripBeforePaging)
     // With the whole log loaded, the window mounts one turn-tail footer per
     // settled turn — the loaded-window probe the scroll/perf lanes count now

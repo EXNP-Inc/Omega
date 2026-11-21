@@ -4,14 +4,14 @@ Two runtime carriers coexist under ``runtime/``, both injected by the repo's
 ``scripts/build-exe-for-python-sdk.ts`` build (neither is checked into git):
 
 - **exe (production)**: single-file Node executables named
-  ``omega-harness-sdk-runtime-<platform>-<arch>`` for Linux/macOS and an
+  ``deepseek-harness-sdk-runtime-<platform>-<arch>`` for Linux/macOS and an
   ``.exe`` counterpart for Windows. Each has a sibling ripgrep executable;
   macOS also uses a sibling ``-spawn-helper``. The target machine needs no
   Node installation.
 - **node (dev-only)**: the full deploy closure under ``runtime/node/``
   (``package.json`` + ``node_modules/``), executed as ``node
-  runtime/node/node_modules/@omega-ai/dsh/lib/bin.js`` on a
-  system Node >= 22.19. It is the current checkout's source build, never
+  runtime/node/runtime-bootstrap.mjs`` on a
+  system Node >= 24.9. It is the current checkout's source build, never
   selected automatically, and excluded from wheel/sdist distributions.
 
 Both carriers execute the same dsh command grammar. The Python SDK selects the
@@ -28,9 +28,9 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from ._resources import validate_resources
+from ._resources import validate_downloads, validate_resources, office_launch_args
 
-PACKAGE_METADATA_FILENAME = "omega-harness-runtime.json"
+PACKAGE_METADATA_FILENAME = "deepseek-harness-runtime.json"
 
 RUNTIME_MODE_ENV_VAR = "DSH_RUNTIME_MODE"
 
@@ -39,7 +39,7 @@ _ARCH_TAGS = {"x86_64": "x64", "amd64": "x64", "arm64": "arm64", "aarch64": "arm
 
 _EXE_ACQUISITION_HINT = (
     "Two ways to get the executable: run `scripts/build-exe-for-python-sdk.ts` (via tsx) in a "
-    "omega-harness checkout, or install the matching `omega-harness-runtime-bin` platform "
+    "deepseek-harness checkout, or install the matching `deepseek-harness-runtime-bin` platform "
     "wheel retained by the `build-exe-for-python-sdk` CI workflow. For local development "
     "against a repo source build, explicitly select the dev-only node carrier with "
     f"{RUNTIME_MODE_ENV_VAR}=node (or resolve_bundled_launch_args('node'))."
@@ -51,7 +51,7 @@ def bundled_package_dir() -> Path:
     root = Path(__file__).resolve().parent
     metadata = root / PACKAGE_METADATA_FILENAME
     if not metadata.is_file():
-        raise FileNotFoundError(f"omega-harness-runtime-bin is missing {metadata}")
+        raise FileNotFoundError(f"deepseek-harness-runtime-bin is missing {metadata}")
     return root
 
 
@@ -59,20 +59,19 @@ def bundled_runtime_path() -> Path:
     """Absolute path of the bundled single-file runtime executable for the current platform.
 
     Raises FileNotFoundError when the platform is unsupported, the executable
-    has not been placed into this package, the ripgrep or Office sidecar is
-    missing, the authoring resources are incomplete, or the required macOS
-    spawn helper is missing. Invalid authoring metadata or Python permissions
-    raise ValueError. Missing executable/Office messages name
+    has not been placed into this package, the ripgrep sidecar or download
+    manifest is missing, or the required macOS spawn helper is missing.
+    Invalid download metadata raises ValueError. Missing executable messages name
     the acquisition routes (acquisition strategy is deliberately separate from
     this lookup interface, so an on-demand download can replace it without
     touching callers).
     """
     tag = _current_platform_tag()
     extension = ".exe" if tag.startswith("win-") else ""
-    path = bundled_package_dir() / "runtime" / f"omega-harness-sdk-runtime-{tag}{extension}"
+    path = bundled_package_dir() / "runtime" / f"deepseek-harness-sdk-runtime-{tag}{extension}"
     if not path.is_file():
         raise FileNotFoundError(
-            f"omega-harness-runtime-bin is missing the runtime executable at {path}. "
+            f"deepseek-harness-runtime-bin is missing the runtime executable at {path}. "
             + _EXE_ACQUISITION_HINT
         )
     ripgrep = (
@@ -82,32 +81,17 @@ def bundled_runtime_path() -> Path:
     )
     if not ripgrep.is_file():
         raise FileNotFoundError(
-            f"omega-harness-runtime-bin is missing the ripgrep sidecar at {ripgrep}. "
+            f"deepseek-harness-runtime-bin is missing the ripgrep sidecar at {ripgrep}. "
             + _EXE_ACQUISITION_HINT
         )
     if tag.startswith("macos-"):
         helper = Path(f"{path}-spawn-helper")
         if not helper.is_file():
             raise FileNotFoundError(
-                f"omega-harness-runtime-bin is missing the node-pty spawn helper at {helper}. "
+                f"deepseek-harness-runtime-bin is missing the node-pty spawn helper at {helper}. "
                 + _EXE_ACQUISITION_HINT
             )
-    office = path.with_name(f"{path.name.removesuffix('.exe')}-office")
-    adapter = office / "node_modules/@deepseek-ai/libreoffice-kit/package.json"
-    if not adapter.is_file():
-        raise FileNotFoundError(
-            f"omega-harness-runtime-bin is missing the Office sidecar at {office}. "
-            + _EXE_ACQUISITION_HINT
-        )
-    native = tag.replace("win-", "win32-").replace("macos-", "darwin-")
-    declared = json.loads(adapter.read_text(encoding="utf-8")).get("optionalDependencies", {})
-    engine = native if f"@deepseek-ai/libreoffice-kit-{native}" in declared else "wasm"
-    if not (office / "node_modules" / f"@deepseek-ai/libreoffice-kit-{engine}/prebuilds.json").is_file():
-        raise FileNotFoundError(
-            f"omega-harness-runtime-bin is missing the Office sidecar engine {engine} at {office}. "
-            + _EXE_ACQUISITION_HINT
-        )
-    validate_resources(path.with_name(tag), tag)
+    validate_downloads(path.with_name(tag), tag)
     return path
 
 
@@ -129,7 +113,7 @@ def resolve_bundled_launch_args(mode: str | None = None) -> tuple[str, ...]:
     if selected == "node":
         return _node_launch_args()
     raise ValueError(
-        f"unsupported Omega runtime mode {selected!r}: expected 'exe' or 'node' "
+        f"unsupported DeepSeek Harness runtime mode {selected!r}: expected 'exe' or 'node' "
         f"(explicit argument or ${RUNTIME_MODE_ENV_VAR})"
     )
 
@@ -143,7 +127,7 @@ def _current_platform_tag() -> str:
         or (plat == "win" and arch != "x64")
     ):
         raise FileNotFoundError(
-            "no bundled Omega SDK runtime exists for this platform "
+            "no bundled DeepSeek Harness SDK runtime exists for this platform "
             f"(sys.platform={sys.platform!r}, machine={platform.machine()!r}); supported: "
             "Linux x64/arm64, macOS x64/arm64, and Windows x64. " + _EXE_ACQUISITION_HINT
         )
@@ -152,28 +136,61 @@ def _current_platform_tag() -> str:
 
 def _node_launch_args() -> tuple[str, str]:
     node_root = bundled_package_dir() / "runtime" / "node"
-    bin_js = (
-        node_root
-        / "node_modules"
-        / "@omega-ai"
-        / "dsh"
-        / "lib"
-        / "bin.js"
-    )
+    bin_js = node_root / "runtime-bootstrap.mjs"
     if not bin_js.is_file():
         raise FileNotFoundError(
             f"the dev-only node runtime closure is missing at {node_root} "
-            f"(no {bin_js}); run `scripts/build-exe-for-python-sdk.ts` in a omega-harness "
+            f"(no {bin_js}); run `scripts/build-exe-for-python-sdk.ts` in a deepseek-harness "
             "checkout, which builds and copies the deploy closure here. The node carrier "
             "is for repo-local development only — production uses the single-file exe."
         )
     node = shutil.which("node")
     if node is None:
         raise FileNotFoundError(
-            "the node runtime mode needs a system `node` (>=22.19) on PATH; "
+            "the node runtime mode needs a system `node` (>=24.9) on PATH; "
             "install Node.js or use the exe mode"
         )
     return (node, str(bin_js))
+
+
+def _download(resource: str) -> Path:
+    result = subprocess.run(resolve_bundled_launch_args(), capture_output=True, encoding="utf-8",
+                            env={**os.environ, "DSH_RUNTIME_DOWNLOAD": resource})
+    if result.returncode:
+        raise RuntimeError(result.stderr.strip() or f"resource download failed with exit code {result.returncode}")
+    path = json.loads(result.stdout)
+    if not isinstance(path, str) or not Path(path).is_absolute():
+        raise ValueError("runtime returned an invalid resource path")
+    return Path(path)
+
+
+def download_office() -> Path:
+    """Download the locked npm Office sidecar and standalone Node into the resource cache.
+
+    Return its absolute directory. Reuse completed downloads; failures leave no
+    published partial installation. DSH_RESOURCE_CACHE selects the cache root.
+    This explicit operation requires network access on a cache miss, not a
+    Harness home, agent, or model. Other SDK operations never trigger downloads.
+    """
+    return _download("office")
+
+
+def download_primary_runtime() -> Path:
+    """Download locked CPython, libraries, Node and pnpm into the resource cache.
+
+    Return the absolute primary-runtime directory. This is independent of the
+    Office engine download and does not copy resources into a Harness home.
+    Completed downloads are reused; DSH_RESOURCE_CACHE selects the cache root.
+    """
+    path = _download("primary")
+    validate_resources(path.parent, _current_platform_tag())
+    return path
+
+
+def resolve_office_launch_args() -> tuple[str, str]:
+    """Locate the explicitly downloaded Office CLI and its standalone Node; never download."""
+    tag = _current_platform_tag()
+    return office_launch_args(bundled_runtime_path().with_name(tag), tag)
 
 
 def main() -> None:
@@ -197,6 +214,9 @@ __all__ = [
     "RUNTIME_MODE_ENV_VAR",
     "bundled_package_dir",
     "bundled_runtime_path",
+    "download_office",
+    "download_primary_runtime",
+    "resolve_office_launch_args",
     "main",
     "resolve_bundled_launch_args",
 ]

@@ -4,16 +4,16 @@
  * creation, flatten post-publication failures, and dispose to whole-range
  * quiescence.
  *
- * @module @omega-ai/dsh-subagent-codex/run
+ * @module @deepseek-ai/dsh-subagent-codex/run
  */
 
 import { randomUUID } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, resolve } from 'node:path'
-import { brandString } from '@omega-ai/dsh-brand'
-import type { ContentBlock } from '@omega-ai/dsh-llm'
-import type { SessionId } from '@omega-ai/dsh-session'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { ContentBlock } from '@deepseek-ai/dsh-llm'
+import type { SessionId } from '@deepseek-ai/dsh-session'
 import {
   settleRunResult,
   subprocessRunHandle,
@@ -21,12 +21,12 @@ import {
   type SubagentRun,
   type SubagentStartRequest,
   type SubagentStopReason,
-} from '@omega-ai/dsh-subagent'
+} from '@deepseek-ai/dsh-subagent'
 import type {
   SubprocessHandle,
   SubprocessOutcome,
   SubprocessSpawnSpec,
-} from '@omega-ai/dsh-subprocess'
+} from '@deepseek-ai/dsh-subprocess'
 import {
   CodexAppServerWire,
   type CodexWireFailureFacts,
@@ -138,7 +138,7 @@ export function codexAppServerArgv(): string[] {
 
 /** Fully resolved inputs for one Codex app-server run. */
 export interface CodexRunSpec {
-  /** Parent Session workspace, also supplied to `thread/start`. */
+  /** Selected child working directory, also supplied to `thread/start`. */
   readonly cwd: string
   /** Profile-selected native model; omitted to preserve Codex settings. */
   readonly model?: string
@@ -200,7 +200,7 @@ export async function disposeCodexChild(
   )
   try {
     child.stdin?.end()
-  } catch {
+  } catch (_stdinAlreadyClosed) {
     // A concurrently closed stdin does not change range ownership below.
   }
   child.terminate()
@@ -259,7 +259,7 @@ export async function startCodexRun(
       // Synchronous fd forwarding preserves byte order without owning a
       // backpressure queue. A slow host sink can block this event-loop turn.
       writeFileSync(process.stderr.fd, bytes)
-    } catch {
+    } catch (_hostStderrWriteFailed) {
       // Host stderr is an observation sink, not a child-run failure authority.
     }
   }
@@ -401,11 +401,8 @@ export async function startCodexRun(
           && !runAbort.signal.aborted
         ) {
           try {
-            const exited = await child.waitForExit(
-              AbortSignal.timeout(Math.ceil(spec.disposeGraceMs)),
-            )
-            if (exited) await child.done
-          } catch {
+            if (await child.waitForExit(AbortSignal.timeout(Math.ceil(spec.disposeGraceMs)))) await child.done
+          } catch (_exitObservationFailed) {
             // The wire failure remains authoritative when exit observation fails.
           }
         }

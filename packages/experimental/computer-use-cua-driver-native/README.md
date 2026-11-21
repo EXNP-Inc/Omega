@@ -3,7 +3,7 @@ description: "Run Cua Driver computer-use tools from its native npm SDK, with du
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-experimental-computer-use-cua-driver-native
+# @deepseek-ai/dsh-experimental-computer-use-cua-driver-native
 
 English | [中文](README.zh.md)
 
@@ -30,8 +30,8 @@ Mount the provider in a composition that already supplies the tool registry and 
 ### Minimal configuration
 
 ```yaml
-- name: '@omega-ai/dsh-computer-use'
-- name: '@omega-ai/dsh-experimental-computer-use-cua-driver-native'
+- name: '@deepseek-ai/dsh-computer-use'
+- name: '@deepseek-ai/dsh-experimental-computer-use-cua-driver-native'
 ```
 
 The provider has no configuration fields. It loads the exact Cua Driver npm version declared in [package.json](package.json) and uses its same-process defaults. Native import, runtime initialization, malformed catalog, duplicate tool name, or occupied computer-use registration failures reject activation and roll back owned resources. The registered provider name is `cua-driver-native`.
@@ -63,8 +63,11 @@ The provider reserves the shared computer-use registration before loading native
 | File | Role |
 |---|---|
 | [src/index.ts](src/index.ts) | Native runtime ownership, catalog validation, tool registration, and provider guidance |
+| [src/error.ts](src/error.ts) | `CuaDriverError` and its closed code list |
 
 Tool definitions reuse the existing MCP result adapter. Cua Driver's JSON catalog determines the schemas; its raw result supplies canonical text, structured output, and image bytes. The computer-use service carries only the provider name and exclusive registration.
+
+A rejected native call throws `CuaDriverError` with `CUA_DRIVER_FAILED`, keeping the SDK's message and its error as `cause`; once the call or the provider is canceled, the cancellation propagates instead. A raw result that is not JSON throws `CUA_DRIVER_INVALID_RESULT`. Upstream tool refusals reported in a result stay with the MCP result adapter.
 
 </details>
 

@@ -3,7 +3,7 @@ description: "Choose an Agent’s tools, prompt sections and skills through decl
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-agent-preset-registry
+# @deepseek-ai/dsh-agent-preset-registry
 
 English | [中文](README.zh.md)
 
@@ -29,11 +29,11 @@ Choose an Agent’s tools, prompt sections and skills through declarative preset
 
 ```yaml
 - id: agent-preset-registry
-  name: '@omega-ai/dsh-agent-preset-registry'
+  name: '@deepseek-ai/dsh-agent-preset-registry'
   config:
     default: standard
 - id: preset-standard
-  name: '@omega-ai/dsh-agent-preset'
+  name: '@deepseek-ai/dsh-agent-preset'
   config:
     id: standard
     plugins: []
@@ -45,7 +45,7 @@ Choose an Agent’s tools, prompt sections and skills through declarative preset
 
 The Web definitions come from the `dsh-web-app` bundle. Definitions are ordinary plugin rows; the registry neither scans directories nor accepts preset paths. The `selectedDefault` volatile field of the `agent-preset-registry` entry retains the user default, which new sessions resolve over the deployment `default`. A profile patch may still carry the retired `modeSelectionEnabled` field; the registry declares no such field and neither reads nor rewrites it.
 
-The registry writes no declarations. The `read` Remote renders one declaration’s child list back as entry-list YAML (`!!js` conditions included) so a client can show what a preset composes; nothing accepts YAML back. A new preset or an override of a shipped one is a bundle patch: an `insert` of a `@omega-ai/dsh-agent-preset` row, or a patch keyed by that row’s id, installed into the profile with `plugin_manager`; Creator mode authors such bundles in conversation.
+The registry writes no declarations. The `read` Remote renders one declaration’s child list back as entry-list YAML (`!!js` conditions included) so a client can show what a preset composes; nothing accepts YAML back. A new preset or an override of a shipped one is a bundle patch: an `insert` of a `@deepseek-ai/dsh-agent-preset` row, or a patch keyed by that row’s id, installed into the profile with `plugin_manager`; Creator mode authors such bundles in conversation.
 
 <a id="understand-the-implementation"></a>
 ## Understand the implementation
@@ -57,7 +57,7 @@ Each declaration eagerly creates a registry-owned scope and an in-memory Loader 
 
 A preset service provider and its consumers must share one `cordis:group` isolation realm. Entry-local isolation does not propagate through the Agent registration scope: ordinary Context lookup outside the group, including `agent.ctx`, still selects the Host realm. `agentPresets.serviceFor()` explicitly inspects the retained composition; it does not change ordinary service lookup.
 
-Activation auditing checks imports, missing services and globally leaked services. Import failures, activation failures and leaks reject the mount. A row waiting for a Host service stays mounted, and every read and binding re-audits it after the Host Loader tree settles, so startup order does not decide the outcome. Failure prevents new bindings to that definition. Session logs retain the preset ID and blank-session selections; recovery after restart uses the current definition of that ID and rejects a missing definition.
+Activation auditing checks imports, missing services and globally leaked services. Import failures, activation failures and leaks reject the mount. A row waiting for a Host service stays mounted, and every read and binding re-audits it after the Host Loader tree settles, so startup order does not decide the outcome. Failure prevents new bindings to that definition. `presetForSession(session)` synchronously reads the latest recorded preset ID, or null when none is recorded. Session logs retain the preset ID and blank-session selections; recovery after restart uses the current definition of that ID and rejects a missing definition. `select` leaves a blank Session that records the requested preset and already runs its current revision unchanged, without another selection record or `tools/change`.
 
 `inspectCompositions()` reads all revisions retained by this registry; passing an Agent context selects its exact revision, or returns an empty list when it has no binding here. Each `AgentPresetInspection` contains a preset ID, detached active-module references with their resolution bases, and leaked-service names. Inspectors query the runtime service rather than a module-local mount table; the results contain no Loader trees or fibers. [composition-inventory.ts](src/composition-inventory.ts) defines these records.
 

@@ -1,13 +1,13 @@
 {
-  "name": "@omega-ai/dsh-session-reference",
+  "name": "@deepseek-ai/dsh-session-reference",
   "description": "Cross-session snapshot references and durable untrusted model context (ctx.sessionReferenceResolver)",
-  "version": "0.2.1-alpha.1",
+  "version": "0.2.2-rc.5",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/omega-ai/omega-harness.git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
     "directory": "packages/context/session-reference"
   },
   "type": "module",
@@ -31,69 +31,79 @@
       "default": "./lib/typert.remote-client.js"
     },
     "./src/*": "./src/*",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
+    "locale/*.json",
     "lib/index.js",
     "lib/types/**/*.js",
     "lib/types/**/*.d.ts",
+    "lib/types/**/*.d.ts.map",
+    "lib/**/*.js.map",
     "lib/typert.host.js",
     "lib/typert.host.d.ts",
     "lib/typert.remote-client.js",
-    "lib/typert.remote-client.d.ts"
+    "lib/typert.remote-client.d.ts",
+    "lib/typert.remote-client.d.ts.map",
+    "src"
   ],
   "license": "MIT",
   "dependencies": {
-    "@omega-ai/dsh-brand": "workspace:*",
-    "@omega-ai/dsh-util-values": "workspace:*",
-    "@omega-ai/schemastery": "workspace:~",
-    "zod": "^4.4.3"
+    "@deepseek-ai/dsh-brand": "workspace:*",
+    "@deepseek-ai/dsh-util-text-search": "workspace:*",
+    "@deepseek-ai/dsh-util-values": "workspace:*",
+    "@deepseek-ai/schemastery": "workspace:~",
+    "zod": "4.6.6"
   },
   "peerDependencies": {
-    "@omega-ai/cordis": "workspace:~",
-    "@omega-ai/dsh-agent": "workspace:*",
-    "@omega-ai/dsh-compaction": "workspace:*",
-    "@omega-ai/dsh-llm": "workspace:*",
-    "@omega-ai/dsh-output-retention": "workspace:*",
-    "@omega-ai/dsh-session": "workspace:*",
-    "@omega-ai/dsh-session-projection": "workspace:*",
-    "@omega-ai/dsh-session-projection-cache": "workspace:*",
-    "@omega-ai/dsh-session-query": "workspace:*",
-    "@omega-ai/dsh-session-title": "workspace:*",
-    "@omega-ai/dsh-spill": "workspace:*",
-    "@omega-ai/dsh-subagent": "workspace:*",
-    "@omega-ai/dsh-system-prompt": "workspace:*",
-    "@omega-ai/dsh-typert-protocol": "workspace:*"
+    "@deepseek-ai/cordis": "workspace:~",
+    "@deepseek-ai/dsh-agent": "workspace:*",
+    "@deepseek-ai/dsh-compaction": "workspace:*",
+    "@deepseek-ai/dsh-llm": "workspace:*",
+    "@deepseek-ai/dsh-output-retention": "workspace:*",
+    "@deepseek-ai/dsh-session": "workspace:*",
+    "@deepseek-ai/dsh-session-projection": "workspace:*",
+    "@deepseek-ai/dsh-session-projection-cache": "workspace:*",
+    "@deepseek-ai/dsh-session-query": "workspace:*",
+    "@deepseek-ai/dsh-session-title": "workspace:*",
+    "@deepseek-ai/dsh-spill": "workspace:*",
+    "@deepseek-ai/dsh-subagent": "workspace:*",
+    "@deepseek-ai/dsh-system-prompt": "workspace:*",
+    "@deepseek-ai/dsh-typert-protocol": "workspace:*"
   },
   "peerDependenciesMeta": {
-    "@omega-ai/dsh-spill": {
+    "@deepseek-ai/dsh-spill": {
       "optional": true
     },
-    "@omega-ai/dsh-session-projection-cache": {
+    "@deepseek-ai/dsh-session-projection-cache": {
       "optional": true
     }
   },
   "devDependencies": {
-    "@omega-ai/cordis": "workspace:~",
-    "@omega-ai/cordis-plugin-include": "workspace:~",
-    "@omega-ai/cordis-plugin-loader": "workspace:~",
-    "@omega-ai/dsh-agent": "workspace:*",
-    "@omega-ai/dsh-compaction": "workspace:*",
-    "@omega-ai/dsh-fs-local": "workspace:*",
-    "@omega-ai/dsh-llm": "workspace:*",
-    "@omega-ai/dsh-output-retention": "workspace:*",
-    "@omega-ai/dsh-session": "workspace:*",
-    "@omega-ai/dsh-session-projection": "workspace:*",
-    "@omega-ai/dsh-session-projection-cache": "workspace:*",
-    "@omega-ai/dsh-session-query": "workspace:*",
-    "@omega-ai/dsh-session-query-sqlite": "workspace:*",
-    "@omega-ai/dsh-session-title": "workspace:*",
-    "@omega-ai/dsh-spill": "workspace:*",
-    "@omega-ai/dsh-subagent": "workspace:*",
-    "@omega-ai/dsh-spill-local": "workspace:*",
-    "@omega-ai/dsh-system-prompt": "workspace:*",
-    "@omega-ai/dsh-tool-fs": "workspace:*",
-    "@omega-ai/dsh-tools": "workspace:*",
-    "@omega-ai/dsh-typert-protocol": "workspace:*"
+    "@deepseek-ai/cordis": "workspace:~",
+    "@deepseek-ai/cordis-plugin-include": "workspace:~",
+    "@deepseek-ai/cordis-plugin-loader": "workspace:~",
+    "@deepseek-ai/dsh-agent": "workspace:*",
+    "@deepseek-ai/dsh-compaction": "workspace:*",
+    "@deepseek-ai/dsh-fs-local": "workspace:*",
+    "@deepseek-ai/dsh-llm": "workspace:*",
+    "@deepseek-ai/dsh-output-retention": "workspace:*",
+    "@deepseek-ai/dsh-session": "workspace:*",
+    "@deepseek-ai/dsh-session-projection": "workspace:*",
+    "@deepseek-ai/dsh-session-projection-cache": "workspace:*",
+    "@deepseek-ai/dsh-session-query": "workspace:*",
+    "@deepseek-ai/dsh-session-query-sqlite": "workspace:*",
+    "@deepseek-ai/dsh-session-title": "workspace:*",
+    "@deepseek-ai/dsh-spill": "workspace:*",
+    "@deepseek-ai/dsh-subagent": "workspace:*",
+    "@deepseek-ai/dsh-spill-local": "workspace:*",
+    "@deepseek-ai/dsh-system-prompt": "workspace:*",
+    "@deepseek-ai/dsh-tool-executor-native": "workspace:*",
+    "@deepseek-ai/dsh-tool-fs": "workspace:*",
+    "@deepseek-ai/dsh-tool-testkit": "workspace:*",
+    "@deepseek-ai/dsh-tools": "workspace:*",
+    "@deepseek-ai/dsh-typert-protocol": "workspace:*",
+    "@deepseek-ai/dsh-working-directory": "workspace:*"
   }
 }

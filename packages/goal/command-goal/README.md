@@ -3,7 +3,7 @@ description: "The human-facing /goal slash command for users and maintainers cho
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-command-goal
+# @deepseek-ai/dsh-command-goal
 
 English | [中文](README.zh.md)
 
@@ -54,11 +54,11 @@ The command injects the commands registry and the goal service. A custom app mou
 
 ```yaml
 - id: commands
-  name: '@omega-ai/dsh-commands'
+  name: '@deepseek-ai/dsh-commands'
 - id: goal
-  name: '@omega-ai/dsh-goal'
+  name: '@deepseek-ai/dsh-goal'
 - id: command-goal
-  name: '@omega-ai/dsh-command-goal'
+  name: '@deepseek-ai/dsh-command-goal'
 ```
 
 The shipped `dsh` base enables the persisted-goal stack and this command. The Web bundle keeps the goal service and driver on the Host, disables the base command producer, and mounts the producer in the `standard`, `code`, and `cordis` agent presets; `minimal` omits it. The ACP automation app enables the domain and model tools without a command adapter. The standalone `sdk-minimal` profile omits the complete goal stack so its result API still settles one correlated physical turn.
@@ -76,7 +76,7 @@ This section explains how the command parses input and renders output; the obser
 ### Design
 
 - **Grammar, not free text.** The parser recognizes only the exact control words (`clear`, `pause`, `resume`, `edit`) when they fill the whole input; every other non-empty suffix is an objective. `edit` alone is invalid, and `edit` refuses to replace an unfinished goal directly.
-- **Domain rejections become stable errors.** `GoalError` outcomes are converted into direct command errors with a fixed message; unexpected failures rethrow so adapters report a command failure rather than a domain result. Rendered output never exposes branded ids or revisions.
+- **Domain rejections become stable errors.** `GoalError` outcomes other than `GOAL_STATE_CORRUPT` are converted into direct command errors with a fixed message; corrupt goal state and unexpected failures rethrow so adapters report a command failure rather than a domain result. Rendered output never exposes branded ids or revisions.
 - **Attachments accompany the objective.** On a successful create or edit, the command submits one user followup carrying the admitted image and file blocks in selection order plus the fixed text `Reference attachments for the goal objective.` Every other path submits nothing, so the dispatching composer keeps the draft and cards.
 
 ### Source map

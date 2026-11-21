@@ -39,6 +39,16 @@ describe('Messages stream', () => {
     expect(result.at(-1)).toMatchObject({ reason: { kind: 'stop' } })
   })
 
+  it('reports billed usage, then fails a refused response with CONTENT_REFUSED', async () => {
+    const output: unknown[] = []
+    const consume = async () => { for await (const chunk of translate(events([...textEvents.slice(0, 4), ...end('refusal')]), MODEL)) output.push(chunk) }
+    await expect(consume()).rejects.toMatchObject({ code: 'CONTENT_REFUSED' })
+    expect(output.at(-1)).toEqual({ type: 'usage', usage: { inputTokens: 12, outputTokens: 5, totalTokens: 17 } })
+    const blocked = { type: 'message_delta', delta: { stop_reason: 'refusal', stop_details: { type: 'refusal', explanation: 'blocked: messages.1.content.0' } } }
+    await expect(chunks(translate(events([start, blocked, { type: 'message_stop' }]), MODEL)))
+      .rejects.toMatchObject({ code: 'CONTENT_REFUSED', message: expect.stringContaining('blocked: messages.1.content.0') as string })
+  })
+
   it.each([{}, { key: 'initial' }])('preserves initial tool input %j without JSON deltas', async (input) => {
     const result = await assemble(translate(events([start,
       { type: 'content_block_start', index: 0, content_block: { type: 'tool_use', id: 'a', name: 'read', input } },
@@ -132,6 +142,6 @@ describe('SSE framing and provider failures', () => {
   it('retains request identity and valid Retry-After without inventing missing counters', () => {
     expect(providerError(null, 429, new Headers({ 'retry-after': '2', 'request-id': 'r1' })).failure).toMatchObject({ requestId: 'r1', providerRetryAfterMs: 2000 })
     expect(providerError({}, 503, new Headers({ 'retry-after': new Date(Date.now() + 60_000).toUTCString(), 'x-request-id': 'r2' })).failure.providerRetryAfterMs).toBeGreaterThan(0)
-    expect(providerError({}, 500, new Headers({ 'retry-after': 'invalid', 'x-omega-request-id': 'r3' })).failure).toMatchObject({ requestId: 'r3' })
+    expect(providerError({}, 500, new Headers({ 'retry-after': 'invalid', 'x-deepseek-request-id': 'r3' })).failure).toMatchObject({ requestId: 'r3' })
   })
 })

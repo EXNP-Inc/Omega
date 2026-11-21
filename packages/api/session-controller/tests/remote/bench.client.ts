@@ -1,8 +1,8 @@
 /** Session objects owned by a client test's explicitly started Gateway assembly. */
 import { onTestFinished } from 'vitest'
-import type { RemoteMock } from '@omega-ai/dsh-remote-mock'
-import type { TestClient } from '@omega-ai/dsh-client-test-runtime/src/assembly/index.ts'
-import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { RemoteMock } from '@deepseek-ai/dsh-remote-mock'
+import type { TestClient } from '@deepseek-ai/dsh-client-test-runtime/src/assembly/index.ts'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import { Session, type SessionOptions } from '../../src/client/sessions/session.ts'
 import { sessionWorld } from './session.client.ts'
 
@@ -11,7 +11,7 @@ import { sessionWorld } from './session.client.ts'
  * @param mock - this case's Remote responses.
  * @param start - the fixture's lazy client startup.
  * @param sessionId - Session identity.
- * @param options - addressed child and parent availability, when applicable.
+ * @param options - addressed child and other Session options, when applicable.
  * @returns the Session, disposed at the end of the case.
  */
 export async function sessionBench(

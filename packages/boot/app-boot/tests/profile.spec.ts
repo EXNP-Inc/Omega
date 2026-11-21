@@ -21,7 +21,6 @@ import {
   loadProfileDirectory,
   PROFILE_COMPATIBILITY_FILENAME,
   PROFILE_PATCH_FILENAME,
-  PROFILE_TEMPLATES,
   readProfileManifest,
   readProfilePatches,
   removeLinkProjections,
@@ -32,6 +31,7 @@ import {
   type Profile,
   type RuntimeResolution,
 } from '../src/index.ts'
+import { PROFILE_TEMPLATES } from '@deepseek-ai/dsh-official-bundles'
 import { installRuntimeInterception } from '../src/profile-resolution/resolver.ts'
 
 const tempRoots: string[] = []
@@ -47,7 +47,7 @@ const tmp = (): string => {
 
 /** Stage a fake installed app: package.json with deps and a node_modules holding bundles. */
 function stageInstallation(
-  bundles: Record<string, { patch?: string; deps?: Record<string, string> }>,
+  bundles: Record<string, { patch?: string; deps?: Record<string, string>; platforms?: string[] }>,
   appName = 'dsh-app',
 ): string {
   const root = tmp()
@@ -64,7 +64,7 @@ function stageInstallation(
       type: 'module',
       main: './index.js',
       dependencies: spec.deps ?? {},
-      ...spec.patch === undefined ? {} : { dsh: { bundle: { patch: './cordis.patch.yml' } } },
+      ...spec.patch === undefined ? {} : { dsh: { bundle: { patch: './cordis.patch.yml', ...spec.platforms === undefined ? {} : { platforms: spec.platforms } } } },
     }))
     writeFileSync(join(dir, 'index.js'), `export const packageName = ${JSON.stringify(name)}\n`)
     if (spec.patch !== undefined) writeFileSync(join(dir, 'cordis.patch.yml'), spec.patch)
@@ -75,6 +75,24 @@ function stageInstallation(
   writeFileSync(join(appDir, 'index.js'), `export const packageName = ${JSON.stringify(appName)}\n`)
   return join(appDir, 'package.json')
 }
+
+it('skips an unsupported saved bundle before composing any runtime overrides and retains the selection', () => {
+  const unsupported = process.platform === 'darwin' ? 'win32' : 'darwin'
+  const anchor = stageInstallation({
+    base: { patch: '- insert:\n  - id: ptc-runtime\n    name: runtime\n    config: { executionMode: isolated }\n' },
+    restricted: { platforms: [unsupported], patch: '- id: ptc-runtime\n  config: { executionMode: persistent-in-memory, replScoped: false }\n' },
+  })
+  const dir = join(tmp(), 'profile')
+  initProfile(dir, ['base', 'restricted'])
+  const before = readFileSync(join(dir, 'package.json'), 'utf8')
+  const profile = loadProfileDirectory('test', dir, anchor)
+  expect(profile.layers.map(layer => layer.packageName)).toEqual(['base'])
+  expect(profile.skippedBundles).toHaveLength(1)
+  expect(profile.skippedBundles[0]?.packageName).toBe('restricted')
+  expect(profile.skippedBundles[0]?.reason).toContain(`Host is running ${process.platform}`)
+  expect(composeEntries(profile.layers.map(layer => layer.patches))).toMatchObject([{ id: 'ptc-runtime', config: { executionMode: 'isolated' } }])
+  expect(readFileSync(join(dir, 'package.json'), 'utf8')).toBe(before)
+})
 
 /** Represent one resolved external bundle as a loaded profile layer. */
 function stageProfile(home: string, name: string, bundleAnchor: string): Profile {
@@ -180,7 +198,7 @@ describe('resolveProfileDir', () => {
   })
 })
 
-it('composes current files from profile data and retains launch overlay and telemetry precedence', () => {
+it('composes current profile, home, and overlay files with telemetry precedence', () => {
   const home = tmp()
   const installAnchor = stageInstallation({ base: { patch: '- insert:\n  - id: session-telemetry-otel\n    name: telemetry\n' } })
   const dir = resolveProfileDir('test', home)
@@ -188,38 +206,41 @@ it('composes current files from profile data and retains launch overlay and tele
   const patchPath = join(dir, 'application.patch.yml')
   writeFileSync(patchPath, '- id: session-telemetry-otel\n  disabled: true\n')
   writeFileSync(join(home, PROFILE_PATCH_FILENAME), '- id: session-telemetry-otel\n  disabled: false\n')
+  const overlayPath = join(home, 'overlay.yml')
+  writeFileSync(overlayPath, '- id: session-telemetry-otel\n  disabled: false\n')
   const context = {
     name: 'test', dir, patchPath, installAnchor, home, cwd: home,
     startedBundles: ['base'],
-    overlays: [{ id: 'session-telemetry-otel', disabled: false }], telemetryDisabledEnv: 'false',
+    overlayPaths: [overlayPath], telemetryDisabledEnv: 'false',
   }
   expect(composeEntries([readProfilePatches('test', context)])[0]?.disabled).toBe(true)
   const enabled = { ...context, telemetryDisabledEnv: undefined }
   expect(composeEntries([readProfilePatches('test', enabled)])[0]?.disabled).toBe(false)
-  const patches = readProfilePatches('test', enabled)
-  patches.at(-1)!.disabled = true
-  expect(context.overlays[0]?.disabled).toBe(false)
+  writeFileSync(overlayPath, '- id: session-telemetry-otel\n  disabled: true\n')
+  expect(composeEntries([readProfilePatches('test', enabled)])[0]?.disabled).toBe(true)
+  rmSync(overlayPath)
+  expect(() => readProfilePatches('test', enabled)).toThrow(`failed to read overlay ${overlayPath}`)
   writeFileSync(join(home, PROFILE_PATCH_FILENAME), '- id: session-telemetry-otel\n  disabled: true\n')
-  expect(composeEntries([readProfilePatches('test', { ...enabled, overlays: [] })])[0]?.disabled).toBe(true)
+  expect(composeEntries([readProfilePatches('test', { ...enabled, overlayPaths: [] })])[0]?.disabled).toBe(true)
   writeFileSync(join(home, PROFILE_PATCH_FILENAME), '[]\n')
-  expect(composeEntries([readProfilePatches('test', { ...enabled, overlays: [] })])[0]?.disabled).toBe(true)
+  expect(composeEntries([readProfilePatches('test', { ...enabled, overlayPaths: [] })])[0]?.disabled).toBe(true)
   writeFileSync(patchPath, '- id: session-telemetry-otel\n  disabled: false\n')
-  expect(composeEntries([readProfilePatches('test', { ...enabled, overlays: [] })])[0]?.disabled).toBe(false)
+  expect(composeEntries([readProfilePatches('test', { ...enabled, overlayPaths: [] })])[0]?.disabled).toBe(false)
 })
 
 describe('initProfile', () => {
   it('creates manifest, user patch layer, and pnpm workspace once, never overwriting', () => {
     const home = tmp()
     const dir = resolveProfileDir('tui', home)
-    initProfile(dir, ['@omega-ai/dsh-base'])
+    initProfile(dir, ['@deepseek-ai/dsh-base'])
     const manifest = readProfileManifest('t', dir)
-    expect(manifest.dsh?.profile?.bundles).toEqual(['@omega-ai/dsh-base'])
+    expect(manifest.dsh?.profile?.bundles).toEqual(['@deepseek-ai/dsh-base'])
     expect(readFileSync(join(dir, PROFILE_PATCH_FILENAME), 'utf8')).toContain('[]')
     expect(readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')).toContain('nodeLinker: hoisted')
     // Re-init keeps user edits.
     writeFileSync(join(dir, PROFILE_PATCH_FILENAME), '- id: x\n  config: {}\n')
     initProfile(dir, ['other'])
-    expect(readProfileManifest('t', dir).dsh?.profile?.bundles).toEqual(['@omega-ai/dsh-base'])
+    expect(readProfileManifest('t', dir).dsh?.profile?.bundles).toEqual(['@deepseek-ai/dsh-base'])
     expect(readFileSync(join(dir, PROFILE_PATCH_FILENAME), 'utf8')).toContain('- id: x')
   })
 })
@@ -341,16 +362,6 @@ describe('loadProfile', () => {
     const home = tmp()
     expect(() => loadProfile('t', 'custom', anchor, home))
       .toThrow('profile "custom" does not exist')
-    expect(PROFILE_TEMPLATES.web?.bundles).toContain('@omega-ai/dsh-base')
-    expect(PROFILE_TEMPLATES.acp).toEqual({
-      bundles: ['@omega-ai/dsh-base', '@omega-ai/dsh-acp-app'],
-    })
-    expect(PROFILE_TEMPLATES.sdk).toEqual({
-      bundles: ['@omega-ai/dsh-base', '@omega-ai/dsh-sdk-app'],
-    })
-    expect(PROFILE_TEMPLATES['sdk-minimal']).toEqual({
-      bundles: ['@omega-ai/dsh-sdk-minimal'],
-    })
     loadProfile('t', 'web', anchor, home)
     expect(readProfileManifest('t', resolveProfileDir('web', home)).dsh?.profile?.bundles)
       .toEqual([...PROFILE_TEMPLATES.web?.bundles ?? []])
@@ -358,48 +369,48 @@ describe('loadProfile', () => {
 
   it('normalizes only the exact installation-owned headless bundle tuple', () => {
     const anchor = stageInstallation({
-      '@omega-ai/dsh-base': { patch: '[]\n' },
-      '@omega-ai/dsh-web-app': { patch: '[]\n' },
-      '@omega-ai/dsh-headless': { patch: '[]\n' },
+      '@deepseek-ai/dsh-base': { patch: '[]\n' },
+      '@deepseek-ai/dsh-web-app': { patch: '[]\n' },
+      '@deepseek-ai/dsh-headless': { patch: '[]\n' },
       'custom-bundle': { patch: '[]\n' },
     })
     const home = tmp()
     const stock = resolveProfileDir('headless', home)
     initProfile(stock, [
-      '@omega-ai/dsh-base', '@omega-ai/dsh-web-app', '@omega-ai/dsh-headless',
+      '@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', '@deepseek-ai/dsh-headless',
     ])
     const retiredManifest = readProfileManifest('t', stock)
     writeProfileManifest(stock, retiredManifest)
     loadProfile('t', 'headless', anchor, home)
     expect(readProfileManifest('t', stock).dsh?.profile).toEqual({
-      bundles: ['@omega-ai/dsh-base', '@omega-ai/dsh-headless'],
+      bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-headless'],
     })
 
     const customHome = tmp()
     const custom = resolveProfileDir('headless', customHome)
     initProfile(custom, [
-      '@omega-ai/dsh-base', '@omega-ai/dsh-web-app', '@omega-ai/dsh-headless', 'custom-bundle',
+      '@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', '@deepseek-ai/dsh-headless', 'custom-bundle',
     ])
     loadProfile('t', 'headless', anchor, customHome)
     expect(readProfileManifest('t', custom).dsh?.profile?.bundles).toEqual([
-      '@omega-ai/dsh-base', '@omega-ai/dsh-web-app', '@omega-ai/dsh-headless', 'custom-bundle',
+      '@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', '@deepseek-ai/dsh-headless', 'custom-bundle',
     ])
   })
 
-  it('removes a retired bundle from an application-owned profile and keeps the rest of the manifest', () => {
+  it.each(['@deepseek-ai/dsh-experimental-schedule-bundle', '@deepseek-ai/dsh-experimental-agent-team-profile'])('removes retired %s and keeps the rest of an application-owned manifest', (retired) => {
     const anchor = stageInstallation({
-      '@omega-ai/dsh-base': { patch: '[]\n' },
+      '@deepseek-ai/dsh-base': { patch: '[]\n' },
       'custom-bundle': { patch: '[]\n' },
     })
     const dir = join(tmp(), 'app-profile')
-    initProfile(dir, ['@omega-ai/dsh-base', '@omega-ai/dsh-experimental-schedule-bundle', 'custom-bundle'])
+    initProfile(dir, ['@deepseek-ai/dsh-base', retired, 'custom-bundle'])
     writeProfileManifest(dir, { ...readProfileManifest('t', dir), dependencies: { 'custom-bundle': '^1.0.0' } })
     const profile = loadProfileDirectory('t', dir, anchor)
     expect(profile.skippedBundles).toEqual([])
-    expect(profile.layers.map(layer => layer.packageName)).toEqual(['@omega-ai/dsh-base', 'custom-bundle'])
+    expect(profile.layers.map(layer => layer.packageName)).toEqual(['@deepseek-ai/dsh-base', 'custom-bundle'])
     expect(readProfileManifest('t', dir)).toMatchObject({
       dependencies: { 'custom-bundle': '^1.0.0' },
-      dsh: { profile: { bundles: ['@omega-ai/dsh-base', 'custom-bundle'] } },
+      dsh: { profile: { bundles: ['@deepseek-ai/dsh-base', 'custom-bundle'] } },
     })
   })
 
@@ -455,7 +466,7 @@ describe('loadProfile', () => {
     })
     const manifestPath = join(anchor, '..', 'node_modules', 'guarded', 'package.json')
     writeFileSync(manifestPath, JSON.stringify({
-      ...JSON.parse(readFileSync(manifestPath, 'utf8')) as object, peerDependencies: { '@omega-ai/dsh': '999.0.0' },
+      ...JSON.parse(readFileSync(manifestPath, 'utf8')) as object, peerDependencies: { '@deepseek-ai/dsh': '999.0.0' },
     }))
     const dir = resolveProfileDir('demo', tmp())
     initProfile(dir, ['guarded', 'kept'])

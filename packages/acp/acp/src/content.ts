@@ -1,11 +1,11 @@
 /** ACP wire-content admission and projection owned by the ACP adapter. @module */
 
 import type { ContentBlock as AcpContentBlock } from '@agentclientprotocol/sdk'
-import type { Context } from '@omega-ai/cordis'
-import { isImageAdmissionError } from '@omega-ai/dsh-attachment'
-import type { ImageAttachmentRef, ImageMediaType, SaveImageAttachment } from '@omega-ai/dsh-attachment'
-import type { ModelSelection } from '@omega-ai/dsh-agent'
-import type { ContentBlock } from '@omega-ai/dsh-llm'
+import type { Context } from '@deepseek-ai/cordis'
+import { isImageAdmissionError } from '@deepseek-ai/dsh-attachment'
+import type { ImageAttachmentRef, ImageMediaType, SaveImageAttachment } from '@deepseek-ai/dsh-attachment'
+import type { ModelSelection } from '@deepseek-ai/dsh-agent'
+import type { ContentBlock } from '@deepseek-ai/dsh-llm'
 
 /** Raster formats shared by ACP image blocks and the core attachment vocabulary. */
 const IMAGE_MEDIA_TYPES: readonly ImageMediaType[] = [
@@ -114,7 +114,7 @@ function resourceLinkText(block: Extract<AcpContentBlock, { type: 'resource_link
  * writing; cancellation after a successful content-addressed write may leave an
  * unreachable object but never queues a late user message.
  * @param ctx - bridge context carrying attachment and model services.
- * @param route - selection pinned to the accepted prompt.
+ * @param route - Agent model selection current at prompt admission.
  * @param prompt - untrusted ACP prompt blocks in wire order.
  * @param imageEnabled - capability result advertised during initialization.
  * @param signal - admission cancellation signal.

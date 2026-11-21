@@ -14,7 +14,7 @@ const execFileAsync = promisify(execFile)
 const { WineVmManager } = wineVmModule
 const CODE_SIGNING_EKU = '1.3.6.1.5.5.7.3.3'
 const NSIS_RUN_AS_INVOKER = 'RunAsInvoker'
-const NSIS_BOOTSTRAP_PATCH = Symbol.for('@omega-ai/dsh-desktop/nsis-bootstrap-signing')
+const NSIS_BOOTSTRAP_PATCH = Symbol.for('@deepseek-ai/dsh-desktop/nsis-bootstrap-signing')
 const WINDOWS_SIGN_SCRIPT = 'windows-sign.cmd'
 const WINDOWS_SIGN_SCRIPT_DIRECTORY = dirname(fileURLToPath(import.meta.url))
 const PE_HEADER_READ_SIZE = 4096
@@ -135,7 +135,9 @@ export function createRedactedWindowsSigningError(error, path, secrets) {
   const stderr = record !== undefined && 'stderr' in record
     ? redactedSigningOutput(record.stderr, secrets).trim()
     : ''
-  return new Error(`Windows release signing failed for ${path}${code}${stderr === '' ? '' : `: ${stderr}`}`)
+  return new Error(`Windows release signing failed for ${path}${code}${stderr === '' ? '' : `: ${stderr}`}. `
+    + 'Signing stopped. After replacing the UKey, check the certificate, container, SafeNet provider and user PIN. '
+    + 'This error does not establish device lock status or whether PIN retries were consumed; inspect the retained interlock before operator recovery.')
 }
 
 /**

@@ -1,23 +1,24 @@
 /** Messages file-reference admission, bounded recovery and request-wide inline fallback. */
-import type { AnonymousUserId } from '@omega-ai/dsh-anonymous-user-id'
+import type { AnonymousUserId } from '@deepseek-ai/dsh-anonymous-user-id'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { AttachmentId, ImageVariantId } from '@omega-ai/dsh-attachment'
-import type { ImageAttachmentRef, RequestImageAttachment } from '@omega-ai/dsh-attachment'
-import { createAssistantMessage, createToolResultMessage, LlmError, ToolCallId } from '@omega-ai/dsh-llm'
-import { OmegaFileId } from '../src/file-id.ts'
-import { OmegaFileStore } from '../src/file-store.ts'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { AttachmentId, ImageVariantId } from '@deepseek-ai/dsh-attachment/types'
+import type { ImageAttachmentRef, RequestImageAttachment } from '@deepseek-ai/dsh-attachment'
+import { createAssistantMessage, createToolResultMessage, LlmError, type ToolCallId } from '@deepseek-ai/dsh-llm'
+import type { DeepSeekFileId } from '../src/file-id.ts'
+import { DeepSeekFileStore } from '../src/file-store.ts'
 import { resolveAdapterOptions } from '../src/config.ts'
 import type { Options as Config } from '../src/config.ts'
-import { OmegaAdapter } from '../src/adapter.ts'
+import { DeepSeekAdapter } from '../src/adapter.ts'
 import { prepareImages } from '../src/images.ts'
 import { providerErrorDetail } from '../src/transport.ts'
 import { chunks, options, prepareExtensions, sse, textEvents, user, requestImageStore } from './helpers.ts'
 
-const model = 'omega-flash'
-const ref: ImageAttachmentRef = { attachmentId: AttachmentId(`sha256:${'a'.repeat(64)}`), width: 1, height: 1, mediaType: 'image/png', bytes: 3 }
-const second = { ...ref, attachmentId: AttachmentId(`sha256:${'c'.repeat(64)}`) }
+const model = 'deepseek-flash'
+const ref: ImageAttachmentRef = { attachmentId: brandString<AttachmentId>(`sha256:${'a'.repeat(64)}`), width: 1, height: 1, mediaType: 'image/png', bytes: 3 }
+const second = { ...ref, attachmentId: brandString<AttachmentId>(`sha256:${'c'.repeat(64)}`) }
 const version = (attachment: ImageAttachmentRef): RequestImageAttachment => ({
-  attachment, variantId: ImageVariantId(`sha256:${(attachment === ref ? 'b' : 'd').repeat(64)}`),
+  attachment, variantId: brandString<ImageVariantId>(`sha256:${(attachment === ref ? 'b' : 'd').repeat(64)}`),
   data: Uint8Array.of(1, 2, 3), bytes: 3, mediaType: 'image/png', width: 1, height: 1, depth: 'uchar', space: 'srgb', hasAlpha: false,
 })
 const request = (refs = [ref]) => options({ model, messages: [{ ...user(), content: refs.map(attachment => ({ type: 'image' as const, attachment })) }] })
@@ -27,23 +28,20 @@ function body(init: RequestInit | undefined): string {
   return init.body
 }
 const rejected = (message: string, status = 400) => new Response(JSON.stringify({ error: { type: 'invalid_request_error', message } }), { status })
-function harness(config: Config = {}) {
-  const ensureUploaded = vi.fn<OmegaFileStore['ensureUploaded']>(async image => ({
-    record: { fileId: OmegaFileId(image.attachment.attachmentId === ref.attachmentId ? 'file-a' : 'file-b') }, uploaded: false,
-  } as Awaited<ReturnType<OmegaFileStore['ensureUploaded']>>))
-  const invalidate = vi.fn<OmegaFileStore['invalidate']>(async () => {})
-  const files = Object.assign(new OmegaFileStore(), { ensureUploaded, invalidate })
+function harness(config: Config = {}, revoked?: AbortSignal) {
+  const ensureUploaded = vi.fn<DeepSeekFileStore['ensureUploaded']>(async image => ({
+    record: { fileId: brandString<DeepSeekFileId>(image.attachment.attachmentId === ref.attachmentId ? 'file-a' : 'file-b') }, uploaded: false,
+  } as Awaited<ReturnType<DeepSeekFileStore['ensureUploaded']>>))
+  const invalidate = vi.fn<DeepSeekFileStore['invalidate']>(async () => {})
+  const files = Object.assign(new DeepSeekFileStore(), { ensureUploaded, invalidate })
   const readImageRequest = vi.fn(async (attachment: ImageAttachmentRef) => version(attachment))
   // The codec and remote upload are the expensive boundaries; request projection and recovery stay real.
   const attachments = requestImageStore(readImageRequest)
   const prepare = vi.fn(prepareExtensions)
-  const adapter = new OmegaAdapter({
-    // The catalog ships empty, so the harness supplies the vision capability the file tests exercise.
-    options: () => resolveAdapterOptions(Object.assign({
-      baseURL: 'https://gateway.example/custom',
-      models: [{ id: model, inputModalities: ['text', 'image'] }],
-    }, config)),
-    resolveAuth: async () => ({ headers: { 'x-api-key': 'test-key' } }), resolveUserId: () => 'test-user' as AnonymousUserId, resolveAttachments: () => attachments,
+  const adapter = new DeepSeekAdapter({
+    options: () => resolveAdapterOptions(Object.assign({ baseURL: 'https://gateway.example/custom' }, config)),
+    resolveAuth: async () => ({ headers: { 'x-api-key': 'test-key' }, ...revoked === undefined ? {} : { revoked } }),
+    resolveUserId: () => 'test-user' as AnonymousUserId, resolveAttachments: () => attachments,
     resolveImageAccess: () => ({ readonlyPath: '/workspace/image.png' }), resolveFiles: () => files, prepareExtensions: prepare,
   })
   return { adapter, ensureUploaded, invalidate, readImageRequest, prepare }
@@ -51,16 +49,73 @@ function harness(config: Config = {}) {
 afterEach(() => { vi.unstubAllGlobals() })
 
 describe('Messages Files requests', () => {
+  it.each([undefined, 1] as const)('bounds concurrent uploads and preserves wire order with concurrency %s', async (limit) => {
+    const fetchImpl = vi.fn<typeof fetch>(async () => success())
+    vi.stubGlobal('fetch', fetchImpl)
+    const h = harness(limit === undefined ? {} : { fileUploadConcurrency: limit })
+    const images = ['a', 'b', 'c', 'd'].map(digit => ({ ...ref, attachmentId: brandString<AttachmentId>(`sha256:${digit.repeat(64)}`) }))
+    const gates = images.map(() => ({ started: Promise.withResolvers<undefined>(), finish: Promise.withResolvers<undefined>() }))
+    const resolve = h.ensureUploaded.getMockImplementation()!
+    h.ensureUploaded.mockImplementation(async (...args) => {
+      const index = images.indexOf(args[0].attachment)
+      gates[index]!.started.resolve(undefined)
+      await gates[index]!.finish.promise
+      const result = await resolve(...args)
+      return { ...result, record: { ...result.record, fileId: brandString<DeepSeekFileId>(`file-${index}`) } }
+    })
+    const stream = chunks(h.adapter.stream(request([...images, images[0]!])))
+    const parallel = limit ?? 3
+    try {
+      await gates[parallel - 1]!.started.promise
+      expect(h.ensureUploaded).toHaveBeenCalledTimes(parallel)
+      gates[parallel - 1]!.finish.resolve(undefined)
+      await gates[parallel]!.started.promise
+    } finally {
+      for (const gate of gates) gate.finish.resolve(undefined)
+      await stream
+    }
+    expect(h.ensureUploaded).toHaveBeenCalledTimes(4)
+    expect([...body(fetchImpl.mock.calls[0]![1]).matchAll(/"file_id":"(file-\d+)"/gu)].map(match => match[1]))
+      .toEqual(['file-0', 'file-1', 'file-2', 'file-3', 'file-0'])
+  })
+
+  it('cancels sibling uploads and leaves queued images for inline fallback', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () => success())
+    vi.stubGlobal('fetch', fetchImpl)
+    const h = harness()
+    const images = ['a', 'b', 'c', 'd'].map(digit => ({ ...ref, attachmentId: brandString<AttachmentId>(`sha256:${digit.repeat(64)}`) }))
+    const aborted = Promise.withResolvers<undefined>()
+    const succeed = h.ensureUploaded.getMockImplementation()!
+    h.ensureUploaded
+      .mockRejectedValueOnce(new Error('offline'))
+      .mockImplementationOnce(async (...args) => {
+        await aborted.promise
+        return succeed(...args)
+      })
+      .mockImplementationOnce(async (_version, _connection, _policy, signal) => new Promise((_resolve, reject) => {
+        signal!.addEventListener('abort', () => {
+          aborted.resolve(undefined)
+          reject(new Error('cancelled'))
+        }, { once: true })
+      }))
+    await chunks(h.adapter.stream(request(images)))
+    expect(h.ensureUploaded).toHaveBeenCalledTimes(3)
+    expect(body(fetchImpl.mock.calls[0]![1]).match(/"type":"base64"/gu)).toHaveLength(4)
+  })
+
   it('keeps nested tool-result images in order and sends only Files ids with the beta header', async () => {
     const fetchImpl = vi.fn<typeof fetch>(async () => success())
     vi.stubGlobal('fetch', fetchImpl)
     const h = harness()
-    const callId = ToolCallId('image-tool')
-    const messages = [user(), createAssistantMessage({ source: { provider: 'omega-official', model }, content: [{ type: 'tool-call', id: callId, name: 'read_image', arguments: '{}' }] }),
+    const callId = brandString<ToolCallId>('image-tool')
+    const messages = [user(), createAssistantMessage({ source: { provider: 'deepseek-official', model }, content: [{ type: 'tool-call', id: callId, name: 'read_image', arguments: '{}' }] }),
       createToolResultMessage({ callId, isError: false, content: [{ type: 'image', attachment: ref }, { type: 'image', attachment: ref }] })]
     await chunks(h.adapter.stream(options({ model, messages })))
     expect(h.readImageRequest).toHaveBeenCalledTimes(1)
-    expect(h.ensureUploaded).toHaveBeenCalledWith(expect.anything(), { baseURL: 'https://gateway.example/custom', headers: { 'x-api-key': 'test-key' } }, expect.anything(), expect.any(AbortSignal))
+    expect(h.ensureUploaded).toHaveBeenCalledWith(
+      expect.anything(), { baseURL: 'https://gateway.example/custom', headers: { 'x-api-key': 'test-key' } },
+      expect.anything(), expect.any(AbortSignal), expect.any(Object),
+    )
     const [url, init] = fetchImpl.mock.calls[0]!
     expect(url).toBe('https://gateway.example/custom/v1/messages')
     expect(new Headers(init?.headers).get('anthropic-beta')).toBe('files-api-2025-04-14')
@@ -107,7 +162,7 @@ describe('Messages Files requests', () => {
     vi.stubGlobal('fetch', fetchImpl)
     const h = harness()
     h.ensureUploaded
-      .mockResolvedValueOnce({ record: { fileId: OmegaFileId('file-a') }, uploaded: true } as Awaited<ReturnType<OmegaFileStore['ensureUploaded']>>)
+      .mockResolvedValueOnce({ record: { fileId: brandString<DeepSeekFileId>('file-a') }, uploaded: true } as Awaited<ReturnType<DeepSeekFileStore['ensureUploaded']>>)
       .mockRejectedValueOnce(new LlmError('quota exhausted', 'FILES_API'))
     await chunks(h.adapter.stream(request([ref, second])))
     const init = fetchImpl.mock.calls[0]?.[1]
@@ -146,7 +201,7 @@ describe('Messages Files requests', () => {
     const images = [{ type: 'image' as const, attachment: ref, offloaded: true as const }, { type: 'image' as const, attachment: second }]
     await chunks(h.adapter.stream(options({ model, messages: [{ ...user(), content: images }] })))
     expect(h.readImageRequest).toHaveBeenCalledExactlyOnceWith(second, expect.anything(), expect.any(AbortSignal))
-    expect(h.adapter.imageRequestPricing('omega-official', model).priceImages(images).map(image => image.visualTokens)).toEqual([0, expect.any(Number)])
+    expect(h.adapter.imageRequestPricing('deepseek-official', model).priceImages(images).map(image => image.visualTokens)).toEqual([0, expect.any(Number)])
   })
 
   it.each([
@@ -173,7 +228,7 @@ describe('Messages Files requests', () => {
   })
 
   it('projects nested logged offloads without an attachment service or a vision model', async () => {
-    const messages = [createToolResultMessage({ callId: ToolCallId('offloaded'), isError: false, content: [
+    const messages = [createToolResultMessage({ callId: brandString<ToolCallId>('offloaded'), isError: false, content: [
       { type: 'image', attachment: ref, offloaded: true },
     ] })]
     const prepared = await prepareImages(messages, resolveAdapterOptions({}), 'text-model', undefined,
@@ -209,6 +264,23 @@ describe('Messages Files requests', () => {
     controller.abort()
     await result
     expect(fetchImpl).toHaveBeenCalledTimes(1)
+  })
+
+  it('ends a pending upload with its withdrawn credential and sends no request', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () => success())
+    vi.stubGlobal('fetch', fetchImpl)
+    const withdrawn = new AbortController()
+    const h = harness({}, withdrawn.signal)
+    const uploading = Promise.withResolvers<undefined>()
+    h.ensureUploaded.mockImplementation(async (_version, _connection, _policy, signal) => new Promise((_resolve, reject) => {
+      signal!.addEventListener('abort', () => { reject(new Error('upload aborted', { cause: signal!.reason })) }, { once: true })
+      uploading.resolve(undefined)
+    }))
+    const result = expect(chunks(h.adapter.stream(request()))).rejects.toMatchObject({ code: 'TRANSPORT' })
+    await uploading.promise
+    withdrawn.abort()
+    await result
+    expect(fetchImpl).not.toHaveBeenCalled()
   })
 
   it('classifies Files recovery only from provider error fields', () => {

@@ -1,13 +1,13 @@
 /**
  * Model-facing UTF-8 read. It performs one provider stat for type, routing, and observed version,
  * streams large or size-unknown files, renders a bounded window, then emits the observation.
- * @module @omega-ai/dsh-tool-fs/src/read
+ * @module @deepseek-ai/dsh-tool-fs/src/read
  */
 
-import type { Context } from '@omega-ai/cordis'
-import { defineTool } from '@omega-ai/dsh-tools'
-import type { GenericCallView, ReadResultView, ToolResult } from '@omega-ai/dsh-tools'
-import type {} from '@omega-ai/dsh-fs'
+import type { Context } from '@deepseek-ai/cordis'
+import { ToolArgsError, defineTool } from '@deepseek-ai/dsh-tools'
+import type { GenericCallView, ReadResultView, ToolResult } from '@deepseek-ai/dsh-tools'
+import type {} from '@deepseek-ai/dsh-fs'
 import { buildWindow, formatReadOutput, langFromPath, readMetaFromMeta } from './read-render.ts'
 import { resolveRegularReadTarget } from './read-target.ts'
 
@@ -41,7 +41,7 @@ interface ReadInput {
 
 function parsePositiveInteger(value: number, name: string): number {
   if (!Number.isFinite(value) || !Number.isInteger(value) || value < 1) {
-    throw new Error(`${name} must be a positive integer`)
+    throw new ToolArgsError([`${name} must be a positive integer`])
   }
   return value
 }
@@ -53,10 +53,10 @@ function parsePositiveInteger(value: number, name: string): number {
  * @returns the validated input with `offset` defaulted to 1 and `limit` to `maxLimit`.
  */
 export function parseReadArgs(args: { file_path: string; offset?: number; limit?: number }, maxLimit: number): ReadInput {
-  if (args.file_path.trim().length === 0) throw new Error('file_path must be a non-empty string')
+  if (args.file_path.trim().length === 0) throw new ToolArgsError(['file_path must be a non-empty string'])
   const offset = args.offset === undefined ? 1 : parsePositiveInteger(args.offset, 'offset')
   const limit = args.limit === undefined ? maxLimit : parsePositiveInteger(args.limit, 'limit')
-  if (limit > maxLimit) throw new Error(`limit must be less than or equal to ${maxLimit}`)
+  if (limit > maxLimit) throw new ToolArgsError([`limit must be less than or equal to ${maxLimit}`])
   return { filePath: args.file_path, offset, limit }
 }
 
@@ -71,7 +71,7 @@ export function applyReadTool(ctx: Context, caps: ReadToolCaps): void {
     order: ctx.systemPrompt.getSectionOrder('TOOL_READ'),
     text: ({ scope }) => ctx.tools.get('read', scope) === undefined
       ? ''
-      : 'Use the read tool — not shell commands like cat — to inspect text files. Use offset and limit to continue reading large files.',
+      : 'Use the read tool — not shell commands like cat, sed, head, or tail — to inspect text files. Use offset and limit to read a line range or continue a large file.',
   })
 
   ctx.tools.register(defineTool({
@@ -87,7 +87,7 @@ export function applyReadTool(ctx: Context, caps: ReadToolCaps): void {
         type: 'object',
         additionalProperties: false,
         properties: {
-          path: { type: 'string', required: true },
+          path: { type: 'string', required: true, description: 'Canonical absolute path in the filesystem execution world.' },
           offset: { type: 'integer', required: true },
           lines: {
             type: 'array',
@@ -152,7 +152,7 @@ export function applyReadTool(ctx: Context, caps: ReadToolCaps): void {
       )
 
       const outcome = {
-        path: target.displayPath,
+        path: ctx.fs.processPath(target),
         offset: input.offset,
         lines: window.lines,
         totalLines: window.totalLines,

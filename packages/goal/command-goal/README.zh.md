@@ -3,7 +3,7 @@ description: "面向在 UI 命令平面中选择、组合或排查 goal 控制�
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-command-goal
+# @deepseek-ai/dsh-command-goal
 
 [English](README.md) | 中文
 
@@ -54,11 +54,11 @@ kind: "package-reference"
 
 ```yaml
 - id: commands
-  name: '@omega-ai/dsh-commands'
+  name: '@deepseek-ai/dsh-commands'
 - id: goal
-  name: '@omega-ai/dsh-goal'
+  name: '@deepseek-ai/dsh-goal'
 - id: command-goal
-  name: '@omega-ai/dsh-command-goal'
+  name: '@deepseek-ai/dsh-command-goal'
 ```
 
 随附的 `dsh` 基础配置启用持久 goal 栈与此命令。Web bundle 把 goal 服务与 driver 保留在 Host，禁用基础命令 producer，并在 `standard`、`code` 和 `cordis` agent preset 中挂载 producer；`minimal` 会省略它。ACP（Agent Client Protocol）自动化应用启用领域与模型工具，但不挂载命令适配器。独立的 `sdk-minimal` profile 省略完整 goal 栈，因此其结果 API 仍在一个关联的物理轮次后结束。
@@ -76,7 +76,7 @@ kind: "package-reference"
 ### 设计
 
 - **语法，而非自由文本。** 解析器只在控制词（`clear`、`pause`、`resume`、`edit`）填满整个输入时识别它们；其他任何非空后缀都是目标。单独的 `edit` 无效，且 `edit` 拒绝直接替换未完成的 goal。
-- **领域拒绝变成稳定错误。** `GoalError` 结果会转换为带固定消息的直接命令错误；意外失败会重新抛出，使适配器报告命令失败而非领域结果。渲染输出绝不暴露带品牌类型的 id 或 revision。
+- **领域拒绝变成稳定错误。** 除 `GOAL_STATE_CORRUPT` 外的 `GoalError` 结果会转换为带固定消息的直接命令错误；goal 状态损坏与意外失败会重新抛出，使适配器报告命令失败而非领域结果。渲染输出绝不暴露带品牌类型的 id 或 revision。
 - **附件随目标提交。** create 或 edit 成功时，命令提交一条用户 followup 消息，按选择顺序携带已准入的图片块与文件块，再附加固定文本 `Reference attachments for the goal objective.`。其他路径不提交消息，因此分发方 composer 保留草稿和附件卡。
 
 ### 源码地图

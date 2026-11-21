@@ -7,7 +7,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { request as httpRequest } from 'node:http'
 import type { IncomingHttpHeaders } from 'node:http'
-import { resolveExampleLaunch } from '@omega-ai/dsh-loader-smoke'
+import { resolveExampleLaunch } from '@deepseek-ai/dsh-loader-smoke'
 import ts from 'typescript'
 import { expect } from 'vitest'
 import type { TestContext } from 'vitest'
@@ -55,7 +55,7 @@ export async function withDefaultWeb(
     await writeFile(patch, JSON.stringify([{ insert: [{
       id: 'runtime-roster-observer',
       name: pathToFileURL(join(root, 'fixtures/runtime-roster-observer.js')).href,
-      config: { negativeControl: pathToFileURL(join(repoRoot, 'packages/experimental/client-ui-agent-team/lib/index.js')).href },
+      config: { negativeControl: pathToFileURL(join(repoRoot, 'packages/experimental/client-ui-voice-input/lib/index.js')).href },
     }] }]) + '\n')
     const launch = resolveExampleLaunch({
       srcBin: join(repoRoot, 'apps/cli/src/bin.ts'),
@@ -71,7 +71,7 @@ export async function withDefaultWeb(
         DSH_HOME: join(root, 'home'),
         DSH_AGENTS_HOME: join(root, '.agents'),
         DSH_TELEMETRY_DISABLED: '1',
-        OMEGA_API_KEY: 'keyless-default-web-no-call',
+        DEEPSEEK_API_KEY: 'keyless-default-web-no-call',
         NODE_NO_WARNINGS: '1',
       },
     })

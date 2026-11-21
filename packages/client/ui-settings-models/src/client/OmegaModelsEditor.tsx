@@ -1,30 +1,23 @@
 /**
- * Curated editor for the direct Omega adapter's advisory model catalog.
+ * Curated editor for the direct DeepSeek adapter's advisory model catalog.
  * The settings layer replaces `models` as one array, so the parent supplies
  * the effective inherited rows until the first edit materializes a user
  * override; reset removes that override instead of copying defaults into it.
  */
 
-import { useState } from 'react'
 import type { ReactNode } from 'react'
-import { IconPlusOutlineRegular } from '@omega-ai/dsh-client-ui-primitives'
+import { AnimatedRows, IconPlusOutlineRegular } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { en } from './locales.ts'
 import { ModelRow } from './ModelRow.tsx'
+import { useModelRows } from './useModelRows.ts'
+import type { CapacityField } from './useModelRows.ts'
 import styles from './ModelsSection.module.css'
 
 /** One catalog entry kept structurally open so hidden or future fields survive an edit. */
-export type OmegaModelDraft = Record<string, unknown>
+export type DeepSeekModelDraft = Record<string, unknown>
 
 /** The catalog fields this editor writes. */
 type CatalogField = 'id' | 'name' | 'contextWindow' | 'maxTokens'
-
-/** The two token counts edited as K/M-suffixed text behind a row's disclosure. */
-type CapacityField = 'contextWindow' | 'maxTokens'
-
-/** Row index encoded in an editing-buffer key. */
-function rowOf(key: string): number {
-  return Number(key.slice(0, key.indexOf(':')))
-}
 
 /** Accepted capacity spellings: a decimal count with an optional K/M suffix. */
 const CAPACITY_PATTERN = /^(\d+(?:\.\d+)?)([km])?$/i
@@ -37,7 +30,7 @@ const CAPACITY_SCALE = { k: 1_000, m: 1_000_000 } as const
  * zeroes. The stored value stays a plain token count.
  * @param text - raw field text.
  * @returns the count; `undefined` when blank (inherit), `NaN` when unreadable
- * (rejected by {@link validateOmegaModels} before any write).
+ * (rejected by {@link validateDeepSeekModels} before any write).
  */
 export function parseCapacity(text: string): number | undefined {
   const trimmed = text.trim()
@@ -68,7 +61,7 @@ export function formatCapacity(value: number): string {
 }
 
 /** A localized validation failure for one user-owned model array. */
-export interface OmegaModelsValidationFailure {
+export interface DeepSeekModelsValidationFailure {
   /** Zero-based model position. */
   index: number
   /** Message key owned by the Models settings section. */
@@ -77,11 +70,11 @@ export interface OmegaModelsValidationFailure {
 }
 
 /** Convert a schema-validated catalog value into records without dropping hidden fields. */
-export function modelDrafts(value: unknown): OmegaModelDraft[] {
+export function modelDrafts(value: unknown): DeepSeekModelDraft[] {
   if (!Array.isArray(value)) return []
   return value.map(entry =>
     typeof entry === 'object' && entry !== null && !Array.isArray(entry)
-      ? entry as OmegaModelDraft
+      ? entry as DeepSeekModelDraft
       : {})
 }
 
@@ -90,7 +83,7 @@ export function modelDrafts(value: unknown): OmegaModelDraft[] {
  * @param value - user-owned `models` value, or undefined while inherited.
  * @returns the first invalid row, or undefined when the adapter will accept it.
  */
-export function validateOmegaModels(value: unknown): OmegaModelsValidationFailure | undefined {
+export function validateDeepSeekModels(value: unknown): DeepSeekModelsValidationFailure | undefined {
   if (value === undefined) return undefined
   const models = modelDrafts(value)
   const seen = new Set<string>()
@@ -121,10 +114,10 @@ export function validateOmegaModels(value: unknown): OmegaModelsValidationFailur
   return undefined
 }
 
-/** Props of {@link OmegaModelsEditor}. */
-export interface OmegaModelsEditorProps {
+/** Props of {@link DeepSeekModelsEditor}. */
+export interface DeepSeekModelsEditorProps {
   /** Effective rows: inherited until the parent materializes an override. */
-  models: readonly OmegaModelDraft[]
+  models: readonly DeepSeekModelDraft[]
   /** Whether the user layer currently owns the whole array. */
   overridden: boolean
   /** Fallback context capacity used when a row omits its exact value. */
@@ -136,31 +129,19 @@ export interface OmegaModelsEditorProps {
   /** Disable every mutation. */
   disabled: boolean
   /** Replace the user-owned array after one visible edit. */
-  onChange: (models: OmegaModelDraft[]) => void
+  onChange: (models: DeepSeekModelDraft[]) => void
   /** Remove the user-owned array and return to inheritance. */
   onReset: () => void
 }
 
 /**
- * Render the direct Omega adapter's model catalog: id and display name on
+ * Render the direct DeepSeek adapter's model catalog: id and display name on
  * each row, capacities and input types behind the row's own disclosure.
  * @param props - effective rows plus the array-level override actions.
  * @returns the catalog editor.
  */
-export function OmegaModelsEditor(props: OmegaModelsEditorProps): ReactNode {
-  // Capacities are edited as text, so a field's keystrokes are held here
-  // rather than re-derived from the parsed count on every change, which would
-  // rewrite `1000` to `1K` mid-word. Unreadable text is kept past blur so the
-  // save-time rejection names a row the user can still see — which is why
-  // this is one entry PER FIELD: a single active buffer would be displaced by
-  // editing any other field, and the abandoned one would fall back to
-  // rendering its stored NaN as the literal `NaN`.
-  //
-  // Keys carry the row index, so the two operations that move indexes maintain
-  // them: `remove` re-keys around the dropped row, and reset clears them all
-  // because the rows they annotated are gone.
-  const [editing, setEditing] = useState<ReadonlyMap<string, string>>(() => new Map())
-  const [expanded, setExpanded] = useState<ReadonlySet<number>>(() => new Set())
+export function DeepSeekModelsEditor(props: DeepSeekModelsEditorProps): ReactNode {
+  const rowState = useModelRows(props.models, props.onChange, props.disabled)
 
   const update = (index: number, key: CatalogField, value: unknown): void => {
     const next = props.models.map((model, at) => {
@@ -174,71 +155,40 @@ export function OmegaModelsEditor(props: OmegaModelsEditorProps): ReactNode {
   }
 
   const remove = (index: number): void => {
-    setEditing((current) => {
-      const next = new Map<string, string>()
-      for (const [key, text] of current) {
-        const at = rowOf(key)
-        if (at === index) continue
-        // Only the row number moves; the field half of the key is untouched.
-        next.set(at > index ? key.replace(/^\d+/, String(at - 1)) : key, text)
-      }
-      return next
-    })
-    setExpanded((current) => {
-      const next = new Set<number>()
-      for (const at of current) {
-        if (at === index) continue
-        next.add(at > index ? at - 1 : at)
-      }
-      return next
-    })
+    rowState.forget(new Set([index]))
     props.onChange(props.models.filter((_model, at) => at !== index).map(model => ({ ...model })))
   }
 
   const reset = (): void => {
-    setEditing(new Map())
-    setExpanded(new Set())
+    rowState.reset()
     props.onReset()
   }
 
-  const toggle = (index: number): void => {
-    setExpanded((current) => {
-      const next = new Set(current)
-      if (!next.delete(index)) next.add(index)
-      return next
-    })
-  }
-
   /** The field's text: its live keystrokes, else the stored count spelled short. */
-  const capacityText = (model: OmegaModelDraft, index: number, field: CapacityField): string => {
-    const typed = editing.get(`${String(index)}:${field}`)
+  const capacityText = (model: DeepSeekModelDraft, index: number, field: CapacityField): string => {
+    const typed = rowState.rows[index]?.editing.get(field)
     if (typed !== undefined) return typed
     const value = model[field]
     return typeof value === 'number' ? formatCapacity(value) : ''
   }
 
   const settleCapacity = (index: number, field: CapacityField): void => {
-    const key = `${String(index)}:${field}`
-    const typed = editing.get(key)
+    const typed = rowState.rows[index]?.editing.get(field)
     if (typed === undefined) return
     // Unreadable text stays on screen: the save-time rejection names a row the
     // user can still see and correct.
     const parsed = parseCapacity(typed)
     if (parsed !== undefined && Number.isNaN(parsed)) return
-    setEditing((current) => {
-      const next = new Map(current)
-      next.delete(key)
-      return next
-    })
+    rowState.edit(index, field, undefined)
   }
 
-  const capacityInput = (model: OmegaModelDraft, index: number, field: CapacityField, fallback: number | undefined) => ({
+  const capacityInput = (model: DeepSeekModelDraft, index: number, field: CapacityField, fallback: number | undefined) => ({
     value: capacityText(model, index, field),
     placeholder: fallback === undefined
       ? props.t(field === 'contextWindow' ? 'contextWindowPlaceholder' : 'maxTokensPlaceholder')
       : formatCapacity(fallback),
     onChange: (text: string) => {
-      setEditing(current => new Map(current).set(`${String(index)}:${field}`, text))
+      rowState.edit(index, field, text)
       update(index, field, parseCapacity(text))
     },
     onBlur: () => { settleCapacity(index, field) },
@@ -266,33 +216,32 @@ export function OmegaModelsEditor(props: OmegaModelsEditorProps): ReactNode {
           )
           : null}
       </div>
-      {props.models.length === 0
-        ? <p className={styles['modelEmpty']}>{props.t('modelsEmpty')}</p>
-        : (
-          <div className={styles['modelList']}>
-            {props.models.map((model, index) => (
-              <ModelRow
-                key={index}
-                model={model}
-                position={index + 1}
-                inputField="inputModalities"
-                expanded={expanded.has(index)}
-                disabled={props.disabled}
-                t={props.t}
-                contextWindow={capacityInput(model, index, 'contextWindow', props.defaultContextWindow)}
-                maxTokens={capacityInput(model, index, 'maxTokens', props.defaultMaxTokens)}
-                onFieldChange={(field, value) => { update(index, field, value) }}
-                onIdBlur={(value) => {
-                  const trimmed = value.trim()
-                  if (trimmed !== value) update(index, 'id', trimmed)
-                }}
-                onChange={(next) => { props.onChange(props.models.map((row, at) => at === index ? next : row)) }}
-                onToggle={() => { toggle(index) }}
-                onRemove={() => { remove(index) }}
-              />
-            ))}
-          </div>
-        )}
+      <AnimatedRows className={styles['modelList'] as string} rowKeys={rowState.rows.map(row => String(row.key))} ready resetKey="">
+        {props.models.length === 0 ? <p className={styles['modelEmpty']}>{props.t('modelsEmpty')}</p> : null}
+        {rowState.rows.map(({ model, key, expanded, order }, index) => (
+          <ModelRow
+            key={key}
+            rowKey={key}
+            order={order}
+            model={model}
+            position={index + 1}
+            inputField="inputModalities"
+            expanded={expanded}
+            disabled={props.disabled}
+            t={props.t}
+            contextWindow={capacityInput(model, index, 'contextWindow', props.defaultContextWindow)}
+            maxTokens={capacityInput(model, index, 'maxTokens', props.defaultMaxTokens)}
+            onFieldChange={(field, value) => { update(index, field, value) }}
+            onIdBlur={(value) => {
+              const trimmed = value.trim()
+              if (trimmed !== value) update(index, 'id', trimmed)
+            }}
+            onChange={(next) => { props.onChange(props.models.map((row, at) => at === index ? next : row)) }}
+            onToggle={() => { rowState.toggle(index) }}
+            onRemove={() => { remove(index) }}
+          />
+        ))}
+      </AnimatedRows>
       <button
         type="button"
         className={styles['addModelButton']}

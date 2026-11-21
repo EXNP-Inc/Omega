@@ -8,11 +8,11 @@
  * invalid or conflicting registration publishes nothing, and its disposer releases every
  * reservation together. Selection routes a query by the file's final extension; it never depends on
  * registration order. The seam exposes exactly the four operations and no JSON-RPC escape hatch.
- * @module @omega-ai/dsh-lsp
+ * @module @deepseek-ai/dsh-lsp
  */
 
-import { Context, Service } from '@omega-ai/cordis'
-import { HarnessError } from '@omega-ai/dsh-llm'
+import { Context, Service } from '@deepseek-ai/cordis'
+import { HarnessError } from '@deepseek-ai/dsh-llm'
 import type { LspProviderId } from './brand.ts'
 import type {
   LspProvider,
@@ -35,19 +35,30 @@ export type {
   LspService,
 } from './types.ts'
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
     lsp: LspService
   }
 }
 
 /**
- * Structured LSP failure. Extends {@link HarnessError} with a stable `code`
- * (`LSP_INVALID_PROVIDER`, `LSP_CONFLICT`, `LSP_UNAVAILABLE`, `LSP_DISPOSED`,
- * `LSP_UNSUPPORTED_OPERATION`, `LSP_MALFORMED_RESPONSE`, …) that callers route on instead of
- * parsing `message`.
+ * Structured LSP failure. Extends {@link HarnessError} with a stable `code` that callers route on
+ * instead of parsing `message`. The seam raises `LSP_INVALID_PROVIDER`, `LSP_CONFLICT`, and
+ * `LSP_UNAVAILABLE`; providers raise `LSP_DISPOSED`, `LSP_UNSUPPORTED_OPERATION`, and
+ * `LSP_MALFORMED_RESPONSE`. Providers and consumers add their own documented codes, so `code`
+ * stays open and consumers tolerate codes they do not know.
  */
-export class LspError extends HarnessError {}
+export class LspError extends HarnessError {
+  /**
+   * @param message - actionable description of the failure.
+   * @param code - stable failure code.
+   * @param options - the underlying failure, when one exists.
+   */
+  constructor(message: string, code: string, options?: ErrorOptions) {
+    super(message, code, options)
+    this.name = 'LspError'
+  }
+}
 
 /**
  * Extract a file's final extension as a normalized, lowercase, leading-dot key (e.g. `Foo.TS` →

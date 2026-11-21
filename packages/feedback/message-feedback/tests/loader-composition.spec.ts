@@ -3,14 +3,15 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import Include from '@omega-ai/cordis-plugin-include'
-import Loader from '@omega-ai/cordis-plugin-loader'
-import SessionStore, { SessionId } from '@omega-ai/dsh-session'
-import JsonlSessionPersistence from '@omega-ai/dsh-session-persistence-jsonl'
-import { remoteMethods } from '@omega-ai/dsh-typert-protocol'
+import { Context } from '@deepseek-ai/cordis'
+import Include from '@deepseek-ai/cordis-plugin-include'
+import Loader from '@deepseek-ai/cordis-plugin-loader'
+import SessionStore, { type SessionId } from '@deepseek-ai/dsh-session'
+import * as JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
+import { remoteMethods } from '@deepseek-ai/dsh-typert-protocol'
 import MessageFeedbackService from '../src/index.ts'
 import { appendMessageFixture } from './helpers.ts'
+import { brandString } from '@deepseek-ai/dsh-brand'
 
 let root: string | undefined
 const contexts: Context[] = []
@@ -27,9 +28,9 @@ async function loadComposition(configPath: string): Promise<Context> {
   await ctx.plugin(Loader)
   ctx.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
-    ['@omega-ai/dsh-session', SessionStore],
-    ['@omega-ai/dsh-session-persistence-jsonl', JsonlSessionPersistence],
-    ['@omega-ai/dsh-message-feedback', MessageFeedbackService],
+    ['@deepseek-ai/dsh-session', SessionStore],
+    ['@deepseek-ai/dsh-session-persistence-jsonl', JsonlSessionPersistence],
+    ['@deepseek-ai/dsh-message-feedback', MessageFeedbackService],
   ])
   ctx.loader.internal = {
     version: 'v2',
@@ -55,12 +56,12 @@ describe('message feedback through a real Loader composition', () => {
     root = await mkdtemp(join(tmpdir(), 'dsh-message-feedback-loader-'))
     const configPath = join(root, 'cordis.yml')
     await writeFile(configPath, [
-      "- name: '@omega-ai/dsh-session'",
-      "- name: '@omega-ai/dsh-session-persistence-jsonl'",
+      "- name: '@deepseek-ai/dsh-session'",
+      "- name: '@deepseek-ai/dsh-session-persistence-jsonl'",
       '  config:',
       `    root: ${JSON.stringify(join(root, 'sessions'))}`,
       '    compression: none',
-      "- name: '@omega-ai/dsh-message-feedback'",
+      "- name: '@deepseek-ai/dsh-message-feedback'",
       '  config:',
       '    maxNoteBytes: 32',
       '',
@@ -71,7 +72,7 @@ describe('message feedback through a real Loader composition', () => {
     expect(remoteMethods(first.messageFeedback).map(marker => marker.method))
       .toEqual(['list', 'put', 'delete'])
 
-    const unowned = first.sessions.create(SessionId('unowned-feedback'))
+    const unowned = first.sessions.create(brandString<SessionId>('unowned-feedback'))
     const unownedFixture = appendMessageFixture(unowned)
     const unownedRequest = {
       sessionId: unowned.id, messageId: unownedFixture.assistantMessageIds[0], rating: 'positive' as const, ifVersion: null,
@@ -84,7 +85,7 @@ describe('message feedback through a real Loader composition', () => {
     await expect(first.messageFeedback.put({ ...unownedRequest, ifVersion: unownedItems.value.items[0]!.version }))
       .rejects.toThrow(/not found/u)
 
-    const session = first.sessions.create(SessionId('loader-feedback'), {
+    const session = first.sessions.create(brandString<SessionId>('loader-feedback'), {
       meta: { cwd: root },
     })
     // The mounted backend routes this published session's `session/event`

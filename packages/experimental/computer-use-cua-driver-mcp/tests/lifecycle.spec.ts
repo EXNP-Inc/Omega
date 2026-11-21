@@ -1,10 +1,12 @@
 /** The external MCP process is replaced by barriers to pin disposal ordering. */
+import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import ComputerUse from '@omega-ai/dsh-computer-use'
-import { ComputerUseProviderName } from '@omega-ai/dsh-computer-use/brand'
-import SystemPrompt from '@omega-ai/dsh-system-prompt'
-import ToolRuntime from '@omega-ai/dsh-tools'
+import { Context } from '@deepseek-ai/cordis'
+import ComputerUse from '@deepseek-ai/dsh-computer-use'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { ComputerUseProviderName } from '@deepseek-ai/dsh-computer-use/types'
+import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
+import ToolRuntime from '@deepseek-ai/dsh-tools'
 
 const fake = vi.hoisted(() => ({
   start: vi.fn<() => Promise<void>>(),
@@ -12,8 +14,8 @@ const fake = vi.hoisted(() => ({
   configurations: [] as unknown[],
 }))
 
-vi.mock('@omega-ai/dsh-mcp-client', async (importOriginal) => {
-  const original = await importOriginal<typeof import('@omega-ai/dsh-mcp-client')>()
+vi.mock('@deepseek-ai/dsh-mcp-client', async (importOriginal) => {
+  const original = await importOriginal<typeof import('@deepseek-ai/dsh-mcp-client')>()
   return {
     ...original,
     async apply(ctx: Context, config: unknown) {
@@ -42,6 +44,7 @@ async function context(): Promise<Context> {
   await ctx.plugin(ComputerUse)
   await ctx.plugin(SystemPrompt)
   await ctx.plugin(ToolRuntime)
+  await ctx.plugin(NativeToolExecutor)
   return ctx
 }
 
@@ -56,7 +59,7 @@ describe('installed Cua Driver ownership', () => {
       expect(ctx.computerUse.providerName).toBe('cua-driver-mcp')
       await expect(ctx.plugin(Provider, {})).rejects.toThrow('already registered')
       expect(fake.start).toHaveBeenCalledTimes(1)
-      expect(() => ctx.computerUse.register(ComputerUseProviderName('another-driver'))).toThrow('already registered')
+      expect(() => ctx.computerUse.register(brandString<ComputerUseProviderName>('another-driver'))).toThrow('already registered')
     } finally {
       ready.resolve()
       await first

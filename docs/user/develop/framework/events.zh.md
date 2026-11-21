@@ -85,9 +85,9 @@ waterfall 监听器**必须调用 `next()`**。不调用 `next` 会短路整个�
 Harness 使用 TypeScript 声明合并来为事件提供类型安全：
 
 ```ts
-import '@omega-ai/cordis'
+import '@deepseek-ai/cordis'
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Events {
     'my-plugin/ready': (payload: { id: string }) => void
     'my-plugin/check': (input: string) => boolean | undefined
@@ -101,7 +101,7 @@ declare module '@omega-ai/cordis' {
 
 ## Cordis 事件与会话记录
 
-Harness 的 Cordis 事件遵循 `namespace/action` 命名，例如 `agent/pre-step`、`agent/request`、`agent/request-error`、`tools/result` 和 `session/event`。完整签名与触发模式见[子系统页面](../../../subsystems/core.zh.md)上生成的 `cordis-surface` 区块。
+Harness 的 Cordis 事件遵循 `namespace/action` 命名，例如 `agent/pre-step`、`agent/request-error`、`tools/result` 和 `session/event`。完整签名与触发模式见[子系统页面](../../../subsystems/core.zh.md)上生成的 `cordis-surface` 区块。
 
 `turn/*`、`step/*`、`tool/call`、`tool/result` 和 `compaction/*` 是持久化的会话事件类型，不是同名 Cordis 事件。需要观察它们时，监听 `session/event` 并检查 `event.type`。
 
@@ -121,8 +121,8 @@ export function apply(ctx: Context) {
 这个插件记录工具调用和工具结果：
 
 ```ts
-import type { Context } from '@omega-ai/cordis'
-import '@omega-ai/dsh-tools'
+import type { Context } from '@deepseek-ai/cordis'
+import '@deepseek-ai/dsh-tools'
 
 export const name = 'tool-logger'
 

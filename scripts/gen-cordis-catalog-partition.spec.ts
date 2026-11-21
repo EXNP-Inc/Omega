@@ -128,7 +128,7 @@ describe('cordis-walk scan reach', () => {
     const dir = join(root, 'packages/client/ui-x/src/client')
     mkdirSync(dir, { recursive: true })
     writeFileSync(join(dir, 'index.ts'), [
-      "declare module '@omega-ai/cordis' {",
+      "declare module '@deepseek-ai/cordis' {",
       '  interface Events {',
       "    'x/changed'(): void",
       '  }',
@@ -153,12 +153,12 @@ describe('cordis-walk scan reach', () => {
     // backstop must not stop at the first one, skip the double-quoted legal
     // form, or ignore .tsx sources.
     writeFileSync(join(dir, 'split.ts'), [
-      "declare module '@omega-ai/cordis' {",
+      "declare module '@deepseek-ai/cordis' {",
       '  interface Context {',
       '    first: FirstService',
       '  }',
       '}',
-      'declare module "@omega-ai/cordis" {',
+      'declare module "@deepseek-ai/cordis" {',
       '  interface Events {',
       "    'second/changed'(): void",
       '  }',
@@ -167,7 +167,7 @@ describe('cordis-walk scan reach', () => {
       '',
     ].join('\n'))
     writeFileSync(join(dir, 'view.tsx'), [
-      "declare module '@omega-ai/cordis' {",
+      "declare module '@deepseek-ai/cordis' {",
       '  interface Context {',
       '    fromTsx: TsxService',
       '  }',
@@ -187,15 +187,17 @@ describe('cordis-walk scan reach', () => {
     expect(events).toEqual(['second/changed'])
   })
 
-  it('reads string-literal and identifier member names from an Events merge', () => {
+  it('reads string-literal and identifier service and event names', () => {
     const sf = ts.createSourceFile('x.ts', [
-      "declare module '@omega-ai/cordis' {",
+      "declare module '@deepseek-ai/cordis' {",
       '  interface Events {',
       "    'scope/list'(items: string[]): void",
       '    plain(): void',
       '  }',
       '  interface Context {',
       '    thing: ThingService',
+      "    'connection.authentication': AuthenticationService",
+      '    "connection.other": OtherService',
       '  }',
       '}',
       '',
@@ -206,6 +208,10 @@ describe('cordis-walk scan reach', () => {
       : null
     if (!body) throw new Error('fixture did not parse to a module block')
     expect(eventNameList(body, sf)).toEqual(['scope/list', 'plain'])
-    expect([...contextKeyMap(body, sf)]).toEqual([['thing', 'ThingService']])
+    expect([...contextKeyMap(body, sf)]).toEqual([
+      ['thing', 'ThingService'],
+      ['connection.authentication', 'AuthenticationService'],
+      ['connection.other', 'OtherService'],
+    ])
   })
 })

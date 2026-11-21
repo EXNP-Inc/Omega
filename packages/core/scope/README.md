@@ -3,7 +3,7 @@ description: "The scoped-registration library for plugin authors and maintainers
 kind: "package-library"
 ---
 
-# @omega-ai/dsh-scope
+# @deepseek-ai/dsh-scope
 
 English | [中文](README.zh.md)
 

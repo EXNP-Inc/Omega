@@ -5,10 +5,10 @@
  * here reaches a Host-only symbol, so a Client compilation face reads exactly
  * the signature the Host emits.
  *
- * @module @omega-ai/dsh-credentials/types
+ * @module @deepseek-ai/dsh-credentials/types
  */
 
-import type { Branded } from '@omega-ai/dsh-brand'
+import type { Branded } from '@deepseek-ai/dsh-brand'
 
 /** Nominal reference to one credential: a POSIX-style environment-variable name. */
 export type CredentialRef = Branded<'CredentialRef'>
@@ -60,9 +60,8 @@ export interface GrantRecord {
 export type CredentialRecord = ApiKeyRecord | GrantRecord
 
 /**
- * Source and writability facts for one reference, safe for configuration UIs —
- * never the value. The view has no slot a value could ride in, which is what
- * lets the whole read half cross the Remote wire.
+ * Configuration facts and an optional provider-masked preview for one
+ * reference. The full credential is never part of this view.
  */
 export interface CredentialInfo {
   /** Whether resolving the reference would currently return a value. */
@@ -71,9 +70,11 @@ export interface CredentialInfo {
   source?: string
   /** Whether the active provider can write this reference. */
   writable: boolean
+  /** Provider-generated masked preview of a stored value; never the full value. */
+  masked?: string
 }
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Events {
     /**
      * Committed change to a provider-managed credential source: a `set`, an

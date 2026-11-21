@@ -1,22 +1,23 @@
 /** File association adapter for the shared file/directory opening control. */
 import { useEffect } from 'react'
 import type { ReactNode } from 'react'
-import type { SessionWorkspacePathApplication } from '@omega-ai/dsh-api-session-controller/types'
-import type { ObservableSnapshot } from '@omega-ai/dsh-client-store'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@omega-ai/dsh-client-ui-slots'
-import type {} from '@omega-ai/dsh-client-ui-sidebar-documentpreview/client'
-import type { OpenInAppPathAction, OpenInAppPathFailure } from './open-path.ts'
+import type { SessionWorkspacePathApplication } from '@deepseek-ai/dsh-api-session-controller/types'
+import type { ObservableSnapshot } from '@deepseek-ai/dsh-client-store'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
+import type {} from '@deepseek-ai/dsh-client-ui-sidebar-documentpreview/client'
+import type { OpenInAppPathAction } from './open-path.ts'
+import type { OpenInAppOutcome } from './outcome.ts'
 import { useFileApplications } from './file-applications.ts'
-import { OpenTargetButton } from './OpenTargetButton.tsx'
+import { OpenTargetButton, type OpenTargetReporter } from './OpenTargetButton.tsx'
 import type { NS } from './locales.ts'
 
 /** Desktop availability and the gesture carrier injected into both path controls. */
-export interface OpenPathInjected {
+export interface OpenPathInjected extends OpenTargetReporter {
   hooks: {
     openInAppDesktop: ObservableSnapshot<boolean | null>
   }
   loadDesktop: () => Promise<void>
-  openPath: (path: string, action: OpenInAppPathAction, application?: string) => Promise<OpenInAppPathFailure | null>
+  openPath: (path: string, action: OpenInAppPathAction, application?: string) => Promise<OpenInAppOutcome>
   applications: (path: string, signal: AbortSignal) => Promise<readonly SessionWorkspacePathApplication[] | null>
 }
 
@@ -27,7 +28,7 @@ export type OpenPathActionProps =
   & InjectFace<OpenPathInjected>
 
 /** File inputs shared by the document header and its unpreviewable state. */
-type FileOpenTargetProps = Pick<OpenPathActionProps, 'absolutePath' | 'useOpenInAppDesktop' | 'loadDesktop' | 'openPath' | 'applications' | 't'> & {
+type FileOpenTargetProps = Pick<OpenPathActionProps, 'absolutePath' | 'useOpenInAppDesktop' | 'loadDesktop' | 'openPath' | 'applications' | 'report' | 't'> & {
   empty?: boolean
 }
 
@@ -49,7 +50,7 @@ export function FileOpenTarget(props: FileOpenTargetProps): ReactNode {
       key={props.absolutePath} kind="file" applications={apps} defaultId={apps.find(app => app.default)?.id}
       loading={association.loading} failed={association.failed}
       prominent={props.empty === true} t={props.t}
-      refresh={association.refresh}
+      refresh={association.refresh} report={props.report}
       execute={operation => props.openPath(props.absolutePath, operation.kind === 'reveal' ? 'reveal' : 'open',
         operation.kind === 'application' ? operation.id : undefined)}
     />

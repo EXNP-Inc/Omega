@@ -1,14 +1,14 @@
 {
-  "name": "@omega-ai/dsh-session-log-omega",
-  "description": "Incremental lossless session-log request extension for the official Omega LLM API",
-  "version": "0.2.1-alpha.1",
+  "name": "@deepseek-ai/dsh-session-log-deepseek",
+  "description": "Incremental lossless session-log request extension for the official DeepSeek LLM API",
+  "version": "0.2.2-rc.5",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/omega-ai/omega-harness.git",
-    "directory": "packages/session/session-log-omega"
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/session/session-log-deepseek"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -23,36 +23,42 @@
       "default": "./lib/types/types.js"
     },
     "./src/*": "./src/*",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
+    "locale/*.json",
     "lib/index.js",
     "lib/types/**/*.js",
-    "lib/types/**/*.d.ts"
+    "lib/types/**/*.d.ts",
+    "lib/types/**/*.d.ts.map",
+    "lib/**/*.js.map",
+    "src"
   ],
   "license": "MIT",
   "dependencies": {
-    "@omega-ai/dsh-brand": "workspace:*",
-    "@omega-ai/dsh-util-values": "workspace:*",
-    "@omega-ai/schemastery": "workspace:~"
+    "@deepseek-ai/dsh-brand": "workspace:*",
+    "@deepseek-ai/dsh-util-values": "workspace:*",
+    "@deepseek-ai/schemastery": "workspace:~"
   },
   "peerDependencies": {
-    "@omega-ai/cordis": "workspace:~",
-    "@omega-ai/dsh-omega-llm-api-extensions": "workspace:*",
-    "@omega-ai/dsh-session": "workspace:*"
+    "@deepseek-ai/cordis": "workspace:~",
+    "@deepseek-ai/dsh-deepseek-llm-api-extensions": "workspace:*",
+    "@deepseek-ai/dsh-session": "workspace:*"
   },
   "devDependencies": {
-    "@omega-ai/cordis": "workspace:~",
-    "@omega-ai/cordis-plugin-include": "workspace:~",
-    "@omega-ai/cordis-plugin-loader": "workspace:~",
-    "@omega-ai/dsh-command-feedback": "workspace:*",
-    "@omega-ai/dsh-omega-llm-api-extensions": "workspace:*",
-    "@omega-ai/dsh-llm": "workspace:*",
-    "@omega-ai/dsh-llm-omega": "workspace:*",
-    "@omega-ai/dsh-llm-omega-api-key": "workspace:*",
-    "@omega-ai/dsh-llm-mock-server": "workspace:*",
-    "@omega-ai/dsh-message-feedback": "workspace:*",
-    "@omega-ai/dsh-session": "workspace:*",
-    "@omega-ai/dsh-session-persistence-jsonl": "workspace:*"
+    "@deepseek-ai/cordis": "workspace:~",
+    "@deepseek-ai/cordis-plugin-include": "workspace:~",
+    "@deepseek-ai/cordis-plugin-loader": "workspace:~",
+    "@deepseek-ai/dsh-command-feedback": "workspace:*",
+    "@deepseek-ai/dsh-deepseek-llm-api-extensions": "workspace:*",
+    "@deepseek-ai/dsh-llm": "workspace:*",
+    "@deepseek-ai/dsh-llm-deepseek": "workspace:*",
+    "@deepseek-ai/dsh-llm-deepseek-api-key": "workspace:*",
+    "@deepseek-ai/dsh-llm-mock-server": "workspace:*",
+    "@deepseek-ai/dsh-message-feedback": "workspace:*",
+    "@deepseek-ai/dsh-session": "workspace:*",
+    "@deepseek-ai/dsh-session-persistence-jsonl": "workspace:*",
+    "@deepseek-ai/dsh-deepseek-auth": "workspace:*"
   }
 }

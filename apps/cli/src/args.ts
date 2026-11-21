@@ -5,14 +5,14 @@
  * patch overlays to apply, and the config dumps — and hands **everything after
  * its own flags** to the booted tree verbatim, where injected app plugins parse
  * their own flag families and print their own `--help` (see
- * `@omega-ai/dsh-cmdline`). Launcher flags therefore come first: the first
+ * `@deepseek-ai/dsh-cmdline`). Launcher flags therefore come first: the first
  * token this parser does not recognize starts the inner arguments, so
  * `dsh --profile tui --resume abc` boots the tui profile with `--resume abc`,
  * and `dsh --profile web -h` prints the web app's help, not this one's.
  *
  * `dsh <name>` abbreviates `dsh --profile <name>`; `plugin` manages a profile's
  * plugin dependencies by forwarding to pnpm.
- * @module @omega-ai/dsh/args
+ * @module @deepseek-ai/dsh/args
  */
 
 import { Command, CommanderError, InvalidArgumentError } from 'commander'
@@ -21,7 +21,7 @@ import { Command, CommanderError, InvalidArgumentError } from 'commander'
 interface ProfileInvocation {
   mode: 'profile'
   profile: string
-  /** Shipped template used once to initialize a missing profile. */
+  /** Shipped template that replaces the named profile. */
   fromDefaultProfile?: string | undefined
   /** Extra patch-list overlays applied after the profile's own layer, in argv order. */
   patches: string[]
@@ -33,7 +33,7 @@ interface ProfileInvocation {
 interface DumpConfigInvocation {
   mode: 'dump-config'
   profile: string
-  /** Shipped template used once to initialize a missing profile. */
+  /** Shipped template that replaces the named profile. */
   fromDefaultProfile?: string | undefined
   /** Omit the profile's user layer and --patch overlays; print bundle layers only. */
   defaultOnly: boolean
@@ -44,7 +44,7 @@ interface DumpConfigInvocation {
 interface DumpConfigSchemaInvocation {
   mode: 'dump-config-schema'
   profile: string
-  /** Shipped template used once to initialize a missing profile. */
+  /** Shipped template that replaces the named profile. */
   fromDefaultProfile?: string | undefined
   patches: string[]
 }
@@ -91,7 +91,7 @@ const HELP_EXAMPLES = `
 Examples:
   dsh web                                   boot the web profile (same as: dsh --profile web)
   dsh rescue --from-default-profile web
-                                            create rescue from the shipped web template, then boot it
+                                            recreate rescue from the shipped web template, then boot it
   dsh headless "run the tests"              answer one task, print the result, and exit
   dsh tui --patch ./extra.yml               boot a custom profile with one extra overlay
   dsh tui --resume <session>                arguments after the launcher flags reach the app
@@ -153,7 +153,7 @@ export function parseDshArgs(argv: readonly string[], version: string, manageDes
     .name('dsh')
     .version(version, '-V, --version', 'output the version number')
     .usage('[--profile] <name> [options] [app-args...]\n       dsh plugin --profile <name> <pnpm-args...>')
-    .description('dsh: boot a Omega profile — an ordered stack of plugin-bundle patch layers under your own overrides.')
+    .description('dsh: boot a DeepSeek Harness profile — an ordered stack of plugin-bundle patch layers under your own overrides.')
     .addHelpText('after', HELP_EXAMPLES)
     .exitOverride()
     // The launcher's flags come first and end at the first token it does not
@@ -166,7 +166,7 @@ export function parseDshArgs(argv: readonly string[], version: string, manageDes
     .enablePositionalOptions()
     .argument('[args...]', 'arguments for the booted profile\'s app (see: dsh --profile <name> --help)')
     .option('--profile <name>', 'the profile under $DSH_HOME/profiles to boot', selectProfile)
-    .option('--from-default-profile <name>', 'initialize a new custom profile from a shipped profile template')
+    .option('--from-default-profile <name>', 'replace a custom profile with a fresh copy of a shipped profile template')
     .option('--patch <path>', 'extra patch-list overlay applied after the profile layer (repeatable)', collect)
     .option('--dump-config', 'print the composed profile tree and exit')
     .option('--dump-config-schema', 'print JSON Schema for profile entries and patches without mounting')
@@ -187,6 +187,10 @@ export function parseDshArgs(argv: readonly string[], version: string, manageDes
   if (first === 'plugin') {
     const plugin = program.command('plugin').description('manage a profile\'s plugins by forwarding the remaining arguments to pnpm in the profile directory')
     plugin
+      // Commander copies the launcher's disabled help option into subcommands. The
+      // forwarder restores its own help and stops reading options at forwarded pnpm input.
+      .helpOption('-h, --help', 'show this help')
+      .passThroughOptions()
       .requiredOption('--profile <name>', 'the profile whose plugins to manage (initialized on first use)', selectProfile)
       .allowUnknownOption()
       .argument('[args...]', 'pnpm arguments, forwarded verbatim (add <pkg>, remove <pkg>, why <pkg>, ...)')

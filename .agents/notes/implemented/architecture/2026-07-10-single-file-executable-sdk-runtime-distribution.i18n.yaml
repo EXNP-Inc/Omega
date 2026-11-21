@@ -6,8 +6,8 @@
   en: 00b5d91d3e44a9f8
   zh: eabd3c4b338249b3
 /agent-note-single-file-executable-sdk-runtime-distribution-single-exe/problem:
-  en: 523e7d0f1f0febd3
-  zh: cb1dccd4b4fd45cd
+  en: 112178b76e5209f6
+  zh: 68726254ae530566
 /agent-note-single-file-executable-sdk-runtime-distribution-single-exe/decision:
   en: a15c7c13f167e5ac
   zh: 63bcc2ef60c2f344
@@ -15,26 +15,26 @@
   en: f1c2b60e9474111d
   zh: 5de398b5e8554429
 /agent-note-single-file-executable-sdk-runtime-distribution-single-exe/decision/the-serving-interface-is-a-plugin-inside-the-dsh-application:
-  en: 5735ba8f1331d472
-  zh: ea01bb6932da2a07
+  en: 5fdde26e9e8c6108
+  zh: 629559d733c1f0c5
 /agent-note-single-file-executable-sdk-runtime-distribution-single-exe/decision/plugin-resolution-the-vfs-holds-a-real-package-tree-the-closure-manifest-is-the-deploy-root:
-  en: ef158ddf4eaf19f4
-  zh: 3935768df809026f
+  en: 985e0eb63f3d1fd6
+  zh: 337cc44fadc6227e
 /agent-note-single-file-executable-sdk-runtime-distribution-single-exe/decision/build-pipeline-and-artifacts:
-  en: b5aea65488060823
-  zh: a09b58def4843c32
+  en: 4a55602284b462e8
+  zh: 762c4f8b719f179c
 /agent-note-single-file-executable-sdk-runtime-distribution-single-exe/decision/python-sdk-distribution-two-carriers-exe-for-production-node-for-development:
-  en: 9887ee7fa018f226
-  zh: 2ce005b6c23fbc4d
+  en: b2a740a1ab7a5002
+  zh: a48be6ca6fc65912
 /agent-note-single-file-executable-sdk-runtime-distribution-single-exe/decision/naming-lineage:
-  en: 681a27a202cdedac
-  zh: 721174427e5c2de2
+  en: 31a5aecb8bf828bb
+  zh: 2dffb6fd2e0f8194
 /agent-note-single-file-executable-sdk-runtime-distribution-single-exe/packaged-workflow-and-code-execution:
   en: 0426f598f3f44e64
   zh: fc66728e17f3bcfb
 /agent-note-single-file-executable-sdk-runtime-distribution-single-exe/testing:
-  en: b3c9820f4dc7c6c8
-  zh: 3b5768ef1770bfcb
+  en: 8e7f46bbb595afa9
+  zh: 4641894ed285d717
 /agent-note-single-file-executable-sdk-runtime-distribution-single-exe/alternatives-considered:
   en: 50d965ca81a401ba
   zh: 0c6296245b97b9ac

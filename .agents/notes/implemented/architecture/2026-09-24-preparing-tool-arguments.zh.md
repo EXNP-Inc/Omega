@@ -8,7 +8,7 @@ Status: implemented
 
 [三阶段工具调用](2026-09-22-tool-call-three-phases.zh.md)让工具身份在 `tool/call` 之前就可见。只有原始参数前缀不足以按字段展示：write/edit 需要完整路径和解码后的内容长度，bash/run_code 需要在命令或程序流入结束前显示描述。
 
-模型生成参数的顺序也决定了什么能先显示。2026-09-24 用真实 Omega V4 API 对 bash/run_code/write/edit 做了 310 次受控请求：
+模型生成参数的顺序也决定了什么能先显示。2026-09-24 用真实 DeepSeek V4 API 对 bash/run_code/write/edit 做了 310 次受控请求：
 
 | 变体 | 改了什么 | bash 首键为 description | run_code 首键为 description |
 |---|---|---|---|
@@ -49,7 +49,7 @@ Assembler 为同一输入和生命周期角色共享一个不可变 Match 及其
 
 ### 参数声明顺序
 
-`tool-bash`、`tool-pwsh` 在 `command` 前声明 `description`，并包含顺序指令。`run_code` 两处 `parameters` 将 `description` 放在 `code` 前，共用的参数描述要求 TypeScript 和 Python 都按此顺序生成。write/edit 首先声明 `file_path`，并在路径参数描述中要求先生成它，再生成 `content` 或 `old_string`/`new_string`。read 保留首位的 `file_path`；其他工具保留原有参数顺序。
+`tool-bash`、`tool-pwsh` 在 `command` 前声明 `description`，并包含顺序指令。`run_code` 的静态参数与按程序格式投影的 schema 都将 `code` 放在 `description` 前，不要求 JSON 成员顺序。write/edit 首先声明 `file_path`，并在路径参数描述中要求先生成它，再生成 `content` 或 `old_string`/`new_string`。read 保留首位的 `file_path`；其他工具保留原有参数顺序。
 
 ## 考虑过的替代方案
 

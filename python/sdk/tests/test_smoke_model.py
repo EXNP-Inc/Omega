@@ -9,7 +9,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from omega_harness import RunResult
+from deepseek_harness import RunResult
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -34,7 +34,7 @@ def live_result(**overrides: object) -> RunResult:
 
 @pytest.fixture
 def live_smoke(monkeypatch: pytest.MonkeyPatch) -> SimpleNamespace:
-    import omega_harness
+    import deepseek_harness
 
     state = SimpleNamespace(
         prompts=[], session_ids=[], challenges=[], checked_logs=[], closed=False,
@@ -95,9 +95,9 @@ def live_smoke(monkeypatch: pytest.MonkeyPatch) -> SimpleNamespace:
                 raise AssertionError(state.receipt_mode)
             return state.verify_result
 
-    monkeypatch.setenv("OMEGA_API_KEY", "unit-test-key")
-    monkeypatch.setenv("OMEGA_BASE_URL", "https://api.invalid")
-    monkeypatch.setattr(omega_harness, "OmegaHarness", ScriptedHarness)
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "unit-test-key")
+    monkeypatch.setenv("DEEPSEEK_BASE_URL", "https://api.invalid")
+    monkeypatch.setattr(deepseek_harness, "DeepSeekHarness", ScriptedHarness)
     monkeypatch.setattr(globals_["secrets"], "token_hex", fresh_challenge)
     monkeypatch.setitem(globals_, "assert_zstd_session_log", state.checked_logs.append)
     return state
@@ -107,6 +107,20 @@ def test_live_smoke_requires_fresh_external_content(live_smoke: SimpleNamespace)
     SMOKE["smoke_sdk_live"]()
     assert len(live_smoke.prompts) == 2
     assert live_smoke.session_ids == ["installed-wheel-live-api"] * 2
+    assert len(live_smoke.checked_logs) == 1
+    assert live_smoke.closed and not live_smoke.root.exists()
+
+
+@pytest.mark.parametrize("label", ["create", "verify"])
+def test_live_smoke_accepts_file_details_after_acknowledgement(
+    live_smoke: SimpleNamespace, label: str,
+) -> None:
+    setattr(live_smoke, f"{label}_result", live_result(final_response=(
+        "PYTHON_SDK_LIVE_OK\n\n"
+        "File created at `live-api-marker.txt` — 18 bytes, no BOM, no trailing newline."
+    )))
+    SMOKE["smoke_sdk_live"]()
+    assert len(live_smoke.prompts) == 2
     assert len(live_smoke.checked_logs) == 1
     assert live_smoke.closed and not live_smoke.root.exists()
 
@@ -245,6 +259,22 @@ def test_mock_model_serves_native_messages_events() -> None:
         assert next(event["delta"]["text"] for event in events if event["type"] == "content_block_delta") == SMOKE["EXPECTED_TEXT"]
 
 
+@pytest.mark.parametrize("directory", ["/fixture/workspace", r"C:\fixture\workspace"])
+def test_minimal_snapshot_pins_quoted_working_directory(directory: str) -> None:
+    context = f"Current working directory: {json.dumps(directory)}."
+    other = json.dumps(r"C:\another\directory")
+    files = SMOKE["build_minimal_snapshot_files"]([{
+        "system": [],
+        "tools": [],
+        "messages": [{"role": "user", "content": [{"type": "text", "text": context + "\n" + other}]}],
+    }], Path(directory))
+    message = json.loads(files["model-visible.json"])[0]["messages"][0]
+    assert message == {
+        "role": "user",
+        "content": [{"type": "text", "text": 'Current working directory: "{{cwd}}".\n' + other}],
+    }
+
+
 def test_advanced_snapshot_normalizes_catalog_child_creation_time() -> None:
     value = {
         "type": "subagent/catalog",
@@ -271,7 +301,7 @@ def test_snapshot_comparison_preserves_opaque_generation_qualifiers() -> None:
     expected = {
         "header": {"type": "session", "version": 0, "otherVersion": 7},
         "accepted": {
-            "type": "session-log-omega/delivery-accepted",
+            "type": "session-log-deepseek/delivery-accepted",
             "data": {"sessionId": "s", "throughSeq": 4},
         },
         "source": {
@@ -282,7 +312,7 @@ def test_snapshot_comparison_preserves_opaque_generation_qualifiers() -> None:
     actual = {
         "header": {"type": "session", "version": 1, "otherVersion": 7},
         "accepted": {
-            "type": "session-log-omega/delivery-accepted",
+            "type": "session-log-deepseek/delivery-accepted",
             "data": {"sessionId": "s", "sessionFormatVersion": 1, "throughSeq": 4},
         },
         "source": {
@@ -512,7 +542,7 @@ def test_snapshot_comparison_accepts_current_output_against_v2_without_rewriting
 
 def native_delivery_snapshot(version: int) -> dict[str, str]:
     event = {
-        "type": "session-log-omega/delivery-accepted",
+        "type": "session-log-deepseek/delivery-accepted",
         "data": {"sessionId": "s", "throughSeq": 0, "sessionFormatVersion": version},
     }
     return {
@@ -567,7 +597,7 @@ def test_native_writer_comparison_rejects_stale_current_delivery(tmp_path: Path,
 
 def test_native_writer_comparison_preserves_captured_and_nested_delivery_values() -> None:
     delivery = {
-        "type": "session-log-omega/delivery-accepted",
+        "type": "session-log-deepseek/delivery-accepted",
         "data": {"sessionId": "s", "throughSeq": 0, "sessionFormatVersion": 3},
     }
     captured = {"type": "custom/event", "data": {
@@ -631,7 +661,7 @@ def test_committed_python_native_goldens_compare_current_output_without_rewritin
         if result.get("type") == "session":
             assert result["version"] == source_version
             result["version"] = SESSION_FORMAT_VERSION
-        if result.get("type") == "session-log-omega/delivery-accepted":
+        if result.get("type") == "session-log-deepseek/delivery-accepted":
             assert result["data"]["sessionFormatVersion"] == source_version
             result["data"]["sessionFormatVersion"] = SESSION_FORMAT_VERSION
         return result
@@ -728,11 +758,28 @@ def test_profile_plugin_failure_reports_native_exit_status(monkeypatch: pytest.M
 
 
 @pytest.mark.parametrize("prefix", ["", "File created with exactly 18 bytes.\n\n"])
-def test_live_turn_accepts_explanation_before_final_sentinel(prefix: str) -> None:
+def test_live_turn_accepts_explanation_before_acknowledgement(prefix: str) -> None:
     SMOKE["assert_live_turn"]("create", live_result(final_response=prefix + SMOKE["LIVE_API_SENTINEL"]))
 
 
-@pytest.mark.parametrize("answer", ["", "PYTHON_SDK_LIVE_OK but the operation failed", "PYTHON_SDK_LIVE_OK\nFailure"])
-def test_live_turn_rejects_missing_final_sentinel(answer: str) -> None:
+@pytest.mark.parametrize("answer", ["", "File created.", "PYTHON_SDK_LIVE_OK but the operation failed"])
+def test_live_turn_rejects_missing_standalone_acknowledgement(answer: str) -> None:
     with pytest.raises(AssertionError, match="turn returned"):
         SMOKE["assert_live_turn"]("create", live_result(final_response=answer))
+
+
+def test_job_snapshot_normalization_preserves_pairing_and_uncertainty():
+    normalize = SMOKE["normalize_snapshot_value"]
+    replacements = []
+    first = {"type": "job/registered", "data": {"jobId": "job-a", "startedAt": 10}}
+    last = {"type": "job/settled", "data": {"jobId": "job-a", "startedAt": 10,
+                                          "finishedAt": 20, "producerReported": False}}
+    other = {"type": "job/registered", "data": {"jobId": "job-b", "startedAt": 30}}
+    a, b, c = normalize([first, last, other], replacements)
+    assert a["data"] == {"jobId": "{{id:1}}", "startedAt": 0}
+    assert b["data"] == {"jobId": "{{id:1}}", "startedAt": 0, "finishedAt": 0, "producerReported": False}
+    assert c["data"]["jobId"] == "{{id:2}}"
+    assert normalize([a, b, c], []) == [a, b, c]
+    assert normalize({"type": "tool/result", "data": {"startedAt": 100, "finishedAt": 200}}, []) == {
+        "type": "tool/result", "data": {"startedAt": 100, "finishedAt": 200},
+    }

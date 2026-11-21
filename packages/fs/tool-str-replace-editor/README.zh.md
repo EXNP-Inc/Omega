@@ -3,7 +3,7 @@ description: "基于 `ctx.fs` 的独立 str_replace_editor 工具：供为 agent
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-tool-str-replace-editor
+# @deepseek-ai/dsh-tool-str-replace-editor
 
 [English](README.md) | 中文
 
@@ -25,6 +25,8 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
+此非实验性的独立插件面向自定义组合。Plugins 页面不将它作为可选 bundle 提供。
+
 当模型应通过熟悉的 `view`/`create`/`str_replace`/`insert` 命令词汇在绝对路径上编辑文件时，把工具与 `ctx.fs` 后端（以及需要防护变更时的策略插件）一起挂载。
 
 ### 最小组合
@@ -32,9 +34,9 @@ kind: "package-reference"
 一个后端、可选地加策略插件，然后是工具；编辑器可与任何终端接口组合。
 
 ```yaml
-- name: '@omega-ai/dsh-fs-local'
-- name: '@omega-ai/dsh-fs-observation-policy'
-- name: '@omega-ai/dsh-tool-str-replace-editor'
+- name: '@deepseek-ai/dsh-fs-local'
+- name: '@deepseek-ai/dsh-fs-observation-policy'
+- name: '@deepseek-ai/dsh-tool-str-replace-editor'
 ```
 
 ### 配置
@@ -50,7 +52,7 @@ kind: "package-reference"
 
 ### 失败与恢复
 
-`view`、`str_replace` 或 `insert` 发生元数据未命中时，工具会在返回 `FS_NOT_FOUND` 前记录确认缺失，因此后续 `create` 可以通过已挂载策略的防护创建流程恢复外部删除的路径；缺失状态绝不会授权 `str_replace` 或 `insert`。防护变更继承策略插件的错误码与恢复指令——`FS_NOT_OBSERVED`（先读取文件再重试）、`FS_STALE_VERSION`（先重新读取再重试）——沙箱拒绝则表现为 `[sandbox: file access denied under <mode> mode]` 标记。路径必须是绝对路径；相对路径会被拒绝并给出提示。
+`view`、`str_replace` 或 `insert` 发生元数据未命中时，工具会在返回 `FS_NOT_FOUND` 前记录确认缺失，因此后续 `create` 可以通过已挂载策略的防护创建流程恢复外部删除的路径；缺失状态绝不会授权 `str_replace` 或 `insert`。防护变更继承策略插件的错误码与恢复指令——`FS_NOT_OBSERVED`（先读取文件再重试）、`FS_STALE_VERSION`（先重新读取再重试）——沙箱拒绝则表现为 `[sandbox: file access denied under <mode> mode]` 标记。路径必须是绝对路径；相对路径会被拒绝并给出提示。参数模式无法表达的参数错误，例如相对路径、缺少命令参数或 `view_range`、`insert_line` 越界，抛出 `ToolArgsError`，错误码为 `INVALID_ARGS`；对已存在路径执行 `create` 报告 `FS_ALREADY_EXISTS`。
 
 -----
 
@@ -90,7 +92,7 @@ kind: "package-reference"
 - [tool-fs](../tool-fs/README.zh.md)——替代的 `read`/`write`/`edit` 工具套件。
 - [fs-observation-policy](../fs-observation-policy/README.zh.md)——通过 `fs/*` 事件防护变更的策略插件。
 - [fs-sandbox](../fs-sandbox/README.zh.md)——围栏变更的沙箱强制后端。
-- [生成工具目录](../../../docs/tool-catalog.zh.md#omega-aidsh-tool-str-replace-editor)——本包注册的穷尽式 schema。
+- [生成工具目录](../../../docs/tool-catalog.zh.md#deepseek-aidsh-tool-str-replace-editor)——本包注册的穷尽式 schema。
 
 -----
 
@@ -101,7 +103,7 @@ kind: "package-reference"
 
 #### 模型看到的内容
 
-生成的 [`str_replace_editor` schema](../../../docs/tool-catalog.zh.md#omega-aidsh-tool-str-replace-editor)，包含配置的 `description`。本插件不贡献独立系统提示词段。
+生成的 [`str_replace_editor` schema](../../../docs/tool-catalog.zh.md#deepseek-aidsh-tool-str-replace-editor)，包含配置的 `description`。本插件不贡献独立系统提示词段。
 
 #### Token 影响
 

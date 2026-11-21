@@ -1,19 +1,19 @@
-/** Wire types for the active Omega plugin package inventory. */
+/** Wire types for the active DeepSeek plugin package inventory. */
 
-/** One exact active plugin package version. */
-export interface OmegaPluginPackageIdentity {
+/** One active plugin package, with its version when available. */
+export interface DeepSeekPluginPackageIdentity {
   readonly name: string
-  readonly version: string
+  readonly version?: string
 }
 
-/** Versioned full package inventory carried by each official Omega request. */
-export interface OmegaPluginPackageInventoryExtension {
+/** Versioned full package inventory carried by each official DeepSeek request. */
+export interface DeepSeekPluginPackageInventoryExtension {
   readonly version: 1
-  readonly packages: readonly OmegaPluginPackageIdentity[]
+  readonly packages: readonly DeepSeekPluginPackageIdentity[]
 }
 
-declare module '@omega-ai/dsh-omega-llm-api-extensions/types' {
-  interface OmegaLlmApiExtensionMap {
-    dsh_plugin_packages: OmegaPluginPackageInventoryExtension
+declare module '@deepseek-ai/dsh-deepseek-llm-api-extensions/types' {
+  interface DeepSeekLlmApiExtensionMap {
+    dsh_plugin_packages: DeepSeekPluginPackageInventoryExtension
   }
 }

@@ -1,15 +1,16 @@
 /**
  * Durable agent session-event vocabulary shared with type-only consumers.
  *
- * @module @omega-ai/dsh-agent/types
+ * @module @deepseek-ai/dsh-agent/types
  */
 
-import type { UserMessage } from '@omega-ai/dsh-llm/types'
+import type { ReasoningEffortId } from '@deepseek-ai/dsh-llm/types'
+import type { UserMessage } from '@deepseek-ai/dsh-llm/types'
 // Type-only: the Workspace registry's archive-admission family map this registry merges `turn` into.
-import type {} from '@omega-ai/dsh-workspace/types'
-import type { OptionalSessionSeq, SessionId, SessionSeq } from '@omega-ai/dsh-session/types'
-import type { TypertContext, TypertLookup } from '@omega-ai/dsh-typert-protocol'
-import type { JsonValue } from '@omega-ai/dsh-util-values'
+import type {} from '@deepseek-ai/dsh-workspace/types'
+import type { OptionalSessionSeq, SessionId, SessionSeq } from '@deepseek-ai/dsh-session/types'
+import type { TypertContext, TypertLookup } from '@deepseek-ai/dsh-typert-protocol'
+import type { JsonValue } from '@deepseek-ai/dsh-util-values'
 
 /** Public live-agent handle; the runtime face augments its live capabilities. */
 export interface Agent {
@@ -17,14 +18,14 @@ export interface Agent {
   readonly id: SessionId
 }
 
-declare module '@omega-ai/dsh-workspace/types' {
+declare module '@deepseek-ai/dsh-workspace/types' {
   interface SessionActivityKindMap {
     /** The session's own Agent is inside a turn, including one waiting for an approval or an answer. */
     turn: true
   }
 }
 
-declare module '@omega-ai/dsh-typert-protocol' {
+declare module '@deepseek-ai/dsh-typert-protocol' {
   interface TypertLookupMap {
     agent: TypertLookup<Agent, SessionId>
   }
@@ -55,26 +56,14 @@ export interface InboxWireState {
   readonly 'next-step': readonly JsonValue[]
 }
 
-declare module '@omega-ai/dsh-session-projection/types' {
-  interface SessionProjectionStateMap {
-    /** Pending agent input reconstructed from durable inbox splices. */
-    inbox: InboxState
-  }
+declare module '@deepseek-ai/dsh-session-projection/types' {
   interface SessionProjectionMap {
     /** Pending agent input reconstructed from durable inbox splices. */
     inbox: InboxWireState
   }
 }
 
-/**
- * Turn and step boundaries folded from one agent session log.
- *
- * Reader contract: the key is registered by `dsh-agent-loop` and absent
- * otherwise. Without agent-loop no turn events exist, so readers treat an
- * absent key as "no open turn / no boundaries" — capability absence, not a
- * corrupt state. A reader whose behavior has no safe fallback for that
- * absence (the step-open decision, for example) may fail loud instead.
- */
+/** Turn and step positions recorded in a Session. */
 export interface TurnBoundaryProjection {
   /** Seq of the open turn's `turn/start`, or null between turns. */
   readonly openTurnStartSeq: OptionalSessionSeq
@@ -86,7 +75,32 @@ export interface TurnBoundaryProjection {
   readonly lastTurn: number
 }
 
-declare module '@omega-ai/dsh-session/types' {
+/** Complete provider, model, and optional reasoning effort chosen for one Session's model steps. */
+export interface ModelSelection {
+  /** Registered provider route. */
+  provider: string
+  /** Provider-owned model id. */
+  model: string
+  /** Adapter-owned reasoning effort, or provider/default behavior when absent. */
+  reasoningEffort?: ReasoningEffortId
+}
+
+/** Client view of the durable model-selection fold. */
+export interface ModelSelectionProjection {
+  /** Selection used by the latest recorded model request. */
+  readonly lastUsed: ModelSelection | null
+  /** Selection the next model step uses; null while the Agent's initial options supply the route. */
+  readonly next: ModelSelection | null
+}
+
+declare module '@deepseek-ai/dsh-session-projection/types' {
+  interface SessionProjectionMap {
+    /** Recorded model selection for the next model step and the latest request. */
+    modelSelection: ModelSelectionProjection
+  }
+}
+
+declare module '@deepseek-ai/dsh-session/types' {
   interface SessionEventMap {
     /**
      * One normalized mutation of an agent's durable pending-message lists.
@@ -100,5 +114,10 @@ declare module '@omega-ai/dsh-session/types' {
       inserted: UserMessage[]
       outcome?: 'canceled'
     }
+    /**
+     * Complete model selection that applies from the next model step until a
+     * later selection. Log-only: it never enters derived model history.
+     */
+    'model/selection': ModelSelection
   }
 }

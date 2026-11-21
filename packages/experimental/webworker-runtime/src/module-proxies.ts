@@ -12,7 +12,7 @@
  * structural placeholder that mounts silently and reports the missing capability
  * when a call finally reaches it. External npm replacements live in
  * `./externals/`, named after the package they stand in for.
- * @module @omega-ai/dsh-experimental-webworker-runtime/src/module-proxies
+ * @module @deepseek-ai/dsh-experimental-webworker-runtime/src/module-proxies
  */
 
 /**
@@ -59,18 +59,21 @@ export const MODULE_PROXIES: Record<string, string> = {
   // the VFS, because a browser worker has no processes to fork.
   'node:child_process': './node/builtin_modules/implemented/child_process.ts',
   // Structural mocks: every symbol exists, every call throws.
+  'node:https': './node/builtin_modules/mock/https.ts',
   'node:dns/promises': './node/builtin_modules/mock/dns/promises.ts',
   'dns/promises': './node/builtin_modules/mock/dns/promises.ts',
   'node:net': './node/builtin_modules/mock/net.ts',
   'node:stream': './node/builtin_modules/implemented/stream.ts',
+  'node:string_decoder': './node/builtin_modules/implemented/string_decoder.ts',
   'node:stream/promises': './node/builtin_modules/implemented/stream/promises.ts',
   'stream/promises': './node/builtin_modules/implemented/stream/promises.ts',
   'node:vm': './node/builtin_modules/mock/vm.ts',
+  'node:repl': './node/builtin_modules/mock/repl.ts',
   'node:worker_threads': './node/builtin_modules/mock/worker_threads.ts',
   'node:sqlite': './node/builtin_modules/mock/sqlite.ts',
   // External npm replacements, named after the package each stands in for.
   '@deepseek-ai/libreoffice-kit': './node/external_packages/libreoffice-kit.ts',
-  '@omega-ai/node-addon-system/flock': './node/external_packages/node-addon-system-flock.ts',
+  '@deepseek-ai/node-addon-system/flock': './node/external_packages/node-addon-system-flock.ts',
   'koffi': './node/external_packages/koffi.ts',
   'sharp': './node/external_packages/sharp.ts',
   'node-pty': './node/external_packages/node-pty.ts',
@@ -78,6 +81,9 @@ export const MODULE_PROXIES: Record<string, string> = {
   'got': './node/external_packages/got.ts',
   '@vscode/ripgrep': './node/external_packages/ripgrep.ts',
   '@earendil-works/pi-ai': './node/external_packages/pi-ai.ts',
+  '@earendil-works/pi-coding-agent': './node/external_packages/pi-coding-agent.ts',
+  // Node internal modules for callers without `--expose-internals`.
+  'node-addon-require-builtin': './node/external_packages/node-addon-require-builtin.ts',
   // Constructible fakes whose methods are never reached.
   'ws': './node/external_packages/ws.ts',
 }

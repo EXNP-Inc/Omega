@@ -3,7 +3,7 @@ description: "The skill provider registry for users and maintainers choosing, co
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-skill
+# @deepseek-ai/dsh-skill
 
 English | [中文](README.zh.md)
 
@@ -36,14 +36,14 @@ Use `dsh-skill` when agents should load skills from more than one source through
 Load the plugin like any Cordis plugin. The only configuration limits how many completed provider catalogs are kept in memory; everything else is provider behavior.
 
 ```yaml
-- name: '@omega-ai/dsh-skill'
+- name: '@deepseek-ai/dsh-skill'
 ```
 
 | Field | Default | Meaning |
 |---|---|---|
 | `collectCacheMaxEntries` | `128` | Completed cwd/provider catalogs kept in memory |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-skill) is the exhaustive source for every accepted field.
+The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-skill) is the exhaustive source for every accepted field.
 
 ### What the registry gives you
 
@@ -63,7 +63,7 @@ An invocation policy on every skill decides which surfaces may advertise and loa
 
 ### Observable success and failures
 
-A skill that any provider reports appears in the merged catalog, and loading it by its exact kebab-case name returns the body; an invalid name returns no skill rather than throwing. A provider that fails discovery is logged and skipped, and the observation is reported incomplete so consumers keep their last-good catalog; an explicit incomplete observation still contributes its candidates. A malformed candidate fails fast — the registry validates names, descriptions, invocation booleans, and provider ownership before caching or returning anything.
+A skill that any provider reports appears in the merged catalog, and loading it by its exact kebab-case name returns the body; an invalid name returns no skill rather than throwing. A provider that fails discovery is logged and skipped, and the observation is reported incomplete so consumers can distinguish failed discovery from confirmed absence; an explicit incomplete observation still contributes its candidates. A malformed candidate, catalog observation, or loaded definition fails fast as `SkillError` with `SKILL_INVALID_DEFINITION` — the registry validates names, descriptions, invocation booleans, and provider ownership before caching or returning anything. `SkillError` also carries the `skill` tool's `SKILL_NOT_FOUND` and `SKILL_NOT_MODEL_INVOCABLE` failures and a provider's `SKILL_READ_FAILED`.
 
 Skill summaries retain the winning provider’s optional instruction-file `path` for discovery consumers that offer file previews. Listing still reads no skill body, and model-facing catalogs continue to select only their owned routing fields.
 
@@ -113,7 +113,7 @@ Read these pages when the package-level contract is not enough. They move from t
 - [Skill subsystem reference](../../../docs/subsystems/skills.md) — the registry, provider contract, and local discovery priority.
 - [skill-filesystem package](../skill-filesystem/README.md) — the shipped local provider that discovers skills from disk.
 - [tool-skill package](../tool-skill/README.md) — the consumer that renders the session catalog and the `skill` tool.
-- [Generated configuration catalog](../../../docs/config-catalog.md#omega-aidsh-skill) — every config field and its source declaration.
+- [Generated configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-skill) — every config field and its source declaration.
 - [historical Skill invocation policy Agent Note](../../../.agents/notes/archived/feature/2026-07-28-skill-invocation-policy.md) — the rationale for the model and user invocation controls.
 
 -----

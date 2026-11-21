@@ -5,7 +5,7 @@ import { syncBuiltinESMExports } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { ModuleLoader } from '@omega-ai/cordis-plugin-loader'
+import { ModuleLoader } from '@deepseek-ai/cordis-plugin-loader'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { readPluginMeta, resolvePluginResource } from '../src/package-meta.ts'
 import { installRuntimeInterception } from '../src/profile-resolution/resolver.ts'
@@ -242,6 +242,46 @@ describe('plugin locale display metadata', () => {
       title: { en: 'Plugin' }, description: { en: 'Locale introduction' },
       icon: `data:image/svg+xml;base64,${Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"/>').toString('base64')}`,
     })
+  })
+
+  it.each(['manifest', 'export'])('reads a package-owned %s icon when the archive cannot realpath regular files', (source) => {
+    manifest({ './package.json': './package.json', './icon': './icon.svg' }, source === 'manifest' ? { icon: './icon.svg' } : {})
+    const icon = join(dir, 'icon.svg')
+    file(icon, '<svg/>')
+    // The executable resolver supplies module URLs independently of archive file realpath support.
+    resolvePluginResource('localized/icon', parentURL)
+    const original = fs.realpathSync
+    const previousPkg = Object.getOwnPropertyDescriptor(process, 'pkg')
+    Object.defineProperty(process, 'pkg', { configurable: true, value: {} })
+    fs.realpathSync = new Proxy(original, {
+      apply(target, receiver: unknown, args: unknown[]): unknown {
+        if (String(args[0]).endsWith(join('localized', 'icon.svg'))) {
+          throw Object.assign(new Error('archive-backed icon has no realpath entry'), { code: 'ENOENT' })
+        }
+        return Reflect.apply(target, receiver, args)
+      },
+    })
+    syncBuiltinESMExports()
+    try {
+      expect(() => fs.realpathSync(icon)).toThrow('archive-backed')
+      expect(readPluginMeta('localized', parentURL)).toEqual({ title: 'localized', icon: 'data:image/svg+xml;base64,PHN2Zy8+' })
+    } finally {
+      fs.realpathSync = original
+      if (previousPkg === undefined) Reflect.deleteProperty(process, 'pkg')
+      else Object.defineProperty(process, 'pkg', previousPkg)
+      syncBuiltinESMExports()
+    }
+  })
+
+  it.each(['manifest', 'export'])('refuses a %s icon file symlink owned by another package', (source) => {
+    manifest({ './package.json': './package.json', './icon': './icon.svg' }, source === 'manifest' ? { icon: './icon.svg' } : {})
+    const foreign = join(root, 'foreign-package', 'icon.svg')
+    file(foreign, '<svg/>')
+    file(join(root, 'foreign-package', 'package.json'), '{"name":"foreign-package"}')
+    symlinkSync(foreign, join(dir, 'icon.svg'), 'file')
+    const meta = readPluginMeta('localized', parentURL)
+    expect(meta?.icon).toBeUndefined()
+    expect(meta?.error).toContain(source === 'manifest' ? 'icon must remain inside its manifest directory' : 'icon must remain inside its package directory')
   })
 
   it.each([

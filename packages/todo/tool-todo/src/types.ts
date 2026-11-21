@@ -5,8 +5,10 @@
  * for host consumers, `./client/types` (the browser half-entry's re-export)
  * for client aggregates — with zero content duplication.
  *
- * @module @omega-ai/dsh-tool-todo/types
+ * @module @deepseek-ai/dsh-tool-todo/types
  */
+
+import type { SessionProjectionSummaryExcluded } from '@deepseek-ai/dsh-session-projection/types'
 
 /**
  * One entry in an agent's todo list — the unit of the `todo/write`
@@ -25,23 +27,22 @@ export interface TodoItem {
   status: 'pending' | 'in_progress' | 'completed'
 }
 
-declare module '@omega-ai/dsh-session/types' {
+declare module '@deepseek-ai/dsh-session/types' {
   interface SessionEventMap {
     /** Whole-list snapshot; latest write wins on replay. Log-only UI state; never derived history. */
     'todo/write': { todos: TodoItem[] }
   }
 }
 
-declare module '@omega-ai/dsh-session-projection/types' {
-  interface SessionProjectionStateMap {
-    todos: TodoItem[] | null
-  }
+declare module '@deepseek-ai/dsh-session-projection/types' {
   interface SessionProjectionMap {
     /**
      * The agent's current whole todo list (the latest `todo/write` snapshot),
      * or `null` before the first write. Whole-value rule: every `todo/write`
      * carries the complete replacement list, so the fold is last-wins.
+     * Excluded from Session summary payloads, with `null` kept outside the
+     * exclusion mark so the pre-first-write value stays expressible.
      */
-    todos: TodoItem[] | null
+    todos: SessionProjectionSummaryExcluded<TodoItem[]> | null
   }
 }

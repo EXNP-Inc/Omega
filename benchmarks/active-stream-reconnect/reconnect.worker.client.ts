@@ -1,8 +1,9 @@
 /** Compiled production Client fold for a reconnect during a long Assistant attempt. */
 import { performance } from 'node:perf_hooks'
-import { AssistantStreamAccumulator } from '@omega-ai/dsh-llm/assistant-stream'
-import { LlmAttemptId } from '@omega-ai/dsh-llm/brand'
-import type { SessionAssistantStreamBaseline } from '@omega-ai/dsh-api-session-controller/types'
+import { AssistantStreamAccumulator } from '@deepseek-ai/dsh-llm/assistant-stream'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { LlmAttemptId } from '@deepseek-ai/dsh-llm/types'
+import type { SessionAssistantStreamBaseline } from '@deepseek-ai/dsh-api-session-controller/types'
 // The Client implementation has no plain-Node export; only this adapter is bundled.
 import { ClientAssistantStream } from '../../packages/api/session-controller/src/client/sessions/assistant-stream.ts'
 import { assertBuiltBenchmarkRuntime } from '../support/built-worker.ts'
@@ -18,7 +19,7 @@ export interface ReconnectReport {
 }
 
 assertBuiltBenchmarkRuntime(import.meta.url, {
-  '@omega-ai/dsh-llm/assistant-stream': import.meta.resolve('@omega-ai/dsh-llm/assistant-stream'),
+  '@deepseek-ai/dsh-llm/assistant-stream': import.meta.resolve('@deepseek-ai/dsh-llm/assistant-stream'),
 })
 const deltas = 100000
 const accumulator = new AssistantStreamAccumulator()
@@ -26,7 +27,7 @@ accumulator.push({ time: 1700000000000, chunk: { type: 'block-start', index: 0, 
 for (let index = 0; index < deltas; index++) {
   accumulator.push({ time: 1700000000001 + index, chunk: { type: 'reasoning-delta', index: 0, text: 'token ' } })
 }
-const attemptId = LlmAttemptId('synthetic-reconnect')
+const attemptId = brandString<LlmAttemptId>('synthetic-reconnect')
 const nextIndex = deltas + 1
 const baseline: SessionAssistantStreamBaseline = {
   revision: nextIndex + 1,

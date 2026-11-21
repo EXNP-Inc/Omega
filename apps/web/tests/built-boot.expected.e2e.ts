@@ -2,8 +2,8 @@
 // The built-bundle boot smoke: the assembled-jsdom test that owns the boot
 // graph itself. Other files share the same scaffolding (assembled-boot.ts) to
 // reach a surface only the built bundles expose; this one asserts that the
-// graph assembles at all — staged activation across the immediately tier and
-// the inject layers, per-plugin CSS injection, and a rendered journey reaching
+// graph assembles at all — activation across the immediately tier and
+// the inject layers, renderer-owned module styles, and a rendered journey reaching
 // chat content from the keyless RemoteMock scenario.
 //
 // Component behavior remains owned by per-package suites (SlotTestRuntime
@@ -62,17 +62,17 @@ it('boots the built plugin graph and renders a fixture session end to end', asyn
   // The sidebar renders from the boot graph: every inject layer activated.
   const tree = await screen.findByRole('tree', { name: 'Sessions' }, { timeout: 10_000 })
   if (clientBuildValue('DSH_CLIENT_BUILD_PROFILE') === 'official') {
-    expect(document.querySelector('svg[viewBox="26 0 72 24"]')).not.toBeNull()
-    expect(screen.queryByText('Omega Local Build')).toBeNull()
+    expect(document.querySelector('svg[viewBox="26 0 156 24"]')).not.toBeNull()
+    expect(screen.queryByText('DSH Local Build')).toBeNull()
   } else {
-    expect(document.querySelector('svg[viewBox="0 0 24 24"]')).not.toBeNull()
+    expect(document.querySelector('svg[viewBox="0 0 23.16 17.04"]')).not.toBeNull()
     const version = clientBuildValue('DSH_CLIENT_VERSION')
     if (version === undefined) throw new Error('default client build record must carry DSH_CLIENT_VERSION')
     const commit = clientBuildValue('DSH_CLIENT_COMMIT_HASH')
     const buildVersion = version
       + (commit === undefined ? '' : `-${commit}`)
       + (clientBuildValue('DSH_CLIENT_GIT_DIRTY') === 'true' ? '-dirty' : '')
-    screen.getByText('Omega Local Build')
+    screen.getByText('DSH Local Build')
     screen.getByText(buildVersion)
   }
   // The compact layout dropped group session counts; the fixture workspace
@@ -97,6 +97,8 @@ it('boots the built plugin graph and renders a fixture session end to end', asyn
   fireEvent.click(waitingTitle)
   await waitFor(() => {
     expect(document.querySelector('[data-sample="bash"]')).not.toBeNull()
+    expect(document.querySelector('[data-chat-running]')?.parentElement?.getAttribute('data-slot'))
+      .toBe('conversation.chat.flow')
   }, { timeout: 10_000 })
   // The generated bundle roster mounts the question UI before the approval UI.
   // Skip the resident fixture's three questions, then resolve its approval so
@@ -167,17 +169,17 @@ it('boots the built plugin graph and renders a fixture session end to end', asyn
   // Every bundle injected its plugin-owned style tag (the loader's CSS path).
   const styleOwners = [...document.head.querySelectorAll('style[data-plugin]')]
     .map(style => style.getAttribute('data-plugin'))
-  for (const plugin of ['@omega-ai/dsh-client-ui-layout', '@omega-ai/dsh-client-ui-sidebar', '@omega-ai/dsh-client-ui-conversation', '@omega-ai/dsh-client-ui-tool']) {
+  for (const plugin of ['@deepseek-ai/dsh-client-ui-layout', '@deepseek-ai/dsh-client-ui-sidebar', '@deepseek-ai/dsh-client-ui-conversation', '@deepseek-ai/dsh-client-ui-tool']) {
     expect(styleOwners).toContain(plugin)
   }
 })
 
 it('boots without ui-chat and does not select another conversation view implicitly', async () => {
-  mountAssembledApp({ exclude: ['@omega-ai/dsh-client-ui-chat'] })
+  mountAssembledApp({ exclude: ['@deepseek-ai/dsh-client-ui-chat'] })
 
   const tree = await screen.findByRole('tree', { name: 'Sessions' }, { timeout: 10_000 })
   const boot = Reflect.get(window, '__DSH_BOOT__') as { entries: Array<{ id: string }> } | undefined
-  expect(boot?.entries.some(entry => entry.id === '@omega-ai/dsh-client-ui-chat')).toBe(false)
+  expect(boot?.entries.some(entry => entry.id === '@deepseek-ai/dsh-client-ui-chat')).toBe(false)
   const sessionTitle = await within(tree).findByText('Fixture 历史会话')
   fireEvent.click(sessionTitle)
   await waitFor(() => {

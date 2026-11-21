@@ -20,15 +20,15 @@
 // NO_ADAPTER.
 import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
-import { chromium } from 'playwright'
-import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { createMessage, createUserMessage } from '@omega-ai/dsh-llm'
+import { chromium, webkit } from 'playwright'
+import { afterAll, beforeAll, describe, expect, it, onTestFailed, onTestFinished } from 'vitest'
+import { createMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
 import {
   SESSION_FORMAT_VERSION,
   Session,
-  SessionId,
-} from '@omega-ai/dsh-session'
-import type {} from '@omega-ai/dsh-session-title'
+  type SessionId,
+} from '@deepseek-ai/dsh-session'
+import type {} from '@deepseek-ai/dsh-session-title'
 import {
   assertFixtureInventory,
   compareOrRefreshGolden,
@@ -39,6 +39,7 @@ import {
   type WebScaffold,
 } from './scaffold.ts'
 import { newEnglishPage, saveFailureShot } from './support.ts'
+import { brandString } from '@deepseek-ai/dsh-brand'
 
 const SNAPSHOT_DIR = fileURLToPath(new URL('./expected/markdown-wide-table', import.meta.url))
 const GEOMETRY_EXPECTED = fileURLToPath(
@@ -74,7 +75,7 @@ const WIDTHS = [1680, 1100, 640]
 /** A sentence long enough that three of them cannot sit unwrapped in the 748px column. */
 const SENTENCE = 'This cell carries one full sentence so the unwrapped table is far wider than the message column.'
 /** Unbroken path-like token (no scheme, so GFM does not autolink it and no anchor joins the tab order). */
-const LONG_TOKEN = 'workspace/omega-harness/packages/client/ui-primitives/src/markdown/render.tsx/'.repeat(3)
+const LONG_TOKEN = 'workspace/deepseek-harness/packages/client/ui-primitives/src/markdown/render.tsx/'.repeat(3)
 const CJK_SENTENCE = '这个单元格包含一段较长的中文说明，用来验证长内容在窄列宽下按最小可读宽度换行而不是把列压缩到无法阅读。'
 
 /** The assistant markdown includes fitting and overflowing wide tables. */
@@ -113,7 +114,7 @@ function tablesMarkdown(): string {
 
 /** Build one closed session fixture carrying the tables. */
 function wideTableFixture(): string {
-  const session = Session.create(SessionId('markdown-wide-table-source'))
+  const session = Session.create(brandString<SessionId>('markdown-wide-table-source'))
   const eventTimeOrigin = new Date().setHours(12, 0, 0, 0)
   session.append('turn/start', { turn: 1 })
   const user = session.append('user/message', createUserMessage({
@@ -216,8 +217,8 @@ async function awaitTableLayout(target: Page): Promise<void> {
     if (element === null) return false
     const tracks = getComputedStyle(element).gridTemplateColumns.split(' ').map(Number.parseFloat)
     const root = element.querySelector<HTMLElement>('div[data-phase]')
-    // Mirrored from ui-layout's SIDEBAR_COLLAPSED; these tests use the Host compiler face.
-    return tracks[0] === 56 && tracks.at(-1) === 0
+    // Desktop retains the rail; the mobile drawer leaves the whole width to the transcript.
+    return tracks[0] === (element.hasAttribute('data-sidebar-drawer') ? 0 : 56) && tracks.at(-1) === 0
       && element.getAnimations().every(animation =>
         animation.playState === 'finished' || animation.playState === 'idle')
       && root !== null
@@ -373,6 +374,44 @@ describe('web e2e: markdown tables fill the column, wide ones break out and scro
       .toBeGreaterThan(0)
     expect(tripwire.pageErrors).toEqual([])
   }, 120_000)
+
+  it.each(['chromium', 'webkit'] as const)('keeps wide tables horizontally scrollable without hover in %s', async (engine) => {
+    const touchBrowser = await ({ chromium, webkit })[engine].launch()
+    onTestFinished(() => touchBrowser.close())
+    // Mobile WebKit has no wheel driver; touch emulation also disables hover in its desktop viewport.
+    const context = await touchBrowser.newContext({
+      viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: engine === 'chromium', locale: 'en-US',
+    })
+    const touchPage = await context.newPage()
+    const touchConsole = watchConsole(touchPage)
+    onTestFailed(() => saveFailureShot(touchPage, `markdown-wide-table-touch-${engine}`))
+    await touchPage.goto(scaffold.authenticatedUrl, { waitUntil: 'load' })
+    const group = touchPage.getByRole('treeitem').first()
+    await touchPage.getByRole('button', { name: 'Open sidebar', exact: true }).first().click()
+    await group.click()
+    await touchPage.getByRole('treeitem').filter({ hasText: 'Markdown wide tables' }).click()
+    await touchPage.getByText(TAIL_MARKER, { exact: true }).waitFor()
+    expect(await touchPage.evaluate(() => matchMedia('(hover: hover)').matches)).toBe(false)
+    const wide = touchPage.locator('[class*="tableScroll"]', { hasText: WIDE_MARKER })
+    await wide.scrollIntoViewIfNeeded()
+    expect(await wide.evaluate(element => ({
+      overflow: getComputedStyle(element).overflowX,
+      overflowing: element.scrollWidth > element.clientWidth,
+      focused: element.matches(':focus-visible'),
+    }))).toEqual({ overflow: 'auto', overflowing: true, focused: false })
+    const box = await wide.boundingBox()
+    if (box === null) throw new Error('Wide table is not visible')
+    // A wheel input must scroll the native overflow container without hover or focus.
+    // Assigning scrollLeft would also work with overflow:hidden and miss this regression.
+    await touchPage.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+    await touchPage.mouse.wheel(5_000, 0)
+    await expect.poll(() => wide.evaluate(element => element.scrollLeft)).toBeGreaterThan(0)
+    await expect.poll(() => wide.evaluate((element) => {
+      const last = element.querySelector('thead th:last-child')!
+      return last.getBoundingClientRect().right <= element.getBoundingClientRect().right + 1
+    })).toBe(true)
+    expect(touchConsole.pageErrors).toEqual([])
+  })
 
   it('reveals the wide table scrollbar on hover only', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-markdown-wide-table-scrollbar'))

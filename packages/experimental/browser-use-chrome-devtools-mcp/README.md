@@ -3,7 +3,7 @@ description: "Operate Chromium through Chrome DevTools MCP with separate browser
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-experimental-browser-use-chrome-devtools-mcp
+# @deepseek-ai/dsh-experimental-browser-use-chrome-devtools-mcp
 
 English | [中文](README.zh.md)
 
@@ -25,11 +25,11 @@ Use Chrome DevTools MCP to inspect pages and operate Chromium through its upstre
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount both entries before creating or resuming a Session, in a profile composition that supplies Agents, tools, and system prompts. Loading or reloading this provider does not adopt Sessions that are already active. Browser installation follows the upstream runtime; select an existing Chromium installation with `executablePath`.
+Mount both entries before creating or resuming a Session, in a profile composition that supplies Agents, tools, system prompts, and the working-directory service. Loading or reloading this provider does not adopt Sessions that are already active. Browser installation follows the upstream runtime; select an existing Chromium installation with `executablePath`.
 
 ```yaml
-- name: '@omega-ai/dsh-browser-use'
-- name: '@omega-ai/dsh-experimental-browser-use-chrome-devtools-mcp'
+- name: '@deepseek-ai/dsh-browser-use'
+- name: '@deepseek-ai/dsh-experimental-browser-use-chrome-devtools-mcp'
   config:
     mode: launch
     headless: true
@@ -45,7 +45,7 @@ Use `mode: attach` and set `endpoint` to an HTTP(S) debugging URL or WS(S) brows
 | `endpoint` | required for attach | Existing browser debugging endpoint |
 | `toolCallTimeoutMs` | MCP client default | Per-call timeout in milliseconds |
 
-The [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-experimental-browser-use-chrome-devtools-mcp) lists accepted fields. The profile or preset selects the browser mode.
+The [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-experimental-browser-use-chrome-devtools-mcp) lists accepted fields. The profile or preset selects the browser mode.
 
 When configuring the system prompt's `toolOrder` for the whole process, leave browser tools under `<unlisted-tools>`. Explicitly listing browser tool names can make prompt assembly fail for Sessions without a browser connection.
 
@@ -59,7 +59,7 @@ When configuring the system prompt's `toolOrder` for the whole process, leave br
 
 The provider resolves its pinned npm entry and starts it under the current Node executable. A temporary protocol probe may precede the serving process. The [shared runtime](../browser-use-runtime/README.md) owns awaited Agent initialization, per-Session serialization, and cleanup; the [MCP client](../../mcp/mcp-client/README.md) owns transport, discovery, and result projection.
 
-Browser state survives turns while its live Session remains attached. Disposal waits for server shutdown before releasing resources. Resume after reload starts fresh browser runtime state; stored conversation history does not restore cookies or pages.
+Browser state survives turns while its live Session remains attached. The MCP server starts in the Session's validated current working directory and retains that launch directory after later Session directory changes. Disposal waits for server shutdown before releasing resources. Resume after reload starts fresh browser runtime state; stored conversation history does not restore cookies or pages.
 
 </details>
 

@@ -1,20 +1,20 @@
 /**
- * Provider-side request-image pricing for Omega routes: prices every
+ * Provider-side request-image pricing for DeepSeek routes: prices every
  * retained surface occurrence at its per-model request target with
  * the published vision-token accounting, and every occurrence the surface
  * marks offloaded as its placeholder text. Consumed synchronously by the
  * token meter through `LlmAdapter.imageRequestPricing`; provider usage
  * remains the authoritative anchor for completed requests.
  *
- * @module dsh-llm-omega/request-pricing
+ * @module dsh-llm-deepseek/request-pricing
  */
 
-import { offloadedImageText, requestImageHandleText, textOnlyImageText } from '@omega-ai/dsh-llm'
-import type { ImageAttachmentAccessResolver, ImageBlock, LlmImageRequestPrice, LlmImageRequestPricing } from '@omega-ai/dsh-llm'
-import { longEdgeDimensions, requestImageDimensions } from '@omega-ai/dsh-attachment'
-import type { ImageAttachmentRef, ImageRequestTarget } from '@omega-ai/dsh-attachment'
-import { omegaImageTokens, omegaRequestImageDimensions } from './image-tokens.ts'
-import type { OmegaCatalogModel, OmegaConnectionOptions } from './types.ts'
+import { offloadedImageText, requestImageHandleText, textOnlyImageText } from '@deepseek-ai/dsh-llm'
+import type { ImageAttachmentAccessResolver, ImageBlock, LlmImageRequestPrice, LlmImageRequestPricing } from '@deepseek-ai/dsh-llm'
+import { longEdgeDimensions, requestImageDimensions } from '@deepseek-ai/dsh-attachment'
+import type { ImageAttachmentRef, ImageRequestTarget } from '@deepseek-ai/dsh-attachment'
+import { deepSeekImageTokens, deepSeekRequestImageDimensions } from './image-tokens.ts'
+import type { DeepSeekCatalogModel, DeepSeekConnectionOptions } from './types.ts'
 
 /** Default bound on accumulated file-referenced image bytes per request. */
 export const DEFAULT_MAX_REQUEST_FILES_BYTES = 128 * 1024 * 1024
@@ -31,17 +31,17 @@ export const DEFAULT_REQUEST_IMAGE_MAX_BYTES = 2 * 1024 * 1024
 export const REQUEST_IMAGE_MAX_DIMENSION = 4096
 
 /**
- * Resolve the encoded-byte target one Omega model route applies to every request image.
+ * Resolve the encoded-byte target one DeepSeek model route applies to every request image.
  * @param model - Advertised model route and its optional image overrides.
  * @returns the route's encoded-byte target.
  * @internal
  */
-export function resolveRequestImageMaxBytes(model: OmegaCatalogModel): number {
+export function resolveRequestImageMaxBytes(model: DeepSeekCatalogModel): number {
   return model.imageMaxBytes ?? DEFAULT_REQUEST_IMAGE_MAX_BYTES
 }
 
 /**
- * Resolve the deterministic request target one Omega model route chooses
+ * Resolve the deterministic request target one DeepSeek model route chooses
  * for one source image: the published token grid unless the model overrides
  * it with a pixel budget, then the provider per-side limit, then the route's
  * encoded-byte target. Small images are never enlarged.
@@ -51,12 +51,12 @@ export function resolveRequestImageMaxBytes(model: OmegaCatalogModel): number {
  * @internal
  */
 export function resolveRequestImageTarget(
-  model: OmegaCatalogModel,
+  model: DeepSeekCatalogModel,
   source: Pick<ImageAttachmentRef, 'width' | 'height'>,
 ): ImageRequestTarget {
   const budget = model.imagePixelBudget === 'low' ? DEFAULT_LOW_DETAIL_IMAGE_PIXEL_BUDGET : model.imagePixelBudget
   const projected = budget === undefined
-    ? omegaRequestImageDimensions(source.width, source.height)
+    ? deepSeekRequestImageDimensions(source.width, source.height)
     : requestImageDimensions(source.width, source.height, budget)
   const capped = Math.max(projected.width, projected.height) > REQUEST_IMAGE_MAX_DIMENSION
     ? longEdgeDimensions(source.width, source.height, REQUEST_IMAGE_MAX_DIMENSION)
@@ -74,7 +74,7 @@ function textOnlyPrice(block: ImageBlock): LlmImageRequestPrice {
 }
 
 /**
- * Build the request-image pricing for one Omega route from a validated
+ * Build the request-image pricing for one DeepSeek route from a validated
  * connection snapshot. Uncatalogued and text-only models price every
  * occurrence as its deterministic text substitution; image-capable models
  * price an offloaded occurrence as its placeholder text and a retained one by
@@ -87,8 +87,8 @@ function textOnlyPrice(block: ImageBlock): LlmImageRequestPrice {
  * @param resolveAccess - current execution-world access resolution shared with request serialization.
  * @returns synchronous per-occurrence pricing for the route.
  */
-export function omegaImageRequestPricing(
-  connection: OmegaConnectionOptions,
+export function deepSeekImageRequestPricing(
+  connection: DeepSeekConnectionOptions,
   model: string,
   resolveAccess?: ImageAttachmentAccessResolver,
 ): LlmImageRequestPricing {
@@ -103,7 +103,7 @@ export function omegaImageRequestPricing(
       }
       const target = resolveRequestImageTarget(catalogModel, ref)
       return {
-        visualTokens: omegaImageTokens(target.width, target.height),
+        visualTokens: deepSeekImageTokens(target.width, target.height),
         text: requestImageHandleText(ref, target, resolveAccess?.(ref)),
       }
     }),

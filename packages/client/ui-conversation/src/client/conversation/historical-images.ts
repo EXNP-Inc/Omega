@@ -1,10 +1,10 @@
 /** Session-scoped durable image URL cache shared by Conversation targets. */
-import type { Context } from '@omega-ai/cordis'
-import type { ImageAttachmentRef } from '@omega-ai/dsh-attachment'
-import type { ISessions, SessionBinding } from '@omega-ai/dsh-api-session-controller/client'
-import type { SessionId } from '@omega-ai/dsh-session/types'
-import { bytesToBase64 } from '@omega-ai/dsh-util-crypto'
-import { WeakMapWithValues } from '@omega-ai/dsh-util-values'
+import type { Context } from '@deepseek-ai/cordis'
+import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
+import type { ISessions, SessionBinding } from '@deepseek-ai/dsh-api-session-controller/client'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { bytesToBase64 } from '@deepseek-ai/dsh-util-crypto'
+import { WeakMapWithValues } from '@deepseek-ai/dsh-util-values'
 
 interface ImageUrlEntry {
   readonly binding: SessionBinding
@@ -28,8 +28,8 @@ export class HistoricalImageCache {
   }
 
   /**
-   * Resolve and cache one session-authorized image URL.
-   * @param sessionId - Session authorization and lifetime scope.
+   * Resolve and cache one stored image URL.
+   * @param sessionId - Session binding that owns the cached URL lifetime.
    * @param attachment - Durable image reference.
    * @returns browser URL valid until the Session binding is released.
    */
@@ -54,7 +54,7 @@ export class HistoricalImageCache {
 
   /**
    * Return an already-displayable URL without starting a read.
-   * @param sessionId - Session authorization and lifetime scope.
+   * @param sessionId - Session binding that owns the cached URL lifetime.
    * @param attachment - Durable image reference.
    * @returns current preview or canonical URL when cached.
    */
@@ -67,7 +67,7 @@ export class HistoricalImageCache {
    * Adopt a submission preview while fetching the durable admitted bytes.
    * The preview is available synchronously, then replaced and revoked when
    * the canonical attachment read completes.
-   * @param sessionId - Session authorization and lifetime scope.
+   * @param sessionId - Session binding that owns the cached URL lifetime.
    * @param attachment - Durable image reference the URL temporarily displays.
    * @param url - browser URL to adopt.
    * @returns whether the cache took ownership.
@@ -105,7 +105,7 @@ export class HistoricalImageCache {
     entry: ImageUrlEntry,
     attachment: ImageAttachmentRef,
   ): Promise<string> {
-    return entry.binding.session.readAttachment(attachment.attachmentId)
+    return entry.binding.session.readAttachment(attachment)
       .then((result) => {
         if (!result.ok) throw new Error(`${result.error.code}: ${result.error.message}`)
         this.assertLive(key, entry)

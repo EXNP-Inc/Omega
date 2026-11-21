@@ -1,10 +1,12 @@
 - banner:
   - navigation "Session hierarchy": {{workspace}}
+  - button "Session panel"
   - button "More actions"
   - button "Open right sidebar"
   - tablist:
     - tab "Chat" [selected]
     - tab "Trajectory"
+  - button "More conversation views"
 - navigation "Turn navigation":
   - button "Jump to turn 1"
   - button "Jump to turn 2"
@@ -34,6 +36,7 @@
   - button "Jump to turn 26"
   - button "Jump to turn 27"
   - button "Jump to turn 28"
+- button "Start of conversation" [disabled]
 - text: m1 7/25 {{clock}}
 - button "Copy"
 - status: Completed
@@ -291,6 +294,6 @@
 - textbox "Message or run a task, / commands, @ files or sessions"
 - button "Add files or run commands"
 - 'button "Access mode, current: Workspace Write"': Workspace Write
-- button "Select model, current Omega-V4-Flash": Omega-V4-Flash
+- button "Select model, current DeepSeek-V4-Flash": DeepSeek-V4-Flash
 - button "Send message" [disabled]
 - button "28 turns 28 steps"

@@ -9,9 +9,9 @@ Services support direct calls; **events** let a plugin announce something withou
 Create `stats.ts` in `tmp/cordis-tutorial` — a service that counts things and announces each change:
 
 ```ts
-import { Service, type Context } from '@omega-ai/cordis'
+import { Service, type Context } from '@deepseek-ai/cordis'
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
     stats: StatsService
   }
@@ -46,7 +46,7 @@ The `interface Events` merge is the event-system twin of the `interface Context`
 Create `reporter.ts`:
 
 ```ts ignore-check
-import type { Context } from '@omega-ai/cordis'
+import type { Context } from '@deepseek-ai/cordis'
 import type {} from './stats.ts'
 
 export const name = 'reporter'
@@ -96,9 +96,9 @@ Every harness event documents its mode in the generated reference on its owning 
 Waterfall is the mode that powers interception. Each listener receives the arguments plus a `next()` continuation; it can transform what `next()` returns, or return without calling `next()` and short-circuit the rest of the chain — what the Cordis docs call the veto. Create `waterfall-demo.ts`:
 
 ```ts
-import type { Context } from '@omega-ai/cordis'
+import type { Context } from '@deepseek-ai/cordis'
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Events {
     'demo/transform'(input: string, next: () => Promise<string>): Promise<string>
   }
@@ -137,8 +137,8 @@ Walk through the second line: listener 1 runs first, calls `next()`, which invok
 
 The discipline that follows: **a waterfall listener that only observes or annotates must call `next()`**; returning without it is a deliberate short-circuit. Forgetting `next()` in a logging listener silently swallows the default behavior for everyone downstream. It is a standing rule of this repository ([waterfall semantics](../cordis-primer.md#cordis-waterfall-semantics)).
 
-The harness uses waterfalls for decisions that cooperating plugins may wrap or answer: [`agent/request`](../subsystems/core.md#agentrequest--waterfall) lets a plugin replace the model-call config, and [`approval/request`](../subsystems/approval.md#approvalrequest--waterfall) lets a policy answer instead of the user.
+The harness uses waterfalls for decisions that cooperating plugins may wrap or answer: [`agent/pre-step`](../subsystems/core.md#agentpre-step--waterfall) lets a plugin reject a proposed step or replace its input, and [`approval/request`](../subsystems/approval.md#approvalrequest--waterfall) lets a policy answer instead of the user.
 
 Next: [Configuration](05-config.md) — plugin options from `cordis.yml`.
 
-[![](https://img.shields.io/badge/powered_by-dsh-4D6BFE?style=flat-square&logo=omega&logoColor=white)](https://github.com/omega-ai/omega-harness)
+[![](https://img.shields.io/badge/powered_by-dsh-4D6BFE?style=flat-square&logo=deepseek&logoColor=white)](https://github.com/deepseek-ai/deepseek-harness)

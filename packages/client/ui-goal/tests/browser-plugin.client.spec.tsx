@@ -9,19 +9,19 @@
  * reaches the strip verbatim. Registration disposal rides the
  * plugin fiber (HMR safety), and the node half stays inert.
  */
-import { Context, Service } from '@omega-ai/cordis'
+import { Context, Service } from '@deepseek-ai/cordis'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import { afterEach } from 'vitest'
-import { SlotRegistry } from '@omega-ai/dsh-client-ui-renderer/client'
-import { UiConversation } from '@omega-ai/dsh-client-ui-conversation/client'
-import type { SessionId } from '@omega-ai/dsh-session/types'
-import type { GoalActivation, GoalId, GoalProjection, GoalView } from '@omega-ai/dsh-goal/client'
-import { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
-import { makeTranslate, RemoteError, TestSessions } from '@omega-ai/dsh-client-test-runtime'
-import type { SessionFixture } from '@omega-ai/dsh-client-test-runtime'
-import type { RemoteFailure } from '@omega-ai/dsh-api-remotes/client'
-import { zh as commonZh } from '@omega-ai/dsh-client-locale/src/locales/zh.ts'
+import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
+import { UiConversation } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import type { GoalActivation, GoalId, GoalProjection, GoalView } from '@deepseek-ai/dsh-goal/client'
+import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
+import { makeTranslate, RemoteError, TestSessions } from '@deepseek-ai/dsh-client-test-runtime'
+import type { SessionFixture } from '@deepseek-ai/dsh-client-test-runtime'
+import type { RemoteFailure } from '@deepseek-ai/dsh-api-remotes/client'
+import { zh as commonZh } from '@deepseek-ai/dsh-client-locale/src/locales/zh.ts'
 import type { GoalActivationSnapshot, GoalBarActions, GoalBarInjected } from '../src/client/slots.ts'
 import { apply, inject } from '../src/client/index.ts'
 import { GoalDock } from '../src/client/GoalBar.tsx'
@@ -379,7 +379,7 @@ describe('GoalDock adapter', () => {
     const t = makeTranslate(zh, commonZh)
     const props = { useProjection, useGoalActivation, ...actions, t } as unknown as Parameters<typeof GoalDock>[0]
     const rendered = render(<GoalDock {...props} />)
-    expect(rendered.getByText('已暂停的目标')).toBeTruthy()
+    expect(rendered.getByText('待继续的目标')).toBeTruthy()
     expect(screen.getByRole('button', { name: '恢复目标' })).toBeTruthy()
     expect(rendered.queryByRole('button', { name: '暂停目标' })).toBeNull()
   })

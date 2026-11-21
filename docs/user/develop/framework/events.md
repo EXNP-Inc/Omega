@@ -85,9 +85,9 @@ A waterfall listener **must call `next()`**. Omitting it short-circuits the pipe
 Harness uses TypeScript declaration merging for type-safe events:
 
 ```ts
-import '@omega-ai/cordis'
+import '@deepseek-ai/cordis'
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Events {
     'my-plugin/ready': (payload: { id: string }) => void
     'my-plugin/check': (input: string) => boolean | undefined
@@ -101,7 +101,7 @@ declare module '@omega-ai/cordis' {
 
 ## Cordis events and session records
 
-Harness Cordis events use `namespace/action` names, including `agent/pre-step`, `agent/request`, `agent/request-error`, `tools/result`, and `session/event`. The generated `cordis-surface` regions on the [subsystem pages](../../../subsystems/core.md) record complete signatures and modes.
+Harness Cordis events use `namespace/action` names, including `agent/pre-step`, `agent/request-error`, `tools/result`, and `session/event`. The generated `cordis-surface` regions on the [subsystem pages](../../../subsystems/core.md) record complete signatures and modes.
 
 `turn/*`, `step/*`, `tool/call`, `tool/result`, and `compaction/*` are durable session-event types, not same-named Cordis events. To observe them, listen to `session/event` and inspect `event.type`.
 
@@ -121,8 +121,8 @@ export function apply(ctx: Context) {
 This plugin logs tool calls and results:
 
 ```ts
-import type { Context } from '@omega-ai/cordis'
-import '@omega-ai/dsh-tools'
+import type { Context } from '@deepseek-ai/cordis'
+import '@deepseek-ai/dsh-tools'
 
 export const name = 'tool-logger'
 

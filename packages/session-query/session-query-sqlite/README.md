@@ -3,7 +3,7 @@ description: "The SQLite FTS5 full-text search backend for session history, for 
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-session-query-sqlite
+# @deepseek-ai/dsh-session-query-sqlite
 
 English | [中文](README.zh.md)
 
@@ -34,8 +34,8 @@ Choose it when you want full-text recall over prior sessions with ranking and pa
 ### Minimal configuration
 
 ```yaml
-- name: '@omega-ai/dsh-session'
-- name: '@omega-ai/dsh-session-query-sqlite'
+- name: '@deepseek-ai/dsh-session'
+- name: '@deepseek-ai/dsh-session-query-sqlite'
   config:
     path: /absolute/path/to/session-search.db
 ```
@@ -52,7 +52,7 @@ Choose it when you want full-text recall over prior sessions with ranking and pa
 | `persistedReadConcurrency` | `4` | Concurrent persisted-log reads for inherited batch reads |
 | `preparedSessionCacheSize` | `5` | Cold prepared-Session observations the inherited `observeSession` reader retains for reuse |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-session-query-sqlite) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-session-query-sqlite) is the exhaustive source for every accepted field and its JSDoc.
 
 ### Search behavior
 
@@ -118,7 +118,7 @@ Read these pages when the package-level contract is not enough. They move from t
 
 - [Session Query subsystem reference](../../../docs/subsystems/session-query.md) — the full type-level contract this backend implements.
 - [dsh-session-query](../session-query/README.md) — the service definition: exact reads, filters, and traces this backend inherits.
-- [dsh-tool-session-query](../tool-session-query/README.md) — the model-facing consumer that calls these search methods.
+- [dsh-tool-session-query](../../experimental/tool-session-query/README.md) — the model-facing consumer that calls these search methods.
 - [SQLite FTS5 session search](../../../.agents/notes/archived/feature/2026-07-10-sqlite-session-query-provider.md) — search semantics, reconciliation, and the tokenizer decision.
 - [JSONL session persistence](../../session/session-persistence-jsonl/README.md) — the authoritative Session store this disposable index observes; keep its root separate from this package's database path.
 

@@ -1,12 +1,15 @@
-import { Context } from '@omega-ai/cordis'
-import Timer from '@omega-ai/cordis-plugin-timer'
-import { ToolCallId } from '@omega-ai/dsh-llm'
-import SystemPrompt from '@omega-ai/dsh-system-prompt'
-import ToolRegistry from '@omega-ai/dsh-tools'
-import type { ToolDefinition, ToolExecutionResult } from '@omega-ai/dsh-tools'
+import { executeToolFixture } from '@deepseek-ai/dsh-tool-testkit'
+import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
+import { Context } from '@deepseek-ai/cordis'
+import Timer from '@deepseek-ai/cordis-plugin-timer'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { ToolCallId } from '@deepseek-ai/dsh-llm/types'
+import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
+import ToolRegistry from '@deepseek-ai/dsh-tools'
+import type { ToolDefinition, ToolExecutionResult } from '@deepseek-ai/dsh-tools'
 import type { CordisDynamicPluginId } from '../src/types.ts'
-import type { Agent } from '@omega-ai/dsh-agent'
-import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { Agent } from '@deepseek-ai/dsh-agent'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import DynamicCordisRunnerService from '../src/index.ts'
 import type { Config } from '../src/index.ts'
 
@@ -56,6 +59,7 @@ export async function setup(config?: Config): Promise<Harness> {
   await ctx.plugin(Timer)
   await ctx.plugin(SystemPrompt)
   await ctx.plugin(ToolRegistry)
+  await ctx.plugin(NativeToolExecutor)
   const gateway: Gateway = { events: [] }
   ctx.on('cordis/request-run', (request) => {
     gateway.events.push(['cordis/request-run', request])
@@ -145,9 +149,9 @@ let callCounter = 0
 
 /** Execute a registered tool through the real registry pipeline. */
 export function call(ctx: Context, name: string, args: unknown): Promise<ToolExecutionResult> {
-  return ctx.tools.execute({
+  return executeToolFixture(ctx, {
     signal: new AbortController().signal,
-    callId: ToolCallId(`call-${++callCounter}`),
+    callId: brandString<ToolCallId>(`call-${++callCounter}`),
     name,
     arguments: args,
   })

@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
-import { Context, Service } from '@omega-ai/cordis'
+import { Context, Service } from '@deepseek-ai/cordis'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import {
   bindTypertRemote,
@@ -12,11 +12,12 @@ import {
   type TypertContext,
   type TypertForwardableEvent,
   type TypertForwardableEventEntry,
+  type TypertResource,
   type TypertLookup,
   type TypertRemoteEvent,
-} from '@omega-ai/dsh-typert-protocol'
+} from '@deepseek-ai/dsh-typert-protocol'
 
-const REMOTE_METHOD_DESCRIPTOR_KEY = '@omega-ai/dsh-typert-protocol/remote-methods'
+const REMOTE_METHOD_DESCRIPTOR_KEY = '@deepseek-ai/dsh-typert-protocol/remote-methods'
 
 interface MetaFixtureSubject {
   readonly subjectId: string
@@ -29,7 +30,7 @@ interface MetaFixtureRequest {
   readonly transform: (subject: MetaFixtureSubject) => Promise<MetaFixtureSubject | undefined>
 }
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Events {
     /**
      * Test-only one-way event: bound to no Scope and returning nothing.
@@ -61,7 +62,7 @@ declare module '@omega-ai/cordis' {
   }
 }
 
-declare module '@omega-ai/dsh-typert-protocol' {
+declare module '@deepseek-ai/dsh-typert-protocol' {
   interface TypertLookupMap {
     metaFixture: TypertLookup<MetaFixtureSubject, string>
   }
@@ -69,6 +70,11 @@ declare module '@omega-ai/dsh-typert-protocol' {
   interface TypertContextMap {
     metaFixture: TypertContext<string>
     otherFixture: TypertContext<string>
+  }
+
+  interface TypertResourceMap {
+    /** Test-only resource kind read from fixture event payloads. */
+    'meta-fixture-id': TypertResource<string>
   }
 
   interface TypertRemoteEventSelection extends
@@ -245,7 +251,7 @@ describe('typert-protocol Remote declarations', () => {
       follow(): void {}
     }
     const initializers: Array<(this: Jobs) => void> = []
-    Remote({ mode: 'stream' })(Reflect.get(Jobs.prototype, 'follow'), methodContext('follow', initializers))
+    Remote<Jobs, unknown[], unknown>({ mode: 'stream' })(Reflect.get(Jobs.prototype, 'follow'), methodContext('follow', initializers))
     const jobs = new Jobs()
     for (const initialize of initializers) initialize.call(jobs)
     expect(remoteMethods(jobs)).toEqual([
@@ -305,11 +311,12 @@ describe('typert-protocol Remote declarations', () => {
     expect(() => Remote('bad name')).toThrow('export name')
     expect(() => Remote('.')).toThrow('export name')
     expect(() => Remote('..')).toThrow('export name')
-    expect(() => Remote({ mode: 'unary' } as unknown as { mode: 'stream' })).toThrow('exactly mode')
-    expect(() => Remote({ mode: 'stream', extra: true } as unknown as { mode: 'stream' })).toThrow('exactly mode')
+    expect(() => Remote({ mode: 'unary' } as unknown as { mode: 'stream' })).toThrow('Remote options require')
+    expect(() => Remote({ mode: 'stream', extra: true } as unknown as { mode: 'stream' })).toThrow('Remote options require')
     const bogusMode: string = 'duplex'
     expect(() => Remote({ mode: bogusMode } as { mode: 'stream' }))
-      .toThrow('Remote options must contain exactly mode: "stream"')
+      .toThrow('Remote options require name, mode: "stream", or resources')
+    expect(() => Remote({})).toThrow('Remote options require')
     expect(() => RemoteScope('' as 'metaFixture')).toThrow('Scope key')
     expect(() => RemoteScope('metaFixture', 'bad/name')).toThrow('export name')
 
@@ -320,6 +327,23 @@ describe('typert-protocol Remote declarations', () => {
     ]) {
       expect(() => { Remote(method, context) })
         .toThrow('public instance method')
+    }
+  })
+
+  it('retains transport identity and mode for renamed streams', async () => {
+    const ctx = new Context()
+    class ItemsService extends TypertRemoteService {
+      constructor(owner: Context) { super(owner, 'itemsFixture') }
+
+      @Remote({ name: 'items', mode: 'stream' })
+      async *read(): AsyncIterable<string> { yield 'first' }
+    }
+    try {
+      expect(remoteMethods(new ItemsService(ctx))).toEqual([{
+        method: 'read', exportName: 'items', mode: 'stream', invocation: { kind: 'direct' },
+      }])
+    } finally {
+      await ctx.fiber.dispose()
     }
   })
 
@@ -388,6 +412,12 @@ describe('typert-protocol Remote declarations', () => {
     expect(() => { directSecond[0]!.call(reverseService) }).toThrow('conflicting invocation markers')
   })
 
+  it('leaves bindings without a Cordis Context free of an invocation accessor', () => {
+    const service = { ctx: {} }
+    expect(bindTypertRemote(service, 'plain')).toEqual({ service, serviceKey: 'plain', namespace: 'plain' })
+    expect(Object.hasOwn(service.ctx, 'invocation')).toBe(false)
+  })
+
   it('rejects ambiguous binding names', () => {
     expect(() => bindTypertRemote({}, '')).toThrow('service key')
     expect(() => bindTypertRemote({}, 'goals', { namespace: 'api/goals' })).toThrow('namespace')
@@ -411,6 +441,25 @@ describe('typert-protocol Remote declarations', () => {
       .toExtend<TypertForwardableEventEntry>()
     expectTypeOf<{ event: 'meta-fixture/waterfall'; mode: 'emit' }>()
       .not.toExtend<TypertForwardableEventEntry>()
+  })
+
+  it('types the resource readers of an emit entry by its own event parameters', () => {
+    const entries = [
+      {
+        event: 'meta-fixture/forwardable',
+        mode: 'emit',
+        resources: { 'meta-fixture-id': (value) => { expectTypeOf(value).toEqualTypeOf<string>(); return value } },
+      },
+      { event: 'meta-fixture/waterfall', mode: 'waterfall' },
+    ] as const satisfies readonly TypertForwardableEventEntry[]
+    const wrong = [{
+      event: 'meta-fixture/forwardable',
+      mode: 'emit',
+      // @ts-expect-error -- a reader returns the kind's identity type, not the payload's length.
+      resources: { 'meta-fixture-id': value => value.length },
+    }] as const satisfies readonly TypertForwardableEventEntry[]
+    expect(entries[0].resources['meta-fixture-id']('s1')).toBe('s1')
+    expect(wrong).toHaveLength(1)
   })
 
   it('derives Client Context arguments from the selected Cordis waterfall declaration', () => {

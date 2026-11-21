@@ -2,11 +2,11 @@
 
 - insert:
     - id: llm-replay
-      name: '@omega-ai/dsh-llm-replay'
+      name: '@deepseek-ai/dsh-llm-replay'
       config:
         providers:
-          - id: omega-official
-            name: Omega
+          - id: deepseek-official
+            name: DeepSeek
             models:
               - id: mock-delegate
           - id: mock
@@ -16,11 +16,11 @@
                 reasoningEfforts: [max]
 
     - id: sdk-jsonrpc-server-dynamic-replay
-      name: '@omega-ai/dsh-sdk-jsonrpc-server'
+      name: '@deepseek-ai/dsh-sdk-jsonrpc-server'
       inject: [sdkAppStartup, loader]
       config:
         maxTokensAsSuccess: true
 
-- id: session-log-omega
+- id: session-log-deepseek
   config:
     enabled: false

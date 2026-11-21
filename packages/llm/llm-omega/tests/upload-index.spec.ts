@@ -2,12 +2,13 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { AttachmentId, ImageVariantId } from '@omega-ai/dsh-attachment'
-import { OmegaFileId } from '../src/file-id.ts'
-import { omegaFileScope, OmegaUploadIndex } from '../src/upload-index.ts'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { AttachmentId, ImageVariantId } from '@deepseek-ai/dsh-attachment/types'
+import type { DeepSeekFileId } from '../src/file-id.ts'
+import { deepSeekFileScope, DeepSeekUploadIndex } from '../src/upload-index.ts'
 
-const ATTACHMENT = AttachmentId(`sha256:${'a'.repeat(64)}`)
-const VARIANT = ImageVariantId(`sha256:${'b'.repeat(64)}`)
+const ATTACHMENT = brandString<AttachmentId>(`sha256:${'a'.repeat(64)}`)
+const VARIANT = brandString<ImageVariantId>(`sha256:${'b'.repeat(64)}`)
 
 /** Every temp index root created by this file, removed after each test. */
 const roots: string[] = []
@@ -15,23 +16,23 @@ afterEach(async () => {
   for (const root of roots.splice(0)) await rm(root, { recursive: true, force: true })
 })
 
-describe('OmegaUploadIndex', () => {
+describe('DeepSeekUploadIndex', () => {
   it('normalizes trailing endpoint slashes in the credential scope', () => {
-    expect(omegaFileScope('https://api.omega.com///', 'key'))
-      .toBe(omegaFileScope('https://api.omega.com', 'key'))
+    expect(deepSeekFileScope('https://api.deepseek.com///', 'key'))
+      .toBe(deepSeekFileScope('https://api.deepseek.com', 'key'))
   })
 
   it('isolates API-key namespaces and reuses only records above the refresh margin', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'dsh-upload-index-'))
     roots.push(dir)
-    const index = new OmegaUploadIndex(join(dir, 'index.json'))
-    const first = omegaFileScope('https://api.omega.com', 'first-key')
-    const second = omegaFileScope('https://api.omega.com', 'second-key')
+    const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
+    const first = deepSeekFileScope('https://api.deepseek.com', 'first-key')
+    const second = deepSeekFileScope('https://api.deepseek.com', 'second-key')
     const record = {
       scope: first,
       attachmentId: ATTACHMENT,
       variantId: VARIANT,
-      fileId: OmegaFileId('file-api-one'),
+      fileId: brandString<DeepSeekFileId>('file-api-one'),
       bytes: 3,
       createdAt: 1_000,
       expiresAt: 10_000,
@@ -46,13 +47,13 @@ describe('OmegaUploadIndex', () => {
   it('keeps a reusable cross-process winner and removes only an exact generation', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'dsh-upload-index-'))
     roots.push(dir)
-    const index = new OmegaUploadIndex(join(dir, 'index.json'))
-    const scope = omegaFileScope('https://api.omega.com', 'key')
+    const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
+    const scope = deepSeekFileScope('https://api.deepseek.com', 'key')
     const first = {
       scope, attachmentId: ATTACHMENT, variantId: VARIANT,
-      fileId: OmegaFileId('file-api-first'), bytes: 3, createdAt: 1, expiresAt: 10_000,
+      fileId: brandString<DeepSeekFileId>('file-api-first'), bytes: 3, createdAt: 1, expiresAt: 10_000,
     }
-    const duplicate = { ...first, fileId: OmegaFileId('file-api-duplicate') }
+    const duplicate = { ...first, fileId: brandString<DeepSeekFileId>('file-api-duplicate') }
     await index.commit(first, 1, 1)
 
     await expect(index.commit(duplicate, 2, 1)).resolves.toEqual({ record: first, accepted: false })
@@ -65,11 +66,11 @@ describe('OmegaUploadIndex', () => {
   it('removes several exact generations in one update and keeps unlisted mappings', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'dsh-upload-index-'))
     roots.push(dir)
-    const index = new OmegaUploadIndex(join(dir, 'index.json'))
-    const scope = omegaFileScope('https://api.omega.com', 'key')
+    const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
+    const scope = deepSeekFileScope('https://api.deepseek.com', 'key')
     const record = (digest: string) => ({
-      scope, attachmentId: ATTACHMENT, variantId: ImageVariantId(`sha256:${digest.repeat(64)}`),
-      fileId: OmegaFileId(`file-api-${digest}`), bytes: 3, createdAt: 1, expiresAt: 10_000,
+      scope, attachmentId: ATTACHMENT, variantId: brandString<ImageVariantId>(`sha256:${digest.repeat(64)}`),
+      fileId: brandString<DeepSeekFileId>(`file-api-${digest}`), bytes: 3, createdAt: 1, expiresAt: 10_000,
     })
     const first = record('b')
     const second = record('c')
@@ -79,7 +80,7 @@ describe('OmegaUploadIndex', () => {
     await index.remove(scope, [
       { variantId: first.variantId, fileId: first.fileId },
       { variantId: second.variantId, fileId: second.fileId },
-      { variantId: third.variantId, fileId: OmegaFileId('file-api-superseded') },
+      { variantId: third.variantId, fileId: brandString<DeepSeekFileId>('file-api-superseded') },
     ])
     await expect(index.get(scope, first.variantId, 2, 1)).resolves.toBeUndefined()
     await expect(index.get(scope, second.variantId, 2, 1)).resolves.toBeUndefined()
@@ -91,13 +92,13 @@ describe('OmegaUploadIndex', () => {
     roots.push(dir)
     const path = join(dir, 'index.json')
     await writeFile(path, '{bad', 'utf8')
-    const index = new OmegaUploadIndex(path)
-    const scope = omegaFileScope('https://api.omega.com', 'key')
+    const index = new DeepSeekUploadIndex(path)
+    const scope = deepSeekFileScope('https://api.deepseek.com', 'key')
     const record = {
       scope,
       attachmentId: ATTACHMENT,
       variantId: VARIANT,
-      fileId: OmegaFileId('file-api-repaired'),
+      fileId: brandString<DeepSeekFileId>('file-api-repaired'),
       bytes: 3,
       createdAt: 1,
       expiresAt: 10_000,
@@ -164,9 +165,9 @@ describe('OmegaUploadIndex', () => {
     roots.push(dir)
     const path = join(dir, 'index.json')
     await writeFile(path, text, 'utf8')
-    const index = new OmegaUploadIndex(path)
+    const index = new DeepSeekUploadIndex(path)
     await expect(index.get(
-      omegaFileScope('https://api.omega.com', 'key'), VARIANT, 1, 1,
+      deepSeekFileScope('https://api.deepseek.com', 'key'), VARIANT, 1, 1,
     )).resolves.toBeUndefined()
   })
 
@@ -174,28 +175,28 @@ describe('OmegaUploadIndex', () => {
     const dir = await mkdtemp(join(tmpdir(), 'dsh-upload-index-'))
     roots.push(dir)
     const path = join(dir, 'index.json')
-    const scope = omegaFileScope('https://api.omega.com', 'key')
+    const scope = deepSeekFileScope('https://api.deepseek.com', 'key')
     const record = {
       scope, attachmentId: ATTACHMENT, variantId: VARIANT,
-      fileId: OmegaFileId('file-api-one'), bytes: 3, createdAt: 1, expiresAt: 10_000,
+      fileId: brandString<DeepSeekFileId>('file-api-one'), bytes: 3, createdAt: 1, expiresAt: 10_000,
     }
     await writeFile(path, JSON.stringify({ formatVersion: 3, records: [record, record] }), 'utf8')
-    const index = new OmegaUploadIndex(path)
+    const index = new DeepSeekUploadIndex(path)
     await expect(index.get(scope, VARIANT, 1, 1)).resolves.toBeUndefined()
   })
 
   it('drops expired records on commit and clears only the selected namespace', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'dsh-upload-index-'))
     roots.push(dir)
-    const index = new OmegaUploadIndex(join(dir, 'index.json'))
-    const first = omegaFileScope('https://api.omega.com', 'first')
-    const second = omegaFileScope('https://api.omega.com', 'second')
+    const index = new DeepSeekUploadIndex(join(dir, 'index.json'))
+    const first = deepSeekFileScope('https://api.deepseek.com', 'first')
+    const second = deepSeekFileScope('https://api.deepseek.com', 'second')
     const expired = {
       scope: first, attachmentId: ATTACHMENT, variantId: VARIANT,
-      fileId: OmegaFileId('file-api-expired'), bytes: 3, createdAt: 1, expiresAt: 2,
+      fileId: brandString<DeepSeekFileId>('file-api-expired'), bytes: 3, createdAt: 1, expiresAt: 2,
     }
     const live = {
-      ...expired, scope: second, fileId: OmegaFileId('file-api-live'), expiresAt: 10_000,
+      ...expired, scope: second, fileId: brandString<DeepSeekFileId>('file-api-live'), expiresAt: 10_000,
     }
     await index.commit(expired, 0, 0)
     await index.commit(live, 3, 1)
@@ -210,9 +211,9 @@ describe('OmegaUploadIndex', () => {
     roots.push(dir)
     const path = join(dir, 'directory')
     await mkdir(path)
-    const index = new OmegaUploadIndex(path)
+    const index = new DeepSeekUploadIndex(path)
     await expect(index.get(
-      omegaFileScope('https://api.omega.com', 'key'), VARIANT, 1, 1,
+      deepSeekFileScope('https://api.deepseek.com', 'key'), VARIANT, 1, 1,
     )).rejects.toBeInstanceOf(Error)
   })
 })

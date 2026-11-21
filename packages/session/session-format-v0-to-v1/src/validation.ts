@@ -4,16 +4,16 @@ import {
   SessionFormatUnsupportedMigrationError,
   sessionFormatCount,
   sessionFormatSafeInteger,
-} from '@omega-ai/dsh-session-format'
-import { isJsonValue } from '@omega-ai/dsh-util-values'
+} from '@deepseek-ai/dsh-session-format'
+import { isJsonValue } from '@deepseek-ai/dsh-util-values'
 import type {
   SessionFormatArtifact,
   SessionFormatEvent,
   SessionFormatHeader,
   SessionFormatJsonValue,
-} from '@omega-ai/dsh-session-format'
+} from '@deepseek-ai/dsh-session-format'
 import { RELEASED_V0_EVENT_DISPOSITIONS } from './dispositions.ts'
-import { assertReleasedPayloadSemantics } from './payload-validation.ts'
+import { assertReleasedPayloadSemantics, SUBAGENT_DESCRIPTOR_VERSIONS } from './payload-validation.ts'
 import { assertReleasedV0Keys, releasedV0Record } from './validation-helpers.ts'
 
 const HEADER_REQUIRED = ['version', 'id', 'createdAt', 'isSeeded', 'delegationDepth'] as const
@@ -195,7 +195,7 @@ export function assertReleasedEventPayload(event: SessionFormatEvent, version: 0
     )
   }
   const data = releasedV0Record(event.data, `${event.type} ${event.seq} data`)
-  if (event.type === 'subagent/descriptor' && data['version'] !== 3) {
+  if (event.type === 'subagent/descriptor' && !SUBAGENT_DESCRIPTOR_VERSIONS.some(known => known === data['version'])) {
     const descriptorVersion = sessionFormatCount(data['version'], `${event.type} ${event.seq} version`)
     if (version === 0) {
       throw new SessionFormatUnsupportedMigrationError(
@@ -204,7 +204,7 @@ export function assertReleasedEventPayload(event: SessionFormatEvent, version: 0
     }
     return
   }
-  const versionOptional = version === 1 && event.type === 'session-log-omega/delivery-accepted'
+  const versionOptional = version === 1 && event.type === 'session-log-deepseek/delivery-accepted'
     ? [...disposition.optional, 'sessionFormatVersion']
     : disposition.optional
   assertReleasedV0Keys(data, disposition.required, versionOptional, `${event.type} ${event.seq} data`)

@@ -1,13 +1,13 @@
 {
-  "name": "@omega-ai/dsh-chunked-list",
+  "name": "@deepseek-ai/dsh-chunked-list",
   "description": "Persistent append-only chunked lists with bounded copying and JSON checkpoint validation",
-  "version": "0.2.1-alpha.1",
+  "version": "0.2.2-rc.5",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/omega-ai/omega-harness.git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
     "directory": "packages/util/chunked-list"
   },
   "type": "module",
@@ -23,16 +23,19 @@
   },
   "files": [
     "lib/index.js",
-    "lib/types/**/*.d.ts"
+    "lib/types/**/*.d.ts",
+    "lib/types/**/*.d.ts.map",
+    "lib/**/*.js.map",
+    "src"
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@omega-ai/cordis": "workspace:~"
+    "@deepseek-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@omega-ai/cordis": "workspace:~"
+    "@deepseek-ai/cordis": "workspace:~"
   },
   "dependencies": {
-    "zod": "^4.4.3"
+    "zod": "4.6.6"
   }
 }

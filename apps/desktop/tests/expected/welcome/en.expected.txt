@@ -1,6 +1,6 @@
-Omega
-Omega
-Welcome to Omega
+DeepSeek Harness
+DeepSeek Harness
+Welcome to DeepSeek Harness
 Build potential. Explore intelligence.
 Sign in
 Add API Key

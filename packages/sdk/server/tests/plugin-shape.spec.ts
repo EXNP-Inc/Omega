@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import Loader from '@omega-ai/cordis-plugin-loader'
+import Loader from '@deepseek-ai/cordis-plugin-loader'
 import * as jsonrpc from '../src/index.ts'
 
 /**
@@ -15,7 +15,7 @@ describe('dsh-sdk-jsonrpc-server plugin export shape', () => {
     const unwrapped = loader.unwrapExports(jsonrpc) as Record<string, unknown>
     expect(unwrapped).toBe(jsonrpc)
     expect(unwrapped.name).toBe('sdk-jsonrpc-server')
-    expect(unwrapped.inject).toEqual(['agents'])
+    expect(unwrapped.inject).toEqual(['agents', 'workingDirectory'])
     expect(unwrapped.Config).toBeDefined()
     expect(typeof unwrapped.apply).toBe('function')
   })

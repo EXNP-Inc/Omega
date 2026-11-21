@@ -3,7 +3,7 @@ import { chromium, type Browser } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { launchWebScaffold, watchConsole, type WebScaffold } from './scaffold.ts'
 import { newEnglishPage, saveFailureShot } from './support.ts'
-import { initialShortcutConfig } from '@omega-ai/dsh-client-shortcuts/protocol'
+import { initialShortcutConfig } from '@deepseek-ai/dsh-client-shortcuts/protocol'
 
 let scaffold: WebScaffold
 let browser: Browser
@@ -19,7 +19,9 @@ afterAll(async () => {
 })
 
 describe('navigation without a selected Session', () => {
-  it.each(['web', 'win32', 'linux', 'darwin'] as const)('%s preserves its empty-header geometry and sidebar access', async (platform) => {
+  // The resident header keeps the blank-Session row height on every platform,
+  // so the Hero centers below the same header before and after a Workspace is bound.
+  it.each(['web', 'win32', 'linux', 'darwin'] as const)('%s keeps the blank-Session header height and sidebar access', async (platform) => {
     const page = await newEnglishPage(browser)
     try {
       if (platform !== 'web') {
@@ -41,14 +43,14 @@ describe('navigation without a selected Session', () => {
       const sessionHeader = page.locator('[data-slot="conversation.session.header"]')
       expect(await sessionHeader.count()).toBe(0)
       const header = page.locator('[data-slot="conversation.header"] > header')
-      expect(await header.evaluate(element => element.getBoundingClientRect().height)).toBe(platform === 'darwin' ? 40 : 0)
+      expect(await header.evaluate(element => element.getBoundingClientRect().height)).toBe(40)
       await page.getByRole('button', { name: 'Collapse sidebar', exact: true }).click()
       const reopen = platform === 'darwin'
         ? page.locator('[data-shell-leading]').getByRole('button', { name: 'Open sidebar', exact: true })
         : page.getByRole('button', { name: 'Open sidebar', exact: true })
       await reopen.waitFor({ state: 'visible' })
       expect(await sessionHeader.count()).toBe(0)
-      expect(await header.evaluate(element => element.getBoundingClientRect().height)).toBe(platform === 'darwin' ? 40 : 0)
+      expect(await header.evaluate(element => element.getBoundingClientRect().height)).toBe(40)
       if (platform === 'darwin') {
         expect(await page.locator('[data-shell-leading]').getByRole('button', { name: 'New session', exact: true }).isVisible()).toBe(true)
       }

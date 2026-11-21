@@ -1,6 +1,6 @@
 {
-  "organization": "omega-harness",
-  "repository": "omega-harness",
+  "organization": "deepseek-harness",
+  "repository": "deepseek-harness",
   "projectNumber": 1,
   "projectTitle": "DSH Issue Management",
   "lifecycleActor": "dsh-issue-management",

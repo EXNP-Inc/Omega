@@ -1,7 +1,8 @@
 import { readFile } from 'node:fs/promises'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import { AttachmentId, AttachmentStore, ImageVariantId } from '@omega-ai/dsh-attachment'
+import { Context } from '@deepseek-ai/cordis'
+import { AttachmentStore } from '@deepseek-ai/dsh-attachment'
+import type { AttachmentId, ImageVariantId } from '@deepseek-ai/dsh-attachment/types'
 import type {
   ImageAttachmentLimits,
   ImageAttachmentRef,
@@ -9,10 +10,11 @@ import type {
   RequestImageAttachment,
   SaveImageAttachment,
   StoredImageAttachment,
-} from '@omega-ai/dsh-attachment'
-import LlmRuntime, { createToolResultMessage, createUserMessage, ToolCallId } from '@omega-ai/dsh-llm'
-import type { Message, ToolSchema } from '@omega-ai/dsh-llm'
-import * as LlmPiAi from '@omega-ai/dsh-llm-pi-ai'
+} from '@deepseek-ai/dsh-attachment'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import LlmRuntime, { createToolResultMessage, createUserMessage, type ToolCallId } from '@deepseek-ai/dsh-llm'
+import type { Message, ToolSchema } from '@deepseek-ai/dsh-llm'
+import * as LlmPiAi from '@deepseek-ai/dsh-llm-pi-ai'
 import type { PiAiReplayResponse } from '../src/replay.ts'
 import { assemble, type AssembledResult } from './assemble.ts'
 
@@ -27,8 +29,8 @@ interface ProviderCase {
 
 const openAIBaseURL = process.env.DSH_PI_AI_OPENAI_BASE_URL
 const azureOpenAIKey = process.env.AZURE_OPENAI_API_KEY
-// Strictly ANTHROPIC_*: the Omega endpoint does not serve the anthropic-messages
-// protocol, so falling back to OMEGA_API_KEY turns the keyless skip into a 404.
+// Strictly ANTHROPIC_*: the DeepSeek endpoint does not serve the anthropic-messages
+// protocol, so falling back to DEEPSEEK_API_KEY turns the keyless skip into a 404.
 const anthropicApiKey = process.env.ANTHROPIC_API_KEY
 const anthropicBaseURL = process.env.DSH_PI_AI_ANTHROPIC_BASE_URL
 
@@ -96,7 +98,7 @@ async function harness(image?: StoredImageAttachment): Promise<Context> {
           return Promise.reject(new Error('unknown e2e attachment fixture'))
         }
         return Promise.resolve({
-          variantId: ImageVariantId(`sha256:${'f'.repeat(64)}`),
+          variantId: brandString<ImageVariantId>(`sha256:${'f'.repeat(64)}`),
           attachment: fixture.ref,
           data: fixture.data,
           mediaType: fixture.ref.mediaType,
@@ -121,7 +123,7 @@ afterEach(async () => {
 function ask(text: string): Message[] {
   return [createUserMessage({
     content: [{ type: 'text', text }],
-    source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
+    source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
   })]
 }
 
@@ -210,7 +212,7 @@ for (const profile of providerCases) {
             ...prompt,
             first.message,
             createToolResultMessage({
-              callId: ToolCallId(call!.id),
+              callId: brandString<ToolCallId>(call!.id),
               content: [{ type: 'text', text: 'The code blue means ocean.' }],
               isError: false,
             }),
@@ -230,7 +232,7 @@ for (const profile of providerCases) {
             new URL('./fixtures/qr-code.png', import.meta.url),
           ))
           const ref: ImageAttachmentRef = {
-            attachmentId: AttachmentId(`sha256:${'a'.repeat(64)}`),
+            attachmentId: brandString<AttachmentId>(`sha256:${'a'.repeat(64)}`),
             mediaType: 'image/png',
             bytes: data.byteLength,
             width: 256,
@@ -249,7 +251,7 @@ for (const profile of providerCases) {
                 },
                 { type: 'image', attachment: ref },
               ],
-              source: { kind: 'model', provider: 'omega-official', model: 'omega-v4-flash' },
+              source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
             })],
             maxTokens: 256,
           })

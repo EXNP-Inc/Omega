@@ -1,8 +1,9 @@
 /** Chat-owned event-to-view projection. */
 
 import { describe, expect, it } from 'vitest'
-import { AttachmentId } from '@omega-ai/dsh-attachment'
-import type { ContentBlock } from '@omega-ai/dsh-api-remotes/client'
+import type { AttachmentId } from '@deepseek-ai/dsh-attachment/types'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { ContentBlock } from '@deepseek-ai/dsh-api-remotes/client'
 import {
   displayFailure, emptyAssistantBlock, toAssistantBlock, toAssistantBlocks,
   isTokenDelta,
@@ -11,7 +12,7 @@ import {
 describe('toAssistantBlock', () => {
   it('classifies the four block shapes', () => {
     const attachment = {
-      attachmentId: AttachmentId(`sha256:${'a'.repeat(64)}`),
+      attachmentId: brandString<AttachmentId>(`sha256:${'a'.repeat(64)}`),
       mediaType: 'image/png' as const,
       bytes: 68,
       width: 1,

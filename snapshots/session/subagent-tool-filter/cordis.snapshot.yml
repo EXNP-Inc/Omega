@@ -1,24 +1,24 @@
 # Replay patch shared by the ordinary headless snapshot composition. The model
 # script comes from the scenario's committed session JSONL.
 
-- id: llm-omega
-  name: '@omega-ai/dsh-llm-omega-api-key'
+- id: llm-deepseek
+  name: '@deepseek-ai/dsh-llm-deepseek-api-key'
   disabled: true
 
-- id: plugin-package-inventory-omega
+- id: plugin-package-inventory-deepseek
   disabled: true
 
 - id: session-title-llm
   disabled: true
 
 - id: session-persistence-jsonl
-  name: '@omega-ai/dsh-session-persistence-jsonl'
+  name: '@deepseek-ai/dsh-session-persistence-jsonl'
   config:
     root: !!js dshHomePath('sessions')
     compression: none
 
 - id: sandbox
-  name: '@omega-ai/dsh-sandbox-local'
+  name: '@deepseek-ai/dsh-sandbox-local'
   config:
     runnerCommand:
       - bash
@@ -30,22 +30,58 @@
 
 - insert:
     - id: llm-replay
-      name: '@omega-ai/dsh-llm-replay'
+      name: '@deepseek-ai/dsh-llm-replay'
       config:
         providers:
-          - id: omega-official
-            name: Omega
+          - id: deepseek-official
+            name: DeepSeek
             models:
-              - id: omega-v4-flash
-              - id: omega-v4-pro
+              - id: deepseek-v4-flash
+              - id: deepseek-v4-pro
 
-# Restrict inherited capabilities before the child assembles its first request.
+# The parent owns its file and web tools; the child selects a separate preset.
+- id: tool-fs
+  disabled: true
+
+- id: tool-fs-search
+  disabled: true
+
+- id: tool-web
+  disabled: true
+
+- insert:
+    - id: agent-preset-registry
+      name: '@deepseek-ai/dsh-agent-preset-registry'
+      config:
+        default: parent
+    - id: preset-parent
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: parent
+        plugins:
+          - name: '@deepseek-ai/dsh-tool-fs'
+            config:
+              applyPatch: true
+          - name: '@deepseek-ai/dsh-tool-fs-search'
+            config:
+              sampleOverCapGlobResults: false
+          - name: '@deepseek-ai/dsh-tool-web'
+            config:
+              fetch: true
+              searchTimeoutMs: 60000
+    - id: preset-child
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: child
+        plugins: []
+    - id: parent-agent-preset
+      name: '../../../packages/test-support/session-snapshot/tests/fixtures/parent-agent-preset.ts'
+
 - id: tool-subagent
-  name: '@omega-ai/dsh-tool-subagent'
+  name: '@deepseek-ai/dsh-tool-subagent'
+  inject: [agentPresets]
   config:
     provider: spawn
     toolName: subagent
-    backgroundMode: continuable
     maxDepth: 1
-    toolFilter:
-      deny: [write, edit, glob, grep, web_search, web_fetch]
+    agentPreset: child

@@ -3,7 +3,7 @@
  * request results (`Location`, `LocationLink`, `Hover`), and the `textDocumentSync` shapes used to
  * decide transient-open support. Types only. Fields absent from a real server payload stay optional;
  * the translation layer normalizes them into the seam's closed unions.
- * @module @omega-ai/dsh-lsp-stdio/protocol
+ * @module @deepseek-ai/dsh-lsp-stdio/protocol
  */
 
 /** A zero-based UTF-16 position on the wire (the protocol's `Position`). */
@@ -72,9 +72,4 @@ export interface WireServerCapabilities {
   readonly referencesProvider?: WireProviderCapability
   readonly implementationProvider?: WireProviderCapability
   readonly hoverProvider?: WireProviderCapability
-}
-
-/** The `initialize` result envelope. */
-export interface WireInitializeResult {
-  readonly capabilities: WireServerCapabilities
 }

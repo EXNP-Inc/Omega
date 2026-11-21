@@ -1,11 +1,11 @@
 /**
  * Service Definition for the workflow capability seam. Service Providers execute orchestration scripts;
  * observe-only lifecycle events never expose run control.
- * @module @omega-ai/dsh-workflow
+ * @module @deepseek-ai/dsh-workflow
  */
 
-import { Context, Service } from '@omega-ai/cordis'
-import { HarnessError } from '@omega-ai/dsh-llm'
+import { Context, Service } from '@deepseek-ai/cordis'
+import { HarnessError } from '@deepseek-ai/dsh-llm'
 import type {
   WorkflowAgentEndInfo,
   WorkflowAgentInfo,
@@ -28,7 +28,7 @@ export type {
 } from './types.ts'
 export type { WorkflowRun, WorkflowStartRequest } from './runtime-types.ts'
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
     workflowEngine: WorkflowEngine
   }
@@ -100,10 +100,13 @@ export type WorkflowEventName =
   | 'workflow/end'
 
 /**
- * Machine-routable fatal workflow failures: parse/meta/argument/schema errors,
- * resource caps, subagent infrastructure failures, unserializable boundary
- * values, and cancellation. An ordinary child failure resolves its item to
- * `null` and is not one of these fatal codes.
+ * Machine-routable workflow failures. Hooks throw the fatal codes:
+ * parse/meta/argument/schema errors, resource caps, subagent infrastructure
+ * failures, unserializable boundary values, and cancellation; an engine
+ * reports the one that ended a run as {@link WorkflowResult.errorCode}.
+ * `RUN_FAILED` classifies an `error` run without such a code: the script's own
+ * exception or an engine runtime failure. An ordinary child failure resolves
+ * its item to `null` and is not one of these codes.
  */
 export type WorkflowErrorCode =
   | 'SCRIPT_PARSE'
@@ -117,6 +120,7 @@ export type WorkflowErrorCode =
   | 'AGENT_RESULT'
   | 'RESULT_UNSERIALIZABLE'
   | 'CANCELLED'
+  | 'RUN_FAILED'
 
 /**
  * Typed error for workflow-seam failures. Extends {@link HarnessError}, so the
@@ -128,12 +132,14 @@ export type WorkflowErrorCode =
  * distinction is explicit at every catch site rather than implied.
  */
 export class WorkflowError extends HarnessError {
+  override readonly code: WorkflowErrorCode
   /** Whether combinators must propagate this error instead of nulling the item. */
   readonly fatal: boolean
 
   constructor(message: string, code: WorkflowErrorCode, options?: ErrorOptions & { fatal?: boolean }) {
     super(message, code, options)
     this.name = 'WorkflowError'
+    this.code = code
     this.fatal = options?.fatal ?? true
   }
 }

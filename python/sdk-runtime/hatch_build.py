@@ -52,7 +52,7 @@ def _host_platform_tag() -> str:
     try:
         return _PLATFORMS[key][0]
     except KeyError as exc:
-        raise RuntimeError(f"unsupported omega-harness-runtime-bin build platform: {key}") from exc
+        raise RuntimeError(f"unsupported deepseek-harness-runtime-bin build platform: {key}") from exc
 
 
 class RuntimeBuildHook(BuildHookInterface):
@@ -63,7 +63,7 @@ class RuntimeBuildHook(BuildHookInterface):
             return
         if self.target_name == "sdist":
             raise RuntimeError(
-                "omega-harness-runtime-bin is wheel-only; build and publish platform wheels only."
+                "deepseek-harness-runtime-bin is wheel-only; build and publish platform wheels only."
             )
 
         platform_tag = os.environ.get("DSH_RUNTIME_PLATFORM_TAG") or _host_platform_tag()
@@ -75,7 +75,7 @@ class RuntimeBuildHook(BuildHookInterface):
             )
         expected_executable = matches[0][1]
         target = next(name for name, value in _PLATFORMS.items() if value[0] == platform_tag)
-        runtime_dir = Path(self.root) / "src" / "omega_harness_runtime" / "runtime"
+        runtime_dir = Path(self.root) / "src" / "deepseek_harness_runtime" / "runtime"
         runtime_files = sorted(
             (path for path in runtime_dir.iterdir() if path.name != "node") if runtime_dir.is_dir() else []
         )
@@ -86,8 +86,6 @@ class RuntimeBuildHook(BuildHookInterface):
         )
         if "-macos-" in expected_executable:
             expected_files.append(f"{expected_executable}-spawn-helper")
-        office = runtime_dir / f"{expected_executable.removesuffix('.exe')}-office"
-        expected_files.append(office.name)
         resources = runtime_dir / target
         expected_files.append(resources.name)
         expected_files.sort()
@@ -98,19 +96,8 @@ class RuntimeBuildHook(BuildHookInterface):
             )
         for executable in runtime_files:
             if executable == resources:
-                validate = runpy.run_path(str(runtime_dir.parent / "_resources.py"))["validate_resources"]
+                validate = runpy.run_path(str(runtime_dir.parent / "_resources.py"))["validate_downloads"]
                 validate(resources, target)
-                continue
-            if executable == office:
-                adapter = office / "node_modules/@deepseek-ai/libreoffice-kit/package.json"
-                if not adapter.is_file():
-                    raise RuntimeError(f"runtime Office dependency is missing: {adapter}")
-                native = target.replace("win-", "win32-").replace("macos-", "darwin-")
-                declared = json.loads(adapter.read_text(encoding="utf-8")).get("optionalDependencies", {})
-                engine = native if f"@deepseek-ai/libreoffice-kit-{native}" in declared else "wasm"
-                required = office / "node_modules" / f"@deepseek-ai/libreoffice-kit-{engine}/prebuilds.json"
-                if not required.is_file():
-                    raise RuntimeError(f"runtime Office dependency is missing: {required}")
                 continue
             if not executable.is_file():
                 raise RuntimeError(f"runtime executable is not a file: {executable}")

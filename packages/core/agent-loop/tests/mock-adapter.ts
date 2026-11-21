@@ -1,5 +1,6 @@
-import type { GenerateOptions, LlmModelReasoningInfo, LlmResolvedModelInfo, StreamChunk, SystemPromptUpdate, ToolUpdate } from '@omega-ai/dsh-llm'
-import { ToolCallId, LlmAdapter } from '@omega-ai/dsh-llm'
+import type { GenerateOptions, LlmModelReasoningInfo, LlmResolvedModelInfo, StreamChunk, SystemPromptUpdate, ToolUpdate } from '@deepseek-ai/dsh-llm'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import { type ToolCallId, LlmAdapter } from '@deepseek-ai/dsh-llm'
 
 /** Helpers to write scripted responses tersely. */
 export function textResponse(text: string): StreamChunk[] {
@@ -14,7 +15,7 @@ export function textResponse(text: string): StreamChunk[] {
 
 /**
  * Like {@link textResponse} but the stream ends with a `max-tokens` finish —
- * the model was cut off at the output-token ceiling (Omega's `length`).
+ * the model was cut off at the output-token ceiling (DeepSeek's `length`).
  * Used to exercise the turn-end `max-tokens` surfacing rule.
  */
 export function maxTokensResponse(text: string): StreamChunk[] {
@@ -28,7 +29,7 @@ export function maxTokensResponse(text: string): StreamChunk[] {
 }
 
 export function toolCallResponse(rawCallId: string, name: string, args: object, text?: string): StreamChunk[] {
-  const callId = ToolCallId(rawCallId)
+  const callId = brandString<ToolCallId>(rawCallId)
   const argumentsJson = JSON.stringify(args)
   const chunks: StreamChunk[] = []
   let index = 0

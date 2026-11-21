@@ -14,7 +14,7 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { clearedProxyEnv } from '@omega-ai/dsh-http-proxy'
+import { clearedProxyEnv } from '@deepseek-ai/dsh-http-proxy'
 import { execa } from 'execa'
 import { describe, expect, it } from 'vitest'
 import type { SourceToolEvidence } from '../../../fixtures/source-tool-driver.ts'
@@ -32,8 +32,9 @@ describe.skipIf(!existsSync(join(repoRoot, 'apps/cli/lib/bin.js')))('dsh SOURCE 
       const patch = join(root, 'source-tool.patch.yml')
       await writeFile(patch, JSON.stringify([
         { id: 'headless-startup', disabled: true },
+        { id: 'sandbox-policy', inject: [], config: { mode: process.env.DSH_PERMISSION_MODE ?? 'workspace-write', workspaceRoot: cwd } },
         { id: 'headless-runner', disabled: true },
-        { id: 'llm-omega', disabled: true },
+        { id: 'llm-deepseek', disabled: true },
         { id: 'agent-default-model', config: { provider: 'cli-mock', model: 'cli-mock' } },
         { insert: [
           {
@@ -57,7 +58,6 @@ describe.skipIf(!existsSync(join(repoRoot, 'apps/cli/lib/bin.js')))('dsh SOURCE 
           DSH_HOME: join(root, 'home'),
           DSH_AGENTS_HOME: join(root, 'agents'),
           DSH_TELEMETRY_DISABLED: '1',
-          DSH_TOOLS_MODE: 'native',
           DSH_CLI_MOCK_FAILURE: '0',
         },
         input: '',

@@ -1,14 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import { createUserMessage, ToolCallId , createMessage, createToolResultMessage } from '@omega-ai/dsh-llm'
-import type { ContextFormed } from '@omega-ai/dsh-llm'
+import { Context } from '@deepseek-ai/cordis'
+import { createUserMessage, type ToolCallId, createMessage, createToolResultMessage } from '@deepseek-ai/dsh-llm'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { ContextFormed } from '@deepseek-ai/dsh-llm'
 import SessionStore, {
   SESSION_FORMAT_VERSION,
-  SessionId,
+  type SessionId,
   SessionSeq,
-} from '@omega-ai/dsh-session'
-import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
-import type { SessionEvent, SessionHeader } from '@omega-ai/dsh-session'
+} from '@deepseek-ai/dsh-session'
+import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import type { SessionEvent, SessionHeader } from '@deepseek-ai/dsh-session'
 import {
   buildSessionEventRecords,
   buildSessionEventSearchDocuments,
@@ -19,19 +20,19 @@ import {
   materializeSessionEventResultFilters,
   materializeSessionResultFilters,
   type SessionQueryErrorCode,
-} from '@omega-ai/dsh-session-query'
+} from '@deepseek-ai/dsh-session-query'
 import { TestSessionQueryEngine } from './test-service.ts'
 
-declare module '@omega-ai/dsh-llm' {
+declare module '@deepseek-ai/dsh-llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }
 }
 
-const id = SessionId('session')
+const id = brandString<SessionId>('session')
 
 function header(value: string, extra: Partial<SessionHeader> = {}): SessionHeader {
-  return { version: SESSION_FORMAT_VERSION, id: SessionId(value), createdAt: 10, isSeeded: false, ...extra }
+  return { version: SESSION_FORMAT_VERSION, id: brandString<SessionId>(value), createdAt: 10, isSeeded: false, ...extra }
 }
 
 function expectCode(code: SessionQueryErrorCode): Error {
@@ -40,7 +41,7 @@ function expectCode(code: SessionQueryErrorCode): Error {
 
 describe('session-query semantic extraction', () => {
   it('extracts first-party message, tool, todo, and failure detail', () => {
-    const callId = ToolCallId('call')
+    const callId = brandString<ToolCallId>('call')
     const messageContent: SessionEvent<'user/message'>['data']['content'] = [
       { type: 'text', text: ' visible ' },
       { type: 'reasoning', text: 'thought' },
@@ -196,13 +197,13 @@ describe('session-query document and filter helpers', () => {
   })
 
   it('applies every session clause with OR values and validates closed values', () => {
-    const parent = SessionId('parent')
+    const parent = brandString<SessionId>('parent')
     const records = [
       { header: header('a', { cwd: '/a', parentSession: parent }), live: true, persisted: false, marker: 1 },
       { header: header('b', { createdAt: 20 }), live: false, persisted: true, marker: 2 },
     ]
     expect(filterSessionResults(records, [
-      { kind: 'id', values: [SessionId('a'), SessionId('x')] },
+      { kind: 'id', values: [brandString<SessionId>('a'), brandString<SessionId>('x')] },
       { kind: 'cwd', values: ['/a', null] },
       { kind: 'created-at', from: 5, to: 15 },
       { kind: 'parent', values: [parent, null] },

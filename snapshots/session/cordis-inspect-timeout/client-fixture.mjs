@@ -8,7 +8,7 @@ export const inject = ['cordisInspect', 'agents', 'llm', 'typertGateway']
 
 /**
  * Register a silent event source and open real Gateway Client streams on demand.
- * @param {import('@omega-ai/cordis').Context} ctx - owner of the source and streams.
+ * @param {import('@deepseek-ai/cordis').Context} ctx - owner of the source and streams.
  * @returns opener resolving after readiness, with abort and quiescent close operations.
  */
 export function registerSilentClientTransport(ctx) {
@@ -18,10 +18,19 @@ export function registerSilentClientTransport(ctx) {
       else signal.addEventListener('abort', resolve, { once: true })
     })
   }, { home: '/snapshot-host' }))
+  // The owner's in-process Client: every Gateway carrier names its Peer.
+  const peer = {
+    id: 'snapshot-client-peer',
+    ctx,
+    principal: { kind: 'owner' },
+    interactions: 'answer',
+    signal: new AbortController().signal,
+    dispose: async () => {},
+  }
   return async () => {
     const controller = new AbortController()
     const stream = await ctx.typertGateway.wireStream.open(
-      '$events', { args: {} }, (async function* () {})(), undefined, controller.signal,
+      '$events', { args: {} }, (async function* () {})(), peer, controller.signal,
     )
     const iterator = stream[Symbol.asyncIterator]()
     const close = ctx.effect(() => async () => {
@@ -38,7 +47,7 @@ export function registerSilentClientTransport(ctx) {
 
 /**
  * Mirror a Client manifest and deliver only the first query's failure.
- * @param {import('@omega-ai/cordis').Context} ctx - isolated snapshot Host.
+ * @param {import('@deepseek-ai/cordis').Context} ctx - isolated snapshot Host.
  * @returns after the Gateway Client stream is ready.
  */
 export async function apply(ctx) {

@@ -6,10 +6,11 @@
 - id: headless-runner
   disabled: true
 
-- id: llm-omega
+- id: llm-deepseek
   disabled: true
 
 - id: sandbox-policy
+  inject: []
   config:
     mode: workspace-write
     workspaceRoot: !!js process.cwd()
@@ -27,12 +28,20 @@
 
 - insert:
     - id: replay
-      name: '@omega-ai/dsh-llm-replay'
+      name: '@deepseek-ai/dsh-llm-replay'
+
+    - id: await-subagents
+      name: '../../../../../packages/test-support/session-snapshot/tests/fixtures/subagent-settlement-barrier.ts'
 
     # Publish the persisted agent before the driver selects the single root.
     - id: resumed-agent
       name: './tests/fixtures/subagent-inheritance-agent.ts'
 
-- id: session-log-omega
+- id: session-log-deepseek
   config:
     enabled: false
+
+# The recorded tool catalog includes the optional patch tool.
+- id: tool-fs
+  config:
+    applyPatch: true

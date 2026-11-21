@@ -1,13 +1,13 @@
 {
-  "name": "@omega-ai/dsh-file-reference-local",
+  "name": "@deepseek-ai/dsh-file-reference-local",
   "description": "Local-filesystem ctx.fileReferences provider with bounded fuzzy indexes",
-  "version": "0.2.1-alpha.1",
+  "version": "0.2.2-rc.5",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/omega-ai/omega-harness.git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
     "directory": "packages/context/file-reference-local"
   },
   "type": "module",
@@ -18,34 +18,41 @@
       "types": "./lib/types/index.d.ts",
       "default": "./lib/index.js"
     },
-    "./search": {
-      "types": "./lib/types/search.d.ts",
-      "default": "./lib/types/search.js"
-    },
     "./src/*": "./src/*",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
+    "locale/*.json",
     "lib/index.js",
-    "lib/types/**/*.js",
-    "lib/types/**/*.d.ts"
+    "lib/types/**/*.d.ts",
+    "lib/types/**/*.d.ts.map",
+    "lib/**/*.js.map",
+    "src"
   ],
   "license": "MIT",
   "dependencies": {
-    "@omega-ai/schemastery": "workspace:~"
+    "@deepseek-ai/schemastery": "workspace:~"
   },
   "peerDependencies": {
-    "@omega-ai/dsh-agent": "workspace:*",
-    "@omega-ai/dsh-file-reference": "workspace:*",
-    "@omega-ai/dsh-system-prompt": "workspace:*",
-    "@omega-ai/dsh-tools": "workspace:*",
-    "@omega-ai/cordis": "workspace:~"
+    "@deepseek-ai/dsh-agent": "workspace:*",
+    "@deepseek-ai/dsh-file-reference": "workspace:*",
+    "@deepseek-ai/dsh-system-prompt": "workspace:*",
+    "@deepseek-ai/dsh-tools": "workspace:*",
+    "@deepseek-ai/cordis": "workspace:~",
+    "@deepseek-ai/dsh-working-directory": "workspace:*"
   },
   "devDependencies": {
-    "@omega-ai/dsh-agent": "workspace:*",
-    "@omega-ai/dsh-file-reference": "workspace:*",
-    "@omega-ai/dsh-system-prompt": "workspace:*",
-    "@omega-ai/dsh-tools": "workspace:*",
-    "@omega-ai/cordis": "workspace:~"
+    "@deepseek-ai/dsh-brand": "workspace:*",
+    "@deepseek-ai/dsh-agent": "workspace:*",
+    "@deepseek-ai/dsh-file-reference": "workspace:*",
+    "@deepseek-ai/dsh-system-prompt": "workspace:*",
+    "@deepseek-ai/dsh-tool-executor-native": "workspace:*",
+    "@deepseek-ai/dsh-tool-testkit": "workspace:*",
+    "@deepseek-ai/dsh-tools": "workspace:*",
+    "@deepseek-ai/cordis": "workspace:~",
+    "@deepseek-ai/dsh-working-directory": "workspace:*",
+    "@deepseek-ai/dsh-fs-local": "workspace:*",
+    "@deepseek-ai/dsh-session-projection": "workspace:*"
   }
 }

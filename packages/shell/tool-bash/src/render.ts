@@ -1,12 +1,12 @@
 /**
  * Model-facing result rendering for the bash tool.
  *
- * @module @omega-ai/dsh-tool-bash/render
+ * @module @deepseek-ai/dsh-tool-bash/render
  */
 
-import type { ShellRunResult, ShellSandboxInfo, CollectedOutput } from '@omega-ai/dsh-shell'
-import type { SandboxMode } from '@omega-ai/dsh-sandbox'
-import { escalationHintMarker, sandboxDenialMarker } from '@omega-ai/dsh-sandbox'
+import type { ShellRunResult, ShellSandboxInfo, CollectedOutput } from '@deepseek-ai/dsh-shell'
+import type { SandboxMode } from '@deepseek-ai/dsh-sandbox'
+import { escalationHintMarker, sandboxDenialMarker } from '@deepseek-ai/dsh-sandbox'
 
 /** Append the truncation notice (with the full-output spill path) to a stream's text. */
 function streamText(output: CollectedOutput): string {
@@ -69,7 +69,7 @@ export function renderResult(
  * Shape a foreground call that stopped waiting into the text the model sees:
  * the output captured so far (one consuming registry read taken at that
  * point, so `job_output` continues exactly after it), then the still-running
- * marker and the job hand-off guidance.
+ * marker. The `tool:jobs` system-prompt section explains how to follow up.
  * @param promoted - the promoted result value: the job id, the wait that
  *   expired, and the output so far.
  * @returns the model-facing text for a promoted call.
@@ -78,9 +78,7 @@ export function renderPromoted(promoted: { jobId: string; timeoutMs: number; out
   const body = promoted.output.length > 0
     ? promoted.output.endsWith('\n') ? promoted.output : `${promoted.output}\n`
     : ''
-  return `${body}[still running after ${promoted.timeoutMs}ms; moved to background job ${promoted.jobId}]\n`
-    + 'The command keeps running in the background. You will be notified when it finishes; '
-    + 'read newer output with job_output, stop it with job_kill.'
+  return `${body}[still running after ${promoted.timeoutMs}ms; moved to background job ${promoted.jobId}]`
 }
 
 /**
@@ -121,8 +119,8 @@ export function renderJobRead(
 
 /**
  * The exit-status parse is the shared marker-contract half of the shell-tool
- * rendering story, owned by `@omega-ai/dsh-shell` so `dsh-tool-pwsh` reuses
+ * rendering story, owned by `@deepseek-ai/dsh-shell` so `dsh-tool-pwsh` reuses
  * it (its renderer emits the same markers). Re-exported here to keep
  * `../src/render.ts` a single import root for bash-tool consumers.
  */
-export { parseExitStatus, type ParsedExitStatus } from '@omega-ai/dsh-shell'
+export { parseExitStatus, type ParsedExitStatus } from '@deepseek-ai/dsh-shell'

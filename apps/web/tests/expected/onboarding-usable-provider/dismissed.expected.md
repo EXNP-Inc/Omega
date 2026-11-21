@@ -1,9 +1,9 @@
 - dialog "设置":
+  - text: 设置
   - navigation:
-    - text: 设置
     - button "通用设置"
     - button "模型"
-    - button "内置插件"
+    - button "插件管理"
     - button "Agent 预设"
   - button "打开配置文件"
   - button "关闭"
@@ -11,17 +11,9 @@
   - paragraph: 填入各提供商的 API 密钥即可使用其模型。
   - list:
     - listitem:
-      - text: Omega
+      - text: DeepSeek
       - img "API 密钥缺失"
-      - button "编辑 Omega (omega-official)": 编辑
-    - listitem:
-      - text: alice 自定义
-      - img "API 密钥缺失"
-      - button "编辑 alice": 编辑
-    - listitem:
-      - text: Mac 自定义
-      - img "API 密钥缺失"
-      - button "编辑 Mac (mac)": 编辑
+      - button "编辑 DeepSeek (deepseek-official)": 编辑
   - tablist "添加方式":
     - tab "第三方模型提供商" [selected]
     - tab "自定义模型 API"
@@ -32,7 +24,7 @@
       - option "amazon-bedrock"
       - option "ant-ling"
       - option "anthropic"
-      - option "azure-openai-responses"
+      - option "azure"
       - option "baseten"
       - option "cerebras"
       - option "cloudflare-ai-gateway"
@@ -71,8 +63,10 @@
       - option "zai"
       - option "zai-coding-cn"
     - text: API 密钥
+    - button "认证说明": "?"
     - textbox "API 密钥":
-      - /placeholder: 输入 API 密钥，或留空使用环境认证
+      - /placeholder: 留空使用环境认证（MINIMAX_CN_API_KEY）
+    - paragraph: 未检测到环境变量。请填写 API 密钥，或设置环境变量 MINIMAX_CN_API_KEY。
     - group: 自定义设置
     - button "取消"
     - button "保存"

@@ -3,16 +3,18 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import Loader from '@omega-ai/cordis-plugin-loader'
-import Include from '@omega-ai/cordis-plugin-include'
-import AgentRegistry from '@omega-ai/dsh-agent'
-import type { Agent, AgentStatus } from '@omega-ai/dsh-agent'
-import CommandRuntime from '@omega-ai/dsh-commands'
-import SessionStore, { SessionId } from '@omega-ai/dsh-session'
-import * as CommandFeedback from '@omega-ai/dsh-command-feedback'
-import { getOrCreateAnonymousUserId } from '@omega-ai/dsh-anonymous-user-id'
-import { unsupportedInbox } from '@omega-ai/dsh-agent-loop-testkit'
+import { Context } from '@deepseek-ai/cordis'
+import Loader from '@deepseek-ai/cordis-plugin-loader'
+import Include from '@deepseek-ai/cordis-plugin-include'
+import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import AgentRegistry from '@deepseek-ai/dsh-agent'
+import type { Agent, AgentStatus } from '@deepseek-ai/dsh-agent'
+import CommandRuntime from '@deepseek-ai/dsh-commands'
+import SessionStore, { type SessionId } from '@deepseek-ai/dsh-session'
+import * as CommandFeedback from '@deepseek-ai/dsh-command-feedback'
+import { getOrCreateAnonymousUserId } from '@deepseek-ai/dsh-anonymous-user-id'
+import { unsupportedModel, unsupportedInbox } from '@deepseek-ai/dsh-agent-loop-testkit'
+import { brandString } from '@deepseek-ai/dsh-brand'
 
 let root: string | undefined
 let context: Context | undefined
@@ -28,13 +30,14 @@ afterEach(async () => {
 /** Register one idle agent over a store-owned session, as an app's spine does. */
 async function agent(ctx: Context): Promise<Agent> {
   const scope = ctx.plugin(() => {})
-  const id = SessionId('feedback-loader-agent')
+  const id = brandString<SessionId>('feedback-loader-agent')
   const session = ctx.sessions.create(id)
   let status: AgentStatus = 'idle'
   const value: Agent = {
     id,
     options: {},
     session,
+    model: unsupportedModel(),
     inbox: unsupportedInbox(),
     ctx: scope.ctx,
     get status() { return status },
@@ -56,10 +59,12 @@ describe('/feedback real Loader composition through cordis.yml', () => {
     vi.stubEnv('DSH_HOME', root)
     const configPath = join(root, 'cordis.yml')
     await writeFile(configPath, [
-      "- name: '@omega-ai/dsh-agent'",
-      "- name: '@omega-ai/dsh-session'",
-      "- name: '@omega-ai/dsh-commands'",
-      "- name: '@omega-ai/dsh-command-feedback'",
+      "- name: '@deepseek-ai/dsh-session-projection'",
+      "- name: '@deepseek-ai/dsh-agent'",
+      "- name: '@deepseek-ai/dsh-session-projection'",
+      "- name: '@deepseek-ai/dsh-session'",
+      "- name: '@deepseek-ai/dsh-commands'",
+      "- name: '@deepseek-ai/dsh-command-feedback'",
       '',
     ].join('\n'))
 
@@ -68,10 +73,12 @@ describe('/feedback real Loader composition through cordis.yml', () => {
     await context.plugin(Loader)
     context.loader.builtins.include = Include
     const modules = new Map<string, unknown>([
-      ['@omega-ai/dsh-agent', AgentRegistry],
-      ['@omega-ai/dsh-session', SessionStore],
-      ['@omega-ai/dsh-commands', CommandRuntime],
-      ['@omega-ai/dsh-command-feedback', CommandFeedback],
+      ['@deepseek-ai/dsh-session-projection', SessionProjectionRegistry],
+      ['@deepseek-ai/dsh-agent', AgentRegistry],
+      ['@deepseek-ai/dsh-session-projection', SessionProjectionRegistry],
+      ['@deepseek-ai/dsh-session', SessionStore],
+      ['@deepseek-ai/dsh-commands', CommandRuntime],
+      ['@deepseek-ai/dsh-command-feedback', CommandFeedback],
     ])
     context.loader.internal = {
       version: 'v2',

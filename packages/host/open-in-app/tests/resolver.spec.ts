@@ -9,7 +9,7 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { NativeCommandRunner } from '@omega-ai/dsh-native-command'
+import type { NativeCommandRunner } from '@deepseek-ai/dsh-native-command'
 import { OPEN_IN_APP_CATALOG, type OpenInAppApp } from '../src/catalog.ts'
 import {
   execCommand, launchDetachedApp, launchResolved, parseDesktopEntry, parseRegistryDump, resolveInternals,
@@ -682,5 +682,24 @@ describe('launchDetachedApp', () => {
       delete process.env.OPEN_IN_APP_SPEC_PLAIN
     }
     expect(JSON.parse(await readFile(witness, 'utf8'))).toEqual([null, 'overridden', '1'])
+  })
+
+  it('does not pass the Desktop Host ELECTRON_RUN_AS_NODE selector to the application in any case', async () => {
+    const root = await tempRoot()
+    const witness = join(root, 'env.json')
+    process.env.ELECTRON_RUN_AS_NODE = '1'
+    process.env.electron_run_as_node = '1'
+    try {
+      await launchDetachedApp(node, [
+        '-e',
+        'require("node:fs").writeFileSync(process.argv[1], JSON.stringify('
+        + 'Object.keys(process.env).filter(name => name.toUpperCase() === "ELECTRON_RUN_AS_NODE")))',
+        witness,
+      ], { watchMs: TIMEOUT_MS })
+    } finally {
+      delete process.env.ELECTRON_RUN_AS_NODE
+      delete process.env.electron_run_as_node
+    }
+    expect(JSON.parse(await readFile(witness, 'utf8'))).toEqual([])
   })
 })

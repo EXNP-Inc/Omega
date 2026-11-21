@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { parse } from 'semver'
-import { withFileLock, writeFileAtomic } from '@omega-ai/dsh-atomic-write'
+import { withFileLock, writeFileAtomic } from '@deepseek-ai/dsh-atomic-write'
 import { getDshRuntimeVersion } from './plugin-compatibility.ts'
 
 /** Independent profile metadata; neither package manifests nor Cordis patches carry grants. */
@@ -35,7 +35,7 @@ export function validatePluginVersionExemption(packageVersion: string, runtimeVe
   const separator = packageVersion.lastIndexOf('@')
   if (separator <= 0 || !PACKAGE_NAME.test(packageVersion.slice(0, separator))
     || !isExactPluginVersion(packageVersion.slice(separator + 1)) || !isExactPluginVersion(runtimeVersion)) {
-    throw new Error('Version exemptions require an exact npm package-name@version and an exact Omega runtime version')
+    throw new Error('Version exemptions require an exact npm package-name@version and an exact DSH runtime version')
   }
 }
 
@@ -73,7 +73,7 @@ export function readProfileCompatibility(profileDir: string): ProfileCompatibili
   try { value = JSON.parse(text) }
   catch (error) { return unreadable(`is not valid JSON (${String(error)})`) }
   if (value === null || typeof value !== 'object' || Array.isArray(value)) {
-    return unreadable('must map exact package@version keys to Omega version lists')
+    return unreadable('must map exact package@version keys to DSH version lists')
   }
   const exemptions: Record<string, string[]> = {}
   const warnings: string[] = []
@@ -84,7 +84,7 @@ export function readProfileCompatibility(profileDir: string): ProfileCompatibili
       continue
     }
     if (!isVersionList(versions)) {
-      warnings.push(`${filename}: ${key} must contain a list of exact Omega versions; the record is ignored`)
+      warnings.push(`${filename}: ${key} must contain a list of exact DSH versions; the record is ignored`)
       continue
     }
     exemptions[key] = versions
@@ -119,7 +119,7 @@ export async function setProfileVersionExemption(
   }
   const current = getDshRuntimeVersion()
   if (enabled && runtimeVersion !== current) {
-    throw new Error(`Cannot approve Omega ${runtimeVersion}: this application runs Omega ${current}. Use --dsh-version ${current}.`)
+    throw new Error(`Cannot approve DSH ${runtimeVersion}: this application runs DSH ${current}. Use --dsh-version ${current}.`)
   }
   await mkdir(profileDir, { recursive: true })
   const filename = join(profileDir, PROFILE_COMPATIBILITY_FILENAME)

@@ -4,60 +4,89 @@
 
 - insert:
     - id: sdk-app-startup
-      name: '@omega-ai/dsh-sdk-app'
+      name: '@deepseek-ai/dsh-sdk-app'
       config:
         profile: sdk-minimal
 
     - id: sdk-jsonrpc-server
-      name: '@omega-ai/dsh-sdk-jsonrpc-server'
+      name: '@deepseek-ai/dsh-sdk-jsonrpc-server'
       inject: [sdkAppStartup, loader]
       config:
         maxTokensAsSuccess: false
 
-    - id: omega-llm-api-extensions
-      name: '@omega-ai/dsh-omega-llm-api-extensions'
+    - id: deepseek-llm-api-extensions
+      name: '@deepseek-ai/dsh-deepseek-llm-api-extensions'
 
-    - id: session-log-omega
-      name: '@omega-ai/dsh-session-log-omega'
+    - id: session-log-deepseek
+      name: '@deepseek-ai/dsh-session-log-deepseek'
 
-    - id: plugin-package-inventory-omega
-      name: '@omega-ai/dsh-plugin-package-inventory-omega'
+    - id: plugin-package-inventory-deepseek
+      name: '@deepseek-ai/dsh-plugin-package-inventory-deepseek'
 
-    - id: llm-omega
-      name: '@omega-ai/dsh-llm-omega-api-key'
+    - id: deepseek-auth
+      name: '@deepseek-ai/dsh-deepseek-auth'
+
+    - id: llm-deepseek
+      name: '@deepseek-ai/dsh-llm-deepseek-api-key'
       config:
-        apiKeyEnv: OMEGA_API_KEY
+        apiKeyEnv: DEEPSEEK_API_KEY
         defaultContextWindow: !!js Number(process.env.DSH_CONTEXT_WINDOW ?? 1000000)
         streamIdleTimeoutMs: 172800000
 
     - id: sandbox
-      name: '@omega-ai/dsh-sandbox-local'
+      name: '@deepseek-ai/dsh-sandbox-local'
 
     # Shared projection registry: sandbox-policy and terminal-bash fold
     # sandbox-mode state through its units and require it as a hard injection.
+    - id: filesystem
+      name: '@deepseek-ai/dsh-fs-local'
+
+    - id: attachment-local
+      name: '@deepseek-ai/dsh-attachment-local'
+
+    - id: tool-fs
+      name: '@deepseek-ai/dsh-tool-fs'
+      config:
+        read: false
+        readImage: true
+        write: false
+        edit: false
+
+    - id: working-directory
+      name: '@deepseek-ai/dsh-working-directory'
+
     - id: session-projection
-      name: '@omega-ai/dsh-session-projection'
+      name: '@deepseek-ai/dsh-session-projection'
+
+    - id: token-meter
+      name: '@deepseek-ai/dsh-token-meter'
+
+    - id: compaction-basic
+      name: '@deepseek-ai/dsh-compaction-basic'
+
+    - id: image-offload
+      name: '@deepseek-ai/dsh-compaction-image-offload'
 
     - id: sandbox-policy
-      name: '@omega-ai/dsh-sandbox-policy'
+      name: '@deepseek-ai/dsh-sandbox-policy'
       config:
         mode: danger-full-access
         workspaceRoot: !!js process.cwd()
 
     - id: subprocess
-      name: '@omega-ai/dsh-subprocess-local'
+      name: '@deepseek-ai/dsh-subprocess-local'
 
     - id: pty
-      name: '@omega-ai/dsh-terminal'
+      name: '@deepseek-ai/dsh-terminal'
 
     - id: terminal-bash
-      name: '@omega-ai/dsh-terminal-bash'
+      name: '@deepseek-ai/dsh-terminal-bash'
       disabled: !!js process.platform === 'win32'
       config:
         timeoutMs: 300000
 
     - id: terminal-pwsh
-      name: '@omega-ai/dsh-terminal-bash'
+      name: '@deepseek-ai/dsh-terminal-bash'
       disabled: !!js process.platform !== 'win32'
       config:
         shellDialect: pwsh
@@ -66,50 +95,54 @@
     # Keep the minimal agent kernel explicit: unlike dsh-base, this profile
     # owns each service row and omits every optional producer it does not use.
     - id: timer
-      name: '@omega-ai/cordis-plugin-timer'
+      name: '@deepseek-ai/cordis-plugin-timer'
 
     - id: llm
-      name: '@omega-ai/dsh-llm'
+      name: '@deepseek-ai/dsh-llm'
 
     - id: session
-      name: '@omega-ai/dsh-session'
+      name: '@deepseek-ai/dsh-session'
 
     - id: session-title
-      name: '@omega-ai/dsh-session-title'
+      name: '@deepseek-ai/dsh-session-title'
       config:
         fallbackMaxWords: 5
         fallbackMaxBytes: 40
         maxTitleBytes: 80
 
     - id: system-prompt
-      name: '@omega-ai/dsh-system-prompt'
+      name: '@deepseek-ai/dsh-system-prompt'
       config:
         includeHarnessIdentity: false
         includeRuntimeContext: false
         personaPrefix: !!js process.env.DSH_SYSTEM_PROMPT ?? 'You are a helpful software engineer assistant.'
 
     - id: tools
-      name: '@omega-ai/dsh-tools'
+      name: '@deepseek-ai/dsh-tools'
+
+    - id: tool-executor-native
+      name: '@deepseek-ai/dsh-tool-executor-native'
 
     - id: mcp-resources
-      name: '@omega-ai/dsh-mcp-resources'
+      name: '@deepseek-ai/dsh-mcp-resources'
 
     - id: agent
-      name: '@omega-ai/dsh-agent'
+      name: '@deepseek-ai/dsh-agent'
+
 
     - id: llm-retry
-      name: '@omega-ai/dsh-llm-retry'
+      name: '@deepseek-ai/dsh-llm-retry'
 
     - id: jobs
-      name: '@omega-ai/dsh-jobs-local'
+      name: '@deepseek-ai/dsh-jobs-local'
 
     - id: agent-loop
-      name: '@omega-ai/dsh-agent-loop'
+      name: '@deepseek-ai/dsh-agent-loop'
       config:
         agents: []
 
     - id: persistent-bash
-      name: '@omega-ai/dsh-tool-bash-persistent'
+      name: '@deepseek-ai/dsh-tool-bash-persistent'
       disabled: !!js process.platform === 'win32'
       config:
         timeoutMs: 300000
@@ -123,7 +156,7 @@
           * Please run long lived commands in the background, e.g. 'sleep 10 &' or start a server in the background.
 
     - id: persistent-pwsh
-      name: '@omega-ai/dsh-tool-pwsh-persistent'
+      name: '@deepseek-ai/dsh-tool-pwsh-persistent'
       disabled: !!js process.platform !== 'win32'
       config:
         timeoutMs: 300000
@@ -137,7 +170,10 @@
           * Please run long lived commands in the background, e.g. 'Start-Job' or start a server with Start-Process.
 
     - id: sessions
-      name: '@omega-ai/dsh-session-persistence-jsonl'
+      name: '@deepseek-ai/dsh-session-persistence-jsonl'
       config:
         root: !!js dshHomePath('sessions')
         compression: none
+
+    - id: session-checkpoint-policy
+      name: '@deepseek-ai/dsh-session-checkpoint-policy'

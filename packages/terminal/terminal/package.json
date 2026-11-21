@@ -1,13 +1,13 @@
 {
-  "name": "@omega-ai/dsh-terminal",
-  "description": "Persistent PTY session seam for the Omega — owner-scoped ids, backend registry, interactive sends, reads, signals, and awaited cleanup",
-  "version": "0.2.1-alpha.1",
+  "name": "@deepseek-ai/dsh-terminal",
+  "description": "Persistent PTY session seam for the DeepSeek Harness — owner-scoped ids, backend registry, interactive sends, reads, signals, and awaited cleanup",
+  "version": "0.2.2-rc.5",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/omega-ai/omega-harness.git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
     "directory": "packages/terminal/terminal"
   },
   "type": "module",
@@ -19,23 +19,31 @@
       "default": "./lib/index.js"
     },
     "./src/*": "./src/*",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
+    "locale/*.json",
     "lib/index.js",
-    "lib/types/**/*.d.ts"
+    "lib/types/**/*.d.ts",
+    "lib/types/**/*.d.ts.map",
+    "lib/**/*.js.map",
+    "src"
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@omega-ai/dsh-agent": "workspace:*",
-    "@omega-ai/dsh-brand": "workspace:*",
-    "@omega-ai/cordis": "workspace:~"
+    "@deepseek-ai/dsh-agent": "workspace:*",
+    "@deepseek-ai/dsh-error": "workspace:*",
+    "@deepseek-ai/cordis": "workspace:~"
+  },
+  "dependencies": {
+    "@deepseek-ai/dsh-brand": "workspace:*"
   },
   "devDependencies": {
-    "@omega-ai/dsh-agent": "workspace:*",
-    "@omega-ai/dsh-agent-loop-testkit": "workspace:*",
-    "@omega-ai/dsh-brand": "workspace:*",
-    "@omega-ai/dsh-session": "workspace:*",
-    "@omega-ai/cordis": "workspace:~"
+    "@deepseek-ai/dsh-agent": "workspace:*",
+    "@deepseek-ai/dsh-agent-loop-testkit": "workspace:*",
+    "@deepseek-ai/dsh-error": "workspace:*",
+    "@deepseek-ai/dsh-session": "workspace:*",
+    "@deepseek-ai/cordis": "workspace:~"
   }
 }

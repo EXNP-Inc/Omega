@@ -3,7 +3,7 @@ description: "面向 Linux、macOS 或 Windows 上选择、配置或排查进程
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-sandbox-local
+# @deepseek-ai/dsh-sandbox-local
 
 [English](README.md) | 中文
 
@@ -37,7 +37,7 @@ kind: "package-reference"
 
 ```yaml
 - id: sandbox
-  name: '@omega-ai/dsh-sandbox-local'
+  name: '@deepseek-ai/dsh-sandbox-local'
 ```
 
 | 字段 | 默认值 | 含义 |
@@ -46,7 +46,7 @@ kind: "package-reference"
 | `runnerFailureSignatures` | `[]` | 识别自定义 runner 自身失败方言的不区分大小写 stderr 子串；与 `runnerCommand` 搭配必需 |
 | `probeTimeoutMs` | `5,000` | 每次竞争 runner 候选功能探测的超时时间 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-sandbox-local)是每个受支持字段及其 JSDoc 的穷尽式真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-sandbox-local)是每个受支持字段及其 JSDoc 的穷尽式真源。
 
 ### 受限执行与强制执行
 
@@ -55,6 +55,8 @@ kind: "package-reference"
 ### 失败与恢复
 
 不受支持的平台或不可用的 runner 会拒绝执行：`confine()` 以 `SANDBOX_UNAVAILABLE` 拒绝 并列出该平台的 runner 选项，消费方会呈现该错误，而不是让命令不受限制地运行。启动后拒绝自身 profile 的 runner 由其致命 stderr 签名与退出码识别，因此损坏的沙箱不会被误认为被拒绝的命令。`runnerCommand` 覆盖是操作方断言：它跳过功能探测，并假定配置的 runner 诚实实现与 bwrap 兼容的 profile。
+
+Seatbelt、bwrap 和 Landlock 在 `workspace-write` 下包含策略显式指定的 `additionalWritableRoots`。只读模式忽略这些授权。不存在的路径、非目录、符号链接目录和其他检查失败会在命令启动前触发 `SANDBOX_INVALID_ROOT`。Windows ACL 后端不检查这些额外根目录，仅保留工作区与私有临时目录访问权限。其按 session 的准备阶段会在命令启动前以 `SandboxPreparationError` 拒绝：主机临时根目录位于工作区内时为 `SANDBOX_INVALID_TEMP_ROOT`；无法创建 SID、ACL 授权或私有临时目录时为 `SANDBOX_PREPARATION_FAILED`，以 `Win32Error` 或 Node 错误作为 `cause`，并回滚已创建的部分授权。
 
 -----
 
@@ -72,9 +74,9 @@ kind: "package-reference"
 
 ### 平台 profile
 
-bwrap profile 组合只读宿主根目录、全新 `/dev` 与私有 PID 命名空间中的 `/proc`——命令可管理其后代，但看不到宿主进程，因此 procfs 魔法链接无法绕过挂载；`workspace-write` 另加临时的 `/tmp` 与可写工作区绑定挂载。[历史私有 PID 笔记](../../../.agents/notes/archived/bug-fix/2026-08-06-bwrap-private-pid-namespace.md)记录该边界。
+bwrap profile 组合只读宿主根目录、全新 `/dev` 与私有 PID 命名空间中的 `/proc`——命令可管理其后代，但看不到宿主进程，因此 procfs 魔法链接无法绕过挂载；`workspace-write` 另加临时的 `/tmp` 与工作区与每个显式额外根目录的可写绑定挂载。[历史私有 PID 笔记](../../../.agents/notes/archived/bug-fix/2026-08-06-bwrap-private-pid-namespace.md)记录该边界。
 
-`@omega-ai/node-addon-system/landlock-run` API 提供平台 launcher、功能探测与授权词汇；此提供方只做模式到授权的映射，把路径解析与探测解析保留在带版本的 binary 中。
+`@deepseek-ai/node-addon-system/landlock-run` API 提供平台 launcher、功能探测与授权词汇；此提供方只做模式到授权的映射，把路径解析与探测解析保留在带版本的 binary 中。
 
 Seatbelt profile 默认允许，带 `(deny file-write*)` 与来自共享 `writableRoots` 辅助函数的写入 allow-list，因此恰好管辖模式承诺的文件操作；每个根目录都经过规范化，因为 Seatbelt 匹配解析后的路径（`/tmp` 就是 `/private/tmp`）。
 
@@ -128,6 +130,7 @@ Windows 档为每个工作区保留一个确定性写入 SID 和常驻 ACE，同
 
 这些限制说明提供方何时不合适，或何时需要特别运维。它们是当前包约束，不是通用平台对比或任务积压。
 
+- **Windows 额外根目录**——额外目录授权仅适用于 Harness 的 `write` 与 `edit` 工具。PowerShell、终端、PTC 及其他受沙箱限制的进程在 `workspace-write` 下保留工作区与私有临时目录访问权限。额外授权不修改其 ACL，也不阻塞其执行；参见[决策](../../../.agents/notes/implemented/architecture/2026-10-29-windows-file-tool-directory-grants.zh.md)。
 - **Windows ACL 只能实现部分强制执行**——NTFS 硬链接会使工作区路径与外部路径指向同一个文件对象，读取仍不受限，且被其他 AppContainer 工具以包 SID 标记过的目录树对 Low 完整性子进程不可读。提供方报告 `enforcement: 'partial'`，而不会把该边界夸大为完整强制执行。
 - **Landlock 可能只实现部分强制执行**——较旧且受支持的内核 ABI 只能限制自身公开的访问类别，因此报告 `enforcement: 'partial'`，不会夸大为完整强制执行。
 - **Seatbelt 依赖已弃用的 `sandbox-exec`**——macOS 仍会提供它，但若 Apple 移除该私有策略引擎，该提供方无法替换或探测。

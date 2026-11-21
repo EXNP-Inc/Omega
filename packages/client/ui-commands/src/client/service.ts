@@ -5,29 +5,31 @@
  * catalog with contributions by availability, gives built-in Host rows their
  * localized face (presentation.ts), then position-filters; an empty query
  * lists the Add and Commands sections in usage order, a typed query ranks
- * every row by the `/` menu's shared name-and-label ranking (ui-primitives
- * `rankByName`). A host/contribution name collision fails loud. Every
+ * every row through the shared search filter (`dsh-util-text-search`) over
+ * name and label. Descriptions stay unmatched: this source shares one menu and
+ * its default highlight with other sources, so a description-only hit would
+ * take Enter from a name another group matched. A host/contribution name collision fails loud. Every
  * execute addresses the session's agent by sessionId — sessions are always
  * agent-backed.
  * Catalog RPCs retain an existing Client Session through completion and
  * wait for its initial history open to succeed before contacting the Host.
  */
-import { Service } from '@omega-ai/cordis'
-import type { Context } from '@omega-ai/cordis'
+import { Service } from '@deepseek-ai/cordis'
+import type { Context } from '@deepseek-ai/cordis'
 // Type-only: pulls the ctx.remote merge and the forwarded-event key face
 // (`commands/change` rides the allowlist) into this program.
-import type {} from '@omega-ai/dsh-api-remotes/client'
-import type { CommandResult } from '@omega-ai/dsh-commands/types'
-import type { Context as ClientContext } from '@omega-ai/cordis'
-import type { ISessions, SessionBinding } from '@omega-ai/dsh-api-session-controller/client'
-import type { SessionId } from '@omega-ai/dsh-session/types'
-import { WeakMapWithValues } from '@omega-ai/dsh-util-values'
-import type { TranslateNS } from '@omega-ai/dsh-client-locale/client'
-import { rankByName } from '@omega-ai/dsh-client-ui-primitives'
+import type {} from '@deepseek-ai/dsh-api-remotes/client'
+import type { CommandResult } from '@deepseek-ai/dsh-commands/types'
+import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { ISessions, SessionBinding } from '@deepseek-ai/dsh-api-session-controller/client'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { WeakMapWithValues } from '@deepseek-ai/dsh-util-values'
+import type { TranslateNS } from '@deepseek-ai/dsh-client-locale/client'
+import { TextSearchIndex } from '@deepseek-ai/dsh-util-text-search'
 import type {
   CandidateRequest, ClientSessionContext, CommandClaim, PickOutcome, InputTriggerCandidate, InputTriggerPick,
   SubmitAttachment, SubmitEnvelope, SubmitOutcome,
-} from '@omega-ai/dsh-client-ui-input-trigger/client'
+} from '@deepseek-ai/dsh-client-ui-input-trigger/client'
 import type { CommandContribution, CommandDecoration, CommandUiContract } from './contract.ts'
 import type { CommandDescriptor } from './directory.ts'
 import { CommandDirectory } from './directory.ts'
@@ -36,14 +38,14 @@ import { builtinRowFace, sectionRows } from './presentation.ts'
 import { claimToken } from './resolution.ts'
 import type { TokenSegment } from './popup.ts'
 
-declare module '@omega-ai/dsh-api-session-controller/client' {
+declare module '@deepseek-ai/dsh-api-session-controller/client' {
   interface SessionReferenceSourceMap {
     /** A command-catalog fetch waiting for initial history and its RPC result. */
     commandCatalog: unknown
   }
 }
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Events {
     /**
      * This browser client completed one admitted Host command execution.
@@ -118,6 +120,7 @@ export class CommandUiRuntime extends Service implements CommandUiContract {
       candidates: (session, req) => this.candidates(session, req),
       onPick: pick => this.dispatch(pick),
       matchSpace: (session, token) => this.matchSpace(session, token),
+      matchClaim: (session, token, signal) => this.matchClaim(session, token, signal),
       matchEnter: (session, line, signal, envelope) => this.matchEnter(session, line, signal, envelope),
       warm: (session) => { this.directory.warm(session.sessionId) },
     }), 'command: slash source')
@@ -218,7 +221,7 @@ export class CommandUiRuntime extends Service implements CommandUiContract {
   /**
    * Menu candidates: host catalog + contribution availability, built-in rows
    * localized, then position filtering; sections for an empty query, the
-   * shared name-and-label ranking for a typed one.
+   * shared search filter for a typed one.
    */
   private async candidates(session: ClientSessionContext, req: CandidateRequest): Promise<readonly InputTriggerCandidate[]> {
     const list = await this.directory.ensureReady(session.sessionId, req.signal)
@@ -245,7 +248,7 @@ export class CommandUiRuntime extends Service implements CommandUiContract {
       })
     }
     const visible = rows.filter(c => req.position === 'leading' || c.hint === undefined)
-    return req.query === '' ? sectionRows(visible, this.t) : rankByName(visible, req.query)
+    return req.query === '' ? sectionRows(visible, this.t) : new TextSearchIndex(visible, row => ({ fuzzy: [row.name, row.label] })).search(req.query)
   }
 
   /** Decision table, menu column: contribution/decorated-host → popup or action; host input → claim; host bare → detached execute. */
@@ -276,11 +279,27 @@ export class CommandUiRuntime extends Service implements CommandUiContract {
 
   /** Decision table, space column: hot-key sync check; only host leadingInput claims. */
   private matchSpace(session: ClientSessionContext, token: string): PickOutcome {
+    const claim = this.claimOf(session, token)
+    return claim === undefined ? undefined : { claim }
+  }
+
+  /**
+   * Restore column: the space column's answer once the session's catalog is
+   * ready (a warmup failure rejects). It only resolves; nothing is invoked or
+   * executed.
+   */
+  private async matchClaim(session: ClientSessionContext, token: string, signal: AbortSignal): Promise<CommandClaim | undefined> {
+    await this.directory.ensureReady(session.sessionId, signal)
+    return this.claimOf(session, token)
+  }
+
+  /** The host leadingInput claim a token names in the hot catalog; popup and action kinds never claim. */
+  private claimOf(session: ClientSessionContext, token: string): CommandClaim | undefined {
     if (!token.startsWith('/')) return undefined
-    if (this.live.contributions.has(token.slice(1))) return undefined // popup and action kinds never claim on space
+    if (this.live.contributions.has(token.slice(1))) return undefined
     const desc = this.directory.resolve(session.sessionId, token.slice(1))
     if (desc === undefined || desc.input === undefined) return undefined
-    return { claim: this.leadingClaim(desc, session, token.slice(1)) }
+    return this.leadingClaim(desc, session, token.slice(1))
   }
 
   /**

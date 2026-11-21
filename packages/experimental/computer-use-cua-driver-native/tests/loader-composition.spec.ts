@@ -1,23 +1,26 @@
 /** Real Loader and AgentLoop composition with only external native/model fixtures. */
+import { executeToolFixture } from '@deepseek-ai/dsh-tool-testkit'
 
+import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, expect, it, vi } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import Loader from '@omega-ai/cordis-plugin-loader'
-import Include from '@omega-ai/cordis-plugin-include'
-import AgentRegistry from '@omega-ai/dsh-agent'
-import AgentLoop from '@omega-ai/dsh-agent-loop'
-import ComputerUseRegistry from '@omega-ai/dsh-computer-use'
-import LocalAttachmentStore from '@omega-ai/dsh-attachment-local'
-import LlmRuntime, { LlmAdapter, ToolCallId, createUserMessage } from '@omega-ai/dsh-llm'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@omega-ai/dsh-llm'
-import SessionStore, { SessionId } from '@omega-ai/dsh-session'
-import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
-import SystemPrompt from '@omega-ai/dsh-system-prompt'
-import ToolRuntime from '@omega-ai/dsh-tools'
+import { Context } from '@deepseek-ai/cordis'
+import Loader from '@deepseek-ai/cordis-plugin-loader'
+import Include from '@deepseek-ai/cordis-plugin-include'
+import AgentRegistry from '@deepseek-ai/dsh-agent'
+import AgentLoop from '@deepseek-ai/dsh-agent-loop'
+import ComputerUseRegistry from '@deepseek-ai/dsh-computer-use'
+import LocalAttachmentStore from '@deepseek-ai/dsh-attachment-local'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import LlmRuntime, { LlmAdapter, type ToolCallId, createUserMessage } from '@deepseek-ai/dsh-llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@deepseek-ai/dsh-llm'
+import SessionStore, { type SessionId } from '@deepseek-ai/dsh-session'
+import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
+import ToolRuntime from '@deepseek-ai/dsh-tools'
 import * as NativeProvider from '../src/index.ts'
 import { resetFixture, screenshotBase64 } from './fixtures/cua-driver.ts'
 
@@ -33,7 +36,7 @@ class VisualModel extends LlmAdapter {
   async * stream(options: GenerateOptions): AsyncIterable<StreamChunk> {
     this.requests.push(options)
     if (this.requests.length === 1) {
-      const call = { type: 'tool-call' as const, id: ToolCallId('native-window'), name: 'cua_driver_native__get_window_state', arguments: '{"pid":9,"window_id":7}' }
+      const call = { type: 'tool-call' as const, id: brandString<ToolCallId>('native-window'), name: 'cua_driver_native__get_window_state', arguments: '{"pid":9,"window_id":7}' }
       yield { type: 'block-start', index: 0, blockType: 'tool-call' }
       yield { type: 'block-end', index: 0, block: call }
       yield { type: 'finish', reason: { kind: 'tool-calls' } }
@@ -60,20 +63,22 @@ it('loads from cordis.yml and logs the native screenshot before the next model r
   root = await mkdtemp(join(tmpdir(), 'dsh-native-composition-'))
   const configPath = join(root, 'cordis.yml')
   const modules = new Map<string, unknown>([
-    ['@omega-ai/dsh-llm', LlmRuntime],
-    ['@omega-ai/dsh-session', SessionStore],
-    ['@omega-ai/dsh-session-projection', SessionProjectionRegistry],
-    ['@omega-ai/dsh-system-prompt', SystemPrompt],
-    ['@omega-ai/dsh-tools', ToolRuntime],
-    ['@omega-ai/dsh-agent', AgentRegistry],
-    ['@omega-ai/dsh-agent-loop', AgentLoop],
-    ['@omega-ai/dsh-attachment-local', LocalAttachmentStore],
-    ['@omega-ai/dsh-computer-use', ComputerUseRegistry],
-    ['@omega-ai/dsh-experimental-computer-use-cua-driver-native', NativeProvider],
+    ['@deepseek-ai/dsh-llm', LlmRuntime],
+    ['@deepseek-ai/dsh-session', SessionStore],
+    ['@deepseek-ai/dsh-session-projection', SessionProjectionRegistry],
+
+    ['@deepseek-ai/dsh-system-prompt', SystemPrompt],
+    ['@deepseek-ai/dsh-tools', ToolRuntime],
+    ['@deepseek-ai/dsh-tool-executor-native', NativeToolExecutor],
+    ['@deepseek-ai/dsh-agent', AgentRegistry],
+    ['@deepseek-ai/dsh-agent-loop', AgentLoop],
+    ['@deepseek-ai/dsh-attachment-local', LocalAttachmentStore],
+    ['@deepseek-ai/dsh-computer-use', ComputerUseRegistry],
+    ['@deepseek-ai/dsh-experimental-computer-use-cua-driver-native', NativeProvider],
   ])
   await writeFile(configPath, [...modules.keys()].flatMap(name => [
     `- name: '${name}'`,
-    ...name === '@omega-ai/dsh-attachment-local' ? ['  config:', `    dshHome: ${JSON.stringify(root)}`] : [],
+    ...name === '@deepseek-ai/dsh-attachment-local' ? ['  config:', `    dshHome: ${JSON.stringify(root)}`] : [],
   ]).join('\n') + '\n')
 
   const context = ctx = new Context()
@@ -92,7 +97,7 @@ it('loads from cordis.yml and logs the native screenshot before the next model r
   for (const entry of context.loader.entries()) await entry.fiber?.await()
   const model = new VisualModel()
   context.llm.registerAdapter(['native-fixture'], model)
-  const agent = await context.agentLoop.create(SessionId('native-loader'), { provider: 'native-fixture', model: 'vision' })
+  const agent = await context.agentLoop.create(brandString<SessionId>('native-loader'), { provider: 'native-fixture', model: 'vision' })
   const idle: PromiseWithResolvers<void> = Promise.withResolvers()
   const stop = context.on('agent/status', ({ agent: subject, status }) => {
     if (subject === agent && status === 'idle') idle.resolve()
@@ -116,8 +121,8 @@ it('loads from cordis.yml and logs the native screenshot before the next model r
   expect(Buffer.from(stored.data).toString('base64')).toBe(screenshotBase64)
   expect(JSON.stringify(model.requests[1]?.messages)).toContain(JSON.stringify(image.attachment))
   expect(JSON.stringify(toolResult.content)).not.toContain(screenshotBase64)
-  const direct = await context.tools.execute({
-    agent, signal: new AbortController().signal, callId: ToolCallId('programmatic-window'),
+  const direct = await executeToolFixture(context, {
+    agent, signal: new AbortController().signal, callId: brandString<ToolCallId>('programmatic-window'),
     name: 'cua_driver_native__get_window_state', arguments: { pid: 9, window_id: 7 },
   })
   if (direct.isError) throw new Error('Programmatic native screenshot failed')

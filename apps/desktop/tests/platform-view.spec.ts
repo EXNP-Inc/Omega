@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import type { AccountUserId } from '@omega-ai/dsh-omega-account/types'
+import type { AccountUserId } from '@deepseek-ai/dsh-deepseek-account/types'
 import { DesktopPlatformView, platformBounds } from '../src/platform-view.ts'
 
 const state = vi.hoisted(() => ({
@@ -25,7 +25,7 @@ vi.mock('electron', () => ({
   }) },
   WebContentsView: class {
     webContents = Object.assign(new EventEmitter(), {
-      mainFrame: { url: 'https://platform.omega.com/usage' },
+      mainFrame: { url: 'https://platform.deepseek.com/usage' },
       session: undefined as object | undefined,
       setWindowOpenHandler: vi.fn(),
       loadURL: vi.fn(async (_url: string) => { await state.loadBarrier; if (state.loadFailure !== undefined) throw state.loadFailure }),
@@ -46,13 +46,14 @@ afterEach(() => {
   vi.clearAllMocks(); vi.unstubAllEnvs()
 })
 function setup() {
+  let blocked = false
   const removeChildView = vi.fn()
   const owner = Object.assign(new EventEmitter(), {
     webContents: new EventEmitter(), contentView: { addChildView: vi.fn(), removeChildView }, isDestroyed: () => false,
   })
-  const manager = new DesktopPlatformView('/bundled/preload.cjs', () => 'en_US', 'darwin')
-  manager.setSession({ origin: 'https://platform.omega.com', userId: 'fixture-user' as AccountUserId, token: 'fixture-secret' })
-  return { manager, owner, removeChildView }
+  const manager = new DesktopPlatformView('/bundled/preload.cjs', () => 'en_US', 'darwin', () => blocked)
+  manager.setSession({ origin: 'https://platform.deepseek.com', userId: 'fixture-user' as AccountUserId, token: 'fixture-secret' })
+  return { manager, owner, removeChildView, block: () => { blocked = true } }
 }
 
 /** Invoke the first registered header interceptor for one request. */
@@ -84,8 +85,8 @@ it('bootstraps only the owned main frame and never puts the token in a URL', asy
   await manager.open(owner, 'usage', bounds)
   const sender = view().webContents
   const event = { sender, senderFrame: sender.mainFrame }
-  expect(manager.bootstrap(event)).toEqual({ origin: 'https://platform.omega.com', token: 'fixture-secret', locale: 'en_US' })
-  expect(sender.loadURL).toHaveBeenCalledWith('https://platform.omega.com/usage')
+  expect(manager.bootstrap(event)).toEqual({ origin: 'https://platform.deepseek.com', token: 'fixture-secret', locale: 'en_US' })
+  expect(sender.loadURL).toHaveBeenCalledWith('https://platform.deepseek.com/usage')
   expect(() => manager.bootstrap({ ...event, senderFrame: { url: sender.mainFrame.url } })).toThrow()
   expect(() => manager.bootstrap({ ...event, sender: {} })).toThrow()
   sender.mainFrame.url = 'https://other.example/usage'
@@ -97,11 +98,11 @@ it('destroys old documents on sign-out or credential replacement', async () => {
   const { manager, owner } = setup()
   await manager.open(owner, 'usage', bounds)
   const first = view().webContents
-  manager.setSession({ origin: 'https://platform.omega.com', userId: 'fixture-user' as AccountUserId, token: 'replacement' })
+  manager.setSession({ origin: 'https://platform.deepseek.com', userId: 'fixture-user' as AccountUserId, token: 'replacement' })
   expect(first.close).toHaveBeenCalledOnce()
   expect(() => manager.bootstrap({ sender: first, senderFrame: first.mainFrame })).toThrow()
   await manager.open(owner, 'top-up', bounds)
-  expect(view().webContents.loadURL).toHaveBeenCalledWith('https://platform.omega.com/top_up')
+  expect(view().webContents.loadURL).toHaveBeenCalledWith('https://platform.deepseek.com/top_up')
   const second = view().webContents
   manager.setSession(null)
   expect(second.close).toHaveBeenCalledOnce()
@@ -110,11 +111,11 @@ it('destroys old documents on sign-out or credential replacement', async () => {
 
 it('keeps the view when the Platform document replaces its own URL during the first load', async () => {
   const { manager, owner } = setup()
-  state.loadFailure = Object.assign(new Error("ERR_ABORTED (-3) loading 'https://platform.omega.com/usage'"), { code: 'ERR_ABORTED' })
+  state.loadFailure = Object.assign(new Error("ERR_ABORTED (-3) loading 'https://platform.deepseek.com/usage'"), { code: 'ERR_ABORTED' })
   await manager.open(owner, 'usage', bounds)
   expect(view().setVisible).toHaveBeenCalledWith(true)
   expect(view().webContents.close).not.toHaveBeenCalled()
-  state.loadFailure = Object.assign(new Error("ERR_FAILED (-2) loading 'https://platform.omega.com/usage'"), { code: 'ERR_FAILED' })
+  state.loadFailure = Object.assign(new Error("ERR_FAILED (-2) loading 'https://platform.deepseek.com/usage'"), { code: 'ERR_FAILED' })
   await expect(manager.open(owner, 'usage', bounds)).rejects.toThrow('ERR_FAILED')
   expect(view().webContents.close).toHaveBeenCalledOnce()
 })
@@ -124,10 +125,10 @@ it('blocks cross-origin navigation and redirects', async () => {
   await manager.open(owner, 'usage', bounds)
   for (const name of ['will-navigate', 'will-redirect']) {
     const event = { preventDefault: vi.fn() }
-    view().webContents.emit(name, event, 'https://platform.omega.com.evil/usage')
+    view().webContents.emit(name, event, 'https://platform.deepseek.com.evil/usage')
     expect(event.preventDefault).toHaveBeenCalledOnce()
     event.preventDefault.mockClear()
-    view().webContents.emit(name, event, 'https://platform.omega.com/top_up')
+    view().webContents.emit(name, event, 'https://platform.deepseek.com/top_up')
     expect(event.preventDefault).not.toHaveBeenCalled()
   }
   manager.close()
@@ -135,11 +136,11 @@ it('blocks cross-origin navigation and redirects', async () => {
 
 it('injects the deployment and client identity headers only at the Platform origin', async () => {
   const { manager, owner } = setup()
-  manager.setSession({ origin: 'https://platform.omega.com', userId: null, token: 'fixture-secret',
+  manager.setSession({ origin: 'https://platform.deepseek.com', userId: null, token: 'fixture-secret',
     requestHeaders: { cookie: 'gate=synthetic', 'x-deployment': 'harness' } })
   await manager.open(owner, 'usage', bounds)
   const request = { Cookie: 'route=user', 'x-client-platform': 'stale', 'x-deployment': 'stale' }
-  expect(interceptHeaders(1, 'https://platform.omega.com/api/v0/users/current', request)).toEqual({
+  expect(interceptHeaders(1, 'https://platform.deepseek.com/api/v0/users/current', request)).toEqual({
     'x-deployment': 'harness', cookie: 'route=user; gate=synthetic', 'x-client-bundle-id': '',
     'x-client-platform': 'desktop-mac', 'x-client-version': '1.2.3', 'x-client-locale': 'en_US',
     'x-client-timezone-offset': String(-new Date().getTimezoneOffset() * 60),
@@ -154,16 +155,16 @@ it('samples the language and UTC offset on every Platform request', async () => 
   const owner = Object.assign(new EventEmitter(), {
     webContents: new EventEmitter(), contentView: { addChildView: vi.fn(), removeChildView: vi.fn() }, isDestroyed: () => false,
   })
-  const manager = new DesktopPlatformView('/bundled/preload.cjs', () => locale, 'darwin')
-  manager.setSession({ origin: 'https://platform.omega.com', userId: null, token: 'fixture-secret' })
+  const manager = new DesktopPlatformView('/bundled/preload.cjs', () => locale, 'darwin', () => false)
+  manager.setSession({ origin: 'https://platform.deepseek.com', userId: null, token: 'fixture-secret' })
   await manager.open(owner, 'usage', bounds)
   const offset = vi.spyOn(Date.prototype, 'getTimezoneOffset').mockReturnValue(480)
-  expect(interceptHeaders(1, 'https://platform.omega.com/usage', {})).toMatchObject({
+  expect(interceptHeaders(1, 'https://platform.deepseek.com/usage', {})).toMatchObject({
     'x-client-locale': 'en_US', 'x-client-timezone-offset': '-28800',
   })
   locale = 'zh_CN'
   offset.mockReturnValue(-300)
-  expect(interceptHeaders(1, 'https://platform.omega.com/usage', {})).toMatchObject({
+  expect(interceptHeaders(1, 'https://platform.deepseek.com/usage', {})).toMatchObject({
     'x-client-locale': 'zh_CN', 'x-client-timezone-offset': '18000',
   })
   offset.mockRestore()
@@ -217,7 +218,7 @@ it('does not reveal a document closed before its load settles', async () => {
 
 it('injects deployment headers only at the Platform origin and excludes them from bootstrap', async () => {
   const { manager, owner } = setup()
-  manager.setSession({ origin: 'https://platform.omega.com', userId: 'fixture-user' as AccountUserId, token: 'fixture-secret',
+  manager.setSession({ origin: 'https://platform.deepseek.com', userId: 'fixture-user' as AccountUserId, token: 'fixture-secret',
     requestHeaders: { cookie: 'route=new; gate=private', 'x-private-gate': 'private', 'x-client-platform': 'desktop-mac' } })
   await manager.open(owner, 'usage', bounds)
   const browserSession = state.sessions.at(-1) as { webRequest: { onBeforeSendHeaders: ReturnType<typeof vi.fn> } }
@@ -227,7 +228,7 @@ it('injects deployment headers only at the Platform origin and excludes them fro
   ) => void
   const callback = vi.fn()
   for (const path of ['/usage', '/top_up', '/api/v0/users/get_user_summary']) {
-    intercept({ id: 1, url: `https://platform.omega.com${path}`, requestHeaders: { Cookie: 'route=old; browser=keep', Accept: 'application/json' } }, callback)
+    intercept({ id: 1, url: `https://platform.deepseek.com${path}`, requestHeaders: { Cookie: 'route=old; browser=keep', Accept: 'application/json' } }, callback)
     expect(callback).toHaveBeenLastCalledWith({ requestHeaders: {
       cookie: 'route=new; browser=keep; gate=private', accept: 'application/json', 'x-private-gate': 'private', 'x-client-platform': 'desktop-mac',
       'x-client-bundle-id': '', 'x-client-version': '1.2.3', 'x-client-locale': 'en_US',
@@ -242,20 +243,20 @@ it('injects deployment headers only at the Platform origin and excludes them fro
   expect(callback).toHaveBeenLastCalledWith({ requestHeaders: { cookie: 'payment=session', constructor: 'keep' } })
   const sender = view().webContents
   expect(manager.bootstrap({ sender, senderFrame: sender.mainFrame }))
-    .toEqual({ origin: 'https://platform.omega.com', token: 'fixture-secret', locale: 'en_US' })
+    .toEqual({ origin: 'https://platform.deepseek.com', token: 'fixture-secret', locale: 'en_US' })
   manager.close()
 })
 
 it.each(['usage', 'top-up'] as const)('selects the configured frontend deployment for %s', async (page) => {
   const { manager, owner } = setup()
-  manager.setSession({ origin: 'https://platform.omega.com', userId: 'fixture-user' as AccountUserId, token: 'fixture-secret', embeddedPageDist: 'feat/test&other=value' })
+  manager.setSession({ origin: 'https://platform.deepseek.com', userId: 'fixture-user' as AccountUserId, token: 'fixture-secret', embeddedPageDist: 'feat/test&other=value' })
   await manager.open(owner, page, bounds)
   const url = new URL(view().webContents.loadURL.mock.calls[0]![0] as string)
-  expect(url.origin).toBe('https://platform.omega.com')
+  expect(url.origin).toBe('https://platform.deepseek.com')
   expect(url.pathname).toBe(page === 'usage' ? '/usage' : '/top_up')
   expect([...url.searchParams]).toEqual([['dist', 'feat/test&other=value']])
   const previous = view().webContents
-  manager.setSession({ origin: 'https://platform.omega.com', userId: 'fixture-user' as AccountUserId, token: 'fixture-secret', embeddedPageDist: 'another' })
+  manager.setSession({ origin: 'https://platform.deepseek.com', userId: 'fixture-user' as AccountUserId, token: 'fixture-secret', embeddedPageDist: 'another' })
   expect(previous.close).toHaveBeenCalledOnce()
   manager.close()
 })
@@ -314,8 +315,8 @@ it('does not reveal a pending view after the owner reloads or remove a replaceme
 it('bootstraps the current language and updates an open view without reloading', async () => {
   const { owner } = setup()
   let locale: 'en_US' | 'zh_CN' = 'zh_CN'
-  const manager = new DesktopPlatformView('/bundled/preload.cjs', () => locale, 'win32')
-  manager.setSession({ origin: 'https://platform.omega.com', userId: 'fixture-user' as AccountUserId, token: 'fixture-secret' })
+  const manager = new DesktopPlatformView('/bundled/preload.cjs', () => locale, 'win32', () => false)
+  manager.setSession({ origin: 'https://platform.deepseek.com', userId: 'fixture-user' as AccountUserId, token: 'fixture-secret' })
   manager.notifyLocaleChanged()
   await manager.open(owner, 'usage', bounds)
   const sender = view().webContents
@@ -366,7 +367,7 @@ it('reuses persistent storage across closes, token replacement, and manager recr
   expect(first.webRequest.onBeforeSendHeaders).toHaveBeenCalledWith(null)
   expect(first.webRequest.onCompleted).toHaveBeenCalledWith(null)
   expect(first.webRequest.onErrorOccurred).toHaveBeenCalledWith(null)
-  manager.setSession({ origin: 'https://platform.omega.com', userId: 'fixture-user' as AccountUserId, token: 'rotated' })
+  manager.setSession({ origin: 'https://platform.deepseek.com', userId: 'fixture-user' as AccountUserId, token: 'rotated' })
   await manager.open(owner, 'usage', bounds)
   expect(browserSession().partition).toBe(first.partition)
   manager.close()
@@ -381,7 +382,7 @@ it('isolates accounts and issuers and restores the original account partition af
   await manager.open(owner, 'usage', bounds)
   const first = browserSession().partition
   // The ID must invalidate even an otherwise identical credential snapshot.
-  manager.setSession({ origin: 'https://platform.omega.com', userId: 'other-user' as AccountUserId, token: 'fixture-secret' })
+  manager.setSession({ origin: 'https://platform.deepseek.com', userId: 'other-user' as AccountUserId, token: 'fixture-secret' })
   expect(view().webContents.close).toHaveBeenCalledOnce()
   await manager.open(owner, 'usage', bounds)
   const second = browserSession().partition
@@ -391,7 +392,7 @@ it('isolates accounts and issuers and restores the original account partition af
   expect(browserSession().partition).not.toBe(first)
   expect(browserSession().partition).not.toBe(second)
   manager.setSession(null)
-  manager.setSession({ origin: 'https://platform.omega.com', userId: 'fixture-user' as AccountUserId, token: 'signed-in-again' })
+  manager.setSession({ origin: 'https://platform.deepseek.com', userId: 'fixture-user' as AccountUserId, token: 'signed-in-again' })
   await manager.open(owner, 'usage', bounds)
   expect(browserSession().partition).toBe(first)
   manager.close()
@@ -399,7 +400,7 @@ it('isolates accounts and issuers and restores the original account partition af
 
 it('uses disposable storage when no stable account ID is available', async () => {
   const { manager, owner } = setup()
-  manager.setSession({ origin: 'https://platform.omega.com', userId: null, token: 'fixture-secret' })
+  manager.setSession({ origin: 'https://platform.deepseek.com', userId: null, token: 'fixture-secret' })
   await manager.open(owner, 'usage', bounds)
   const first = browserSession()
   expect(first.partition).not.toMatch(/^persist:/)
@@ -422,7 +423,7 @@ it('waits for authentication cleanup before reopening and ignores superseded ope
   cleared.resolve(undefined)
   await Promise.all([obsolete, current])
   expect(state.views).toHaveLength(2)
-  expect(view().webContents.loadURL).toHaveBeenCalledWith('https://platform.omega.com/top_up')
+  expect(view().webContents.loadURL).toHaveBeenCalledWith('https://platform.deepseek.com/top_up')
   manager.close()
 })
 
@@ -458,7 +459,7 @@ it('keeps failed account cleanup isolated from other accounts', async () => {
   const { manager, owner } = setup()
   await manager.open(owner, 'usage', bounds)
   browserSession().clearAuthCache.mockRejectedValue(new Error('failed'))
-  manager.setSession({ origin: 'https://platform.omega.com', userId: 'second' as AccountUserId, token: 'second' })
+  manager.setSession({ origin: 'https://platform.deepseek.com', userId: 'second' as AccountUserId, token: 'second' })
   await manager.open(owner, 'usage', bounds)
   expect(state.views).toHaveLength(2)
   await expect(manager.dispose()).rejects.toThrow('Platform storage cleanup failed')
@@ -481,12 +482,34 @@ it('awaits cleanup on disposal and rejects subsequent opens', async () => {
 
 it('keeps an open temporary document when its credential gains a stable identity', async () => {
   const { manager, owner } = setup()
-  manager.setSession({ origin: 'https://platform.omega.com', userId: null, token: 'fixture-secret' })
+  manager.setSession({ origin: 'https://platform.deepseek.com', userId: null, token: 'fixture-secret' })
   await manager.open(owner, 'usage', bounds)
-  manager.setSession({ origin: 'https://platform.omega.com', userId: 'fixture-user' as AccountUserId, token: 'fixture-secret' })
+  manager.setSession({ origin: 'https://platform.deepseek.com', userId: 'fixture-user' as AccountUserId, token: 'fixture-secret' })
   expect(view().webContents.close).not.toHaveBeenCalled()
   expect(browserSession().partition).not.toMatch(/^persist:/)
   await manager.open(owner, 'usage', bounds)
   expect(browserSession().partition).toMatch(/^persist:/)
   await manager.dispose()
+})
+
+
+it('refuses Platform admission while an update prompt is blocking', async () => {
+  const f = setup()
+  f.block()
+  await expect(f.manager.open(f.owner, 'usage', { x: 0, y: 0, width: 400, height: 300 })).rejects.toThrow(/blocked/)
+  expect(state.views).toHaveLength(0)
+  expect(state.sessions).toHaveLength(0)
+  await f.manager.dispose()
+})
+
+it('refuses a pending Platform view if update blocking starts during storage cleanup', async () => {
+  const f = setup()
+  const pending = f.manager.open(f.owner, 'usage', { x: 0, y: 0, width: 400, height: 300 })
+  expect(state.sessions).toHaveLength(1)
+  f.block()
+  await expect(pending).rejects.toThrow(/blocked/)
+  expect(state.views).toHaveLength(0)
+  expect(f.owner.contentView.addChildView).not.toHaveBeenCalled()
+  expect(f.owner.listenerCount('closed')).toBe(0)
+  await f.manager.dispose()
 })

@@ -1,12 +1,13 @@
 /** Protocol-independent model capabilities and reasoning choices. */
-import { ReasoningEffortId } from '@omega-ai/dsh-llm'
-import type { LlmModelInfo, LlmResolvedModelInfo } from '@omega-ai/dsh-llm'
-import type { OmegaCatalogModel, OmegaConnectionOptions } from './types.ts'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { ReasoningEffortId } from '@deepseek-ai/dsh-llm/types'
+import type { LlmModelBadge, LlmModelInfo, LlmResolvedModelInfo } from '@deepseek-ai/dsh-llm'
+import type { DeepSeekCatalogModel, DeepSeekConnectionOptions } from './types.ts'
 
-const OFF_REASONING_EFFORT = ReasoningEffortId('off')
-const LOW_REASONING_EFFORT = ReasoningEffortId('low')
-const HIGH_REASONING_EFFORT = ReasoningEffortId('high')
-const MAX_REASONING_EFFORT = ReasoningEffortId('max')
+const OFF_REASONING_EFFORT = brandString<ReasoningEffortId>('off')
+const LOW_REASONING_EFFORT = brandString<ReasoningEffortId>('low')
+const HIGH_REASONING_EFFORT = brandString<ReasoningEffortId>('high')
+const MAX_REASONING_EFFORT = brandString<ReasoningEffortId>('max')
 const REASONING_EFFORTS = [
   {
     id: OFF_REASONING_EFFORT,
@@ -40,15 +41,17 @@ const OFF_ONLY_REASONING_EFFORTS = [
 /** Advertise one catalog entry.
  * @param provider - registered provider id.
  * @param model - advisory catalog entry.
+ * @param badge - selector badge a model listing declares for the entry.
  * @returns selector metadata.
  */
-export function catalogModelInfo(provider: string, model: OmegaCatalogModel): LlmModelInfo {
+export function catalogModelInfo(provider: string, model: DeepSeekCatalogModel, badge?: LlmModelBadge): LlmModelInfo {
   return {
     provider,
     id: model.id,
     name: model.name ?? model.id,
     ...model.description === undefined ? {} : { description: model.description },
     inputModalities: model.inputModalities ?? ['text'],
+    ...badge === undefined ? {} : { badge },
   }
 }
 
@@ -59,7 +62,7 @@ export function catalogModelInfo(provider: string, model: OmegaCatalogModel): Ll
  * @returns effective model metadata for this operation.
  */
 export function modelInfo(
-  connection: OmegaConnectionOptions,
+  connection: DeepSeekConnectionOptions,
   provider: string,
   model: string,
 ): LlmResolvedModelInfo {

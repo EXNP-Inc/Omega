@@ -1,23 +1,23 @@
 /**
- * Out-of-process SDK subagent backend. Each child is a complete Omega
+ * Out-of-process SDK subagent backend. Each child is a complete DeepSeek
  * Harness runtime in its own process — own named profile and patch composition,
  * session, model route, and tools — driven over stdio JSON-RPC through the
  * TypeScript SDK client, so it shares no Cordis context. It accepts the
  * provider/model/reasoning/maxTokens subset of `agentOptions`; other start
- * features remain unsupported. The ONE thing it reads off `request.parent`
- * is the session's workspace cwd. This plugin uses named
+ * features remain unsupported. The child retains its parent's origin directory
+ * while starting in the directory selected by the subagent service. This plugin uses named
  * exports only; a default would hide its loader metadata (see
  * `docs/postmortem/0001-acp-default-export-drops-inject.md`).
- * @module @omega-ai/dsh-subagent-dsh-sdk
+ * @module @deepseek-ai/dsh-subagent-dsh-sdk
  */
 
-import type { Context } from '@omega-ai/cordis'
+import type { Context } from '@deepseek-ai/cordis'
 import { statSync } from 'node:fs'
 import { isAbsolute, resolve } from 'node:path'
-import z from '@omega-ai/schemastery'
-import type { AgentOptions } from '@omega-ai/dsh-agent'
-import type { SubagentCapabilities, SubagentProvider, SubagentStartRequest } from '@omega-ai/dsh-subagent'
-import { assertPositiveFinite, NO_START_CAPABILITIES, resolveChildCwd, validateConfiguredCwd } from '@omega-ai/dsh-subagent'
+import z from '@deepseek-ai/schemastery'
+import type { AgentOptions } from '@deepseek-ai/dsh-agent'
+import type { SubagentCapabilities, SubagentProvider, ResolvedSubagentStartRequest } from '@deepseek-ai/dsh-subagent'
+import { assertPositiveFinite, NO_START_CAPABILITIES, assertUsableCwd } from '@deepseek-ai/dsh-subagent'
 import {
   DEFAULT_DISPOSE_EOF_GRACE_MS,
   DEFAULT_DISPOSE_GRACE_MS,
@@ -42,24 +42,15 @@ export interface Config {
   patches: string[]
   /** Absolute isolated Harness home for every nested child process. */
   dshHome: string
-  /**
-   * Working directory override for the child process and its SDK session
-   * workspace. Must be non-empty; a relative path resolves against the
-   * harness launch directory at load, and the result must be an existing
-   * directory. When omitted, each child inherits its delegating parent
-   * session's cwd — and starting one from a parent session that has no cwd
-   * fails.
-   */
-  cwd?: string
-  /** Provider route the child runtime initializes with (default `mac`). */
+  /** Provider route the child runtime initializes with (default `deepseek-official`). */
   provider: string
-  /** Model the child runtime initializes with (default `qwen3.8-27b-lite`). */
+  /** Model the child runtime initializes with (default `deepseek-v4-flash`). */
   model: string
   /** Optional per-request output-token cap for the child runtime. */
   maxTokens?: number
   /**
    * Extra environment variables for the child process — e.g. the child
-   * runtime's own `OMEGA_API_KEY`. Forwarded on top of a credential-scrubbed copy of the parent
+   * runtime's own `DEEPSEEK_API_KEY`. Forwarded on top of a credential-scrubbed copy of the parent
    * env, so an explicit key here reaches the child while ambient secrets do
    * not leak implicitly.
    */
@@ -82,9 +73,8 @@ export const Config: z<Config> = z.object({
   profile: z.string().default('sdk'),
   patches: z.array(z.string()).default([]),
   dshHome: z.string().required(),
-  cwd: z.string(),
-  provider: z.string().default('omega-official'),
-  model: z.string().default('omega-v4-flash'),
+  provider: z.string().default('deepseek-official'),
+  model: z.string().default('deepseek-v4-flash'),
   maxTokens: z.number().step(1).min(1).max(Number.MAX_SAFE_INTEGER),
   env: z.dict(z.string()).default({}),
   shutdownTimeoutMs: z.number().default(DEFAULT_SHUTDOWN_TIMEOUT_MS),
@@ -92,15 +82,15 @@ export const Config: z<Config> = z.object({
   disposeGraceMs: z.number().default(DEFAULT_DISPOSE_GRACE_MS),
 })
 
-/** The shape after schemastery applied the defaults (`cwd` and `maxTokens` have none). */
-type ResolvedConfig = Required<Omit<Config, 'cwd' | 'maxTokens' | 'dshBin'>> & Pick<Config, 'cwd' | 'maxTokens' | 'dshBin'>
+/** The shape after schemastery applied the defaults (`dshBin` and `maxTokens` have none). */
+type ResolvedConfig = Required<Omit<Config, 'maxTokens' | 'dshBin'>> & Pick<Config, 'maxTokens' | 'dshBin'>
 
 /** Resolve one configured runtime file against the harness launch directory and require a regular file. */
 function resolveConfiguredFile(field: string, value: string): string {
   const path = resolve(value)
   try {
     if (statSync(path).isFile()) return path
-  } catch {
+  } catch (_unreadablePath) {
     // The diagnostic below owns missing, inaccessible, and non-file paths uniformly.
   }
   throw new TypeError(`subagent-dsh-sdk ${field} must name an existing file: ${path}`)
@@ -128,7 +118,7 @@ function resolveSdkRoute(config: ResolvedConfig, requested: AgentOptions | undef
 
 /**
  * The SDK provider. It resolves Agent route options into the child runtime's
- * process-wide handshake; output schema, depth, tool filter, and persona stay
+ * process-wide handshake; output schema, depth, and independent preset selection stay
  * unsupported because their ownership does not cross this process boundary.
  */
 class SdkSubagentProvider implements SubagentProvider {
@@ -141,13 +131,13 @@ class SdkSubagentProvider implements SubagentProvider {
     this.agentRouteDefaults = Object.freeze({ provider: config.provider, model: config.model })
   }
 
-  start(request: SubagentStartRequest) {
+  start(request: ResolvedSubagentStartRequest) {
     if (request.signal.aborted) {
       throw new Error('subagent request was aborted before the SDK child started')
     }
     let cwd: string
     try {
-      cwd = resolveChildCwd('subagent-dsh-sdk', this.config.cwd, request.parent.session.header.cwd)
+      cwd = assertUsableCwd('subagent-dsh-sdk', 'child cwd', request.cwd)
     } catch (error: unknown) {
       const failure = sdkConfigurationFailure(error)
       this.ctx.logger.warn(`subagent-dsh-sdk "${this.name}": child start failed: %o`, error)
@@ -160,6 +150,7 @@ class SdkSubagentProvider implements SubagentProvider {
       patches: this.config.patches,
       dshHome: this.config.dshHome,
       cwd,
+      originCwd: request.parent.session.header.cwd,
       ...route,
       env: this.config.env,
       shutdownTimeoutMs: this.config.shutdownTimeoutMs,
@@ -190,11 +181,5 @@ export function apply(ctx: Context, config: Config): void {
     patches: resolved.patches.map((path, index) => resolveConfiguredFile(`patches[${String(index)}]`, path)),
     ...resolved.dshBin === undefined ? {} : { dshBin: resolveConfiguredFile('dshBin', resolved.dshBin) },
   }
-  // Interpret a relative configured cwd against the harness launch directory
-  // ONCE, at load, and fail a misconfigured directory here — not per start.
-  const configuredCwd = validateConfiguredCwd('subagent-dsh-sdk', resolved.cwd)
-  const validated: ResolvedConfig = configuredCwd === undefined
-    ? launchPaths
-    : { ...launchPaths, cwd: configuredCwd }
-  ctx.subagents.registerProvider(new SdkSubagentProvider(validated.providerName, ctx, validated))
+  ctx.subagents.registerProvider(new SdkSubagentProvider(launchPaths.providerName, ctx, launchPaths))
 }

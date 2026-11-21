@@ -7,8 +7,8 @@
  * replay of arbitrary logged arguments, so every step narrows wire JSON and
  * returns empty rather than throwing.
  */
-import type { ScheduleId, ScheduleRecord } from '@omega-ai/dsh-schedule/client'
-import type { ToolCallViewProps } from '@omega-ai/dsh-client-ui-tool/client'
+import type { ScheduleId, ScheduleRecord } from '@deepseek-ai/dsh-schedule/client'
+import type { ToolCallViewProps } from '@deepseek-ai/dsh-client-ui-tool/client'
 import { taskName } from './schedule-format.ts'
 
 /** One Tool call block as the card receives it: a running call or a settled result. */
@@ -85,6 +85,9 @@ export function narrowScheduleRecord(value: unknown): ScheduleRecord | undefined
   const title = typeof value.title === 'string' && value.title.trim() !== '' ? value.title : firstLine(prompt)
   if (title === '') return undefined
   switch (kind) {
+    case 'rrule':
+      return typeof value.rrule === 'string' && value.rrule !== ''
+        ? { id: id as ScheduleId, kind, title, prompt, scheduledAt, rrule: value.rrule } : undefined
     case 'after':
       return typeof value.afterSeconds === 'number'
         ? { id: id as ScheduleId, kind: 'after', title, prompt, afterSeconds: value.afterSeconds, scheduledAt }

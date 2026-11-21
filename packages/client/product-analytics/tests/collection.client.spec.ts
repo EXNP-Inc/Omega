@@ -1,6 +1,6 @@
-import { Context, Service } from '@omega-ai/cordis'
+import { Context, Service } from '@deepseek-ai/cordis'
 import { afterEach, expect, it, vi } from 'vitest'
-import type { RemoteStreamOptions } from '@omega-ai/dsh-api-gateway/client'
+import type { RemoteStreamOptions } from '@deepseek-ai/dsh-api-gateway/client'
 import * as Analytics from '../src/client/index.ts'
 
 const cleanup: (() => Promise<void>)[] = []
@@ -95,7 +95,7 @@ it('fails closed on stream loss and accepts a fresh policy after reconnection', 
   const b = await setup()
   b.options().open(new AbortController().signal)
   expect(b.options().ended(true).message).toContain('policy stream ended')
-  b.options().carrierFailed?.(new Error('offline'))
+  b.options().carrierFailed?.(Object.assign(new Error('offline'), { code: 'gateway/carrier-lost' as const }))
   expect(b.ctx.productAnalytics.enabled).toBe(false)
   await b.policy(true)
   await b.fail()

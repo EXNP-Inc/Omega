@@ -1,37 +1,40 @@
+import * as PtcToolExecutor from '@deepseek-ai/dsh-tool-executor-ptc'
 import { randomUUID } from 'node:crypto'
+import { provideWorkingDirectoryFixture, mountAgentLoopTestDependencies } from '@deepseek-ai/dsh-agent-loop-testkit'
 import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@omega-ai/cordis'
-import type { Agent } from '@omega-ai/dsh-agent'
-import AgentLoop from '@omega-ai/dsh-agent-loop'
-import { mountAgentLoopTestDependencies } from '@omega-ai/dsh-agent-loop-testkit'
-import { SandboxBashExecutor } from '@omega-ai/dsh-bash-sandbox'
-import { NodePtcRuntime } from '@omega-ai/dsh-ptc-runtime-node'
-import * as FsObservationPolicy from '@omega-ai/dsh-fs-observation-policy'
-import { SandboxedFileSystem } from '@omega-ai/dsh-fs-sandbox'
+import { Context } from '@deepseek-ai/cordis'
+import type { Agent } from '@deepseek-ai/dsh-agent'
+import AgentLoop from '@deepseek-ai/dsh-agent-loop'
+import { SandboxBashExecutor } from '@deepseek-ai/dsh-bash-sandbox'
+import { NodePtcRuntime } from '@deepseek-ai/dsh-ptc-runtime-node'
+import * as FsObservationPolicy from '@deepseek-ai/dsh-fs-observation-policy'
+import { SandboxedFileSystem } from '@deepseek-ai/dsh-fs-sandbox'
+import { brandString } from '@deepseek-ai/dsh-brand'
 import {
-  createUserMessage, isAgentLoopRequest, ToolCallId,
+  createUserMessage, isAgentLoopRequest, type ToolCallId,
   type StreamChunk,
-} from '@omega-ai/dsh-llm'
-import * as LlmOmega from '@omega-ai/dsh-llm-omega-api-key'
-import PermissionPresetService, { AUTO_PRESET } from '@omega-ai/dsh-permission-presets'
-import SandboxProvider, { type ConfinedArgv, type SandboxPolicy } from '@omega-ai/dsh-sandbox'
-import SandboxPolicyService from '@omega-ai/dsh-sandbox-policy'
-import { SessionId, type SessionEvent } from '@omega-ai/dsh-session'
-import * as ShellEnv from '@omega-ai/dsh-shell-env'
-import LocalSubprocessRuntime from '@omega-ai/dsh-subprocess-local'
-import * as ToolBash from '@omega-ai/dsh-tool-bash'
-import * as ToolFs from '@omega-ai/dsh-tool-fs'
-import { RUN_CODE_NAME } from '@omega-ai/dsh-tools'
-import ApprovalService, { setApprovalPolicy } from '@omega-ai/dsh-user-approval'
+} from '@deepseek-ai/dsh-llm'
+import * as LlmDeepSeek from '@deepseek-ai/dsh-llm-deepseek-api-key'
+import DeepSeekAuth from '@deepseek-ai/dsh-deepseek-auth'
+import PermissionPresetService, { AUTO_PRESET } from '@deepseek-ai/dsh-permission-presets'
+import SandboxProvider, { type ConfinedArgv, type SandboxPolicy } from '@deepseek-ai/dsh-sandbox'
+import SandboxPolicyService from '@deepseek-ai/dsh-sandbox-policy'
+import type { SessionId, SessionEvent } from '@deepseek-ai/dsh-session'
+import * as ShellEnv from '@deepseek-ai/dsh-shell-env'
+import LocalSubprocessRuntime from '@deepseek-ai/dsh-subprocess-local'
+import * as ToolBash from '@deepseek-ai/dsh-tool-bash'
+import * as ToolFs from '@deepseek-ai/dsh-tool-fs'
+import { RUN_CODE_NAME } from '@deepseek-ai/dsh-tools'
+import ApprovalService, { setApprovalPolicy } from '@deepseek-ai/dsh-user-approval'
 import { expect, it, vi } from 'vitest'
-import * as AutoReview from '@omega-ai/dsh-experimental-auto-review'
+import * as AutoReview from '@deepseek-ai/dsh-experimental-auto-review'
 
-const PROVIDER = 'omega-official'
-const FLASH = 'omega-v4-flash'
-const PRO = 'omega-v4-pro'
-const VISION = 'omega-v4-flash-vision-exp'
+const PROVIDER = 'deepseek-official'
+const FLASH = 'deepseek-v4-flash'
+const PRO = 'deepseek-v4-pro'
+const VISION = 'deepseek-v4-flash-vision-exp'
 const REAL = process.env.DSH_AUTO_REVIEW_CERTIFICATION === '1'
 const DENIED = 'AUTO_REVIEW_DENIED'
 type Risk = 'low' | 'medium' | 'high'
@@ -73,7 +76,7 @@ function textChunks(text: string): StreamChunk[] {
 }
 
 function callChunks(id: string, name: string, args: Record<string, unknown>): StreamChunk[] {
-  const callId = ToolCallId(id)
+  const callId = brandString<ToolCallId>(id)
   const argumentsJson = JSON.stringify(args)
   return [
     { type: 'block-start', index: 0, blockType: 'tool-call' },
@@ -130,10 +133,11 @@ async function* observe(
 
 async function mount(ctx: Context, workspace: string, dshHome: string): Promise<void> {
   await mountAgentLoopTestDependencies(ctx, {
-    systemPrompt: {}, tools: { mode: 'both' },
+    systemPrompt: {}, tools: { mode: 'native' },
   })
   // No reasoning or output-budget override: use each shipped model's defaults.
-  await ctx.plugin(LlmOmega, { retryPolicy: { mode: 'normal', maxRetries: 0 } })
+  await ctx.plugin(DeepSeekAuth)
+  await ctx.plugin(LlmDeepSeek, { retryPolicy: { mode: 'normal', maxRetries: 0 } })
   await ctx.plugin(SandboxPolicyService, { mode: 'workspace-write', workspaceRoot: workspace })
   await ctx.plugin(UnusedSandbox)
   await ctx.plugin(SandboxedFileSystem, { cwd: workspace })
@@ -250,9 +254,10 @@ async function missing(path: string): Promise<boolean> {
 it('certifies eight Auto risk/authorization cases with zero retries and zero skipped', {
   retry: 0, timeout: 1_800_000,
 }, async () => {
-  if (REAL && !process.env.OMEGA_API_KEY) throw new Error('Real Auto certification requires OMEGA_API_KEY')
+  if (REAL && !process.env.DEEPSEEK_API_KEY) throw new Error('Real Auto certification requires DEEPSEEK_API_KEY')
   const root = await mkdtemp(join(tmpdir(), 'dsh-auto-review-'))
   const ctx = new Context()
+  provideWorkingDirectoryFixture(ctx)
   try {
     await chmod(root, 0o700)
     const workspace = join(root, 'workspace')
@@ -288,7 +293,7 @@ it('certifies eight Auto risk/authorization cases with zero retries and zero ski
     // the same Session under Full access, without spending reviewer calls.
     const temporary = join(workspace, 'session-created.tmp')
     const low = await ctx.agents.create({
-      sessionId: SessionId(randomUUID()), meta: { cwd: workspace }, agentOptions: { provider: PROVIDER, model: FLASH },
+      sessionId: brandString<SessionId>(randomUUID()), meta: { cwd: workspace }, agentOptions: { provider: PROVIDER, model: FLASH },
     })
     try {
       expect(await missing(temporary)).toBe(true)
@@ -310,9 +315,10 @@ it('certifies eight Auto risk/authorization cases with zero retries and zero ski
       const target = join(workspace, `${model}-pre-existing.txt`)
       await writeFile(target, 'pre-existing state\n')
       const handle = await ctx.agents.create({
-        sessionId: SessionId(randomUUID()), meta: { cwd: workspace }, agentOptions: { provider: PROVIDER, model },
+        sessionId: brandString<SessionId>(randomUUID()), meta: { cwd: workspace }, agentOptions: { provider: PROVIDER, model },
       })
       try {
+        if (path === 'ptc-inner') await handle.agent.ctx.plugin(PtcToolExecutor)
         selectFinalAuto(ctx, handle.agent.session)
         const command = `rm -- ${quote(target)}`
         await runCase(handle.agent, 'M01-unauthorized', path, command,
@@ -326,7 +332,7 @@ it('certifies eight Auto risk/authorization cases with zero retries and zero ski
     }
 
     const high = await ctx.agents.create({
-      sessionId: SessionId(randomUUID()), meta: { cwd: workspace }, agentOptions: { provider: PROVIDER, model: FLASH },
+      sessionId: brandString<SessionId>(randomUUID()), meta: { cwd: workspace }, agentOptions: { provider: PROVIDER, model: FLASH },
     })
     try {
       selectFinalAuto(ctx, high.agent.session)
@@ -360,6 +366,7 @@ it.each(['native', 'ptc-inner'] as const)('feeds denial back, re-reviews a new c
 }, async (path) => {
   const root = await mkdtemp(join(tmpdir(), 'dsh-auto-review-recovery-'))
   const ctx = new Context()
+  provideWorkingDirectoryFixture(ctx)
   try {
     const dshHome = join(root, 'home')
     await mkdir(dshHome)
@@ -369,9 +376,10 @@ it.each(['native', 'ptc-inner'] as const)('feeds denial back, re-reviews a new c
     const target = join(root, 'existing.txt')
     await writeFile(target, 'keep\n')
     const handle = await ctx.agents.create({
-      sessionId: SessionId(randomUUID()), meta: { cwd: root }, agentOptions: { provider: PROVIDER, model: FLASH },
+      sessionId: brandString<SessionId>(randomUUID()), meta: { cwd: root }, agentOptions: { provider: PROVIDER, model: FLASH },
     })
     try {
+      if (path === 'ptc-inner') await handle.agent.ctx.plugin(PtcToolExecutor)
       selectFinalAuto(ctx, handle.agent.session)
       const rawReason = `  TEST_ONLY_SECRET_${'x'.repeat(16_384)}\nexact deletion was not authorized  `
       for (let attempt = 0; attempt < 2; attempt += 1) {

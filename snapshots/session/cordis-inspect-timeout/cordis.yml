@@ -1,41 +1,42 @@
 - id: agent-default-model
-  name: '@omega-ai/dsh-agent-default-model'
+  name: '@deepseek-ai/dsh-agent-default-model'
   config:
-    provider: omega-official
-    model: omega-v4-pro
+    provider: deepseek-official
+    model: deepseek-v4-pro
 
 - id: session-persistence-jsonl
-  name: '@omega-ai/dsh-session-persistence-jsonl'
+  name: '@deepseek-ai/dsh-session-persistence-jsonl'
   config:
     root: !!js dshHomePath('sessions')
     compression: !!js 'process.env.DSH_SNAPSHOT === undefined ? ''zstd'' : ''none'''
 
 - id: agent-instructions
-  name: '@omega-ai/dsh-agent-instructions'
+  name: '@deepseek-ai/dsh-agent-instructions'
   config:
     maxBytes: 65536
 
-- id: tools
-  name: '@omega-ai/dsh-tools'
-  config:
-    mode: both
+- id: tool-executor-native
+  disabled: false
+
+- id: tool-executor-ptc
+  disabled: true
 
 - id: system-prompt
-  name: '@omega-ai/dsh-system-prompt'
+  name: '@deepseek-ai/dsh-system-prompt'
   config:
     personaPrefix: |
-      You are a coding assistant powered by the {{model}} model. Your working directory is {{cwd}}.
+      You are a coding assistant powered by the {{model}} model.
 
       Verify your work by running the code or tests. Keep answers brief and factual.
 
 - insert:
     - id: cordis-host-runner
-      name: '@omega-ai/dsh-cordis-host-runner'
+      name: '@deepseek-ai/dsh-cordis-host-runner'
       config:
         clientInspectTimeoutMs: 100
     - id: cordis-inspect-providers
-      name: '@omega-ai/dsh-tool-cordis/host'
+      name: '@deepseek-ai/dsh-tool-cordis/host'
     - id: tool-cordis
-      name: '@omega-ai/dsh-tool-cordis'
+      name: '@deepseek-ai/dsh-tool-cordis'
     - id: client-inspect-timeout-fixture
       name: ./client-fixture.mjs

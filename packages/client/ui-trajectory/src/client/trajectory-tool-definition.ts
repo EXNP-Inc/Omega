@@ -1,10 +1,10 @@
-import type { Context } from '@omega-ai/cordis'
+import type { Context } from '@deepseek-ai/cordis'
 import type {
   ConversationMatch, ConversationNodeContext, ConversationNodeDefinition, StartedToolCall,
   ToolResultNode,
-} from '@omega-ai/dsh-client-ui-conversation/client'
-import type {} from '@omega-ai/dsh-tools/types'
-import { PartialArguments } from '@omega-ai/dsh-util-values'
+} from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type {} from '@deepseek-ai/dsh-tool-executor-ptc/client'
+import { PartialArguments } from '@deepseek-ai/dsh-util-values'
 import { trajectoryNode } from './trajectory-definition-common.ts'
 
 /* jscpd:ignore-start -- Target-owned Definitions intentionally keep their event
@@ -29,6 +29,7 @@ interface DispatchData {
   readonly isError?: boolean
   readonly error?: ToolResultNode['error']
   readonly content?: ToolResultNode['content']
+  readonly meta?: ToolResultNode['meta']
 }
 
 function rootCall(match: ConversationMatch): StartedToolCall {
@@ -112,6 +113,7 @@ function childResult(
     call: { name: data.name, argsRaw: JSON.stringify(data.arguments) },
     callTime: previous === undefined || 'kind' in previous ? null : previous.time,
     content: data.content ?? [],
+    meta: data.meta,
     isError: data.isError === true,
     ...(data.error === undefined ? {} : { error: data.error }),
     subCalls: [],

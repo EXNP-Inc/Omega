@@ -1,6 +1,6 @@
 /**
  * Error vocabulary for the storage hub and its backends.
- * @module @omega-ai/dsh-storage/src/error
+ * @module @deepseek-ai/dsh-storage/src/error
  */
 
 /** Discriminant codes carried by every {@link StorageError}. */
@@ -11,6 +11,7 @@ export type StorageErrorCode =
   | 'duplicate-mount'
   | 'version-mismatch'
   | 'malformed-medium'
+  | 'unknown-state'
   | 'closed'
 
 /**

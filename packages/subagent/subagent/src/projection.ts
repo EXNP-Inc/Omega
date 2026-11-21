@@ -2,13 +2,13 @@
  * Pure session projections for subagent identity (mode/label) and active-turn
  * duration.
  *
- * @module @omega-ai/dsh-subagent/projection
+ * @module @deepseek-ai/dsh-subagent/projection
  */
 
 import { z } from 'zod'
-import { SessionSeq } from '@omega-ai/dsh-session'
-import type { ProjectionDefinition } from '@omega-ai/dsh-session-projection'
-import type { SessionEvent } from '@omega-ai/dsh-session'
+import { SessionSeq } from '@deepseek-ai/dsh-session'
+import type { ProjectionDefinition } from '@deepseek-ai/dsh-session-projection'
+import type { SessionEvent } from '@deepseek-ai/dsh-session'
 import { foldSubagentDescriptor } from './descriptor.ts'
 import type { SubagentDescriptorData } from './descriptor.ts'
 import type { SubagentIdentityProjection, SubagentTimingProjection } from './projection-types.ts'
@@ -49,13 +49,6 @@ const timingStateSchema: z.ZodType<TimingState> = z.object({
   descriptorSeen: z.boolean(),
   lastTurnCompleted: z.boolean().optional(),
 }).strict()
-
-declare module '@omega-ai/dsh-session-projection/types' {
-  interface SessionProjectionStateMap {
-    subagentTiming: TimingState
-    subagent: IdentityState
-  }
-}
 
 /**
  * Fold turn boundaries around the child's own durable descriptor.
@@ -114,7 +107,8 @@ export const subagentTimingProjectionDefinition = {
   stateVersion: 3,
 } satisfies ProjectionDefinition<'subagentTiming', TimingState>
 
-interface IdentityState {
+/** Descriptor identity retained by the subagent projection. */
+export interface IdentityState {
   /** Identity from the last valid descriptor; absent before one, and after an invalid one. */
   identity?: SubagentIdentityProjection | undefined
 }

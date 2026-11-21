@@ -1,11 +1,12 @@
 import { once } from 'node:events'
 import { createServer } from 'node:http'
 import { describe, expect, it, vi } from 'vitest'
-import { LlmError, userAgent } from '@omega-ai/dsh-llm'
-import { OmegaFileId } from '../src/file-id.ts'
+import { LlmError, userAgent } from '@deepseek-ai/dsh-llm'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { DeepSeekFileId } from '../src/file-id.ts'
 import {
-  OmegaFilesClient,
-  OmegaFilesError,
+  DeepSeekFilesClient,
+  DeepSeekFilesError,
   isFilesQuotaError,
   MAX_FILE_UPLOAD_BYTES,
 } from '../src/files-api.ts'
@@ -23,18 +24,18 @@ function file(overrides: Record<string, unknown> = {}) {
   }
 }
 
-describe('OmegaFilesClient', () => {
+describe('DeepSeekFilesClient', () => {
   describe('successful response JSON', () => {
     it.each((['upload', 'list', 'retrieve', 'delete'] as const).flatMap(operation =>
       ['', '{"id":'].map(body => ({ operation, body })),
     ))('rejects malformed JSON with operation and HTTP status: %j', async ({ operation, body }) => {
       const fetchImpl = vi.fn<typeof fetch>(async () => new Response(body, { status: 200 }))
-      const client = new OmegaFilesClient({ baseURL: 'https://files.example', headers: { 'x-api-key': 'test-key' }, fetch: fetchImpl })
+      const client = new DeepSeekFilesClient({ baseURL: 'https://files.example', headers: { 'x-api-key': 'test-key' }, fetch: fetchImpl })
       const operations = {
         upload: () => client.upload({ data: Uint8Array.of(1), mediaType: 'image/png', filename: 'image.png', expiresAfterSeconds: 3_600 }),
         list: () => client.list(),
-        retrieve: () => client.retrieve(OmegaFileId('file-api-one')),
-        delete: () => client.delete(OmegaFileId('file-api-one')),
+        retrieve: () => client.retrieve(brandString<DeepSeekFileId>('file-api-one')),
+        delete: () => client.delete(brandString<DeepSeekFileId>('file-api-one')),
       }
       const error = await operations[operation]().catch((caught: unknown) => caught)
       expect(error).toBeInstanceOf(LlmError)
@@ -42,7 +43,7 @@ describe('OmegaFilesClient', () => {
       expect(error.cause).toBeInstanceOf(SyntaxError)
       expect(error).toMatchObject({
         code: 'INVALID_RESPONSE',
-        message: `Omega Files API returned invalid JSON for ${operation} (HTTP 200).`,
+        message: `DeepSeek Files API returned invalid JSON for ${operation} (HTTP 200).`,
         failure: { status: 200 },
       })
       expect(fetchImpl).toHaveBeenCalledOnce()
@@ -50,10 +51,10 @@ describe('OmegaFilesClient', () => {
 
     it.each([new TypeError('body transport failed'), new DOMException('body aborted', 'AbortError')])(
       'preserves a non-JSON body-read failure: %s', async (failure) => {
-        const client = new OmegaFilesClient({ baseURL: 'https://files.example', headers: { 'x-api-key': 'test-key' },
+        const client = new DeepSeekFilesClient({ baseURL: 'https://files.example', headers: { 'x-api-key': 'test-key' },
           fetch: async () => new Response(new ReadableStream({ start(controller) { controller.error(failure) } })),
         })
-        await expect(client.retrieve(OmegaFileId('file-api-one'))).rejects.toBe(failure)
+        await expect(client.retrieve(brandString<DeepSeekFileId>('file-api-one'))).rejects.toBe(failure)
       },
     )
   })
@@ -72,7 +73,7 @@ describe('OmegaFilesClient', () => {
       expect(form.get('expires_after[seconds]')).toBe('3600')
       return new Response(JSON.stringify(file()))
     }) as typeof fetch
-    const client = new OmegaFilesClient({ baseURL: 'https://gateway.example/custom/route///', headers: { 'x-api-key': 'key' }, fetch: fetchImpl })
+    const client = new DeepSeekFilesClient({ baseURL: 'https://gateway.example/custom/route///', headers: { 'x-api-key': 'key' }, fetch: fetchImpl })
     const uploaded = await client.upload({ data: Uint8Array.of(1, 2, 3), mediaType: 'image/png', filename: 'image.png', expiresAfterSeconds: 3_600 })
     const createdAt = Math.floor(Date.parse('2023-11-14T22:13:20.000Z') / 1_000)
     expect(uploaded).toEqual({ id: 'file-api-one', bytes: 3, createdAt, filename: 'image.png', expiresAt: createdAt + 3_600 })
@@ -83,7 +84,7 @@ describe('OmegaFilesClient', () => {
     ['https://provider.example/v1beta/', 'https://provider.example/v1beta/v1/files'],
   ])('resolves the Messages Files endpoint from %s', async (baseURL, expected) => {
     const fetchImpl = vi.fn<typeof fetch>(async () => new Response(JSON.stringify(file())))
-    const client = new OmegaFilesClient({ baseURL, headers: { 'x-api-key': 'key' }, fetch: fetchImpl })
+    const client = new DeepSeekFilesClient({ baseURL, headers: { 'x-api-key': 'key' }, fetch: fetchImpl })
 
     await client.upload({
       data: Uint8Array.of(1, 2, 3), mediaType: 'image/png', filename: 'image.png', expiresAfterSeconds: 3_600,
@@ -103,21 +104,21 @@ describe('OmegaFilesClient', () => {
       expect(url.pathname).toBe('/anthropic/v1/files/file-api-one')
       return new Response(JSON.stringify(init?.method === 'DELETE' ? { id: 'file-api-one', type: 'file_deleted' } : file()))
     }) as typeof fetch
-    const client = new OmegaFilesClient({ baseURL: 'https://api.omega.com/anthropic', headers: { 'x-api-key': 'key' }, fetch: fetchImpl })
-    await expect(client.list({ after: OmegaFileId('file-before'), limit: 1_000 })).resolves.toMatchObject({ data: [{ bytes: 3 }], hasMore: false })
-    await expect(client.retrieve(OmegaFileId('file-api-one'))).resolves.toMatchObject({ id: 'file-api-one', bytes: 3 })
-    await expect(client.delete(OmegaFileId('file-api-one'))).resolves.toBeUndefined()
+    const client = new DeepSeekFilesClient({ baseURL: 'https://api.deepseek.com/anthropic', headers: { 'x-api-key': 'key' }, fetch: fetchImpl })
+    await expect(client.list({ after: brandString<DeepSeekFileId>('file-before'), limit: 1_000 })).resolves.toMatchObject({ data: [{ bytes: 3 }], hasMore: false })
+    await expect(client.retrieve(brandString<DeepSeekFileId>('file-api-one'))).resolves.toMatchObject({ id: 'file-api-one', bytes: 3 })
+    await expect(client.delete(brandString<DeepSeekFileId>('file-api-one'))).resolves.toBeUndefined()
   })
 
   it('accepts an empty Messages list with null cursors', async () => {
-    const client = new OmegaFilesClient({ baseURL: 'https://gateway.example', headers: { 'x-api-key': 'key' },
+    const client = new DeepSeekFilesClient({ baseURL: 'https://gateway.example', headers: { 'x-api-key': 'key' },
       fetch: async () => new Response(JSON.stringify({ data: [], first_id: null, last_id: null, has_more: false })),
     })
     await expect(client.list()).resolves.toEqual({ data: [], hasMore: false })
   })
 
   it.each(['first_id', 'last_id'])('rejects a Messages list with a numeric %s', async (cursor) => {
-    const client = new OmegaFilesClient({ baseURL: 'https://gateway.example', headers: { 'x-api-key': 'key' },
+    const client = new DeepSeekFilesClient({ baseURL: 'https://gateway.example', headers: { 'x-api-key': 'key' },
       fetch: async () => new Response(JSON.stringify({ data: [], first_id: null, last_id: null, has_more: false, [cursor]: 1 })),
     })
     await expect(client.list()).rejects.toMatchObject({ code: 'INVALID_RESPONSE' })
@@ -150,29 +151,29 @@ describe('OmegaFilesClient', () => {
       if (address === null || typeof address === 'string') throw new Error('expected a TCP server address')
       origins.push(`http://127.0.0.1:${address.port}`)
     }
-    const client = new OmegaFilesClient({ baseURL: origins[1]!, headers: { 'x-api-key': 'redirect-test-key' } })
-    const error = await client.retrieve(OmegaFileId('file-api-one')).catch((cause: unknown) => cause)
+    const client = new DeepSeekFilesClient({ baseURL: origins[1]!, headers: { 'x-api-key': 'redirect-test-key' } })
+    const error = await client.retrieve(brandString<DeepSeekFileId>('file-api-one')).catch((cause: unknown) => cause)
     expect(forwarded).toEqual([])
     expect(error).toMatchObject({ code: 'TRANSPORT' })
   })
 
   it.each([null, [], { type: 'wrong' }, { mime_type: null }, { created_at: 'invalid' }, { created_at: 123 }, { size_bytes: -1 }])('rejects malformed Messages file metadata %#', async (value) => {
-    const client = new OmegaFilesClient({ baseURL: 'https://gateway.example', headers: { 'x-api-key': 'key' },
+    const client = new DeepSeekFilesClient({ baseURL: 'https://gateway.example', headers: { 'x-api-key': 'key' },
       fetch: async () => new Response(JSON.stringify(value === null || Array.isArray(value) ? value : file(value))),
     })
-    await expect(client.retrieve(OmegaFileId('file-api-one'))).rejects.toMatchObject({ code: 'INVALID_RESPONSE' })
+    await expect(client.retrieve(brandString<DeepSeekFileId>('file-api-one'))).rejects.toMatchObject({ code: 'INVALID_RESPONSE' })
   })
 
   it('rejects a Messages deletion that returns a different file identity', async () => {
-    const client = new OmegaFilesClient({ baseURL: 'https://gateway.example', headers: { 'x-api-key': 'key' },
+    const client = new DeepSeekFilesClient({ baseURL: 'https://gateway.example', headers: { 'x-api-key': 'key' },
       fetch: async () => new Response(JSON.stringify({ id: 'wrong', type: 'file_deleted' })),
     })
-    await expect(client.delete(OmegaFileId('file-api-one'))).rejects.toMatchObject({ code: 'INVALID_RESPONSE' })
+    await expect(client.delete(brandString<DeepSeekFileId>('file-api-one'))).rejects.toMatchObject({ code: 'INVALID_RESPONSE' })
   })
 
   it('uploads multipart bytes with attribution and explicit expiry', async () => {
     const fetchImpl = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
-      expect(requestUrl(url)).toBe('https://api.omega.com/v1/files')
+      expect(requestUrl(url)).toBe('https://api.deepseek.com/v1/files')
       expect(init?.method).toBe('POST')
       expect(init?.redirect).toBe('error')
       const headers = new Headers(init?.headers)
@@ -189,7 +190,7 @@ describe('OmegaFilesClient', () => {
       expect((blob as Blob).size).toBe(3)
       return new Response(JSON.stringify(file()), { status: 200 })
     }) as typeof fetch
-    const client = new OmegaFilesClient({ baseURL: 'https://api.omega.com/', headers: { 'x-api-key': 'key' }, fetch: fetchImpl })
+    const client = new DeepSeekFilesClient({ baseURL: 'https://api.deepseek.com/', headers: { 'x-api-key': 'key' }, fetch: fetchImpl })
 
     await expect(client.upload({
       data: Uint8Array.of(1, 2, 3),
@@ -197,7 +198,7 @@ describe('OmegaFilesClient', () => {
       filename: 'image.png',
       expiresAfterSeconds: 604_800,
     })).resolves.toEqual({
-      id: OmegaFileId('file-api-one'),
+      id: brandString<DeepSeekFileId>('file-api-one'),
       bytes: 3,
       createdAt: 1_700_000_000,
       filename: 'image.png',
@@ -218,20 +219,20 @@ describe('OmegaFilesClient', () => {
       }
       return new Response(JSON.stringify(file()), { status: 200 })
     }) as typeof fetch
-    const client = new OmegaFilesClient({ baseURL: 'https://api.omega.com', headers: { 'x-api-key': 'key' }, fetch: fetchImpl })
+    const client = new DeepSeekFilesClient({ baseURL: 'https://api.deepseek.com', headers: { 'x-api-key': 'key' }, fetch: fetchImpl })
 
-    await expect(client.list({ after: OmegaFileId('file-api-before'), limit: 20 })).resolves.toMatchObject({
+    await expect(client.list({ after: brandString<DeepSeekFileId>('file-api-before'), limit: 20 })).resolves.toMatchObject({
       data: [{ id: 'file-api-one' }], firstId: 'file-api-one', lastId: 'file-api-one', hasMore: false,
     })
-    await expect(client.retrieve(OmegaFileId('file-api-one'))).resolves.toMatchObject({ id: 'file-api-one' })
-    await expect(client.delete(OmegaFileId('file-api-one'))).resolves.toBeUndefined()
+    await expect(client.retrieve(brandString<DeepSeekFileId>('file-api-one'))).resolves.toMatchObject({ id: 'file-api-one' })
+    await expect(client.delete(brandString<DeepSeekFileId>('file-api-one'))).resolves.toBeUndefined()
   })
 
   it('retains quota error detail for the one cleanup retry policy', async () => {
     const fetchImpl = vi.fn(() => Promise.resolve(new Response(JSON.stringify({
       error: { message: 'user storage quota exceeded', type: 'invalid_request_error', code: 'file_quota' },
     }), { status: 400 }))) as typeof fetch
-    const client = new OmegaFilesClient({ baseURL: 'https://api.omega.com', headers: { 'x-api-key': 'key' }, fetch: fetchImpl })
+    const client = new DeepSeekFilesClient({ baseURL: 'https://api.deepseek.com', headers: { 'x-api-key': 'key' }, fetch: fetchImpl })
 
     const error = await client.upload({
       data: Uint8Array.of(1), mediaType: 'image/png', filename: 'image.png', expiresAfterSeconds: 3_600,
@@ -247,13 +248,13 @@ describe('OmegaFilesClient', () => {
     [500, 'SERVER'],
     [400, 'FILES_API'],
   ] as const)('classifies HTTP %i Files failures as %s', async (status, code) => {
-    const client = new OmegaFilesClient({
-      baseURL: 'https://api.omega.com',
+    const client = new DeepSeekFilesClient({
+      baseURL: 'https://api.deepseek.com',
       headers: { 'x-api-key': 'key' },
       fetch: vi.fn(() => Promise.resolve(new Response('not-json', { status }))),
     })
-    await expect(client.retrieve(OmegaFileId('missing'))).rejects.toMatchObject({
-      name: 'OmegaFilesError',
+    await expect(client.retrieve(brandString<DeepSeekFileId>('missing'))).rejects.toMatchObject({
+      name: 'DeepSeekFilesError',
       code,
       detail: '',
     })
@@ -267,24 +268,24 @@ describe('OmegaFilesClient', () => {
     { error: [] },
     { error: { message: 1, type: 2, code: 3 } },
   ])('falls back to the HTTP status for an unstructured provider error %#', async (body) => {
-    const client = new OmegaFilesClient({
-      baseURL: 'https://api.omega.com',
+    const client = new DeepSeekFilesClient({
+      baseURL: 'https://api.deepseek.com',
       headers: { 'x-api-key': 'key' },
       fetch: vi.fn(() => Promise.resolve(new Response(JSON.stringify(body), { status: 400 }))),
     })
-    const error = await client.retrieve(OmegaFileId('missing')).catch((caught: unknown) => caught)
-    expect(error).toBeInstanceOf(OmegaFilesError)
-    expect(error).toMatchObject({ message: 'Omega Files API error (HTTP 400)', detail: '' })
+    const error = await client.retrieve(brandString<DeepSeekFileId>('missing')).catch((caught: unknown) => caught)
+    expect(error).toBeInstanceOf(DeepSeekFilesError)
+    expect(error).toMatchObject({ message: 'DeepSeek Files API error (HTTP 400)', detail: '' })
   })
 
   it('wraps transport failures but preserves an aborted request reason', async () => {
     const transport = new Error('socket closed')
-    const client = new OmegaFilesClient({
-      baseURL: 'https://api.omega.com',
+    const client = new DeepSeekFilesClient({
+      baseURL: 'https://api.deepseek.com',
       headers: { 'x-api-key': 'key' },
       fetch: vi.fn(() => Promise.reject(transport)),
     })
-    await expect(client.retrieve(OmegaFileId('one'))).rejects.toMatchObject({
+    await expect(client.retrieve(brandString<DeepSeekFileId>('one'))).rejects.toMatchObject({
       code: 'TRANSPORT',
       cause: transport,
     })
@@ -292,7 +293,7 @@ describe('OmegaFilesClient', () => {
     const controller = new AbortController()
     const reason = new Error('cancelled')
     controller.abort(reason)
-    await expect(client.retrieve(OmegaFileId('one'), controller.signal)).rejects.toBe(transport)
+    await expect(client.retrieve(brandString<DeepSeekFileId>('one'), controller.signal)).rejects.toBe(transport)
   })
 
   it.each([
@@ -308,12 +309,12 @@ describe('OmegaFilesClient', () => {
     file({ filename: 1 }),
     file({ filename: '' }),
   ])('rejects an invalid file object %#', async (body) => {
-    const client = new OmegaFilesClient({
-      baseURL: 'https://api.omega.com',
+    const client = new DeepSeekFilesClient({
+      baseURL: 'https://api.deepseek.com',
       headers: { 'x-api-key': 'key' },
       fetch: vi.fn(() => Promise.resolve(new Response(JSON.stringify(body), { status: 200 }))),
     })
-    await expect(client.retrieve(OmegaFileId('one'))).rejects.toMatchObject({ code: 'INVALID_RESPONSE' })
+    await expect(client.retrieve(brandString<DeepSeekFileId>('one'))).rejects.toMatchObject({ code: 'INVALID_RESPONSE' })
   })
 
   it.each([
@@ -322,7 +323,7 @@ describe('OmegaFilesClient', () => {
     3_600.5,
   ])('refuses invalid file expiry %s before transport', async (expiresAfterSeconds) => {
     const fetchImpl = vi.fn() as typeof fetch
-    const client = new OmegaFilesClient({ baseURL: 'https://api.omega.com', headers: { 'x-api-key': 'key' }, fetch: fetchImpl })
+    const client = new DeepSeekFilesClient({ baseURL: 'https://api.deepseek.com', headers: { 'x-api-key': 'key' }, fetch: fetchImpl })
     await expect(client.upload({
       data: Uint8Array.of(1), mediaType: 'image/png', filename: 'image.png', expiresAfterSeconds,
     })).rejects.toMatchObject({ code: 'INVALID_REQUEST' })
@@ -331,7 +332,7 @@ describe('OmegaFilesClient', () => {
 
   it('refuses a file larger than the upload limit before transport', async () => {
     const fetchImpl = vi.fn() as typeof fetch
-    const client = new OmegaFilesClient({ baseURL: 'https://api.omega.com', headers: { 'x-api-key': 'key' }, fetch: fetchImpl })
+    const client = new DeepSeekFilesClient({ baseURL: 'https://api.deepseek.com', headers: { 'x-api-key': 'key' }, fetch: fetchImpl })
     const data = { byteLength: MAX_FILE_UPLOAD_BYTES + 1 } as Uint8Array
     await expect(client.upload({
       data, mediaType: 'image/png', filename: 'image.png', expiresAfterSeconds: 3_600,
@@ -348,8 +349,8 @@ describe('OmegaFilesClient', () => {
     { data: [], has_more: false, first_id: 1 },
     { data: [], has_more: false, last_id: 1 },
   ])('rejects an invalid list response %#', async (body) => {
-    const client = new OmegaFilesClient({
-      baseURL: 'https://api.omega.com',
+    const client = new DeepSeekFilesClient({
+      baseURL: 'https://api.deepseek.com',
       headers: { 'x-api-key': 'key' },
       fetch: vi.fn(() => Promise.resolve(new Response(JSON.stringify(body), { status: 200 }))),
     })
@@ -362,7 +363,7 @@ describe('OmegaFilesClient', () => {
     }), { status: 200 })))
     vi.stubGlobal('fetch', fetchImpl)
     try {
-      const client = new OmegaFilesClient({ baseURL: 'https://api.omega.com///', headers: { 'x-api-key': 'key' } })
+      const client = new DeepSeekFilesClient({ baseURL: 'https://api.deepseek.com///', headers: { 'x-api-key': 'key' } })
       await expect(client.list()).resolves.toEqual({ data: [], hasMore: false })
     } finally {
       vi.unstubAllGlobals()
@@ -376,18 +377,18 @@ describe('OmegaFilesClient', () => {
     { id: 'wrong', type: 'file_deleted' },
     { id: 'file-api-one', type: 'wrong' },
   ])('rejects an invalid delete response %#', async (body) => {
-    const client = new OmegaFilesClient({
-      baseURL: 'https://api.omega.com',
+    const client = new DeepSeekFilesClient({
+      baseURL: 'https://api.deepseek.com',
       headers: { 'x-api-key': 'key' },
       fetch: vi.fn(() => Promise.resolve(new Response(JSON.stringify(body), { status: 200 }))),
     })
-    await expect(client.delete(OmegaFileId('file-api-one'))).rejects.toMatchObject({ code: 'INVALID_RESPONSE' })
+    await expect(client.delete(brandString<DeepSeekFileId>('file-api-one'))).rejects.toMatchObject({ code: 'INVALID_RESPONSE' })
   })
 })
 
 it('authenticates Files with the raw DSH token', async () => {
-  const client = new OmegaFilesClient({
-    baseURL: 'https://api.omega.com', headers: { 'x-dsh-auth-token': 'account-token' },
+  const client = new DeepSeekFilesClient({
+    baseURL: 'https://api.deepseek.com', headers: { 'x-dsh-auth-token': 'account-token' },
     fetch: (_url, init) => {
       const headers = new Headers(init?.headers)
       expect(headers.get('x-dsh-auth-token')).toBe('account-token')

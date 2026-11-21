@@ -2,15 +2,16 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'no
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import { SESSION_FORMAT_VERSION, SessionSeq } from '@omega-ai/dsh-session'
-import type { SessionEvent } from '@omega-ai/dsh-session'
-import { CompactionId } from '@omega-ai/dsh-compaction'
-import OmegaLlmApiExtensionRegistry from '@omega-ai/dsh-omega-llm-api-extensions'
+import { Context } from '@deepseek-ai/cordis'
+import { SESSION_FORMAT_VERSION, SessionSeq } from '@deepseek-ai/dsh-session'
+import type { SessionEvent } from '@deepseek-ai/dsh-session'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { CompactionId } from '@deepseek-ai/dsh-compaction/types'
+import DeepSeekLlmApiExtensionRegistry from '@deepseek-ai/dsh-deepseek-llm-api-extensions'
 import LlmRuntime, {
   AssistantStreamAccumulator,
   BlockAssembler,
-  ToolCallId,
+  type ToolCallId,
   createAssistantMessage,
   createToolResultMessage,
   createUserMessage,
@@ -18,7 +19,7 @@ import LlmRuntime, {
   LlmAdapter,
   StreamChunk,
   type ToolResultMessage,
-} from '@omega-ai/dsh-llm'
+} from '@deepseek-ai/dsh-llm'
 import {
   type Config,
   type ReplayEntry,
@@ -36,8 +37,8 @@ import {
   resolveScriptedEntry,
 } from '../src/index.ts'
 
-declare module '@omega-ai/dsh-omega-llm-api-extensions/types' {
-  interface OmegaLlmApiExtensionMap {
+declare module '@deepseek-ai/dsh-deepseek-llm-api-extensions/types' {
+  interface DeepSeekLlmApiExtensionMap {
     test_replay: { readonly version: 1 }
   }
 }
@@ -57,7 +58,7 @@ const TEXT_CHUNKS: StreamChunk[] = [
   { type: 'finish', reason: { kind: 'stop' } },
 ]
 
-const COMPACTION_ID = CompactionId('replay-compaction')
+const COMPACTION_ID = brandString<CompactionId>('replay-compaction')
 
 /** Build a minimal session-JSONL string: a header line + the given events. */
 function sessionJsonl(
@@ -232,8 +233,8 @@ async function drain(iter: AsyncIterable<StreamChunk>): Promise<StreamChunk[]> {
 describe('Session format package parity', () => {
   it('refuses catalog and Session version skew at module load', async () => {
     vi.resetModules()
-    vi.doMock('@omega-ai/dsh-session-format-catalog', async (importOriginal) => {
-      const actual = await importOriginal<typeof import('@omega-ai/dsh-session-format-catalog')>()
+    vi.doMock('@deepseek-ai/dsh-session-format-catalog', async (importOriginal) => {
+      const actual = await importOriginal<typeof import('@deepseek-ai/dsh-session-format-catalog')>()
       return {
         ...actual,
         sessionFormatCatalog: {
@@ -246,7 +247,7 @@ describe('Session format package parity', () => {
       await expect(import('../src/index.ts'))
         .rejects.toThrow(`format catalog v${SESSION_FORMAT_VERSION + 1} does not match Session v${SESSION_FORMAT_VERSION}`)
     } finally {
-      vi.doUnmock('@omega-ai/dsh-session-format-catalog')
+      vi.doUnmock('@deepseek-ai/dsh-session-format-catalog')
       vi.resetModules()
     }
   })
@@ -255,8 +256,8 @@ describe('Session format package parity', () => {
 describe('fixture format diagnostics', () => {
   it('attaches the header line to a restore-construction failure', async () => {
     vi.resetModules()
-    vi.doMock('@omega-ai/dsh-session-format-catalog', async (importOriginal) => {
-      const actual = await importOriginal<typeof import('@omega-ai/dsh-session-format-catalog')>()
+    vi.doMock('@deepseek-ai/dsh-session-format-catalog', async (importOriginal) => {
+      const actual = await importOriginal<typeof import('@deepseek-ai/dsh-session-format-catalog')>()
       return {
         ...actual,
         createSessionFormatCatalogWithChildren: () => ({
@@ -274,15 +275,15 @@ describe('fixture format diagnostics', () => {
       expect(() => replay.parseSessionLog(sessionJsonl([])))
         .toThrow('session snapshot line 1: decoder exploded')
     } finally {
-      vi.doUnmock('@omega-ai/dsh-session-format-catalog')
+      vi.doUnmock('@deepseek-ai/dsh-session-format-catalog')
       vi.resetModules()
     }
   })
 
   it('attaches the header line to a restore-finalization failure', async () => {
     vi.resetModules()
-    vi.doMock('@omega-ai/dsh-session-format-catalog', async (importOriginal) => {
-      const actual = await importOriginal<typeof import('@omega-ai/dsh-session-format-catalog')>()
+    vi.doMock('@deepseek-ai/dsh-session-format-catalog', async (importOriginal) => {
+      const actual = await importOriginal<typeof import('@deepseek-ai/dsh-session-format-catalog')>()
       return {
         ...actual,
         createSessionFormatCatalogWithChildren: () => ({
@@ -305,15 +306,15 @@ describe('fixture format diagnostics', () => {
       expect(() => replay.parseSessionLog(sessionJsonl([])))
         .toThrow('session snapshot line 1: Session event 99 restore finalization failed')
     } finally {
-      vi.doUnmock('@omega-ai/dsh-session-format-catalog')
+      vi.doUnmock('@deepseek-ai/dsh-session-format-catalog')
       vi.resetModules()
     }
   })
 
   it('falls back to the header when a source-range diagnostic has no matching physical prefix', async () => {
     vi.resetModules()
-    vi.doMock('@omega-ai/dsh-session-format-catalog', async (importOriginal) => {
-      const actual = await importOriginal<typeof import('@omega-ai/dsh-session-format-catalog')>()
+    vi.doMock('@deepseek-ai/dsh-session-format-catalog', async (importOriginal) => {
+      const actual = await importOriginal<typeof import('@deepseek-ai/dsh-session-format-catalog')>()
       return {
         ...actual,
         createSessionFormatCatalogWithChildren: () => ({
@@ -336,15 +337,15 @@ describe('fixture format diagnostics', () => {
       expect(() => replay.parseSessionLog(sessionJsonl([])))
         .toThrow('session snapshot line 1: sourceEventSeqs synthetic unmatched failure')
     } finally {
-      vi.doUnmock('@omega-ai/dsh-session-format-catalog')
+      vi.doUnmock('@deepseek-ai/dsh-session-format-catalog')
       vi.resetModules()
     }
   })
 
   it('maps a non-Error row failure to its physical row', async () => {
     vi.resetModules()
-    vi.doMock('@omega-ai/dsh-session-format-catalog', async (importOriginal) => {
-      const actual = await importOriginal<typeof import('@omega-ai/dsh-session-format-catalog')>()
+    vi.doMock('@deepseek-ai/dsh-session-format-catalog', async (importOriginal) => {
+      const actual = await importOriginal<typeof import('@deepseek-ai/dsh-session-format-catalog')>()
       let row = 0
       return {
         ...actual,
@@ -373,7 +374,7 @@ describe('fixture format diagnostics', () => {
       expect(() => replay.parseSessionLog(sessionJsonl(events)))
         .toThrow('session snapshot line 3: row decoder exploded')
     } finally {
-      vi.doUnmock('@omega-ai/dsh-session-format-catalog')
+      vi.doUnmock('@deepseek-ai/dsh-session-format-catalog')
       vi.resetModules()
     }
   })
@@ -387,8 +388,8 @@ describe('fixture format diagnostics', () => {
     ['out-of-range logical event', 'Session event 99 is malformed', 1],
   ])('maps a %s finalization diagnostic to its source line', async (_label, message, line) => {
     vi.resetModules()
-    vi.doMock('@omega-ai/dsh-session-format-catalog', async (importOriginal) => {
-      const actual = await importOriginal<typeof import('@omega-ai/dsh-session-format-catalog')>()
+    vi.doMock('@deepseek-ai/dsh-session-format-catalog', async (importOriginal) => {
+      const actual = await importOriginal<typeof import('@deepseek-ai/dsh-session-format-catalog')>()
       return {
         ...actual,
         createSessionFormatCatalogWithChildren: () => ({
@@ -410,7 +411,7 @@ describe('fixture format diagnostics', () => {
       expect(() => replay.parseSessionLog(sessionJsonl([event])))
         .toThrow(`session snapshot line ${line}: ${message}`)
     } finally {
-      vi.doUnmock('@omega-ai/dsh-session-format-catalog')
+      vi.doUnmock('@deepseek-ai/dsh-session-format-catalog')
       vi.resetModules()
     }
   })
@@ -427,7 +428,7 @@ describe('parseSessionLog', () => {
       message: {
         id: expect.stringMatching(/^v2-to-v3-system-/) as unknown,
         role: 'system',
-        source: { kind: 'plugin', plugin: '@omega-ai/dsh-system-prompt' },
+        source: { kind: 'plugin', plugin: '@deepseek-ai/dsh-system-prompt' },
         content: [],
       },
     },
@@ -709,7 +710,7 @@ describe('parseSessionLog', () => {
   })
 
   it('synthesizes projected tool-call chunk envelopes from their argument count', () => {
-    const callId = ToolCallId('call-1')
+    const callId = brandString<ToolCallId>('call-1')
     const source = [
       JSON.stringify({ type: 'session', version: 0, id: 'packed-tool', createdAt: 0 }),
       JSON.stringify({ type: 'turn/start', data: { turn: 1 } }),
@@ -1327,8 +1328,8 @@ describe('installLlmReplay (through the real LlmRuntime)', () => {
     function scriptedCall(argumentsDelta: string): StreamChunk[] {
       return [
         { type: 'block-start', index: 0, blockType: 'tool-call' },
-        { type: 'tool-call-delta', index: 0, id: ToolCallId('c1'), name: 'update_goal', argumentsDelta },
-        { type: 'block-end', index: 0, block: { type: 'tool-call', id: ToolCallId('c1'), name: 'update_goal', arguments: argumentsDelta } },
+        { type: 'tool-call-delta', index: 0, id: brandString<ToolCallId>('c1'), name: 'update_goal', argumentsDelta },
+        { type: 'block-end', index: 0, block: { type: 'tool-call', id: brandString<ToolCallId>('c1'), name: 'update_goal', arguments: argumentsDelta } },
         { type: 'finish', reason: { kind: 'tool-calls' } },
       ]
     }
@@ -1400,8 +1401,8 @@ describe('installLlmReplay (through the real LlmRuntime)', () => {
       file,
       providers: [
         {
-          id: 'omega',
-          name: 'Omega',
+          id: 'deepseek',
+          name: 'DeepSeek',
           retryPolicy: {
             mode: 'normal',
             maxRetries: 2,
@@ -1418,7 +1419,7 @@ describe('installLlmReplay (through the real LlmRuntime)', () => {
               systemPromptUpdate: 'in-history',
               toolUpdate: 'addition-only',
             },
-            { id: 'pro', name: 'Pro', description: 'Larger model', reasoningEfforts: ['high'] },
+            { id: 'pro', name: 'Pro', description: 'Larger model', reasoningEfforts: ['high'], badge: { text: { en: 'New', zh: '新' }, tone: 'info' } },
           ],
         },
         { id: 'empty' },
@@ -1426,15 +1427,15 @@ describe('installLlmReplay (through the real LlmRuntime)', () => {
     })
 
     expect(ctx.llm.listProviders()).toEqual([
-      { id: 'omega', name: 'Omega' },
+      { id: 'deepseek', name: 'DeepSeek' },
       { id: 'empty', name: 'empty' },
     ])
-    await expect(ctx.llm.listModels('omega')).resolves.toEqual([
-      { provider: 'omega', id: 'flash', name: 'flash', inputModalities: ['text', 'image'] },
-      { provider: 'omega', id: 'pro', name: 'Pro', description: 'Larger model' },
+    await expect(ctx.llm.listModels('deepseek')).resolves.toEqual([
+      { provider: 'deepseek', id: 'flash', name: 'flash', inputModalities: ['text', 'image'] },
+      { provider: 'deepseek', id: 'pro', name: 'Pro', description: 'Larger model', badge: { text: { en: 'New', zh: '新' }, tone: 'info' } },
     ])
     await expect(ctx.llm.listModels('empty')).resolves.toEqual([])
-    await expect(ctx.llm.resolveModelInfo('omega', 'flash')).resolves.toMatchObject({
+    await expect(ctx.llm.resolveModelInfo('deepseek', 'flash')).resolves.toMatchObject({
       context: { contextWindow: 128_000 },
       inputModalities: ['text', 'image'],
       defaultMaxTokens: 64_000,
@@ -1445,18 +1446,18 @@ describe('installLlmReplay (through the real LlmRuntime)', () => {
       systemPromptUpdate: 'in-history',
       toolUpdate: 'addition-only',
     })
-    await expect(ctx.llm.resolveModelInfo('omega', 'pro')).resolves.not.toHaveProperty('systemPromptUpdate')
-    await expect(ctx.llm.resolveModelInfo('omega', 'pro')).resolves.not.toHaveProperty('toolUpdate')
-    await expect(ctx.llm.resolveModelInfo('omega', 'pro')).resolves.not.toHaveProperty('inputModalities')
-    await expect(ctx.llm.resolveModelInfo('omega', 'pro')).resolves.not.toHaveProperty('context')
+    await expect(ctx.llm.resolveModelInfo('deepseek', 'pro')).resolves.not.toHaveProperty('systemPromptUpdate')
+    await expect(ctx.llm.resolveModelInfo('deepseek', 'pro')).resolves.not.toHaveProperty('toolUpdate')
+    await expect(ctx.llm.resolveModelInfo('deepseek', 'pro')).resolves.not.toHaveProperty('inputModalities')
+    await expect(ctx.llm.resolveModelInfo('deepseek', 'pro')).resolves.not.toHaveProperty('context')
     // Efforts without a configured default preserve the provider's own default.
-    await expect(ctx.llm.resolveModelInfo('omega', 'pro')).resolves.toMatchObject({
+    await expect(ctx.llm.resolveModelInfo('deepseek', 'pro')).resolves.toMatchObject({
       reasoning: { efforts: [{ id: 'high', name: 'high' }] },
     })
-    await expect(ctx.llm.resolveModelInfo('omega', 'pro')).resolves.not.toHaveProperty('defaultMaxTokens')
-    await expect(ctx.llm.resolveModelInfo('omega', 'unlisted')).resolves.not.toHaveProperty('context')
+    await expect(ctx.llm.resolveModelInfo('deepseek', 'pro')).resolves.not.toHaveProperty('defaultMaxTokens')
+    await expect(ctx.llm.resolveModelInfo('deepseek', 'unlisted')).resolves.not.toHaveProperty('context')
     await expect(ctx.llm.resolveModelInfo('empty', 'unlisted')).resolves.not.toHaveProperty('context')
-    expect(ctx.llm.providerRetryPolicy('omega')).toMatchObject({
+    expect(ctx.llm.providerRetryPolicy('deepseek')).toMatchObject({
       mode: 'normal',
       maxRetries: 2,
       initialDelayMs: 1,
@@ -1470,7 +1471,11 @@ describe('installLlmReplay (through the real LlmRuntime)', () => {
       maxDelayMs: 10_000,
       jitterRatio: 0.1,
     })
-    expect(await drain(ctx.llm.stream({ provider: 'omega', model: 'pro', messages: [] }))).toEqual(TEXT_CHUNKS)
+    const prepared = await ctx.llm.prepareCall({
+      provider: 'deepseek', model: 'flash',
+    }, undefined, (controls, model) => ({ ...controls, reasoningEffort: model.reasoning!.efforts[0]!.id }))
+    expect(prepared.config.reasoningEffort).toBe('off')
+    expect(await drain(prepared.stream({ ...prepared.config, messages: [] }))).toEqual(TEXT_CHUNKS)
 
     dispose()
     expect(ctx.llm.listProviders()).toEqual([])
@@ -1484,9 +1489,9 @@ describe('installLlmReplay (through the real LlmRuntime)', () => {
     expect(() => {
       installLlmReplay(ctx, {
         file,
-        providers: [{ id: 'omega', retryPolicy: { mode: 'normal', maxRetries: -1 } }],
+        providers: [{ id: 'deepseek', retryPolicy: { mode: 'normal', maxRetries: -1 } }],
       })
-    }).toThrow(/llm-replay: provider "omega" retryPolicy\.maxRetries/)
+    }).toThrow(/llm-replay: provider "deepseek" retryPolicy\.maxRetries/)
   })
 
   it('serves the Nth call the Nth derived entry (positional)', async () => {
@@ -1503,22 +1508,22 @@ describe('installLlmReplay (through the real LlmRuntime)', () => {
     expect(await drain(ctx.llm.stream({ provider: 'm', model: 'm', messages: [] }))).toEqual(second)
   })
 
-  it('settles official Omega request extensions before replayed chunks', async () => {
+  it('settles official DeepSeek request extensions before replayed chunks', async () => {
     writeLog(TEXT_CHUNKS, TEXT_CHUNKS, TEXT_CHUNKS)
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(OmegaLlmApiExtensionRegistry)
+    await ctx.plugin(DeepSeekLlmApiExtensionRegistry)
     const accepted = vi.fn()
-    ctx.omegaLlmApiExtensions.register('test_replay', {
+    ctx.deepseekLlmApiExtensions.register('test_replay', {
       prepare: () => ({ value: { version: 1 }, accept: accepted }),
     })
     installLlmReplay(ctx, { file })
 
-    const sessionId = 'omega-replay' as NonNullable<GenerateOptions['sessionId']>
-    await drain(ctx.llm.stream({ provider: 'omega-official', model: 'm', messages: [], sessionId }))
+    const sessionId = 'deepseek-replay' as NonNullable<GenerateOptions['sessionId']>
+    await drain(ctx.llm.stream({ provider: 'deepseek-official', model: 'm', messages: [], sessionId }))
     expect(accepted).toHaveBeenCalledOnce()
     await drain(ctx.llm.stream({
-      provider: 'omega-official',
+      provider: 'deepseek-official',
       model: 'm',
       messages: [],
       sessionId,
@@ -1534,19 +1539,19 @@ describe('installLlmReplay (through the real LlmRuntime)', () => {
     writeLog(TEXT_CHUNKS)
     const withRegistry = new Context()
     await withRegistry.plugin(LlmRuntime)
-    await withRegistry.plugin(OmegaLlmApiExtensionRegistry)
+    await withRegistry.plugin(DeepSeekLlmApiExtensionRegistry)
     const accepted = vi.fn()
-    withRegistry.omegaLlmApiExtensions.register('test_replay', {
+    withRegistry.deepseekLlmApiExtensions.register('test_replay', {
       prepare: () => ({ value: { version: 1 }, accept: accepted }),
     })
     installLlmReplay(withRegistry, { file })
-    await drain(withRegistry.llm.stream({ provider: 'omega-official', model: 'm', messages: [] }))
+    await drain(withRegistry.llm.stream({ provider: 'deepseek-official', model: 'm', messages: [] }))
     expect(accepted).toHaveBeenCalledOnce()
 
     const withoutRegistry = new Context()
     await withoutRegistry.plugin(LlmRuntime)
     installLlmReplay(withoutRegistry, { file })
-    await expect(drain(withoutRegistry.llm.stream({ provider: 'omega-official', model: 'm', messages: [] })))
+    await expect(drain(withoutRegistry.llm.stream({ provider: 'deepseek-official', model: 'm', messages: [] })))
       .resolves.toEqual(TEXT_CHUNKS)
   })
 
@@ -1560,13 +1565,13 @@ describe('installLlmReplay (through the real LlmRuntime)', () => {
     ]), 'utf8')
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
-    await ctx.plugin(OmegaLlmApiExtensionRegistry)
+    await ctx.plugin(DeepSeekLlmApiExtensionRegistry)
     const accepted = vi.fn()
-    ctx.omegaLlmApiExtensions.register('test_replay', {
+    ctx.deepseekLlmApiExtensions.register('test_replay', {
       prepare: () => ({ value: { version: 1 }, accept: accepted }),
     })
     installLlmReplay(ctx, { file, overrideFile })
-    const request = { provider: 'omega-official', model: 'm', messages: [] }
+    const request = { provider: 'deepseek-official', model: 'm', messages: [] }
 
     await expect(drain(ctx.llm.stream(request))).rejects.toThrow('partial')
     expect(accepted).toHaveBeenCalledOnce()
@@ -2025,9 +2030,9 @@ describe('installLlmReplay (per-session keying)', () => {
         index: 0,
         block: {
           type: 'tool-call',
-          id: ToolCallId('send-child'),
+          id: brandString<ToolCallId>('send-child'),
           name: 'send_message',
-          arguments: '{"agent_id":"{{session:2}}"}',
+          arguments: '{"agent":"{{session:2}}"}',
         },
       },
       { type: 'finish', reason: { kind: 'stop' } },
@@ -2046,9 +2051,9 @@ describe('installLlmReplay (per-session keying)', () => {
         index: 0,
         block: {
           type: 'tool-call',
-          id: ToolCallId('send-child'),
+          id: brandString<ToolCallId>('send-child'),
           name: 'send_message',
-          arguments: '{"agent_id":"live-child"}',
+          arguments: '{"agent":"live-child"}',
         },
       },
       { type: 'finish', reason: { kind: 'stop' } },
@@ -2067,45 +2072,6 @@ describe('installLlmReplay (per-session keying)', () => {
     installLlmReplay(ctx, { file: parentFile, childFiles: [childFile] })
 
     await expect(drain(ctx.llm.stream(live('live-parent')))).rejects.toThrow(/used before.*bound/)
-  })
-
-  it('learns a background child id from its started-subagent tool result', async () => {
-    const reference: StreamChunk[] = [
-      { type: 'text-delta', index: 0, text: '{{session:2}}' },
-      { type: 'finish', reason: { kind: 'stop' } },
-    ]
-    const parentFile = writeSession('session.jsonl', { id: '{{session:1}}', createdAt: 1 }, [reference])
-    const childFile = writeSession('session.1.jsonl', { id: '{{session:2}}', createdAt: 2 }, [second])
-    const ctx = new Context()
-    await ctx.plugin(LlmRuntime)
-    installLlmReplay(ctx, { file: parentFile, childFiles: [childFile] })
-    const options: GenerateOptions = {
-      ...live('live-parent'),
-      messages: [createUserMessage({
-        content: [{ type: 'text', text: 'started subagent live-child-before-call started subagent live-child-before-call' }],
-        source: { kind: 'user' },
-      })],
-    }
-
-    expect(await drain(ctx.llm.stream(options))).toEqual([
-      { type: 'text-delta', index: 0, text: 'live-child-before-call' },
-      { type: 'finish', reason: { kind: 'stop' } },
-    ])
-  })
-
-  it('ignores started-subagent text after every recorded session has bound', async () => {
-    const parentFile = writeSession('session.jsonl', { id: '{{session:1}}', createdAt: 1 }, [TEXT_CHUNKS])
-    const ctx = new Context()
-    await ctx.plugin(LlmRuntime)
-    installLlmReplay(ctx, { file: parentFile })
-
-    expect(await drain(ctx.llm.stream({
-      ...live('live-parent'),
-      messages: [createUserMessage({
-        content: [{ type: 'text', text: 'started subagent unrecorded-child' }],
-        source: { kind: 'user' },
-      })],
-    }))).toEqual(TEXT_CHUNKS)
   })
 
   it('treats a call with no sessionId as the single anonymous (primary) session', async () => {
@@ -2155,7 +2121,13 @@ describe('apply (the plugin entry)', () => {
     apply(ctx, {
       file,
       providers: [
-        { id: 'm', models: [{ id: 'm', inputModalities: ['image'] }, { id: 'text' }] },
+        {
+          id: 'm',
+          models: [
+            { id: 'm', inputModalities: ['image'], reasoningEfforts: ['low'] },
+            { id: 'text' },
+          ],
+        },
         { id: 'empty' },
       ],
       paceMs: 1,
@@ -2172,14 +2144,14 @@ describe('apply (the plugin entry)', () => {
     installLlmReplay(ctx, {
       file,
       providers: [{
-        id: 'omega',
+        id: 'deepseek',
         models: [
           { id: 'vision', inputModalities: ['text', 'image'], imageRequestTokens: 384 },
           { id: 'plain' },
         ],
       }],
     })
-    const pricing = ctx.llm.imageRequestPricing('omega', 'vision')
+    const pricing = ctx.llm.imageRequestPricing('deepseek', 'vision')
     expect(pricing).toBeDefined()
     const ref = {
       attachmentId: 'sha256:aaaaaaaa',
@@ -2195,7 +2167,7 @@ describe('apply (the plugin entry)', () => {
     expect(priced?.map(price => price.visualTokens)).toEqual([384, 0])
     expect(priced?.[0]?.text).toContain('640x480px')
     expect(priced?.[1]?.text).toContain('image omitted to fit request image limits')
-    expect(ctx.llm.imageRequestPricing('omega', 'plain')).toBeUndefined()
+    expect(ctx.llm.imageRequestPricing('deepseek', 'plain')).toBeUndefined()
   })
 
   it('rejects imageRequestTokens on a model without the image modality during load', () => {
@@ -2225,6 +2197,18 @@ describe('apply (the plugin entry)', () => {
     expect(() => { apply(ctx, { file, providers }) }).toThrow(
       'llm-replay: provider "m" model "m" toolUpdate must be "in-history" or "addition-only" when present',
     )
+  })
+
+  it.each([
+    ['a non-object', '1017'],
+    ['blank text', { text: ' ', tone: 'info' }],
+    ['translations without English', { text: { zh: '新' }, tone: 'info' }],
+    ['a blank translation', { text: { en: 'New', zh: '' }, tone: 'info' }],
+    ['an unknown tone', { text: '1017', tone: 'accent' }],
+  ])('rejects a badge with %s during load', (_case, badge) => {
+    const ctx = new Context()
+    const providers: NonNullable<Config['providers']> = [{ id: 'm', models: [{ id: 'm', badge: badge as never }] }]
+    expect(() => { apply(ctx, { file, providers }) }).toThrow('llm-replay: provider "m" model "m" badge needs non-blank text')
   })
 
   it('rejects an unknown systemPromptUpdate mode during load', () => {

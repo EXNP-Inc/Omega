@@ -8,14 +8,14 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import SessionStore from '@omega-ai/dsh-session'
-import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
-import AgentRegistry from '@omega-ai/dsh-agent'
-import type { Agent, AgentHandle, CreateAgentOptions } from '@omega-ai/dsh-agent'
-import { createUserMessage } from '@omega-ai/dsh-llm'
-import SessionTitleService from '@omega-ai/dsh-session-title'
-import type { Session, SessionId } from '@omega-ai/dsh-session'
+import { Context } from '@deepseek-ai/cordis'
+import SessionStore from '@deepseek-ai/dsh-session'
+import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import AgentRegistry from '@deepseek-ai/dsh-agent'
+import type { Agent, AgentHandle, CreateAgentOptions } from '@deepseek-ai/dsh-agent'
+import { createUserMessage } from '@deepseek-ai/dsh-llm'
+import SessionTitleService from '@deepseek-ai/dsh-session-title'
+import type { Session, SessionId } from '@deepseek-ai/dsh-session'
 import { createSessionTestRemote } from './test-remote.ts'
 
 const sid = (id: string): SessionId => id as SessionId
@@ -65,14 +65,14 @@ async function liveAgent(ctx: Context, id: string, turns: number): Promise<Sessi
   return session
 }
 
-const remote = (ctx: Context) => createSessionTestRemote(ctx, { defaultModelSelection: () => ({ provider: 'p', model: 'm' }), cwd: '/tmp' })
+const remote = async (ctx: Context) => await createSessionTestRemote(ctx, { defaultModelSelection: () => ({ provider: 'p', model: 'm' }), cwd: '/tmp' })
 
 describe('sessions.rename', () => {
   it('accepts through the composed title service: normalized user-source event, echoed seq', async () => {
     const ctx = await composed()
     const source = await liveAgent(ctx, 'session-rename', 1)
 
-    const renamed = await remote(ctx).rename(request({ sessionId: source.id, title: '  new   name  ' }))
+    const renamed = await (await remote(ctx)).rename(request({ sessionId: source.id, title: '  new   name  ' }))
     expect(renamed.ok).toBe(true)
     if (!renamed.ok) return
     expect(renamed.value.title).toBe('new name')
@@ -86,7 +86,7 @@ describe('sessions.rename', () => {
     const source = await liveAgent(ctx, 'session-rename-bad', 1)
 
     // U+200B passes a client-side trim gate but normalizes to empty host-side.
-    const response = await remote(ctx).rename(request({ sessionId: source.id, title: ' ​ ' }))
+    const response = await (await remote(ctx)).rename(request({ sessionId: source.id, title: ' ​ ' }))
     expect(response.ok).toBe(false)
     if (!response.ok) {
       expect(response.error).toMatchObject({
@@ -107,7 +107,7 @@ describe('sessions.rename', () => {
     const stale = await liveAgent(foreign, 'session-rename-stale', 1)
     await ctx.agents.register({ id: stale.id, session: stale, status: 'idle', ctx } as Agent)
 
-    const response = await remote(ctx).rename(request({ sessionId: stale.id, title: 'name' }))
+    const response = await (await remote(ctx)).rename(request({ sessionId: stale.id, title: 'name' }))
     expect(response.ok).toBe(false)
     if (!response.ok) expect(response.error.code).toBe('gateway/internal')
   })
@@ -116,7 +116,7 @@ describe('sessions.rename', () => {
     const ctx = await composed(false)
     const source = await liveAgent(ctx, 'session-no-titles', 1)
 
-    const response = await remote(ctx).rename(request({ sessionId: source.id, title: 'name' }))
+    const response = await (await remote(ctx)).rename(request({ sessionId: source.id, title: 'name' }))
     expect(response.ok).toBe(false)
     if (!response.ok) {
       expect(response.error.code).toBe('gateway/internal')

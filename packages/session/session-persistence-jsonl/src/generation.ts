@@ -4,10 +4,10 @@
  * Format packages transform parsed JSON values. This module owns the physical
  * encoding, exact source identity, immutable generation files, and exclusive
  * current-generation publication for both configured JSONL suffixes.
- * @module @omega-ai/dsh-session-persistence-jsonl/generation
+ * @module @deepseek-ai/dsh-session-persistence-jsonl/generation
  */
 
-import { currentSessionMessageProjections } from '@omega-ai/dsh-session-format-catalog/message-projections'
+import { currentSessionMessageProjections } from '@deepseek-ai/dsh-session-format-catalog/message-projections'
 import { createHash, randomBytes } from 'node:crypto'
 import {
   link as fsLink,
@@ -25,16 +25,16 @@ import { pipeline, Readable } from 'node:stream'
 import { scheduler } from 'node:timers/promises'
 import { isDeepStrictEqual } from 'node:util'
 import { constants, createZstdCompress } from 'node:zlib'
-import { Session } from '@omega-ai/dsh-session'
-import type { SessionEvent } from '@omega-ai/dsh-session'
-import { BlockAssembler, expandAssistantStream } from '@omega-ai/dsh-llm'
-import { SessionFormatError } from '@omega-ai/dsh-session-format'
+import { Session } from '@deepseek-ai/dsh-session'
+import type { SessionEvent } from '@deepseek-ai/dsh-session'
+import { BlockAssembler, expandAssistantStream } from '@deepseek-ai/dsh-llm'
+import { SessionFormatError } from '@deepseek-ai/dsh-session-format'
 import type {
   SessionFormatArtifact,
   SessionFormatJsonValue,
   SessionFormatRestore,
-} from '@omega-ai/dsh-session-format'
-import { validateStoredEvents } from '@omega-ai/dsh-session-persistence'
+} from '@deepseek-ai/dsh-session-format'
+import { validateStoredEvents } from '@deepseek-ai/dsh-session-persistence'
 import type { JsonlCompression } from './format.ts'
 import { generationLogFilename, logSuffix, SessionLogScanner } from './format.ts'
 import { publishNewFileWin32 } from './win32.ts'
@@ -809,7 +809,7 @@ async function removeCommittedTemporary(
 ): Promise<void> {
   try {
     await internals.fs.rm(path)
-  } catch {
+  } catch (_redundantStageRemoveFailed) {
     // The validated target owns the committed bytes; a redundant link cannot turn success into failure.
   }
 }

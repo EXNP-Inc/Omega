@@ -4,9 +4,9 @@
  * consume its registration and dismissal operations.
  */
 import type { ComponentType } from 'react'
-import type { Context as ClientContext } from '@omega-ai/cordis'
-import type { ClientSessionContext } from '@omega-ai/dsh-client-ui-input-trigger/client'
-import type { IconProps } from '@omega-ai/dsh-client-ui-primitives'
+import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { ClientSessionContext } from '@deepseek-ai/dsh-client-ui-input-trigger/client'
+import type { IconProps } from '@deepseek-ai/dsh-client-ui-primitives'
 
 /** Copy for an option that must be acknowledged before onSelect can run. */
 export interface SelectConfirmation {
@@ -22,9 +22,6 @@ export interface SelectOptionGroup {
   readonly name: string
   readonly label: string
 }
-
-/** Search behavior selected by the popup owner. */
-export type PopupSearchMode = 'substring' | 'fuzzy-label'
 
 /** One option row of a popupSelect shell. */
 export interface SelectOption {
@@ -63,8 +60,6 @@ export interface PopupSearchLabels {
  */
 export interface PopupSelectSpec {
   readonly kind: 'popupSelect'
-  /** Defaults to substring search; fuzzy-label ranks names within each group. */
-  readonly searchMode?: PopupSearchMode
   /**
    * Supply localized search copy for this opening; omitted uses the shell's generic copy.
    * @returns search placeholder and empty-state labels.

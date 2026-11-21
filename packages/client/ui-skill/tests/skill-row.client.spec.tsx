@@ -2,11 +2,11 @@
 
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { StartedToolCall, ToolResultNode } from '@omega-ai/dsh-client-ui-chat/client'
-import type { ToolCallOwnerProps } from '@omega-ai/dsh-client-ui-tool/client'
-import { makeTranslate } from '@omega-ai/dsh-client-test-runtime'
-import { zh as commonZh } from '@omega-ai/dsh-client-locale/src/locales/zh.ts'
-import { PartialArguments } from '@omega-ai/dsh-util-values'
+import type { StartedToolCall, ToolResultNode } from '@deepseek-ai/dsh-client-ui-chat/client'
+import type { ToolCallOwnerProps } from '@deepseek-ai/dsh-client-ui-tool/client'
+import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
+import { zh as commonZh } from '@deepseek-ai/dsh-client-locale/src/locales/zh.ts'
+import { PartialArguments } from '@deepseek-ai/dsh-util-values'
 import { SkillRow } from '../src/client/SkillRow.tsx'
 import { zh } from '../src/client/locales.ts'
 
@@ -102,7 +102,7 @@ describe('SkillRow', () => {
     expect(row.getAttribute('role')).toBeNull()
     expect(view.container.textContent).toContain('正在加载 skill')
     expect(view.container.textContent).toContain('dsh-manage-issues')
-    expect(view.container.querySelector('svg [fill="currentColor"]')).not.toBeNull()
+    expect(view.container.querySelector('svg[data-icon="dsw-icon-skill-outline-regular"]')).not.toBeNull()
   })
 
   it('uses the first failure line in the summary and exposes the full error', () => {

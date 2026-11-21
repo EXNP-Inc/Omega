@@ -3,11 +3,12 @@
  * conversion, workspace-grouped location rendering with `file:`-URI resolution, complete-result
  * capping, and UI presentation. No I/O — a UI may call the presenter on live streaming and on
  * replay, so it depends only on the tool arguments.
- * @module @omega-ai/dsh-tool-lsp/render
+ * @module @deepseek-ai/dsh-tool-lsp/render
  */
 
-import type { GenericCallView } from '@omega-ai/dsh-tools'
-import type { LspHover, LspLocation, LspOperation, LspPosition } from '@omega-ai/dsh-lsp'
+import { ToolArgsError } from '@deepseek-ai/dsh-tools'
+import type { GenericCallView } from '@deepseek-ai/dsh-tools'
+import type { LspHover, LspLocation, LspOperation, LspPosition } from '@deepseek-ai/dsh-lsp'
 import { posix, win32 } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -41,13 +42,14 @@ export interface LspToolArgs {
  * positive one-based integers converted to the seam's zero-based position.
  * @param args - the schema-validated raw arguments.
  * @returns the validated input with a zero-based position.
- * @throws Error when the operation is unknown or a coordinate is not a positive integer.
+ * @throws ToolArgsError (`INVALID_ARGS`) when the operation is unknown, `file_path` is blank, or a
+ *   coordinate is not a positive integer.
  */
 export function parseLspArgs(args: LspToolArgs): LspToolInput {
   if (!isOperation(args.operation)) {
-    throw new Error(`operation must be one of ${LSP_OPERATIONS.join(', ')}`)
+    throw new ToolArgsError([`operation must be one of ${LSP_OPERATIONS.join(', ')}`])
   }
-  if (args.file_path.trim().length === 0) throw new Error('file_path must be a non-empty string')
+  if (args.file_path.trim().length === 0) throw new ToolArgsError(['file_path must be a non-empty string'])
   const line = oneBased(args.line, 'line')
   const character = oneBased(args.character, 'character')
   return {
@@ -66,7 +68,7 @@ function isOperation(value: string): value is LspOperation {
 /** Validate a one-based coordinate is a positive integer. */
 function oneBased(value: number, name: string): number {
   if (!Number.isInteger(value) || value < 1) {
-    throw new Error(`${name} must be a positive integer (one-based)`)
+    throw new ToolArgsError([`${name} must be a positive integer (one-based)`])
   }
   return value
 }

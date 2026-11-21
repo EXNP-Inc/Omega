@@ -1,13 +1,13 @@
 /** Serve change summaries and comparisons, and open declared or changed workspace files verified by the viewed Session's filesystem. */
-import type { Context } from '@omega-ai/cordis'
-import type {} from '@omega-ai/dsh-api-session-controller'
-import type {} from '@omega-ai/dsh-api-workspace-files'
-import type {} from '@omega-ai/dsh-fs'
-import type {} from '@omega-ai/dsh-sandbox-policy'
-import { remoteErrorOf } from '@omega-ai/dsh-typert-protocol'
-import type {} from '@omega-ai/dsh-client-connection'
-import type {} from '@omega-ai/dsh-session-query'
-import type { SessionId, SessionSeq } from '@omega-ai/dsh-session'
+import type { Context } from '@deepseek-ai/cordis'
+import type {} from '@deepseek-ai/dsh-api-session-controller'
+import type {} from '@deepseek-ai/dsh-api-workspace-files'
+import type {} from '@deepseek-ai/dsh-fs'
+import type {} from '@deepseek-ai/dsh-sandbox-policy'
+import { remoteErrorOf } from '@deepseek-ai/dsh-typert-protocol'
+import type {} from '@deepseek-ai/dsh-client-connection'
+import type {} from '@deepseek-ai/dsh-session-query'
+import type { SessionId, SessionSeq } from '@deepseek-ai/dsh-session'
 import { CHANGES_DIFF_PATH, CHANGES_OPEN_PATH, CHANGED_FILES_PATH, type ChangesSummary } from './changes.ts'
 import { isPresentedData, isPresentedFile, PRESENT_OPEN_PATH, PRESENT_HOST_PATH, type PresentedHost } from './presented.ts'
 
@@ -112,14 +112,13 @@ async function handlePresentOpen(ctx: Context, request: Request): Promise<Respon
   try {
     const read = await readTarget(ctx, request, id, seq)
     if (read instanceof Response) return read
-    const { target, session } = read
+    const { target } = read
     const file = target.type === 'deliverables/presented' && isPresentedData(target.data) ? target.data.files[index] : undefined
     if (!isPresentedFile(file)) return new Response('Presented file not found in this Session result.', { status: 404 })
     request.signal.throwIfAborted()
-    const { absolutePath: path } = await ctx.workspaceFiles.stat({
-      sessionId: id as SessionId,
-      workspaceRoot: session.cwd ?? ctx.sandboxPolicy.workspaceRoot,
-    }, file.path, request.signal)
+    const scope = await ctx.workspaceFiles.scopeOf(id as SessionId, request.signal)
+    if (scope === undefined) return new Response('Presented file Session not found.', { status: 404 })
+    const { absolutePath: path } = await ctx.workspaceFiles.stat(scope, file.path, request.signal)
     return await openVerified(ctx, request, path, action)
   } catch (error: unknown) {
     request.signal.throwIfAborted()
@@ -127,7 +126,7 @@ async function handlePresentOpen(ctx: Context, request: Request): Promise<Respon
   }
 }
 
-/** The summary one `workspace/changes` event announced, without the Host working directory; 404 once the Host no longer serves it. */
+/** The summary one `workspace/changes` event announced, without its snapshot ids; 404 once the Host no longer serves it. */
 function handleChangesSummary(ctx: Context, request: Request): Response {
   const query = new URL(request.url).searchParams
   const id = query.get('sessionId')
@@ -135,8 +134,8 @@ function handleChangesSummary(ctx: Context, request: Request): Response {
   if (!id || seq === undefined) return new Response('Invalid change summary coordinates.', { status: 400 })
   const summary = ctx.workspaceChanges.summary(id as SessionId, seq)
   if (summary === undefined) return new Response('Change summary unavailable.', { status: 404 })
-  const { turn, files, total, added, deleted } = summary
-  return Response.json({ turn, files, total, added, deleted } satisfies ChangesSummary, { headers: { 'cache-control': 'no-store' } })
+  const { turn, cwd, files, total, added, deleted } = summary
+  return Response.json({ turn, cwd, files, total, added, deleted } satisfies ChangesSummary, { headers: { 'cache-control': 'no-store' } })
 }
 
 /** A changed file's coordinates from a route query, or the 400 to answer with. */

@@ -1,6 +1,6 @@
 - insert:
     - id: mcp-resource-catalog
-      name: '@omega-ai/dsh-mcp-client'
+      name: '@deepseek-ai/dsh-mcp-client'
       config:
         transport: stdio
         serverName: catalog
@@ -10,7 +10,8 @@
         reconnect:
           enabled: false
 
-- id: tools
-  name: '@omega-ai/dsh-tools'
-  config:
-    mode: ptc
+- id: tool-executor-native
+  disabled: true
+
+- id: tool-executor-ptc
+  disabled: false

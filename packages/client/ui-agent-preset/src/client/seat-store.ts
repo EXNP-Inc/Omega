@@ -3,19 +3,21 @@
  *
  * The new-session screen has no session, so a pick is staged rather than
  * applied. It reaches a session when one becomes current and is still blank —
- * whether the workspace connect created it or reused an existing blank one,
- * which is why staging cannot simply ride along on `sessions.create`.
+ * whether the workspace connect created it or reused an existing blank one. A
+ * flow that knows its preset before it starts (the settings section's creator
+ * entry) passes it to session creation instead, and its stage only drives the
+ * chip's display.
  *
  * The stage is forgotten once applied. The next new session starts from the
  * Host-effective default again.
  */
 
-import type { Context as ClientContext } from '@omega-ai/cordis'
+import type { Context as ClientContext } from '@deepseek-ai/cordis'
 // Type-only: pulls the ctx.remote merge into this program.
-import type {} from '@omega-ai/dsh-api-remotes/client'
-import type { SessionSummary } from '@omega-ai/dsh-api-session-controller/client'
-import { createSnapshotStore, type SnapshotStore } from '@omega-ai/dsh-client-store'
-import type {} from '@omega-ai/dsh-agent-preset-registry/types'
+import type {} from '@deepseek-ai/dsh-api-remotes/client'
+import type { SessionSummary } from '@deepseek-ai/dsh-api-session-controller/client'
+import { createSnapshotStore, type SnapshotStore } from '@deepseek-ai/dsh-client-store'
+import type {} from '@deepseek-ai/dsh-agent-preset-registry/types'
 import { presetOptions, readRoster } from './settings-store.ts'
 import type { AgentPresetOption } from './settings-store.ts'
 
@@ -47,6 +49,17 @@ export interface AgentPresetStage {
   /** Whether the receiving chip should announce the applied choice once. */
   introduce: boolean
 }
+
+/**
+ * Result of one attempt to hand a staged preset to the current Session: the Host applied it,
+ * it waits for a Session to appear, nothing changed (busy, already composed, started, or no
+ * stage), or the Host refused it.
+ */
+export type AgentPresetApplyOutcome =
+  | { readonly kind: 'applied' | 'staged' | 'unchanged' }
+  | { readonly kind: 'refused'; readonly reason: string }
+
+const UNCHANGED: AgentPresetApplyOutcome = { kind: 'unchanged' }
 
 /** Stages the next session's preset and applies it when one appears. */
 export class AgentPresetSeatController {
@@ -122,10 +135,10 @@ export class AgentPresetSeatController {
    * The refusal is stored for the chip's announcement and returned to callers
    * such as Settings that also report the result of their own write.
    * @param id - the preset to stage.
-   * @returns the refusal text, or undefined once the pick settled.
+   * @returns how the pick settled; a refusal carries its text.
    */
-  async select(id: string): Promise<string | undefined> {
-    if (this.store.getSnapshot().busy) return undefined
+  async select(id: string): Promise<AgentPresetApplyOutcome> {
+    if (this.store.getSnapshot().busy) return UNCHANGED
     this.stage(id)
     return await this.apply()
   }
@@ -180,7 +193,8 @@ export class AgentPresetSeatController {
     const session = this.currentSession()
     if (session === undefined || !session.blank || session.id !== expectedSessionId) return undefined
     this.stage(id)
-    return await this.apply()
+    const outcome = await this.apply()
+    return outcome.kind === 'refused' ? outcome.reason : undefined
   }
 
   /** Acknowledge the introduction cue once the chip has played it. */
@@ -196,34 +210,34 @@ export class AgentPresetSeatController {
    * Called both by `select()` and by whoever observes the current session
    * changing, because the session may appear either before or after the pick.
    * List updates do not repeat a selection while its response is pending.
-   * @returns this attempt's Host refusal, or undefined when successful or no switch starts.
+   * @returns how this attempt settled; only a Host commit of the staged preset is applied.
    */
-  async apply(): Promise<string | undefined> {
-    if (this.store.getSnapshot().busy) return
+  async apply(): Promise<AgentPresetApplyOutcome> {
+    if (this.store.getSnapshot().busy) return UNCHANGED
     const staged = this.staged.id
     const session = this.currentSession()
     if (staged === undefined) {
       const current = session === undefined ? this.fallback : presetOf(session) ?? ''
       const shown = this.store.getSnapshot()
       if (current !== shown.current) this.set({ current })
-      return
+      return UNCHANGED
     }
-    if (session === undefined) return
+    if (session === undefined) return { kind: 'staged' }
     // A started session's history was produced under its own composition; the
     // host refuses the swap, so the stage is no longer meaningful.
     if (!session.blank || presetOf(session) === staged) {
       this.clearStage()
-      return
+      return UNCHANGED
     }
     const completion = Promise.withResolvers<undefined>()
     this.pendingSelection = completion.promise
     this.clearStage()
-    const refuse = (reason: string) => {
+    const refuse = (reason: string): AgentPresetApplyOutcome => {
       this.set({
         error: { reason, preset: this.store.getSnapshot().options.find(option => option.id === staged) ?? { id: staged } },
         current: this.staged.id ?? presetOf(session) ?? '',
       })
-      return reason
+      return { kind: 'refused', reason }
     }
     try {
       this.set({ busy: true, error: null })
@@ -237,6 +251,7 @@ export class AgentPresetSeatController {
         return refuse(refusal)
       }
       this.set({ current: this.staged.id ?? result.value })
+      return result.value === staged ? { kind: 'applied' } : UNCHANGED
     } catch (error) {
       return refuse(error instanceof Error ? error.message : String(error))
     } finally {

@@ -1,23 +1,25 @@
 /** A real Loader and AgentLoop exercise independently configured browser inference and durable screenshots. */
 
+import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, expect, it, vi } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import Loader from '@omega-ai/cordis-plugin-loader'
-import Include from '@omega-ai/cordis-plugin-include'
-import AgentRegistry from '@omega-ai/dsh-agent'
-import AgentLoop from '@omega-ai/dsh-agent-loop'
-import BrowserUseRegistry from '@omega-ai/dsh-browser-use'
-import LocalAttachmentStore from '@omega-ai/dsh-attachment-local'
-import LlmRuntime, { LlmAdapter, ToolCallId, createUserMessage } from '@omega-ai/dsh-llm'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@omega-ai/dsh-llm'
-import SessionStore, { SessionId } from '@omega-ai/dsh-session'
-import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
-import SystemPrompt from '@omega-ai/dsh-system-prompt'
-import ToolRuntime from '@omega-ai/dsh-tools'
+import { Context } from '@deepseek-ai/cordis'
+import Loader from '@deepseek-ai/cordis-plugin-loader'
+import Include from '@deepseek-ai/cordis-plugin-include'
+import AgentRegistry from '@deepseek-ai/dsh-agent'
+import AgentLoop from '@deepseek-ai/dsh-agent-loop'
+import BrowserUseRegistry from '@deepseek-ai/dsh-browser-use'
+import LocalAttachmentStore from '@deepseek-ai/dsh-attachment-local'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import LlmRuntime, { LlmAdapter, type ToolCallId, createUserMessage } from '@deepseek-ai/dsh-llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@deepseek-ai/dsh-llm'
+import SessionStore, { type SessionId } from '@deepseek-ai/dsh-session'
+import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
+import ToolRuntime from '@deepseek-ai/dsh-tools'
 import * as Provider from '../src/index.ts'
 import { resetFixture, screenshotBase64 } from './fixtures/stagehand.ts'
 
@@ -50,7 +52,7 @@ class BrowserModel extends LlmAdapter {
     if (this.mainRequests.length <= 2) {
       const first = this.mainRequests.length === 1
       yield { type: 'block-end', index: 0, block: {
-        type: 'tool-call', id: ToolCallId(first ? 'extract-heading' : 'screenshot'),
+        type: 'tool-call', id: brandString<ToolCallId>(first ? 'extract-heading' : 'screenshot'),
         name: first ? 'stagehand_extract' : 'stagehand_screenshot',
         arguments: first ? '{"instruction":"Extract the heading"}' : '{}',
       } }
@@ -75,22 +77,24 @@ it('loads browser tools from cordis.yml, logs browser results, and admits the sc
   resetFixture()
   root = await mkdtemp(join(tmpdir(), 'dsh-stagehand-composition-'))
   const modules = new Map<string, unknown>([
-    ['@omega-ai/dsh-llm', LlmRuntime],
-    ['@omega-ai/dsh-session', SessionStore],
-    ['@omega-ai/dsh-session-projection', SessionProjectionRegistry],
-    ['@omega-ai/dsh-system-prompt', SystemPrompt],
-    ['@omega-ai/dsh-tools', ToolRuntime],
-    ['@omega-ai/dsh-agent', AgentRegistry],
-    ['@omega-ai/dsh-agent-loop', AgentLoop],
-    ['@omega-ai/dsh-attachment-local', LocalAttachmentStore],
-    ['@omega-ai/dsh-browser-use', BrowserUseRegistry],
-    ['@omega-ai/dsh-experimental-browser-use-stagehand-native', Provider],
+    ['@deepseek-ai/dsh-llm', LlmRuntime],
+    ['@deepseek-ai/dsh-session', SessionStore],
+    ['@deepseek-ai/dsh-session-projection', SessionProjectionRegistry],
+
+    ['@deepseek-ai/dsh-system-prompt', SystemPrompt],
+    ['@deepseek-ai/dsh-tools', ToolRuntime],
+    ['@deepseek-ai/dsh-tool-executor-native', NativeToolExecutor],
+    ['@deepseek-ai/dsh-agent', AgentRegistry],
+    ['@deepseek-ai/dsh-agent-loop', AgentLoop],
+    ['@deepseek-ai/dsh-attachment-local', LocalAttachmentStore],
+    ['@deepseek-ai/dsh-browser-use', BrowserUseRegistry],
+    ['@deepseek-ai/dsh-experimental-browser-use-stagehand-native', Provider],
   ])
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, [...modules.keys()].flatMap(name => [
     `- name: '${name}'`,
-    ...name === '@omega-ai/dsh-attachment-local' ? ['  config:', `    dshHome: ${JSON.stringify(root)}`] : [],
-    ...name === '@omega-ai/dsh-experimental-browser-use-stagehand-native' ? ['  config:', '    mode: launch', '    model:', '      modelName: openai/gpt-5.4-mini', '      apiKey: fixture-model-key'] : [],
+    ...name === '@deepseek-ai/dsh-attachment-local' ? ['  config:', `    dshHome: ${JSON.stringify(root)}`] : [],
+    ...name === '@deepseek-ai/dsh-experimental-browser-use-stagehand-native' ? ['  config:', '    mode: launch', '    model:', '      modelName: openai/gpt-5.4-mini', '      apiKey: fixture-model-key'] : [],
   ]).join('\n') + '\n')
   const context = ctx = new Context()
   context.baseUrl = pathToFileURL(root).href + '/'
@@ -108,7 +112,7 @@ it('loads browser tools from cordis.yml, logs browser results, and admits the sc
   for (const entry of context.loader.entries()) await entry.fiber?.await()
   const model = new BrowserModel()
   context.llm.registerAdapter(['fixture'], model)
-  const agent = await context.agentLoop.create(SessionId('stagehand-loader'), { provider: 'fixture', model: 'vision' })
+  const agent = await context.agentLoop.create(brandString<SessionId>('stagehand-loader'), { provider: 'fixture', model: 'vision' })
   agent.followup(createUserMessage({ content: [{ type: 'text', text: 'Extract the heading and take a screenshot.' }], source: { kind: 'user' } }))
   await agent.whenIdle()
   expect(model.mainRequests).toHaveLength(3)

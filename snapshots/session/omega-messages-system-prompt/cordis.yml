@@ -1,7 +1,7 @@
-- id: llm-omega
+- id: llm-deepseek
   config:
     models:
-      - id: omega-v4-flash
+      - id: deepseek-v4-flash
         systemPromptUpdate: in-history
 
 - insert:

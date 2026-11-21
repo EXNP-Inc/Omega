@@ -1,14 +1,14 @@
 ---
-description: "浏览全部已捕获 Omega alpha/RC tag 之间的 Session 持久化类型变化，并离线校验历史快照。"
+description: "浏览全部已捕获 DSH alpha/RC tag 之间的 Session 持久化类型变化，并离线校验历史快照。"
 ---
 
-# Omega 预发行版本的持久化变化
+# DSH 预发行版本的持久化变化
 
 [English](README.md) | 中文
 
 ## 概述
 
-本归档提供 26 个 Omega alpha/RC tag 及其 25 次相邻转换的近似历史视图。每个版本包含简要说明、源码 tag、before/after 摘要以及变化类型的完整快照，供阅读和格式校验使用。它不确认历史运行时兼容性，也不替代[当前源码的确认记录](../README.zh.md)。
+本归档提供 26 个 DSH alpha/RC tag 及其 25 次相邻转换的近似历史视图。每个版本包含简要说明、源码 tag、before/after 摘要以及变化类型的完整快照，供阅读和格式校验使用。它不确认历史运行时兼容性，也不替代[当前源码的确认记录](../README.zh.md)。
 
 ## 目录
 
@@ -23,7 +23,7 @@ description: "浏览全部已捕获 Omega alpha/RC tag 之间的 Session 持久�
 <a id="releases"></a>
 ## 已归档版本
 
-[清单](manifest.json)记录了 2026-09-12 捕获的全部 Omega alpha/RC tag：16 个有发行记录，最早的 10 个只有 tag。版本按语义版本顺序排列；不存在的 tag 不补造。首条记录是历史起点，变化数包含其所有根。
+[清单](manifest.json)记录了 2026-09-12 捕获的全部 DSH alpha/RC tag：16 个有发行记录，最早的 10 个只有 tag。版本按语义版本顺序排列；不存在的 tag 不补造。首条记录是历史起点，变化数包含其所有根。
 
 <!-- persistence-release-index:start -->
 
@@ -90,7 +90,7 @@ pnpm run doc-sync
 
 标记区间内的索引、清单单元格和结构变化事实由快照生成。默认校验会拒绝陈旧事实。运行 `pnpm run verify-persistence-releases --write` 可在全部机器数据校验通过后刷新这些区间和配对记录；人工概述、源码证据、机器声明和 schema 文件保持不变。
 
-tag 的完整性以清单的捕获范围为准；离线检查不会自动发现后续新 tag。配对记录及 Markdown 链接由常规文档检查校验。[格式模板](../../../.agents/skills/dsh-doc/templates/persistence-release.md)规定单条记录的字段。
+tag 的完整性以清单的捕获范围为准；离线检查不会自动发现后续新 tag。配对记录及 Markdown 链接由常规文档检查校验。[格式模板](../../../.agents/skills/dsh-doc-writing/templates/persistence-release.md)规定单条记录的字段。
 
 <a id="dev-note"></a>
 ## 开发备注

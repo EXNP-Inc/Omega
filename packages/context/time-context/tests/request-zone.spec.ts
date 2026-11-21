@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { createUserMessage } from '@omega-ai/dsh-llm'
-import type { UserMessage } from '@omega-ai/dsh-llm'
-import type { ContextFormed } from '@omega-ai/dsh-llm'
+import { createUserMessage } from '@deepseek-ai/dsh-llm'
+import type { UserMessage } from '@deepseek-ai/dsh-llm'
+import type { ContextFormed } from '@deepseek-ai/dsh-llm'
 import {
   deriveBrowserTimeZoneContext,
   renderBrowserTimeZoneContext,
 } from '../src/request-zone.ts'
 
-declare module '@omega-ai/dsh-llm' {
+declare module '@deepseek-ai/dsh-llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }
@@ -51,6 +51,36 @@ describe('browser request-zone context', () => {
     expect(() => deriveBrowserTimeZoneContext([
       browserMessage('Etc/UTC'),
     ])).toThrow(/browser time zone must be canonical/)
+  })
+
+  it('combines committed reported zones with proposed messages before validation', () => {
+    expect(deriveBrowserTimeZoneContext([browserMessage('America/New_York')], ['Asia/Shanghai']))
+      .toEqual({ kind: 'mixed', timeZones: ['America/New_York', 'Asia/Shanghai'] })
+    expect(() => deriveBrowserTimeZoneContext([browserMessage('Not/A_Real_Zone')], ['+08:00']))
+      .toThrow('browser time zone must be canonical UTC or IANA Area/Location: "+08:00"')
+  })
+
+  it('keeps the exact refusal and the platform cause for every unusable zone', () => {
+    const refusal = (timeZone: string): Error => {
+      try {
+        deriveBrowserTimeZoneContext([browserMessage(timeZone)])
+        throw new Error('expected a browser-zone refusal')
+      } catch (error: unknown) {
+        expect(error).toBeInstanceOf(TypeError)
+        return error as Error
+      }
+    }
+    expect(refusal('').message)
+      .toBe('browser time zone must be canonical UTC or IANA Area/Location: ""')
+    expect(refusal('+08:00').message)
+      .toBe('browser time zone must be canonical UTC or IANA Area/Location: "+08:00"')
+    expect(refusal(' UTC').message)
+      .toBe('browser time zone must be canonical UTC or IANA Area/Location: " UTC"')
+    expect(refusal('Etc/UTC').message).toBe('browser time zone must be canonical: "Etc/UTC"')
+    const unsupported = refusal('Not/A_Real_Zone')
+    expect(unsupported.message).toBe('browser time zone is unsupported: "Not/A_Real_Zone"')
+    // The platform refusal stays the operator's only evidence of why a well-formed name failed.
+    expect((unsupported as Error & { cause?: unknown }).cause).toBeInstanceOf(RangeError)
   })
 
   it('renders one explicit model policy for every context', () => {

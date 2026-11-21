@@ -1,13 +1,13 @@
 /** Office preview registration backed by authorized Host rendering and the existing PDF body. */
-import type { Context } from '@omega-ai/cordis'
+import type { Context } from '@deepseek-ai/cordis'
 import { retainDocumentTabs } from '../document/tab-lifetime.ts'
-import type {} from '@omega-ai/dsh-client-ui-renderer/client'
-import type {} from '@omega-ai/dsh-office-to-pdf/remote'
-import type {} from '@omega-ai/dsh-client-locale/client'
-import type {} from '@omega-ai/dsh-api-workspace-files/remote'
+import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
+import type {} from '@deepseek-ai/dsh-office-kit/remote'
+import type {} from '@deepseek-ai/dsh-client-locale/client'
+import type {} from '@deepseek-ai/dsh-api-workspace-files/remote'
 import { failureLine } from '../failure-line.ts'
 import { documentTabInfoFactory } from '../document/contract.ts'
-import { en, zh, type OfficePreviewKey } from './locales.ts'
+import { en, ja, es, fr, de, ru, pt, zh, type OfficePreviewKey } from './locales.ts'
 import { OfficePreviewCache, type ReadOfficeBytes, type ReadOfficeDocument } from './cache.ts'
 import { pdfBodyRegistration } from '../pdf/index.ts'
 import { LazyPdfBody } from '../pdf/LazyPdfBody.tsx'
@@ -15,9 +15,9 @@ import { OfficeBody, type OfficeBodyInjected } from './OfficeBody.tsx'
 import { OfficeFontAction } from './OfficeFontAction.tsx'
 import { officeFace } from './face.ts'
 import { createOfficeStore } from './store.ts'
-import type { Config } from '../../config.ts'
+import type { OfficeLimits } from '../../types.ts'
 
-declare module '@omega-ai/dsh-client-ui-slots' {
+declare module '@deepseek-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap {
     sidebarOffice: OfficePreviewKey
   }
@@ -28,10 +28,10 @@ declare module '@omega-ai/dsh-client-ui-slots' {
  * @param ctx - Client renderer registry, localized copy, and optional Host Remotes.
  * @param config - Resolved Office preview cache limits.
  */
-export function apply(ctx: Context, config: Config['office']): void {
-  const id = '@omega-ai/dsh-client-ui-sidebar-documentpreview/office'
+export function apply(ctx: Context, config: OfficeLimits): void {
+  const id = '@deepseek-ai/dsh-client-ui-sidebar-documentpreview/office'
   const extensions = ['doc', 'docx', 'ppt', 'pptx']
-  ctx.effect(() => ctx.locale.register('sidebarOffice', { zh, en }))
+  ctx.effect(() => ctx.locale.register('sidebarOffice', { zh, en, ja, es, fr, de, ru, pt }))
   const t = ctx.locale.bind('sidebarOffice')
   const unavailable: ReadOfficeDocument = (_file, signal) => {
     signal.throwIfAborted()
@@ -67,10 +67,10 @@ export function apply(ctx: Context, config: Config['office']): void {
   ctx.effect(() => ctx.slots.inject('sidebar.right.tab.document.office.pdf', () => ctx.slots.register({
     name: 'sidebar.right.tab.document.office.pdf', key: id, locale: 'sidebarPdf', ...pdfPresentation,
   }, LazyPdfBody)))
-  ctx.inject(['remote', 'remote.officeToPdf', 'remote.workspaceFiles'], (scope) => {
+  ctx.inject(['remote', 'remote.officeKit', 'remote.workspaceFiles'], (scope) => {
     const convert: ReadOfficeBytes = async (file, signal, priority) => {
       signal.throwIfAborted()
-      const result = await scope.remote.officeToPdf.render(file.sessionId, file.path, priority, signal)
+      const result = await scope.remote.officeKit.render(file.sessionId, file.path, priority, signal)
       signal.throwIfAborted()
       if (!result.ok && result.error.code === 'document-render/failed') {
         throw new Error(t(conversionErrorKey(result.error.details.reason)), { cause: result.error })
@@ -93,7 +93,7 @@ export function apply(ctx: Context, config: Config['office']): void {
       },
       convert, config.maxCachedEntries, config.maxCachedBytes, config.maxPending, config.maxReaders,
       async (signal) => {
-        const result = await scope.remote.officeToPdf.generation(signal)
+        const result = await scope.remote.officeKit.generation(signal)
         signal.throwIfAborted()
         if (!result.ok) throw new Error(t('unavailable'), { cause: result.error })
         return result

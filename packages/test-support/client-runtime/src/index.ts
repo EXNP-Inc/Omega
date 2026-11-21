@@ -1,49 +1,54 @@
 /**
  * jsdom slot test runtime: a real small runtime — Cordis `Context`, the
- * renderer-owned `SlotRegistry`, the `ui-session` adapter, and the UI renderer — assembled around
- * test-owned session/workspace doubles and a fail-loud file-upload stub, so feature specs exercise
+ * renderer-owned `SlotRegistry`, the `ui-session` adapter, the
+ * `ui-session-status` table, and the UI renderer — assembled around
+ * test-owned session/workspace doubles and fail-loud file-upload and reading-mark stubs, so feature specs exercise
  * declaration, registration, scope, store, inject, rendering, updates, and
  * disposal without hand-building the machinery per suite.
  *
  * Not part of the product plugin graph (no `dsh.client`); feature packages
  * depend on it in devDependencies only. It copies no SlotCore/renderer/store
  * machinery — everything mounts the production implementations.
- * @module @omega-ai/dsh-client-test-runtime
+ * @module @deepseek-ai/dsh-client-test-runtime
  */
 /* oxlint-disable typescript/no-redundant-type-constituents --
  * `keyof SlotMap & string` is the declare-merge key pattern (see ui-slots):
  * this compilation unit sees only the runtime's 'root' row, but consumer
  * programs merge their own keys in; the rule fires on the narrow-map view. */
-import { Context, Inject } from '@omega-ai/cordis'
-import type { Fiber, Plugin } from '@omega-ai/cordis'
+import { Context, Inject } from '@deepseek-ai/cordis'
+import type { Fiber, Plugin } from '@deepseek-ai/cordis'
 import { createElement, Fragment, useSyncExternalStore } from 'react'
 import type { ReactNode } from 'react'
 import { act, render, within } from '@testing-library/react'
 import type { RenderResult } from '@testing-library/react'
 import type { queries } from '@testing-library/dom'
 import type { BoundFunctions } from '@testing-library/dom'
-import { SlotRegistry } from '@omega-ai/dsh-client-ui-renderer/client'
-import { bindSnapshotSelector as bindRendererSnapshotSelector } from '@omega-ai/dsh-client-ui-renderer/src/client/bind.ts'
-import { createSlotRenderer as createRenderer } from '@omega-ai/dsh-client-ui-renderer/src/client/scoped-slots.tsx'
+import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
+import { bindSnapshotSelector as bindRendererSnapshotSelector } from '@deepseek-ai/dsh-client-ui-renderer/src/client/bind.ts'
+import { createSlotRenderer as createRenderer } from '@deepseek-ai/dsh-client-ui-renderer/src/client/scoped-slots.tsx'
 import {
   apply as applyUiSession, inject as uiSessionInject,
-} from '@omega-ai/dsh-client-ui-session/client'
-import type { SessionReference } from '@omega-ai/dsh-api-session-controller/client'
-import type { SessionId } from '@omega-ai/dsh-session/types'
-import { createSnapshotStore } from '@omega-ai/dsh-client-store'
-import type { PanelInfo } from '@omega-ai/dsh-client-ui-layout/client'
+} from '@deepseek-ai/dsh-client-ui-session/client'
+import {
+  apply as applySessionStatus, inject as sessionStatusInject,
+} from '@deepseek-ai/dsh-client-ui-session-status/client'
+import type { SessionReference } from '@deepseek-ai/dsh-api-session-controller/client'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
+import type { PanelInfo } from '@deepseek-ai/dsh-client-ui-layout/client'
 import type {
   ChildrenDecl, ComposedProps, HostObservable, OwnerOf, RenderOpts, SlotComponent, SlotMap, SlotRenderer,
   ScopedStandardSourceBinding, SessionProviderComponent, SlotEntryDef, SlotFactoryMap, SlotRendererHost, SlotSpec,
   SnapshotSelectorHook, StoredFactory, StoreInstanceLike,
-} from '@omega-ai/dsh-client-ui-slots'
+} from '@deepseek-ai/dsh-client-ui-slots'
 import { registerDomSnapshotSerializer } from './snapshot.ts'
 import { TestRemote } from './remote.ts'
 import { TestSessions } from './sessions.ts'
 import { TestWorkspaces } from './workspaces.ts'
 import type { Stabilizer } from './fixtures.ts'
+import { allowAllAccessPlugin } from './access.ts'
 
-export type { UseSession } from '@omega-ai/dsh-client-ui-session/client'
+export type { UseSession } from '@deepseek-ai/dsh-client-ui-session/client'
 export { domSnapshotSerializer, registerDomSnapshotSerializer } from './snapshot.ts'
 export { FixtureSession, TestSessions } from './sessions.ts'
 export { stubConfigForm } from './config-form.ts'
@@ -56,7 +61,11 @@ export {
 export type {
   FixtureSnapshot, SessionBehaviorOverrides, SessionFixture, SessionFixtureSnapshot, Stabilizer,
 } from './fixtures.ts'
+export { contextMenuHook } from './context-menu.ts'
+export { syncedConfig } from './synced-config.ts'
 export { makeTranslate } from './translate.ts'
+export { allowAllAccess, allowAllAccessPlugin, StaticRemoteAccess, staticAccessPlugin } from './access.ts'
+export type { AccessStandardProps, StaticAccessPlugin } from './access.ts'
 export { usePinnedBrowserLanguages } from './locale-env.ts'
 
 /**
@@ -124,6 +133,8 @@ export interface FeatureHandle {
 export interface TestFileUpload {
   /** Test-supplied upload behavior; the default rejects every call. */
   upload: (sessionId: SessionId, ...args: unknown[]) => Promise<unknown>
+  /** Test-supplied image upload behavior; the default rejects every call. */
+  uploadImage: (sessionId: SessionId, ...args: unknown[]) => Promise<unknown>
 }
 
 /**
@@ -256,10 +267,15 @@ export class SlotTestRuntime {
     this.workspaces = new TestWorkspaces(this.stabilizer)
     this.fileUpload = {
       upload: () => Promise.reject(new Error('client test runtime: file upload is not stubbed')),
+      uploadImage: () => Promise.reject(new Error('client test runtime: image upload is not stubbed')),
     }
     ctx.provide('sessions', this.sessions)
     ctx.provide('workspaces', this.workspaces)
     ctx.provide('fileUpload', this.fileUpload as never)
+    this.remote.provideNamespaces({ sessionStatus: {
+      follow: (signal: AbortSignal) => idleReadingStream(signal),
+      mark: () => Promise.reject(new Error('client test runtime: reading mark is not stubbed')),
+    } })
     this.disposeWorkspaceSource = slots.provideRoot({ hooks: { workspaces: this.workspaces.list } })
     this.disposePanelInfoSource = slots.provideRoot({ hooks: { panelInfo: this.panelInfo } })
     // Capturing install: the production renderer does the rendering; the
@@ -284,7 +300,9 @@ export class SlotTestRuntime {
     const fiber = ctx.plugin(SlotRegistry)
     await fiber.await()
     const runtime = new SlotTestRuntime(ctx, ctx.get('slots') as SlotRegistry)
+    await ctx.plugin(allowAllAccessPlugin).await()
     await ctx.plugin({ inject: [...uiSessionInject], apply: applyUiSession }).await()
+    await ctx.plugin({ inject: [...sessionStatusInject], apply: applySessionStatus }).await()
     return runtime
   }
 
@@ -293,15 +311,16 @@ export class SlotTestRuntime {
    * so a missing provider fails loud instead of suspending the fiber forever
    * (deliberate load-order suspension tests use `ctx.plugin` directly).
    * @param plugin - plugin value (function, class, or `{ inject, apply }` object).
+   * @param config - the plugin's `apply` config, such as a {@link syncedConfig} object for a Client face with synced fields.
    * @returns handle owning the fiber's explicit disposal.
    */
-  async mount(plugin: Plugin): Promise<FeatureHandle> {
+  async mount(plugin: Plugin, config?: unknown): Promise<FeatureHandle> {
     const required = Object.keys(Inject.resolve((plugin as { inject?: Inject }).inject))
     const missing = required.filter(name => this.ctx.get(name) === undefined)
     if (missing.length > 0) {
       throw new Error(`mount would suspend: missing service(s) ${missing.join(', ')} — provide() them first`)
     }
-    const fiber = this.ctx.plugin(plugin)
+    const fiber = this.ctx.plugin(plugin, config)
     await this.stabilizer(async () => {
       await fiber.await()
     })
@@ -479,4 +498,11 @@ export class SlotTestRuntime {
     await this.stabilizer(() => this.ctx.fiber.dispose())
     localStorage.clear()
   }
+}
+
+/** Empty reading baseline held open until the stream generation is cancelled. */
+async function *idleReadingStream(signal: AbortSignal): AsyncGenerator<{ readonly type: 'baseline'; readonly items: readonly [] }> {
+  yield { type: 'baseline', items: [] }
+  signal.throwIfAborted()
+  await new Promise<void>((resolve) => { signal.addEventListener('abort', () => { resolve() }, { once: true }) })
 }

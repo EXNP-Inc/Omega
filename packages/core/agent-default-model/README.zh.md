@@ -3,13 +3,13 @@ description: "面向用户与维护者的部署默认模型选择说明，用于
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-agent-default-model
+# @deepseek-ai/dsh-agent-default-model
 
 [English](README.md) | 中文
 
 ## 概述
 
-为会话未指定模型的新 agent 提供共享默认 provider 和模型。Provider、模型和推理强度都是即时 Config 字段。保存的选择更新当前 profile patch，并用于后续读取；会话级选择仍由入口负责。
+为会话未指定模型的新 agent 提供共享默认 provider 和模型。Provider、模型和推理强度都是即时 Config 字段。保存的选择更新当前 profile patch，并用于后续读取；会话级选择由[Agent 模型 API](../agent/README.zh.md) 负责。
 
 ## 目录
 
@@ -32,10 +32,10 @@ kind: "package-reference"
 组合要求提供 provider 和模型。即使没有挂载配置编辑器，消费者也可读取即时引用。
 
 ```yaml
-- name: '@omega-ai/dsh-agent-default-model'
+- name: '@deepseek-ai/dsh-agent-default-model'
   config:
-    provider: omega
-    model: omega-chat
+    provider: deepseek
+    model: deepseek-chat
 ```
 
 | 字段 | 默认值 | 含义 |
@@ -43,7 +43,7 @@ kind: "package-reference"
 | `provider` | 必填 | 新 agent 使用的已注册提供方路由 |
 | `model` | 必填 | 新 agent 使用的、由提供方持有的模型 id |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-agent-default-model) 列出所有接受的字段。`reasoningEffort` 是可选的；保存不含此字段的选择，会从 profile 的完整配置覆盖中移除此字段。
+生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-agent-default-model) 列出所有接受的字段。`reasoningEffort` 是可选的；保存不含此字段的选择，会从 profile 的完整配置覆盖中移除此字段。
 
 ### 读取与更改默认值
 
@@ -91,7 +91,7 @@ await ctx.agentDefaultModel.saveSelection({ provider, model, reasoningEffort: 'h
 
 - [Core 子系统](../../../docs/subsystems/core.zh.md)——`Agent` 句柄与 `AgentOptions` 路由选择。
 - [agent-loop 包](../agent-loop/README.zh.md)——agent 在请求时如何解析提供方与模型。
-- [生成配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-agent-default-model)——每个受支持配置字段及其源声明。
+- [生成配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-agent-default-model)——每个受支持配置字段及其源声明。
 - [core 分组地图](../README.zh.md)——core 各包如何组合。
 
 -----
@@ -112,7 +112,7 @@ await ctx.agentDefaultModel.saveSelection({ provider, model, reasoningEffort: 'h
 
 这些限制界定该服务的范围。它们是当前包约束，不是任务积压。
 
-- **单一的进程级默认值**——该服务只拥有一个默认值；按会话的模型选择仍由入口负责。
+- **单一的进程级默认值**——该服务只拥有一个默认值；按会话的模型选择由[Agent 模型 API](../agent/README.zh.md) 负责。
 - **持久化需要 profile 配置编辑器**——没有编辑器时，保存默认值不会保留选择。
 
 <a id="dev-note"></a>

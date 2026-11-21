@@ -7,9 +7,9 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed, onTestFinished, vi } from 'vitest'
-import type { GenerateOptions, StreamChunk } from '@omega-ai/dsh-llm'
-import { LlmAdapter } from '@omega-ai/dsh-llm'
-import type {} from '@omega-ai/dsh-webhook'
+import type { GenerateOptions, StreamChunk } from '@deepseek-ai/dsh-llm'
+import { LlmAdapter } from '@deepseek-ai/dsh-llm'
+import type {} from '@deepseek-ai/dsh-webhook'
 import {
   captureExpandedTurnProcessAria,
   captureStableAria,
@@ -22,7 +22,7 @@ import {
 import { saveFailureShot } from './support.ts'
 
 const MODE = webSnapshotMode()
-const OVERLAY = fileURLToPath(new URL('../../cli/config/examples/github-review/cordis.yml', import.meta.url))
+const OVERLAY = fileURLToPath(new URL('../../../packages/experimental/webhook-github/examples/github-review/cordis.yml', import.meta.url))
 const EXPECTED = fileURLToPath(new URL('./expected/github-ready-review/conversation.expected.md', import.meta.url))
 const EXPANDED_EXPECTED = fileURLToPath(
   new URL('./expected/github-ready-review/conversation-expanded.expected.md', import.meta.url),
@@ -30,7 +30,7 @@ const EXPANDED_EXPECTED = fileURLToPath(
 const PROVIDER = 'github-webhook-review-test'
 const MODEL = 'reply'
 const SECRET = 'github-webhook-review-secret'
-const TITLE = 'Review omega-ai/omega-harness#314'
+const TITLE = 'Review deepseek-ai/deepseek-harness#314'
 const REPLY = 'Review complete: no actionable findings.'
 
 /** Deterministic model response for the webhook-created Session. */
@@ -92,7 +92,13 @@ describe.skipIf(MODE === 'record')('web e2e: GitHub ready-for-review', () => {
     process.env.DSH_GITHUB_WEBHOOK_PORT = String(port)
     process.env.DSH_GITHUB_WEBHOOK_SECRET = SECRET
     webhookOrigin = `http://127.0.0.1:${String(port)}`
-    scaffold = await launchWebScaffold({ extraOverlayPath: OVERLAY })
+    scaffold = await launchWebScaffold({
+      extraOverlayPath: OVERLAY,
+      profile: { packages: [
+        { dir: fileURLToPath(new URL('../../../packages/experimental/webhook', import.meta.url)) },
+        { dir: fileURLToPath(new URL('../../../packages/experimental/webhook-github', import.meta.url)) },
+      ] },
+    })
     scaffold.ctx.effect(
       () => scaffold.ctx.llm.registerAdapter([PROVIDER], adapter),
       'GitHub webhook review adapter',
@@ -130,10 +136,10 @@ describe.skipIf(MODE === 'record')('web e2e: GitHub ready-for-review', () => {
     const payload = {
       action: 'ready_for_review',
       number: 314,
-      repository: { full_name: 'omega-ai/omega-harness' },
+      repository: { full_name: 'deepseek-ai/deepseek-harness' },
       pull_request: {
         title: 'Fix session replay',
-        html_url: 'https://github.com/omega-ai/omega-harness/pull/314',
+        html_url: 'https://github.com/deepseek-ai/deepseek-harness/pull/314',
         draft: false,
         user: { login: 'octocat' },
         base: { ref: 'master', sha: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' },
@@ -189,8 +195,11 @@ describe.skipIf(MODE === 'record')('web e2e: GitHub ready-for-review', () => {
 
     const workspaceRow = page.locator('[role="treeitem"]').first()
     if (await workspaceRow.getAttribute('aria-expanded') !== 'true') await workspaceRow.click()
+    await page.bringToFront()
     await page.getByText(TITLE, { exact: true }).click()
     await page.getByText(REPLY, { exact: true }).waitFor({ state: 'visible', timeout: 30_000 })
+    const reviewRow = page.locator('[role="treeitem"]').filter({ has: page.getByText(TITLE, { exact: true }) })
+    await expect.poll(() => reviewRow.getByText('Unread', { exact: true }).count()).toBe(0)
     const tree = await captureStableAria(page, '[role="tree"][aria-label="Sessions"]', scaffold.workspaceCwd)
     const conversation = await captureStableAria(page, '[class*="centerCol"]', scaffold.workspaceCwd)
     await compareOrRefreshGolden(EXPECTED, `${tree}\n\n---\n\n${conversation}`, MODE)

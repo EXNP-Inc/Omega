@@ -79,7 +79,7 @@ export const RELEASED_V0_EVENT_DISPOSITIONS: Readonly<Record<string, ReleasedV0P
   'request/header': disposition(['header', 'reason'], ['startsSeries']),
   'sandbox/mode': disposition(['mode'], ['source']),
   'schedule/change': disposition(['version', 'operation'], ['schedule', 'id', 'acceptedAt']),
-  'session-log-omega/delivery-accepted': disposition(
+  'session-log-deepseek/delivery-accepted': disposition(
     ['sessionId', 'throughSeq'],
   ),
   'session/end-seed': disposition([]),
@@ -90,8 +90,8 @@ export const RELEASED_V0_EVENT_DISPOSITIONS: Readonly<Record<string, ReleasedV0P
   'step/end': disposition(['turn', 'step']),
   'step/start': disposition(['turn', 'step']),
   'subagent/descriptor': disposition(
-    ['mode', 'version', 'provider'],
-    ['label', 'agentProvider', 'agentModel', 'agentReasoningEffort', 'persona', 'toolFilter'],
+    ['version', 'provider'],
+    ['mode', 'label', 'agentProvider', 'agentModel', 'agentReasoningEffort', 'persona', 'toolFilter'],
   ),
   'subagent/model-selection-policy': disposition(['allowedModels']),
   'team/member': disposition(['version', 'teamId', 'member']),
@@ -122,7 +122,7 @@ export const RELEASED_V0_EVENT_DISPOSITIONS: Readonly<Record<string, ReleasedV0P
   'turn/end': disposition(['turn', 'reason']),
   'turn/start': disposition(['turn']),
   'user/message': disposition(['role', 'id', 'content', 'source']),
-  'web/omega-search-llm-request': disposition(['endpoint', 'apiVersion', 'body']),
+  'web/deepseek-search-llm-request': disposition(['endpoint', 'apiVersion', 'body']),
 })
 
 /** Stable sorted released-v0 event inventory. */

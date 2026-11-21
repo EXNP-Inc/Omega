@@ -21,7 +21,7 @@
       "path": "../../core/session"
     },
     {
-      "path": "../../llm/omega-llm-api-extensions"
+      "path": "../../llm/deepseek-llm-api-extensions"
     }
   ]
 }

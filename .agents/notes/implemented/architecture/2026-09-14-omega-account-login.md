@@ -1,8 +1,8 @@
-# Agent Note: Omega account browser login
+# Agent Note: DeepSeek account browser login
 
 Status: implemented
 
-English | [中文](2026-09-14-omega-account-login.zh.md)
+English | [中文](2026-09-14-deepseek-account-login.zh.md)
 
 Sign-in captures the initiating UI's client metadata per attempt so browser authorization follows the Desktop or Settings language without depending on the Platform default.
 
@@ -16,7 +16,7 @@ The account Service Definition separates UI and model consumers from the platfor
 
 Local cancellation is authoritative. The provider stops callbacks and ignores late exchange results; auth_cancel invalidates the remote application and unexchanged code using authorize_id and the original PKCE verifier. Its background request does not delay local cancellation, and failure never restores login. session.commit admits persistence synchronously before its first await and rejects an already-cancelled flow. Cancellation after admission waits for the commit result. The callback redirects to auth_exchange.biz_data.authorized_url only after authorization settlement confirms storage.
 
-Authorization registers a temporary /oauth/callback route on the Host webServer. The authenticated initiating client supplies its browser-accessible loopback HTTP origin, including any local SSH forwarding port. Non-loopback reverse proxies are unsupported. Cleanup removes only the route and preserves shared connections. Exchange failure returns Web to its login UI or focuses Desktop through account state; retry is explicit. PKCE secrets never cross UI transports. Model and file request tokens resolve only for the configured inferenceOrigin, defaulting to `https://api.omega.com`; redirects are refused. An explicit alternate origin requires grants from the configured Platform issuer, so changing the endpoint alone never forwards account credentials. Development loopback grants cannot authenticate production requests. API-key references remain separately stored.
+Authorization registers a temporary /oauth/callback route on the Host webServer. The authenticated initiating client supplies its browser-accessible loopback HTTP origin, including any local SSH forwarding port. Non-loopback reverse proxies are unsupported. Cleanup removes only the route and preserves shared connections. Exchange failure returns Web to its login UI or focuses Desktop through account state; retry is explicit. PKCE secrets never cross UI transports. Model and file request tokens resolve only for the configured inferenceOrigin, defaulting to `https://api.deepseek.com`; redirects are refused. An explicit alternate origin requires grants from the configured Platform issuer, so changing the endpoint alone never forwards account credentials. Development loopback grants cannot authenticate production requests. API-key references remain separately stored.
 
 Platform navigation and authorization share one validated platformOrigin from Cordis configuration. Private profile patches or environment expressions supply deployment-specific origins without committing development addresses.
 
@@ -24,7 +24,7 @@ Platform client identity belongs to the calling UI rather than to the Host. Ever
 
 ## Alternatives considered
 
-Putting the protocol in Electron duplicates the implementation for Web consumers and gives the shell credential ownership. Putting tokens in OMEGA_API_KEY loses the distinction between account grants and user API keys. Treating a browser callback as success before persistence admits false success. Waiting for a remote cancel acknowledgment leaves local cancellation dependent on network availability. Remembering one client identity in the Host would mislabel every other caller that shares it or reaches it through a forward. These alternatives are rejected.
+Putting the protocol in Electron duplicates the implementation for Web consumers and gives the shell credential ownership. Putting tokens in DEEPSEEK_API_KEY loses the distinction between account grants and user API keys. Treating a browser callback as success before persistence admits false success. Waiting for a remote cancel acknowledgment leaves local cancellation dependent on network availability. Remembering one client identity in the Host would mislabel every other caller that shares it or reaches it through a forward. These alternatives are rejected.
 
 ## Consequences
 
@@ -46,7 +46,7 @@ Profile and recharge-wallet queries use independent getProfile and getBalance op
 
 Deployment authentication uses explicit Host-only requestHeaders on the configured Platform origin. The provider rejects redirects and reserved-header overrides so deployment cookies cannot replace account authorization or follow a browser destination. Environment-specific authentication protocols remain outside the account provider.
 
-The bundled account UI is Desktop-only: its preload bridge enables the account launcher, settings and sign-in onboarding. Plain Web retains API-key onboarding and the standard Settings launcher without account subscription or login. The Host protocol accepts login_source (desktop or web) in auth_init; the bundled UI sends desktop. The backend accepts localhost callbacks. DSH preserves the browser-supplied localhost hostname and port without DNS resolution or conversion to an IP literal.
+The bundled account UI mounts the account launcher, settings and sign-in onboarding in both Desktop and plain Web. The Host sends login_source (desktop or web) in auth_init so Platform can choose the completion experience; the UI sends desktop when the Desktop preload bridge is present and web otherwise. Web failures close the authorization tab while the original tab receives Host state; no Web UI return URL is used. The backend accepts localhost callbacks. DSH preserves the browser-supplied localhost hostname and port without DNS resolution or conversion to an IP literal.
 
 The macOS development launcher registers an isolated, ad-hoc-signed application bundle for `dsh://open`. The bundle retains the workspace entry and development paths for Launch Services cold starts without copying credentials or changing the package-manager-owned Electron application. Protocol registration targets the latest launched development or packaged application.
 

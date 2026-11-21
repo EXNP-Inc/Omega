@@ -1,9 +1,10 @@
 /** Shared Files resolution, bounded stale-id recovery, and normalized-image diagnostics. */
 
-import type { RequestImageAttachment } from '@omega-ai/dsh-attachment'
-import { deadline } from '@omega-ai/dsh-timeout'
-import type { OmegaFileStore, OmegaFileConnection, OmegaFilePolicy } from './file-store.ts'
-import type { OmegaFileId } from './file-id.ts'
+import type { AttachmentId } from '@deepseek-ai/dsh-attachment/types'
+import type { RequestImageAttachment } from '@deepseek-ai/dsh-attachment'
+import { deadline } from '@deepseek-ai/dsh-timeout'
+import { FILES_API_TIMEOUT, type DeepSeekFileStore, type DeepSeekFileConnection, type DeepSeekFilePolicy, type FileRequestBackoff } from './file-store.ts'
+import type { DeepSeekFileId } from './file-id.ts'
 
 /** Position of an image occurrence in the request's conversation messages. */
 export interface ImageWireLocation {
@@ -14,7 +15,7 @@ export interface ImageWireLocation {
 /** A file upload failure eligible for request-wide inline fallback. */
 export class FileResolutionFailure extends Error {
   constructor(cause: unknown) {
-    super('Omega Files API could not resolve a request image.', { cause })
+    super('DeepSeek Files API could not resolve a request image.', { cause })
     this.name = 'FileResolutionFailure'
   }
 }
@@ -27,7 +28,7 @@ function providerRejectedNormalizedImage(detail: string): boolean {
 
 interface UsedRequestFile {
   version: RequestImageAttachment
-  fileId: OmegaFileId
+  fileId: DeepSeekFileId
   location: ImageWireLocation
 }
 
@@ -38,7 +39,7 @@ function providerRejectedFileId(detail: string): boolean {
   return file && (missing || invalidId)
 }
 
-function detailNamesFileId(detail: string, fileId: OmegaFileId): boolean {
+function detailNamesFileId(detail: string, fileId: DeepSeekFileId): boolean {
   let index = detail.indexOf(fileId)
   while (index >= 0) {
     const before = detail[index - 1]
@@ -77,14 +78,14 @@ function normalizedImageDiagnostic(
   const exact = files.find(file => detailNamesFileId(providerDetail, file.fileId))
   const target = exact ?? (files.length === 1 ? files[0] : undefined)
   if (target !== undefined) {
-    return `Omega rejected normalized image ${normalizedImageFacts(target)}: ${providerMessage}. `
+    return `DeepSeek rejected normalized image ${normalizedImageFacts(target)}: ${providerMessage}. `
       + 'The provider rejected bytes already normalized by the harness; PNG, JPEG, WebP, and GIF remain supported input formats.'
   }
   const candidates = [...new Map(files.map(file => [
     `${file.version.variantId}\0${file.location.message}\0${file.location.image}`,
     file,
   ])).values()]
-  return `Omega rejected a normalized request image: ${providerMessage}. Candidate images: `
+  return `DeepSeek rejected a normalized request image: ${providerMessage}. Candidate images: `
     + `${candidates.map(normalizedImageFacts).join('; ')}. `
     + 'The provider rejected bytes already normalized by the harness; PNG, JPEG, WebP, and GIF remain supported input formats.'
 }
@@ -94,12 +95,12 @@ function normalizedImageDiagnostic(
 export class RequestFiles {
   private used: UsedRequestFile[] = []
   private retried = false
+  private readonly backoff: FileRequestBackoff = {}
 
   constructor(
-    private readonly files: OmegaFileStore,
-    private readonly connection: OmegaFileConnection,
-    private readonly policy: OmegaFilePolicy,
-    private readonly timeoutMs: number,
+    private readonly files: DeepSeekFileStore,
+    private readonly connection: DeepSeekFileConnection,
+    private readonly policy: DeepSeekFilePolicy,
     private readonly signal: AbortSignal,
     private readonly activity: () => void,
   ) {}
@@ -107,24 +108,44 @@ export class RequestFiles {
   /** Reset occurrence tracking before serializing the next HTTP attempt. */
   beginAttempt(): void { this.used = [] }
 
-  /**
-   * Resolve a retained image under its own upload deadline.
-   * @param version - prepared request image.
-   * @param location - occurrence used by provider-rejection diagnostics.
-   * @returns the reusable provider id.
+  /** Resolve each distinct attachment once. A failed resolution cancels its sibling waits.
+   * @param versions - retained request images keyed by attachment id.
+   * @returns provider ids for every retained attachment.
    */
-  async resolve(version: RequestImageAttachment, location: ImageWireLocation): Promise<OmegaFileId> {
-    using limit = deadline(this.signal, this.timeoutMs, 'OMEGA_FILES_API_TIMEOUT')
-    let resolved: Awaited<ReturnType<OmegaFileStore['ensureUploaded']>>
-    try {
-      resolved = await this.files.ensureUploaded(version, this.connection, this.policy, limit.signal)
-    } catch (error) {
-      if (this.signal.aborted) throw error
-      throw new FileResolutionFailure(error)
+  async resolveAll(
+    versions: ReadonlyMap<AttachmentId, RequestImageAttachment>,
+  ): Promise<Map<AttachmentId, DeepSeekFileId>> {
+    const ids = new Map<AttachmentId, DeepSeekFileId>()
+    const pending = versions.entries()
+    const batch = new AbortController()
+    const signal = AbortSignal.any([this.signal, batch.signal])
+    const worker = async () => {
+      for (const [id, version] of pending) {
+        if (signal.aborted) return
+        using limit = deadline(signal, this.policy.uploadTimeoutMs, FILES_API_TIMEOUT)
+        try {
+          const result = await this.files.ensureUploaded(version, this.connection, this.policy, limit.signal, this.backoff)
+          ids.set(id, result.record.fileId)
+        } catch (error) {
+          batch.abort(new FileResolutionFailure(error))
+          return
+        }
+        this.activity()
+      }
     }
-    this.activity()
-    this.used.push({ version, fileId: resolved.record.fileId, location })
-    return resolved.record.fileId
+    await Promise.all(Array.from({ length: Math.min(versions.size, this.policy.uploadConcurrency) }, worker))
+    this.signal.throwIfAborted()
+    batch.signal.throwIfAborted()
+    return ids
+  }
+
+  /** Record one image occurrence in wire order for provider diagnostics.
+   * @param version - prepared request image.
+   * @param fileId - resolved provider id.
+   * @param location - position in the request.
+   */
+  record(version: RequestImageAttachment, fileId: DeepSeekFileId, location: ImageWireLocation): void {
+    this.used.push({ version, fileId, location })
   }
 
   /**

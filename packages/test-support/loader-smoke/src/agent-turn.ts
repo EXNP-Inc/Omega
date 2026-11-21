@@ -1,12 +1,12 @@
 /**
  * Test-only direct-agent turn driver shared by assembled Loader fixtures.
- * @module @omega-ai/dsh-loader-smoke/agent-turn
+ * @module @deepseek-ai/dsh-loader-smoke/agent-turn
  */
 
-import type { Context } from '@omega-ai/cordis'
-import type { Agent } from '@omega-ai/dsh-agent'
-import { createUserMessage, expandAssistantStream, type TokenUsage } from '@omega-ai/dsh-llm'
-import type { SessionEvent } from '@omega-ai/dsh-session'
+import type { Context } from '@deepseek-ai/cordis'
+import type { Agent } from '@deepseek-ai/dsh-agent'
+import { createUserMessage, expandAssistantStream, type TokenUsage } from '@deepseek-ai/dsh-llm'
+import type { SessionEvent } from '@deepseek-ai/dsh-session'
 
 /** Result envelope consumed only by snapshot and composition tests. */
 export interface FixtureTurnResult {
@@ -44,7 +44,7 @@ async function onlyRootAgent(ctx: Context): Promise<Agent> {
   // Configured agents publish asynchronously (persistence create/resume runs
   // before publication), so a settled Loader does not imply a registered
   // agent yet; wait for the first publication instead of requiring it.
-  if (registry.roots().length === 0) {
+  if (registry.list().filter(agent => agent.session.header.origin !== 'subagent').length === 0) {
     await new Promise<void>((resolve) => {
       const dispose = ctx.on('agent/created', () => {
         dispose()
@@ -52,7 +52,7 @@ async function onlyRootAgent(ctx: Context): Promise<Agent> {
       })
     })
   }
-  const agents = registry.roots()
+  const agents = registry.list().filter(agent => agent.session.header.origin !== 'subagent')
   const [agent] = agents
   if (agent === undefined || agents.length !== 1) {
     throw new Error(`fixture turn requires exactly one top-level agent, found ${agents.length}`)

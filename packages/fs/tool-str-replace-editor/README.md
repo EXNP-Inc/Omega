@@ -3,7 +3,7 @@ description: "The standalone str_replace_editor tool over ctx.fs for users and m
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-tool-str-replace-editor
+# @deepseek-ai/dsh-tool-str-replace-editor
 
 English | [中文](README.zh.md)
 
@@ -25,6 +25,8 @@ English | [中文](README.zh.md)
 <a id="use-this-package"></a>
 ## Use this package
 
+This nonexperimental standalone plugin is intended for custom compositions. It is not offered as an optional bundle in the Plugins page.
+
 Mount the tool alongside a `ctx.fs` backend (and, for guarded mutations, the policy plugin) when the model should edit files through the familiar `view`/`create`/`str_replace`/`insert` command vocabulary on absolute paths.
 
 ### Minimal composition
@@ -32,9 +34,9 @@ Mount the tool alongside a `ctx.fs` backend (and, for guarded mutations, the pol
 A backend, optionally the policy plugin, then the tool; the editor composes with any terminal surface.
 
 ```yaml
-- name: '@omega-ai/dsh-fs-local'
-- name: '@omega-ai/dsh-fs-observation-policy'
-- name: '@omega-ai/dsh-tool-str-replace-editor'
+- name: '@deepseek-ai/dsh-fs-local'
+- name: '@deepseek-ai/dsh-fs-observation-policy'
+- name: '@deepseek-ai/dsh-tool-str-replace-editor'
 ```
 
 ### Configuration
@@ -50,7 +52,7 @@ A backend, optionally the policy plugin, then the tool; the editor composes with
 
 ### Failures and recovery
 
-A metadata miss from `view`, `str_replace`, or `insert` records confirmed absence before returning `FS_NOT_FOUND`, so a later `create` can recover an externally deleted path through the mounted policy's guarded-create flow; absence never authorizes `str_replace` or `insert`. Guarded mutations inherit the policy plugin's codes and remedies — `FS_NOT_OBSERVED` (read the file, then retry), `FS_STALE_VERSION` (re-read, then retry) — and sandbox denials surface as the `[sandbox: file access denied under <mode> mode]` marker. Paths must be absolute; a relative path is refused with a hint.
+A metadata miss from `view`, `str_replace`, or `insert` records confirmed absence before returning `FS_NOT_FOUND`, so a later `create` can recover an externally deleted path through the mounted policy's guarded-create flow; absence never authorizes `str_replace` or `insert`. Guarded mutations inherit the policy plugin's codes and remedies — `FS_NOT_OBSERVED` (read the file, then retry), `FS_STALE_VERSION` (re-read, then retry) — and sandbox denials surface as the `[sandbox: file access denied under <mode> mode]` marker. Paths must be absolute; a relative path is refused with a hint. Argument mistakes the schema cannot express, such as a relative path, a missing command parameter, or an out-of-range `view_range` or `insert_line`, throw `ToolArgsError` with `INVALID_ARGS`; `create` on an existing path reports `FS_ALREADY_EXISTS`.
 
 -----
 
@@ -90,7 +92,7 @@ Read these pages when the package-level contract is not enough. They move from t
 - [tool-fs](../tool-fs/README.md) — the alternative `read`/`write`/`edit` tool suite.
 - [fs-observation-policy](../fs-observation-policy/README.md) — the policy plugin that guards mutations through the `fs/*` events.
 - [fs-sandbox](../fs-sandbox/README.md) — the sandbox-enforcing backend that fences mutations.
-- [Generated tool catalog](../../../docs/tool-catalog.md#omega-aidsh-tool-str-replace-editor) — the exhaustive schema this package registers.
+- [Generated tool catalog](../../../docs/tool-catalog.md#deepseek-aidsh-tool-str-replace-editor) — the exhaustive schema this package registers.
 
 -----
 
@@ -101,7 +103,7 @@ Read these pages when the package-level contract is not enough. They move from t
 
 #### What the model sees
 
-The generated [`str_replace_editor` schema](../../../docs/tool-catalog.md#omega-aidsh-tool-str-replace-editor), including the configured `description`. The plugin contributes no standalone system-prompt section.
+The generated [`str_replace_editor` schema](../../../docs/tool-catalog.md#deepseek-aidsh-tool-str-replace-editor), including the configured `description`. The plugin contributes no standalone system-prompt section.
 
 #### Token effect
 

@@ -3,10 +3,12 @@ import { execFileSync } from 'node:child_process'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import type { Context } from '@omega-ai/cordis'
-import { ToolCallId, createAssistantMessage, createToolResultMessage } from '@omega-ai/dsh-llm'
-import type { Session } from '@omega-ai/dsh-session'
-import type {} from '@omega-ai/dsh-tools'
+import type { Context } from '@deepseek-ai/cordis'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import { type ToolCallId, createAssistantMessage, createToolResultMessage } from '@deepseek-ai/dsh-llm'
+import type { Session } from '@deepseek-ai/dsh-session'
+import type {} from '@deepseek-ai/dsh-tools'
+import type {} from '@deepseek-ai/dsh-fs'
 import type { WorkspaceChangesSummary } from '../src/types.ts'
 
 let callNumber = 0
@@ -33,13 +35,13 @@ export function startTurn(session: Session, turn: number): void {
 
 /** Log one settled tool call with an optional result `meta`. */
 export function toolCall(session: Session, turn: number, name: string, args: unknown, result: { meta?: unknown; isError?: boolean } = {}) {
-  const callId = ToolCallId(`call-${++callNumber}`)
+  const callId = brandString<ToolCallId>(`call-${++callNumber}`)
   const serialized = JSON.stringify(args)
   session.append('assistant/message', {
     stream: [], turn, step: 1,
     message: createAssistantMessage({
       content: [{ type: 'tool-call', id: callId, name, arguments: serialized }],
-      source: { provider: 'omega-official', model: 'omega-v4-flash' },
+      source: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
     }),
   }, { surfaceOp: 'append' })
   const source = session.append('tool/call', { turn, step: 1, callId, name, arguments: serialized })
@@ -51,15 +53,17 @@ export function toolCall(session: Session, turn: number, name: string, args: unk
 }
 
 /**
- * Apply a file-tool mutation the way the runtime does: announce it through
- * `tools/pre-execute` so the recorder captures the path, apply it, then log
- * the settled call.
+ * Apply a fixture mutation with an explicit filesystem intent target.
  */
 export async function mutate(
-  ctx: Context, session: Session, turn: number, name: string, args: unknown, apply: () => Promise<void>,
+  ctx: Context, session: Session, turn: number, name: string, args: unknown, path: string, apply: () => Promise<void>,
   result: { meta?: unknown; isError?: boolean } = {},
 ) {
-  await ctx.waterfall('tools/pre-execute', { agent: { session }, name, arguments: args } as never, () => Promise.resolve(undefined as never))
+  const actor = { agent: { session }, name, arguments: args }
+  await ctx.waterfall('tools/pre-execute', actor as never, () => Promise.resolve(undefined as never))
+  const target = await ctx.fs.resolve(path, session.header.cwd === undefined ? {} : { cwd: session.header.cwd })
+  const event = name === 'edit' ? 'fs/edit-intent' : 'fs/write-intent'
+  await ctx.waterfall(event, target, actor, () => undefined)
   await apply()
   return toolCall(session, turn, name, args, result)
 }

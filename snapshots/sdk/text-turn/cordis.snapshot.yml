@@ -1,15 +1,15 @@
 # Keyless TypeScript SDK replay patch over the live profile patch.
 
-- id: llm-omega
-  name: '@omega-ai/dsh-llm-omega-api-key'
+- id: llm-deepseek
+  name: '@deepseek-ai/dsh-llm-deepseek-api-key'
   disabled: true
 
 - insert:
     - id: llm-replay
-      name: '@omega-ai/dsh-llm-replay'
+      name: '@deepseek-ai/dsh-llm-replay'
       config:
         providers:
-          - id: omega-official
-            name: Omega
+          - id: deepseek-official
+            name: DeepSeek
             models:
-              - id: omega-v4-flash
+              - id: deepseek-v4-flash

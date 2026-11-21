@@ -1,18 +1,21 @@
 /**
  * Workflow orchestration through the shared sandboxed Node PTC executor.
  * The VM supplies script helpers; the process applies the calling Session's file policy.
- * @module @omega-ai/dsh-workflow-ptc
+ * @module @deepseek-ai/dsh-workflow-ptc
  */
 
 import { randomUUID } from 'node:crypto'
 import { availableParallelism } from 'node:os'
 import * as vm from 'node:vm'
-import type { Context } from '@omega-ai/cordis'
-import type {} from '@omega-ai/dsh-ptc-runtime'
-import type {} from '@omega-ai/dsh-sandbox-policy'
-import z from '@omega-ai/schemastery'
-import WorkflowEngine, { WorkflowError, WorkflowRunId } from '@omega-ai/dsh-workflow'
-import type { WorkflowRun, WorkflowRunInfo, WorkflowStartRequest } from '@omega-ai/dsh-workflow'
+import type { Context } from '@deepseek-ai/cordis'
+import type {} from '@deepseek-ai/dsh-ptc-runtime'
+import type {} from '@deepseek-ai/dsh-sandbox-policy'
+import type {} from '@deepseek-ai/dsh-working-directory'
+import z from '@deepseek-ai/schemastery'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { WorkflowRunId } from '@deepseek-ai/dsh-workflow/types'
+import WorkflowEngine, { WorkflowError } from '@deepseek-ai/dsh-workflow'
+import type { WorkflowRun, WorkflowRunInfo, WorkflowStartRequest } from '@deepseek-ai/dsh-workflow'
 import { PtcWorkflowRun } from './host.ts'
 import { validateMeta } from './meta.ts'
 import type { WorkerInit, WorkerLimits } from './types.ts'
@@ -100,7 +103,7 @@ function resolveMaxTotalAgents(requested: number | undefined, ceiling: number): 
  * the seam contract.
  */
 class PtcWorkflowEngine extends WorkflowEngine {
-  static inject = ['subagents', 'ptcRuntime', 'sandboxPolicy']
+  static inject = ['subagents', 'ptcRuntime', 'sandboxPolicy', 'workingDirectory']
 
   static Config: z<Config> = z.object({
     provider: z.string().default('spawn'),
@@ -135,7 +138,7 @@ class PtcWorkflowEngine extends WorkflowEngine {
     assertBodyParses(request.script, meta.name)
     const subagentProvider = resolveSubagentProvider(this.ctx, this.config.provider, request.subagentProvider)
     const maxTotalAgents = resolveMaxTotalAgents(request.maxTotalAgents, this.config.maxTotalAgents)
-    const id = WorkflowRunId(randomUUID())
+    const id = brandString<WorkflowRunId>(randomUUID())
     const info: WorkflowRunInfo = { id, meta }
     const limits: WorkerLimits = {
       maxConcurrentAgents: this.config.maxConcurrentAgents === 0
@@ -180,6 +183,7 @@ class PtcWorkflowEngine extends WorkflowEngine {
       this.emitWorkflowEvent('workflow/end', info, {
         stopReason: settled.stopReason,
         ...settled.error !== undefined ? { error: settled.error } : {},
+        ...settled.errorCode !== undefined ? { errorCode: settled.errorCode } : {},
         agentsStarted: settled.agentsStarted,
       })
     })

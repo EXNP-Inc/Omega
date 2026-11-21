@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { createLaunchEnvironmentSnapshot } from '@omega-ai/dsh-launch-environment'
+import { createLaunchEnvironmentSnapshot } from '@deepseek-ai/dsh-launch-environment'
 import {
   assertFixtureInventory, captureStableAria, compareOrRefreshGolden,
   launchWebScaffold, seedSession, watchConsole, webSnapshotMode, type WebScaffold,
@@ -65,6 +65,12 @@ describe.skipIf(MODE === 'record')('web e2e: Open In under SSH', () => {
     const snapshot = (await captureStableAria(page, 'role=banner', scaffold.workspaceCwd))
       .split(SEED_ID).join('{{seededId}}')
     await compareOrRefreshGolden(join(SNAPSHOT_DIR, 'header.expected.md'), snapshot, MODE)
+    await page.getByRole('button', { name: 'More actions', exact: true }).click()
+    await page.getByRole('menuitem', { name: 'Copy Session as Markdown', exact: true }).waitFor()
+    expect(await page.getByRole('menuitem', { name: 'Open in', exact: true }).count()).toBe(0)
+    await compareOrRefreshGolden(join(import.meta.dirname, 'expected/context-menus/ssh-header.txt'),
+      await captureStableAria(page, '[data-context-menu]', scaffold.workspaceCwd), MODE)
+    await page.keyboard.press('Escape')
     expect(tripwire.pageErrors).toEqual([])
     expect(tripwire.warnings).toEqual([])
     await assertFixtureInventory(SNAPSHOT_DIR, ['header.expected.md'])

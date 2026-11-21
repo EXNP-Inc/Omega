@@ -1,6 +1,6 @@
 /**
  * Issue #4573: a profile install of this package sits beside the dsh
- * installation and installs its own copy of `@omega-ai/dsh-scope`, so two
+ * installation and installs its own copy of `@deepseek-ai/dsh-scope`, so two
  * scope module instances coexist in one host process. `dsh-scope` mints its
  * scope-tag symbol per module instance, so the copy's `createScope` writes a
  * tag every host registry ignores: each Agent's MCP tools register in the
@@ -22,12 +22,13 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterEach, expect, it, vi } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@omega-ai/dsh-agent-loop-testkit'
-import BrowserUse from '@omega-ai/dsh-browser-use'
-import { SessionId } from '@omega-ai/dsh-session'
-import type { Agent } from '@omega-ai/dsh-agent'
+import { Context } from '@deepseek-ai/cordis'
+import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@deepseek-ai/dsh-agent-loop-testkit'
+import BrowserUse from '@deepseek-ai/dsh-browser-use'
+import type { SessionId } from '@deepseek-ai/dsh-session'
+import type { Agent } from '@deepseek-ai/dsh-agent'
 import { mountSessionMcp } from '../src/mcp.ts'
+import { brandString } from '@deepseek-ai/dsh-brand'
 
 const FIXTURE = fileURLToPath(new URL('./mcp-fixture.mjs', import.meta.url))
 const TOOL = 'mcp__browser-fixture__visit'
@@ -45,7 +46,7 @@ async function load(): Promise<{ ctx: Context; root: string }> {
   roots.push(root)
   const ctx = new Context()
   contexts.push(ctx)
-  await mountAgentLoopTestDependencies(ctx)
+  await mountAgentLoopTestDependencies(ctx, { workingDirectory: true })
   await mountAgentLoopTestHarness(ctx)
   await ctx.plugin(BrowserUse)
   return { ctx, root }
@@ -54,13 +55,22 @@ async function load(): Promise<{ ctx: Context; root: string }> {
 const toolNames = (ctx: Context, agent?: Agent): string[] =>
   ctx.tools.schemas(agent).map(schema => schema.name)
 
+it('rejects a missing working-directory provider before mounting browser resources', () => {
+  const ctx = new Context()
+  contexts.push(ctx)
+  expect(() => { mountSessionMcp(ctx, {
+    name: 'browser-fixture', exclusive: false, command: process.execPath, args: [FIXTURE],
+  }) }).toThrow('browser-fixture: browser MCP requires a working-directory provider')
+  expect(ctx.get('browserUse')).toBeUndefined()
+})
+
 it('reproduces the second-Agent failure a profile install causes', async () => {
   const { ctx, root } = await load()
   // What npm installs beside the installation: one second copy of both packages
   // in the profile, so the copy's client resolves the copy's scope module.
   vi.resetModules()
-  const profileScope = await import('@omega-ai/dsh-scope')
-  const profileMcpClient = await import('@omega-ai/dsh-mcp-client')
+  const profileScope = await import('@deepseek-ai/dsh-scope')
+  const profileMcpClient = await import('@deepseek-ai/dsh-mcp-client')
   ctx.on('agent/created', async ({ agent }) => {
     await profileScope.createScope(ctx, agent).ctx.plugin(profileMcpClient, profileMcpClient.Config({
       transport: 'stdio', serverName: 'browser-fixture', command: process.execPath, args: [FIXTURE, root],
@@ -68,9 +78,9 @@ it('reproduces the second-Agent failure a profile install causes', async () => {
     }))
   }, { prepend: true })
 
-  await ctx.agents.create({ sessionId: SessionId('first'), meta: { cwd: root } })
+  await ctx.agents.create({ sessionId: brandString<SessionId>('first'), meta: { cwd: root } })
   expect(toolNames(ctx)).toContain(TOOL)
-  await expect(ctx.agents.create({ sessionId: SessionId('second'), meta: { cwd: root } }))
+  await expect(ctx.agents.create({ sessionId: brandString<SessionId>('second'), meta: { cwd: root } }))
     .rejects.toThrow('mcp-client(browser-fixture): initial connection or tool synchronization failed')
 })
 
@@ -85,8 +95,8 @@ it('keeps every Agent browser tool in that Agent scope under the shipped layout'
     },
   })
 
-  const first = await ctx.agents.create({ sessionId: SessionId('first'), meta: { cwd: root } })
-  const second = await ctx.agents.create({ sessionId: SessionId('second'), meta: { cwd: root } })
+  const first = await ctx.agents.create({ sessionId: brandString<SessionId>('first'), meta: { cwd: root } })
+  const second = await ctx.agents.create({ sessionId: brandString<SessionId>('second'), meta: { cwd: root } })
   expect(toolNames(ctx)).toEqual([])
   for (const agent of [first.agent, second.agent]) {
     expect(toolNames(ctx, agent)).toContain(TOOL)

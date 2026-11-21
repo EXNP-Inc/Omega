@@ -1,18 +1,18 @@
-import { Context, Inject, Service, type Plugin } from '@omega-ai/cordis'
-import type { Dict } from '@omega-ai/cosmokit'
-import { ModuleLoader, type ModuleJob, type ResolveResult } from '@omega-ai/cordis-plugin-loader'
-import type { Include } from '@omega-ai/cordis-plugin-include'
+import { Context, Inject, Service, type Plugin } from '@deepseek-ai/cordis'
+import type { Dict } from '@deepseek-ai/cosmokit'
+import { ModuleLoader, type ModuleJob, type ResolveResult } from '@deepseek-ai/cordis-plugin-loader'
+import type { Include } from '@deepseek-ai/cordis-plugin-include'
 import { FSWatcher, watch, type ChokidarOptions } from 'chokidar'
 import { relative, resolve } from 'node:path'
 import { realpath } from 'node:fs/promises'
 import { handleError } from './error.ts'
-import type {} from '@omega-ai/cordis-plugin-timer'
+import type {} from '@deepseek-ai/cordis-plugin-timer'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createRequire } from 'node:module'
 import picomatch from 'picomatch'
-import z from '@omega-ai/schemastery'
+import z from '@deepseek-ai/schemastery'
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
     hmr: Hmr
   }
@@ -146,7 +146,8 @@ class Hmr extends Service {
       for (const entry of loader.entries()) {
         const include = entry.subtree as Include | undefined
         if (include?.filename !== filename && include?.filename !== configuredFilename) continue
-        await include.refresh()
+        // A rejected refresh reports unsaved runtime changes; Include keeps its running tree.
+        try { await include.refresh() } catch (error) { this.ctx.logger.warn(error) }
         return
       }
 
@@ -353,7 +354,7 @@ class Hmr extends Service {
     const reload = (plugin: any, runtime: Plugin.Runtime) => {
       if (!runtime) return
       for (const oldFiber of runtime.fibers) {
-        const fiber = oldFiber.parent.registry.plugin(plugin, oldFiber._config, this.getOuterStack)
+        const fiber = oldFiber.parent.registry.plugin(plugin, oldFiber.rawConfig, this.getOuterStack)
         fiber.entry = oldFiber.entry
         if (fiber.entry) fiber.entry.fiber = fiber
       }
@@ -419,7 +420,7 @@ namespace Hmr {
     ]),
     debounce: z.natural().role('ms').default(100),
   })
-  // [omega-harness] vendored modification: removed `.i18n({ 'en-US': enUS, 'zh-CN': zhCN })`
+  // [deepseek-harness] vendored modification: removed `.i18n({ 'en-US': enUS, 'zh-CN': zhCN })`
   // and the corresponding `./locales/*.yml` imports, to avoid a runtime YAML import hook
   // (@cordisjs/unyaml) that we don't vendor. See vendor/README.md.
 }

@@ -5,51 +5,54 @@
 /:
   en: 65283627208ef4c9
   zh: aa3f833ec24bb65a
-/omega-ai-dsh-plugin-manager:
-  en: 443ca49c48487457
-  zh: fb6ac2bad367ba95
-/omega-ai-dsh-plugin-manager/summary:
+/deepseek-ai-dsh-plugin-manager:
+  en: e6cbfe169f5fb57b
+  zh: be378036d645a242
+/deepseek-ai-dsh-plugin-manager/summary:
   en: d6afcaa1594efcdb
   zh: 459cb6ac0dcb2d46
-/omega-ai-dsh-plugin-manager/table-of-contents:
+/deepseek-ai-dsh-plugin-manager/table-of-contents:
   en: 87679c51aa3693f5
   zh: 11684a48a5806afb
-/omega-ai-dsh-plugin-manager/use-this-package:
-  en: 63af615f72e73114
-  zh: f17503462b79ac8d
-/omega-ai-dsh-plugin-manager/use-this-package/version-compatibility-and-exemptions:
-  en: 920c0acb3b9feaf3
-  zh: ba6e832a256880a7
-/omega-ai-dsh-plugin-manager/use-this-package/configuration:
-  en: d5643a06f300c30a
-  zh: 9348b6a7676a2849
-/omega-ai-dsh-plugin-manager/understand-the-implementation:
-  en: 7b54d30e231bb325
-  zh: 08df9441fed9927f
-/omega-ai-dsh-plugin-manager/further-exploration:
-  en: c6538243d8702a0d
-  zh: 04a82d923353c75f
-/omega-ai-dsh-plugin-manager/model-experience:
+/deepseek-ai-dsh-plugin-manager/use-this-package:
+  en: ff51b012b845dd8a
+  zh: 1c6131057ff98844
+/deepseek-ai-dsh-plugin-manager/use-this-package/version-compatibility-and-exemptions:
+  en: 483285658e267dd5
+  zh: 846bec2daac59a96
+/deepseek-ai-dsh-plugin-manager/use-this-package/configuration:
+  en: ccec56c785b3ca28
+  zh: b945f933888fc7cb
+/deepseek-ai-dsh-plugin-manager/use-this-package/bundle-detail-documents:
+  en: 99b084ff497011d2
+  zh: 6c047796c1991784
+/deepseek-ai-dsh-plugin-manager/understand-the-implementation:
+  en: c224bfcb3eb3dbd2
+  zh: 8b9c96970a90dccc
+/deepseek-ai-dsh-plugin-manager/further-exploration:
+  en: b151a14acbf93f00
+  zh: f304e2ea5c7c7d0f
+/deepseek-ai-dsh-plugin-manager/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/omega-ai-dsh-plugin-manager/model-experience/management-tool:
+/deepseek-ai-dsh-plugin-manager/model-experience/management-tool:
   en: 1815ec6ce56c80d4
   zh: 2d7ac75d3b25eb6b
-/omega-ai-dsh-plugin-manager/model-experience/management-tool/what-the-model-sees:
-  en: f38da129e4ab7350
-  zh: d995c1b839aa2c73
-/omega-ai-dsh-plugin-manager/model-experience/management-tool/token-effect:
+/deepseek-ai-dsh-plugin-manager/model-experience/management-tool/what-the-model-sees:
+  en: 9bb316cf4b47ba60
+  zh: 1c719feedf36e2f3
+/deepseek-ai-dsh-plugin-manager/model-experience/management-tool/token-effect:
   en: bc70208bd361dbcd
   zh: bb651d6066066c6c
-/omega-ai-dsh-plugin-manager/model-experience/management-tool/kv-cache-effect:
+/deepseek-ai-dsh-plugin-manager/model-experience/management-tool/kv-cache-effect:
   en: c29f60be7f3edc1a
   zh: d9b9388b96ef95cc
-/omega-ai-dsh-plugin-manager/known-limitations-and-deferred-work:
-  en: fde2d9491fe5dd4f
-  zh: ef6e6db15c4f19d2
-/omega-ai-dsh-plugin-manager/known-limitations-and-deferred-work/failure-behavior:
-  en: 4447e4df8d62b274
-  zh: c76443e2edb97b1d
-/omega-ai-dsh-plugin-manager/known-limitations-and-deferred-work/dev-note:
+/deepseek-ai-dsh-plugin-manager/known-limitations-and-deferred-work:
+  en: d8ea2d28e9e8c3e7
+  zh: 4efd7e073dde1b96
+/deepseek-ai-dsh-plugin-manager/known-limitations-and-deferred-work/failure-behavior:
+  en: 3fde425e82bbd0f4
+  zh: 531e2365e7d67480
+/deepseek-ai-dsh-plugin-manager/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

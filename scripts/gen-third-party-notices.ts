@@ -41,13 +41,19 @@ const DEV_ONLY_AREAS = [
   'native/',
 ] as const
 
+/** Third-party implementations embedded by named Host packages' shipping build configurations. */
+const HOST_BUNDLED_DEPENDENCIES: Readonly<Record<string, readonly string[]>> = {
+  // subagent-oar/tsdown.config.ts embeds the patched adapter instead of installing a second copy.
+  '@deepseek-ai/dsh-experimental-subagent-oar': ['@botiverse/oar'],
+}
+
 /** First-party public native packages: reachable at runtime but not third-party. */
 const FIRST_PARTY = new Set([
-  '@omega-ai/node-addon-system',
-  '@omega-ai/node-addon-system-darwin-arm64',
-  '@omega-ai/node-addon-system-darwin-x64',
-  '@omega-ai/node-addon-system-linux-arm64',
-  '@omega-ai/node-addon-system-linux-x64',
+  '@deepseek-ai/node-addon-system',
+  '@deepseek-ai/node-addon-system-darwin-arm64',
+  '@deepseek-ai/node-addon-system-darwin-x64',
+  '@deepseek-ai/node-addon-system-linux-arm64',
+  '@deepseek-ai/node-addon-system-linux-x64',
 ])
 
 /** Official SDK identity covered by the project's narrow owner authorization. */
@@ -97,7 +103,7 @@ const OVERRIDES: Record<string, { license?: string; repo?: string }> = {
  * manifests and the shared runtime lock reject names absent from this map.
  */
 const PYTHON_METADATA: Record<string, { license: string; repo: string; role?: string }> = {
-  pydantic: { license: 'MIT', repo: 'https://github.com/pydantic/pydantic', role: 'runtime dependency of `omega-harness-sdk`' },
+  pydantic: { license: 'MIT', repo: 'https://github.com/pydantic/pydantic', role: 'runtime dependency of `deepseek-harness-sdk`' },
   hatchling: { license: 'MIT', repo: 'https://github.com/pypa/hatch', role: 'build backend' },
   'et-xmlfile': { license: 'MIT', repo: 'https://foss.heptapod.net/openpyxl/et_xmlfile' },
   lxml: { license: 'BSD-3-Clause', repo: 'https://github.com/lxml/lxml' },
@@ -134,7 +140,7 @@ interface ExternalDep {
   name: string
   license: string
   repo: string
-  /** True when some shipped workspace consumer reaches it through runtime dependency edges. */
+  /** True when a shipped workspace consumer installs it at runtime or embeds its implementation. */
   runtime: boolean
 }
 
@@ -388,6 +394,7 @@ function normalizeRepo(raw: string | undefined): string | undefined {
   let url = raw
     .replace(/^git\+ssh:\/\/git@/, 'https://')
     .replace(/^git\+/, '')
+    .replace(/^git@([^:]+):/, 'https://$1/')
     .replace(/^git:\/\//, 'https://')
     .replace(/^github:/, 'https://github.com/')
     .replace(/\.git$/, '')
@@ -397,7 +404,7 @@ function normalizeRepo(raw: string | undefined): string | undefined {
 
 /**
  * Direct npm dependencies distributed through installed runtime libraries or
- * browser builds. Tooling declarations alone do not imply distribution.
+ * embedded in Host and browser bundles. Tooling declarations alone do not imply distribution.
  */
 function collectNpmDeps(manifests: Map<string, Manifest>, names: Set<string>, browser: ReadonlySet<string>): ExternalDep[] {
   return [...tierExternalDeps(manifests, names, browser)]
@@ -407,7 +414,7 @@ function collectNpmDeps(manifests: Map<string, Manifest>, names: Set<string>, br
 }
 
 /**
- * Tier every external dependency the workspace declares.
+ * Tier every external dependency the workspace declares, including named Host embeddings.
  * @param manifests - workspace manifests keyed by repository-relative path.
  * @param names - every workspace package name, which never counts as external.
  * @param browser - Direct third-party packages resolved by the browser builds.
@@ -421,10 +428,17 @@ export function tierExternalDeps(
   tiers.set('tsx', true)
   for (const [path, manifest] of manifests) {
     const devOnly = DEV_ONLY_AREAS.some(area => (area.endsWith('/') ? path.startsWith(area) : path === area))
+    const hostBundled = manifest.name === undefined ? [] : HOST_BUNDLED_DEPENDENCIES[manifest.name] ?? []
+    for (const dependency of hostBundled) {
+      if (!ALL_KINDS.some(kind => Object.hasOwn(manifest[kind] ?? {}, dependency))) {
+        throw new Error(`gen-third-party-notices: ${manifest.name} embeds ${dependency} but does not declare it`)
+      }
+    }
     for (const kind of ALL_KINDS) {
       for (const [dep, range] of Object.entries(manifest[kind] ?? {})) {
         if (names.has(dep) || range.startsWith('workspace:')) continue
-        const runtime = browser.has(dep) || !devOnly && (RUNTIME_KINDS as readonly string[]).includes(kind)
+        const runtime = browser.has(dep) || hostBundled.includes(dep)
+          || !devOnly && (RUNTIME_KINDS as readonly string[]).includes(kind)
         tiers.set(dep, (tiers.get(dep) ?? false) || runtime)
       }
     }
@@ -708,7 +722,7 @@ function renderNonPermissiveNote(deps: ExternalDep[]): string {
   if (deps.length === 0) return ''
   const named = deps.map(dep => `\`${dep.name}\` (${dep.license})`)
   const subject = named.length === 1 ? named[0] : `${named.slice(0, -1).join(', ')} and ${named.at(-1)}`
-  return `\n${subject} ${named.length === 1 ? 'runs' : 'run'} only as development tooling; their code is not linked into or distributed with any Omega artifact.\n`
+  return `\n${subject} ${named.length === 1 ? 'runs' : 'run'} only as development tooling; their code is not linked into or distributed with any DeepSeek Harness artifact.\n`
 }
 
 /** Render one npm dependency table. */
@@ -773,15 +787,15 @@ export async function render(): Promise<string> {
 
 # Third-Party Notices
 
-Omega is licensed under [MIT](LICENSE). It depends on the third-party software listed below. Each project remains under its own license; nothing in this file changes those terms.
+DeepSeek Harness is licensed under [MIT](LICENSE). It depends on the third-party software listed below. Each project remains under its own license; nothing in this file changes those terms.
 
-This file lists **direct** dependencies declared by the workspace, the explicitly disclosed official Claude Code platform payload closure, and the Bundled Python distributions. It is generated by \`scripts/gen-third-party-notices.ts\`: a pre-commit hook regenerates it whenever a staged file changes one of its inputs, and \`scripts/gen-third-party-notices.spec.ts\` asserts in the test lane that the committed bytes match. Deleting a manifest runs no hook, so that case is caught by the assertion instead. Run \`pnpm run verify-third-party-notices\` for the standalone check.
+This file lists **direct** dependencies declared by the workspace, the explicitly disclosed official Claude Code platform payload closure, and the Bundled Python distributions. It is generated by \`scripts/gen-third-party-notices.ts\`, and \`scripts/gen-third-party-notices.spec.ts\` asserts in the test lane that the committed bytes match. Run \`pnpm run gen-third-party-notices\` after changing one of its inputs, or \`pnpm run verify-third-party-notices\` for the standalone check.
 
 The complete npm transitive closure, including the Landlock launcher workspace, is recorded with exact pinned versions in [\`pnpm-lock.yaml\`](pnpm-lock.yaml) — inspect it with \`pnpm licenses list\`. The Python SDK closure is recorded separately in [\`python/sdk/uv.lock\`](python/sdk/uv.lock).
 
 ## Vendored source (\`vendor/\`)
 
-The Cordis framework and its foundation libraries are source-vendored into this repository rather than consumed from npm, and republished under the \`@omega-ai\` scope. All are MIT-licensed; each directory preserves its upstream \`LICENSE\` file. Exact upstream commits and local modifications are recorded in [\`vendor/README.md\`](vendor/README.md).
+The Cordis framework and its foundation libraries are source-vendored into this repository rather than consumed from npm, and republished under the \`@deepseek-ai\` scope. All are MIT-licensed; each directory preserves its upstream \`LICENSE\` file. Exact upstream commits and local modifications are recorded in [\`vendor/README.md\`](vendor/README.md).
 
 | Package | Upstream name | Source | License |
 | --- | --- | --- | --- |
@@ -789,7 +803,7 @@ ${vendored.map(row => `| \`${row.npmName}\` | \`${row.upstreamName}\` | [${row.s
 
 ## Runtime npm dependencies
 
-External packages installed for runtime use or distributed inside the prebuilt browser artifacts. Browser inputs are resolved through the shipping tsdown and Vite configurations, independently of npm dependency sections. The tier covers every plugin a user can mount from \`cordis.yml\` — not only what the \`dsh\` CLI, Web UI, and Python SDK runtime load by default.
+External packages installed for runtime use or embedded in distributed Host or browser artifacts. Browser inputs are resolved through the shipping tsdown and Vite configurations, independently of npm dependency sections. Host embedding declarations identify the distributing package and its embedded dependencies. The tier covers every plugin a user can mount from \`cordis.yml\` — not only what the \`dsh\` CLI, Web UI, and Python SDK runtime load by default.
 
 ${renderNpmTable(runtimeDeps)}
 
@@ -807,12 +821,12 @@ ${kitRuntime ? `
 
 ${[...LIBREOFFICE_PACKAGES].map(name => `\`${name}\``).join(', ')} declare MPL-2.0, which remains outside the permissive-license allowlist; the notices check accepts only these package identities at those terms. The [distribution decision](.agents/notes/implemented/architecture/2026-09-14-independent-libreoffice-kit.md) records the source obligations.
 
-The [kit repository](https://github.com/omega-ai/dsh-libreoffice-kit) supplies the corresponding LibreOffice source pin, modifications, build instructions, Node API, and artifact validation. Its engine packages retain their license and third-party notices; the Node API retains its MPL-2.0 declaration and NOTICE. Recipients must have access to those corresponding sources and notices.
+The [kit repository](https://github.com/deepseek-ai/dsh-libreoffice-kit) supplies the corresponding LibreOffice source pin, modifications, build instructions, Node API, and artifact validation. Its engine packages retain their license and third-party notices; the Node API retains its MPL-2.0 declaration and NOTICE. Recipients must have access to those corresponding sources and notices.
 ` : ''}
 
 ## Development-only npm dependencies
 
-External packages **directly declared** for development, tests, types, or tooling, without a runtime installation or browser-build relationship. A package here may still be pulled in transitively by a runtime dependency — \`pnpm-lock.yaml\` is the authority on that full closure.
+External packages **directly declared** for development, tests, types, or tooling, without a runtime installation or distribution inside a Host or browser bundle. A package here may still be pulled in transitively by a runtime dependency — \`pnpm-lock.yaml\` is the authority on that full closure.
 
 ${renderNpmTable(devDeps)}
 ${renderNonPermissiveNote(nonPermissiveDev)}
@@ -835,7 +849,7 @@ ${bundledPython.map(dep => `| [\`${dep.name}\`](${dep.repo}) | ${dep.version} | 
 
 ## First-party native packages
 
-\`@omega-ai/node-addon-system\` (and its platform packages) is built and released from this repository under BSD 3-Clause. It is listed here for completeness; it is first-party, not third-party.
+\`@deepseek-ai/node-addon-system\` (and its platform packages) is built and released from this repository under BSD 3-Clause. It is listed here for completeness; it is first-party, not third-party.
 `
 }
 

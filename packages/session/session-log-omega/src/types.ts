@@ -1,10 +1,25 @@
-/** Wire types for lossless incremental Omega session-log upload. */
+/** Wire types for lossless incremental DeepSeek session-log upload. */
 
-import type { SessionEvent, SurfaceEventType } from '@omega-ai/dsh-session'
-import type { JsonValue } from '@omega-ai/dsh-util-values'
+import type { SessionEvent, SessionId, SurfaceEventType } from '@deepseek-ai/dsh-session'
+import type { JsonValue } from '@deepseek-ai/dsh-util-values'
+
+/** Request identity inspected before preparing a Session-log contribution. */
+export interface SessionLogUploadRequest {
+  /** Live Session whose canonical log would be contributed. */
+  readonly sessionId: SessionId
+  /** Auxiliary request classification; absent for ordinary conversation requests. */
+  readonly purpose?: string
+}
+
+/**
+ * Synchronous, side-effect-free upload exclusion owned by its registering plugin.
+ * @param request - request identity; the predicate must not mutate it.
+ * @returns `true` to omit the log field and acceptance callback, or `false` to keep checking eligibility.
+ */
+export type SessionLogUploadExclusion = (request: SessionLogUploadRequest) => boolean
 
 /** Session header fields serialized as raw JSON primitives on the external request wire. */
-export interface OmegaSessionLogWireHeader {
+export interface DeepSeekSessionLogWireHeader {
   readonly version: number
   readonly id: string
   readonly createdAt: number
@@ -18,7 +33,7 @@ export interface OmegaSessionLogWireHeader {
 }
 
 /** Raw-number surface mutation serialized on the external request wire. */
-export type OmegaSessionLogWireSurfaceOp =
+export type DeepSeekSessionLogWireSurfaceOp =
   | 'append'
   | { readonly op: 'replace'; readonly startSeq: number; readonly endSeq: number }
 
@@ -27,7 +42,7 @@ export type OmegaSessionLogWireSurfaceOp =
  * events require an operation; system, user, and tool events may cite sources.
  * Assistant provider metadata is embedded in its data; log-only events carry neither field.
  */
-export type OmegaSessionLogWireEvent = {
+export type DeepSeekSessionLogWireEvent = {
   [K in SessionEvent['type']]: {
     readonly type: K
     readonly seq: number
@@ -35,7 +50,7 @@ export type OmegaSessionLogWireEvent = {
     readonly data: JsonValue
     readonly ignorable?: true
   } & (K extends SurfaceEventType ? {
-    readonly surfaceOp: OmegaSessionLogWireSurfaceOp
+    readonly surfaceOp: DeepSeekSessionLogWireSurfaceOp
   } & (K extends 'assistant/message' ? {
     readonly sourceEventSeqs?: never
   } : {
@@ -55,36 +70,36 @@ export type OmegaSessionLogWireEvent = {
   readonly sourceEventSeqs?: JsonValue
 }
 
-/** Versioned incremental session-log field carried by an official Omega request. */
-export interface OmegaSessionLogExtension {
+/** Versioned incremental session-log field carried by an official DeepSeek request. */
+export interface DeepSeekSessionLogExtension {
   readonly version: 1
   /** Session format generation represented by this suffix. */
   readonly sessionFormatVersion: number
-  readonly session: OmegaSessionLogWireHeader
+  readonly session: DeepSeekSessionLogWireHeader
   /** Highest sequence durably recorded as accepted before this request, or `-1`. */
   readonly afterSeq: number
   /** Highest sequence represented by {@link events}. */
   readonly throughSeq: number
   /** Complete canonical event envelopes for every sequence from `afterSeq + 1` through `throughSeq`. */
-  readonly events: readonly OmegaSessionLogWireEvent[]
+  readonly events: readonly DeepSeekSessionLogWireEvent[]
 }
 
-declare module '@omega-ai/dsh-omega-llm-api-extensions/types' {
-  interface OmegaLlmApiExtensionMap {
-    dsh_session_log: OmegaSessionLogExtension
+declare module '@deepseek-ai/dsh-deepseek-llm-api-extensions/types' {
+  interface DeepSeekLlmApiExtensionMap {
+    dsh_session_log: DeepSeekSessionLogExtension
   }
 }
 
-declare module '@omega-ai/dsh-session/types' {
+declare module '@deepseek-ai/dsh-session/types' {
   interface SessionEventMap {
     /** Records that the configured endpoint accepted one delivery through `throughSeq`. */
-    'session-log-omega/delivery-accepted': {
+    'session-log-deepseek/delivery-accepted': {
       /** Session identity the accepted delivery carried; inherited fork markers retain the parent's id. */
-      sessionId: import('@omega-ai/dsh-session/types').SessionId
+      sessionId: import('@deepseek-ai/dsh-session/types').SessionId
       /** Accepted Session format generation; absence identifies version 0. */
       sessionFormatVersion?: number
       /** Last canonical event included in the accepted request. */
-      throughSeq: import('@omega-ai/dsh-session/types').SessionSeq
+      throughSeq: import('@deepseek-ai/dsh-session/types').SessionSeq
     }
   }
 }

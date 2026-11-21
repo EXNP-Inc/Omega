@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import LlmRuntime, { LlmAdapter, LlmError } from '@omega-ai/dsh-llm'
-import type { GenerateOptions, LlmConfigurableProvider, StreamChunk } from '@omega-ai/dsh-llm'
+import { Context } from '@deepseek-ai/cordis'
+import LlmRuntime, { LlmAdapter, LlmError } from '@deepseek-ai/dsh-llm'
+import type { GenerateOptions, LlmConfigurableProvider, StreamChunk } from '@deepseek-ai/dsh-llm'
 
 class NoopAdapter extends LlmAdapter {
 
@@ -77,7 +77,7 @@ describe('llm/adapters-updated', () => {
   })
 
   it('replaces a route set in one event, never publishing an empty registry between the two', async () => {
-    // The retry-policy swap in llm-omega: disposing and re-registering
+    // The retry-policy swap in llm-deepseek: disposing and re-registering
     // would let an observer see the provider disappear and come back.
     const ctx = await setup()
     const observed: string[][] = []
@@ -97,27 +97,38 @@ describe('configurable-provider directory', () => {
     const events = vi.fn()
     ctx.on('llm/adapters-updated', events)
     ctx.llm.registerConfigurableProviders([
-      entry({ provider: 'omega-official', displayName: 'Omega', settingsNs: 'llm-omega', settingsPath: [] }),
+      entry({ provider: 'deepseek-official', displayName: 'DeepSeek', settingsNs: 'llm-deepseek', settingsPath: [] }),
       entry(),
     ])
     expect(events).toHaveBeenCalledTimes(1)
     const listed = ctx.llm.listConfigurableProviders()
     expect(listed).toEqual([
-      { provider: 'omega-official', displayName: 'Omega', settingsNs: 'llm-omega', settingsPath: [] },
+      { provider: 'deepseek-official', displayName: 'DeepSeek', settingsNs: 'llm-deepseek', settingsPath: [] },
       { provider: 'openai', displayName: 'OpenAI', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'openai'] },
     ])
     listed[0]!.displayName = 'mutated'
     ;(listed[1]!.settingsPath as string[]).push('mutated')
-    expect(ctx.llm.listConfigurableProviders()[0]!.displayName).toBe('Omega')
+    expect(ctx.llm.listConfigurableProviders()[0]!.displayName).toBe('DeepSeek')
     expect(ctx.llm.listConfigurableProviders()[1]!.settingsPath).toEqual(['providers', 'openai'])
   })
 
   it('detaches stored entries from caller-owned objects', async () => {
     const ctx = await setup()
-    const source = entry()
+    const env = ['OPENAI_API_KEY']
+    const baseURLEnv = ['ENDPOINT']
+    const source = entry({ defaultBaseURL: 'https://api.openai.com/v1', baseURLEnv, nativeAuth: { env, oauth: false } })
     ctx.llm.registerConfigurableProviders([source])
     source.displayName = 'mutated'
-    expect(ctx.llm.listConfigurableProviders()[0]!.displayName).toBe('OpenAI')
+    env.push('mutated')
+    baseURLEnv.push('mutated')
+    const listed = ctx.llm.listConfigurableProviders()
+    expect(listed).toEqual([
+      entry({ defaultBaseURL: 'https://api.openai.com/v1', baseURLEnv: ['ENDPOINT'], nativeAuth: { env: ['OPENAI_API_KEY'], oauth: false } }),
+    ])
+    ;(listed[0]!.nativeAuth!.env as string[]).push('mutated')
+    ;(listed[0]!.baseURLEnv as string[]).push('mutated')
+    expect(ctx.llm.listConfigurableProviders()[0]!.nativeAuth!.env).toEqual(['OPENAI_API_KEY'])
+    expect(ctx.llm.listConfigurableProviders()[0]!.baseURLEnv).toEqual(['ENDPOINT'])
   })
 
   it('withdraws every entry when the registration disposes', async () => {

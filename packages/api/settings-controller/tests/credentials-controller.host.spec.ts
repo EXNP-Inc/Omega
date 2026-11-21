@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import type { CredentialInfo } from '@omega-ai/dsh-credentials/types'
-import { remoteErrorOf, remoteMethods } from '@omega-ai/dsh-typert-protocol'
+import { Context } from '@deepseek-ai/cordis'
+import type { CredentialInfo } from '@deepseek-ai/dsh-credentials/types'
+import { remoteErrorOf, remoteMethods } from '@deepseek-ai/dsh-typert-protocol'
 import CredentialsController from '../src/credentials.ts'
 import { MemoryCredentials } from '../../../credentials/credentials/tests/memory.ts'
 
@@ -9,7 +9,7 @@ import { MemoryCredentials } from '../../../credentials/credentials/tests/memory
 class LeakyCredentials extends MemoryCredentials {
   override describe(): Promise<CredentialInfo> {
     return Promise.resolve(
-      { configured: true, source: 'memory', writable: true, value: 'sk-leaked' } as CredentialInfo,
+      { configured: true, source: 'memory', writable: true, masked: '•'.repeat(9), value: 'sk-leaked', preview: 'sk…ed' } as CredentialInfo,
     )
   }
 }
@@ -24,7 +24,7 @@ class LiteralRejectingCredentials extends MemoryCredentials {
 /** A store whose provider-owned policy rejects an otherwise valid write. */
 class RejectingCredentials extends MemoryCredentials {
   override set(): Promise<void> {
-    return Promise.reject(new Error('a read-only source shadows this reference'))
+    return Promise.reject(new Error('the stored document no longer parses'))
   }
 }
 
@@ -55,24 +55,24 @@ describe('the credentials Remote namespace a configuration surface calls', () =>
     const ctx = new Context()
     await ctx.plugin(CredentialsController)
     for (const call of [
-      () => ctx.credentialsController.describe(['OMEGA_API_KEY']),
-      () => ctx.credentialsController.set('OMEGA_API_KEY', 'sk-live'),
-      () => ctx.credentialsController.unset('OMEGA_API_KEY'),
+      () => ctx.credentialsController.describe(['DEEPSEEK_API_KEY']),
+      () => ctx.credentialsController.set('DEEPSEEK_API_KEY', 'sk-live'),
+      () => ctx.credentialsController.unset('DEEPSEEK_API_KEY'),
     ]) {
       const failure = await call().catch((error: unknown) => error)
       expect(remoteErrorOf(failure)).toMatchObject({
         code: 'gateway/internal',
-        message: 'credentials service is absent: this deployment does not mount a credential provider (e.g. @omega-ai/dsh-credentials-local) in its composition',
+        message: 'credentials service is absent: this deployment does not mount a credential provider (e.g. @deepseek-ai/dsh-credentials-local) in its composition',
         details: {},
       })
     }
   })
 
   it('describes a batch of references as one map, values excluded', async () => {
-    const controller = await boot({ OMEGA_API_KEY: 'sk-seeded' })
-    const described = await controller.describe(['OMEGA_API_KEY', 'OPENAI_API_KEY'])
+    const controller = await boot({ DEEPSEEK_API_KEY: 'sk-seeded' })
+    const described = await controller.describe(['DEEPSEEK_API_KEY', 'OPENAI_API_KEY'])
     expect(described).toEqual({
-      OMEGA_API_KEY: { configured: true, source: 'memory', writable: true },
+      DEEPSEEK_API_KEY: { configured: true, source: 'memory', writable: true },
       OPENAI_API_KEY: { configured: false, writable: true },
     })
     expect(JSON.stringify(described)).not.toContain('sk-seeded')
@@ -81,7 +81,7 @@ describe('the credentials Remote namespace a configuration surface calls', () =>
   it('reports an invalid reference as bad-request', async () => {
     const controller = await boot()
     for (const call of [
-      () => controller.describe(['OMEGA_API_KEY', 'not a var']),
+      () => controller.describe(['DEEPSEEK_API_KEY', 'not a var']),
       () => controller.set('not a var', 'sk-live'),
       () => controller.unset('not a var'),
     ]) {
@@ -100,39 +100,40 @@ describe('the credentials Remote namespace a configuration surface calls', () =>
 
   it('answers only the fields the view declares, whatever a provider returns', async () => {
     const controller = await boot({}, LeakyCredentials)
-    const described = await controller.describe(['OMEGA_API_KEY'])
-    expect(described.OMEGA_API_KEY).toEqual({ configured: true, source: 'memory', writable: true })
+    const described = await controller.describe(['DEEPSEEK_API_KEY'])
+    expect(described.DEEPSEEK_API_KEY).toEqual({ configured: true, source: 'memory', writable: true, masked: '•'.repeat(9) })
     expect(JSON.stringify(described)).not.toContain('sk-leaked')
+    expect(JSON.stringify(described)).not.toContain('sk…ed')
   })
 
   it('stores and removes through the same references the batch describes', async () => {
     const controller = await boot()
-    await controller.set('OMEGA_API_KEY', 'sk-live')
-    expect(await controller.describe(['OMEGA_API_KEY']))
-      .toEqual({ OMEGA_API_KEY: { configured: true, source: 'memory', writable: true } })
-    await controller.unset('OMEGA_API_KEY')
-    expect(await controller.describe(['OMEGA_API_KEY']))
-      .toEqual({ OMEGA_API_KEY: { configured: false, writable: true } })
+    await controller.set('DEEPSEEK_API_KEY', 'sk-live')
+    expect(await controller.describe(['DEEPSEEK_API_KEY']))
+      .toEqual({ DEEPSEEK_API_KEY: { configured: true, source: 'memory', writable: true } })
+    await controller.unset('DEEPSEEK_API_KEY')
+    expect(await controller.describe(['DEEPSEEK_API_KEY']))
+      .toEqual({ DEEPSEEK_API_KEY: { configured: false, writable: true } })
   })
 
   it('reports a refused write as credential/rejected naming only the reference', async () => {
     const controller = await boot({}, RejectingCredentials)
-    const failure = await controller.set('OMEGA_API_KEY', 'sk-live').catch((error: unknown) => error)
+    const failure = await controller.set('DEEPSEEK_API_KEY', 'sk-live').catch((error: unknown) => error)
     const { code, message, details } = remoteErrorOf(failure) ?? {}
     expect(code).toBe('credential/rejected')
-    expect(message).toContain('read-only source')
-    expect(details).toEqual({ ref: 'OMEGA_API_KEY' })
+    expect(message).toContain('no longer parses')
+    expect(details).toEqual({ ref: 'DEEPSEEK_API_KEY' })
   })
 
   it('reports an empty value as bad-request', async () => {
     const controller = await boot()
-    const failure = await controller.set('OMEGA_API_KEY', '').catch((error: unknown) => error)
+    const failure = await controller.set('DEEPSEEK_API_KEY', '').catch((error: unknown) => error)
     expect(remoteErrorOf(failure)).toMatchObject({ code: 'gateway/bad-request' })
   })
 
   it('stringifies a refusal that is not an Error', async () => {
     const controller = await boot({}, LiteralRejectingCredentials)
-    const failure = await controller.set('OMEGA_API_KEY', 'sk-live').catch((error: unknown) => error)
+    const failure = await controller.set('DEEPSEEK_API_KEY', 'sk-live').catch((error: unknown) => error)
     expect(remoteErrorOf(failure)?.message).toBe('the store refused')
   })
 })

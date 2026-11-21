@@ -1,7 +1,7 @@
 /** Read-only spreadsheet surface backed by browser-parsed workbook data. */
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Workbook } from '@fortune-sheet/react'
-import { Button, IconWarningTriangleOutlineRegular, Tooltip } from '@omega-ai/dsh-client-ui-primitives'
+import { Button, IconWarningTriangleOutlineRegular, Tooltip } from '@deepseek-ai/dsh-client-ui-primitives'
 import fortuneCss from '@fortune-sheet/react/dist/index.css?inline'
 import type { ExcelFormat } from './format.ts'
 import type { ExcelPreview } from './model.ts'
@@ -55,7 +55,7 @@ export function ExcelBody({ content, format, limits, t, loading }: LoadedExcelBo
       <span>{t('unsupportedNotice', { features: state.value.unsupportedFeatures.map(feature => t(feature)).join(t('featureSeparator')) })}</span>
     </div>}
     <div ref={workbookRef} className={`${css.workbook} ${hasFormulas ? css.withFormulaWarning : ''}`}>
-      {hasFormulas && <Tooltip portal label={t('formulaWarning')} side="bottom" delayMs={500}>
+      {hasFormulas && <Tooltip portal openOnClick label={t('formulaWarning')} side="bottom" delayMs={500}>
         <button type="button" className={css.formulaWarning} aria-label={t('formulaWarning')} data-excel-formula-warning>
           <IconWarningTriangleOutlineRegular size={14} />
         </button>

@@ -3,7 +3,7 @@ description: "Discover and read MCP resources on demand with shared tools, expli
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-mcp-resources
+# @deepseek-ai/dsh-mcp-resources
 
 English | [中文](README.zh.md)
 
@@ -37,7 +37,7 @@ A caller with no configured MCP server sees no MCP prompt text or resource tools
 
 When system-prompt assembly is mounted, the prompt lists server names visible to the calling agent. Call `list_mcp_resources` or `list_mcp_resource_templates` with one of those names as `server`. Without a cursor, the MCP SDK collects the server’s pages. An explicit `cursor` requests that page; pass a returned `nextCursor` unchanged. Read a listed URI or an expanded template with `read_mcp_resource`, using the same `server` name and an explicit `uri`.
 
-Every operation resolves the server in the calling agent's scope. A missing server argument or unavailable server fails before dispatch. The connection owner handles request cancellation, timeouts, and recovery; a failed request remains a failed tool call.
+Every operation resolves the server in the calling agent's scope. A missing server argument or unavailable server fails before dispatch; an unavailable server fails as `ToolArgsError` with `INVALID_ARGS`. The connection owner handles request cancellation, timeouts, and recovery; a failed request remains a failed tool call.
 
 -----
 
@@ -51,7 +51,7 @@ The [base](../../bundle/base/README.md) and standalone [sdk-minimal](../../bundl
 
 ```yaml
 - id: mcp-resources
-  name: '@omega-ai/dsh-mcp-resources'
+  name: '@deepseek-ai/dsh-mcp-resources'
 ```
 
 The first provider in a scope registers its shared tools; removing the last removes those local registrations, while inherited providers and tools remain visible. The resource service owns the shared tool effects independently of the first provider's plugin, so unloading that provider cannot remove tools needed by another server. Provider selection and the server-name prompt use the same scoped registry. Each call resolves its server before dispatch.
@@ -87,7 +87,7 @@ These pages cover server configuration, execution, and the decisions behind reso
 
 #### What the model sees
 
-The [generated tool schemas](../../../docs/tool-catalog.md#omega-aidsh-mcp-resources) define three tools shared by all caller-visible configured servers. With none, native schemas, PTC declarations and bindings, and the server-name prompt are absent. Connecting, disconnecting, or retrying an active client leaves these shared tool definitions unchanged. When system-prompt assembly is mounted and providers are visible, the `MCP resource servers` section says `Use list_mcp_resources, list_mcp_resource_templates, or read_mcp_resource with one of these names as the server argument: <JSON array>.` The names come from the same scoped registry, including servers with neither tools nor instructions. An empty registry contributes no section.
+The [generated tool schemas](../../../docs/tool-catalog.md#deepseek-aidsh-mcp-resources) define three tools shared by all caller-visible configured servers. With none, native schemas, PTC declarations and bindings, and the server-name prompt are absent. Connecting, disconnecting, or retrying an active client leaves these shared tool definitions unchanged. When system-prompt assembly is mounted and providers are visible, the `MCP resource servers` section says `Use list_mcp_resources, list_mcp_resource_templates, or read_mcp_resource with one of these names as the server argument: <JSON array>.` The names come from the same scoped registry, including servers with neither tools nor instructions. An empty registry contributes no section.
 
 #### Token effect
 
@@ -117,7 +117,7 @@ Each result appends to history without rewriting earlier results. Later reads ca
 
 Resource access is explicit and on demand.
 
-- A configured server without the MCP `resources` capability still appears in the server-name prompt and keeps shared resource tools available. The SDK returns empty resource and template lists; unsupported reads fail.
+- A configured server without the MCP `resources` capability still appears in the server-name prompt and keeps shared resource tools available. The MCP client returns empty resource and template lists without contacting the server; unsupported reads fail.
 - `tools.restrict()` checks names supplied by global or ancestor scopes when the filter is registered. Naming a resource tool absent from those scopes fails as an unknown tool. Resource tools registered in the caller's own scope are outside allow/deny masks.
 - Resource subscriptions and update notifications are unsupported; call the list or read tools again to obtain current content.
 - Binary resources are not projected as native images or audio. Programmatic callers retain their canonical base64 values.

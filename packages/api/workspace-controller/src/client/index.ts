@@ -1,11 +1,12 @@
 /** Workspace-specific adapter for the Gateway-owned snapshot stream lifecycle. */
 
-import type { Context } from '@omega-ai/cordis'
+import type { Context } from '@deepseek-ai/cordis'
 import {
   RemoteSnapshotStream,
   RemoteStreamCarrierError,
   type ClientRemote,
-} from '@omega-ai/dsh-api-gateway/client'
+  type RemoteStreamCarrierFailure,
+} from '@deepseek-ai/dsh-api-gateway/client'
 import type { WorkspaceFollowFrame, WorkspaceFollowIncrement } from '../types.ts'
 import type { WorkspaceFollowSink } from './model.ts'
 import { ClientWorkspaceModel } from './model.ts'
@@ -30,7 +31,7 @@ export type WorkspaceStateStream = RemoteSnapshotStream<
   WorkspaceFollowIncrement
 >
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
     /** React-free Client Workspace state and commands. */
     workspaces: import('./service.ts').IWorkspaces
@@ -64,7 +65,7 @@ export interface WorkspaceStateStreamOptions {
   /** Destinations for decoded Workspace state operations. */
   readonly accept: WorkspaceFollowSink
   /** Observe a retryable carrier loss before reconnection. */
-  readonly carrierFailed?: (error: RemoteStreamCarrierError) => void
+  readonly carrierFailed?: (error: RemoteStreamCarrierFailure) => void
   /** Publish a terminal business or protocol failure. */
   readonly failed: (error: unknown) => void
 }
@@ -98,6 +99,9 @@ export function createWorkspaceStateStream(
 
 function acceptIncrement(accept: WorkspaceFollowSink, frame: WorkspaceFollowIncrement): void {
   switch (frame.type) {
+    case 'replace':
+      accept.replaceBaseline(frame.value)
+      return
     case 'upsert':
       accept.upsertView(frame.workspace)
       return

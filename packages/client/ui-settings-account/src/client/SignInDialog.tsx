@@ -1,8 +1,8 @@
 /** Account authorization dialog; errors allow retry after cancelling any active attempt. */
 import { useEffect, useState } from 'react'
-import { Button, IconCloseOutlineRegular, IconLoadingOutlineRegular, Modal } from '@omega-ai/dsh-client-ui-primitives'
+import { Button, IconCloseOutlineRegular, IconLoadingOutlineRegular, Modal } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { AccountSnapshot } from './AccountSection.tsx'
-import type { SignInAttemptId } from '@omega-ai/dsh-omega-account/types'
+import type { SignInAttemptId } from '@deepseek-ai/dsh-deepseek-account/types'
 import type { AccountKey } from './locales.ts'
 import { authorizeUrlWithTheme } from './authorize-url.ts'
 import css from './SignInDialog.module.css'
@@ -10,7 +10,7 @@ import css from './SignInDialog.module.css'
 /** @param props - safe account state, localized copy, and user actions. @returns login dialog. */
 export function SignInDialog({ account, colorScheme, start, cancel, close, useApiKey, t }: {
   account: AccountSnapshot
-  /** Resolved scheme of the active Desktop theme; the copied link carries it. */
+  /** Resolved scheme of the active application theme; the copied link carries it. */
   colorScheme: 'light' | 'dark'
   start: () => Promise<void>
   cancel: (id: SignInAttemptId) => Promise<void>

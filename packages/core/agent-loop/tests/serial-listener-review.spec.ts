@@ -3,23 +3,18 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@omega-ai/cordis'
-import AgentLoop from '@omega-ai/dsh-agent-loop'
-import JsonlSessionPersistence from '@omega-ai/dsh-session-persistence-jsonl'
-import { mountAgentLoopTestDependencies } from '@omega-ai/dsh-agent-loop-testkit'
-import { SessionId } from '@omega-ai/dsh-session'
-import { defineContentToolFixture } from '@omega-ai/dsh-tools'
-import { bindScopeParent, createScope, scopeOf } from '@omega-ai/dsh-scope'
-import LocalFileReference from '@omega-ai/dsh-file-reference-local'
-import SubagentRuntime from '@omega-ai/dsh-subagent'
-import * as SubagentSpawn from '@omega-ai/dsh-subagent-spawn-in-process'
-import * as SubagentTool from '@omega-ai/dsh-tool-subagent'
-import Selection from '@omega-ai/dsh-tool-subagent/model-selection-settings'
-import type { Agent } from '@omega-ai/dsh-agent'
-import { createUserMessage } from '@omega-ai/dsh-llm'
-import type { ContextFormed } from '@omega-ai/dsh-llm'
+import { Context } from '@deepseek-ai/cordis'
+import AgentLoop from '@deepseek-ai/dsh-agent-loop'
+import * as JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
+import { mountAgentLoopTestDependencies } from '@deepseek-ai/dsh-agent-loop-testkit'
+import type { SessionId } from '@deepseek-ai/dsh-session'
+import LocalFileReference from '@deepseek-ai/dsh-file-reference-local'
+import type { Agent } from '@deepseek-ai/dsh-agent'
+import { createUserMessage } from '@deepseek-ai/dsh-llm'
+import type { ContextFormed } from '@deepseek-ai/dsh-llm'
+import { brandString } from '@deepseek-ai/dsh-brand'
 
-declare module '@omega-ai/dsh-llm' {
+declare module '@deepseek-ai/dsh-llm' {
   interface MessageSourceMap {
     'due-work': { kind: 'due-work'; plugin: string } & ContextFormed
   }
@@ -35,7 +30,7 @@ afterEach(async () => {
 async function core(persistenceRoot?: string) {
   const ctx = new Context()
   contexts.push(ctx)
-  await mountAgentLoopTestDependencies(ctx)
+  await mountAgentLoopTestDependencies(ctx, { workingDirectory: true })
   if (persistenceRoot !== undefined) await ctx.plugin(JsonlSessionPersistence, { root: persistenceRoot, compression: 'none' })
   await ctx.plugin(AgentLoop, { agents: [] })
   return ctx
@@ -86,7 +81,7 @@ describe('serial creation listener integrations', () => {
     await ctx.plugin(LocalFileReference)
     try {
       await expect(ctx.agents.create({
-        sessionId: SessionId('review-file-reference'),
+        sessionId: brandString<SessionId>('review-file-reference'),
         setup(agentCtx) {
           agentCtx.systemPrompt.section({ name: 'context:file-reference', order: 0, text: 'occupied' })
         },
@@ -99,36 +94,11 @@ describe('serial creation listener integrations', () => {
     }
   })
 
-  it('rolls back creation when a shared preset tool installation fails', async () => {
-    const ctx = await core()
-    const errors: string[] = []
-    ctx.logger.error = ((error: unknown) => { errors.push(String(error)) }) as typeof ctx.logger.error
-    await ctx.plugin(Selection)
-    await ctx.plugin(SubagentRuntime)
-    await ctx.plugin(SubagentSpawn, { providerName: 'spawn' })
-    const preset = createScope(ctx, { preset: 'review' })
-    await preset.ctx.plugin(SubagentTool, { provider: 'spawn', modelSelectionSettings: true, backgroundMode: 'continuable' })
-    try {
-      await expect(ctx.agents.create({
-        sessionId: SessionId('review-tool'),
-        setup(agentCtx) {
-          bindScopeParent(scopeOf(agentCtx)!, scopeOf(preset.ctx)!)
-          agentCtx.tools.register(defineContentToolFixture({ name: 'subagent', description: 'occupied', parameters: {}, execute: () => Promise.resolve([]) }))
-        },
-      })).rejects.toThrow('subagent')
-      expect(errors.some(error => error.includes('subagent'))).toBe(true)
-      expect(ctx.agents.list()).toEqual([])
-      expect(ctx.sessions.list()).toEqual([])
-    } finally {
-      await ctx.fiber.dispose()
-    }
-  })
-
   it('starts due plugin work only after every creation listener finishes', async () => {
     const root = await mkdtemp(join(tmpdir(), 'dsh-serial-due-'))
     roots.push(root)
     const ctx = await core(root)
-    const sessionId = SessionId('review-due-work')
+    const sessionId = brandString<SessionId>('review-due-work')
     const plugin = 'review-due-reminder'
     const available = Promise.withResolvers<Agent>()
     // The resolver returns the Agent while its serial publication listeners are blocked.

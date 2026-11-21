@@ -1,23 +1,26 @@
+import { executeToolFixture } from '@deepseek-ai/dsh-tool-testkit'
 // Proves `allowParallelInProgress` is real configurability and not a constant:
 // the flag is set in a cordis.yml booted through the real Loader, and both faces
 // it controls — the model-facing description and the accepted input — follow it.
+import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import Loader from '@omega-ai/cordis-plugin-loader'
-import Include from '@omega-ai/cordis-plugin-include'
-import { ToolCallId } from '@omega-ai/dsh-llm'
-import { Session, SessionId } from '@omega-ai/dsh-session'
-import AgentRegistry from '@omega-ai/dsh-agent'
-import type { Agent } from '@omega-ai/dsh-agent'
-import SystemPrompt from '@omega-ai/dsh-system-prompt'
-import ToolRuntime from '@omega-ai/dsh-tools'
-import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
-import * as ToolTodo from '@omega-ai/dsh-tool-todo'
-import { unsupportedInbox } from '@omega-ai/dsh-agent-loop-testkit'
+import { Context } from '@deepseek-ai/cordis'
+import Loader from '@deepseek-ai/cordis-plugin-loader'
+import Include from '@deepseek-ai/cordis-plugin-include'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { ToolCallId } from '@deepseek-ai/dsh-llm/types'
+import { Session, type SessionId } from '@deepseek-ai/dsh-session'
+import AgentRegistry from '@deepseek-ai/dsh-agent'
+import type { Agent } from '@deepseek-ai/dsh-agent'
+import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
+import ToolRuntime from '@deepseek-ai/dsh-tools'
+import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import * as ToolTodo from '@deepseek-ai/dsh-tool-todo'
+import { unsupportedModel, unsupportedInbox } from '@deepseek-ai/dsh-agent-loop-testkit'
 
 let root: string | undefined
 let context: Context | undefined
@@ -31,10 +34,11 @@ afterEach(async () => {
 
 async function agent(ctx: Context): Promise<Agent> {
   const scope = ctx.plugin(() => {})
-  const id = SessionId('todo-loader-agent')
+  const id = brandString<SessionId>('todo-loader-agent')
   const session = Session.create(id)
   const value: Agent = {
-    id, options: {}, session, inbox: unsupportedInbox(),
+    id, options: {}, session, model: unsupportedModel(),
+    inbox: unsupportedInbox(),
     status: 'idle', ctx: scope.ctx,
     followup: () => {}, steer: () => {}, inject: () => {}, send: () => {}, cancel() {},
     runMaintenance: task => task(new AbortController().signal),
@@ -57,11 +61,12 @@ async function boot(configLines: readonly string[]): Promise<Context> {
   root = await mkdtemp(join(tmpdir(), 'dsh-todo-loader-'))
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, [
-    "- name: '@omega-ai/dsh-agent'",
-    "- name: '@omega-ai/dsh-system-prompt'",
-    "- name: '@omega-ai/dsh-tools'",
-    "- name: '@omega-ai/dsh-session-projection'",
-    "- name: '@omega-ai/dsh-tool-todo'",
+    "- name: '@deepseek-ai/dsh-agent'",
+    "- name: '@deepseek-ai/dsh-system-prompt'",
+    "- name: '@deepseek-ai/dsh-tools'",
+    "- name: '@deepseek-ai/dsh-tool-executor-native'",
+    "- name: '@deepseek-ai/dsh-session-projection'",
+    "- name: '@deepseek-ai/dsh-tool-todo'",
     ...configLines.length > 0 ? ['  config:', ...configLines] : [],
     '',
   ].join('\n'))
@@ -72,11 +77,12 @@ async function boot(configLines: readonly string[]): Promise<Context> {
   await ctx.plugin(Loader)
   ctx.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
-    ['@omega-ai/dsh-agent', AgentRegistry],
-    ['@omega-ai/dsh-system-prompt', SystemPrompt],
-    ['@omega-ai/dsh-tools', ToolRuntime],
-    ['@omega-ai/dsh-session-projection', SessionProjectionRegistry],
-    ['@omega-ai/dsh-tool-todo', ToolTodo],
+    ['@deepseek-ai/dsh-agent', AgentRegistry],
+    ['@deepseek-ai/dsh-system-prompt', SystemPrompt],
+    ['@deepseek-ai/dsh-tools', ToolRuntime],
+    ['@deepseek-ai/dsh-tool-executor-native', NativeToolExecutor],
+    ['@deepseek-ai/dsh-session-projection', SessionProjectionRegistry],
+    ['@deepseek-ai/dsh-tool-todo', ToolTodo],
   ])
   ctx.loader.internal = {
     version: 'v2',
@@ -104,15 +110,16 @@ describe('tool-todo real Loader composition through cordis.yml', () => {
     expect(description).not.toContain('several only')
 
     const owner = await agent(ctx)
-    const result = await ctx.tools.execute({
+    const result = await executeToolFixture(ctx, {
       signal: new AbortController().signal,
-      callId: ToolCallId('parallel'),
+      callId: brandString<ToolCallId>('parallel'),
       name: 'todo_write',
       arguments: { todos: PARALLEL_TODOS },
       agent: owner,
     })
     expect(result.isError).toBe(true)
     expect(resultText(result)).toContain('at most one task may be in_progress')
+    expect(result.error?.info).toEqual({ name: 'ToolArgsError', code: 'INVALID_ARGS' })
     expect(owner.session.snapshotEvents().some(e => e.type === 'todo/write')).toBe(false)
   }, 30_000)
 
@@ -122,9 +129,9 @@ describe('tool-todo real Loader composition through cordis.yml', () => {
     expect(description).toContain('several only when work runs in parallel')
 
     const owner = await agent(ctx)
-    const result = await ctx.tools.execute({
+    const result = await executeToolFixture(ctx, {
       signal: new AbortController().signal,
-      callId: ToolCallId('parallel-enabled'),
+      callId: brandString<ToolCallId>('parallel-enabled'),
       name: 'todo_write',
       arguments: { todos: PARALLEL_TODOS },
       agent: owner,

@@ -4,7 +4,7 @@
  * `null` is the one pnpm's own configuration names. This module runs in the
  * browser too, through the package's `./registry` entry, so the dialog and
  * the Host follow one rule.
- * @module @omega-ai/dsh-plugin-manager/registry
+ * @module @deepseek-ai/dsh-plugin-manager/registry
  */
 
 import type { ParsedInstallSpec } from './install-spec.ts'
@@ -28,7 +28,7 @@ export const REGISTRY_URL = /^https?:\/\/\S+$/
 export function normalizeRegistry(url: string): string {
   let parsed: URL | undefined
   try { parsed = new URL(url) }
-  catch { /* named below: only an http(s) URL is a registry */ }
+  catch (_invalidUrl) { /* `parsed` stays undefined and the check below throws the registry error */ }
   if (parsed === undefined || (parsed.protocol !== 'http:' && parsed.protocol !== 'https:')) {
     throw new Error(`a registry must be an http(s) URL: ${url}`)
   }

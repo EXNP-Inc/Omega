@@ -21,14 +21,14 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import picomatch from 'picomatch'
-import { FiberState } from '@omega-ai/cordis'
-import { createNodeBuiltins, REPLACED_PREFIXES } from '@omega-ai/dsh-experimental-webworker-runtime/src/node/builtins.ts'
+import { FiberState } from '@deepseek-ai/cordis'
+import { createNodeBuiltins, REPLACED_PREFIXES } from '@deepseek-ai/dsh-experimental-webworker-runtime/src/node/builtins.ts'
 import {
   setActiveModuleLoader, WorkerModuleLoader,
-} from '@omega-ai/dsh-experimental-webworker-runtime/src/module-system/module-loader.ts'
-import { inflateImage } from '@omega-ai/dsh-experimental-webworker-runtime/src/storage/image-gzip.ts'
-import { loadVfsImage } from '@omega-ai/dsh-experimental-webworker-runtime/src/storage/memory.ts'
-import { setActiveVfs } from '@omega-ai/dsh-experimental-webworker-runtime/src/storage/active.ts'
+} from '@deepseek-ai/dsh-experimental-webworker-runtime/src/module-system/module-loader.ts'
+import { inflateImage } from '@deepseek-ai/dsh-experimental-webworker-runtime/src/storage/image-gzip.ts'
+import { loadVfsImage } from '@deepseek-ai/dsh-experimental-webworker-runtime/src/storage/memory.ts'
+import { setActiveVfs } from '@deepseek-ai/dsh-experimental-webworker-runtime/src/storage/active.ts'
 import { indexWorkspacePackages, previewFixtures } from '../src/repository.ts'
 import { DEFAULT_ROOT, MANIFEST_PATH, packVfsImage, packVfsOverlay } from '../src/pack.ts'
 import { PAGE_ASSETS } from '../src/rules.ts'
@@ -36,11 +36,11 @@ import { PAGE_ASSETS } from '../src/rules.ts'
 const repoRoot = fileURLToPath(new URL('../../../../', import.meta.url))
 
 /** A leaf workspace package: real build output, no dependencies to drag in. */
-const SUBJECT = '@omega-ai/dsh-timeout'
-const LANDLOCK = '@omega-ai/node-addon-system'
+const SUBJECT = '@deepseek-ai/dsh-timeout'
+const LANDLOCK = '@deepseek-ai/node-addon-system'
 const LANDLOCK_ENTRY = `${LANDLOCK}/landlock-run`
-const PLUGIN_INVENTORY = '@omega-ai/dsh-plugin-package-inventory-omega'
-const WEB_SERVER = '@omega-ai/dsh-host-webserver'
+const PLUGIN_INVENTORY = '@deepseek-ai/dsh-plugin-package-inventory-deepseek'
+const WEB_SERVER = '@deepseek-ai/dsh-host-webserver'
 
 const workspaces = indexWorkspacePackages(repoRoot)
 
@@ -94,7 +94,7 @@ const subjectBuilt = [
   'vendor/include/lib/index.js',
   'vendor/loader/lib/index.js',
   'packages/host/webserver/lib/index.js',
-  'packages/llm/plugin-package-inventory-omega/lib/index.js',
+  'packages/llm/plugin-package-inventory-deepseek/lib/index.js',
   'native/system/packages/entry/lib/index.js',
   'packages/preset/agent-preset-registry/lib/typert.host.js',
   'packages/preset/agent-preset-registry/lib/typert.remote-client.js',
@@ -102,20 +102,19 @@ const subjectBuilt = [
 
 let memo: ReturnType<typeof packVfsImage> | undefined
 const packed = (): ReturnType<typeof packVfsImage> => memo ??= packVfsImage({
-  // The composition's own shape: one entry per plugin, `name:` on its own line.
-  config: `- id: subject\n  name: '${SUBJECT}'\n`,
   profile: 'image-loadable-check',
+  roster: [SUBJECT],
   workspaces,
   resolveFrom: repoRoot,
-  // Synthetic composition: nothing boots the worker assembly, so its default
+  // Synthetic roster: nothing boots the worker assembly, so its default
   // image entries must not be demanded of this one-package closure.
   entries: [],
 })
 
 let landlockMemo: ReturnType<typeof packVfsImage> | undefined
 const packedLandlock = (): ReturnType<typeof packVfsImage> => landlockMemo ??= packVfsImage({
-  config: `- id: subject\n  name: '${LANDLOCK}'\n`,
   profile: 'landlock-package-check',
+  roster: [LANDLOCK],
   workspaces,
   resolveFrom: repoRoot,
   entries: [],
@@ -123,8 +122,8 @@ const packedLandlock = (): ReturnType<typeof packVfsImage> => landlockMemo ??= p
 
 let pluginInventoryMemo: ReturnType<typeof packVfsImage> | undefined
 const packedPluginInventory = (): ReturnType<typeof packVfsImage> => pluginInventoryMemo ??= packVfsImage({
-  config: `- id: subject\n  name: '${PLUGIN_INVENTORY}'\n`,
   profile: 'plugin-inventory-check',
+  roster: [PLUGIN_INVENTORY],
   workspaces,
   resolveFrom: repoRoot,
   entries: [],
@@ -132,8 +131,8 @@ const packedPluginInventory = (): ReturnType<typeof packVfsImage> => pluginInven
 
 let webServerMemo: ReturnType<typeof packVfsImage> | undefined
 const packedWebServer = (): ReturnType<typeof packVfsImage> => webServerMemo ??= packVfsImage({
-  config: `- id: subject\n  name: '${WEB_SERVER}'\n`,
   profile: 'webserver-dependency-check',
+  roster: [WEB_SERVER],
   workspaces,
   resolveFrom: repoRoot,
   entries: [],
@@ -196,8 +195,8 @@ const archive = async (): Promise<Uint8Array> =>
     // so anything the compressor takes from its environment would read as a
     // changed tree.
     const again = packVfsImage({
-      config: `- id: subject\n  name: '${SUBJECT}'\n`,
       profile: 'image-loadable-check',
+      roster: [SUBJECT],
       workspaces,
       resolveFrom: repoRoot,
       entries: [],
@@ -318,7 +317,7 @@ const archive = async (): Promise<Uint8Array> =>
         expect(['pluginPackages', 'agentPresets']).toContain(name)
         return undefined
       },
-      omegaLlmApiExtensions: {
+      deepseekLlmApiExtensions: {
         register: (field: string, contribution: { readonly prepare: Prepare }): void => {
           expect(field).toBe('dsh_plugin_packages')
           prepare = contribution.prepare

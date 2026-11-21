@@ -1,8 +1,8 @@
 /** Turn changes use a compact single-file card or a header with a folded file list. */
 import { useEffect, useId, useRef, useState } from 'react'
-import { resolveWorkspacePath } from '@omega-ai/dsh-util-workspace-path'
-import { FileTypeIcon, HoverCard, IconChevronDownOutlineRegular, IconChevronUpOutlineRegular } from '@omega-ai/dsh-client-ui-primitives'
-import type { InjectFace, PropsLocale, SessionStandardProps } from '@omega-ai/dsh-client-ui-slots'
+import { resolveWorkspacePath } from '@deepseek-ai/dsh-util-workspace-path'
+import { FileTypeIcon, HoverCard, IconChevronDownOutlineRegular, IconChevronUpOutlineRegular } from '@deepseek-ai/dsh-client-ui-primitives'
+import type { InjectFace, PropsLocale, SessionStandardProps } from '@deepseek-ai/dsh-client-ui-slots'
 import { changesDiffUrl, type ChangesSummary } from '../changes.ts'
 import type { DeliverablesInjected } from './Deliverables.tsx'
 import { FileDiff } from './FileDiff.tsx'
@@ -34,10 +34,9 @@ function Counts({ added, deleted, t }: { added: number; deleted: number } & Prop
  * @param props - the recorded summary, the review opener, and localized copy.
  * @returns the card.
  */
-export function ChangedFiles({ changes, cwd, openReview, t, sessionId, useChangesDiff, loadChangesDiff }: {
-  /** The served summary with the sequence of the event that announced it. */
-  changes: Pick<ChangesSummary, 'files' | 'total' | 'added' | 'deleted'> & { seq: number }
-  cwd: string | undefined
+export function ChangedFiles({ changes, openReview, t, sessionId, useChangesDiff, loadChangesDiff }: {
+  /** The served summary with the sequence of the event that announced it; paths resolve against its `cwd`. */
+  changes: Pick<ChangesSummary, 'cwd' | 'files' | 'total' | 'added' | 'deleted'> & { seq: number }
   /** Open the turn's review on the file at an original summary index. */
   openReview: (index: number) => void
 } & PropsLocale<typeof NS> & PreviewProps) {
@@ -70,16 +69,17 @@ export function ChangedFiles({ changes, cwd, openReview, t, sessionId, useChange
     {singleFile === undefined ? header : <>
       <HoverCard variant="preview" widthAnchorRef={cardRef} openDelayMs={500} anchor={header}
         content={<ChangedFilePreview sessionId={sessionId} seq={changes.seq} index={0}
-          display={resolveWorkspacePath(cwd, singleFile.path)} useChangesDiff={useChangesDiff}
+          display={resolveWorkspacePath(changes.cwd, singleFile.path)} useChangesDiff={useChangesDiff}
           loadChangesDiff={loadChangesDiff} t={t} />} />
-      <span id={pathDescriptionId} hidden>{resolveWorkspacePath(cwd, singleFile.path)}</span>
+      <span id={pathDescriptionId} hidden>{resolveWorkspacePath(changes.cwd, singleFile.path)}</span>
     </>}
     {singleFile === undefined && <ul className={css.list}>
       {rows.map((file, index) => (
         <li key={file.display}>
           <HoverCard variant="preview" widthAnchorRef={cardRef} openDelayMs={500}
             content={<ChangedFilePreview sessionId={sessionId} seq={changes.seq} index={index}
-              display={resolveWorkspacePath(cwd, file.path)} useChangesDiff={useChangesDiff} loadChangesDiff={loadChangesDiff} t={t} />}
+              display={resolveWorkspacePath(changes.cwd, file.path)}
+              useChangesDiff={useChangesDiff} loadChangesDiff={loadChangesDiff} t={t} />}
             anchor={<button type="button" className={css.row}
               aria-label={t('changes.viewDiff', { name: file.display })}
               aria-describedby={`${pathDescriptionId}-${index}`}
@@ -91,7 +91,7 @@ export function ChangedFiles({ changes, cwd, openReview, t, sessionId, useChange
                     : <Counts t={t} added={file.added} deleted={file.deleted} />}
               </span>
             </button>} />
-          <span id={`${pathDescriptionId}-${index}`} hidden>{resolveWorkspacePath(cwd, file.path)}</span>
+          <span id={`${pathDescriptionId}-${index}`} hidden>{resolveWorkspacePath(changes.cwd, file.path)}</span>
         </li>
       ))}
     </ul>}

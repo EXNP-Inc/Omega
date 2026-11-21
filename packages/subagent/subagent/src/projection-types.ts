@@ -1,10 +1,35 @@
 /**
  * Pure client-safe subagent projection vocabulary.
  *
- * @module @omega-ai/dsh-subagent/projection-types
+ * @module @deepseek-ai/dsh-subagent/projection-types
  */
 
-import type { SessionId, SessionSeq } from '@omega-ai/dsh-session/types'
+import type { SessionId, SessionSeq } from '@deepseek-ai/dsh-session/types'
+
+/** Known child modes with their creation labels and names, shared by catalog views. */
+export type KnownSubagentCatalogFields =
+  | {
+    /** A terminal one-shot child. */
+    readonly mode: 'one-shot'
+    /** Optional durable creation label from the parent catalog. */
+    readonly label?: string
+  }
+  | {
+    /** An external execution without a local child Session. */
+    readonly mode: 'external'
+    /** Optional durable creation label from the parent catalog. */
+    readonly label?: string
+    /** Name unique among the parent's children; absent on historical entries. */
+    readonly name?: string
+  }
+  | {
+    /** A resumable conversation. */
+    readonly mode: 'continuable'
+    /** Durable creation label from the parent catalog. */
+    readonly label: string
+    /** Name unique among the parent's children; absent on historical entries. */
+    readonly name?: string
+  }
 
 /** One current direct-child discovery row materialized from parent facts. */
 export type SubagentCatalogEntry =
@@ -13,8 +38,7 @@ export type SubagentCatalogEntry =
     readonly createdAt: number
   }
   & (
-    | { readonly mode: 'one-shot'; readonly label?: string }
-    | { readonly mode: 'continuable'; readonly label: string }
+    | KnownSubagentCatalogFields
     | { readonly mode: 'unknown'; readonly label?: string }
   )
 
@@ -65,7 +89,7 @@ export type SubagentIdentityProjection =
     seq: SessionSeq
   }
 
-declare module '@omega-ai/dsh-session-projection/types' {
+declare module '@deepseek-ai/dsh-session-projection/types' {
   interface SessionProjectionMap {
     /** Direct children in parent catalog event order, excluding fork-inherited facts. */
     subagentCatalog: SubagentCatalogEntry[]

@@ -3,7 +3,7 @@ description: "The stdio language-server provider for ctx.lsp: configured server 
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-lsp-stdio
+# @deepseek-ai/dsh-lsp-stdio
 
 English | [中文](README.zh.md)
 
@@ -32,10 +32,10 @@ Mount this provider when a deployment has local language servers — for example
 The `servers` record maps each stable provider id to one server command. The provider resolves every executable at load after credential scrubbing, so a bad entry prevents every provider from registering; processes launch lazily on the first matching query.
 
 ```yaml
-- name: '@omega-ai/dsh-fs-local'
-- name: '@omega-ai/dsh-subprocess-local'
-- name: '@omega-ai/dsh-lsp'
-- name: '@omega-ai/dsh-lsp-stdio'
+- name: '@deepseek-ai/dsh-fs-local'
+- name: '@deepseek-ai/dsh-subprocess-local'
+- name: '@deepseek-ai/dsh-lsp'
+- name: '@deepseek-ai/dsh-lsp-stdio'
   config:
     servers:
       typescript:
@@ -43,7 +43,7 @@ The `servers` record maps each stable provider id to one server command. The pro
         args: ['--stdio']
         extensionToLanguage:
           '.ts': typescript
-- name: '@omega-ai/dsh-tool-lsp'
+- name: '@deepseek-ai/dsh-tool-lsp'
 ```
 
 | Field | Default | Meaning |
@@ -60,7 +60,7 @@ The `servers` record maps each stable provider id to one server command. The pro
 | `shutdownTimeoutMs` | `5000` | Graceful `shutdown`/`exit` budget before escalation |
 | `killGraceMs` | `2000` | Request-cancel and SIGTERM→SIGKILL escalation grace |
 
-`servers` must contain at least one entry with non-empty ids; timer budgets must be positive integers within Node's timer range, and byte caps must be positive. The generated [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-lsp-stdio) is the exhaustive source for every accepted field.
+`servers` must contain at least one entry with non-empty ids; timer budgets must be positive integers within Node's timer range, and byte caps must be positive. The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-lsp-stdio) is the exhaustive source for every accepted field.
 
 ### What a query does
 
@@ -68,7 +68,7 @@ On the first query for a workspace, the provider launches one server process for
 
 ### Observable success and failures
 
-A successful navigation returns normalized locations, and hover returns normalized text or a no-hover notice; empty results are successful no-result responses. The query fails when the server does not support the operation or the transient open/close synchronization (`LSP_UNSUPPORTED_OPERATION`), when the source is missing, non-regular, non-UTF-8, oversized, or outside the canonical workspace (rejected before the server starts), or when the server returns a malformed payload (`LSP_MALFORMED_RESPONSE`). A hard-killed harness leaves servers running until they exit on their own — graceful shutdown happens only through service disposal.
+A successful navigation returns normalized locations, and hover returns normalized text or a no-hover notice; empty results are successful no-result responses. Before the server starts, a missing, non-directory, non-regular, non-UTF-8, or oversized workspace or source fails with its `FsError` code, and a source outside the canonical workspace fails with `LSP_FILE_OUTSIDE_WORKSPACE`. The server then fails the query with `LSP_UNSUPPORTED_OPERATION` when it lacks the operation or the transient open/close synchronization, `LSP_UNSUPPORTED_ENCODING` for a non-UTF-16 position encoding, `LSP_MALFORMED_RESPONSE` for a malformed payload, and `LSP_SERVER_ERROR` for a JSON-RPC error response; a failed process or stream reports `LSP_SPAWN_FAILED`, `LSP_SERVER_EXITED`, `LSP_PROTOCOL_ERROR`, or `LSP_MESSAGE_TOO_LARGE`. The [LSP navigation subsystem](../../../docs/subsystems/lsp.md#failures) gives each code's meaning and consumer action. A hard-killed harness leaves servers running until they exit on their own — graceful shutdown happens only through service disposal.
 
 ### Security boundary
 

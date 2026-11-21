@@ -108,7 +108,7 @@ const homeAndGuide = pairedPages([
   {
     source: 'docs/user/index.md',
     route: 'index.md',
-    label: { root: 'Omega', en: 'Omega' },
+    label: { root: 'DeepSeek Harness', en: 'DeepSeek Harness' },
     sidebar: { root: null, en: null },
     section: { root: '首页', en: 'Home' },
     order: 0,
@@ -147,6 +147,14 @@ const homeAndGuide = pairedPages([
     order: 4,
   },
   {
+    source: 'docs/user/guide/desktop-uninstall-cleanup.md',
+    route: 'guide/desktop-uninstall-cleanup.md',
+    label: { root: '卸载 DSH 桌面端', en: 'Uninstall DSH Desktop' },
+    sidebar: { root: 'zh-guide', en: 'en-guide' },
+    section: { root: '入门', en: 'Guide' },
+    order: 5,
+  },
+  {
     source: 'docs/user/guide/python-sdk.md',
     route: 'guide/python-sdk.md',
     label: { root: 'Python', en: 'Python' },
@@ -168,6 +176,14 @@ const homeAndGuide = pairedPages([
     label: { root: '会话内提醒', en: 'Session reminders' },
     sidebar: { root: 'zh-guide', en: 'en-guide' },
     section: { root: '自动化', en: 'Automation' },
+    order: 2,
+  },
+  {
+    source: 'docs/user/guide/plugin-market.md',
+    route: 'guide/plugin-market.md',
+    label: { root: '插件索引', en: 'Plugin indexes' },
+    sidebar: { root: 'zh-guide', en: 'en-guide' },
+    section: { root: '集成', en: 'Integrations' },
     order: 2,
   },
   {
@@ -380,7 +396,7 @@ const subsystemsReference = subsystemGroups.flatMap(([rootSection, enSection, fi
 ))
 
 const reference = [
-  // `docs/omega-llm-api-wire-extensions.md` is a repository-only provider protocol reference.
+  // `docs/deepseek-llm-api-wire-extensions.md` is a repository-only provider protocol reference.
   // Projected links intentionally resolve to its GitHub source instead of a public site route.
   ...pairedPages(([
     ['docs/architecture.md', 'reference/index.md', '架构', 'Architecture', 0],
@@ -409,6 +425,7 @@ const reference = [
     ['docs/config-catalog.md', 'reference/config-catalog.md', '插件配置', 'Plugin configuration'],
     ['docs/tool-catalog.md', 'reference/tool-catalog.md', 'Tool Schema', 'Tool schemas'],
     ['docs/persistence-catalog.md', 'reference/persistence-catalog.md', '持久化事件', 'Persistence events', 'deep'],
+    ['docs/experimental-persistence-catalog.md', 'reference/experimental-persistence-catalog.md', '实验性持久化记录', 'Experimental persistence'],
   ] as const).map(([source, route, rootLabel, enLabel, outline], order): PairedPage => ({
     source,
     route,

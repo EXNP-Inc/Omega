@@ -1,7 +1,7 @@
 /** Coding Tools persist while Standard, Creator, and custom presets remain selectable when disabled. */
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import type {} from '@omega-ai/dsh-api-session-controller'
+import type {} from '@deepseek-ai/dsh-api-session-controller'
 import { chromium } from 'playwright'
 import { expect, it, onTestFinished } from 'vitest'
 import { launchWebScaffold, watchConsole } from './scaffold.ts'
@@ -90,6 +90,8 @@ it('persists Coding Tools and limits the built-in PTC and Minimal choices in ses
   await expect.poll(livePresets, { timeout: 15_000 }).toEqual(['standard'])
 
   await page.reload()
+  // The sessionless preset chip is replaced when the saved Session is restored.
+  await page.locator('[data-composer-input][contenteditable="true"]').waitFor()
   await page.getByRole('button', { name: 'Standard mode', exact: true }).click()
   await expect.poll(() => menu.getByRole('menuitem').count()).toBe(3)
   await page.keyboard.press('Escape')

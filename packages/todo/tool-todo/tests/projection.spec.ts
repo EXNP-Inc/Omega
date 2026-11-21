@@ -7,19 +7,20 @@
  * removes it (HMR safety). The carrier and framework are exercised unmodified.
  */
 
+import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
 import { describe, expect, it } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import AgentRegistry from '@omega-ai/dsh-agent'
-import type { Agent } from '@omega-ai/dsh-agent'
-import { createUserMessage } from '@omega-ai/dsh-llm'
-import SessionStore from '@omega-ai/dsh-session'
-import type { Session } from '@omega-ai/dsh-session'
-import type { TodoItem } from '@omega-ai/dsh-tool-todo'
-import SystemPrompt from '@omega-ai/dsh-system-prompt'
-import ToolRuntime from '@omega-ai/dsh-tools'
-import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
-import UserQuestionService from '@omega-ai/dsh-user-questions'
-import * as ToolTodo from '@omega-ai/dsh-tool-todo'
+import { Context } from '@deepseek-ai/cordis'
+import AgentRegistry from '@deepseek-ai/dsh-agent'
+import type { Agent } from '@deepseek-ai/dsh-agent'
+import { createUserMessage } from '@deepseek-ai/dsh-llm'
+import SessionStore from '@deepseek-ai/dsh-session'
+import type { Session } from '@deepseek-ai/dsh-session'
+import type { TodoItem } from '@deepseek-ai/dsh-tool-todo'
+import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
+import ToolRuntime from '@deepseek-ai/dsh-tools'
+import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import UserQuestionService from '@deepseek-ai/dsh-user-questions'
+import * as ToolTodo from '@deepseek-ai/dsh-tool-todo'
 
 interface Bench {
   ctx: Context
@@ -32,9 +33,10 @@ async function harness(withTodoTool: boolean): Promise<Bench> {
   await ctx.plugin(SessionStore)
   await ctx.plugin(SystemPrompt, { personaPrefix: '' })
   await ctx.plugin(ToolRuntime)
+  await ctx.plugin(NativeToolExecutor)
   await ctx.plugin(UserQuestionService)
-  await ctx.plugin(AgentRegistry)
   await ctx.plugin(SessionProjectionRegistry)
+  await ctx.plugin(AgentRegistry)
   if (withTodoTool) await ctx.plugin(ToolTodo, { allowParallelInProgress: true })
   const session = ctx.sessions.create()
   await ctx.agents.register({ id: session.id, session, status: 'idle', ctx } as Agent)

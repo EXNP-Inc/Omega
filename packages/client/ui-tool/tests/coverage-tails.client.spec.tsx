@@ -1,19 +1,19 @@
 // @vitest-environment jsdom
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { useDisclosure } from '@omega-ai/dsh-client-ui-chat/src/client/chat/use-disclosure.ts'
+import { useDisclosure } from '@deepseek-ai/dsh-client-ui-chat/src/client/chat/use-disclosure.ts'
 import { cleanup, render } from '@testing-library/react'
-import { createSnapshotStore } from '@omega-ai/dsh-client-store'
-import { bindSnapshotSelector, makeTranslate } from '@omega-ai/dsh-client-test-runtime'
-import type { SessionListState } from '@omega-ai/dsh-api-session-controller/client'
-import type { StartedToolCall, ToolResultNode } from '@omega-ai/dsh-client-ui-chat/client'
-import type { SessionId } from '@omega-ai/dsh-session/types'
-import { zh as commonZh } from '@omega-ai/dsh-client-locale/src/locales/zh.ts'
+import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
+import { bindSnapshotSelector, makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
+import type { SessionListState } from '@deepseek-ai/dsh-api-session-controller/client'
+import type { StartedToolCall, ToolResultNode } from '@deepseek-ai/dsh-client-ui-chat/client'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { zh as commonZh } from '@deepseek-ai/dsh-client-locale/src/locales/zh.ts'
 import { GenericToolCard, type GenericToolCardProps } from '../src/client/tool/toolviews/GenericToolCard.tsx'
 import { ToolRow } from '../src/client/tool/components/ToolRow.tsx'
 import { BashRow } from '../src/client/tool/toolviews/bash-sample.tsx'
-import { zh } from '@omega-ai/dsh-client-ui-conversation/src/client/locales.ts'
-import { PartialArguments } from '@omega-ai/dsh-util-values'
+import { zh } from '@deepseek-ai/dsh-client-ui-conversation/src/client/locales.ts'
+import { PartialArguments } from '@deepseek-ai/dsh-util-values'
 
 type BashRowProps = Parameters<typeof BashRow>[0]
 
@@ -62,10 +62,12 @@ describe('Tool presentation tails', () => {
       content: [], isError: false, subCalls: [],
     }
     const props: GenericToolCardProps = {
+      getFileTriggerProps: () => ({}),
       loadImage: vi.fn(() => Promise.reject(new Error('not used'))),
       useDisclosure, callId: 'c5', toolName: 'todo_write', phase: 'result' as const, block: settled, openFile: vi.fn(), t,
     }
-    const view = render(<GenericToolCard {...props} />)
+    const view = render(<GenericToolCard {...props}
+      getFileTriggerProps={() => ({})} />)
     expect(view.container.querySelector('[data-variant="others"] svg')).not.toBeNull()
     expect(view.container.querySelector('[data-state="ok"]')).not.toBeNull()
   })

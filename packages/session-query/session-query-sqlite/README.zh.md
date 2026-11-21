@@ -3,7 +3,7 @@ description: "面向部署方与维护者的 SQLite FTS5 会话历史全文搜�
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-session-query-sqlite
+# @deepseek-ai/dsh-session-query-sqlite
 
 [English](README.md) | 中文
 
@@ -34,8 +34,8 @@ kind: "package-reference"
 ### 最小配置
 
 ```yaml
-- name: '@omega-ai/dsh-session'
-- name: '@omega-ai/dsh-session-query-sqlite'
+- name: '@deepseek-ai/dsh-session'
+- name: '@deepseek-ai/dsh-session-query-sqlite'
   config:
     path: /absolute/path/to/session-search.db
 ```
@@ -52,7 +52,7 @@ kind: "package-reference"
 | `persistedReadConcurrency` | `4` | 继承批量读取的并发持久化日志读取数 |
 | `preparedSessionCacheSize` | `5` | 继承的 `observeSession` 读取器为复用保留的冷 prepared-Session 观察数 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#omega-aidsh-session-query-sqlite)是每个受支持字段及其 JSDoc 的穷尽式真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#deepseek-aidsh-session-query-sqlite)是每个受支持字段及其 JSDoc 的穷尽式真源。
 
 ### 搜索行为
 
@@ -118,7 +118,7 @@ kind: "package-reference"
 
 - [会话查询子系统参考](../../../docs/subsystems/session-query.zh.md)——本后端实现的完整类型级约定。
 - [dsh-session-query](../session-query/README.zh.md)——服务定义：本后端继承的精确读取、过滤与追踪。
-- [dsh-tool-session-query](../tool-session-query/README.zh.md)——调用这些搜索方法的面向模型消费方。
+- [dsh-tool-session-query](../../experimental/tool-session-query/README.zh.md)——调用这些搜索方法的面向模型消费方。
 - [SQLite FTS5 会话搜索](../../../.agents/notes/archived/feature/2026-07-10-sqlite-session-query-provider.md)——搜索语义、对账与 tokenizer 决策。
 - [JSONL 会话持久化](../../session/session-persistence-jsonl/README.zh.md)——本可丢弃索引观察的权威 Session store；其 root 必须与本包的数据库路径分开。
 

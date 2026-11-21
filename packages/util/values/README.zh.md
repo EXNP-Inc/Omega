@@ -3,7 +3,7 @@ description: "供运行时包使用的无损 JSON 校验、分离式快照、深
 kind: "package-library"
 ---
 
-# @omega-ai/dsh-util-values
+# @deepseek-ai/dsh-util-values
 
 [English](README.md) | 中文
 
@@ -29,7 +29,7 @@ kind: "package-library"
 需要 predicate 时使用 `isJsonValue()`，还需要分离副本时使用 `snapshotJsonValue()`。两者只接受无损 JSON 根值：`null`、布尔值、除负零外的有限数字、字符串、稠密的内建数组，以及只含可枚举字符串键的普通或 null-prototype 记录。循环、稀疏数组、自有 symbol 属性或自有不可枚举属性、函数和 class 实例都会被拒绝。
 
 ```ts
-import { isJsonValue, snapshotJsonValue, type JsonValue } from '@omega-ai/dsh-util-values'
+import { isJsonValue, snapshotJsonValue, type JsonValue } from '@deepseek-ai/dsh-util-values'
 
 declare const input: unknown
 
@@ -61,7 +61,7 @@ const snapshot = snapshotJsonValue(input) as JsonValue
 <details>
 <summary>实现细节——点击展开</summary>
 
-JSON 校验器使用显式工作栈，并只跟踪当前祖先链，因此深层嵌套值不会消耗 JavaScript 调用栈，重复但无循环的引用仍然有效。内建数组与普通对象通过当前引擎的原生构造器文本表示进行跨 JavaScript realm 识别。快照写入使用自有数据属性，包括 `__proto__` 等名称。值操作的结果只取决于传入参数；`WeakMapWithValues` 仅保存实例自有的关联。
+JSON 校验器为每个正在遍历的容器保留一个位置，每次读取一个子项，并只跟踪当前祖先链，因此深层嵌套值不会消耗 JavaScript 调用栈，重复但无循环的引用仍然有效。内建数组与普通对象通过当前引擎的原生构造器文本表示进行跨 JavaScript realm 识别。快照写入使用自有数据属性，包括 `__proto__` 等名称。值操作的结果只取决于传入参数；`WeakMapWithValues` 仅保存实例自有的关联。
 
 ### 源码地图
 

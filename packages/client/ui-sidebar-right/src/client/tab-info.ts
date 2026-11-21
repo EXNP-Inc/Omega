@@ -1,9 +1,9 @@
 /** Slot-owned tab information derived from framework-bound store and navigation hooks. */
-import type { ShortcutCatalogEntry } from '@omega-ai/dsh-client-shortcuts/client'
+import type { ShortcutCatalogEntry } from '@deepseek-ai/dsh-client-shortcuts/client'
 import { useMemo } from 'react'
-import { findTabPane } from '@omega-ai/dsh-client-ui-dockkit'
-import type { TabId } from '@omega-ai/dsh-client-ui-dockkit'
-import type { KeyedSnapshotSelectorHook, PropsStore, SlotHookFactory } from '@omega-ai/dsh-client-ui-slots'
+import { findTabPane } from '@deepseek-ai/dsh-client-ui-dockkit'
+import type { TabId } from '@deepseek-ai/dsh-client-ui-dockkit'
+import type { KeyedSnapshotSelectorHook, PropsStore, SlotHookFactory } from '@deepseek-ai/dsh-client-ui-slots'
 import type { SidebarRightTabActions, SidebarRightTabNavigation, UseSidebarRightTabInfo } from './contract/slots.ts'
 import type { createSidebarRightStore } from './stores.ts'
 
@@ -40,7 +40,7 @@ export const tabInfoFactory: SlotHookFactory<'sidebar.right.pane.tab', UseSideba
       const pane = findTabPane(layout, tabId)
       return {
         sidebar: { expanded: layout.expanded, fullscreen },
-        panel: { id: pane.id },
+        panel: { id: pane.id, isFloating: pane.host === 'float' },
         tab: {
           ...tab,
           visible: active && (pane.host === 'float' || (layout.expanded && (title || pane.activeTabId === tabId))),

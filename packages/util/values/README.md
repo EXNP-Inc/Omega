@@ -3,7 +3,7 @@ description: "Lossless JSON validation, detached snapshots, deep freezing, struc
 kind: "package-library"
 ---
 
-# @omega-ai/dsh-util-values
+# @deepseek-ai/dsh-util-values
 
 English | [中文](README.zh.md)
 
@@ -29,7 +29,7 @@ Callers can validate lossless JSON, read streamed arguments, detach a JSON snaps
 Use `isJsonValue()` for a predicate and `snapshotJsonValue()` when the caller also needs a detached copy. Both accept only lossless JSON roots: `null`, booleans, finite numbers other than negative zero, strings, dense intrinsic arrays, and plain or null-prototype records with enumerable string keys. Cycles, sparse arrays, symbol or non-enumerable own properties, functions, and class instances are rejected.
 
 ```ts
-import { isJsonValue, snapshotJsonValue, type JsonValue } from '@omega-ai/dsh-util-values'
+import { isJsonValue, snapshotJsonValue, type JsonValue } from '@deepseek-ai/dsh-util-values'
 
 declare const input: unknown
 
@@ -61,7 +61,7 @@ Use `assertNever(value, context?)` in the default branch of a closed discriminat
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The JSON validator uses an explicit work stack and tracks only the active ancestor chain, so deeply nested values do not consume the JavaScript call stack and repeated non-cyclic references remain valid. Intrinsic arrays and plain objects are recognized across JavaScript realms using native constructor representations from the running engine. Snapshot writes use own data properties, including for names such as `__proto__`. Value operations derive their result only from their arguments; `WeakMapWithValues` stores only instance-owned associations.
+The JSON validator keeps one cursor per active container, reads one child at a time, and tracks only the active ancestor chain, so deeply nested values do not consume the JavaScript call stack and repeated non-cyclic references remain valid. Intrinsic arrays and plain objects are recognized across JavaScript realms using native constructor representations from the running engine. Snapshot writes use own data properties, including for names such as `__proto__`. Value operations derive their result only from their arguments; `WeakMapWithValues` stores only instance-owned associations.
 
 ### Source map
 

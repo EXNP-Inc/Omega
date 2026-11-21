@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { SESSION_FORMAT_VERSION } from '@omega-ai/dsh-session'
-import { prepareSessionSnapshotFixtureForComparison } from '@omega-ai/dsh-llm-replay'
+import { SESSION_FORMAT_VERSION } from '@deepseek-ai/dsh-session'
+import { prepareSessionSnapshotFixtureForComparison } from '@deepseek-ai/dsh-llm-replay'
 import {
   type NormalizeContext,
   extractSnapshotSpillPaths,
@@ -256,6 +256,33 @@ Additional instructions from: nested\AGENTS.md`,
 })
 
 describe('normalizeSessionLog', () => {
+  it.each([
+    { format: 'full UUIDs', ids: ['bash-aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'bash-bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'] },
+    { format: 'short UUIDs', ids: ['bash-aaaaaaaaaaaaaaaa', 'bash-bbbbbbbbbbbbbbbb'] },
+  ])('keeps $format distinct in single-log and single-snapshot paths', ({ ids }) => {
+    const raw = [
+      { type: 'session', version: 0, id: ctx.sessionIds[0], cwd: ctx.cwd, createdAt: 100 },
+      { type: 'user/message', data: { text: 'Keep {{id:1}} literal.' } },
+      ...ids.flatMap(jobId => [
+        { type: 'job/registered', data: { jobId, startedAt: 100 } },
+        { type: 'job/settled', data: { jobId, startedAt: 100, finishedAt: 200 } },
+      ]),
+      { type: 'tool/call', data: { arguments: JSON.stringify({ job_id: ids[0] }) } },
+      { type: 'tool/result', data: { message: { content: [{ type: 'text', text: `read ${ids[0]}` }] } } },
+    ].map(record => JSON.stringify(record)).join('\n') + '\n'
+    for (const normalize of [normalizeSessionLog, normalizeSessionSnapshot]) {
+      const output = normalize(raw, ctx)
+      const jobs = output.split('\n').filter(Boolean).map(line => JSON.parse(line) as { type: string; data: { jobId: string } })
+        .filter(record => record.type.startsWith('job/'))
+      expect(jobs.map(record => record.data.jobId)).toEqual(['{{id:2}}', '{{id:2}}', '{{id:3}}', '{{id:3}}'])
+      const call = output.split('\n').filter(Boolean).map(line => JSON.parse(line) as { type: string; data: { arguments: string } })
+        .find(record => record.type === 'tool/call')
+      expect(JSON.parse(call!.data.arguments)).toEqual({ job_id: '{{id:2}}' })
+      expect(output).toContain('read {{id:2}}')
+      expect(output).toContain('Keep {{id:1}} literal.')
+      expect(normalize(output, ctx)).toBe(output)
+    }
+  })
   it('normalizes only message-feedback item clocks', () => {
     const item = { messageId: 'answer', version: 'version', createdAt: 123, updatedAt: 456, note: 'keep 123' }
     const input = ['feedback/message-put', 'tool/result'].map(type => JSON.stringify({ type, data: { item } })).join('\n')
@@ -525,6 +552,26 @@ describe('normalizeSessionLog', () => {
     expect(out).toContain('"operation":"resume"')
   })
 
+  it('normalizes job lifecycle clocks while preserving user timestamps and uncertainty', () => {
+    const input = [
+      header({}),
+      { type: 'job/registered', data: { startedAt: 100, jobId: 'bash-1' } },
+      { type: 'job/settled', data: { startedAt: 100, finishedAt: 200, producerReported: false } },
+      { type: 'job/registered', data: {} },
+      { type: 'job/settled', data: null },
+      { type: 'job/settled', data: 'invalid fixture remains invalid' },
+      { type: 'tool/result', data: { startedAt: 300, finishedAt: 400 } },
+    ].map(value => typeof value === 'string' ? value : JSON.stringify(value)).join('\n') + '\n'
+    const normalized = normalizeSessionLog(input, ctx).trim().split('\n')
+      .map(line => JSON.parse(line) as { data?: unknown })
+    expect(normalized[1]?.data).toEqual({ startedAt: 0, jobId: 'bash-1' })
+    expect(normalized[2]?.data).toEqual({ startedAt: 0, finishedAt: 0, producerReported: false })
+    expect(normalized[3]?.data).toEqual({})
+    expect(normalized[4]?.data).toBeNull()
+    expect(normalized[5]?.data).toBe('invalid fixture remains invalid')
+    expect(normalized[6]?.data).toEqual({ startedAt: 300, finishedAt: 400 })
+  })
+
   it('normalizes subagent catalog child creation clocks', () => {
     const catalog = JSON.stringify({
       type: 'subagent/catalog',
@@ -760,7 +807,7 @@ describe('normalizeSessionSnapshot', () => {
       { type: 'session', version, id, createdAt: 1, isSeeded: false, delegationDepth: 0 },
       { type: 'turn/start', seq: 0, time: 1, data: { turn: 1 } },
       {
-        type: 'session-log-omega/delivery-accepted', seq: 1, time: 2,
+        type: 'session-log-deepseek/delivery-accepted', seq: 1, time: 2,
         data: { sessionId: id, throughSeq: 0, sessionFormatVersion: deliveryVersion },
       },
     ].map(record => JSON.stringify(record)).join('\n') + '\n'
@@ -802,7 +849,7 @@ describe('normalizeSessionSnapshot', () => {
     const target = prepareSessionSnapshotFixtureForComparison(source)
     const marker = JSON.parse(target.trimEnd().split('\n').at(-1)!) as unknown
     expect(marker).toEqual({
-      type: 'session-log-omega/delivery-accepted', seq: 1, time: 2,
+      type: 'session-log-deepseek/delivery-accepted', seq: 1, time: 2,
       data: { sessionId: 'recorded-session', throughSeq: 0, sessionFormatVersion: 99 },
     })
     const [historical, migrated] = normalizeSessionSnapshots([source, target], ctx, { nativeWriterOutput: true })
@@ -824,7 +871,7 @@ describe('normalizeSessionSnapshot', () => {
 
   it('preserves delivery and captured-source generations without a validated source generation', () => {
     const event = (version: number): string => JSON.stringify({
-      type: 'session-log-omega/delivery-accepted',
+      type: 'session-log-deepseek/delivery-accepted',
       data: { sessionId: 's', throughSeq: 4, sessionFormatVersion: version },
     })
     expect(normalizeSessionFormatMetadata(event(0))).toBe(event(0))
@@ -839,7 +886,7 @@ describe('normalizeSessionSnapshot', () => {
         createdAt: 0,
       }),
       JSON.stringify({
-        type: 'session-log-omega/delivery-accepted',
+        type: 'session-log-deepseek/delivery-accepted',
         data: { sessionFormatVersion: 1, throughSeq: 21, otherVersion: 8 },
       }),
       JSON.stringify({
@@ -1102,7 +1149,7 @@ function systemMessageEvent(text: string, seq = 2): string {
         id: '11111111-1111-4111-8111-111111111111',
         role: 'system',
         content: text.length === 0 ? [] : [{ type: 'text', text }],
-        source: { kind: 'plugin', plugin: '@omega-ai/dsh-system-prompt' },
+        source: { kind: 'plugin', plugin: '@deepseek-ai/dsh-system-prompt' },
       },
     },
   })
@@ -1180,6 +1227,23 @@ describe('scrubSessionSnapshot', () => {
     expect(scrubSessionSnapshot(output)).toBe(output)
   })
 
+  it('normalizes Timeline task clocks and receipts without changing descriptions', () => {
+    const records = [
+      { type: 'session', id: 's' },
+      { type: 'plugin:timeline/tree', data: { tree: {
+        createdAt: 12, lastTaskUpdate: 15, tasks: [{ title: 'Keep 12', createdAt: 12, updatedAt: 15 }],
+      }, receipt: { at: 15, previousAt: null } } },
+      { type: 'plugin:timeline/tree', data: {} },
+      { type: 'tool/result', data: { meta: { timeline: { at: 15, previousAt: 12 }, createdAt: 12 } } },
+    ]
+    const input = records.map(record => JSON.stringify(record)).join('\n')
+    const output = scrubSessionSnapshot(input)
+    expect(output).toContain('"createdAt":0,"lastTaskUpdate":0,"tasks":[{"title":"Keep 12","createdAt":0,"updatedAt":0}]')
+    expect(output).toContain('"receipt":{"at":0,"previousAt":null}')
+    expect(output).toContain('"timeline":{"at":0,"previousAt":0},"createdAt":12')
+    expect(scrubSessionSnapshot(output)).toBe(output)
+  })
+
   it('preserves the header while projecting and scrubbing each body record', () => {
     const header = '  {"type":"session","version":0,"id":"s","createdAt":7}  '
     const system = systemMessageEvent('secret', 0)
@@ -1194,7 +1258,7 @@ describe('scrubSessionSnapshot', () => {
 
     expect(scrubSessionSnapshot(`${header}\n${system}\n${request}\n${event}\n`)).toBe([
       header,
-      '{"type":"system/message","data":{"turn":1,"step":1,"message":{"id":"11111111-1111-4111-8111-111111111111","role":"system","content":[{"type":"text","text":"{{system}}"}],"source":{"kind":"plugin","plugin":"@omega-ai/dsh-system-prompt"}}}}',
+      '{"type":"system/message","data":{"turn":1,"step":1,"message":{"id":"11111111-1111-4111-8111-111111111111","role":"system","content":[{"type":"text","text":"{{system}}"}],"source":{"kind":"plugin","plugin":"@deepseek-ai/dsh-system-prompt"}}}}',
       '{"type":"request/header","data":{"header":{"tools":"{{tools}}"},"reason":"initial"}}',
       '{"type":"turn/start","data":{"turn":1,"seq":41,"time":42}}',
       '',

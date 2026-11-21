@@ -4,7 +4,7 @@
  * the POC's restricting-SID allowlist. Every API call is checked; any failure
  * throws with the API name and the exact Win32 code — the original POC ignored
  * all of these and silently ran children with the FULL, unrestricted token.
- * @module @omega-ai/dsh-sandbox-windows-acl/token
+ * @module @deepseek-ai/dsh-sandbox-windows-acl/token
  */
 
 import { allocBytes, allocPtrSlot, allocUint32, decodePtr, decodePtrAt, decodeUint32, encodeUint32, isNullPtr, ptrAddress, throwLastError, throwWin32 } from './ffi.ts'
@@ -229,7 +229,7 @@ export function createRestrictedToken(
   const tokenSlot = allocPtrSlot()
   const created = api.createRestrictedToken(
     currentToken,
-    abi.DISABLE_MAX_PRIVILEGE | abi.LUA_TOKEN | abi.WRITE_RESTRICTED,
+    abi.DISABLE_MAX_PRIVILEGE | abi.WRITE_RESTRICTED,
     0, null, // no SIDs disabled
     0, null, // no privileges deleted
     restrictingSids.length / abi.SID_AND_ATTRIBUTES_SIZE,

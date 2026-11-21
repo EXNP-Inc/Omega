@@ -6,8 +6,8 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 const root = resolve(import.meta.dirname, '..')
-const unavailableOwner = ['omega', 'ai'].join('-')
-const unavailableRepositoryName = ['omega', 'harness', 'sdk'].join('-')
+const unavailableOwner = ['deepseek', 'ai'].join('-')
+const unavailableRepositoryName = ['deepseek', 'harness', 'sdk'].join('-')
 const unavailableRepository = `${unavailableOwner}/${unavailableRepositoryName}`
 const archivedAgentNotePrefix = '.agents/notes/archived/'
 
@@ -66,7 +66,7 @@ export function findUnavailableRepositoryReferences(file: string, source: string
 }
 
 function trackedFiles(repoRoot: string): string[] {
-  return execFileSync('git', ['ls-files', '-z'], { cwd: repoRoot, encoding: 'utf8' })
+  return execFileSync('git', ['ls-files', '-z'], { cwd: repoRoot, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
     .split('\0')
     .filter(file => file !== '')
 }

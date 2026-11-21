@@ -1,10 +1,10 @@
-import { Context } from '@omega-ai/cordis'
+import { Context } from '@deepseek-ai/cordis'
 import {
   TypertRemoteService,
   Remote,
   RemoteScope,
   remoteMethods,
-} from '@omega-ai/dsh-typert-protocol'
+} from '@deepseek-ai/dsh-typert-protocol'
 
 class Goals extends TypertRemoteService {
   constructor(ctx: Context) {

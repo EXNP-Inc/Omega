@@ -5,20 +5,20 @@
  * projections of `ctx.jobs`; the model's consuming cursor and notice state
  * never observe them, and a human kill is not the model's own, so the
  * completion notice still reaches the owning agent.
- * @module @omega-ai/dsh-api-job-controller
+ * @module @deepseek-ai/dsh-api-job-controller
  */
 
-import { Context } from '@omega-ai/cordis'
-import z from '@omega-ai/schemastery'
-import type {} from '@omega-ai/dsh-jobs'
-import { Remote, RemoteError, TypertRemoteService } from '@omega-ai/dsh-typert-protocol'
+import { Context } from '@deepseek-ai/cordis'
+import z from '@deepseek-ai/schemastery'
+import type {} from '@deepseek-ai/dsh-jobs'
+import { Remote, RemoteError, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
 import { observeJobOutput } from './observe.ts'
 import { streamJobRows } from './rows.ts'
 import type { JobKillRequest, JobKillValue, JobFollowFrame, JobFollowRequest, JobListFrame, JobListRequest } from './types.ts'
 
 export type * from './types.ts'
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
     /** Host job Remote namespace owner. */
     jobController: JobController
@@ -68,6 +68,9 @@ export class JobController extends TypertRemoteService {
    * Stream the jobs one session can see — its own plus every unowned job —
    * as whole-set frames: one on open, then one after each coalesced burst of
    * lifecycle commits. The stream has no natural end; the carrier closes it.
+   *
+   * The Gateway names this call's Session resource from `request.sessionId`
+   * through the session controller's resolver; no explicit reader is needed.
    * @param request - the session whose visible set to mirror.
    * @param signal - cancellation owned by the Remote stream carrier.
    * @returns the roster frames.

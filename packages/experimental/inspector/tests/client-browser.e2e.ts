@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { createServer, type Server } from 'node:http'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { Context } from '@omega-ai/cordis'
+import { Context } from '@deepseek-ai/cordis'
 import { chromium, type Browser, type Page } from 'playwright'
 import WebSocket, { type RawData } from 'ws'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -294,7 +294,7 @@ function browserFixture(bootstrap: InspectorHandle['endpoint']['client']): strin
   const boot = {
     rev: 'browser-test',
     entries: [{
-      id: '@omega-ai/dsh-experimental-inspector',
+      id: '@deepseek-ai/dsh-experimental-inspector',
       url: '/client.js?rev=browser-test',
       rev: 'browser-test',
     }],
@@ -319,10 +319,11 @@ const root = {
   inject() { return { dispose() {} }; },
   provide(name, value) { this[name] = value; return () => { delete this[name]; }; },
 };
-root.root = root;
-const cordis = { Context: { is(value) { return value?.__inspectorContext === true; } } };
+const rootKey = Symbol.for('cordis.root');
+root[rootKey] = root;
+const cordis = { Context: { root: rootKey, is(value) { return value?.__inspectorContext === true; } } };
 const plugin = registration.factory(specifier => {
-  if (specifier === '@omega-ai/cordis') return cordis;
+  if (specifier === '@deepseek-ai/cordis') return cordis;
   throw new Error('Unexpected Client bundle dependency ' + specifier);
 });
 await plugin.apply(root);

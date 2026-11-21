@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { execa } from 'execa'
 import { describe, expect, it } from 'vitest'
-import { resolveExampleLaunch } from '@omega-ai/dsh-loader-smoke'
+import { resolveExampleLaunch } from '@deepseek-ai/dsh-loader-smoke'
 
 const dshBinScript = fileURLToPath(new URL('../src/bin.ts', import.meta.url))
 const tsconfigPath = fileURLToPath(new URL('../../../tsconfig.json', import.meta.url))
@@ -17,7 +17,7 @@ function records(content: string): Record<string, unknown>[] {
 }
 
 describe('dsh run with Agent Teams enabled', () => {
-  it('runs two teammates, durable peer mail, dependent tasks, waiting, and final aggregation', async () => {
+  it('runs two teammates, sibling messages, dependent tasks, waiting, and final aggregation', async () => {
     const cwd = await mkdtemp(join(tmpdir(), 'dsh-agent-team-headless-'))
     try {
       const home = join(cwd, '.dsh')
@@ -27,28 +27,19 @@ describe('dsh run with Agent Teams enabled', () => {
       await writeFile(join(profileDir, 'package.json'), JSON.stringify({
         name: 'dsh-profile-headless',
         private: true,
-        dependencies: {
-          '@omega-ai/dsh-experimental-agent-team-profile': 'workspace:^',
-        },
+        dependencies: {},
         dsh: {
           profile: {
             bundles: [
-              '@omega-ai/dsh-base',
-              '@omega-ai/dsh-headless',
-              '@omega-ai/dsh-experimental-agent-team-profile',
+              '@deepseek-ai/dsh-base',
+              '@deepseek-ai/dsh-headless',
             ],
           },
         },
       }, undefined, 2) + '\n')
       await writeFile(join(profileDir, 'cordis.patch.yml'), [
-        '- id: llm-omega',
+        '- id: llm-deepseek',
         '  disabled: true',
-        // Route the deterministic fixture adapter, which registers on
-        // omega-official, where the profile's default model points.
-        '- id: agent-default-model',
-        '  config:',
-        '    provider: omega-official',
-        '    model: omega-v4-flash',
         '- id: session-persistence-jsonl',
         '  config:',
         `    root: '${sessions}'`,
@@ -66,7 +57,7 @@ describe('dsh run with Agent Teams enabled', () => {
           DSH_HOME: home,
           DSH_AGENTS_HOME: join(cwd, '.agents'),
           DSH_TELEMETRY_DISABLED: '1',
-          OMEGA_API_KEY: '',
+          DEEPSEEK_API_KEY: '',
           NODE_OPTIONS: [
             process.env.NODE_OPTIONS,
             '--disable-warning=ExperimentalWarning',
@@ -94,23 +85,39 @@ describe('dsh run with Agent Teams enabled', () => {
       expect(files).toHaveLength(4)
       const logs = await Promise.all(files.map(file => readFile(join(sessions, file), 'utf8')))
       const parsed = logs.map(records)
-      const workflowChild = parsed.find(log => log.some(record => record.type === 'subagent/descriptor'
-        && (record.data as { mode: string }).mode === 'one-shot'))
+      const workflowTask = [
+        { type: 'text', text: 'Agent lead sent a message: ' },
+        { type: 'text', text: 'TEAM_WORKFLOW_CHILD' },
+      ]
+      const workflowChild = parsed.find(log => log.some(record => record.type === 'user/message'
+        && JSON.stringify((record.data as { content: unknown }).content) === JSON.stringify(workflowTask)))
       expect(workflowChild).toBeDefined()
-      expect(workflowChild!.find(record => record.type === 'subagent/descriptor')?.data)
-        .toMatchObject({ mode: 'one-shot', provider: 'spawn' })
+      const workflowDescriptor = workflowChild!.find(record => record.type === 'subagent/descriptor')?.data as Record<string, unknown>
+      expect(workflowDescriptor).toMatchObject({ mode: 'continuable', provider: 'spawn' })
       expect(workflowChild!.filter(record => record.type === 'user/message'
-        && (record.data as { source: { kind: string } }).source.kind === 'user').map(record => record.data))
-        .toEqual([expect.objectContaining({ content: [{ type: 'text', text: 'TEAM_WORKFLOW_CHILD' }] })])
+        && (record.data as { source: { kind: string } }).source.kind === 'agent-message').map(record => record.data))
+        .toEqual([expect.objectContaining({ content: workflowTask })])
       const root = parsed.find((log) => {
         const header = log[0]
         return header?.type === 'session' && typeof header.parentSession !== 'string'
       })
       expect(root).toBeDefined()
       const eventTypes = root!.map(record => record.type)
-      expect(eventTypes.filter(type => type === 'team/member')).toHaveLength(4)
-      expect(eventTypes).toContain('team/message/queued')
-      expect(eventTypes).toContain('team/message/delivered')
+      expect(eventTypes).not.toContain('team/member')
+      const catalog = root!.filter(record => record.type === 'subagent/catalog').map(record => record.data)
+      expect(catalog).toEqual(expect.arrayContaining([
+        expect.objectContaining({ version: 3, childId: workflowChild![0]?.id, name: 'agent-1' }),
+        expect.objectContaining({ version: 3, label: 'Own deterministic implementation.', name: 'agent-2' }),
+        expect.objectContaining({ version: 3, label: 'Own deterministic research.', name: 'agent-3' }),
+      ]))
+      for (const entry of catalog) expect(entry).toHaveProperty('name')
+      expect(eventTypes).not.toContain('subagent-name/bound')
+      expect(eventTypes).not.toContain('team/message/queued')
+      expect(eventTypes).not.toContain('team/message/delivered')
+      const peerMessages = parsed.flatMap(log => log.filter(record => record.type === 'user/message'
+        && (record.data as { source: { kind: string } }).source.kind === 'agent-message'
+        && (record.data as { source: { senderSessionId: string } }).source.senderSessionId !== root![0]?.id))
+      expect(peerMessages).toHaveLength(2)
       const taskEvents = root!.filter(record => record.type === 'team/task')
       expect(taskEvents.filter((record) => {
         const data = record.data as { task?: { status?: string } } | undefined

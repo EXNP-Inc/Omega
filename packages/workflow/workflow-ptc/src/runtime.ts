@@ -2,22 +2,22 @@
  * Workflow VM hooks, child callbacks, ordinary concurrency limits and result serialization.
  * PTC owns process confinement and cancellation. Fatal hook and provider failures propagate
  * through combinators; ordinary child failures and stage errors become per-item nulls.
- * @module @omega-ai/dsh-workflow-ptc/runtime
+ * @module @deepseek-ai/dsh-workflow-ptc/runtime
  */
 
 import * as vm from 'node:vm'
-import { brandString } from '@omega-ai/dsh-brand'
-import type { ContentBlock } from '@omega-ai/dsh-llm'
-import type { SessionId } from '@omega-ai/dsh-session'
-import { assertObjectJsonSchema, JsonSchemaError } from '@omega-ai/dsh-tools'
-import type { ObjectJsonSchema } from '@omega-ai/dsh-tools'
-import { isFatalWorkflowError, WorkflowError } from '@omega-ai/dsh-workflow'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import { extractTextContent } from '@deepseek-ai/dsh-llm/message'
+import type { SessionId } from '@deepseek-ai/dsh-session'
+import { assertObjectJsonSchema, JsonSchemaError } from '@deepseek-ai/dsh-tools'
+import type { ObjectJsonSchema } from '@deepseek-ai/dsh-tools'
+import { isFatalWorkflowError, WorkflowError } from '@deepseek-ai/dsh-workflow'
 import type {
   WorkflowAgentEndInfo,
   WorkflowAgentInfo,
   WorkflowMeta,
   WorkflowResult,
-} from '@omega-ai/dsh-workflow'
+} from '@deepseek-ai/dsh-workflow'
 import { materializeFromRealm, MaterializeError, renderThrown } from './realm.ts'
 import type { ChildHandle, ChildPort, WorkerLimits } from './types.ts'
 
@@ -33,14 +33,6 @@ export interface ExecutionObserver {
 const SUPPORTED_AGENT_OPTIONS = new Set(['label', 'phase', 'schema', 'provider', 'model'])
 /** Deferred Claude Code options we name explicitly in the rejection message. */
 const DEFERRED_AGENT_OPTIONS = new Set(['effort', 'isolation', 'agentType'])
-
-/** Flatten a child's final output blocks to text (the non-schema `agent()` result). */
-function outputText(blocks: ContentBlock[]): string {
-  return blocks
-    .filter((block): block is Extract<ContentBlock, { type: 'text' }> => block.type === 'text')
-    .map(block => block.text)
-    .join('')
-}
 
 /** A short display label derived from the prompt when the script passes none. */
 function defaultLabel(prompt: string): string {
@@ -109,7 +101,13 @@ export class WorkflowExecution {
       const value = raw === undefined ? null : this.materializeResult(raw)
       return { value, stopReason: 'completed', agentsStarted: this.started }
     } catch (error: unknown) {
-      return { value: null, stopReason: 'error', error: renderThrown(error), agentsStarted: this.started }
+      return {
+        value: null,
+        stopReason: 'error',
+        error: renderThrown(error),
+        ...error instanceof WorkflowError ? { errorCode: error.code } : {},
+        agentsStarted: this.started,
+      }
     }
   }
 
@@ -216,7 +214,7 @@ export class WorkflowExecution {
             return result.structured
           }
           this.observer.agentEnd({ ...info, outcome: 'completed' })
-          return outputText(result.output)
+          return extractTextContent(result.output)
         }
         this.observer.agentEnd({ ...info, outcome: 'failed' })
         return null

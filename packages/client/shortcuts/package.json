@@ -1,13 +1,13 @@
 {
-  "name": "@omega-ai/dsh-client-shortcuts",
+  "name": "@deepseek-ai/dsh-client-shortcuts",
   "description": "Application keyboard command registry and physical-key routing",
-  "version": "0.2.1-alpha.1",
+  "version": "0.2.2-rc.5",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/omega-ai/omega-harness.git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
     "directory": "packages/client/shortcuts"
   },
   "type": "module",
@@ -27,12 +27,13 @@
     "./protocol": {
       "types": "./lib/types/protocol.d.ts",
       "default": "./lib/protocol.js"
-    }
+    },
+    "./locale/*.json": "./locale/*.json"
   },
   "dsh": {
     "client": {
       "inject": [
-        "@omega-ai/dsh-client-locale"
+        "@deepseek-ai/dsh-client-locale"
       ],
       "platform": "web"
     }
@@ -43,26 +44,30 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@omega-ai/cordis": "workspace:~"
+    "@deepseek-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@omega-ai/cordis": "workspace:~",
-    "@omega-ai/dsh-client-locale": "workspace:*",
-    "@omega-ai/dsh-client-store": "workspace:*",
-    "@omega-ai/dsh-client-ui-primitives": "workspace:*",
-    "@omega-ai/dsh-brand": "workspace:*",
-    "@omega-ai/dsh-client-test-runtime": "workspace:*",
-    "@omega-ai/dsh-host-webserver": "workspace:*"
+    "@deepseek-ai/cordis": "workspace:~",
+    "@deepseek-ai/dsh-client-locale": "workspace:*",
+    "@deepseek-ai/dsh-client-store": "workspace:*",
+    "@deepseek-ai/dsh-client-ui-primitives": "workspace:*",
+    "@deepseek-ai/dsh-brand": "workspace:*",
+    "@deepseek-ai/dsh-client-test-runtime": "workspace:*",
+    "@deepseek-ai/dsh-client-config": "workspace:*"
   },
   "files": [
+    "locale/*.json",
     "lib/index.js",
     "lib/client.js",
     "lib/protocol.js",
-    "lib/types/**/*.d.ts"
+    "lib/types/**/*.d.ts",
+    "lib/types/**/*.d.ts.map",
+    "lib/**/*.js.map",
+    "src"
   ],
   "dependencies": {
-    "@omega-ai/dsh-util-crypto": "workspace:*",
-    "@omega-ai/dsh-util-values": "workspace:*",
-    "@omega-ai/schemastery": "workspace:~"
+    "@deepseek-ai/dsh-util-crypto": "workspace:*",
+    "@deepseek-ai/dsh-util-values": "workspace:*",
+    "@deepseek-ai/schemastery": "workspace:~"
   }
 }

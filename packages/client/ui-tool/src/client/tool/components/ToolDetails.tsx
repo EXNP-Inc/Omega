@@ -1,9 +1,9 @@
 /** Compact, read-only fields and lists for recorded Tool results. */
 import {
   CodeBlock, MarkdownText, IconCheckOutlineRegular, IconChevronRightOutlineRegular, IconPlayOutlineRegular,
-} from '@omega-ai/dsh-client-ui-primitives'
-import type { TranslateNS } from '@omega-ai/dsh-client-ui-slots'
-import type { OpenFileOptions } from '@omega-ai/dsh-client-ui-chat/client'
+} from '@deepseek-ai/dsh-client-ui-primitives'
+import type { TranslateNS } from '@deepseek-ai/dsh-client-ui-slots'
+import type { OpenFileOptions } from '@deepseek-ai/dsh-client-ui-chat/client'
 import { codeToolbarLabels, markdownLabels } from '../models/primitive-labels.ts'
 import css from './ToolDetails.module.css'
 
@@ -27,6 +27,8 @@ export interface ToolDetailItem {
 /** Localized display data shared by the built-in detail cards. */
 export interface ToolDetailsModel {
   items: readonly ToolDetailItem[]
+  /** Tight spacing for recorded entity rows. */
+  compact?: boolean
   summary?: string
   /** Header text while expanded, omitting a receipt status shown in the body. */
   expandedSummary?: string
@@ -119,7 +121,12 @@ export function ToolDetails({ model, hasInspect = false, t, onOpenFile }: {
   hasInspect?: boolean
 } & DetailContentProps) {
   return (
-    <div className={css.root} data-inspect={hasInspect || undefined} data-caption={model.caption !== undefined || undefined}>
+    <div
+      className={css.root}
+      data-compact={model.compact || undefined}
+      data-inspect={hasInspect || undefined}
+      data-caption={model.caption !== undefined || undefined}
+    >
       {model.caption !== undefined && <div className={css.caption}>{model.caption}</div>}
       {model.items.length === 0 ? <p className={css.empty}>{model.empty}</p> : (
         <ul className={css.list}>

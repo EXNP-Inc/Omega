@@ -1,8 +1,8 @@
-import type { Context } from '@omega-ai/cordis'
+import type { Context } from '@deepseek-ai/cordis'
 import type {
   ConversationMatch, ConversationNodeContext, ConversationNodeDefinition, RequestPromptInspector,
   SystemPromptState, SystemPromptInspector,
-} from '@omega-ai/dsh-client-ui-conversation/client'
+} from '@deepseek-ai/dsh-client-ui-conversation/client'
 import type { ChatNode } from '../contract/chat-nodes.ts'
 import { chatNode } from './common.ts'
 
@@ -56,6 +56,8 @@ function stableRequestPromptAnchor(
  * their step's input; in-history updates stay at their own positions. The
  * request-prompt Definition owns replacement and later-series cards. Positional
  * replacements advance the effective prompt without changing historical cards.
+ * A published node becomes `hidden` under the same key while a prepended replacement
+ * leaves its prompt order unknown, and `visible` again once older history resolves it.
  * @param inspect - Pure surface interpretation supplied by uiConversation.
  * @returns The Chat system-prompt Definition.
  */
@@ -75,7 +77,11 @@ export function systemMessageDefinition(inspect: SystemPromptInspector): Convers
     buildViewNode: (context) => {
       const state = context.state?.introduced
       if (state === undefined || state.text === ''
-        || context.start?.event.type !== 'system/message' || context.start.event.surfaceOp !== 'append') return null
+        || context.start?.event.type !== 'system/message' || context.start.event.surfaceOp !== 'append') {
+        const current = context.current.get('chat') as ChatNode | null | undefined
+        if (current?.kind !== 'system-prompt') return null
+        return chatNode(context, 'system-prompt', current.anchorSeq, current.data, { visibility: 'hidden' })
+      }
       const anchor = state.update ? state.seq : requestPromptAnchor(context.start, undefined, true)
       return chatNode(context, 'system-prompt', anchor, { text: state.text, ...state.update ? { update: true } : {} })
     },

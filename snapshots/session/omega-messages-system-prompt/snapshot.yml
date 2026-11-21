@@ -1,11 +1,12 @@
 version: 1
-scenario: omega-messages-system-prompt
+scenario: deepseek-messages-system-prompt
 profile: headless
-composition: omega-messages-system-prompt
+composition: deepseek-messages-system-prompt
 recording: authored
 header:
-  class: omega-messages-system-prompt
+  class: deepseek-messages-system-prompt
   pin: true
+  toolSchemasSource: text-turn
   promptChanges: 1
 replay:
   override: true

@@ -1,17 +1,20 @@
-- name: '@omega-ai/dsh-session'
-- name: '@omega-ai/dsh-system-prompt'
-- name: '@omega-ai/dsh-tools'
-- name: '@omega-ai/dsh-fs-local'
-- name: '@omega-ai/dsh-tool-fs'
-- name: '@omega-ai/dsh-session-query-sqlite'
+- name: '@deepseek-ai/dsh-session'
+- name: '@deepseek-ai/dsh-system-prompt'
+- name: '@deepseek-ai/dsh-tools'
+- name: '@deepseek-ai/dsh-tool-executor-native'
+- name: '@deepseek-ai/dsh-fs-local'
+- name: '@deepseek-ai/dsh-session-projection'
+- name: '@deepseek-ai/dsh-working-directory'
+- name: '@deepseek-ai/dsh-tool-fs'
+- name: '@deepseek-ai/dsh-session-query-sqlite'
   config:
     path: ':memory:'
     openAt: never
-- name: '@omega-ai/dsh-session-reference'
+- name: '@deepseek-ai/dsh-session-reference'
   config:
     maxReferenceBytes: 360
 - name: './source-session.ts'
-- name: '@omega-ai/dsh-spill-local'
+- name: '@deepseek-ai/dsh-spill-local'
   config:
     root: '{{spillRoot}}'
     cleanupPeriodDays: 0

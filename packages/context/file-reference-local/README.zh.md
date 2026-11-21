@@ -3,7 +3,7 @@ description: "面向用户与维护者的本地工作区 @file 补全提供方�
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-file-reference-local
+# @deepseek-ai/dsh-file-reference-local
 
 [English](README.md) | 中文
 
@@ -25,14 +25,16 @@ agent（智能体）及宿主 UI 可以用各 agent 本地工作区中经过排�
 <a id="use-this-package"></a>
 ## 使用本包
 
-当 `@file` 补全应发现 Harness 宿主自身的文件系统——即随附 `read` 工具所操作的命名空间——时，挂载此提供方。每个 agent 的工作区从该会话的工作目录开始建立索引；会话没有工作目录时回退到宿主进程目录。
+切换 Session 工作目录后，旧目录的搜索索引会被丢弃；下一次补全会搜索新目录。
+
+当 `@file` 补全应发现 Harness 宿主自身的文件系统——即随附 `read` 工具所操作的命名空间——时，挂载此提供方。每个 agent 的工作区从其 Session 当前工作目录开始建立索引。
 
 ### 启用提供方
 
 默认设置适合典型工作区，因此最小挂载无需任何配置：
 
 ```yaml
-- name: '@omega-ai/dsh-file-reference-local'
+- name: '@deepseek-ai/dsh-file-reference-local'
   config:
     maxResults: 20
 ```
@@ -87,7 +89,7 @@ agent（智能体）及宿主 UI 可以用各 agent 本地工作区中经过排�
 
 - [文件引用 seam](../file-reference/README.zh.md)——本提供方所实现的服务约定与 `@file` 语法。
 - [会话引用子系统](../../../docs/subsystems/session-reference.zh.md)——宿主 UI 背后的共享文件引用约定。
-- [文件系统工具目录](../../../docs/tool-catalog.zh.md#omega-aidsh-tool-fs)——发现能力必须匹配其命名空间的 `read` 工具。
+- [文件系统工具目录](../../../docs/tool-catalog.zh.md#deepseek-aidsh-tool-fs)——发现能力必须匹配其命名空间的 `read` 工具。
 - [上下文组地图](../README.zh.md)——相邻的请求上下文包。
 
 -----

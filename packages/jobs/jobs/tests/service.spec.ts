@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import { SessionId } from '@omega-ai/dsh-session'
-import { JobId, JobRegistry } from '@omega-ai/dsh-jobs'
+import { Context } from '@deepseek-ai/cordis'
+import type { SessionId } from '@deepseek-ai/dsh-session'
+import { type JobId, JobRegistry } from '@deepseek-ai/dsh-jobs'
+import { brandString } from '@deepseek-ai/dsh-brand'
 import type {
   JobEvent, JobEventFilter, JobEventListener, JobHooks, JobOutputSource, JobOutputRead, JobRead, JobSpec, JobView,
-} from '@omega-ai/dsh-jobs'
+} from '@deepseek-ai/dsh-jobs'
 
 /** Compile-time probe: does `Shape` carry a `Key` member? */
 type HasKey<Shape, Key extends string> = Key extends keyof Shape ? true : false
@@ -12,7 +13,7 @@ type HasKey<Shape, Key extends string> = Key extends keyof Shape ? true : false
 /**
  * Minimal concrete registry: one canned row. The Service Definition owns the
  * contract only (ids, caller-scoped operations, the event stream); the registry
- * behavior suite lives with `@omega-ai/dsh-jobs-local`.
+ * behavior suite lives with `@deepseek-ai/dsh-jobs-local`.
  */
 class StubJobRegistry extends JobRegistry {
   readonly subscriptions: { filter: JobEventFilter; listener: JobEventListener }[] = []
@@ -40,13 +41,13 @@ class StubJobRegistry extends JobRegistry {
 
   start(spec: JobSpec): JobId {
     this.started.push(spec)
-    const id = JobId(`${spec.kind}-1`)
+    const id = brandString<JobId>(`${spec.kind}-1`)
     spec.run({ id, append() {}, updateProgress() {} })
     return id
   }
 
   list(caller?: SessionId): JobView[] {
-    return [this.view(JobId('bash-1'), caller)]
+    return [this.view(brandString<JobId>('bash-1'), caller)]
   }
 
   get(id: JobId, caller?: SessionId): JobView {
@@ -80,7 +81,7 @@ describe('JobRegistry seam', () => {
   it('a concrete subclass registers as ctx.jobs and serves the abstract API', async () => {
     const ctx = new Context()
     await ctx.plugin(StubJobRegistry)
-    const caller = SessionId('session-1')
+    const caller = brandString<SessionId>('session-1')
     const hooks: JobHooks = { cancel() {}, done: new Promise(() => {}) }
 
     const detachController = ctx.jobs.attachController('seam-test')
@@ -147,6 +148,6 @@ describe('JobRegistry seam', () => {
   it('mounting the abstract seam directly fails loudly at load (stale-composition fence)', async () => {
     const ctx = new Context()
     await expect(ctx.plugin(JobRegistry as typeof StubJobRegistry))
-      .rejects.toThrow(/abstract job registry seam; load an implementation such as @omega-ai\/dsh-jobs-local/)
+      .rejects.toThrow(/abstract job registry seam; load an implementation such as @deepseek-ai\/dsh-jobs-local/)
   })
 })

@@ -20,6 +20,7 @@ function harness(): { register: () => LogExporter; requested: string[] } {
     logger: { exporter: (exporter: LogExporter) => { registered = exporter; return undefined } },
     get: () => undefined,
     provide: () => {},
+    plugin: async () => undefined,
     fiber: { dispose: async () => {} },
   }
   const require = (specifier: string): unknown => {
@@ -43,7 +44,7 @@ afterEach(() => { vi.restoreAllMocks() })
 describe('worker host log sink', () => {
   it('registers one exporter and renders through cordis', () => {
     const { register, requested } = harness()
-    expect(requested).toEqual(['@omega-ai/cordis'])
+    expect(requested).toEqual(['@deepseek-ai/cordis'])
     // Colors off: the page console has no terminal escapes to interpret.
     expect(register().colors).toBe(false)
   })

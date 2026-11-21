@@ -3,7 +3,7 @@ description: "The model-facing persistent pwsh tool for users and maintainers ch
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-tool-pwsh-persistent
+# @deepseek-ai/dsh-tool-pwsh-persistent
 
 English | [中文](README.zh.md)
 
@@ -25,6 +25,8 @@ English | [中文](README.zh.md)
 <a id="use-this-package"></a>
 ## Use this package
 
+A new shell starts in the Session's current working directory. Once created, its directory and environment remain independent of later Session directory changes.
+
 Load this plugin in any composition where the agent should keep PowerShell state between commands — the persistent counterpart of `dsh-tool-pwsh` for work that needs cross-call state. It registers the `pwsh` tool and requires the `ctx.tools` and `ctx.terminals` services plus an owning agent session at execution time.
 
 ### When to choose it
@@ -36,11 +38,11 @@ Choose the persistent tool when work depends on cross-call PowerShell state, and
 The default `shell` backend starts a PowerShell shell through a `dsh-terminal-bash` instance configured with `shellDialect: pwsh`; deployments may register another pwsh-dialect PTY backend and select it by name.
 
 ```yaml
-- name: '@omega-ai/dsh-terminal'
-- name: '@omega-ai/dsh-terminal-bash'
+- name: '@deepseek-ai/dsh-terminal'
+- name: '@deepseek-ai/dsh-terminal-bash'
   config:
     shellDialect: pwsh
-- name: '@omega-ai/dsh-tool-pwsh-persistent'
+- name: '@deepseek-ai/dsh-tool-pwsh-persistent'
 ```
 
 | Field | Default | Meaning |
@@ -50,7 +52,7 @@ The default `shell` backend starts a PowerShell shell through a `dsh-terminal-ba
 | `maxOutputChars` | `16,000` | Maximum retained command-output characters; fixed diagnostics are added afterward |
 | `description` | `Run commands in a persistent PowerShell shell. State, including the current directory and exported environment variables, persists across calls for this agent.` | Model-facing environment contract; deployments may describe their environment |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-tool-pwsh-persistent) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-tool-pwsh-persistent) is the exhaustive source for every accepted field and its JSDoc.
 
 ### What the agent can rely on
 
@@ -58,7 +60,7 @@ Commands share one shell per agent, so cwd, `$env:` variables, functions, and ba
 
 ### What can go wrong
 
-A call without an owning agent session fails with `pwsh requires an owning agent session`, and a composition without a pwsh-dialect PTY backend activates the tool but fails its first call with `no PTY backend registered for "shell"`. A model redefinition of the `prompt` function removes the readiness marker, and the shell then settles on the silence tier instead of the marker fast path. Raw ESC characters inside a command are consumed by PSReadLine before execution and are unsupported. A timeout closes the uncertain shell and reports bounded partial output and the reset. Cancellation resets the shell and discards command output. After cleanup settles, ToolRuntime publishes `Error: tool call aborted` with code `ABORTED`; cancellation reasons are not rendered as command output. A queued cancelled call sends no command.
+A call without an owning agent session fails with `pwsh requires an owning agent session` (`ToolContextUnavailableError`, `TOOL_CONTEXT_UNAVAILABLE`), a blank command fails with `ToolArgsError` (`INVALID_ARGS`), and a composition without a pwsh-dialect PTY backend activates the tool but fails its first call with `no PTY backend registered for "shell"`. A model redefinition of the `prompt` function removes the readiness marker, and the shell then settles on the silence tier instead of the marker fast path. Raw ESC characters inside a command are consumed by PSReadLine before execution and are unsupported. A timeout closes the uncertain shell and reports bounded partial output and the reset. Cancellation resets the shell and discards command output. After cleanup settles, ToolRuntime publishes `Error: tool call aborted` with code `ABORTED`; cancellation reasons are not rendered as command output. A queued cancelled call sends no command.
 
 -----
 
@@ -74,6 +76,7 @@ This section explains the design decisions behind the tool and points at the cod
 
 - **A deliberate twin of `dsh-tool-bash-persistent`.** The session registry, polling loop, and reset contract mirror the persistent bash tool by design ([pwsh persistent PTY Agent Note](../../../.agents/notes/archived/architecture/2026-08-11-pwsh-persistent-pty.md)).
 - **Backend-owned prompt readiness.** The shell's `prompt` function belongs to the backend: it prints a BEL-terminated OSC marker plus the controlled printable prompt. The backend accepts recognized prompt text through its fast path and otherwise uses its own readiness checks or silence tier. The tool neither installs nor matches a prompt of its own.
+- **Readiness after scrolling and restart.** The [Loader composition test](tests/loader-composition.spec.ts) checks the complete send-settlement sequence, including a command on the same shell after large output and the first command after `exit`. Its failure timeline distinguishes the bundled OpenConsole used on Windows from the unused system conhost.
 - **PSReadLine echo stripped by anchoring.** PowerShell renders submitted input back into the stream; the marker-anchored extraction and a wrapper-source strip remove the echo, and a wrapper that wraps across the terminal width may leave a partial echo in partial-output results.
 - **Reset, never repair.** Any uncertain state — an explicit `exit`, a timeout, a send failure, an abort — closes the shell and starts the next call fresh.
 
@@ -101,8 +104,8 @@ Read these pages when the package-level contract is not enough. They move from t
 - [terminal-bash backend](../../terminal/terminal-bash/README.md) — the default backend, configured with `shellDialect: pwsh`.
 - [pwsh persistent PTY Agent Note](../../../.agents/notes/archived/architecture/2026-08-11-pwsh-persistent-pty.md) — the pwsh-side session design and its rationale.
 - [Persistent PTY sessions Agent Note](../../../.agents/notes/implemented/feature/2026-07-16-persistent-pty-sessions.md) — the owner-scoped session design and its rationale.
-- [Generated tool catalog](../../../docs/tool-catalog.md#omega-aidsh-tool-pwsh-persistent) — the exact `pwsh` argument schema.
-- [Generated configuration catalog](../../../docs/config-catalog.md#omega-aidsh-tool-pwsh-persistent) — every accepted config field and its source declaration.
+- [Generated tool catalog](../../../docs/tool-catalog.md#deepseek-aidsh-tool-pwsh-persistent) — the exact `pwsh` argument schema.
+- [Generated configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-tool-pwsh-persistent) — every accepted config field and its source declaration.
 
 -----
 
@@ -113,7 +116,7 @@ Read these pages when the package-level contract is not enough. They move from t
 
 #### What the model sees
 
-The generated [`pwsh` schema](../../../docs/tool-catalog.md#omega-aidsh-tool-pwsh-persistent), including the configured `description`. The plugin contributes no standalone system-prompt section; the deployment owns persona and environment guidance.
+The generated [`pwsh` schema](../../../docs/tool-catalog.md#deepseek-aidsh-tool-pwsh-persistent), including the configured `description`. The plugin contributes no standalone system-prompt section; the deployment owns persona and environment guidance.
 
 #### Token effect
 

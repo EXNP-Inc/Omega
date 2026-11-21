@@ -1,17 +1,17 @@
 /** Controller and UI-domain fixture shapes for the client test runtime. */
 import type {
   ISession, SessionEventLikeEntry, SessionSnapshot, SessionSummary,
-} from '@omega-ai/dsh-api-session-controller/client'
-import type { WorkspaceSnapshot } from '@omega-ai/dsh-api-workspace-controller/client'
-import type { SessionId } from '@omega-ai/dsh-session/types'
+} from '@deepseek-ai/dsh-api-session-controller/client'
+import type { WorkspaceSnapshot } from '@deepseek-ai/dsh-api-workspace-controller/client'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import {
   EMPTY_CONVERSATION_SNAPSHOT,
   type ConversationSnapshot,
-} from '@omega-ai/dsh-client-ui-conversation/client'
+} from '@deepseek-ai/dsh-client-ui-conversation/client'
 import {
   EMPTY_CHAT_SNAPSHOT,
   type ChatSnapshot,
-} from '@omega-ai/dsh-client-ui-chat/client'
+} from '@deepseek-ai/dsh-client-ui-chat/client'
 
 /**
  * Fixture overrides for the session behavior face: any subset of the
@@ -74,7 +74,7 @@ export function sessionSnapshot(sessionId: SessionId): SessionSnapshot {
     openState: 'open',
     openError: null,
     hasMore: false,
-    loadingOlder: false,
+    loadingOlder: false, historyLoadStatus: 'idle', historyWasPartial: false,
     promptError: null,
     blank: false,
     lastAgentError: null,

@@ -2,7 +2,7 @@
 /** Markdown preview uses one accumulated document across page arrivals and EOF. */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
-import { makeTranslate } from '@omega-ai/dsh-client-test-runtime'
+import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
 import { MarkdownBody, type MarkdownBodyProps } from '../src/client/markdown/MarkdownBody.tsx'
 import { en, zh } from '../src/client/markdown/locales.ts'
 import type { DocumentContent } from '../src/client/document/contract.ts'
@@ -136,7 +136,8 @@ describe('MarkdownBody', () => {
       '---', '', '# Body',
     ].join('\n')
     const view = render(<MarkdownBody {...props(content([text], true))} />)
-    const fields = await vi.waitUntil(() => view.container.querySelector('[data-document-frontmatter] dl'))
+    // The lazily loaded field-list chunk can exceed the default 1 s wait under coverage.
+    const fields = await vi.waitUntil(() => view.container.querySelector('[data-document-frontmatter] dl'), { timeout: 10_000 })
     expect([...fields.querySelectorAll('dt')].map(node => node.textContent))
       .toEqual(['name', 'description', 'metadata', 'anchor', 'copy', 'license', 'version', 'beta', '1', 'orphan'])
     expect([...fields.querySelectorAll('dd')].map(node => node.textContent)).toEqual([

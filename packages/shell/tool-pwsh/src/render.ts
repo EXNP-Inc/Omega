@@ -7,12 +7,12 @@
  * infrastructure failures (spawn errors, aborts) surface as isError
  * results.
  *
- * @module @omega-ai/dsh-tool-pwsh/render
+ * @module @deepseek-ai/dsh-tool-pwsh/render
  */
 
-import type { ShellSandboxInfo, CollectedOutput } from '@omega-ai/dsh-shell'
-import type { SandboxMode } from '@omega-ai/dsh-sandbox'
-import { escalationHintMarker, sandboxDenialMarker } from '@omega-ai/dsh-sandbox'
+import type { ShellSandboxInfo, CollectedOutput } from '@deepseek-ai/dsh-shell'
+import type { SandboxMode } from '@deepseek-ai/dsh-sandbox'
+import { escalationHintMarker, sandboxDenialMarker } from '@deepseek-ai/dsh-sandbox'
 
 /* jscpd:ignore-start -- deliberate twin of dsh-tool-bash/render.ts (Agent Note). */
 
@@ -89,7 +89,7 @@ export function renderPwshResult(
  * Shape a foreground call that stopped waiting into the text the model sees:
  * the output captured so far (one consuming registry read taken at that
  * point, so `job_output` continues exactly after it), then the still-running
- * marker and the job hand-off guidance.
+ * marker. The `tool:jobs` system-prompt section explains how to follow up.
  * @param promoted - the promoted result value: the job id, the wait that
  *   expired, and the output so far.
  * @returns the model-facing text for a promoted call.
@@ -98,9 +98,7 @@ export function renderPwshPromoted(promoted: { jobId: string; timeoutMs: number;
   const body = promoted.output.length > 0
     ? promoted.output.endsWith('\n') ? promoted.output : `${promoted.output}\n`
     : ''
-  return `${body}[still running after ${promoted.timeoutMs}ms; moved to background job ${promoted.jobId}]\n`
-    + 'The command keeps running in the background. You will be notified when it finishes; '
-    + 'read newer output with job_output, stop it with job_kill.'
+  return `${body}[still running after ${promoted.timeoutMs}ms; moved to background job ${promoted.jobId}]`
 }
 
 /**

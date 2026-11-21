@@ -2,17 +2,17 @@
  * Model-facing whole-list replacement. Each call appends a `todo/write` snapshot to the calling
  * agent's session; replay is last-write-wins, and UIs render from session events. A non-agent
  * caller has no owning list and is rejected. Named exports preserve loader injection metadata.
- * @module @omega-ai/dsh-tool-todo
+ * @module @deepseek-ai/dsh-tool-todo
  */
 
-import type { Context } from '@omega-ai/cordis'
-import z from '@omega-ai/schemastery'
+import type { Context } from '@deepseek-ai/cordis'
+import z from '@deepseek-ai/schemastery'
 import { z as zod } from 'zod'
 import type { ZodType } from 'zod'
-import { defineTool } from '@omega-ai/dsh-tools'
+import { defineTool, ToolArgsError, ToolContextUnavailableError } from '@deepseek-ai/dsh-tools'
 import type { TodoItem } from './types.ts'
 // Type-only: resolves the required ctx.sessionProjections service declaration.
-import type {} from '@omega-ai/dsh-session-projection'
+import type {} from '@deepseek-ai/dsh-session-projection'
 // The `todos` projection-key declaration lives in src/types.ts (its one home);
 // this re-export projects the type face onto the package root AND keeps the
 // module edge in the emitted index.d.ts, so aggregate programs consuming the
@@ -81,20 +81,20 @@ function toTodoList(raw: { content: string; status: string }[], allowParallel: b
   const todos: TodoItem[] = []
   const seen = new Set<string>()
   let active = 0
-  for (const item of raw) {
+  for (const [index, item] of raw.entries()) {
     const content = item.content.trim()
     if (content.length === 0) {
-      throw new Error('invalid todo: `content` must be a non-empty string')
+      throw new ToolArgsError([`todos[${index}].content must be a non-empty string`])
     }
     if (seen.has(content)) {
-      throw new Error(`invalid todos: duplicate content ${JSON.stringify(content)}`)
+      throw new ToolArgsError([`todos[${index}].content duplicates ${JSON.stringify(content)}`])
     }
     seen.add(content)
     if (item.status === 'in_progress') active++
     todos.push({ content, status: item.status as TodoItem['status'] })
   }
   if (!allowParallel && active > 1) {
-    throw new Error(`invalid todos: at most one task may be in_progress (got ${active})`)
+    throw new ToolArgsError([`at most one task may be in_progress (got ${active})`])
   }
   return todos
 }
@@ -113,14 +113,15 @@ const todosProjectionSchema: ZodType<TodoItem[] | null> = zod.union([
  * `ctx.sessionProjections`.
  * @param ctx - registrant context carrying the tool and session-projection registries.
  * @param config - deployment's explicit todo policy.
+ * @returns when the plugin is ready.
  */
-export function apply(ctx: Context, config: Config): void {
+export async function apply(ctx: Context, config: Config): Promise<void> {
   const allowParallel = config.allowParallelInProgress
   // Standing-plan fold: latest whole todo/write list, cleared by the next
   // turn/start (turn/end keeps the finished checklist visible); null before the
   // first write or after a later turn begins; every other event returns the
   // same state reference.
-  ctx.sessionProjections.register<'todos', TodoItem[] | null>({
+  await ctx.sessionProjections.register<'todos', TodoItem[] | null>({
     key: 'todos',
     stateSchema: todosProjectionSchema,
     init: () => null,
@@ -129,7 +130,7 @@ export function apply(ctx: Context, config: Config): void {
       if (event.type === 'turn/start') return null
       return state
     },
-    wire: { viewSchema: todosProjectionSchema, view: state => state },
+    wire: { viewSchema: todosProjectionSchema, view: state => state, summary: false },
     stateVersion: 2,
   })
   ctx.tools.register(defineTool({
@@ -194,7 +195,7 @@ export function apply(ctx: Context, config: Config): void {
       if (!exec.agent) {
         // The list is per-agent-session state; a non-agent caller (no owning
         // session) has nowhere to write it. Reject rather than silently no-op.
-        throw new Error('todo_write requires an owning agent session')
+        throw new ToolContextUnavailableError('todo_write requires an owning agent session')
       }
       exec.agent.session.append('todo/write', { todos })
       const count = (status: TodoItem['status']): number => todos.filter(t => t.status === status).length

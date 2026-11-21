@@ -3,7 +3,7 @@
  * real CLI process under the shared subprocess owner, map only strict SDK
  * success to completion, and dispose to whole-range quiescence.
  *
- * @module @omega-ai/dsh-subagent-claude-code/run
+ * @module @deepseek-ai/dsh-subagent-claude-code/run
  */
 
 import { randomUUID } from 'node:crypto'
@@ -15,9 +15,9 @@ import {
   type SDKResultMessage,
   type SpawnOptions,
 } from '@anthropic-ai/claude-agent-sdk'
-import type { ContentBlock } from '@omega-ai/dsh-llm'
-import { brandString } from '@omega-ai/dsh-brand'
-import type { SessionId } from '@omega-ai/dsh-session'
+import type { ContentBlock } from '@deepseek-ai/dsh-llm'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { SessionId } from '@deepseek-ai/dsh-session'
 import {
   settleRunResult,
   subprocessRunHandle,
@@ -25,13 +25,13 @@ import {
   type SubagentRun,
   type SubagentStartRequest,
   type SubagentStopReason,
-} from '@omega-ai/dsh-subagent'
+} from '@deepseek-ai/dsh-subagent'
 import {
   scrubbedParentEnv,
   type SubprocessHandle,
   type SubprocessOutcome,
   type SubprocessSpawnSpec,
-} from '@omega-ai/dsh-subprocess'
+} from '@deepseek-ai/dsh-subprocess'
 import {
   claudeSpawnSpec,
   ManagedClaudeCodeProcess,
@@ -148,7 +148,7 @@ function unattendedDiagnostic(
  * run inputs and error normalization instead of adding a shared lifecycle owner. */
 /** Fully resolved inputs for one official Claude Agent SDK query. */
 export interface ClaudeCodeRunSpec {
-  /** Parent Session workspace supplied to the SDK and real CLI. */
+  /** Selected child working directory supplied to the SDK and real CLI. */
   readonly cwd: string
   /** Profile-selected native model; omitted to preserve Claude settings. */
   readonly model?: string
@@ -402,7 +402,7 @@ export async function startClaudeCodeRun(
   const reportFailure = (error: Error): void => {
     try {
       spec.onError?.(error, 'error')
-    } catch {
+    } catch (_diagnosticSinkFailed) {
       // Host diagnostic logging cannot replace the product failure.
     }
   }

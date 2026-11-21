@@ -3,7 +3,7 @@ description: "The model-facing lsp tool: four read-only code-navigation operatio
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-tool-lsp
+# @deepseek-ai/dsh-tool-lsp
 
 English | [中文](README.zh.md)
 
@@ -25,6 +25,8 @@ English | [中文](README.zh.md)
 <a id="use-this-package"></a>
 ## Use this package
 
+Queries use the Session's current working directory as their workspace root. Changing directory affects subsequent queries without changing an already running server's root.
+
 An agent uses `lsp` when textual matches are ambiguous or before a change that needs precise definitions, implementations, or references; the tool's prompt guidance tells it to prefer `search`/`read` for ordinary navigation.
 
 ### The tool
@@ -43,11 +45,11 @@ Navigation returns `path:line:character` locations grouped by file (one-based); 
 | `maxResultChars` | `16000` | Largest complete rendered result, including truncation metadata |
 | `timeoutMs` | `60000` | Tool-call timeout budget enforced by `dsh-tool-call-timeout-policy`; covers the complete queued open/query/close lifecycle and is not model-configurable |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-tool-lsp) is the exhaustive source for every accepted field.
+The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-tool-lsp) is the exhaustive source for every accepted field.
 
 ### Failures and recovery
 
-The tool requires a session workspace root (`header.cwd`) with no fallback; absence fails with `LSP_WORKSPACE_REQUIRED` before any query. When no provider handles the file's extension, the query fails with `LSP_UNAVAILABLE`; malformed provider payloads remain structured `LSP_MALFORMED_RESPONSE` errors. These surface to the model as error tool results it can read and route on.
+An unknown operation, a blank `file_path`, or a coordinate that is not a positive integer fails with `ToolArgsError` `INVALID_ARGS` before any query. The tool requires an Agent Session; a non-agent call fails with `LSP_WORKSPACE_REQUIRED` before any query. The working-directory service supplies and validates its current root. When no provider handles the file's extension, the query fails with `LSP_UNAVAILABLE`; malformed provider payloads remain structured `LSP_MALFORMED_RESPONSE` errors. These and every provider failure surface to the model as error tool results that keep the failure's `name` and `code`; the [LSP navigation subsystem](../../../docs/subsystems/lsp.md#failures) lists the codes.
 
 -----
 
@@ -74,7 +76,6 @@ This section explains the design decisions behind the tool and where the code re
 |---|---|
 | [`src/index.ts`](src/index.ts) | Plugin entry: config schema, tool registration, system-prompt section, execution |
 | [`src/render.ts`](src/render.ts) | Pure formatting, coordinate conversion, URI resolution, result caps, UI presentation |
-| [`src/session-cwd.ts`](src/session-cwd.ts) | Workspace root from the session `header.cwd` |
 
 </details>
 
@@ -119,7 +120,7 @@ Prefix-stable while the plugin scope and guidance text are unchanged; activation
 
 #### What the model sees
 
-The model sees the generated [`lsp` schema](../../../docs/tool-catalog.md#omega-aidsh-tool-lsp).
+The model sees the generated [`lsp` schema](../../../docs/tool-catalog.md#deepseek-aidsh-tool-lsp).
 
 #### Token effect
 

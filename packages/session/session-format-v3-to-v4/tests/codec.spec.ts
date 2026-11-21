@@ -1,16 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { SessionFormatEventCollector } from '@omega-ai/dsh-session-format'
-import type { SessionFormatEvent, SessionFormatJsonObject } from '@omega-ai/dsh-session-format'
-import { sessionFormatCatalog } from '@omega-ai/dsh-session-format-catalog'
-import { releasedV2SessionFormatCodec } from '@omega-ai/dsh-session-format-v2-to-v3'
+import { SessionFormatEventCollector } from '@deepseek-ai/dsh-session-format'
+import type { SessionFormatEvent, SessionFormatJsonObject } from '@deepseek-ai/dsh-session-format'
+import { sessionFormatCatalog } from '@deepseek-ai/dsh-session-format-catalog'
+import { releasedV2SessionFormatCodec } from '@deepseek-ai/dsh-session-format-v2-to-v3'
 import { assertReleasedV4Header, assertV4RowAdmission, releasedV4SessionFormatCodec, restoreReleasedV4Artifact } from '../src/index.ts'
 
 const header = { version: 4, id: 'parent', createdAt: 1, isSeeded: false, delegationDepth: 0 }
 const fact: SessionFormatEvent = { type: 'feedback/record', seq: 0, time: 1, data: { text: 'retained' } }
 const catalog: SessionFormatEvent = { type: 'subagent/catalog', seq: 0, time: 1, data: { version: 0, childId: 'child', childCreatedAt: 2, mode: 'one-shot' } }
-const types = new Set(['subagent/catalog', 'feedback/record', 'session-log-omega/delivery-accepted', 'session/end-seed'])
+const types = new Set(['subagent/catalog', 'feedback/record', 'session-log-deepseek/delivery-accepted', 'session/end-seed'])
 const delivery = (version: number | undefined, sessionId = header.id): SessionFormatEvent => ({
-  type: 'session-log-omega/delivery-accepted', seq: 1, time: 2,
+  type: 'session-log-deepseek/delivery-accepted', seq: 1, time: 2,
   data: { sessionId, throughSeq: 0, ...(version === undefined ? {} : { sessionFormatVersion: version }) },
 })
 
@@ -159,4 +159,63 @@ describe('V4 framing and restoration', () => {
       events: [catalog, { type: 'session/end-seed', seq: 1, time: 2, data: { inherited: true } }, { ...catalog, seq: 2 }] }
     expect(restoreReleasedV4Artifact(artifact, types)).toBe(artifact)
   })
+})
+
+
+it('restores external membership and rejects duplicate catalog children', () => {
+  const data = { ...(catalog.data as SessionFormatJsonObject), version: 2, mode: 'external', label: 'External' }
+  const entry = { ...catalog, data }
+  expect(restore([entry]).events).toEqual([entry])
+  expect(() => restore([entry, { ...entry, seq: 1 }])).toThrow('duplicate catalog child')
+})
+
+it.each(['', 'Reviewer', 'a/b', '1reviewer', 'a'.repeat(33), 'lead'])(
+  'rejects invalid names in native catalog v3: %j', (name) => {
+    for (const mode of ['continuable', 'external']) {
+      const data = { version: 3, childId: 'child', childCreatedAt: 2, mode, label: 'Named', name }
+      expect(() => restore([{ ...catalog, data }])).toThrow('supported versioned catalog fact')
+    }
+  },
+)
+
+it('rejects a repeated sibling name in own catalog facts', () => {
+  const named = (seq: number, childId: string, name: string): SessionFormatEvent => ({
+    ...catalog, seq,
+    data: { version: 3, childId, childCreatedAt: 2, mode: 'continuable', label: 'Named', name },
+  })
+  expect(restore([named(0, 'first', 'reviewer'), named(1, 'second', 'checker')]).events).toHaveLength(2)
+  expect(() => restore([named(0, 'first', 'reviewer'), named(1, 'second', 'reviewer')]))
+    .toThrow('duplicate catalog child name reviewer')
+})
+
+it.each([
+  { version: 0, mode: 'external' },
+  { version: 1, mode: 'external' },
+  { version: 2, mode: 'one-shot' },
+  { version: 2, mode: 'continuable' },
+  { version: 2, mode: 'unknown' },
+])('rejects a catalog mode outside its payload version: %j', (descriptor) => {
+  const data = { ...(catalog.data as SessionFormatJsonObject), ...descriptor }
+  expect(() => restore([{ ...catalog, data }])).toThrow('supported versioned catalog fact')
+})
+
+it.each([
+  { version: 3, mode: 'continuable', label: 'Named', name: 'reviewer' },
+  { version: 3, mode: 'external', label: 'Named', name: 'auditor' },
+  { version: 3, mode: 'external', name: 'auditor' },
+])('admits a native named catalog fact: %j', (descriptor) => {
+  const entry = { ...catalog, data: { ...(catalog.data as SessionFormatJsonObject), ...descriptor } }
+  expect(restore([entry]).events).toEqual([entry])
+})
+
+it.each([
+  { version: 3, mode: 'continuable', label: 'Named' },
+  { version: 3, mode: 'continuable', name: 'reviewer' },
+  { version: 3, mode: 'external', label: 1, name: 'auditor' },
+  { version: 3, mode: 'one-shot', name: 'reviewer' },
+  { version: 3, mode: 'unknown', name: 'reviewer' },
+  { version: 3, mode: 'continuable', label: 'Named', name: 'reviewer', childId: 1 },
+])('rejects an invalid native named catalog fact: %j', (descriptor) => {
+  const data = { ...(catalog.data as SessionFormatJsonObject), ...descriptor }
+  expect(() => restore([{ ...catalog, data }])).toThrow('supported versioned catalog fact')
 })

@@ -1,15 +1,16 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import Loader from '@omega-ai/cordis-plugin-loader'
-import AgentRegistry from '@omega-ai/dsh-agent'
-import type { Agent, AgentStatus } from '@omega-ai/dsh-agent'
-import CommandRuntime from '@omega-ai/dsh-commands'
-import GoalService from '@omega-ai/dsh-goal'
-import type { GoalRef } from '@omega-ai/dsh-goal'
-import SessionStore, { Session, SessionId, type SessionEvent } from '@omega-ai/dsh-session'
-import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
-import * as commandGoal from '@omega-ai/dsh-command-goal'
-import { createInboxStub } from '@omega-ai/dsh-agent-loop-testkit'
+import { Context } from '@deepseek-ai/cordis'
+import Loader from '@deepseek-ai/cordis-plugin-loader'
+import AgentRegistry from '@deepseek-ai/dsh-agent'
+import type { Agent, AgentStatus } from '@deepseek-ai/dsh-agent'
+import CommandRuntime from '@deepseek-ai/dsh-commands'
+import GoalService from '@deepseek-ai/dsh-goal'
+import { GoalError, type GoalRef } from '@deepseek-ai/dsh-goal'
+import SessionStore, { Session, type SessionId, type SessionEvent } from '@deepseek-ai/dsh-session'
+import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import * as commandGoal from '@deepseek-ai/dsh-command-goal'
+import { unsupportedModel, createInboxStub } from '@deepseek-ai/dsh-agent-loop-testkit'
+import { brandString } from '@deepseek-ai/dsh-brand'
 
 interface Harness {
   readonly ctx: Context
@@ -21,13 +22,14 @@ interface Harness {
 /** Build a live idle agent accepted by the exact-identity goal service. */
 function stubAgent(ctx: Context, id: string): { agent: Agent; session: Session } {
   // Store-created: the command executor durably logs lifecycle events on it.
-  const session = ctx.sessions.create(SessionId(id))
+  const session = ctx.sessions.create(brandString<SessionId>(id))
   const inbox = createInboxStub()
   let status: AgentStatus = 'idle'
   const agent: Agent = {
     id: session.id,
     options: {},
     session,
+    model: unsupportedModel(),
     inbox,
     ctx: new Context(),
     get status() { return status },
@@ -88,7 +90,7 @@ function ref(goal: NonNullable<ReturnType<GoalService['get']>>): GoalRef {
   return { id: goal.id, revision: goal.revision }
 }
 
-describe('@omega-ai/dsh-command-goal registration', () => {
+describe('@deepseek-ai/dsh-command-goal registration', () => {
   it('registers one global command with Loader-safe exports and disposes it', async () => {
     const test = await harness()
     expect(commandGoal.name).toBe('command-goal')
@@ -98,7 +100,7 @@ describe('@omega-ai/dsh-command-goal registration', () => {
     expect(loader.unwrapExports(commandGoal)).toBe(commandGoal)
 
     expect(test.ctx.commands.list(test.agent)).toContainEqual({
-      definitionId: '@omega-ai/dsh-command-goal',
+      definitionId: '@deepseek-ai/dsh-command-goal',
       name: 'goal',
       description: 'Set or view the goal for a long-running task',
       input: { hint: '[<objective>|clear|edit <objective>|pause|resume]', attachments: true },
@@ -235,6 +237,13 @@ describe('/goal human command', () => {
     const test = await harness()
     vi.spyOn(test.ctx.goals, 'get').mockImplementationOnce(() => { throw new Error('unexpected failure') })
     await expect(run(test)).rejects.toThrow('unexpected failure')
+  })
+
+  it('reports corrupt goal state instead of the generic invalid-command result', async () => {
+    const test = await harness()
+    const corrupt = new GoalError('goal replay failed at session event 3: invalid goal stream', 'GOAL_STATE_CORRUPT')
+    vi.spyOn(test.ctx.goals, 'get').mockImplementationOnce(() => { throw corrupt })
+    await expect(run(test)).rejects.toBe(corrupt)
   })
 })
 

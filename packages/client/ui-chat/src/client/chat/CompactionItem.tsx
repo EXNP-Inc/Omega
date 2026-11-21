@@ -7,7 +7,7 @@ import {
   IconChevronDownOutlineRegular,
   IconChevronRightOutlineRegular,
   MarkdownText,
-} from '@omega-ai/dsh-client-ui-primitives'
+} from '@deepseek-ai/dsh-client-ui-primitives'
 import type { ChatViewSlotProps } from '../contract/slots.ts'
 import { markdownLabels } from '../markdown-labels.ts'
 import type { CompactionSummaryNode } from '../contract/snapshot.ts'

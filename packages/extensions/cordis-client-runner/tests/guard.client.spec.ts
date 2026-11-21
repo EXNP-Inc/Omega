@@ -7,7 +7,8 @@
  * dynamic package from reaching a foreign context. Registrations ride the
  * CALLING fiber, so disposing it must remove them (HMR safety).
  */
-import { Context } from '@omega-ai/cordis'
+import { Context } from '@deepseek-ai/cordis'
+import { brandString } from '@deepseek-ai/dsh-brand'
 import { describe, expect, it, vi } from 'vitest'
 import type { FC } from 'react'
 import type {
@@ -15,8 +16,8 @@ import type {
   CordisDynamicPluginId,
   CordisDynamicPluginRunId,
   DynamicCordisPackage,
-} from '@omega-ai/dsh-api-remotes/client'
-import { SlotRegistry } from '@omega-ai/dsh-client-ui-renderer/client'
+} from '@deepseek-ai/dsh-api-remotes/client'
+import { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
 import { dynamicCordisContext } from '../src/client/guard.ts'
 import type { DynamicCordisSlotLedgerRow } from '../src/client/guard.ts'
 
@@ -25,9 +26,9 @@ const C: FC<object> = () => null
 /** The exact running package carried by a Client dispatch. */
 function pkg(): DynamicCordisPackage {
   return {
-    pluginId: 'dyn-1' as CordisDynamicPluginId,
-    packageId: 'pkg-1' as CordisDynamicPackageId,
-    pluginRunId: 'run-1' as CordisDynamicPluginRunId,
+    pluginId: brandString<CordisDynamicPluginId>('dyn-1'),
+    packageId: brandString<CordisDynamicPackageId>('pkg-1'),
+    pluginRunId: brandString<CordisDynamicPluginRunId>('run-1'),
     name: 'demo',
   }
 }

@@ -1,4 +1,4 @@
-/** Omega's supported subset of the Anthropic Messages request protocol. */
+/** DeepSeek's supported subset of the Anthropic Messages request protocol. */
 
 /** Text and inline or file-referenced images accepted in user messages and tool results. */
 export type WireInput =

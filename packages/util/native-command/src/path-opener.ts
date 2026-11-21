@@ -9,10 +9,10 @@
  * intent to Explorer: the shell's own default-application resolution, the one
  * a double-click uses, selects the application, while a process that resolves
  * the association itself reads a narrower record and reports none.
- * @module @omega-ai/dsh-native-command/path-opener
+ * @module @deepseek-ai/dsh-native-command/path-opener
  */
 
-import { release as osRelease } from 'node:os'
+import { isWsl } from './host-environment.ts'
 import { dirname, extname } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { runNativeCommand, type NativeCommandRunner } from './runner.ts'
@@ -88,13 +88,6 @@ type PathOpenIntent = 'default' | 'association' | 'text-editor'
 /** Whether one environment marker is set to a non-empty value. */
 function present(value: string | undefined): boolean {
   return value !== undefined && value !== ''
-}
-
-/** Distinguish WSL from desktop Linux using its process and kernel markers. */
-function isWsl(internals: PathOpenerInternals): boolean {
-  const env = internals.env ?? process.env
-  if (present(env.WSL_DISTRO_NAME) || present(env.WSL_INTEROP)) return true
-  return (internals.osRelease ?? osRelease()).toLowerCase().includes('microsoft')
 }
 
 /**

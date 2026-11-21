@@ -1,20 +1,14 @@
 - textbox "筛选选项":
   - /placeholder: 搜索模型…
 - listbox "/model 匹配项":
-  - group "Omega":
-    - text: Omega
-    - option "Omega-V4-Flash" [selected]
-    - option "Omega-V4-Flash-Vision-Exp"
-  - group "alice":
-    - text: alice
-    - option "Qwen3.8-27B"
-  - group "Mac":
-    - text: Mac
-    - option "Mac"
+  - group "DeepSeek":
+    - text: DeepSeek
+    - option "DeepSeek-V4-Flash"
+    - option "DeepSeek-V4-Flash-Vision-Exp"
   - group "Origin Gateway":
     - text: Origin Gateway
     - option "Origin Large"
   - group "Acme Gateway":
     - text: Acme Gateway
-    - option "Acme Large"
+    - option "Acme Large" [selected]
     - option "Acme Small"

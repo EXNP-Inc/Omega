@@ -3,13 +3,13 @@ description: "面向用户与维护者的重试执行器说明：在持久 agent
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-llm-retry
+# @deepseek-ai/dsh-llm-retry
 
 [English](README.md) | 中文
 
 ## 概述
 
-挂载 `@omega-ai/dsh-llm-retry`，可在持久 agent 步骤边界重试失败的模型请求。提供方的 `retryPolicy` 设置可选择有界的 normal mode 重试或无上限的 always mode 重试；计划的尝试会在退避前写入会话日志，取消后历史仍保持一致。重试会在同一个打开的轮次内重跑失败步骤，而直接 `ctx.llm.stream()` 调用仍只尝试一次。每次重试都会产生另一次提供方请求计费，always mode 会持续到成功、取消或释放。
+挂载 `@deepseek-ai/dsh-llm-retry`，可在持久 agent 步骤边界重试失败的模型请求。提供方的 `retryPolicy` 设置可选择有界的 normal mode 重试或无上限的 always mode 重试；计划的尝试会在退避前写入会话日志，取消后历史仍保持一致。重试会在同一个打开的轮次内重跑失败步骤，而直接 `ctx.llm.stream()` 调用仍只尝试一次。每次重试都会产生另一次提供方请求计费，always mode 会持续到成功、取消或释放。
 
 ## 目录
 
@@ -29,14 +29,14 @@ kind: "package-reference"
 
 ### 何时选择
 
-当组合运行 agent loop（智能体循环）并需要持久请求恢复时选择它。本插件是无配置的函数插件；`dsh-llm-omega` 与 `dsh-llm-pi-ai` 等提供方适配器拥有各自路由的 `retryPolicy`，多提供方适配器把它放进每个 provider profile。当调用不经 agent loop、直接走 `ctx.llm.stream()` 时跳过它：这些消费方仍是单次尝试，因为原始流无法持久地区分已发出的分片。
+当组合运行 agent loop（智能体循环）并需要持久请求恢复时选择它。本插件是无配置的函数插件；`dsh-llm-deepseek` 与 `dsh-llm-pi-ai` 等提供方适配器拥有各自路由的 `retryPolicy`，多提供方适配器把它放进每个 provider profile。当调用不经 agent loop、直接走 `ctx.llm.stream()` 时跳过它：这些消费方仍是单次尝试，因为原始流无法持久地区分已发出的分片。
 
 ### 最小配置
 
 ```yaml
-- name: '@omega-ai/dsh-llm-omega-api-key'
+- name: '@deepseek-ai/dsh-llm-deepseek-api-key'
   config:
-    apiKeyEnv: OMEGA_API_KEY
+    apiKeyEnv: DEEPSEEK_API_KEY
     retryPolicy:
       mode: always
       backoff:
@@ -44,7 +44,7 @@ kind: "package-reference"
         maxDelayMs: 30000
         jitterRatio: 0.2
 
-- name: '@omega-ai/dsh-llm-retry'
+- name: '@deepseek-ai/dsh-llm-retry'
 ```
 
 省略 `retryPolicy` 时使用 normal mode：对 `EMPTY_RESPONSE`、`RATE_LIMIT`、`SERVER`、`TIMEOUT` 与 `TRANSPORT` 最多重试五次，退避从 500 毫秒到 10 秒、带 10% 抖动。normal mode 可以更改其有界预算、合格 code 与退避；always mode 先询问下游恢复，然后无尝试上限地重试每个模型请求失败，只在成功、取消或插件释放时停止。
@@ -81,6 +81,8 @@ kind: "package-reference"
 
 ### 恢复流程
 
+恢复监听器在等待投影注册前安装。激活期间到达的失败会先等待读取句柄，再应用提供方策略。注册失败会传播给 agent；等待期间取消或释放插件，不会写入重试记录或发起后续尝试。
+
 失败步骤连同其提供方与解析后的策略一起到达 waterfall。always mode 先结算下游恢复，并遵循下游的 `retry` 决定；normal mode 先检查失败 code 是否合格、预算是否未耗尽。插件计算延迟——有效且在边界内的提供方 `Retry-After`，否则带对称抖动的本地有界指数退避——追加 `llm/retry` 事件，在可取消定时器上等待，追加 `llm/retry-started`，然后返回 `{ kind: 'retry' }`。loop 随后在同一个打开的轮次内重跑失败步骤（仍基于同一份持久历史）。
 
 ### Waterfall 组合
@@ -97,7 +99,7 @@ kind: "package-reference"
 当包级约定不够用时阅读以下页面。它们从服务约定逐步进入拥有重试策略的适配器。
 
 - [dsh-llm 服务](../llm/README.zh.md)——其适配器拥有 `retryPolicy` 的提供方无关服务。
-- [llm-omega 适配器](../llm-omega/README.zh.md)——带路由级 `retryPolicy` 的提供方适配器。
+- [llm-deepseek 适配器](../llm-deepseek/README.zh.md)——带路由级 `retryPolicy` 的提供方适配器。
 - [llm-pi-ai 适配器](../llm-pi-ai/README.zh.md)——带逐 profile `retryPolicy` 的多提供方适配器。
 - [LLM 流终止失败](../../../.agents/notes/implemented/architecture/2026-07-29-terminal-llm-stream-failures.zh.md)——失败如何以终止分片到达服务边界。
 - [LLM 流式子系统](../../../docs/subsystems/llm-streaming.zh.md)——`StreamChunk` 协议与适配器约定（adapter contract）。

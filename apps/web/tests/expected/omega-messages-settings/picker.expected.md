@@ -1,11 +1,6 @@
 - group "模型与推理等级":
   - menu "模型":
-    - group "Omega":
-      - text: Omega
+    - group "DeepSeek":
+      - text: DeepSeek
       - menuitemradio "Messages Flash" [checked]
-    - group "alice":
-      - text: alice
-      - menuitemradio "Qwen3.8-27B"
-    - group "Mac":
-      - text: Mac
-      - menuitemradio "Mac"
+      - menuitemradio "DeepSeek-V4-Pro"

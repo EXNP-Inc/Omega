@@ -18,7 +18,7 @@ function declaration(over: Partial<SlotDeclaration> = {}): SlotDeclaration {
     kind: 'single',
     scope: 'root',
     jsDoc: '/** A seat. Registering here replaces the shipped entry. */',
-    package: '@omega-ai/dsh-client-demo',
+    package: '@deepseek-ai/dsh-client-demo',
     source: 'packages/client/demo/src/client/contract/slots.ts:1',
     ...over,
   }
@@ -28,7 +28,7 @@ function declaration(over: Partial<SlotDeclaration> = {}): SlotDeclaration {
 function registration(over: Partial<SlotRegistration> = {}): SlotRegistration {
   return {
     key: 'demo.seat',
-    package: '@omega-ai/dsh-client-demo',
+    package: '@deepseek-ai/dsh-client-demo',
     component: 'DemoSeat',
     children: [],
     source: 'packages/client/demo/src/client/index.ts:10',
@@ -241,13 +241,17 @@ describe('the real workspace surface', () => {
     expect(entries.length).toBeGreaterThan(30)
     for (const entry of entries) {
       expect(entry.summary, `${entry.key} has no summary`).not.toBe('')
-      expect(['single', 'list', 'keyed', 'chain']).toContain(entry.kind)
+      expect(['single', 'list', 'keyed', 'chain', 'hoc']).toContain(entry.kind)
       expect(['root', 'session', 'session-maybe']).toContain(entry.scope)
     }
     // The frame root is the canonical trap: occupied by the shipped app frame,
     // so a dynamic package registering there replaces the whole UI.
     const root = entries.find(entry => entry.key === 'root')
     expect(root?.replaceRisk).toBe('shadows-shipped-ui')
+    // A hoc layer wraps the owner content; its example must keep rendering it.
+    const frame = entries.find(entry => entry.key === 'conversation.hero.frame')
+    expect(frame?.replaceRisk).toBe('wraps-owner-content')
+    expect(frame?.example).toContain('({ children }) => React.createElement(\'div\', null, children)')
     expect(root?.occupants.join(' ')).toContain('AppFrame')
     expect(entries.find(entry => entry.key === 'conversation.session')?.declaredBy)
       .toContain("factory 'conversation.content' (client-ui-conversation)")

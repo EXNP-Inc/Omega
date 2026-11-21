@@ -5,19 +5,23 @@
  * the registry itself while plugins can register additional, enumerable facts
  * with effect-scoped disposal.
  *
- * @module @omega-ai/dsh-shell-env
+ * @module @deepseek-ai/dsh-shell-env
  */
 
-import { Service, type Context } from '@omega-ai/cordis'
-import z from '@omega-ai/schemastery'
-import { DSH_ENV_PREFIX } from '@omega-ai/dsh-shell'
-import type { DshEnvironment, DshEnvironmentKey } from '@omega-ai/dsh-shell'
-import { DSH_HOME_ENV, resolveDshHome } from '@omega-ai/dsh-home-paths'
-import type { ToolExecution } from '@omega-ai/dsh-tools'
+import { dirname } from 'node:path'
+import { Service, type Context } from '@deepseek-ai/cordis'
+import z from '@deepseek-ai/schemastery'
+import { DSH_ENV_PREFIX } from '@deepseek-ai/dsh-shell'
+import type { DshEnvironment, DshEnvironmentKey } from '@deepseek-ai/dsh-shell'
+import { DSH_HOME_ENV, resolveDshHome } from '@deepseek-ai/dsh-home-paths'
+import { ShellEnvError } from './error.ts'
+import type { ToolExecution } from '@deepseek-ai/dsh-tools'
 // Declares `Context.profileContext`, the launcher-provided profile the built-ins read.
-import type {} from '@omega-ai/dsh-app-boot'
+import type {} from '@deepseek-ai/dsh-app-boot'
 
-declare module '@omega-ai/cordis' {
+export { ShellEnvError, type ShellEnvErrorCode } from './error.ts'
+
+declare module '@deepseek-ai/cordis' {
   interface Context {
     shellEnv: ShellEnvRegistry
   }
@@ -28,7 +32,7 @@ export const inject: string[] = []
 
 /** Plugin config (all optional — the built-in facts resolve without defaults). */
 export interface Config {
-  /** Omega home directory exposed as `DSH_HOME`; defaults to `$DSH_HOME` or `~/.dsh`. */
+  /** DeepSeek Harness home directory exposed as `DSH_HOME`; defaults to `$DSH_HOME` or `~/.dsh`. */
   dshHome?: string
 }
 
@@ -73,12 +77,16 @@ const DSH_SHELL_KEY = `${DSH_ENV_PREFIX}SHELL` as const
 const DSH_SESSION_ID_KEY = `${DSH_ENV_PREFIX}SESSION_ID` as const
 const DSH_PROFILE_KEY = `${DSH_ENV_PREFIX}PROFILE` as const
 const DSH_PROFILE_DIR_KEY = `${DSH_ENV_PREFIX}PROFILE_DIR` as const
+const DSH_INSTALL_DIR_KEY = `${DSH_ENV_PREFIX}INSTALL_DIR` as const
+const DSH_NODE_EXECUTABLE_KEY = `${DSH_ENV_PREFIX}NODE_EXECUTABLE` as const
 const RESERVED_BASH_ENV_KEYS = new Set<DshEnvironmentKey>([
   DSH_HOME_ENV,
   DSH_SHELL_KEY,
   DSH_SESSION_ID_KEY,
   DSH_PROFILE_KEY,
   DSH_PROFILE_DIR_KEY,
+  DSH_INSTALL_DIR_KEY,
+  DSH_NODE_EXECUTABLE_KEY,
 ])
 const BASH_ENV_KEY_SUFFIX = /^[A-Z][A-Z0-9_]*$/
 
@@ -158,6 +166,10 @@ export class ShellEnvRegistry extends Service {
       [DSH_HOME_ENV]: this.dshHome,
       [DSH_SHELL_KEY]: '1',
     }
+    // A single-executable application runs its embedded entry instead of a script argument. The
+    // browser worker image answers no `node:sea`, so the module is looked up at run time.
+    const sea = process.getBuiltinModule('node:sea') as typeof import('node:sea') | undefined
+    if (sea === undefined || !sea.isSea()) values[DSH_NODE_EXECUTABLE_KEY] = process.execPath
     if (execution.agent !== undefined) {
       values[DSH_SESSION_ID_KEY] = execution.agent.session.header.id
     }
@@ -165,6 +177,7 @@ export class ShellEnvRegistry extends Service {
     if (profile !== undefined) {
       values[DSH_PROFILE_KEY] = profile.name
       values[DSH_PROFILE_DIR_KEY] = profile.dir
+      values[DSH_INSTALL_DIR_KEY] = dirname(profile.installAnchor)
     }
 
     for (const contributor of [...this.contributors.values()].sort((left, right) => left.name.localeCompare(right.name))) {
@@ -172,10 +185,13 @@ export class ShellEnvRegistry extends Service {
       for (const [rawKey, value] of Object.entries(resolved)) {
         const key = rawKey as DshEnvironmentKey
         if (!Object.hasOwn(contributor.variables, key)) {
-          throw new Error(`bash env contributor "${contributor.name}" returned undeclared key "${key}"`)
+          throw new ShellEnvError(`bash env contributor "${contributor.name}" returned undeclared key "${key}"`, 'SHELL_ENV_CONTRIBUTION_INVALID')
         }
         if (typeof value !== 'string') {
-          throw new Error(`bash env contributor "${contributor.name}" returned a non-string value for "${key}"`)
+          throw new ShellEnvError(
+            `bash env contributor "${contributor.name}" returned a non-string value for "${key}"`,
+            'SHELL_ENV_CONTRIBUTION_INVALID',
+          )
         }
         values[key] = value
       }

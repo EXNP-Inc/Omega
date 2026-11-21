@@ -1,10 +1,11 @@
 // @vitest-environment jsdom
+import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { SessionPendingInteractionBase } from '@omega-ai/dsh-client-ui-session/client'
-import type { Shortcuts, ShortcutContext, ShortcutGesture } from '@omega-ai/dsh-client-shortcuts/client'
-import { makeTranslate, SlotTestRuntime } from '@omega-ai/dsh-client-test-runtime'
-import { MutableSessionEventSource } from '@omega-ai/dsh-api-session-controller/client'
-import { SessionSeq, type SessionId } from '@omega-ai/dsh-session/types'
+import type { SessionPendingInteractionBase } from '@deepseek-ai/dsh-client-ui-session/client'
+import type { Shortcuts, ShortcutContext, ShortcutGesture } from '@deepseek-ai/dsh-client-shortcuts/client'
+import { makeTranslate, SlotTestRuntime } from '@deepseek-ai/dsh-client-test-runtime'
+import { MutableSessionEventSource } from '@deepseek-ai/dsh-api-session-controller/client'
+import { SessionSeq, type SessionId } from '@deepseek-ai/dsh-session/types'
 import { UiConversation } from '../src/client/conversation/assembly.ts'
 import { ComposerBlockRegistry } from '../src/client/input/blocks.ts'
 import { InputHub } from '../src/client/input/hub.ts'
@@ -30,7 +31,7 @@ async function bench() {
   await reference.ready
   const hub = new InputHub(runtime.ctx, makeTranslate(zh, {}))
   const fiber = runtime.ctx.plugin(ConversationController, {
-    input: hub, blocks: new ComposerBlockRegistry(), maxConcurrentFileUploads: 2,
+    input: hub, blocks: new ComposerBlockRegistry(), maxConcurrentFileUploads: createSnapshotStore(2),
   })
   await fiber.await()
   const conversation = new UiConversation(runtime.ctx, runtime.sessions)
@@ -137,6 +138,17 @@ describe('fixed stop routing', () => {
     expect(b.cancel).toHaveBeenCalledOnce()
   })
 
+  it("keeps this Session's double-Escape sequence when another Session gains a pending interaction", async () => {
+    const b = await bench()
+    const publish = b.runtime.ctx.uiSession.registerPendingInteraction<SessionPendingInteractionBase>(() => 0)
+    b.press()
+    const remove = publish({ kind: 'approval', key: 'request-other', sessionId: 's2' as SessionId }, async () => {})
+    b.press()
+    await Promise.resolve()
+    expect(b.cancel).toHaveBeenCalledOnce()
+    remove()
+  })
+
   it('excludes terminal, iframe, approval and inert descendants even inside Conversation', async () => {
     const b = await bench()
     for (const [tag, attribute] of [['div', 'class'], ['iframe', ''], ['div', 'data-approval-key'], ['div', 'inert']]) {
@@ -190,7 +202,7 @@ describe('fixed stop routing', () => {
     })
     expect(b.press()).not.toHaveBeenCalled()
     await b.runtime.sessions.updateSessionSnapshot('s1', (draft) => {
-      draft.subagent = { parentAvailable: false, address: { parentSessionId: 'parent' as SessionId,
+      draft.subagent = { address: { parentSessionId: 'parent' as SessionId,
         childSessionId: 's1' as SessionId, mode: 'continuable' } }
     })
     b.press()

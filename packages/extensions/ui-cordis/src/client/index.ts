@@ -1,13 +1,13 @@
 /** Cordis dynamic-plugin cards, inventory panel, business-view host. */
 
-import type { Context as ClientContext } from '@omega-ai/cordis'
-import type { SessionId } from '@omega-ai/dsh-session/types'
-import type {} from '@omega-ai/dsh-client-ui-tool/client'
-import type {} from '@omega-ai/dsh-client-locale/client'
-import type {} from '@omega-ai/dsh-client-ui-sidebar/client'
-import type {} from '@omega-ai/dsh-api-remotes/client'
-import type {} from '@omega-ai/dsh-client-ui-renderer/client'
-import type {} from '@omega-ai/dsh-client-ui-session/client'
+import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import type {} from '@deepseek-ai/dsh-client-ui-tool/client'
+import type {} from '@deepseek-ai/dsh-client-locale/client'
+import type {} from '@deepseek-ai/dsh-client-ui-sidebar/client'
+import type {} from '@deepseek-ai/dsh-api-remotes/client'
+import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
+import type {} from '@deepseek-ai/dsh-client-ui-session/client'
 import type {} from './events.ts'
 import { CordisActionRow } from './CordisActionRow.tsx'
 import { CordisDefineRow } from './CordisDefineRow.tsx'
@@ -17,7 +17,7 @@ import { createCordisInventory } from './inventory.ts'
 import { CordisRunCardRegistry } from './run-card-index.ts'
 import type { CordisDynamicPort } from './dynamic-port.ts'
 import type { CordisCardFace, CordisPanelFace, CordisRunCardFace } from './slots.ts'
-import { en, NS, zh } from './locales.ts'
+import { en, ja, es, fr, de, ru, pt, NS, zh } from './locales.ts'
 
 export type { CordisCardFace, CordisPanelFace, CordisRunCardFace, CordisToolViewOwnerProps } from './slots.ts'
 export type { CordisActionResult, CordisDynamicPort, CordisInventoryRow } from './dynamic-port.ts'
@@ -40,7 +40,7 @@ export const inject = [
 
 /** Mount every Cordis browser surface over the shared Host inventory. */
 export function apply(ctx: ClientContext): void {
-  ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-cordis: dictionaries')
+  ctx.effect(() => ctx.locale.register(NS, { zh, en, ja, es, fr, de, ru, pt }), 'ui-cordis: dictionaries')
 
   const port: CordisDynamicPort = {
     stop: async (sessionId, pluginId) => {

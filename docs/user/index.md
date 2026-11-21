@@ -6,6 +6,6 @@ head:
       content: 0; url=./guide/quickstart
 ---
 
-# Omega
+# DeepSeek Harness
 
 English | [中文](index.zh.md)

@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import type {
   ChatConversationViewNode, ChatNodeSource,
-} from '@omega-ai/dsh-client-ui-chat/client'
-import type { ConversationTimelineSnapshot } from '@omega-ai/dsh-client-ui-conversation/client'
+} from '@deepseek-ai/dsh-client-ui-chat/client'
+import type { ConversationTimelineSnapshot } from '@deepseek-ai/dsh-client-ui-conversation/client'
 import { ChatSnapshotBuilder } from '../src/client/conversation-nodes/chat-snapshot-builder.ts'
 
 const timeline: ConversationTimelineSnapshot = { turnOrder: [], turns: new Map() }
@@ -52,7 +52,7 @@ describe('Chat Node keyed sources', () => {
     expect(input.order).toBe(next.order)
     expect(input.changedTurns).toEqual([7])
     expect(input.changedTurnOrders).toEqual([])
-    expect(input.readPosition(context.key as typeof input.order[number])).toBeUndefined()
+    expect(input.readPosition(context.key as typeof input.order[number])).toEqual({ turn: undefined, previous: user.key, next: undefined })
     expect(input.readPosition('missing' as typeof input.order[number])).toBeUndefined()
     expect(input.changes.find(change => change.current.key === user.key)).toEqual({
       previous: user, current: next.nodes.get(user.key),

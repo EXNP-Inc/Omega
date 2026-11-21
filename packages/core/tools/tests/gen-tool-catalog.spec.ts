@@ -2,7 +2,8 @@
  * Guarantee tests for the tool-schema catalog generator (`scripts/gen-tool-catalog.ts`).
  */
 
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import ScheduleService from '@deepseek-ai/dsh-schedule'
 import {
   assertManifestComplete,
   assertToolsHarvested,
@@ -26,20 +27,20 @@ describe('gen-tool-catalog collectToolCatalog', () => {
     const catalog = await collectToolCatalog()
     const names = catalog.flatMap(entry => entry.schemas.map(s => s.name)).sort()
     expect(names).toEqual([
-      'ask_user_question', 'bash', 'bash', 'cordis_inspect_list',
-      'cordis_inspect_query',
-      'create_goal', 'edit', 'exit_plan_mode', 'get_goal', 'glob', 'grep',
-      'interrupt_agent', 'interrupt_agent', 'job_kill', 'job_list', 'job_output',
-      'list_agents', 'list_agents', 'list_mcp_resource_templates', 'list_mcp_resources',
-      'list_subagent_models', 'load_workspace_dependencies', 'lsp', 'plugin_manager', 'present', 'pwsh', 'pwsh', 'ralph',
-      'read', 'read_image', 'read_mcp_resource', 'run_code', 'schedule_create', 'schedule_delete',
-      'schedule_list', 'schedule_update', 'send_message', 'send_message', 'session_event_read', 'session_event_search',
-      'session_event_trace', 'session_search', 'session_trace', 'skill', 'spawn_teammate',
+      'apply_patch', 'ask_user_question', 'bash', 'bash', 'cordis_inspect',
+      'create_goal', 'edit', 'enter_worktree', 'exit_plan_mode', 'exit_worktree', 'get_goal', 'glob', 'grep',
+      'interrupt_agent', 'job_kill', 'job_list', 'job_output',
+      'list_agents', 'list_mcp_resource_templates', 'list_mcp_resources', 'list_session',
+      'list_subagent_models', 'list_workspace', 'load_workspace_dependencies', 'lsp', 'office_convert', 'office_recalculate', 'office_render', 'plugin_manager', 'plugin_market', 'present', 'pwsh', 'pwsh', 'ralph',
+      'read', 'read_image', 'read_mcp_resource', 'run_code', 'schedule_create', 'schedule_edit',
+      'schedule_list', 'schedule_view', 'send_message', 'session_event_read', 'session_event_search',
+      'session_event_trace', 'session_search', 'session_trace', 'skill',
       'stagehand_act', 'stagehand_extract', 'stagehand_navigate', 'stagehand_observe', 'stagehand_screenshot', 'stagehand_tabs',
-      'str_replace_editor', 'subagent', 'team_task_create',
+      'str_replace_editor', 'subagent', 'subagent_oar', 'team_task_create',
       'team_task_get', 'team_task_list', 'team_task_update', 'terminal_close', 'terminal_list',
       'terminal_open', 'terminal_read', 'terminal_send', 'terminal_signal', 'todo_write',
-      'update_goal', 'wait_agent', 'web_fetch', 'web_search', 'workflow', 'write',
+      'update_goal', 'user_terminal_list', 'user_terminal_read', 'wait_agent', 'web_fetch', 'web_search', 'workflow',
+      'write',
     ])
     // Every tool carries a JSON-Schema `parameters` object (what the model sees).
     for (const entry of catalog) {
@@ -47,6 +48,11 @@ describe('gen-tool-catalog collectToolCatalog', () => {
         expect((schema.parameters as unknown as JsonSchema).type).toBe('object')
       }
     }
+    const worktree = catalog.find(entry => entry.pkg === '@deepseek-ai/dsh-experimental-tool-worktree')
+    expect(worktree?.sources.enter_worktree).toBe('packages/experimental/tool-worktree/src/index.ts')
+    const parameters = worktree?.schemas.find(schema => schema.name === 'enter_worktree')?.parameters
+    expect(parameters).toHaveProperty('properties.name.type', 'string')
+    expect(parameters?.required ?? []).not.toContain('name')
   })
 
   it('resolves a runtime-spread enum to its literal members (the payoff over AST)', async () => {
@@ -62,14 +68,32 @@ describe('gen-tool-catalog collectToolCatalog', () => {
 
   it('attributes each harvested tool with its registering plugin source', async () => {
     const catalog = await collectToolCatalog()
-    const bash = catalog.find(entry => entry.pkg === '@omega-ai/dsh-tool-bash')
+    const ptc = catalog.find(entry => entry.pkg === '@deepseek-ai/dsh-tool-executor-ptc')
+    expect(ptc?.sources.run_code).toBe('packages/core/tool-executor-ptc/src/ptc.ts')
+    const bash = catalog.find(entry => entry.pkg === '@deepseek-ai/dsh-tool-bash')
     expect(bash?.sources.bash).toBe('packages/shell/tool-bash/src/index.ts')
-    const control = catalog.find(entry => entry.pkg === '@omega-ai/dsh-tool-subagent-control')
+    const control = catalog.find(entry => entry.pkg === '@deepseek-ai/dsh-tool-subagent-control')
     expect(control?.sources).toEqual({
       interrupt_agent: 'packages/subagent/tool-subagent-control/src/index.ts',
       list_agents: 'packages/subagent/tool-subagent-control/src/list-agents.ts',
       send_message: 'packages/subagent/tool-subagent-control/src/index.ts',
+      wait_agent: 'packages/subagent/tool-subagent-control/src/wait-agent.ts',
     })
+  })
+
+  it('lists Schedule prompt dependencies and reads delivery limits from Schedule Config', async () => {
+    const config = vi.spyOn(ScheduleService, 'Config').mockReturnValue({ newSessionIntervalSeconds: 900 })
+    try {
+      const catalog = await collectToolCatalog()
+      const schedule = catalog.find(entry => entry.pkg === '@deepseek-ai/dsh-tool-schedule')
+      expect(schedule?.requires).toEqual(['ctx.tools', 'ctx.schedule', 'ctx.systemPrompt'])
+      expect(config).toHaveBeenCalledWith({})
+      expect(schedule?.schemas.find(schema => schema.name === 'schedule_create')?.parameters).toMatchObject({
+        properties: { target: { description: expect.stringContaining('at most once every 15 minutes') as string } },
+      })
+    } finally {
+      config.mockRestore()
+    }
   })
 
   it('harvests search tools without depending on the generator process PATH', async () => {
@@ -77,7 +101,7 @@ describe('gen-tool-catalog collectToolCatalog', () => {
     try {
       process.env.PATH = ''
       const catalog = await collectToolCatalog()
-      const search = catalog.find(entry => entry.pkg === '@omega-ai/dsh-tool-fs-search')
+      const search = catalog.find(entry => entry.pkg === '@deepseek-ai/dsh-tool-fs-search')
       expect(search?.schemas.map(s => s.name).sort()).toEqual(['glob', 'grep'])
     } finally {
       if (oldPath === undefined) delete process.env.PATH
@@ -89,7 +113,7 @@ describe('gen-tool-catalog collectToolCatalog', () => {
     // `tool-subagent`'s registered name is the load-time `toolName` config, so the shipped
     // agents surface this one package as both `subagent` and `subagent_fork`.
     const catalog = await collectToolCatalog()
-    const subagent = catalog.find(entry => entry.pkg === '@omega-ai/dsh-tool-subagent')
+    const subagent = catalog.find(entry => entry.pkg === '@deepseek-ai/dsh-tool-subagent')
     expect(subagent?.schemas.map(s => s.name)).toEqual(['list_subagent_models', 'subagent'])
     expect(subagent?.note).toMatch(/subagent_fork/)
   })
@@ -110,7 +134,7 @@ describe('gen-tool-catalog assertManifestComplete', () => {
 
 describe('gen-tool-catalog assertToolsHarvested', () => {
   const entry: ToolPackage = {
-    pkg: '@omega-ai/dsh-tool-demo',
+    pkg: '@deepseek-ai/dsh-tool-demo',
     dir: 'tool-demo',
     source: 'packages/demo/tool-demo/src/index.ts',
     requires: ['ctx.tools', 'ctx.somethingUnmounted'],
@@ -126,7 +150,7 @@ describe('gen-tool-catalog assertToolsHarvested', () => {
     // The failure this guards is silent by construction: the package is in the
     // manifest, its plugin merely stays PENDING on an unmounted service, and the
     // catalog would ship without its tools while every gate stays green.
-    expect(() => { assertToolsHarvested(entry, 0) }).toThrow(/@omega-ai\/dsh-tool-demo booted without registering a single tool/)
+    expect(() => { assertToolsHarvested(entry, 0) }).toThrow(/@deepseek-ai\/dsh-tool-demo booted without registering a single tool/)
     expect(() => { assertToolsHarvested(entry, 0) }).toThrow(/ctx.somethingUnmounted/)
   })
 })
@@ -135,7 +159,7 @@ describe('gen-tool-catalog render', () => {
   it('emits a package heading, a tool heading, and a json schema fence', () => {
     const catalog: ToolCatalog = [
       {
-        pkg: '@omega-ai/dsh-tool-demo',
+        pkg: '@deepseek-ai/dsh-tool-demo',
         sources: { demo: 'packages/demo/tool-demo/src/index.ts' },
         requires: ['ctx.tools'],
         writes: ['tool/result'],
@@ -143,8 +167,8 @@ describe('gen-tool-catalog render', () => {
       },
     ]
     const md = render(catalog)
-    expect(md).toContain('| `@omega-ai/dsh-tool-demo` | `demo` | `ctx.tools` | `tool/result` |')
-    expect(md).toContain('## `@omega-ai/dsh-tool-demo`')
+    expect(md).toContain('| `@deepseek-ai/dsh-tool-demo` | `demo` | `ctx.tools` | `tool/result` |')
+    expect(md).toContain('## `@deepseek-ai/dsh-tool-demo`')
     expect(md).toContain('### `demo`')
     expect(md).toContain('A demo tool.')
     expect(md).toContain('```json')

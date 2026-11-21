@@ -7,15 +7,15 @@ import type { ReactNode } from 'react'
 import type {
   BoundActions, DefineStore, FactoryComponentPropsOf, FactoryLocalComponentPropsOf,
   PropsRenderFactories, PropsRenderSlots, PropsRuntime, PropsStore, SlotComponent, SlotHookFactory,
-} from '@omega-ai/dsh-client-ui-slots'
-import { SlotCore } from '@omega-ai/dsh-client-ui-slots'
+} from '@deepseek-ai/dsh-client-ui-slots'
+import { SlotCore } from '@deepseek-ai/dsh-client-ui-slots'
 
 // Only package-unique SlotMap keys are merged here. The standard-kit
 // interfaces (SessionStandardProps/GlobalStandardProps) are NOT re-merged:
 // the owning UI adapters provide the real members, and in the client aggregate
 // program a toy merge would collide with them — samples below stay
 // shape-agnostic about kit member payloads for the same reason.
-declare module '@omega-ai/dsh-client-ui-slots' {
+declare module '@deepseek-ai/dsh-client-ui-slots' {
   interface SlotMap {
     'chain.frame': { kind: 'single'; scope: 'root' }
     'chain.side': { kind: 'single'; scope: 'root'; owner: { collapsed: boolean; width: number } }
@@ -28,6 +28,7 @@ declare module '@omega-ai/dsh-client-ui-slots' {
     }
     'chain.tools': { kind: 'keyed'; scope: 'session' }
     'chain.takeover': { kind: 'chain'; scope: 'session'; owner: { items: readonly Item[] } }
+    'chain.layer': { kind: 'hoc'; scope: 'root'; owner: { tone: string } }
   }
 
   interface LocaleNamespaceMap {
@@ -213,6 +214,14 @@ describe('terminal-design type chain', () => {
       chainSlots.renderSlotChain('chain.takeover', { items: [] }, { fallback: null })
       chainSlots.renderSlot('chain.conv', {})
 
+      // hoc share: a layer component receives the owner props plus children; renderSlot takes optional
+      // { children } for hoc keys.
+      const Layer: SlotComponent<PropsRuntime<'chain.layer'> & { children: ReactNode }> = ({ children }) => children
+      core.register({ name: 'chain.layer', id: 'frame', order: 1 }, Layer)
+      const layerSlots: PropsRenderSlots<'chain.layer' | 'chain.conv'> = null as never
+      layerSlots.renderSlot('chain.layer', { tone: 'calm' }, { children: null })
+      layerSlots.renderSlot('chain.layer', { tone: 'calm' })
+
       // A parent registration declares the Slot inject once; every child
       // entry receives the same custom Hook, bound to official standard props
       // and each render occurrence's opaque context.
@@ -304,6 +313,16 @@ describe('terminal-design type chain', () => {
       chainSlots.renderSlotChain('chain.conv', {})
       // @ts-expect-error a children set without chain keys provides no renderSlotChain
       type _NoChainSeat = typeof fp.renderSlotChain
+
+      // hoc keys take only { children }; other keys take no children; hoc registration requires an id.
+      // @ts-expect-error hoc keys accept no fallback
+      layerSlots.renderSlot('chain.layer', { tone: 'calm' }, { fallback: null })
+      // @ts-expect-error non-hoc keys accept no children
+      layerSlots.renderSlot('chain.conv', {}, { children: null })
+      // @ts-expect-error hoc registration requires options.id
+      core.register({ name: 'chain.layer' }, Layer)
+      // @ts-expect-error a hoc layer must accept children
+      core.register({ name: 'chain.layer', id: 'no-children' }, (_p => null) as SlotComponent<PropsRuntime<'chain.layer'> & { children: number }>)
 
       // renderSlot owner share typed at the call site.
       // @ts-expect-error owner shape mismatch (width missing)

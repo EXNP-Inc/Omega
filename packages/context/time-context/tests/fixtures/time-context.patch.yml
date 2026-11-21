@@ -24,4 +24,10 @@
       name: './mock-llm.ts'
 
     - id: time-context
-      name: '@omega-ai/dsh-time-context'
+      name: '@deepseek-ai/dsh-time-context'
+
+- id: sandbox-policy
+  inject: []
+  config:
+    mode: !!js process.env.DSH_PERMISSION_MODE ?? 'workspace-write'
+    workspaceRoot: !!js process.cwd()

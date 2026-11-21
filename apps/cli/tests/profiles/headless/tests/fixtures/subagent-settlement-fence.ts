@@ -3,9 +3,9 @@
  * @module subagent-settlement-fence
  */
 
-import type { Context } from '@omega-ai/cordis'
-import type {} from '@omega-ai/dsh-agent-loop'
-import type {} from '@omega-ai/dsh-subagent'
+import { Context } from '@deepseek-ai/cordis'
+import type {} from '@deepseek-ai/dsh-agent-loop'
+import type {} from '@deepseek-ai/dsh-subagent'
 
 /** Fixture plugin name. */
 export const name = 'subagent-settlement-fence'
@@ -24,12 +24,12 @@ export function apply(ctx: Context): void {
   let hasDelivered = false
 
   ctx.effect(() => {
-    const disposeInbox = ctx.root.on('agent/inbox/inserted', ({ agent, message }) => {
+    const disposeInbox = ctx[Context.root].on('agent/inbox/inserted', ({ agent, message }) => {
       if (agent.session.header.parentSession !== undefined || message.source.kind !== 'subagent-settled') return
       hasDelivered = true
       delivered.resolve(undefined)
     })
-    const disposeStep = ctx.root.on('agent/pre-step', async ({ agent, turn, step }, next) => {
+    const disposeStep = ctx[Context.root].on('agent/pre-step', async ({ agent, turn, step }, next) => {
       if (agent.session.header.parentSession === undefined && turn === 1 && step === 2 && !hasDelivered) {
         await delivered.promise
       }

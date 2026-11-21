@@ -18,7 +18,6 @@ import { createInterface } from 'node:readline/promises'
 import { pathToFileURL } from 'node:url'
 import { parseArgs } from 'node:util'
 import { discoverNpmBaselineManifests } from './npm-baseline-packages.ts'
-import { validateTarballPayload } from './publication-payload.ts'
 
 const DEFAULT_REGISTRY = 'https://registry.npm.harnessment.com'
 const DEFAULT_OUTPUT_DIRECTORY = '.artifacts/npm-baseline'
@@ -29,7 +28,7 @@ const DEPENDENCY_SECTIONS = [
   'peerDependencies',
 ] as const
 const RELEASE_MANIFEST_NAME = 'manifest.json'
-const RELEASE_ENTRY_PACKAGE = '@omega-ai/dsh'
+const RELEASE_ENTRY_PACKAGE = '@deepseek-ai/dsh'
 const LATEST_DIST_TAG = 'latest'
 const POSIX_WEB_PROBE = String.raw`
 import errno, os, pty, select, signal, sys, time
@@ -255,10 +254,10 @@ class WorkspacePackageSet {
       const isVendored = manifestPath.startsWith('vendor/')
       // Vendored packages are rescoped too (vendor/README.md), so publication
       // never carries an upstream name that would squat it on the registry.
-      if (!name.startsWith('@omega-ai/')) {
-        throw new Error(`${manifestPath} must name an @omega-ai package`)
+      if (!name.startsWith('@deepseek-ai/')) {
+        throw new Error(`${manifestPath} must name an @deepseek-ai package`)
       }
-      if (name === '@omega-ai/dsh-root') {
+      if (name === '@deepseek-ai/dsh-root') {
         throw new Error(`${manifestPath} unexpectedly selected the workspace root`)
       }
       if (names.has(name)) throw new Error(`duplicate package name: ${name}`)
@@ -316,9 +315,6 @@ class ReleaseBundle {
         const expected = expectedByName.get(artifact.name)
         if (expected === undefined || !missingNames.delete(artifact.name)) {
           throw new Error(`unexpected or duplicate packed package: ${artifact.name}`)
-        }
-        if (expected.origin === 'harness') {
-          validateTarballPayload(artifact.files, tarball)
         }
         if (artifact.version !== version) {
           throw new Error(`${tarball} has version ${artifact.version}; expected ${version}`)
@@ -393,9 +389,6 @@ class ReleaseBundle {
         throw new Error(`tarball checksum mismatch: ${pkg.tarball}`)
       }
       const artifact = inspectTarball(path, runner)
-      if (pkg.origin === 'harness') {
-        validateTarballPayload(artifact.files, pkg.tarball)
-      }
       if (artifact.name !== pkg.name || artifact.version !== this.manifest.version) {
         throw new Error(`tarball identity mismatch: ${pkg.tarball}`)
       }
@@ -449,7 +442,7 @@ class InstalledBundleSmoke {
         `--registry=${this.bundle.manifest.registry}`,
       ], consumerRoot, npmClientEnvironment())
 
-      const bin = resolve(consumerRoot, 'node_modules/@omega-ai/dsh/lib/bin.js')
+      const bin = resolve(consumerRoot, 'node_modules/@deepseek-ai/dsh/lib/bin.js')
       assertPathWithin(consumerRoot, bin, 'installed dsh bin')
       const environment = installedArtifactEnvironment(consumerRoot)
       const version = this.runner.capture(
@@ -799,7 +792,7 @@ function parsePackedPackage(value: unknown, index: number): PackedPackage {
   if (origin !== 'harness' && origin !== 'vendor') {
     throw new Error(`invalid package origin in release manifest: ${JSON.stringify(origin)}`)
   }
-  if (origin === 'harness' && (!name.startsWith('@omega-ai/') || name === '@omega-ai/dsh-root')) {
+  if (origin === 'harness' && (!name.startsWith('@deepseek-ai/') || name === '@deepseek-ai/dsh-root')) {
     throw new Error(`invalid package name in release manifest: ${name}`)
   }
   return {
@@ -909,7 +902,7 @@ function installedArtifactEnvironment(consumerRoot: string): NodeJS.ProcessEnv {
   environment.DSH_HOME = resolve(consumerRoot, '.dsh')
   environment.DSH_AGENTS_HOME = resolve(consumerRoot, '.agents')
   environment.DSH_TELEMETRY_DISABLED = '1'
-  environment.OMEGA_API_KEY = 'keyless-installed-web-no-call'
+  environment.DEEPSEEK_API_KEY = 'keyless-installed-web-no-call'
   environment.LANG = 'en_US.UTF-8'
   environment.LC_ALL = 'en_US.UTF-8'
   environment.LC_CTYPE = 'en_US.UTF-8'

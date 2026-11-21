@@ -1,20 +1,21 @@
 /**
  * Service Definition for combined session-history reads, traces, filters, and full-text search.
  *
- * @module @omega-ai/dsh-session-query
+ * @module @deepseek-ai/dsh-session-query
  */
 
-import { currentSessionMessageProjections } from '@omega-ai/dsh-session-format-catalog/message-projections'
-import { Context, Service } from '@omega-ai/cordis'
+import { currentSessionMessageProjections } from '@deepseek-ai/dsh-session-format-catalog/message-projections'
+import { Context, Service } from '@deepseek-ai/cordis'
 import {
   Session,
   SessionSeq,
   snapshotSessionEvent,
   type SessionId,
   type SessionSeq as SessionSeqType,
-} from '@omega-ai/dsh-session'
-import { foldSessionTitle } from '@omega-ai/dsh-session-title'
-import type { SessionTitleSnapshot } from '@omega-ai/dsh-session-title'
+} from '@deepseek-ai/dsh-session'
+import type { ProjectionHandle } from '@deepseek-ai/dsh-session-projection'
+import { foldSessionTitle } from '@deepseek-ai/dsh-session-title'
+import type { SessionTitleSnapshot } from '@deepseek-ai/dsh-session-title'
 import type {
   SessionEventResultFilter,
   SessionEventSearchPage,
@@ -32,6 +33,7 @@ import type {
   SessionSearchExecContext,
   SessionSearchHit,
   SessionSearchPage,
+  SessionListMetadata,
   SessionSearchRequest,
   SessionSurfaceSnapshot,
   SessionTitleObservation,
@@ -45,6 +47,7 @@ import {
   type Config,
 } from './config.ts'
 import { SessionCorpus } from './corpus.ts'
+import { sessionListMetadataDefinition } from './list-metadata.ts'
 import {
   SessionObservationReader,
   type SessionObservation,
@@ -82,7 +85,7 @@ export {
 export { assertSessionHeadersCompatible } from './sources.ts'
 export type { SessionObservation, SessionObservationOptions } from './observation.ts'
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
     sessionQuery: SessionQueryEngine
   }
@@ -96,9 +99,10 @@ declare module '@omega-ai/cordis' {
  * generations, and query execution on the same `ctx.sessionQuery` service.
  */
 export abstract class SessionQueryEngine extends Service {
-  static inject = ['sessions']
+  static inject = ['sessions', 'sessionProjections']
 
   private readonly _readWindowMax: number
+  private _listMetadata!: ProjectionHandle<SessionListMetadata>
   private readonly _corpus: SessionCorpus
   private readonly _observations: SessionObservationReader
 
@@ -131,6 +135,20 @@ export abstract class SessionQueryEngine extends Service {
     this._observations = new SessionObservationReader(ctx, preparedSessionCacheSize)
   }
 
+  /** Register the Session-list metadata projection for this service's lifetime. */
+  protected async [Service.init](): Promise<void> {
+    this._listMetadata = await this.ctx.sessionProjections.register(sessionListMetadataDefinition)
+  }
+
+  /**
+   * Read the metadata that summarizes one live or prepared Session in a Session list.
+   * @param session - live or prepared Session to summarize.
+   * @returns whether the Session has no turn, and its latest human-authored prompt time.
+   */
+  getListMetadata(session: Session): SessionListMetadata {
+    return this._listMetadata.stateOf(session)
+  }
+
   /**
    * Observe one exact live or prepared Session without a persistence listing preflight.
    * @param sessionId - logical Session identity.
@@ -142,6 +160,18 @@ export abstract class SessionQueryEngine extends Service {
     options: SessionObservationOptions = {},
   ): Promise<SessionObservation> {
     return this._observations.read(sessionId, options)
+  }
+
+  /**
+   * Inspect domain-owned state without attaching or resuming a cold Session.
+   * The getter runs synchronously after preparation and must not mutate or retain the Session.
+   * @param sessionId - logical Session identity.
+   * @param read - domain getter returning detached data.
+   * @param signal - preparation cancellation.
+   * @returns the getter's value at the current live or prepared cut.
+   */
+  inspectSession<T>(sessionId: SessionId, read: (session: Session) => T, signal?: AbortSignal): Promise<T> {
+    return this._observations.inspect(sessionId, read, signal)
   }
 
   /**

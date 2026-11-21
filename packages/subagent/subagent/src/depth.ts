@@ -3,12 +3,13 @@
  * children. Kept apart from the service so composition helpers can read it
  * without importing the registry.
  *
- * @module @omega-ai/dsh-subagent/depth
+ * @module @deepseek-ai/dsh-subagent/depth
  */
 
-import type { Agent } from '@omega-ai/dsh-agent'
+import type { Agent } from '@deepseek-ai/dsh-agent'
+import { SubagentError } from './error.ts'
 
-declare module '@omega-ai/dsh-agent' {
+declare module '@deepseek-ai/dsh-agent' {
   interface AgentOptions {
     /** Delegation depth: zero for a top-level agent and parent depth + 1 for a child. */
     subagentDepth?: number
@@ -23,12 +24,12 @@ declare module '@omega-ai/dsh-agent' {
  * let it delegate as if it were top-level.
  * @param agent - the agent whose header and options carry the depth.
  * @returns its non-negative safe-integer depth.
- * @throws if the runtime `AgentOptions.subagentDepth` is not a non-negative safe integer.
+ * @throws {SubagentError} `INVALID_DEPTH` if the runtime `AgentOptions.subagentDepth` is not a non-negative safe integer.
  */
 export function delegationDepthOf(agent: Agent): number {
   const runtime = agent.options.subagentDepth
   if (runtime !== undefined && (!Number.isSafeInteger(runtime) || runtime < 0 || Object.is(runtime, -0))) {
-    throw new TypeError('agent subagentDepth must be a non-negative safe integer')
+    throw new SubagentError('agent subagentDepth must be a non-negative safe integer', 'INVALID_DEPTH')
   }
   // The header value was validated at the session boundary (creation and
   // persistence load both construct through the store).

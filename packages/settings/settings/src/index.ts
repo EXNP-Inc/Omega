@@ -3,11 +3,11 @@ import { existsSync } from 'node:fs'
 import { readFile, rename } from 'node:fs/promises'
 import { join } from 'node:path'
 import { parse } from 'yaml'
-import { Context, FiberState, Service, resolveConfig, type Fiber } from '@omega-ai/cordis'
-import type z from '@omega-ai/schemastery'
-import { interpolate, type Entry } from '@omega-ai/cordis-plugin-loader'
-import type {} from '@omega-ai/dsh-config-editor'
-import type {} from '@omega-ai/dsh-app-boot'
+import { Context, FiberState, Service, resolveConfig, type Fiber } from '@deepseek-ai/cordis'
+import type z from '@deepseek-ai/schemastery'
+import { interpolate, type Entry } from '@deepseek-ai/cordis-plugin-loader'
+import type {} from '@deepseek-ai/dsh-config-editor'
+import type {} from '@deepseek-ai/dsh-app-boot'
 import { redactSecrets, type RedactedSecret } from './redact.ts'
 import { isVolatilePath, plainConfig, projectForm, volatileForm } from './schema.ts'
 import type { SettingsNamespace } from './types.ts'
@@ -35,7 +35,7 @@ export interface SettingsDescribeOptions {
   redactSecrets?: boolean
 }
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
     /** Schema-derived plugin configuration forms. */
     settings: SettingsForms
@@ -232,7 +232,7 @@ export class SettingsForms extends Service {
     const ctx = ownerContext
     ctx.effect(() => () => { this.closed = true })
     ctx.on('app-boot/config-reload', () => { this.invalidate() })
-    void ctx.root.loader.await().then(() => this.importLegacyDocument()).catch((error: unknown) => { ctx.logger.error(error) })
+    void ctx[Context.root].loader.await().then(() => this.importLegacyDocument()).catch((error: unknown) => { ctx.logger.error(error) })
   }
 
   /** Move the sections of the removed `settings.yaml` into the active profile once the Loader has settled every entry.
@@ -264,7 +264,7 @@ export class SettingsForms extends Service {
    * @throws If this instance already has a registered policy.
    */
   configure(presentation: { auto?: boolean }, owner: Fiber = this.ctx.fiber): () => void {
-    const fiber = owner
+    const fiber = owner.ctx.fiber
     if (this.presentations.has(fiber)) throw new Error('Settings presentation is already configured for this plugin instance')
     const policy = { ...presentation }
     this.presentations.set(fiber, policy)
@@ -309,14 +309,15 @@ export class SettingsForms extends Service {
       if (form === undefined) return []
       active.add(entry.id)
       const raw = JSON.stringify([entry.fiber.uid, schema.toJSON(), entry.options.config ?? {}])
-      const autoGenerate = this.presentations.get(entry.fiber)?.auto ?? true
+      const autoGenerate = this.presentations.get(entry.fiber.ctx.fiber)?.auto ?? true
       const previous = this.revisions.get(entry.id)
       const revision = previous === undefined ? 0 : previous.revision + Number(previous.raw !== raw)
       this.revisions.set(entry.id, { raw, revision, ns: entry.options.id as SettingsNamespace, autoGenerate })
       if (previous?.raw !== raw || previous.autoGenerate !== autoGenerate) {
         this.ownerContext.emit('settings/document-updated', entry.options.id as SettingsNamespace, revision)
       }
-      const value = projectForm(form, plainConfig(entry.fiber.config))
+      const value = projectForm(form, plainConfig(entry.fiber.effectiveConfig))
+      // Inherited layers omit profile fields, so only interpolate and validate them, without the running fiber's config hooks.
       const resolved: unknown = interpolate(entry.fiber.ctx, inherited)
       const base = projectForm(form, plainConfig(inheritedConfig(entry.fiber.runtime, resolved)))
       const user = projectForm(form, override)

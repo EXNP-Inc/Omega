@@ -3,7 +3,7 @@ description: "历史 Cordis 卡片及进程内 runner 定义的控件。"
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-client-ui-cordis
+# @deepseek-ai/dsh-client-ui-cordis
 
 [English](README.md) | 中文
 

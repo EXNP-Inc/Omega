@@ -3,13 +3,13 @@ description: "Keyless LLM replay plugin for snapshot tests, for test authors boo
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-llm-replay
+# @deepseek-ai/dsh-llm-replay
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`dsh-llm-replay` lets snapshot tests run the real agent without an API key by replaying model streams from recorded Session JSONL fixtures. Each parent and subagent session receives its recorded script in first-call order, while calls within a session advance independently. A `replay.override.json` sidecar represents pre-chunk failures, cancellation, hangs, and injected retries that durable settlements cannot reconstruct. Use it for deterministic ACP, headless, and Web browser scenarios that need real loop behavior with fixed model output.
+`dsh-llm-replay` lets snapshot tests run the real agent without an API key by replaying model streams from recorded Session JSONL fixtures. Each parent and subagent session receives its recorded script in first-call order, while calls within a session advance independently. A `replay.override.json` sidecar supplies scenario behavior absent from the selected fixture, including failures, cancellation, hangs, retries, and authored adaptations of retained programs. Use it for deterministic ACP, headless, and Web browser scenarios that need real loop behavior with fixed model output.
 
 ## Table of Contents
 
@@ -29,15 +29,17 @@ This package gives a keyless test a real agent with a fixed model transcript: mo
 
 ### Mounting it
 
+Prepared callers require the routed adapter mode. Configure `models[].reasoningEfforts` from least to greatest selectable effort. Configuration functions receive that order during preparation; `defaultReasoningEffort` remains independent of the first entry.
+
 With `providers` configured, the plugin registers a replay-only adapter whose catalog is available to scenarios that exercise model discovery; without `providers`, it installs the catch-all `llm/stream` waterfall used by tests that do not need discovery:
 
 ```yaml
 - id: llm-replay
-  name: '@omega-ai/dsh-llm-replay'
+  name: '@deepseek-ai/dsh-llm-replay'
   config:
     providers:
-      - id: omega-official
-        name: Omega
+      - id: deepseek-official
+        name: DeepSeek
         retryPolicy:
           mode: normal
           backoff:
@@ -45,9 +47,9 @@ With `providers` configured, the plugin registers a replay-only adapter whose ca
             maxDelayMs: 1
             jitterRatio: 0
         models:
-          - id: omega-v4-flash
+          - id: deepseek-v4-flash
             contextWindow: 128000
-          - id: omega-v4-pro
+          - id: deepseek-v4-pro
   # file/overrideFile/childFiles default to $DSH_SNAPSHOT_FILE /
   # $DSH_SNAPSHOT_OVERRIDE / $DSH_SNAPSHOT_CHILD_FILES, set by the snapshot
   # harness per scenario.
@@ -61,7 +63,7 @@ With `providers` configured, the plugin registers a replay-only adapter whose ca
 | `providers` | — | Optional replay-only provider and model catalog; a model may declare `contextWindow`, text/image modalities, positive `imageRequestTokens` when image-capable, and `systemPromptUpdate: in-history` so a keyless scenario exercises in-history system prompt replacement; invalid values fail at load (`llm-replay: provider "…" model "…" systemPromptUpdate must be "in-history" when present`) and routes never perform provider I/O |
 | `paceMs` | — (burst) | Optional per-chunk delay in ms for genuinely incremental delivery |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-llm-replay) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-llm-replay) is the exhaustive source for every accepted field and its JSDoc.
 
 ### How the fixture works
 
@@ -73,9 +75,11 @@ A scenario where a parent agent delegates to in-process subagents records one ro
 
 ### Failure modes and overrides
 
-When replay serves `omega-official` with `ctx.omegaLlmApiExtensions`, it prepares and accepts those fields after selecting a valid script entry and before yielding the first chunk. This mirrors the live adapter's post-2xx commit point, so durable acceptance watermarks and SDK event notifications behave the same in recording and replay. Replay supplies a synthetic `{ messages: [] }` base body: it proves acceptance side effects, not prepared field bytes.
+When replay serves `deepseek-official` with `ctx.deepseekLlmApiExtensions`, it prepares and accepts those fields after selecting a valid script entry and before yielding the first chunk. This mirrors the live adapter's post-2xx commit point, so durable acceptance watermarks and SDK event notifications behave the same in recording and replay. Replay supplies a synthetic `{ messages: [] }` base body: it proves acceptance side effects, not prepared field bytes.
 
-Two failure modes are not reconstructable from a durable Assistant settlement alone: a pure throw before any chunk has no exception-bearing stream member, and a cancel/hang requires nontermination rather than a replayed finite prefix. A scenario that needs those supplies an optional sidecar (`<scenario>/replay.override.json`) that either replaces the derived script with a bare `ReplayEntry[]` or augments it with `{ patches: [{ at, entry }] }`, which keeps every derived call and swaps the named 0-based call indexes; `at` equal to the derived length appends the retry attempt after an injected transient throw. A `throw` entry accepts Omega request extensions when it has prefix chunks; a zero-chunk throw defaults to pre-2xx non-acceptance and may set `accepted: true` for a post-2xx failure. A `hang` entry may name `readyFile`, which replay writes before waiting for cancellation so an external driver can cancel deterministically.
+Two failure modes are not reconstructable from a durable Assistant settlement alone: a pure throw before any chunk has no exception-bearing stream member, and a cancel/hang requires nontermination rather than a replayed finite prefix. A scenario that needs those supplies an optional sidecar (`<scenario>/replay.override.json`) that either replaces the derived script with a bare `ReplayEntry[]` or augments it with `{ patches: [{ at, entry }] }`, which keeps every derived call and swaps the named 0-based call indexes; `at` equal to the derived length appends the retry attempt after an injected transient throw. A `throw` entry accepts DeepSeek request extensions when it has prefix chunks; a zero-chunk throw defaults to pre-2xx non-acceptance and may set `accepted: true` for a post-2xx failure. A `hang` entry may name `readyFile`, which replay writes before waiting for cancellation so an external driver can cancel deterministically.
+
+A scenario pinned to a historical or retired-tool recording may use an authored override to adapt its program to current execution instructions while preserving the retained Session. Mark the adapted scenario as `recording: authored`. Ordinary successful scripts derive from their selected Session.
 
 ### What can go wrong
 

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Switch } from '@omega-ai/dsh-client-ui-primitives'
+import { Switch } from '@deepseek-ai/dsh-client-ui-primitives'
 
 afterEach(cleanup)
 
@@ -43,6 +43,12 @@ describe('Switch', () => {
     render(<form onSubmit={onSubmit}><Switch checked={false} label="Toggle" onChange={() => {}} /></form>)
     fireEvent.click(screen.getByRole('switch'))
     expect(onSubmit).not.toHaveBeenCalled()
+  })
+
+  it('takes focus on mount and names its description when the caller asks', () => {
+    render(<><Switch checked={false} autoFocus describedBy="why" label="Toggle" onChange={() => {}} /><p id="why">Reason</p></>)
+    const control = screen.getByRole('switch', { description: 'Reason' })
+    expect(document.activeElement).toBe(control)
   })
 
   it('keeps a caller class alongside its own so a render site can place it', () => {

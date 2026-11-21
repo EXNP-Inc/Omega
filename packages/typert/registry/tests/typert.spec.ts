@@ -1,21 +1,26 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@omega-ai/cordis'
+import { Context } from '@deepseek-ai/cordis'
 import { z } from 'zod'
 import TypertRegistry, {
   typertEndpoint,
   typertKey,
   typertPackageKey,
   type TypertContribution,
-} from '@omega-ai/dsh-typert-registry'
+} from '@deepseek-ai/dsh-typert-registry'
 import type {
   InvocationDescriptor,
   TypertContext,
+  TypertResource,
+  TypertResourceDeclaration,
+  TypertResourceKind,
   TypertLookup,
+  TypertRegistryChange,
   TypertRemoteContribution,
-} from '@omega-ai/dsh-typert-protocol'
+} from '@deepseek-ai/dsh-typert-protocol'
+import { createTypertRemoteInfo, isTypertRemoteMethod } from '@deepseek-ai/dsh-typert-protocol/remote-info'
 import { apply as applyClientRegistry, inject as clientRegistryInject } from '../src/client/index.ts'
 
-declare module '@omega-ai/dsh-typert-protocol' {
+declare module '@deepseek-ai/dsh-typert-protocol' {
   interface TypertLookupMap {
     fixture: TypertLookup<{ readonly id: string }, string>
   }
@@ -23,6 +28,11 @@ declare module '@omega-ai/dsh-typert-protocol' {
   interface TypertContextMap {
     registryFixture: TypertContext<string>
     registryFixtureOther: TypertContext<string>
+  }
+
+  interface TypertResourceMap {
+    /** Test-only resource kind whose identity is the fixture lookup's wire id. */
+    registryFixture: TypertResource<string>
   }
 }
 
@@ -34,7 +44,7 @@ async function makeCtx(): Promise<Context> {
 
 function toolsContribution(schema: z.ZodType = z.object({ name: z.string() })): TypertContribution {
   return {
-    package: '@omega-ai/dsh-tools',
+    package: '@deepseek-ai/dsh-tools',
     face: 'host',
     schemas: [{ name: 'ToolInput', create: () => schema }],
     invocations: [],
@@ -99,6 +109,45 @@ function scopedInvocation(): InvocationDescriptor {
 }
 
 describe('TypertRegistry', () => {
+  it('indexes the same generated method objects and withdraws them with their owner', async () => {
+    const ctx = await makeCtx()
+    const codec = { mode: 'strict' as const, typeSymbol: '@fixture/types#Text', create: () => z.string(), jsonSchema: { type: 'string' } }
+    const info = createTypertRemoteInfo({ package: '@fixture/remote', methods: {
+      'goals/create': {
+        service: 'goals', invocation: { kind: 'direct' }, description: 'Create a goal.',
+        parameters: [{ name: 'request', source: 'json', codec, strictCodec: codec }], result: codec,
+      },
+    } }, z)
+    const descriptor = info.methods['goals/create']!
+    expect(info.descriptors[0]).toBe(descriptor)
+    try {
+      const owner = ctx.plugin({
+        inject: ['typert'],
+        apply(ctx) {
+          ctx.typert.register({ ...toolsContribution(), invocations: info.descriptors })
+          ctx.typert.remotes.register(info)
+        },
+      })
+      await owner
+      for (const registry of [ctx.typert.local, ctx.typert.remotes]) {
+        const method = registry.get('goals/create')
+        expect(method).toBe(descriptor)
+        expect(registry.list()[0]).toBe(descriptor)
+        if (method === undefined || !isTypertRemoteMethod(method)) throw new Error('Generated method is missing')
+        expect(method.input().create().parse({ request: 'goal' })).toEqual({ request: 'goal' })
+        expect(method.result).toBe(codec)
+      }
+      await owner.dispose()
+      for (const registry of [ctx.typert.local, ctx.typert.remotes]) {
+        expect(registry.get('goals/create')).toBeUndefined()
+        expect(registry.list()).toEqual([])
+      }
+      expect(ctx.typert.local.hasSeen('goals/create')).toBe(true)
+    } finally {
+      await ctx.fiber.dispose()
+    }
+  })
+
   it('retains generated result decoders until the contribution is disposed', async () => {
     const ctx = await makeCtx()
     const decode = (value: unknown) => value
@@ -116,16 +165,16 @@ describe('TypertRegistry', () => {
     const contribution = toolsContribution()
     ctx.typert.register(contribution)
 
-    expect(typertKey('@omega-ai/dsh-tools', 'ToolInput')).toBe('@omega-ai/dsh-tools#ToolInput')
-    expect(typertPackageKey('@omega-ai/dsh-tools', 'host')).toBe('@omega-ai/dsh-tools#host')
-    expect(ctx.typert.get('@omega-ai/dsh-tools#ToolInput')).toMatchObject({
-      package: '@omega-ai/dsh-tools',
+    expect(typertKey('@deepseek-ai/dsh-tools', 'ToolInput')).toBe('@deepseek-ai/dsh-tools#ToolInput')
+    expect(typertPackageKey('@deepseek-ai/dsh-tools', 'host')).toBe('@deepseek-ai/dsh-tools#host')
+    expect(ctx.typert.get('@deepseek-ai/dsh-tools#ToolInput')).toMatchObject({
+      package: '@deepseek-ai/dsh-tools',
       face: 'host',
       name: 'ToolInput',
     })
-    expect(ctx.typert.get('@omega-ai/dsh-tools#ToolInput')?.schema).toBe(contribution.schemas[0]?.create())
-    expect(ctx.typert.getPackage('@omega-ai/dsh-tools', 'host')).toMatchObject({
-      key: '@omega-ai/dsh-tools#host',
+    expect(ctx.typert.get('@deepseek-ai/dsh-tools#ToolInput')?.schema).toBe(contribution.schemas[0]?.create())
+    expect(ctx.typert.getPackage('@deepseek-ai/dsh-tools', 'host')).toMatchObject({
+      key: '@deepseek-ai/dsh-tools#host',
       model: { services: [{ key: 'tools' }] },
     })
     expect(ctx.typert.list()).toHaveLength(1)
@@ -135,12 +184,12 @@ describe('TypertRegistry', () => {
   it('withdraws schemas and package metadata through the exact contribution disposer', async () => {
     const ctx = await makeCtx()
     const dispose = ctx.typert.register(toolsContribution())
-    expect(ctx.typert.getPackage('@omega-ai/dsh-tools')).toBeDefined()
+    expect(ctx.typert.getPackage('@deepseek-ai/dsh-tools')).toBeDefined()
 
     await dispose()
 
-    expect(ctx.typert.get('@omega-ai/dsh-tools#ToolInput')).toBeUndefined()
-    expect(ctx.typert.getPackage('@omega-ai/dsh-tools')).toBeUndefined()
+    expect(ctx.typert.get('@deepseek-ai/dsh-tools#ToolInput')).toBeUndefined()
+    expect(ctx.typert.getPackage('@deepseek-ai/dsh-tools')).toBeUndefined()
     expect(ctx.typert.listPackages()).toEqual([])
   })
 
@@ -151,11 +200,11 @@ describe('TypertRegistry', () => {
       { inject: ['typert'] },
     ))
     await fiber
-    expect(ctx.typert.getPackage('@omega-ai/dsh-tools')).toBeDefined()
+    expect(ctx.typert.getPackage('@deepseek-ai/dsh-tools')).toBeDefined()
 
     await fiber.dispose()
 
-    expect(ctx.typert.getPackage('@omega-ai/dsh-tools')).toBeUndefined()
+    expect(ctx.typert.getPackage('@deepseek-ai/dsh-tools')).toBeUndefined()
     expect(ctx.typert.list()).toEqual([])
   })
 
@@ -165,7 +214,7 @@ describe('TypertRegistry', () => {
     ctx.typert.register(original)
 
     expect(() => ctx.typert.register(toolsContribution(z.never()))).toThrow('package face')
-    expect(ctx.typert.get('@omega-ai/dsh-tools#ToolInput')?.schema).toBe(original.schemas[0]?.create())
+    expect(ctx.typert.get('@deepseek-ai/dsh-tools#ToolInput')?.schema).toBe(original.schemas[0]?.create())
 
     const duplicateBatch: TypertContribution = {
       ...toolsContribution(),
@@ -208,16 +257,16 @@ describe('TypertRegistry', () => {
     ctx.typert.register({ ...toolsContribution(), schemas: [{ name: 'ToolInput', create }] })
     expect(create).not.toHaveBeenCalled()
 
-    expect(ctx.typert.resolve('@omega-ai/dsh-tools#ToolInput').name).toBe('ToolInput')
+    expect(ctx.typert.resolve('@deepseek-ai/dsh-tools#ToolInput').name).toBe('ToolInput')
     expect(create).toHaveBeenCalledOnce()
-    expect(ctx.typert.resolve('@omega-ai/dsh-tools#ToolInput').schema).toBe(schema)
+    expect(ctx.typert.resolve('@deepseek-ai/dsh-tools#ToolInput').schema).toBe(schema)
     expect(create).toHaveBeenCalledOnce()
-    expect(() => ctx.typert.resolve('@omega-ai/dsh-tools#Missing')).toThrow('contributes no schema named "Missing"')
+    expect(() => ctx.typert.resolve('@deepseek-ai/dsh-tools#Missing')).toThrow('contributes no schema named "Missing"')
     expect(() => ctx.typert.resolve('@fixture/absent#Value')).toThrow('has no registered contribution')
     expect(() => ctx.typert.resolve('invalid')).toThrow('expected "<package>#<name>"')
-    const projected = ctx.typert.toJSONSchema('@omega-ai/dsh-tools#ToolInput')
+    const projected = ctx.typert.toJSONSchema('@deepseek-ai/dsh-tools#ToolInput')
     expect(projected).toMatchObject({ type: 'object', properties: { name: { type: 'string' } } })
-    expect(ctx.typert.toJSONSchema('@omega-ai/dsh-tools#ToolInput')).not.toBe(projected)
+    expect(ctx.typert.toJSONSchema('@deepseek-ai/dsh-tools#ToolInput')).not.toBe(projected)
   })
 
   it('registers local invocations atomically with generated reflection', async () => {
@@ -239,7 +288,7 @@ describe('TypertRegistry', () => {
     await dispose()
     expect(ctx.typert.local.list()).toEqual([])
     expect(ctx.typert.local.hasSeen('goals/create')).toBe(true)
-    expect(ctx.typert.getPackage('@omega-ai/dsh-tools')).toBeUndefined()
+    expect(ctx.typert.getPackage('@deepseek-ai/dsh-tools')).toBeUndefined()
     expect(changes).toEqual(['local:goals/create', 'local:goals/create'])
   })
 
@@ -374,6 +423,112 @@ describe('TypertRegistry', () => {
     expect(ctx.typert.lookups.definitions()).toHaveLength(1)
     expect(ctx.typert.contexts.getHost('registryFixture')).toBeUndefined()
     expect(ctx.typert.contexts.getClient('registryFixture')).toBeUndefined()
+  })
+
+  it('registers one default field per resource kind and withdraws it with its fiber', async () => {
+    const ctx = await makeCtx()
+    const changes: TypertRegistryChange[] = []
+    ctx.typert.resources.subscribe((change) => { changes.push(change) })
+    const fiber = ctx.plugin({
+      inject: ['typert'],
+      apply: (pluginCtx: Context) => { pluginCtx.typert.resources.register('registryFixture', { field: 'fixtureId' }) },
+    })
+    await fiber
+    expect(ctx.typert.resources.get('registryFixture')).toEqual({ field: 'fixtureId' })
+    expect(ctx.typert.resources.entries()).toEqual([{ kind: 'registryFixture', field: 'fixtureId' }])
+    expect(() => ctx.typert.resources.register('registryFixture', { field: 'otherId' })).toThrow('already registered')
+    expect(() => ctx.typert.resources.register('registryFixture', { field: '' })).toThrow()
+    await fiber.dispose()
+    expect(ctx.typert.resources.get('registryFixture')).toBeUndefined()
+    expect(ctx.typert.resources.entries()).toEqual([])
+    expect(changes).toEqual([
+      { kind: 'resource', key: 'registryFixture' },
+      { kind: 'resource', key: 'registryFixture' },
+    ])
+    const dispose = ctx.typert.resources.register('registryFixture', { field: 'fixtureId' })
+    await dispose()
+    expect(ctx.typert.resources.get('registryFixture')).toBeUndefined()
+  })
+
+  it('preserves a default resolver in get and entries and withdraws it with its fiber', async () => {
+    const ctx = await makeCtx()
+    const resolve = () => 'fixture-id'
+    const changes: TypertRegistryChange[] = []
+    ctx.typert.resources.subscribe((change) => { changes.push(change) })
+    const fiber = ctx.plugin({
+      inject: ['typert'],
+      apply: (pluginCtx: Context) => { pluginCtx.typert.resources.register('registryFixture', { resolve }) },
+    })
+    await fiber
+    expect(ctx.typert.resources.get('registryFixture')).toEqual({ resolve })
+    expect(ctx.typert.resources.entries()).toEqual([{ kind: 'registryFixture', resolve }])
+    expect(() => ctx.typert.resources.register('registryFixture', { resolve })).toThrow('already registered')
+    await fiber.dispose()
+    expect(ctx.typert.resources.get('registryFixture')).toBeUndefined()
+    expect(ctx.typert.resources.entries()).toEqual([])
+    expect(changes).toEqual([
+      { kind: 'resource', key: 'registryFixture' },
+      { kind: 'resource', key: 'registryFixture' },
+    ])
+  })
+
+  it('keeps a prototype resolver callable and rejects a declaration that names no default', async () => {
+    const ctx = await makeCtx()
+    class PrototypeResolver {
+      resolve(): string { return 'prototype-id' }
+    }
+    const declaration: TypertResourceDeclaration = new PrototypeResolver()
+    ctx.typert.resources.register('registryFixture', declaration)
+    const resolve = ctx.typert.resources.get('registryFixture')?.resolve
+    expect(resolve?.({ args: {}, parameters: [] })).toBe('prototype-id')
+    const opaque = {} as TypertResourceDeclaration
+    const other = new Context()
+    await other.plugin(TypertRegistry)
+    expect(() => other.typert.resources.register('registryFixture', opaque))
+      .toThrow('declares neither a field nor a resolve function')
+    await other.fiber.dispose()
+  })
+
+  it('reserves the built-in global resource kind', async () => {
+    const ctx = await makeCtx()
+    const changes: TypertRegistryChange[] = []
+    ctx.typert.resources.subscribe((change) => { changes.push(change) })
+    const reserved: string = 'global'
+    expect(() => ctx.typert.resources.register(reserved as TypertResourceKind, { field: 'globalId' }))
+      .toThrow('resource kind "global" is reserved for the built-in global resource')
+    expect(ctx.typert.resources.get('global')).toBeUndefined()
+    expect(changes).toEqual([])
+  })
+
+  it('keeps a lookup provider\'s resource kind under a configured resolver', async () => {
+    const ctx = await makeCtx()
+    ctx.typert.lookups.register('fixture', {
+      parameter: 'agent',
+      wire: 'agentId',
+      resource: 'registryFixture',
+      hostTypeSymbol: '@fixture/agent#Agent',
+      wireTypeSymbol: '@fixture/session#SessionId',
+      resolve: () => undefined,
+    })
+    expect(ctx.typert.lookups.get('fixture')?.resource).toBe('registryFixture')
+    ctx.typert.lookups.configure('fixture', () => undefined)
+    expect(ctx.typert.lookups.get('fixture')?.resource).toBe('registryFixture')
+  })
+
+  it('keeps a Host Context adapter\'s resource kind under a configured resolver', async () => {
+    const ctx = await makeCtx()
+    const scoped = ctx.extend()
+    ctx.typert.contexts.registerHost('registryFixture', {
+      wire: 'agentId',
+      wireTypeSymbol: '@fixture/session#SessionId',
+      resource: 'registryFixture',
+      resolve: () => undefined,
+    })
+    expect(ctx.typert.contexts.getHost('registryFixture')?.resource).toBe('registryFixture')
+    ctx.typert.contexts.configureHost('registryFixture', id => id === 'agent-1' ? scoped : undefined)
+    const configured = ctx.typert.contexts.getHost('registryFixture')
+    expect(configured).toMatchObject({ wire: 'agentId', wireTypeSymbol: '@fixture/session#SessionId', resource: 'registryFixture' })
+    await expect(configured?.resolve('agent-1')).resolves.toBe(scoped)
   })
 
   it('configures an asynchronous lookup resolver independently of provider load order', async () => {

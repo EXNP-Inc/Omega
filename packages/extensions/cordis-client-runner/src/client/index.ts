@@ -10,14 +10,15 @@
  * it until asked again.
  */
 
-import type { Context } from '@omega-ai/cordis'
+import type { Context } from '@deepseek-ai/cordis'
+import { TimerService } from '@deepseek-ai/cordis-plugin-timer'
 import type {
   ApprovalRequestId, CordisDynamicPluginId, DynamicCordisInvokeResult,
   DynamicCordisInventoryRow,
-} from '@omega-ai/dsh-api-remotes/client'
-import type { ClientModuleSystem } from '@omega-ai/dsh-client-modules/client'
-import type { SlotRegistry } from '@omega-ai/dsh-client-ui-renderer/client'
-import type { JsonValue } from '@omega-ai/dsh-util-values'
+} from '@deepseek-ai/dsh-api-remotes/client'
+import type { ClientModuleSystem } from '@deepseek-ai/dsh-client-modules/client'
+import type { SlotRegistry } from '@deepseek-ai/dsh-client-ui-renderer/client'
+import type { JsonValue } from '@deepseek-ai/dsh-util-values'
 // The Client Remote assembly is the one place the two planes meet: it mounts the
 // `dynamicCordisRunner` namespace and re-exports its payload vocabulary, so this
 // package names what it sends without importing a Host package.
@@ -26,7 +27,6 @@ import { DynamicCordisPackageRunner } from './runtime.ts'
 import { CordisRunOrchestrator } from './orchestrator.ts'
 import { ClientCordisInspectRegistry, provideClientCordisInspect } from './inspect-registry.ts'
 import { clientInspectProviders } from './providers.ts'
-import { provideClientTimer } from './timer.ts'
 import type { CordisRunActivity, CordisRunFailure, CordisUserRunRequest } from './orchestrator.ts'
 import type { CordisObservable, DynamicCordisRenderFailure } from './runtime.ts'
 
@@ -49,13 +49,12 @@ export { DynamicCordisStyles, evaluateClientHalf, isDynamicCordisPlugin } from '
 export type { DynamicCordisClosureEnv, DynamicCordisEvaluatedPlugin } from './evaluator.ts'
 export { dynamicCordisContext } from './guard.ts'
 export type { DynamicCordisGuardEnv, DynamicCordisSlotLedgerRow } from './guard.ts'
-export { ClientTimerService } from './timer.ts'
 // Re-exported so consumers of the service face and the two events can name
 // their subjects without reaching into the wire contract themselves.
 export type {
   ApprovalRequestId, CordisDynamicPackageId, CordisDynamicPluginId, CordisDynamicPluginRunId,
   DynamicCordisPackage,
-} from '@omega-ai/dsh-api-remotes/client'
+} from '@deepseek-ai/dsh-api-remotes/client'
 
 
 /**
@@ -123,7 +122,7 @@ export interface CordisRunnerFace {
   isLoaded(pluginId: CordisDynamicPluginId): boolean
 }
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
     /** Run orchestration and page-local load state: what run surfaces read and call. */
     dynamicCordisRunner: CordisRunnerFace
@@ -186,7 +185,7 @@ export const inject = ['loader', 'modules', 'slots', 'remote', 'remote.dynamicCo
  * @param ctx - client root context.
  */
 export function apply(ctx: Context): void {
-  provideClientTimer(ctx)
+  new TimerService(ctx)
   const inspect = new ClientCordisInspectRegistry({
     sync: async (providers) => {
       const answered = await ctx.remote.dynamicCordisRunner.syncInspectManifest(providers)

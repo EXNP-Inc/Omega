@@ -3,9 +3,9 @@ import type { ReactNode } from 'react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
   Button, IconBrowseOutlineRegular, IconPlusOutlineRegular, Modal, Tag, Tooltip,
-} from '@omega-ai/dsh-client-ui-primitives'
-import type { ObservableSnapshot, SnapshotStore } from '@omega-ai/dsh-client-store'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@omega-ai/dsh-client-ui-slots'
+} from '@deepseek-ai/dsh-client-ui-primitives'
+import type { ObservableSnapshot, SnapshotStore } from '@deepseek-ai/dsh-client-store'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
 import type { AgentPresetSectionState } from './section-store.ts'
 import { isBuiltInPreset, presetDisplayText } from './locales.ts'
 import { requiresCodingTools } from './settings-store.ts'
@@ -99,8 +99,10 @@ export function AgentPresetSection({
       </button>
     )
   return <section className={css.section}>
-    <h2 className={css.title}>{t('nav')}</h2>
-    <p className={css.intro}>{t('sectionIntro')}</p>
+    <div className={css.sectionHeader}>
+      <h2 className={css.title}>{t('nav')}</h2>
+      <p className={css.intro}>{t('sectionIntro')}</p>
+    </div>
     {state.error === null ? null : <p className={css.error} role="alert">{state.error}</p>}
     {([true, false] as const).map((builtIn) => {
       const rows = state.rows.filter(row => isBuiltInPreset(row) === builtIn

@@ -6,7 +6,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { languageForPath } from '@omega-ai/dsh-util-code-language'
+import { languageForPath } from '@deepseek-ai/dsh-util-code-language'
 import { buildWindow, langFromPath, readMetaFromMeta, READ_MAX_BYTES, READ_MAX_LINE_LENGTH } from '../src/read-render.ts'
 import type { ReadWindow } from '../src/read-render.ts'
 
@@ -82,6 +82,21 @@ describe('buildWindow', () => {
     it('truncates lines at a custom maxLineLength and names it in the suffix', async () => {
       const result = await buildWindow(whole('abcdefghij'), { offset: 1, limit: 10, maxLineLength: 5, maxBytes: READ_MAX_BYTES }, 'f')
       expect(result.lines[0]?.text).toBe('abcde... (line truncated to 5 chars)')
+    })
+
+    it('truncates a long line whose lone \\r falls right after the truncation point', async () => {
+      const result = await buildWindow(whole('abcde\rXYZ\nnext'), { offset: 1, limit: 10, maxLineLength: 5, maxBytes: READ_MAX_BYTES }, 'f')
+      expect(result.lines[0]?.text).toBe('abcde... (line truncated to 5 chars)')
+    })
+
+    it('keeps a CRLF line of exactly maxLineLength chars whole', async () => {
+      const result = await buildWindow(chunked('abcde\r\nnext', 3), { offset: 1, limit: 10, maxLineLength: 5, maxBytes: READ_MAX_BYTES }, 'f')
+      expect(result.lines).toEqual([{ number: 1, text: 'abcde' }, { number: 2, text: 'next' }])
+    })
+
+    it('keeps the lone high surrogate left by truncating inside a surrogate pair', async () => {
+      const result = await buildWindow(whole('abcd😀z'), { offset: 1, limit: 10, maxLineLength: 5, maxBytes: READ_MAX_BYTES }, 'f')
+      expect(result.lines[0]?.text).toBe('abcd\uD83D... (line truncated to 5 chars)')
     })
 
     it('caps output at a custom maxBytes', async () => {

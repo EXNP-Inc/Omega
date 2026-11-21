@@ -5,8 +5,8 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react'
-import type { SessionId } from '@omega-ai/dsh-session/types'
-import { absoluteFileAddress, sessionFileAddress } from '@omega-ai/dsh-util-workspace-path'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { absoluteFileAddress, sessionFileAddress } from '@deepseek-ai/dsh-util-workspace-path'
 import { CodeBody } from '../src/client/code/CodeBody.tsx'
 import type { CodeBodyProps } from '../src/client/code/CodeBody.tsx'
 import type { DocumentContent } from '../src/client/document/contract.ts'
@@ -87,7 +87,7 @@ describe('CodeBody', () => {
     const copy = view.getByRole('button', { name: 'Copy' })
     expect(copy.textContent).toBe('')
     expect(view.getAllByRole('button')).toHaveLength(1)
-    fireEvent.mouseEnter(copy)
+    fireEvent.pointerEnter(copy)
     expect(view.getByRole('tooltip').textContent).toBe('Copy')
   })
 

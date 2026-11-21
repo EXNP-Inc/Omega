@@ -15,7 +15,7 @@ export default defineConfig([
     dts: false,
     clean: false,
     deps: {
-      alwaysBundle: ['@omega-ai/cordis-plugin-include'],
+      alwaysBundle: ['@deepseek-ai/cordis-plugin-include'],
     },
   },
   {

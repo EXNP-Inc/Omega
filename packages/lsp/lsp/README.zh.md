@@ -3,7 +3,7 @@ description: "LSP 能力 seam（ctx.lsp）：按文件扩展名选择提供方�
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-lsp
+# @deepseek-ai/dsh-lsp
 
 [English](README.md) | 中文
 
@@ -36,11 +36,11 @@ kind: "package-reference"
 seam 需要提供方与消费方才能发挥作用。最小组合挂载服务、stdio 提供方与工具：
 
 ```yaml
-- name: '@omega-ai/dsh-fs-local'
-- name: '@omega-ai/dsh-subprocess-local'
-- name: '@omega-ai/dsh-lsp'
-- name: '@omega-ai/dsh-lsp-stdio'
-- name: '@omega-ai/dsh-tool-lsp'
+- name: '@deepseek-ai/dsh-fs-local'
+- name: '@deepseek-ai/dsh-subprocess-local'
+- name: '@deepseek-ai/dsh-lsp'
+- name: '@deepseek-ai/dsh-lsp-stdio'
+- name: '@deepseek-ai/dsh-tool-lsp'
 ```
 
 服务器命令、扩展名映射与文件系统／子进程配对在提供方与工具包中配置；见 [dsh-lsp-stdio](../lsp-stdio/README.zh.md) 与 [dsh-tool-lsp](../tool-lsp/README.zh.md)。
@@ -86,7 +86,7 @@ seam 需要提供方与消费方才能发挥作用。最小组合挂载服务、
 |---|---|
 | [`src/index.ts`](src/index.ts) | 插件入口：`Lsp` 服务、`registerProvider`／`query`、`finalExtension`、`LspError` code |
 | [`src/types.ts`](src/types.ts) | seam 词汇：请求、结果、提供方与服务约定 |
-| [`src/brand.ts`](src/brand.ts) | `LspProviderId` 品牌化 id 类型与工厂 |
+| [`src/brand.ts`](src/brand.ts) | `LspProviderId` 品牌化 id 类型 |
 
 ### 注册与选择生命周期
 

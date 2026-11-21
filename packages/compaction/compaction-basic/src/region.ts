@@ -2,25 +2,26 @@
  * Surface retention selection and the shared log-recorded compaction
  * transaction for automatic open-turn and manual idle-session compaction.
  *
- * @module @omega-ai/dsh-compaction-basic/region
+ * @module @deepseek-ai/dsh-compaction-basic/region
  */
 
 import { randomUUID } from 'node:crypto'
 import { isDeepStrictEqual } from 'node:util'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { CompactionId } from '@deepseek-ai/dsh-compaction/types'
 import {
-  CompactionId,
   ManualCompactionError,
   compactCheckpointSource,
   toolPairingBalancedAfter,
   toolPairingBalancedBefore,
-} from '@omega-ai/dsh-compaction'
-import type { CompactionResult } from '@omega-ai/dsh-compaction'
-import type { CommandId } from '@omega-ai/dsh-commands/brand'
-import { createUserMessage, errorChain } from '@omega-ai/dsh-llm'
-import type { Message, UserMessage } from '@omega-ai/dsh-llm'
-import type { TokenMeasurement, TokenMeter } from '@omega-ai/dsh-token-meter'
-import { SessionSeq, type Session, type SessionEvent } from '@omega-ai/dsh-session'
-import type { Agent } from '@omega-ai/dsh-agent'
+} from '@deepseek-ai/dsh-compaction'
+import type { CompactionResult } from '@deepseek-ai/dsh-compaction'
+import type { CommandId } from '@deepseek-ai/dsh-commands/types'
+import { createUserMessage, errorChain } from '@deepseek-ai/dsh-llm'
+import type { Message, UserMessage } from '@deepseek-ai/dsh-llm'
+import type { TokenMeasurement, TokenMeter } from '@deepseek-ai/dsh-token-meter'
+import { SessionSeq, type Session, type SessionEvent } from '@deepseek-ai/dsh-session'
+import type { Agent } from '@deepseek-ai/dsh-agent'
 import { frameSummary } from './summarizer.ts'
 import type { SummarizationInput, SummaryResult } from './summarizer.ts'
 interface RegionDependencies {
@@ -201,7 +202,7 @@ export async function compactSurfaceRegion(
     owner = entryState.openTurn
   }
 
-  const compactionId = CompactionId(randomUUID())
+  const compactionId = brandString<CompactionId>(randomUUID())
   const lifecycle = {
     compactionId,
     ...options.sourceCommandId === undefined ? {} : { sourceCommandId: options.sourceCommandId },

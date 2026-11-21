@@ -1,15 +1,15 @@
 // @vitest-environment jsdom
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { useDisclosure } from '@omega-ai/dsh-client-ui-chat/src/client/chat/use-disclosure.ts'
+import { useDisclosure } from '@deepseek-ai/dsh-client-ui-chat/src/client/chat/use-disclosure.ts'
 import { cleanup, fireEvent, render } from '@testing-library/react'
-import type { StartedToolCall, ToolResultNode } from '@omega-ai/dsh-client-ui-chat/client'
-import type { SessionId } from '@omega-ai/dsh-session/types'
-import { makeTranslate } from '@omega-ai/dsh-client-test-runtime'
-import { zh as commonZh } from '@omega-ai/dsh-client-locale/src/locales/zh.ts'
+import type { StartedToolCall, ToolResultNode } from '@deepseek-ai/dsh-client-ui-chat/client'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
+import { zh as commonZh } from '@deepseek-ai/dsh-client-locale/src/locales/zh.ts'
 import { CHAT_SEARCH_MAX_LINES, searchCardModel } from '../src/client/tool/models/search-card-model.ts'
-import { zh } from '@omega-ai/dsh-client-ui-conversation/src/client/locales.ts'
-import { PartialArguments } from '@omega-ai/dsh-util-values'
+import { zh } from '@deepseek-ai/dsh-client-ui-conversation/src/client/locales.ts'
+import { PartialArguments } from '@deepseek-ai/dsh-util-values'
 import { GenericToolCard, type GenericToolCardProps } from '../src/client/tool/toolviews/GenericToolCard.tsx'
 import { SearchRow, searchToolview } from '../src/client/tool/toolviews/search-row.tsx'
 
@@ -110,6 +110,21 @@ describe('searchCardModel', () => {
     })
   })
 
+  it('keeps the matches card when the recorded include is empty', () => {
+    const call = { name: 'grep', argsRaw: '{"pattern":"foo","path":"src","include":""}' }
+    expect(searchCardModel(settledGrep({ call }))).toEqual(searchCardModel(settledGrep()))
+    expect(searchCardModel(settledGrep({ call, isError: true }))).toBeNull()
+  })
+
+  it.each([null, false, 7, [], {}, ' ', '\t\n', '!*.ts', '*.ts,*.md'])(
+    'keeps invalid include %j on the generic path',
+    (include) => {
+      expect(searchCardModel(settledGrep({
+        call: { name: 'grep', argsRaw: JSON.stringify({ pattern: 'foo', include }) },
+      }))).toBeNull()
+    },
+  )
+
   it('derives a paths card from glob result metadata, carrying the truncation signal', () => {
     // Empty block content isolates the truncation signal from the recovery arm.
     expect(searchCardModel(settledGlob({ content: [], meta: pathsMeta({ truncated: true, total: 20 }) }))).toEqual({
@@ -188,6 +203,7 @@ describe('searchCardModel', () => {
 
 describe('chat row search body (GenericToolCard fallback)', () => {
   const ownerProps = (block: StartedToolCall | ToolResultNode, toolName: string): GenericToolCardProps => ({
+    getFileTriggerProps: () => ({}),
     loadImage: vi.fn(() => Promise.reject(new Error('not used'))),
     useDisclosure, callId: 'c1', toolName, ...('kind' in block ? { phase: 'result' as const, block: block } : { phase: block.phase, block: block }), openFile: vi.fn(), t,
   })
@@ -196,9 +212,12 @@ describe('chat row search body (GenericToolCard fallback)', () => {
     fireEvent.click(view.container.querySelector('[data-expandable]')!)
   }
 
-  it('the expanded body is the grouped matches, capped tighter than the panel', () => {
+  it.each([undefined, ''])('the expanded body groups matches when include is %j', (include) => {
     expect(CHAT_SEARCH_MAX_LINES).toBeLessThan(16)
-    const view = render(<GenericToolCard {...ownerProps(settledGrep(), 'grep')} />)
+    const block = settledGrep({
+      call: { name: 'grep', argsRaw: JSON.stringify({ pattern: 'foo', path: 'src', ...include === undefined ? {} : { include } }) },
+    })
+    const view = render(<GenericToolCard {...ownerProps(block, 'grep')} />)
     // Collapsed: the one-line summary row only, no card.
     expect(view.queryByText(/const foo = 1/)).toBeNull()
     toggleRow(view)

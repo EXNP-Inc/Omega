@@ -1,11 +1,13 @@
 /** Current-surface projection and byte-bounded rendering. */
 
-import { isCompactCheckpointSource } from '@omega-ai/dsh-compaction'
-import type { SessionSurfaceSnapshot } from '@omega-ai/dsh-session-query'
-import { TextRetainer } from '@omega-ai/dsh-output-retention'
-import { assertNever } from '@omega-ai/dsh-util-values'
-import { SessionSeq } from '@omega-ai/dsh-session'
-import type { OptionalSessionSeq, SessionId } from '@omega-ai/dsh-session'
+import { extractTextContent } from '@deepseek-ai/dsh-llm/message'
+
+import { isCompactCheckpointSource } from '@deepseek-ai/dsh-compaction'
+import type { SessionSurfaceSnapshot } from '@deepseek-ai/dsh-session-query'
+import { TextRetainer } from '@deepseek-ai/dsh-output-retention'
+import { assertNever } from '@deepseek-ai/dsh-util-values'
+import { SessionSeq } from '@deepseek-ai/dsh-session'
+import type { OptionalSessionSeq, SessionId } from '@deepseek-ai/dsh-session'
 import { stringifyTagSafeJson } from './serialization.ts'
 import type { ReferencedConversationItem } from './types.ts'
 
@@ -42,12 +44,12 @@ function projectSessionConversation(snapshot: SessionSurfaceSnapshot): Projected
       case 'user/message': {
         const checkpoint = isCompactCheckpointSource(event.data.source)
         if (!checkpoint && event.data.source.kind !== 'user') break
-        const text = textContent(event.data.content)
+        const text = extractTextContent(event.data.content, { separator: '\n' })
         if (text !== '') conversation.push({ role: 'user', text, checkpoint, originalText: text, omittedBytes: 0 })
         break
       }
       case 'assistant/message': {
-        const text = textContent(event.data.message.content)
+        const text = extractTextContent(event.data.message.content, { separator: '\n' })
         if (text !== '') conversation.push({ role: 'assistant', text, checkpoint: false, originalText: text, omittedBytes: 0 })
         break
       }
@@ -143,10 +145,6 @@ export function retainReferencedSession(
       truncated: omittedMessages > 0 || omittedBytes > 0,
     },
   }
-}
-
-function textContent(content: readonly { type: string; text?: string }[]): string {
-  return content.flatMap(block => block.type === 'text' && typeof block.text === 'string' ? [block.text] : []).join('\n')
 }
 
 function truncateWithNotice(text: string, maxOutputBytes: number): { text: string; omittedBytes: number } {

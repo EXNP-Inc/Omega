@@ -2,20 +2,21 @@
 // generated through Session so pagination exercises the same event shapes as
 // persisted conversations, while unique markers identify semantic rows
 // without depending on CSS-module names or virtualizer DOM positions.
+import { brandString } from '@deepseek-ai/dsh-brand'
 import {
-  ToolCallId,
+  type ToolCallId,
   createAssistantMessage,
   createSystemMessage,
   createToolResultMessage,
   createUserMessage,
-} from '@omega-ai/dsh-llm'
+} from '@deepseek-ai/dsh-llm'
 import {
   SESSION_FORMAT_VERSION,
   Session,
-  SessionId,
-} from '@omega-ai/dsh-session'
+  type SessionId,
+} from '@deepseek-ai/dsh-session'
 // Carries the session/title event declaration into this fixture builder.
-import type {} from '@omega-ai/dsh-session-title'
+import type {} from '@deepseek-ai/dsh-session-title'
 
 /** Options for one deterministic long-chat fixture. */
 export interface ChatScrollFixtureOptions {
@@ -76,7 +77,7 @@ function appendSystemPrompt(session: Session, turn: number, step: number): void 
 function appendRequestHeader(session: Session, turn: number, step: number): void {
   session.append('request/header', {
     header: {
-      config: { provider: 'omega-official', model: 'omega-v4-flash' },
+      config: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
     },
     reason: turn === 1 && step === 1 ? 'initial' : 'change',
   })
@@ -89,7 +90,7 @@ function appendAssistant(session: Session, turn: number, step: number, body: str
     step,
     message: createAssistantMessage({
       content: text(body),
-      source: { provider: 'omega-official', model: 'omega-v4-flash' },
+      source: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
     }),
     usage: {
       inputTokens: 2_000 + turn * 7,
@@ -114,7 +115,7 @@ function appendToolStep(
 ): void {
   const calls = [1, 2].map((index) => {
     const marker = markers.tool(turn, index)
-    const callId = ToolCallId(`chat-scroll-${suffix(turn)}-${String(index)}`)
+    const callId = brandString<ToolCallId>(`chat-scroll-${suffix(turn)}-${String(index)}`)
     const args = JSON.stringify({
       command: `printf '${marker}\\n'`,
       description: marker,
@@ -136,7 +137,7 @@ function appendToolStep(
           arguments: call.args,
         })),
       ],
-      source: { provider: 'omega-official', model: 'omega-v4-flash' },
+      source: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
     }),
     usage: { inputTokens: 2_000 + turn * 7, outputTokens: 240, reasoningTokens: 30 },
   }, { surfaceOp: 'append' })
@@ -190,7 +191,7 @@ function fixtureLog(session: Session): string {
 export function createChatScrollFixture(options: ChatScrollFixtureOptions): ChatScrollFixture {
   const turns = options.turns ?? DEFAULT_TURNS
   const markers = markerHelpers(options.markerPrefix)
-  const session = Session.create(SessionId(`chat-scroll-${options.markerPrefix.toLowerCase()}-template`))
+  const session = Session.create(brandString<SessionId>(`chat-scroll-${options.markerPrefix.toLowerCase()}-template`))
 
   for (let turn = 1; turn <= turns; turn += 1) {
     session.append('turn/start', {

@@ -3,7 +3,7 @@ description: "Session-telemetry capture seam for deployments and backend authors
 kind: "package-library"
 ---
 
-# @omega-ai/dsh-session-telemetry
+# @deepseek-ai/dsh-session-telemetry
 
 English | [中文](README.zh.md)
 

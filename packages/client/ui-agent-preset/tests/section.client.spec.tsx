@@ -1,9 +1,10 @@
 // @vitest-environment jsdom
+import { contextMenuHook } from '@deepseek-ai/dsh-client-test-runtime'
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
-import { bindSnapshotSelector } from '@omega-ai/dsh-client-test-runtime'
-import { createSnapshotStore } from '@omega-ai/dsh-client-store'
-import { Modal } from '@omega-ai/dsh-client-ui-primitives'
+import { allowAllAccess, bindSnapshotSelector } from '@deepseek-ai/dsh-client-test-runtime'
+import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
+import { Modal } from '@deepseek-ai/dsh-client-ui-primitives'
 import { AgentPresetSection, type AgentPresetSectionProps } from '../src/client/AgentPresetSection.tsx'
 import type { AgentPresetSectionState } from '../src/client/section-store.ts'
 import { en } from '../src/client/locales.ts'
@@ -23,6 +24,8 @@ function view(partial: Partial<AgentPresetSectionState> = {}, startCreatorDraft?
     ...(startCreatorDraft === undefined ? {} : { startCreatorDraft }),
     usePanelInfo: unusedHook, useSessions: unusedHook, useSessionStatus: unusedHook, useSessionRetainInfo: unusedHook,
     useWorkspaces: unusedHook, useResource: unusedHook,
+    ...allowAllAccess,
+    useContextMenu: contextMenuHook(),
     useAgentPresetSection: bindSnapshotSelector(store),
     useDeveloperTools: bindSnapshotSelector(developerTools),
     t: key => translations.get(key) ?? key }
@@ -286,7 +289,7 @@ it.each([false, true])('only offers a description tooltip when the card clips it
   const disconnect = vi.spyOn(ResizeObserver.prototype, 'disconnect')
   vi.useFakeTimers()
   view({ rows: [{ id: 'mine', isDefault: false, description: 'Preset description' }] })
-  fireEvent.mouseEnter(screen.getByText('Preset description'))
+  fireEvent.pointerEnter(screen.getByText('Preset description'))
   act(() => { vi.advanceTimersByTime(400) })
   expect(screen.queryByRole('tooltip')?.textContent ?? null).toBe(overflow ? 'Preset description' : null)
   cleanup()

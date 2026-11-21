@@ -1,20 +1,21 @@
 ---
-description: "Incremental canonical session-log upload for deployments enabling official Omega request metadata."
+description: "Incremental canonical session-log upload for deployments enabling official DeepSeek request metadata."
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-session-log-omega
+# @deepseek-ai/dsh-session-log-deepseek
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-Incremental canonical session-log upload for official Omega LLM API requests. This function plugin injects `ctx.sessions` and `ctx.omegaLlmApiExtensions`, then owns the `dsh_session_log` request field and the durable `session-log-omega/delivery-accepted` event from which it derives the acceptance watermark. Disable it only when the official API must not receive a Session-log suffix.
+Incremental canonical session-log upload for official DeepSeek LLM API requests. This function plugin injects `ctx.sessions` and `ctx.deepseekLlmApiExtensions`, then owns the `dsh_session_log` request field and the durable `session-log-deepseek/delivery-accepted` event from which it derives the acceptance watermark. Disable it only when the official API must not receive a Session-log suffix.
 
 ## Table of Contents
 
 - [Configuration](#configuration)
 - [Request field](#request-field)
+- [Upload exclusions](#upload-exclusions)
 - [Acceptance and retry](#acceptance-and-retry)
 - [Model Experience](#model-experience)
 - [Known Limitations and Deferred Work](#known-limitations-and-deferred-work)
@@ -39,16 +40,34 @@ The Web **Settings → General → Upload Session Log when using the official mo
 
 For a request carrying a live `sessionId`, the plugin folds the greatest accepted watermark for that exact Session format generation, snapshots `Session.events`, and sends the longest contiguous run after the watermark that fits `maxBytes`. A process-local fold scans each event once and consumes later appends incrementally; restart and HMR rebuild it from the durable log. The version-1 field contains `sessionFormatVersion`, a raw session header (`seedLength` is present only for a seeded Session), numeric `afterSeq` and `throughSeq`, and every complete canonical event translated to raw-number envelope fields. Forked sessions ignore inherited parent watermarks because both the recorded Session id and format generation must match the request source. Surface events require `surfaceOp`, with numeric `startSeq` and `endSeq` for replacements; only system, user, and tool events may carry `sourceEventSeqs`. Assistant provider metadata stays in the embedded stream, and log-only events carry neither metadata field.
 
-`maxBytes` bounds the complete serialized field in UTF-8 bytes, including the header and numeric envelope fields. A backlog above the limit drains across consecutive accepted requests, each continuing after the previous `throughSeq`. When the first pending event alone exceeds the limit, the request omits `dsh_session_log`, the plugin logs a warning, and the watermark stays before that event until `maxBytes` admits it. An event too large for the runtime to serialize at all is handled the same way, and no `maxBytes` value admits it.
+`maxBytes` bounds the complete serialized field in UTF-8 bytes, including the header and numeric envelope fields. A backlog above the limit drains across consecutive accepted requests, each continuing after the previous `throughSeq`. When the first pending event alone exceeds the limit, the request omits `dsh_session_log`, the plugin logs one warning per blocking event, and the watermark stays before that event until `maxBytes` admits it. An event too large for the runtime to serialize at all is handled the same way, and no `maxBytes` value admits it.
+
+<a id="upload-exclusions"></a>
+## Upload exclusions
+
+Plugins can register synchronous, side-effect-free predicates with `ctx.sessionLogDeepSeek.registerExclusion()`. A predicate receives the live `sessionId` and optional request `purpose`; `true` skips this request's log field and acceptance callback. Any matching predicate excludes the upload. With no matching predicates, normal eligibility applies. A throwing predicate omits this log contribution, and the request-extension registry reports its first preparation failure; the model request continues with other prepared fields.
+
+```ts
+import type { Context } from '@deepseek-ai/cordis'
+import type {} from '@deepseek-ai/dsh-session-log-deepseek'
+
+export function apply(ctx: Context): void {
+  ctx.inject(['sessionLogDeepSeek'], (child) => {
+    child.sessionLogDeepSeek.registerExclusion(request => request.purpose === 'private-operation')
+  })
+}
+```
+
+Registration belongs to the calling plugin and returns an effect disposer. Disposing that registration or unloading its caller removes only that rule. Exclusions run before reading the Session log; other request extensions remain eligible. Prepared in-flight contributions retain their payload and acceptance callback.
 
 <a id="acceptance-and-retry"></a>
 ## Acceptance and retry
 
-The Omega adapter calls the prepared contribution's `accept()` after HTTP 2xx, before it consumes the SSE body. Acceptance appends `session-log-omega/delivery-accepted` with the uploaded `throughSeq` and `sessionFormatVersion`; a record that omits the format field denotes v0. The next request uploads that event as part of its new suffix. Transport failures, non-2xx failures, and requests that the Omega adapter sends without extension fields after they fail to serialize append no acceptance record, so later requests resend the uncertain range. Concurrent deliveries may be accepted out of order; folding the maximum matching `throughSeq` prevents cursor regression.
+The DeepSeek adapter calls the prepared contribution's `accept()` after HTTP 2xx, before it consumes the SSE body. Acceptance appends `session-log-deepseek/delivery-accepted` with the uploaded `throughSeq` and `sessionFormatVersion`; a record that omits the format field denotes v0. The next request uploads that event as part of its new suffix. Transport failures, non-2xx failures, and requests that the DeepSeek adapter sends without extension fields after they fail to serialize append no acceptance record, so later requests resend the uncertain range. Concurrent deliveries may be accepted out of order; folding the maximum matching `throughSeq` prevents cursor regression.
 
 A crash after server acceptance but before the watermark reaches persistence can replay an accepted range after restart. This is the at-least-once failure direction: uncertainty creates duplicates, never a skipped sequence. The ordinary session checkpoint policy persists the watermark at the next semantic checkpoint; this plugin performs no independent I/O.
 
-Direct requests without a live Session omit `dsh_session_log`. Normal agent, compaction, and session-title calls carry their live Session id.
+Direct requests without a live Session omit `dsh_session_log`. Normal agent, compaction, session-title, and Auto review calls carry their live Session id and use the same upload eligibility.
 
 <a id="model-experience"></a>
 ## Model Experience
@@ -57,7 +76,7 @@ Direct requests without a live Session omit `dsh_session_log`. Normal agent, com
 
 #### What the model sees
 
-Nothing. `dsh_session_log` is a sibling of the Omega request's model-input fields and is not inserted into `messages`, the system prompt, or tool schemas.
+Nothing. `dsh_session_log` is a sibling of the DeepSeek request's model-input fields and is not inserted into `messages`, the system prompt, or tool schemas.
 
 #### Token effect
 

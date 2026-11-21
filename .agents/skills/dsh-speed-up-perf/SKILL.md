@@ -1,15 +1,15 @@
 ---
 name: dsh-speed-up-perf
-description: 'Use when investigating or optimizing Omega performance, designing realistic synthetic benchmarks or CI performance gates, profiling long Sessions or Web responsiveness, or turning performance PR evidence into measured behavior-preserving fixes.'
+description: 'Use when investigating or optimizing DeepSeek Harness performance, designing realistic synthetic benchmarks or CI performance gates, profiling long Sessions or Web responsiveness, or turning performance PR evidence into measured behavior-preserving fixes.'
 ---
 
-# Speed Up Omega
+# Speed Up DeepSeek Harness
 
 Turn a broad “make it faster” request into reproducible user-path measurements and small, evidence-backed fixes. This is guidance, not a quota or a script: survey broadly, follow measured cost, and reject attractive changes that do not improve the workload users actually run.
 
 ## Establish scope and current authority
 
-Read [AGENTS.md](../../../AGENTS.md), [architecture](../../../docs/architecture.md), [testing policy](../../../docs/testing.md), [defensive patterns](../../../docs/defensive-patterns.md), and the affected packages’ instructions and Agent Notes. Use [CI test reliability](../dsh-ci-test-reliability/SKILL.md) for processes, clocks, browser tests, and asynchronous cleanup.
+Read [AGENTS.md](../../../AGENTS.md), [architecture](../../../docs/architecture.md), [testing policy](../../../docs/testing.md), [defensive patterns](../../../docs/defensive-patterns/README.md), and the affected packages’ instructions and Agent Notes. Use [CI test reliability](../dsh-ci-test-reliability/SKILL.md) for processes, clocks, browser tests, and asynchronous cleanup.
 
 Agree on the user-visible endpoint, workload range, resource constraints, acceptable minor behavior differences, and stopping rule. Keep backend and browser end-to-end measurements separate: a fast history iterator or Client fold does not prove fast transport, paint, scrolling, or input response. Exclude model/network latency when measuring local overhead, and state that exclusion rather than calling the result complete product latency.
 

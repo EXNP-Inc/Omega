@@ -13,14 +13,14 @@
  * touches the disk once, and a file deleted mid-run keeps the process's id
  * until the next launch.
  *
- * @module @omega-ai/dsh-anonymous-user-id
+ * @module @deepseek-ai/dsh-anonymous-user-id
  */
 
 import { randomUUID } from 'node:crypto'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import type { Branded } from '@omega-ai/dsh-brand'
-import { resolveDshHome } from '@omega-ai/dsh-home-paths'
+import type { Branded } from '@deepseek-ai/dsh-brand'
+import { resolveDshHome } from '@deepseek-ai/dsh-home-paths'
 
 /** A harness-home-scoped anonymous user id (random UUID v4). */
 export type AnonymousUserId = Branded<'AnonymousUserId'>
@@ -87,9 +87,9 @@ export function getOrCreateAnonymousUserId(options: AnonymousUserIdOptions = {})
       if (id === undefined) {
         try {
           writeFileSync(file, `${created}\n`, 'utf8')
-        } catch {
-          // Best-effort persistence: keep the fresh id in memory even when the
-          // home is unwritable, so this run still reports a consistent id.
+        } catch (_homeUnwritable) {
+          // An unwritable home only loses persistence: the fresh id stays in
+          // memory, so this run still reports a consistent id.
         }
         id = created
       }

@@ -4,11 +4,11 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium, type Page } from 'playwright'
 import { expect, it, onTestFinished } from 'vitest'
-import type { SessionId } from '@omega-ai/dsh-session'
-import type { ClientModuleLoaderTarget } from '@omega-ai/dsh-client-modules/client'
-import { formatSessionReferenceMention } from '@omega-ai/dsh-session-reference'
+import type { SessionId } from '@deepseek-ai/dsh-session'
+import type { ClientModuleLoaderTarget } from '@deepseek-ai/dsh-client-modules/client'
+import { formatSessionReferenceMention } from '@deepseek-ai/dsh-session-reference'
 import { launchWebScaffold, watchConsole, type WebScaffold } from './scaffold.ts'
-import { newEnglishPage } from './support.ts'
+import { newEnglishPage, writeComposerDraft } from './support.ts'
 
 const SCREENSHOTS = fileURLToPath(new URL('../../../.artifacts/screenshots', import.meta.url))
 const FILE_NAME = 'notes 雪.md'
@@ -28,9 +28,15 @@ interface DraftSnapshot {
     clipboardText: string
     invalid?: boolean
   }[]
+  command?: { token: string }
 }
 
 const EMPTY: DraftSnapshot = { text: '', references: [] }
+// Chromium on macOS uses Command+Arrow for editor and line navigation.
+const EDITOR_START = process.platform === 'darwin' ? 'Meta+ArrowUp' : 'Control+Home'
+const EDITOR_END = process.platform === 'darwin' ? 'Meta+ArrowDown' : 'Control+End'
+const LINE_END = process.platform === 'darwin' ? 'Meta+ArrowRight' : 'End'
+const SELECT_LINE_END = process.platform === 'darwin' ? 'Meta+Shift+ArrowRight' : 'Shift+End'
 
 interface DraftOptions {
   prompt?: string
@@ -56,7 +62,7 @@ async function observeDraftApi(page: Page): Promise<void> {
         Object.defineProperty(globalThis, '__ModuleLoader__', { configurable: true, writable: true, value: target })
         let load = target.load.bind(target)
         const observeLoad: ClientModuleLoaderTarget['load'] = (registration) => {
-          if (registration.id !== '@omega-ai/dsh-client-ui-workspace' || registration.chunk !== undefined) {
+          if (registration.id !== '@deepseek-ai/dsh-client-ui-workspace' || registration.chunk !== undefined) {
             load(registration)
             return
           }
@@ -67,11 +73,12 @@ async function observeDraftApi(page: Page): Promise<void> {
               if (typeof exports.apply !== 'function') {
                 throw new Error(`ui-workspace factory returned keys ${Object.keys(exports).join(',')}; apply is ${typeof exports.apply}`)
               }
-              const originalApply = exports.apply as (ctx: WorkspaceApplyContext) => unknown
+              const originalApply = exports.apply as (ctx: WorkspaceApplyContext, ...rest: readonly unknown[]) => unknown
               return {
                 ...exports,
-                apply(ctx: WorkspaceApplyContext) {
-                  const result = originalApply.call(exports, ctx)
+                // Forward the synced Config and any later argument the Loader passes.
+                apply(ctx: WorkspaceApplyContext, ...rest: readonly unknown[]) {
+                  const result = originalApply.call(exports, ctx, ...rest)
                   observation.startSession = (workspaceId, options) => {
                     const workspace = ctx.get('uiWorkspace')
                     if (workspace === undefined) throw new Error('The shipped uiWorkspace service is unavailable')
@@ -104,28 +111,6 @@ async function startSession(page: Page, workspaceId: string | undefined, options
 
 function composer(page: Page) {
   return page.locator('[data-composer-input][contenteditable="true"]').first()
-}
-
-/**
- * Click near one edge of the first/last draft line. Keyboard line navigation is
- * not portable here: unmodified Home/End are line-level in Windows/Linux
- * Chromium but document-level in macOS Chromium (the modifier mapping is
- * inverted), so edge-biased clicks — optionally shift-extended — are the only
- * gesture that reaches the same caret or selection on every platform.
- *
- * @param which - the line to land on.
- * @param edge - 'start' clicks 1px in from the left edge, 'end' 2px from the right.
- * @param shift - extend the current selection to the click point instead of collapsing the caret.
- */
-async function clickLine(page: Page, which: 'first' | 'last', edge: 'start' | 'end', shift = false): Promise<void> {
-  const line = which === 'first'
-    ? composer(page).locator(':scope > *').first()
-    : composer(page).locator(':scope > *').last()
-  const box = await line.boundingBox()
-  if (box === null) throw new Error(`The ${which} draft line has no box`)
-  const position = { x: edge === 'start' ? 1 : box.width - 2, y: box.height / 2 }
-  if (shift === false) await line.click({ position })
-  else await line.click({ position, modifiers: ['Shift'] })
 }
 
 function selectedSession(page: Page): Promise<string | null> {
@@ -207,11 +192,8 @@ async function initialize(page: Page, prompt: string, workspaceId?: string, clea
   await startSession(page, workspaceId, { prompt, clearPreviousDraft })
 }
 
-async function openWorkspaceSession(page: Page, workspace: { readonly title: string }, sessionId: SessionId) {
-  const row = page.getByRole('tree', { name: 'Sessions' }).getByText(workspace.title, { exact: true })
-    .locator('xpath=ancestor::*[@role="treeitem"][1]')
-  await row.hover()
-  await row.getByRole('button', { name: `New session in ${workspace.title}`, exact: true }).click()
+async function reopenWorkspaceDraft(page: Page, workspace: { readonly id: string }, sessionId: SessionId) {
+  await startSession(page, workspace.id, { clearPreviousDraft: false })
   await expect.poll(() => selectedSession(page), SETTLE).toBe(sessionId)
 }
 
@@ -292,7 +274,7 @@ function structuredDraft(sessionId: SessionId, title: string): DraftSnapshot {
   return { text, references }
 }
 
-it('preserves drafts through real New Session navigation and treats empty prompts according to clearPreviousDraft', async () => {
+it('preserves drafts through explicit Workspace draft navigation and treats empty prompts according to clearPreviousDraft', async () => {
   const { scaffold, page, console, first, firstId, second } = await launchDraftFixture()
   const initial = { text: '纯文字 🧭\n第二行 e\u0301', references: [] }
   await initialize(page, initial.text, second.id)
@@ -301,19 +283,19 @@ it('preserves drafts through real New Session navigation and treats empty prompt
   expect(secondId).not.toBe(firstId)
   await assertDraft(page, secondId, initial)
 
-  await openWorkspaceSession(page, first, firstId)
-  await openWorkspaceSession(page, second, secondId)
+  await reopenWorkspaceDraft(page, first, firstId)
+  await reopenWorkspaceDraft(page, second, secondId)
   await assertDraft(page, secondId, initial)
-  await openWorkspaceSession(page, first, firstId)
+  await reopenWorkspaceDraft(page, first, firstId)
   await initialize(page, '已有草稿不能被覆盖', second.id)
   await assertDraft(page, secondId, initial)
   expect(second.sessionIds).toEqual([secondId])
-  await openWorkspaceSession(page, first, firstId)
+  await reopenWorkspaceDraft(page, first, firstId)
   await initialize(page, '', second.id, false)
   await assertDraft(page, secondId, initial)
   await initialize(page, '', undefined, true)
   await assertDraft(page, secondId, EMPTY)
-  await openWorkspaceSession(page, first, firstId)
+  await reopenWorkspaceDraft(page, first, firstId)
   await initialize(page, '', second.id, false)
   await assertDraft(page, secondId, EMPTY)
   const replacement = { text: '显式替换 🧪', references: [] }
@@ -324,13 +306,34 @@ it('preserves drafts through real New Session navigation and treats empty prompt
   await startSession(page, undefined, { clearPreviousDraft: true })
   await assertDraft(page, secondId, EMPTY)
   for (let round = 0; round < 2; round++) {
-    await openWorkspaceSession(page, first, firstId)
-    await openWorkspaceSession(page, second, secondId)
+    await reopenWorkspaceDraft(page, first, firstId)
+    await reopenWorkspaceDraft(page, second, secondId)
     await assertDraft(page, secondId, EMPTY)
   }
   await page.reload({ waitUntil: 'load' })
   await assertDraft(page, secondId, EMPTY)
   await assertUnsubmitted(scaffold, [firstId, secondId])
+  expect(console.pageErrors).toEqual([])
+  expect(console.warnings).toEqual([])
+})
+
+it('rebuilds a claimed command chip from the stored draft after reload without submitting', async () => {
+  const { scaffold, page, console, firstId } = await launchDraftFixture()
+  const input = composer(page)
+  await writeComposerDraft(page, input, '/')
+  await page.getByRole('listbox').getByRole('option', { name: 'Goal Set or view the goal for a long-running task', exact: true }).click()
+  await expect.poll(() => input.textContent(), SETTLE).toBe('/goal ')
+  await input.press('End')
+  await page.keyboard.insertText('ship')
+  const stored = { text: '/goal ship', references: [], command: { token: '/goal ' } }
+  await expect.poll(() => storedDraft(page, firstId), SETTLE).toEqual(stored)
+  await page.reload({ waitUntil: 'load' })
+  await expect.poll(() => selectedSession(page), SETTLE).toBe(firstId)
+  await expect.poll(() => composer(page).locator('[data-composer-command]').textContent(), SETTLE).toBe('/goal')
+  await expect.poll(() => composer(page).getAttribute('data-phase'), SETTLE).toBe('claimed')
+  expect(await composer(page).textContent()).toBe('/goal ship')
+  expect(await storedDraft(page, firstId)).toEqual(stored)
+  await assertUnsubmitted(scaffold, [firstId])
   expect(console.pageErrors).toEqual([])
   expect(console.warnings).toEqual([])
 })
@@ -401,7 +404,7 @@ it('restores repeated file, folder and Session capsules across edits, Workspace 
       ],
     }
   `)
-  await openWorkspaceSession(page, first, firstId)
+  await reopenWorkspaceDraft(page, first, firstId)
   await assertDraft(page, firstId, firstDraft)
 
   const drafts = [
@@ -410,10 +413,10 @@ it('restores repeated file, folder and Session capsules across edits, Workspace 
   ]
   for (let round = 0; round < 3; round++) {
     for (const item of drafts) {
-      await openWorkspaceSession(page, item.workspace, item.id)
+      await reopenWorkspaceDraft(page, item.workspace, item.id)
       await assertDraft(page, item.id, item.draft)
-      await clickLine(page, 'last', 'end')
-      await page.keyboard.press('End')
+      await composer(page).click()
+      await page.keyboard.press(EDITOR_END)
       const suffix = ` · 编辑${round} 🧪`
       await page.keyboard.insertText(suffix)
       item.draft = { ...item.draft, text: item.draft.text + suffix }
@@ -423,7 +426,7 @@ it('restores repeated file, folder and Session capsules across edits, Workspace 
   await page.reload({ waitUntil: 'load' })
   await assertDraft(page, secondId, drafts[1]!.draft)
   for (const item of drafts) {
-    await openWorkspaceSession(page, item.workspace, item.id)
+    await reopenWorkspaceDraft(page, item.workspace, item.id)
     await assertDraft(page, item.id, item.draft)
   }
   await composer(page).locator('[data-composer-chip]').first().click()
@@ -433,9 +436,9 @@ it('restores repeated file, folder and Session capsules across edits, Workspace 
   await startSession(page, undefined, { clearPreviousDraft: true })
   await assertDraft(page, secondId, EMPTY)
   for (let round = 0; round < 2; round++) {
-    await openWorkspaceSession(page, first, firstId)
+    await reopenWorkspaceDraft(page, first, firstId)
     await assertDraft(page, firstId, drafts[0]!.draft)
-    await openWorkspaceSession(page, second, secondId)
+    await reopenWorkspaceDraft(page, second, secondId)
     await assertDraft(page, secondId, EMPTY)
   }
   await page.reload({ waitUntil: 'load' })
@@ -456,8 +459,8 @@ it('reads a legacy string from the existing conversation key and saves ordinary 
   await expect.poll(() => composer(page).evaluate(element =>
     [...element.children].map(paragraph => paragraph.textContent).join('\n')), SETTLE).toBe(legacy)
   expect(await composer(page).locator('[data-composer-chip]').count()).toBe(0)
-  await clickLine(page, 'last', 'end')
-  await page.keyboard.press('End')
+  await composer(page).click()
+  await page.keyboard.press(EDITOR_END)
   await page.keyboard.insertText('，继续编辑')
   await assertDraft(page, firstId, { text: `${legacy}，继续编辑`, references: [] })
   await assertUnsubmitted(scaffold, [firstId])
@@ -517,9 +520,9 @@ it('rematches the current draft after a delayed real skills catalog without repl
   await page.goto(scaffold.authenticatedUrl, { waitUntil: 'load' })
   await assertDraft(page, firstId, initial)
   expect(await composer(page).locator('[data-composer-text-ref]').count()).toBe(0)
-  // End-of-line-one caret: on macOS an unmodified End would skip to the
-  // document end, past the skill command that must be rematched.
-  await clickLine(page, 'first', 'end')
+  await composer(page).click()
+  await page.keyboard.press(EDITOR_START)
+  await page.keyboard.press(LINE_END)
   await expect.poll(() => captured?.request ?? '', SETTLE).toContain(firstId)
   expect(captured?.status).toBe(200)
   expect(captured?.body).toContain('draft-late-original')
@@ -527,18 +530,16 @@ it('rematches the current draft after a delayed real skills catalog without repl
   await page.keyboard.press('Escape')
   const chip = await composer(page).locator('[data-composer-chip]').elementHandle()
   if (chip === null) throw new Error('The initialized file capsule is missing')
-  // Select the whole first line with a shift-click: Shift+End is
-  // document-level on macOS and would swallow the second line.
-  await clickLine(page, 'first', 'start')
-  await clickLine(page, 'first', 'end', true)
+  await composer(page).click()
+  await page.keyboard.press(EDITOR_START)
+  await page.keyboard.press(SELECT_LINE_END)
   await page.keyboard.insertText(currentPrefix.trimEnd())
   const edited: DraftSnapshot = {
     text: `${currentPrefix}${file} abcdef`,
     references: [{ ...initial.references[0]!, offset: currentPrefix.length }],
   }
   await assertDraft(page, firstId, edited)
-  await clickLine(page, 'last', 'end')
-  await page.keyboard.press('End')
+  await page.keyboard.press(EDITOR_END)
   await page.keyboard.press('ArrowLeft')
   await page.keyboard.press('ArrowLeft')
   await page.keyboard.press('Shift+ArrowLeft')
@@ -583,9 +584,9 @@ it('carries all reference capsules through the real Workspace picker and leaves 
   await assertDraft(page, secondId, draft)
   await expect.poll(() => storedDraft(page, firstId), SETTLE).toEqual(EMPTY)
 
-  await openWorkspaceSession(page, first, firstId)
+  await reopenWorkspaceDraft(page, first, firstId)
   await assertDraft(page, firstId, EMPTY)
-  await openWorkspaceSession(page, second, secondId)
+  await reopenWorkspaceDraft(page, second, secondId)
   await assertDraft(page, secondId, draft)
   await page.reload({ waitUntil: 'load' })
   await assertDraft(page, secondId, draft)
@@ -639,7 +640,7 @@ it('applies a parameter transition matrix to one reusable target without changin
       await assertDraft(page, secondId, transition.restore)
     }
     if (transition.target === 'explicit') {
-      await openWorkspaceSession(page, first, firstId)
+      await reopenWorkspaceDraft(page, first, firstId)
       await assertDraft(page, firstId, source)
     }
     await startSession(page, transition.target === 'explicit' ? second.id : undefined, transition.options)
@@ -651,9 +652,9 @@ it('applies a parameter transition matrix to one reusable target without changin
       await assertDraft(page, secondId, transition.expected, transition.name)
     }
   }
-  await openWorkspaceSession(page, first, firstId)
+  await reopenWorkspaceDraft(page, first, firstId)
   await assertDraft(page, firstId, source)
-  await openWorkspaceSession(page, second, secondId)
+  await reopenWorkspaceDraft(page, second, secondId)
   await assertDraft(page, secondId, EMPTY)
   await assertUnsubmitted(scaffold, [firstId, secondId])
   expect(console.pageErrors).toEqual([])
@@ -737,16 +738,16 @@ it.each(['older-first', 'newer-first'] as const)(
     expect(await storedDraft(page, secondId)).toBeNull()
     expect(await storedDraft(page, firstId)).toEqual(source)
 
-    await openWorkspaceSession(page, second, secondId)
+    await reopenWorkspaceDraft(page, second, secondId)
     await expect.poll(() => composer(page).textContent(), SETTLE).toBe('')
     expect(await composer(page).locator('[data-composer-chip]').count()).toBe(0)
-    await openWorkspaceSession(page, third, thirdId)
+    await reopenWorkspaceDraft(page, third, thirdId)
     await assertDraft(page, thirdId, latest)
-    await openWorkspaceSession(page, first, firstId)
+    await reopenWorkspaceDraft(page, first, firstId)
     await assertDraft(page, firstId, source)
     await page.reload({ waitUntil: 'load' })
     await assertDraft(page, firstId, source)
-    await openWorkspaceSession(page, third, thirdId)
+    await reopenWorkspaceDraft(page, third, thirdId)
     await assertDraft(page, thirdId, latest)
     await assertUnsubmitted(scaffold, [firstId, secondId, thirdId])
     expect(console.pageErrors).toEqual([])

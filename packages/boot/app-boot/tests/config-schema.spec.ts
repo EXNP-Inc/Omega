@@ -6,13 +6,13 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import Schema from '@omega-ai/schemastery'
+import Schema from '@deepseek-ai/schemastery'
 import { Ajv2020 } from 'ajv/dist/2020.js'
 import { buildConfigSchemaDocument } from '../src/config-schema/document.ts'
 import type { CollectedConfigEntry, ConfigJsonSchemaObject, ConfigSchemaDump } from '../src/config-schema/types.ts'
-import { EntryGroup, ModuleLoader, type EntryOptions } from '@omega-ai/cordis-plugin-loader'
-import Group from '@omega-ai/cordis-plugin-group'
-import Include, { type PatchOptions } from '@omega-ai/cordis-plugin-include'
+import { EntryGroup, ModuleLoader, type EntryOptions } from '@deepseek-ai/cordis-plugin-loader'
+import Group from '@deepseek-ai/cordis-plugin-group'
+import Include, { type PatchOptions } from '@deepseek-ai/cordis-plugin-include'
 import { collectConfigSchemas } from '../src/config-schema/collect.ts'
 import { generateConfigSchema } from '../src/config-schema/index.ts'
 import * as profileOperations from '../src/profile.ts'
@@ -235,7 +235,7 @@ describe('collectConfigSchemas', () => {
       static [EntryGroup.key] = true
       constructor() { throw new Error('must not activate Include') }
     }
-    modules.set('@omega-ai/cordis-plugin-include', { default: ExternalInclude })
+    modules.set('@deepseek-ai/cordis-plugin-include', { default: ExternalInclude })
     modules.set('include-alias', { default: ExternalInclude })
     const result = await collectConfigSchemas(profile, [
       row('include-alias', { path: './missing.yml', initial: [row('noop')] }),
@@ -243,8 +243,8 @@ describe('collectConfigSchemas', () => {
     ], resolution)
     expect(result['x-cordis'].complete).toBe(true)
     expect(result['x-cordis'].entries.filter(entry => entry.tree === 'include')).toHaveLength(2)
-    expect(importModule.mock.calls.filter(([name]) => name === '@omega-ai/cordis-plugin-include')).toHaveLength(1)
-    expect(importModule.mock.calls.filter(([name]) => name === '@omega-ai/cordis-plugin-group')).toHaveLength(1)
+    expect(importModule.mock.calls.filter(([name]) => name === '@deepseek-ai/cordis-plugin-include')).toHaveLength(1)
+    expect(importModule.mock.calls.filter(([name]) => name === '@deepseek-ai/cordis-plugin-group')).toHaveLength(1)
   })
 
   it('recognizes an external canonical Group even when Include cannot resolve', async () => {
@@ -252,17 +252,17 @@ describe('collectConfigSchemas', () => {
       static [EntryGroup.key] = true
       constructor() { throw new Error('must not activate Group') }
     }
-    modules.set('@omega-ai/cordis-plugin-group', { default: ExternalGroup })
+    modules.set('@deepseek-ai/cordis-plugin-group', { default: ExternalGroup })
     modules.set('group-alias', { default: ExternalGroup })
     const result = await collectConfigSchemas(profile, [row('group-alias', [row('group-alias', [row('noop')])])], resolution)
     expect(result['x-cordis'].complete).toBe(true)
     expect(result['x-cordis'].entries.map(entry => entry.path)).toEqual(['/0', '/0/config/0', '/0/config/0/config/0'])
-    expect(importModule.mock.calls.filter(([name]) => name === '@omega-ai/cordis-plugin-group')).toHaveLength(1)
+    expect(importModule.mock.calls.filter(([name]) => name === '@deepseek-ai/cordis-plugin-group')).toHaveLength(1)
   })
 
   it('reports unknown tree-carrier identities instead of silently omitting their children', async () => {
-    modules.set('@omega-ai/cordis-plugin-group', { default: Group })
-    modules.set('@omega-ai/cordis-plugin-include', { default: Include })
+    modules.set('@deepseek-ai/cordis-plugin-group', { default: Group })
+    modules.set('@deepseek-ai/cordis-plugin-include', { default: Include })
     modules.set('other-include', { default: class OtherInclude {
       static [EntryGroup.key] = true
       constructor() { throw new Error('must not activate a tree carrier') }
@@ -418,15 +418,18 @@ describe('collectConfigSchemas', () => {
     expect(validates(result, [{ name: 'good', config: 3 }])).toBe(true)
   })
 
-  it('keeps healthy group and include siblings after malformed child rows', async () => {
+  it('keeps healthy group siblings after a malformed child row and rejects an include with a non-mapping entry', async () => {
     modules.set('good', { Config: Schema.string() })
     const result = await collectConfigSchemas(profile, [
       row('cordis:group', [{ name: false }, row('good')]),
-      row('cordis:include', { path: './missing.yml', initial: [null, row('good')] }),
+      row('cordis:include', { path: './missing.yml', initial: [row('good'), { ...row('cordis:group', [null]), group: true }] }),
     ], resolution)
-    expect(result['x-cordis'].diagnostics.map(item => item.path)).toEqual(['/0/config/0', '/1/include/0'])
+    expect(result['x-cordis'].diagnostics.map(item => [item.path, item.message])).toEqual([
+      ['/0/config/0', expect.any(String)],
+      ['/1', expect.stringContaining('has an entry that is not a mapping')],
+    ])
     expect(result['x-cordis'].entries.filter(entry => entry.status === 'schema').map(entry => entry.path))
-      .toEqual(['/0/config/1', '/1/include/1'])
+      .toEqual(['/0/config/1'])
   })
 
   it.each([
@@ -442,6 +445,29 @@ describe('collectConfigSchemas', () => {
     expect(result['x-cordis'].complete).toBe(false)
   })
 
+  it('resolves a drive-letter include path on Windows as Include does', async () => {
+    modules.set('good', { Config: Schema.string() })
+    const platform = Object.getOwnPropertyDescriptor(process, 'platform')!
+    Object.defineProperty(process, 'platform', { ...platform, value: 'win32' })
+    try {
+      const result = await collectConfigSchemas(profile, [
+        row('cordis:include', { path: 'C:/dsh-missing/extra.yml', initial: [row('good')] }),
+      ], resolution)
+      expect(result['x-cordis'].diagnostics).toEqual([])
+      expect(result['x-cordis'].entries.map(entry => [entry.path, entry.status])).toEqual([['/0', 'absent'], ['/0/include/0', 'schema']])
+    } finally {
+      Object.defineProperty(process, 'platform', platform)
+    }
+  })
+
+  it('leaves the caller\'s include patches unchanged when a patch replaces a group config', async () => {
+    const patches = [{ id: 'group', config: [{ name: 'noop' }] }]
+    await collectConfigSchemas(profile, [row('cordis:include', {
+      path: './missing.yml', initial: [{ ...row('cordis:group', []), id: 'group', group: true }], patches,
+    })], resolution)
+    expect(patches).toEqual([{ id: 'group', config: [{ name: 'noop' }] }])
+  })
+
   it('does not validate contents of an insertion that Loader skips', async () => {
     const result = await collectConfigSchemas(profile, [row('cordis:include', {
       path: './missing.yml', initial: [row('noop')], patches: [{ id: 'missing', insert: [null] }, { config: {} }],
@@ -454,6 +480,16 @@ describe('collectConfigSchemas', () => {
         expect(validates(result, definition === 'patchList' ? [value] : value, definition)).toBe(true)
       }
     }
+  })
+
+  it('requires an entry-list config on every group: true entry, as the Loader does', async () => {
+    const result = await collectConfigSchemas(profile, [row('noop')], resolution)
+    expect(validates(result, [{ name: 'noop', group: true, config: [] }])).toBe(true)
+    expect(validates(result, [{ name: 'noop', group: false }])).toBe(true)
+    for (const value of [{ name: 'noop', group: true }, { name: 'noop', group: true, config: {} }, { name: 'noop', group: true, disabled: true }]) {
+      expect(validates(result, [value])).toBe(false)
+    }
+    expect(validates(result, [{ id: 'g', config: [] }], 'patchList')).toBe(true)
   })
 
   it('allows disabled config omission without disabling group:true or supplied-config validation', async () => {

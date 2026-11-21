@@ -3,7 +3,7 @@ description: "The model-facing ask_user_question tool over the user-questions se
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-tool-ask-user
+# @deepseek-ai/dsh-tool-ask-user
 
 English | [中文](README.zh.md)
 
@@ -31,7 +31,7 @@ Shipped presets use blocking mode. To enable timed mode, set `mode: timed` on th
 
 ```yaml
 - id: tool-ask-user
-  name: '@omega-ai/dsh-tool-ask-user'
+  name: '@deepseek-ai/dsh-tool-ask-user'
   config:
     mode: timed
     timeout: 120
@@ -61,7 +61,7 @@ Send one or more questions with ids unique within the call; the answer echoes th
 
 ### What the model gets back
 
-An answer returns one item per question. `selected` holds option labels; `custom` supplements a multi-select answer or replaces a single-select choice. A skipped item has empty `selected` and no `custom`.
+An answer returns one item per question. `selected` holds option labels; `custom` supplements a multi-select answer or replaces a single-select choice. A skipped item has empty `selected` and no `custom`; both tool descriptions tell the model how to handle it.
 
 For a finite timed call, `{ "pending": true, "callId": "…" }` means the foreground wait ended without an answer. The question remains answerable, and the model may continue independent work. A later answer arrives as a user message identified by `kind`, `tool`, and `callId`. Web chat pairs its questions and answers; other consumers receive compact JSON text.
 
@@ -71,7 +71,7 @@ For a finite timed call, `{ "pending": true, "callId": "…" }` means the foregr
 
 ### When the call fails
 
-Legacy and `timeout: -1` calls wait for an answer or cancellation; without an accepting answerer, they return an error. A finite timed call without an answerer returns pending at its deadline. Cancellation and a caller that is not the exact live runtime root also return errors. A live child agent is rejected with `DELEGATED_CALLER` and must include the unresolved decision in its final result.
+Legacy and `timeout: -1` calls wait for an answer or cancellation; without an accepting answerer, they return an error. A finite timed call without an answerer returns pending at its deadline. Cancellation and a caller that is not the exact live runtime root also return errors. A timed call rejects an out-of-range `timeout` and a repeated question id with `ToolArgsError` `INVALID_ARGS`, and a missing calling agent with `ToolContextUnavailableError`. A live child agent is rejected with `DELEGATED_CALLER` and must include the unresolved decision in its final result.
 
 -----
 
@@ -108,7 +108,7 @@ The `render` output projects the structured value to a single text block via `JS
 Read these pages when the package-level contract is not enough. They move from the tool surface to the seam contract and its answerer waterfall.
 
 - [User interaction subsystem reference](../../../docs/subsystems/user-questions.md) — the service contract, question vocabulary, and answerer waterfall behind this tool.
-- [Tool catalog](../../../docs/tool-catalog.md#omega-aidsh-tool-ask-user) — the generated `ask_user_question` schema.
+- [Tool catalog](../../../docs/tool-catalog.md#deepseek-aidsh-tool-ask-user) — the generated `ask_user_question` schema.
 - [user-questions package](../user-questions/README.md) — the seam this tool consumes.
 - [Interaction group map](../README.md) — adjacent approval and command surfaces.
 
@@ -121,7 +121,7 @@ Read these pages when the package-level contract is not enough. They move from t
 
 #### What the model sees
 
-The shipped presets expose the original blocking [`ask_user_question` schema](../../../docs/tool-catalog.md#omega-aidsh-tool-ask-user). A custom Cordis row with `mode: timed` switches to the alternate schema, including question ids, prompts, headings, options, multi-select flags, `timeout`, and the pending result; the model sees only the selected definition.
+The shipped presets expose the original blocking [`ask_user_question` schema](../../../docs/tool-catalog.md#deepseek-aidsh-tool-ask-user). A custom Cordis row with `mode: timed` switches to the alternate schema, including question ids, prompts, headings, options, multi-select flags, `timeout`, and the pending result; the model sees only the selected definition.
 
 #### Token effect
 

@@ -2,7 +2,7 @@
  * What a failed pnpm run was, read off how it ended and what it printed:
  * pnpm names its failures with stable `ERR_PNPM_*` codes and Node's errno
  * names, which the run's captured tail carries whatever the locale.
- * @module @omega-ai/dsh-plugin-manager/install-failure
+ * @module @deepseek-ai/dsh-plugin-manager/install-failure
  */
 
 import type { PluginInstallFailureKind } from './types.ts'
@@ -19,7 +19,7 @@ export interface InstallFailureFacts {
 
 /** Patterns in the order they decide: a specific code before the generic network family. */
 const LOG_KINDS: readonly [PluginInstallFailureKind, RegExp][] = [
-  ['build-blocked', /ERR_PNPM_IGNORED_BUILDS|Ignored build scripts/],
+  ['build-blocked', /ERR_PNPM_IGNORED_BUILDS|Ignored build scripts|ERR_PNPM_GIT_DEP_PREPARE_NOT_ALLOWED/],
   ['not-found', /ERR_PNPM_FETCH_404|\bE404\b|404 Not Found|Not Found - GET/],
   ['no-matching-version', /ERR_PNPM_NO_MATCHING_VERSION|\bETARGET\b|No matching version/],
   ['disk-full', /\bENOSPC\b|no space left on device/i],

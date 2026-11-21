@@ -1,8 +1,9 @@
-import { Context } from '@omega-ai/cordis'
+import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
+import { Context } from '@deepseek-ai/cordis'
 import { afterEach, describe, expect, it } from 'vitest'
-import ToolRuntime from '@omega-ai/dsh-tools'
-import SystemPrompt from '@omega-ai/dsh-system-prompt'
-import UserQuestionService from '@omega-ai/dsh-user-questions'
+import ToolRuntime from '@deepseek-ai/dsh-tools'
+import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
+import UserQuestionService from '@deepseek-ai/dsh-user-questions'
 import { apply } from '../src/index.ts'
 
 let ctx: Context | undefined
@@ -17,6 +18,7 @@ describe('ui-user-questions node plugin', () => {
     ctx = new Context()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await ctx.plugin(NativeToolExecutor)
     await ctx.plugin(UserQuestionService)
 
     await ctx.plugin({ apply }).await()

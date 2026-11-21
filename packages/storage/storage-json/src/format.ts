@@ -6,11 +6,11 @@
  * with one version-stamped document per record (`<table>/<key>.json`) plus a
  * `global.json` for the global slot, so a write rewrites one record instead
  * of the whole unit.
- * @module @omega-ai/dsh-storage-json/src/format
+ * @module @deepseek-ai/dsh-storage-json/src/format
  */
 
-import { StorageError } from '@omega-ai/dsh-storage'
-import type { KvUnitDescriptor } from '@omega-ai/dsh-storage'
+import { StorageError } from '@deepseek-ai/dsh-storage'
+import type { KvUnitDescriptor } from '@deepseek-ai/dsh-storage'
 
 /** In-memory authoritative state of one unit; the file is its projection. `global` is `null` until first written. */
 export interface UnitState {
@@ -41,7 +41,7 @@ export function serialize(name: string, state: UnitState): string {
 /**
  * Parse file content into unit state, validating shape and version.
  * @param text - Raw file content.
- * @param descriptor - Expected identity; version mismatch rejects.
+ * @param descriptor - Expected identity and accepted current or compatible versions.
  * @returns the parsed state.
  */
 export function parse(text: string, descriptor: KvUnitDescriptor): UnitState {
@@ -63,10 +63,10 @@ export function parse(text: string, descriptor: KvUnitDescriptor): UnitState {
     throw new StorageError('malformed-medium', `unit '${descriptor.name}': missing or foreign unit header`)
   }
   const version = (unit as Record<string, unknown>)['version'] as number
-  if (version !== descriptor.version) {
+  if (version !== descriptor.version && !descriptor.compatibleVersions?.includes(version)) {
     throw new StorageError(
       'version-mismatch',
-      `unit '${descriptor.name}': stored version ${version} != expected ${descriptor.version}`,
+      `unit '${descriptor.name}': stored version ${version} is not accepted by version ${descriptor.version}`,
     )
   }
   // `typeof` alone admits an array: reading one as a table map reports every

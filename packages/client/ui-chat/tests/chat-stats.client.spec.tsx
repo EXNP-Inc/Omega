@@ -4,11 +4,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
 import type {
   AssistantMessageNode, ChatSnapshot, LegacyConversationSlice, ToolResultNode,
-} from '@omega-ai/dsh-client-ui-chat/client'
-import { bindSnapshotSelector, makeTranslate } from '@omega-ai/dsh-client-test-runtime'
-import { en as commonEn } from '@omega-ai/dsh-client-locale/src/locales/en.ts'
-import { zh as commonZh } from '@omega-ai/dsh-client-locale/src/locales/zh.ts'
-import { PartialArguments } from '@omega-ai/dsh-util-values'
+} from '@deepseek-ai/dsh-client-ui-chat/client'
+import { bindSnapshotSelector, makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
+import { en as commonEn } from '@deepseek-ai/dsh-client-locale/src/locales/en.ts'
+import { zh as commonZh } from '@deepseek-ai/dsh-client-locale/src/locales/zh.ts'
+import { PartialArguments } from '@deepseek-ai/dsh-util-values'
 import { ActivityPill, UsagePill, deriveStats, formatDuration, type StatPillProps } from '../src/client/chat/StatsPills.tsx'
 import { formatTokens } from '../src/client/chat/token-format.ts'
 import { en, zh } from '../src/client/locale.ts'
@@ -268,7 +268,7 @@ describe('composer stats pills', () => {
     expect(dialog.getAttribute('aria-label')).toBe('Session statistics')
     // Portaled out of the composer dock.
     expect(dialog.parentElement).toBe(document.body)
-    expect(dialog.firstChild?.textContent).toBe('Session statistics')
+    expect(dialog.firstChild?.textContent).toBe('Session statistics1 turns 1 steps')
     const details = dialog.querySelector('[data-session-stats-details]') as HTMLElement
     expect(details).toBeTruthy()
     expect(details.textContent).toContain('LLM time3.8s')
@@ -373,6 +373,53 @@ describe('composer stats pills', () => {
     const usageDialog = view.getByRole('dialog')
     expect(usageDialog.getAttribute('aria-label')).toBe('Token 用量')
     expect(usageDialog.textContent).toContain('未缓存输入5 tok')
+  })
+
+  describe('full reading of a cut-off pill', () => {
+    const FULL = '105 tok · Cache hit 90%'
+
+    function renderCut(overflow: boolean, mode: 'detailed' | 'compact' = 'detailed') {
+      vi.spyOn(Element.prototype, 'scrollWidth', 'get').mockReturnValue(overflow ? 200 : 80)
+      vi.spyOn(Element.prototype, 'clientWidth', 'get').mockReturnValue(80)
+      vi.useFakeTimers()
+      const { source } = makeSource({ nodes: [timedStep()] })
+      return render(<StatsPills {...props(source)} usePerformanceUsage={selector => selector(mode)} />)
+    }
+    const tooltipText = (view: ReturnType<typeof render>) => view.queryByRole('tooltip')?.textContent ?? null
+    afterEach(() => { vi.useRealTimers() })
+
+    it.each([false, true])('shows on hover after the dock delay only while the label is cut off: %s', (overflow) => {
+      const view = renderCut(overflow)
+      fireEvent.pointerEnter(view.getAllByRole('button')[1]!)
+      expect(tooltipText(view)).toBeNull()
+      act(() => { vi.advanceTimersByTime(200) })
+      expect(tooltipText(view)).toBe(overflow ? FULL : null)
+    })
+
+    it('shows on keyboard focus of a dialog pill', () => {
+      const view = renderCut(true)
+      fireEvent.keyDown(document.body, { key: 'Tab' })
+      fireEvent.focus(view.getAllByRole('button')[1]!)
+      expect(tooltipText(view)).toBe(FULL)
+    })
+
+    it('yields to the open dialog, whose head carries the counts', () => {
+      const view = renderCut(true)
+      const [timePill] = view.getAllByRole('button') as [HTMLElement]
+      fireEvent.click(timePill)
+      fireEvent.pointerEnter(timePill)
+      act(() => { vi.advanceTimersByTime(200) })
+      expect(tooltipText(view)).toBeNull()
+      expect(view.getByRole('dialog').firstChild?.textContent).toBe('Session statistics1 turns 1 steps')
+    })
+
+    it('pins a cut-off static reading on tap', () => {
+      const view = renderCut(true, 'compact')
+      const plainPill = view.getByText('Cache hit 90%').parentElement!
+      fireEvent.pointerDown(plainPill, { pointerType: 'touch' })
+      fireEvent.click(plainPill)
+      expect(tooltipText(view)).toBe('Cache hit 90%')
+    })
   })
 
   it('keeps the durable usage pill after the visible step window is empty', () => {

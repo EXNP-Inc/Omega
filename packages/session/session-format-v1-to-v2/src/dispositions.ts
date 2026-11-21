@@ -2,13 +2,13 @@ import {
   RELEASED_V0_EVENT_DISPOSITIONS,
   defineReleasedPayloadDisposition,
   type ReleasedV0PayloadDisposition,
-} from '@omega-ai/dsh-session-format-v0-to-v1'
+} from '@deepseek-ai/dsh-session-format-v0-to-v1'
 
 const retained = Object.fromEntries(
   Object.entries(RELEASED_V0_EVENT_DISPOSITIONS).filter(([type]) => (
     type !== 'assistant/chunk'
     && type !== 'assistant/message'
-    && type !== 'session-log-omega/delivery-accepted'
+    && type !== 'session-log-deepseek/delivery-accepted'
     && type !== 'session/end-seed'
   )),
 )
@@ -21,7 +21,7 @@ export const RELEASED_V2_EVENT_DISPOSITIONS: Readonly<Record<string, ReleasedV0P
     ['turn', 'step', 'message', 'stream'],
     ['usage', 'interrupted'],
   ),
-  'session-log-omega/delivery-accepted': defineReleasedPayloadDisposition(
+  'session-log-deepseek/delivery-accepted': defineReleasedPayloadDisposition(
     ['sessionId', 'throughSeq'],
     ['sessionFormatVersion'],
   ),

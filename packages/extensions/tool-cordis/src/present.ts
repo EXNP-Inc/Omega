@@ -1,19 +1,13 @@
 /** Pure replay-safe render intents for runtime inspection. */
-import type { GenericCallView } from '@omega-ai/dsh-tools'
+import type { GenericCallView } from '@deepseek-ai/dsh-tools'
 
 /**
- * Render provider-directory inspection.
+ * Render a provider directory or one exact query.
+ * @param args - Optional query target.
  * @returns replay-safe generic call presentation.
  */
-export function presentInspectListCall(): GenericCallView {
-  return { card: 'generic', kind: 'read', title: 'List Cordis Inspect Providers' }
-}
-
-/**
- * Render one provider query.
- * @param args - target platform, provider, and method.
- * @returns replay-safe generic call presentation.
- */
-export function presentInspectQueryCall(args: { platform: string; provider: string; method: string }): GenericCallView {
-  return { card: 'generic', kind: 'read', title: `Query Cordis ${args.platform} ${args.provider}.${args.method}` }
+export function presentInspectCall(args: { query?: { platform: string; provider: string; method: string } }): GenericCallView {
+  return { card: 'generic', kind: 'read', title: args.query === undefined
+    ? 'List Cordis Inspect Providers'
+    : `Query Cordis ${args.query.platform} ${args.query.provider}.${args.query.method}` }
 }

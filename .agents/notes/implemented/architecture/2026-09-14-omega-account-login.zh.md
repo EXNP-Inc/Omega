@@ -1,8 +1,8 @@
-# Agent Note: Omega 账号浏览器登录
+# Agent Note: DeepSeek 账号浏览器登录
 
 Status: implemented
 
-[English](2026-09-14-omega-account-login.md) | 中文
+[English](2026-09-14-deepseek-account-login.md) | 中文
 
 登录申请保存发起界面的客户端元数据，使浏览器授权跟随桌面或设置页的语言，不依赖平台默认值。
 
@@ -16,7 +16,7 @@ Status: implemented
 
 本地取消具有决定权。提供者停止回调并忽略迟到的兑换结果；auth_cancel 使用 authorize_id 和原始 PKCE verifier 作废远程申请及未兑换的 code。后台请求不延迟本地取消，失败也不会恢复登录。session.commit 在第一次 await 前同步准入持久化，并拒绝已取消的流程。准入后的取消等待提交结果。回调只有在授权结束确认存储后才跳转 auth_exchange.biz_data.authorized_url。
 
-授权在 Host webServer 上注册临时 /oauth/callback 路由。已鉴权的发起客户端提供浏览器可访问的本机 HTTP 来源，包含 SSH 本地转发端口。不支持非本机域名反向代理。清理仅移除路由，保留共享连接。兑换失败返回 Web 登录界面，或通过账号状态聚焦 Desktop；重试由用户明确发起。PKCE 私密数据不经过 UI 传输。模型和文件请求的 token 仅为配置的 inferenceOrigin 解析，默认为 `https://api.omega.com`；请求拒绝重定向。显式配置其他来源时，要求授权由配置的 Platform 来源签发，因此仅修改请求地址不会转发账号凭证。本机开发授权记录不能认证生产请求。API Key 引用独立保存。
+授权在 Host webServer 上注册临时 /oauth/callback 路由。已鉴权的发起客户端提供浏览器可访问的本机 HTTP 来源，包含 SSH 本地转发端口。不支持非本机域名反向代理。清理仅移除路由，保留共享连接。兑换失败返回 Web 登录界面，或通过账号状态聚焦 Desktop；重试由用户明确发起。PKCE 私密数据不经过 UI 传输。模型和文件请求的 token 仅为配置的 inferenceOrigin 解析，默认为 `https://api.deepseek.com`；请求拒绝重定向。显式配置其他来源时，要求授权由配置的 Platform 来源签发，因此仅修改请求地址不会转发账号凭证。本机开发授权记录不能认证生产请求。API Key 引用独立保存。
 
 平台导航与授权共享 Cordis 配置中同一个经过校验的 platformOrigin。私有 profile patch 或环境表达式提供部署来源，开发地址不进入仓库。
 
@@ -24,7 +24,7 @@ Platform 客户端身份属于发起调用的界面，而不属于 Host。每个
 
 ## 替代方案
 
-把协议放在 Electron 会为 Web 使用方重复实现，并让外壳拥有凭证。把 token 放入 OMEGA_API_KEY 会丢失账号授权与用户 API Key 的区别。在持久化前将浏览器回调视为成功会产生虚假成功。等待远程取消确认会使本地取消依赖网络。在 Host 中记住一份客户端身份，会让共享该 Host 或经转发接入的其他调用方被标错。这些方案均被拒绝。
+把协议放在 Electron 会为 Web 使用方重复实现，并让外壳拥有凭证。把 token 放入 DEEPSEEK_API_KEY 会丢失账号授权与用户 API Key 的区别。在持久化前将浏览器回调视为成功会产生虚假成功。等待远程取消确认会使本地取消依赖网络。在 Host 中记住一份客户端身份，会让共享该 Host 或经转发接入的其他调用方被标错。这些方案均被拒绝。
 
 ## 影响
 
@@ -46,7 +46,7 @@ DSH 授权通过 x-dsh-auth-token 请求头鉴权 Platform、推理和 Files 请
 
 开发环境认证通过配置的平台来源上的显式 Host 请求头 requestHeaders 完成。提供者拒绝重定向和保留请求头覆盖，防止开发环境 Cookie 替换账号授权或跟随浏览器跳转地址。特定环境的认证协议不属于账号提供者。
 
-内置账号界面仅用于 Desktop：preload 桥接启用账号入口、设置和登录引导。普通 Web 保留 API Key 引导及标准设置入口，不订阅账号状态或显示登录。Host 协议在 auth_init 中接受 login_source（desktop 或 web）；内置界面发送 desktop。后端接受 localhost 回调。DSH 保留浏览器提供的 localhost 主机名和端口，不做 DNS 解析或 IP 字面量转换。
+内置账号界面在 Desktop 和普通 Web 中都挂载账号入口、设置和登录引导。Host 在 auth_init 中发送 login_source（desktop 或 web），以便 Platform 选择完成页体验；存在 Desktop preload 桥接时界面发送 desktop，否则发送 web。Web 登录失败时关闭授权标签页，原标签页通过 Host 状态获知结果；不使用 Web UI 返回 URL。后端接受 localhost 回调。DSH 保留浏览器提供的 localhost 主机名和端口，不做 DNS 解析或 IP 字面量转换。
 
 macOS 开发启动器为 `dsh://open` 注册独立、经临时签名的应用包。该应用包保留工作区入口和开发路径，使 Launch Services 能够冷启动；凭证不会被复制，也不修改包管理器安装的 Electron 应用。协议注册指向最近启动的开发版或打包版应用。
 

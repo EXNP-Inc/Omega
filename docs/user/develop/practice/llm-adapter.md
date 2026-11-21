@@ -11,9 +11,9 @@ An LLM adapter extends `LlmAdapter` and implements `stream()`, translating Harne
 ## Minimal implementation
 
 ```ts
-import type { Context } from '@omega-ai/cordis'
-import Schema from '@omega-ai/schemastery'
-import { LlmAdapter, type GenerateOptions, type StreamChunk } from '@omega-ai/dsh-llm'
+import type { Context } from '@deepseek-ai/cordis'
+import Schema from '@deepseek-ai/schemastery'
+import { LlmAdapter, type GenerateOptions, type StreamChunk } from '@deepseek-ai/dsh-llm'
 
 class MyAdapter extends LlmAdapter {
   private apiKey: string
@@ -54,8 +54,8 @@ export function apply(ctx: Context, config: Config) {
 `stream()` yields chunks using this protocol:
 
 ```ts
-import { brandString } from '@omega-ai/dsh-brand'
-import type { StreamChunk, ToolCallId } from '@omega-ai/dsh-llm'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { StreamChunk, ToolCallId } from '@deepseek-ai/dsh-llm'
 
 async function* exampleChunks(): AsyncIterable<StreamChunk> {
   // 1. Start each content block with block-start.
@@ -111,7 +111,7 @@ async function* exampleChunks(): AsyncIterable<StreamChunk> {
 
 ## GenerateOptions
 
-`stream()` receives the exported `GenerateOptions` type. It includes the model, adapter-owned reasoning-effort id, conversation history, system prompt, tool schemas, generation parameters, stop sequences, and abort signal; treat the TypeScript type exported by `@omega-ai/dsh-llm` as authoritative. Map supported fields to the provider API. If the provider cannot honor a field, throw `LlmError` with a stable code instead of silently dropping it.
+`stream()` receives the exported `GenerateOptions` type. It includes the model, adapter-owned reasoning-effort id, conversation history, system prompt, tool schemas, generation parameters, stop sequences, and abort signal; treat the TypeScript type exported by `@deepseek-ai/dsh-llm` as authoritative. Map supported fields to the provider API. If the provider cannot honor a field, throw `LlmError` with a stable code instead of silently dropping it.
 
 Override `resolveModel(provider, model, signal?)` to return exact provider/model identity plus optional `context` and `reasoning` metadata in one lookup. Reasoning metadata contains ordered opaque ids and display names plus an optional configured default; preserve the adapter's authoritative selectable list, including `off` when its upstream capability API returns it, instead of promoting those values into a core enum. Honor the optional signal for asynchronous lookup so cancellation and disposal reach quiescence. The service validates the aggregate and rejects unsupported explicit efforts before `stream()`; omitting `reasoning` means that model has no selectable reasoning-effort capability.
 
@@ -134,7 +134,7 @@ The first argument lists provider routes handled by the adapter. `GenerateOption
       - my-provider
 
 - id: agent-loop
-  name: '@omega-ai/dsh-agent-loop'
+  name: '@deepseek-ai/dsh-agent-loop'
   config:
     agents:
       - id: main
@@ -146,14 +146,14 @@ The first argument lists provider routes handled by the adapter. `GenerateOption
 
 The repository contains complete implementations:
 
-- `packages/llm/llm-omega/` — Omega adapter using the Messages API
+- `packages/llm/llm-deepseek/` — DeepSeek adapter using the Messages API
 - `packages/llm/llm-pi-ai/` — Pi AI adapter using a different API format
 
 Compare the two shipped adapters to see the same harness contract implemented over different provider SDKs.
 
 ## Error handling
 
-Adapters throw transport and protocol failures as `LlmError` values with stable codes. The agent loop preserves the error and code for diagnostics and policy; it does not convert an ordinary `Error` automatically. Every provider HTTP request must also merge `attributionHeaders()` and forward `options.signal`.
+Adapters throw transport and protocol failures as `LlmError` values with stable codes. `new LlmError` accepts only the built-in codes of `LLM_FAILURE_CODES`; an adapter's own code goes through `LlmError.fromFailure`. The agent loop preserves the error and code for diagnostics and policy; it does not convert an ordinary `Error` automatically. Every provider HTTP request must also merge `attributionHeaders()` and forward `options.signal`.
 
 ```ts
 import {
@@ -162,7 +162,7 @@ import {
   LlmError,
   type GenerateOptions,
   type StreamChunk,
-} from '@omega-ai/dsh-llm'
+} from '@deepseek-ai/dsh-llm'
 
 class HttpAdapter extends LlmAdapter {
   constructor(private readonly endpoint: string) {
@@ -180,7 +180,7 @@ class HttpAdapter extends LlmAdapter {
       ...options.signal ? { signal: options.signal } : {},
     })
     if (!response.ok) {
-      throw new LlmError(`Provider API error: ${response.status}`, 'PROVIDER_HTTP_ERROR')
+      throw LlmError.fromFailure({ message: `Provider API error: ${response.status}`, code: 'PROVIDER_HTTP_ERROR', status: response.status })
     }
     // A real adapter parses the response and emits the complete chunk sequence.
     yield { type: 'finish', reason: { kind: 'stop' } }

@@ -1,5 +1,5 @@
 /** Per-turn workspace change summaries, the Session event announcing them, and the Host service serving them with their comparisons. */
-import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
 
 /** One file changed during a turn, with line counts from git or from the whole-file captures around its file-tool edits. */
 export interface WorkspaceChangedFile {
@@ -25,7 +25,7 @@ export interface WorkspaceChangedFile {
 export interface WorkspaceChangesSummary {
   /** The turn whose file changes this summary describes. */
   turn: number
-  /** The Session working directory `path` values are relative to. */
+  /** The Session working directory `path` values are relative to, as it stood when the turn started. */
   cwd: string
   /** Changed files in `display` order, capped at the plugin's `maxFiles`. */
   files: WorkspaceChangedFile[]
@@ -96,7 +96,7 @@ export interface WorkspaceChanges {
   diff(sessionId: SessionId, seq: number, index: number, signal: AbortSignal): Promise<WorkspaceFileDiff | undefined>
 }
 
-declare module '@omega-ai/dsh-session/types' {
+declare module '@deepseek-ai/dsh-session/types' {
   interface SessionEventMap {
     /**
      * A completed top-level turn's changed files were summarized; the summary itself stays on the
@@ -107,7 +107,7 @@ declare module '@omega-ai/dsh-session/types' {
   }
 }
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
     /** Per-turn changed-file summaries and comparisons of live Sessions. */
     workspaceChanges: WorkspaceChanges

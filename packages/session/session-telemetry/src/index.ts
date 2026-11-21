@@ -1,5 +1,5 @@
 /**
- * SessionTelemetryBackend Service Definition for the Omega.
+ * SessionTelemetryBackend Service Definition for the DeepSeek Harness.
  *
  * This package owns the CAPTURE side of session-event reporting — the complete
  * one-record-per-event ledger mirror, what records carry, when
@@ -11,13 +11,13 @@
  * backend responsibilities are documented in the
  * [Session telemetry reference](../README.md#understand-the-implementation).
  *
- * @module @omega-ai/dsh-session-telemetry
+ * @module @deepseek-ai/dsh-session-telemetry
  */
 
-import { Context, Service } from '@omega-ai/cordis'
-import type { SessionEvent, SessionId } from '@omega-ai/dsh-session'
+import { Context, Service } from '@deepseek-ai/cordis'
+import type { SessionEvent, SessionId } from '@deepseek-ai/dsh-session'
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
     sessionTelemetry: SessionTelemetryBackend
   }

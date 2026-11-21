@@ -1,17 +1,18 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import { createMessage, createUserMessage } from '@omega-ai/dsh-llm'
-import type { TokenUsage } from '@omega-ai/dsh-llm'
-import SessionStore from '@omega-ai/dsh-session'
-import type { Session, SessionSeq } from '@omega-ai/dsh-session'
-import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
-import TokenMeter from '@omega-ai/dsh-token-meter'
-import type { ContextPressureProjection, TokenUsageProjection } from '@omega-ai/dsh-token-meter/client'
-import { RetryId } from '@omega-ai/dsh-llm-retry'
-import type { ContextFormed } from '@omega-ai/dsh-llm'
-import { CompactionId } from '@omega-ai/dsh-compaction'
+import { Context } from '@deepseek-ai/cordis'
+import { createMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
+import type { TokenUsage } from '@deepseek-ai/dsh-llm'
+import SessionStore from '@deepseek-ai/dsh-session'
+import type { Session, SessionSeq } from '@deepseek-ai/dsh-session'
+import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import TokenMeter from '@deepseek-ai/dsh-token-meter'
+import type { ContextPressureProjection, TokenUsageProjection } from '@deepseek-ai/dsh-token-meter/client'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { RetryId } from '@deepseek-ai/dsh-llm-retry/types'
+import type { ContextFormed } from '@deepseek-ai/dsh-llm'
+import type { CompactionId } from '@deepseek-ai/dsh-compaction/types'
 
-declare module '@omega-ai/dsh-llm' {
+declare module '@deepseek-ai/dsh-llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }
@@ -90,7 +91,7 @@ function appendSummaryMeter(ctx: Context, session: Session, start: SessionSeq, e
   const endIdx = nodes.findIndex(node => node.seq === end)
   const shadowed = nodes.slice(startIdx, endIdx + 1)
   session.append('compaction/summary', {
-    compactionId: CompactionId('token-usage-summary'),
+    compactionId: brandString<CompactionId>('token-usage-summary'),
     summary: [{ type: 'text', text: 'summary' }],
     shadowedRange: { start, end },
     shadowedSeqs: shadowed.map(node => node.seq),
@@ -105,7 +106,7 @@ describe('tokenUsage session projection', () => {
     const { ctx, session } = await harness()
     expect(projected(ctx, session)).toEqual(ZERO)
     session.append('llm/retry-started', {
-      retryId: RetryId('token-meter-no-usage-retry'),
+      retryId: brandString<RetryId>('token-meter-no-usage-retry'),
       turn: 1,
       step: 1,
       retry: 1,
@@ -164,7 +165,7 @@ describe('tokenUsage session projection', () => {
 
   it('accumulates retried attempts while replacing samples within each attempt', async () => {
     const { ctx, session } = await harness()
-    const retryId = RetryId('token-meter-retry')
+    const retryId = brandString<RetryId>('token-meter-retry')
     session.append('turn/start', { turn: 1 })
     startStep(session, 1, 1)
     usageChunk(session, {
@@ -361,14 +362,14 @@ function appendAssistant(
 describe('contextPressure session projection', () => {
   it('serves no pressure or capacity for an empty log', async () => {
     const { ctx, session } = await harness()
-    expect(pressure(ctx, session)).toEqual({})
+    expect(ctx.tokenMeter.contextPressure(session)).toEqual({})
   })
 
   it('does not synthesize zero pressure before a provider usage sample', async () => {
     const { ctx, session } = await harness()
     startStep(session, 1, 1)
     recordContext(session, 'small', 64_000)
-    expect(pressure(ctx, session)).toEqual({ contextWindow: 64_000 })
+    expect(ctx.tokenMeter.contextPressure(session)).toEqual({ contextWindow: 64_000 })
   })
 
   it('sums prompt-side buckets and excludes response output', async () => {
@@ -382,7 +383,8 @@ describe('contextPressure session projection', () => {
     }, 1, 1)
     // Output is deliberately absent: occupancy describes the prompt that was
     // sent, so it holds still while the response streams.
-    expect(pressure(ctx, session).pressureTokens).toBe(125)
+    expect(ctx.tokenMeter.contextPressure(session)).toEqual({ pressureTokens: 125 })
+    expect(pressure(ctx, session)).toEqual({ pressureTokens: 125, projectedTokens: 125 })
   })
 
   it('replaces pressure with the newest request rather than accumulating', async () => {

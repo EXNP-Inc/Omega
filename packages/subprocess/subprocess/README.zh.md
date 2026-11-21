@@ -3,7 +3,7 @@ description: "面向组合作者与能力消费方的子进程服务（`ctx.subp
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-subprocess
+# @deepseek-ai/dsh-subprocess
 
 [English](README.md) | 中文
 
@@ -32,8 +32,8 @@ kind: "package-reference"
 每个组合由唯一一个提供方注册 `ctx.subprocess`；把它与经由它 spawn 的消费方放在一起加载——bash 执行器、LSP 主机、PTY shell 后端或进程外 subagent 后端。加载第二个提供方会快速失败（每个上下文只有一个服务，这是 Cordis 的标准行为）。
 
 ```yaml
-- name: '@omega-ai/dsh-subprocess-local'
-- name: '@omega-ai/dsh-bash-local'
+- name: '@deepseek-ai/dsh-subprocess-local'
+- name: '@deepseek-ai/dsh-bash-local'
 ```
 
 ### 启动受管进程
@@ -63,7 +63,7 @@ const output = handle.collected.stdout?.readFrom(0)
 <a id="using-a-control-pipe"></a>
 ### 使用控制管道
 
-设置 `stdio.control: 'pipe'` 后，`handle.control` 会返回独立的原始 `Duplex`。Node 子进程通过 `@omega-ai/dsh-subprocess/control` 的 `openInheritedControlChannel()` 打开 fd 7；该辅助函数会消费提供方拥有的 `DSH_SUBPROCESS_CONTROL=pipe` 标记。调用方不能通过 `env` 提供该标记。控制字节不会进入 stdout/stderr 收集器。消费方负责分帧、校验、背压和关闭自身端点；提供方销毁时会在进程拆卸后销毁仍存在的端点。省略请求则返回 `control: undefined`。该通道仅适用于普通进程，不授予绕过工具审批的权限。
+设置 `stdio.control: 'pipe'` 后，`handle.control` 会返回独立的原始 `Duplex`。Node 子进程通过 `@deepseek-ai/dsh-subprocess/control` 的 `openInheritedControlChannel()` 打开 fd 7；该辅助函数会消费提供方拥有的 `DSH_SUBPROCESS_CONTROL=pipe` 标记。调用方不能通过 `env` 提供该标记。控制字节不会进入 stdout/stderr 收集器。消费方负责分帧、校验、背压和关闭自身端点；提供方销毁时会在进程拆卸后销毁仍存在的端点。省略请求则返回 `control: undefined`。该通道仅适用于普通进程，不授予绕过工具审批的权限。
 
 ### 管理进程生命周期
 
@@ -81,7 +81,7 @@ const output = handle.collected.stdout?.readFrom(0)
 
 ### 可能出错的地方
 
-无法解析可执行文件时，服务会明确报出稳定的错误。从未启动成功的 spawn 会让 `done` reject；从未运行过的进程没有任何缓冲输出。提供方无法证明所选范围为空时，`waitForExit()` 也会 reject；提供方 fallback 可能无法拥有逃离其进程组或已观察会话的后代。当传输拥有自己的 spawn（SDK 客户端、MCP）时，请绕开本服务并直接导入 `scrubbedParentEnv`，让环境策略保持单一来源。
+带 code 的失败都是 `SubprocessError`，其 `code` 属于 `SUBPROCESS_ERROR_CODES`：argv 为空是 `SUBPROCESS_INVALID_ARGV`，可执行文件查找未命中是 `SubprocessExecutableNotFoundError`（`SUBPROCESS_EXECUTABLE_NOT_FOUND`），提供方私有 runner 失败或通道损坏是 `SUBPROCESS_RUNNER_FAILED` 或 `SUBPROCESS_RUNNER_IPC_FAILED`，终端实现无法加载是 `SUBPROCESS_PTY_UNAVAILABLE`。在已 abort 的 signal 上请求 spawn 会抛出名为 `AbortError` 的错误。从未启动成功的 spawn 会让 `done` 以平台原始错误 reject，便于消费者检查 errno 字段；把该 reject 报告为自身失败的消费者用 `subprocessSpawnFailure()` 转换：带字符串 errno `code` 的错误中，`ENOENT` 得到 `SUBPROCESS_SPAWN_NOT_FOUND`，其余 errno 得到 `SUBPROCESS_SPAWN_FAILED`；其他值原样返回。从未运行过的进程没有任何缓冲输出。提供方无法证明所选范围为空时，`waitForExit()` 也会 reject；提供方 fallback 可能无法拥有逃离其进程组或已观察会话的后代。当传输拥有自己的 spawn（SDK 客户端、MCP）时，请绕开本服务并直接导入 `scrubbedParentEnv`，让环境策略保持单一来源。
 
 -----
 
@@ -103,6 +103,7 @@ const output = handle.collected.stdout?.readFrom(0)
 |---|---|
 | [`src/index.ts`](src/index.ts) | 插件入口：抽象 `SubprocessRuntime`、`ctx.subprocess` 注册、共享的 `scrubbedParentEnv` 清除 |
 | [`src/types.ts`](src/types.ts) | 词汇：spawn spec、stdio 模式、句柄、读取器、结果、`DSH_*` 命名空间 |
+| [`src/error.ts`](src/error.ts) | `SubprocessError`、其封闭 code 列表与 spawn reject 分类 |
 
 ### 数据模型与流程
 

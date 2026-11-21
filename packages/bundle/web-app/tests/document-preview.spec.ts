@@ -3,55 +3,60 @@ import { mkdtemp, readFile, realpath, rm, symlink, writeFile } from 'node:fs/pro
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { Context } from '@omega-ai/cordis'
-import Loader from '@omega-ai/cordis-plugin-loader'
-import Include, { applyEntryPatches } from '@omega-ai/cordis-plugin-include'
-import { loadOverlayPatches } from '@omega-ai/dsh-app-boot'
-import WorkspaceFiles, { type WorkspaceFileScope } from '@omega-ai/dsh-api-workspace-files'
-import OfficeToPdf from '@omega-ai/dsh-office-to-pdf'
-import * as DocumentPreview from '@omega-ai/dsh-client-ui-sidebar-documentpreview'
-import type { IndexInjection } from '@omega-ai/dsh-host-webserver'
-import SessionStore, { SessionId } from '@omega-ai/dsh-session'
-import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
-import SandboxPolicyService from '@omega-ai/dsh-sandbox-policy'
-import LocalFileSystem from '@omega-ai/dsh-fs-local'
-import { FsError } from '@omega-ai/dsh-fs'
-import TypertRegistry from '@omega-ai/dsh-typert-registry'
+import { Context } from '@deepseek-ai/cordis'
+import Loader from '@deepseek-ai/cordis-plugin-loader'
+import Include, { applyEntryPatches } from '@deepseek-ai/cordis-plugin-include'
+import { loadOverlayPatches } from '@deepseek-ai/dsh-app-boot'
+import WorkspaceFiles, { type WorkspaceFileScope } from '@deepseek-ai/dsh-api-workspace-files'
+import OfficeKit from '@deepseek-ai/dsh-office-kit'
+import * as DocumentPreview from '@deepseek-ai/dsh-client-ui-sidebar-documentpreview'
+import SessionStore, { type SessionId } from '@deepseek-ai/dsh-session'
+import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import SandboxPolicyService from '@deepseek-ai/dsh-sandbox-policy'
+import LocalFileSystem from '@deepseek-ai/dsh-fs-local'
+import { FsError } from '@deepseek-ai/dsh-fs'
+import TypertRegistry from '@deepseek-ai/dsh-typert-registry'
 import type { Converter, ConverterOptions } from '@deepseek-ai/libreoffice-kit'
 import { expect, it, onTestFinished, vi } from 'vitest'
+import { brandString } from '@deepseek-ai/dsh-brand'
 
 const kit = vi.hoisted(() => ({ create: vi.fn<(options?: ConverterOptions) => Promise<Converter>>() }))
 vi.mock('@deepseek-ai/libreoffice-kit', () => ({ createConverter: kit.create }))
 
 it('loads the shipped Office rows with separately patched settings and authorized PDF output', async () => {
   const directory = await realpath(await mkdtemp(join(tmpdir(), 'dsh-web-office-')))
+  const outputDirectory = await mkdtemp(join(tmpdir(), 'dsh-web-office-outputs-'))
   const ctx = new Context()
   onTestFinished(async () => {
     try { await ctx.fiber.dispose() }
-    finally { vi.restoreAllMocks(); await rm(directory, { recursive: true, force: true }) }
+    finally {
+      vi.restoreAllMocks()
+      await rm(directory, { recursive: true, force: true })
+      await rm(outputDirectory, { recursive: true, force: true })
+    }
   })
   const configPath = join(directory, 'cordis.yml')
   const expectedRows = {
-    'office-to-pdf': '@omega-ai/dsh-office-to-pdf',
-    'ui-sidebar-documentpreview': '@omega-ai/dsh-client-ui-sidebar-documentpreview',
+    'office-kit': '@deepseek-ai/dsh-office-kit',
+    'ui-sidebar-documentpreview': '@deepseek-ai/dsh-client-ui-sidebar-documentpreview',
   }
   const rows = loadOverlayPatches('web-office-test', fileURLToPath(new URL('../cordis.patch.yml', import.meta.url)))
     .flatMap(patch => patch.insert ?? []).filter(row => row.id !== undefined && Object.hasOwn(expectedRows, row.id))
   expect(rows.map(row => [row.id, row.name])).toEqual(Object.entries(expectedRows))
-  const providerConfig = { maxInputBytes: 4096, maxConcurrentConversions: 1, fontFallbacks: [['Missing Serif', 'Available Serif']] }
-  const clientConfig = DocumentPreview.Config({ office: { maxCachedEntries: 3, maxCachedBytes: 8192 } })
+  const providerConfig = { maxInputBytes: 4096, maxConcurrentConversions: 1, fontFallbacks: [['Missing Serif', 'Available Serif']], outputDirectory }
+  const clientConfig = { office: { maxCachedEntries: 3, maxCachedBytes: 8192 } }
   const configured = applyEntryPatches(rows, [
-    { id: 'office-to-pdf', config: providerConfig },
+    { id: 'office-kit', config: providerConfig },
     { id: 'ui-sidebar-documentpreview', config: clientConfig },
-  ], (message) => { throw new Error(message) })
+  ], (message) => { throw new Error(message) }).data
   expect(configured.find(row => row.id === 'ui-sidebar-documentpreview')!.config).toEqual(clientConfig)
   await writeFile(configPath, JSON.stringify([
-    { name: '@omega-ai/dsh-session' },
-    { name: '@omega-ai/dsh-session-projection' },
-    { name: '@omega-ai/dsh-sandbox-policy', config: { workspaceRoot: directory } },
-    { name: '@omega-ai/dsh-fs-local', config: { cwd: directory } },
-    { name: '@omega-ai/dsh-typert-registry' },
-    { name: '@omega-ai/dsh-api-workspace-files', config: { maxFileBytes: 1 } },
+    { name: '@deepseek-ai/dsh-session' },
+    { name: '@deepseek-ai/dsh-session-projection' },
+    { name: '@deepseek-ai/dsh-sandbox-policy', config: { workspaceRoot: directory } },
+    { name: '@deepseek-ai/dsh-fs-local', config: { cwd: directory } },
+    { name: '@deepseek-ai/dsh-typert-registry' },
+    { name: '@deepseek-ai/dsh-api-workspace-files', config: { maxFileBytes: 1 } },
     ...configured,
   ]))
   const pdf = Buffer.from('%PDF-1.7\nLoader preview\n%%EOF\n')
@@ -71,14 +76,14 @@ it('loads the shipped Office rows with separately patched settings and authorize
   ctx.loader.builtins.include = Include
   // Loader's native imports must share the test's source-plane Service classes.
   const modules = new Map<string, unknown>([
-    ['@omega-ai/dsh-session', SessionStore],
-    ['@omega-ai/dsh-session-projection', SessionProjectionRegistry],
-    ['@omega-ai/dsh-sandbox-policy', SandboxPolicyService],
-    ['@omega-ai/dsh-fs-local', LocalFileSystem],
-    ['@omega-ai/dsh-typert-registry', TypertRegistry],
-    ['@omega-ai/dsh-api-workspace-files', WorkspaceFiles],
-    ['@omega-ai/dsh-office-to-pdf', OfficeToPdf],
-    ['@omega-ai/dsh-client-ui-sidebar-documentpreview', DocumentPreview],
+    ['@deepseek-ai/dsh-session', SessionStore],
+    ['@deepseek-ai/dsh-session-projection', SessionProjectionRegistry],
+    ['@deepseek-ai/dsh-sandbox-policy', SandboxPolicyService],
+    ['@deepseek-ai/dsh-fs-local', LocalFileSystem],
+    ['@deepseek-ai/dsh-typert-registry', TypertRegistry],
+    ['@deepseek-ai/dsh-api-workspace-files', WorkspaceFiles],
+    ['@deepseek-ai/dsh-office-kit', OfficeKit],
+    ['@deepseek-ai/dsh-client-ui-sidebar-documentpreview', DocumentPreview],
   ])
   ctx.loader.internal = {
     version: 'v2',
@@ -91,42 +96,40 @@ it('loads the shipped Office rows with separately patched settings and authorize
   await ctx.loader.await()
   const entries = new Map([...ctx.loader.entries()].map(entry => [entry.options.id, entry]))
   for (const row of configured) await entries.get(row.id)!.fiber!.await()
-  const injections: IndexInjection[] = []
-  ctx.emit('webserver/index-inject', injections)
-  expect(injections).toEqual([
-    { kind: 'global', name: '__DSH_DOCUMENT_PREVIEW_CONFIG__', value: clientConfig },
-  ])
+  expect(ctx.officeKit.outputDirectory).toBe(outputDirectory)
+  const preview = entries.get('ui-sidebar-documentpreview')!.fiber!.effectiveConfig as DocumentPreview.Config
+  expect(preview.office.get()).toEqual({ maxCachedEntries: 3, maxCachedBytes: 8192, maxPending: 8, maxReaders: 32 })
 
-  const id = SessionId('office-loader')
+  const id = brandString<SessionId>('office-loader')
   const session = ctx.sessions.create(id, { meta: { cwd: directory } })
   const lookup = ctx.typert.lookups.get('workspaceFileScope')!
   const scope = await lookup.resolve(id) as WorkspaceFileScope | undefined
   if (scope === undefined) throw new Error('Expected the Session workspace scope')
-  expect(await lookup.resolve(SessionId('missing'))).toBeUndefined()
+  expect(await lookup.resolve(brandString<SessionId>('missing'))).toBeUndefined()
   const sourcePath = join(directory, 'report.docx')
   await writeFile(sourcePath, 'authorized OOXML')
   const signal = new AbortController().signal
   const version = (await ctx.workspaceFiles.stat(scope, 'report.docx', signal)).version
   const before = session.seq
-  const result = await ctx.officeToPdf.render(scope, 'report.docx', 'foreground', signal)
+  const result = await ctx.officeKit.render(scope, 'report.docx', 'foreground', signal)
   expect(result).toEqual({ absolutePath: sourcePath, version, offset: 0, eof: true, bytes: pdf.length,
-    data: Uint8Array.from(pdf), missingFonts: ['Missing Serif'], generation: ctx.officeToPdf.generation })
+    data: Uint8Array.from(pdf), missingFonts: ['Missing Serif'], generation: ctx.officeKit.generation })
   const readAgain = vi.spyOn(ctx.fs, 'readBytes')
-  expect(await ctx.officeToPdf.render(scope, 'report.docx', 'foreground', signal)).toEqual(result)
+  expect(await ctx.officeKit.render(scope, 'report.docx', 'foreground', signal)).toEqual(result)
   expect(readAgain).not.toHaveBeenCalled()
   expect(await readFile(sourcePath, 'utf8')).toBe('authorized OOXML')
   expect(session.seq).toBe(before)
   expect(ctx.get('agents')).toBeUndefined()
-  const { maxConcurrentConversions: _count, ...kitOptions } = providerConfig
+  const { maxConcurrentConversions: _count, outputDirectory: _outputs, ...kitOptions } = providerConfig
   expect(kit.create).toHaveBeenCalledWith(expect.objectContaining(kitOptions))
-  await expect(ctx.officeToPdf.render(scope, 'missing.docx', 'foreground', signal))
+  await expect(ctx.officeKit.render(scope, 'missing.docx', 'foreground', signal))
     .rejects.toMatchObject({ code: 'workspace-file/not-found' })
   const refusal = new FsError('read refused', 'FS_SANDBOX_DENIED')
   vi.spyOn(ctx.fs, 'stat').mockRejectedValueOnce(refusal)
-  await expect(ctx.officeToPdf.render(scope, 'report.docx', 'foreground', signal)).rejects.toBe(refusal)
+  await expect(ctx.officeKit.render(scope, 'report.docx', 'foreground', signal)).rejects.toBe(refusal)
   if (process.platform !== 'win32') {
     await symlink(sourcePath, join(directory, 'link.docx'))
-    await expect(ctx.officeToPdf.render(scope, 'link.docx', 'foreground', signal))
+    await expect(ctx.officeKit.render(scope, 'link.docx', 'foreground', signal))
       .rejects.toMatchObject({ code: 'workspace-file/not-regular-file' })
   }
   expect(render).toHaveBeenCalledOnce()

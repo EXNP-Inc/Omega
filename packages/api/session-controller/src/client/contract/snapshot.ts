@@ -1,8 +1,8 @@
 /** Session-owned observable state excluding Conversation target data. */
-import type { FileAttachmentRef } from '@omega-ai/dsh-attachment'
-import type { SessionId } from '@omega-ai/dsh-session/types'
-import type { SubagentAddress } from '@omega-ai/dsh-subagent/client'
-import type { RemoteFailure } from '@omega-ai/dsh-typert-protocol'
+import type { FileAttachmentRef } from '@deepseek-ai/dsh-attachment'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import type { SubagentAddress } from '@deepseek-ai/dsh-subagent/client'
+import type { RemoteFailure } from '@deepseek-ai/dsh-typert-protocol'
 import type { SessionRequestId } from '../../types.ts'
 
 /** One image displayed by a local submission echo before durable admission. */
@@ -38,10 +38,10 @@ export type PendingSubmissionAttachment =
 export type PendingSubmissionPlacement = 'transcript' | 'queued' | 'steering'
 
 /**
- * One local prompt-submission echo: inserted synchronously when a submission
- * begins, so the conversation can show the message before serialization,
- * transport, and durable admission complete. Client-memory only — reload and
- * reconnect rebuild the conversation from durable events alone.
+ * One local prompt-submission echo: registered when a submission begins and
+ * published once the Host accepts the prompt, so the conversation shows the
+ * message before its durable admission completes. Client-memory only — reload
+ * and reconnect rebuild the conversation from durable events alone.
  */
 export interface PendingSubmission {
   /** The prompt RPC identity; the durable `user/message` source echoes it as `rpcId`. */
@@ -68,19 +68,22 @@ export interface PromptError {
 /** Immutable Session lifecycle and control snapshot. */
 export interface SessionSnapshot {
   readonly sessionId: SessionId
-  /** Local prompt-submission echoes not yet observed as durable events or queue occurrences. */
+  /** Local prompt-submission echoes the Host accepted and that are not yet observed as durable events or queue occurrences. */
   readonly pendingSubmissions: readonly PendingSubmission[]
   readonly running: boolean
   readonly subagent: {
     readonly address: SubagentAddress
-    /** Absent until the direct-parent catalog resolves. */
-    readonly parentAvailable?: boolean
   } | null
   readonly removed: boolean
   readonly openState: OpenState
   readonly openError: RemoteFailure | null
   readonly hasMore: boolean
+  /** This Client Session has exposed an incomplete history window; remains true across replacements. */
+  readonly historyWasPartial: boolean
+  /** Whether historyLoadStatus is loading, including Turn-jump requests. */
   readonly loadingOlder: boolean
+  /** History request status; pendingConsumption retains an unpublished ordinary page. */
+  readonly historyLoadStatus: 'idle' | 'loading' | 'pendingConsumption' | 'error'
   readonly promptError: PromptError | null
   readonly blank: boolean
   readonly lastAgentError: string | null

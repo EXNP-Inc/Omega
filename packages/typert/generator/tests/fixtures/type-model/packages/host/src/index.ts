@@ -1,4 +1,4 @@
-import { Service } from '@omega-ai/cordis'
+import { Service } from '@deepseek-ai/cordis'
 import type { ZodType } from 'zod'
 import type { AgentPhase, Box, Entity, Flags, Payload, Present, SyntaxZoo } from './models.ts'
 
@@ -35,6 +35,10 @@ export class Agent<State extends object = { ready: boolean }> implements Entity 
   /** Run one typed input. */
   run<Value>(input: Box<Value>): Promise<Present<Value>> {
     return Promise.resolve(input.value as Present<Value>)
+  }
+
+  #hiddenStep(): string {
+    return this.secret
   }
 }
 
@@ -95,7 +99,7 @@ export class DemoService extends Service {
   }
 }
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
     demo: DemoService
     aliased: AliasedService
@@ -130,7 +134,7 @@ declare module '@omega-ai/cordis' {
   type IgnoredDeclaration = string
 }
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
     demo: DemoService
   }

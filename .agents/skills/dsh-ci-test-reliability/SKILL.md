@@ -1,6 +1,6 @@
 ---
 name: dsh-ci-test-reliability
-description: Design, review, and diagnose Omega tests and fixtures that can fail nondeterministically under CI concurrency, shared host resources, clocks, process-global state, subprocesses, network listeners, or asynchronous teardown. Use when adding or changing tests with those risks, investigating flaky CI, or reviewing test isolation; use dsh-pre-push-checks separately to select outgoing commands.
+description: Design, review, and diagnose DeepSeek Harness tests and fixtures that can fail nondeterministically under CI concurrency, shared host resources, clocks, process-global state, subprocesses, network listeners, or asynchronous teardown. Use when adding or changing tests with those risks, investigating flaky CI, or reviewing test isolation; use dsh-pre-push-checks separately to select outgoing commands.
 ---
 
 # Reliable DSH CI tests
@@ -10,7 +10,7 @@ Build tests that remain correct under the repository's real CI topology, not onl
 ## Read the owning rules
 
 - Use [the testing policy](../../../docs/testing.md) to select unit, coverage, expected-output, snapshot, browser, or real-API evidence.
-- Use [the defensive patterns](../../../docs/defensive-patterns.md) for lifecycle, subprocess, cancellation, and teardown behavior.
+- Use [the defensive patterns](../../../docs/defensive-patterns/general.md) for lifecycle, subprocess, cancellation, and teardown behavior.
 - Read the active Vitest config and GitHub workflow when their worker or job topology affects the test.
 - For recorded-session scenarios, also follow [the snapshot instructions](../../../snapshots/AGENTS.md).
 - Use [dsh-pre-push-checks](../dsh-pre-push-checks/SKILL.md) after the test design is sound to select outgoing validation.

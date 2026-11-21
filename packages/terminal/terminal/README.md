@@ -3,7 +3,7 @@ description: "Persistent terminal sessions for deployments and consumers choosin
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-terminal
+# @deepseek-ai/dsh-terminal
 
 English | [中文](README.zh.md)
 
@@ -25,7 +25,7 @@ English | [中文](README.zh.md)
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount `@omega-ai/dsh-terminal` whenever a composition needs terminal sessions whose state survives across tool calls. The service alone does nothing useful: pair it with a backend such as `@omega-ai/dsh-terminal-bash` and a tool package such as `@omega-ai/dsh-tool-terminal`, and load all three in one composition.
+Mount `@deepseek-ai/dsh-terminal` whenever a composition needs terminal sessions whose state survives across tool calls. The service alone does nothing useful: pair it with a backend such as `@deepseek-ai/dsh-terminal-bash` and a tool package such as `@deepseek-ai/dsh-tool-terminal`, and load all three in one composition.
 
 ### When to choose it
 
@@ -36,9 +36,9 @@ Choose persistent terminals for work whose state lives in the terminal rather th
 Load the session service together with a backend and a tool package:
 
 ```yaml
-- name: '@omega-ai/dsh-terminal'
-- name: '@omega-ai/dsh-terminal-bash'
-- name: '@omega-ai/dsh-tool-terminal'
+- name: '@deepseek-ai/dsh-terminal'
+- name: '@deepseek-ai/dsh-terminal-bash'
+- name: '@deepseek-ai/dsh-tool-terminal'
 ```
 
 A backend provides one stable type — the shipped shell backend provides `shell` — and the tools open sessions by that type. The shell backend additionally requires the sandbox, sandbox-policy, and subprocess providers; see its [README](../terminal-bash/README.md) for the full composition.
@@ -74,7 +74,8 @@ The service owns everything except terminal mechanics: session identity, publica
 | File | Role |
 |---|---|
 | [`src/index.ts`](src/index.ts) | `TerminalSessionService`: backend registry, spawn/send/read/signal/kill/list, owner cleanups, disposal |
-| [`src/types.ts`](src/types.ts) | Shared contracts: backend interface, session types, wait reasons, signal set, error codes |
+| [`src/types.ts`](src/types.ts) | Shared contracts: backend interface, session types, wait reasons, signal set |
+| [`src/error.ts`](src/error.ts) | `TerminalError`, its codes, and `TerminalBackendCleanupError` |
 
 ### Data model and lifecycle
 
@@ -83,12 +84,12 @@ Each published session is a record of its id, owner, optional name, backend type
 ### Ownership and cleanup rules
 
 - Fencing uses the exact `Agent` object: `hasOwnerActivity(owner)` spans unpublished setup through final close with no publication gap, so lifecycle policy can fence the owner precisely.
-- A backend that cannot clean partial startup resources rejects with `TerminalBackendCleanupError`; the service retains that failure as tracked owner activity until owner or service disposal consumes and reports it.
+- A backend that cannot clean partial startup resources rejects with `TerminalBackendCleanupError`, a `TerminalError` with code `CLEANUP_FAILED` that lists both failures in `errors` and in an `AggregateError` `cause`; the service retains that failure as tracked owner activity until owner or service disposal consumes and reports it.
 - Caller cancellation keeps its exact `AbortSignal.reason`; `kill()` and disposal resolve only after the backend's captured process tree is quiescent.
 
 ### Send reservation
 
-The service reserves a session synchronously for one active send before returning the operation, including before a background job id becomes visible; a second send fails with `SEND_ACTIVE`, so output and cancellation never cross operation ownership.
+The service reserves a session synchronously for one active send before returning the operation, including before a background job id becomes visible; a second send fails with `SEND_ACTIVE`, so output and cancellation never cross operation ownership. Failures are `TerminalError` instances (a `HarnessError`); besides the registry codes, a send to a closing session fails with `SESSION_CLOSING`, and backends report `SESSION_EXITED`, `STARTUP_EXITED`, `STARTUP_TIMEOUT`, and `NO_SANDBOX` with the same class. A consumer that drives a shell uses `INIT_REJECTED` when that shell rejects the consumer's setup input.
 
 </details>
 
@@ -102,7 +103,7 @@ Read these pages when the package-level contract is not enough. They move from t
 - [Terminal subsystem reference](../../../docs/subsystems/terminal.md) — shared types, backend and session contracts, and the generated `ctx.terminals` surface.
 - [terminal/ package map](../README.md) — the three-package family and how it composes.
 - [terminal-bash backend](../terminal-bash/README.md) — the shipped shell backend that provides the `shell` type.
-- [tool-terminal tools](../tool-terminal/README.md) — the six model-facing tools that operate sessions.
+- [tool-terminal tools](../../experimental/tool-terminal/README.md) — the six model-facing tools that operate sessions.
 - [Persistent PTY Agent Note](../../../.agents/notes/implemented/feature/2026-07-16-persistent-pty-sessions.md) — design rationale, alternatives, and deferred boundaries.
 
 -----
@@ -114,7 +115,7 @@ Read these pages when the package-level contract is not enough. They move from t
 
 #### What the model sees
 
-Nothing directly. This package registers no prompt or tool; `@omega-ai/dsh-tool-terminal` owns visible schemas and result text.
+Nothing directly. This package registers no prompt or tool; `@deepseek-ai/dsh-tool-terminal` owns visible schemas and result text.
 
 #### Token effect
 
@@ -122,7 +123,7 @@ None directly. Live session state stays process-local until a consumer returns a
 
 #### KV Cache effect
 
-No direct invalidation; `@omega-ai/dsh-tool-terminal` owns request-prefix changes.
+No direct invalidation; `@deepseek-ai/dsh-tool-terminal` owns request-prefix changes.
 
 ## Known Limitations and Deferred Work
 

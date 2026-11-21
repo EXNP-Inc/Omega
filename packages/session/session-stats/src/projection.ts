@@ -20,12 +20,12 @@
  * time stays uncounted in every time figure — matching the window, which
  * renders it as an untimed interrupted node.
  *
- * @module @omega-ai/dsh-session-stats/projection
+ * @module @deepseek-ai/dsh-session-stats/projection
  */
 
 import { z } from 'zod'
-import { assistantStreamFirstTokenTime } from '@omega-ai/dsh-llm'
-import type { ProjectionDefinition } from '@omega-ai/dsh-session-projection'
+import { assistantStreamFirstTokenTime } from '@deepseek-ai/dsh-llm'
+import type { ProjectionDefinition } from '@deepseek-ai/dsh-session-projection'
 
 
 /** Accumulated whole-log figures (the view is exactly these totals). */
@@ -61,12 +61,6 @@ interface SessionStatsState extends SessionStatsTotals {
   openStep: { turn: number; step: number; startTime: number; firstTokenTime: number | null } | null
   /** Dispatch times of tool calls whose result has not landed, by callId. */
   pendingCalls: Record<string, number>
-}
-
-declare module '@omega-ai/dsh-session-projection/types' {
-  interface SessionProjectionStateMap {
-    sessionStats: SessionStatsState
-  }
 }
 
 const sessionStatsSchema = z.object({
@@ -208,5 +202,6 @@ export const sessionStatsProjectionDefinition = {
       decodeMs: state.decodeMs,
       decodeTokens: state.decodeTokens,
     }),
+    summary: false,
   },
 } satisfies ProjectionDefinition<'sessionStats', SessionStatsState>

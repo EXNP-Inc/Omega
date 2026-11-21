@@ -1,13 +1,13 @@
 {
-  "name": "@omega-ai/dsh-client-ui-renderer",
+  "name": "@deepseek-ai/dsh-client-ui-renderer",
   "description": "Browser UI renderer: React slot bindings, ctx.uiRenderer, and the assembled application root",
-  "version": "0.2.1-alpha.1",
+  "version": "0.2.2-rc.5",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/omega-ai/omega-harness.git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
     "directory": "packages/client/ui-renderer"
   },
   "type": "module",
@@ -23,10 +23,12 @@
       "default": "./lib/client.js"
     },
     "./src/*": "./src/*",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "dsh": {
     "client": {
+      "inject": ["@deepseek-ai/dsh-client-modules"],
       "platform": "web",
       "immediately": true
     }
@@ -37,22 +39,26 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@omega-ai/cordis": "workspace:~"
+    "@deepseek-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@omega-ai/cordis": "workspace:~",
-    "@omega-ai/dsh-client-test-runtime": "workspace:*",
-    "@omega-ai/dsh-client-ui-slots": "workspace:*",
-    "@types/react": "~18.3.1",
-    "@types/react-dom": "~18.3.0",
+    "@deepseek-ai/cordis": "workspace:~",
+    "@deepseek-ai/dsh-client-test-runtime": "workspace:*",
+    "@deepseek-ai/dsh-client-ui-slots": "workspace:*",
+    "@deepseek-ai/dsh-client-modules": "workspace:*",
     "@types/use-sync-external-store": "^1.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "use-sync-external-store": "1.2.0"
+    "use-sync-external-store": "1.6.0",
+    "@deepseek-ai/dsh-package-manifest": "workspace:*"
   },
   "files": [
+    "locale/*.json",
     "lib/index.js",
     "lib/client.js",
-    "lib/types/**/*.d.ts"
+    "lib/types/**/*.d.ts",
+    "lib/types/**/*.d.ts.map",
+    "lib/**/*.js.map",
+    "src"
   ]
 }

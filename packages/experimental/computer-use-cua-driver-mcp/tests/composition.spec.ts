@@ -1,23 +1,26 @@
 /** Loader composition with a real stdio child and a scripted external model. */
+import { executeToolFixture } from '@deepseek-ai/dsh-tool-testkit'
+import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context, FiberState } from '@omega-ai/cordis'
-import Loader from '@omega-ai/cordis-plugin-loader'
-import Include from '@omega-ai/cordis-plugin-include'
-import ComputerUse from '@omega-ai/dsh-computer-use'
-import { ComputerUseProviderName } from '@omega-ai/dsh-computer-use/brand'
-import SystemPrompt from '@omega-ai/dsh-system-prompt'
-import ToolRuntime from '@omega-ai/dsh-tools'
-import LlmRuntime, { LlmAdapter, ToolCallId, createUserMessage } from '@omega-ai/dsh-llm'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@omega-ai/dsh-llm'
-import SessionStore, { SessionId } from '@omega-ai/dsh-session'
-import AgentRegistry from '@omega-ai/dsh-agent'
-import AgentLoop from '@omega-ai/dsh-agent-loop'
-import SessionProjectionRegistry from '@omega-ai/dsh-session-projection'
-import LocalAttachmentStore from '@omega-ai/dsh-attachment-local'
+import { Context, FiberState } from '@deepseek-ai/cordis'
+import Loader from '@deepseek-ai/cordis-plugin-loader'
+import Include from '@deepseek-ai/cordis-plugin-include'
+import ComputerUse from '@deepseek-ai/dsh-computer-use'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { ComputerUseProviderName } from '@deepseek-ai/dsh-computer-use/types'
+import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
+import ToolRuntime from '@deepseek-ai/dsh-tools'
+import LlmRuntime, { LlmAdapter, type ToolCallId, createUserMessage } from '@deepseek-ai/dsh-llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@deepseek-ai/dsh-llm'
+import SessionStore, { type SessionId } from '@deepseek-ai/dsh-session'
+import AgentRegistry from '@deepseek-ai/dsh-agent'
+import AgentLoop from '@deepseek-ai/dsh-agent-loop'
+import SessionProjectionRegistry from '@deepseek-ai/dsh-session-projection'
+import LocalAttachmentStore from '@deepseek-ai/dsh-attachment-local'
 import * as Provider from '../src/index.ts'
 
 const TOOL = 'mcp__cua-driver-mcp__screenshot'
@@ -40,7 +43,7 @@ class ScreenshotModel extends LlmAdapter {
   async * stream(options: GenerateOptions): AsyncIterable<StreamChunk> {
     this.requests.push(options)
     if (this.requests.length === 1) {
-      const id = ToolCallId('screenshot-call')
+      const id = brandString<ToolCallId>('screenshot-call')
       const args = '{"display":0}'
       yield { type: 'block-start', index: 0, blockType: 'tool-call' }
       yield { type: 'tool-call-delta', index: 0, id, name: TOOL, argumentsDelta: args }
@@ -60,31 +63,33 @@ async function load(mode?: string): Promise<{ ctx: Context; root: string; model:
   roots.push(root)
   const model = new ScreenshotModel()
   const modules = new Map<string, unknown>([
-    ['@omega-ai/dsh-computer-use', ComputerUse],
-    ['@omega-ai/dsh-system-prompt', SystemPrompt],
-    ['@omega-ai/dsh-tools', ToolRuntime],
-    ['@omega-ai/dsh-llm', LlmRuntime],
-    ['@omega-ai/dsh-session', SessionStore],
-    ['@omega-ai/dsh-agent', AgentRegistry],
-    ['@omega-ai/dsh-agent-loop', AgentLoop],
-    ['@omega-ai/dsh-session-projection', SessionProjectionRegistry],
-    ['@omega-ai/dsh-attachment-local', LocalAttachmentStore],
+    ['@deepseek-ai/dsh-computer-use', ComputerUse],
+    ['@deepseek-ai/dsh-system-prompt', SystemPrompt],
+    ['@deepseek-ai/dsh-tools', ToolRuntime],
+    ['@deepseek-ai/dsh-tool-executor-native', NativeToolExecutor],
+    ['@deepseek-ai/dsh-llm', LlmRuntime],
+    ['@deepseek-ai/dsh-session', SessionStore],
+    ['@deepseek-ai/dsh-agent', AgentRegistry],
+    ['@deepseek-ai/dsh-agent-loop', AgentLoop],
+    ['@deepseek-ai/dsh-session-projection', SessionProjectionRegistry],
+
+    ['@deepseek-ai/dsh-attachment-local', LocalAttachmentStore],
     ['@fixture/model', { inject: ['llm'], apply(ctx: Context) { ctx.effect(() => ctx.llm.registerAdapter(['fixture'], model)) } }],
-    ['@omega-ai/dsh-experimental-computer-use-cua-driver-mcp', Provider],
+    ['@deepseek-ai/dsh-experimental-computer-use-cua-driver-mcp', Provider],
   ])
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, JSON.stringify([...modules.keys()].map(name => ({
-    id: name === '@omega-ai/dsh-experimental-computer-use-cua-driver-mcp' ? 'computer-use-driver' : undefined,
+    id: name === '@deepseek-ai/dsh-experimental-computer-use-cua-driver-mcp' ? 'computer-use-driver' : undefined,
     name,
-    config: name === '@omega-ai/dsh-experimental-computer-use-cua-driver-mcp'
+    config: name === '@deepseek-ai/dsh-experimental-computer-use-cua-driver-mcp'
       ? {
         command: process.execPath,
         args: [fixture, root, ...(mode === undefined ? [] : [mode])],
         reconnect: { initialDelayMs: 20, maxDelayMs: 40, maxAttempts: 2 },
       }
-      : name === '@omega-ai/dsh-attachment-local'
+      : name === '@deepseek-ai/dsh-attachment-local'
         ? { dshHome: root }
-        : name === '@omega-ai/dsh-agent-loop' ? { agents: [] } : {},
+        : name === '@deepseek-ai/dsh-agent-loop' ? { agents: [] } : {},
   }))))
   const ctx = new Context()
   contexts.push(ctx)
@@ -131,7 +136,7 @@ describe('installed Cua Driver Loader composition', () => {
     const fibers = [...ctx.loader.entries()].flatMap(entry => entry.fiber === undefined ? [] : [entry.fiber])
     expect(fibers.every(fiber => fiber.state === FiberState.ACTIVE)).toBe(true)
     expect(ctx.computerUse.providerName).toBe('cua-driver-mcp')
-    const agent = await ctx.agentLoop.create(SessionId('computer-use-composition'), { provider: 'fixture', model: 'vision' })
+    const agent = await ctx.agentLoop.create(brandString<SessionId>('computer-use-composition'), { provider: 'fixture', model: 'vision' })
     const idle = new Promise<void>((resolve) => {
       const dispose = ctx.on('agent/status', ({ agent: subject, status }) => {
         if (subject === agent && status === 'idle') { dispose(); resolve() }
@@ -163,14 +168,14 @@ describe('installed Cua Driver Loader composition', () => {
 
   it('retains exclusive ownership when the external process disconnects and reconnects', async () => {
     const { ctx, root } = await load()
-    await ctx.tools.execute({ name: 'mcp__cua-driver-mcp__disconnect', arguments: {}, callId: ToolCallId('disconnect'), signal: new AbortController().signal })
+    await executeToolFixture(ctx, { name: 'mcp__cua-driver-mcp__disconnect', arguments: {}, callId: brandString<ToolCallId>('disconnect'), signal: new AbortController().signal })
     expect(ctx.computerUse.providerName).toBe('cua-driver-mcp')
-    expect(() => ctx.computerUse.register(ComputerUseProviderName('replacement'))).toThrow('already registered')
+    expect(() => ctx.computerUse.register(brandString<ComputerUseProviderName>('replacement'))).toThrow('already registered')
     await vi.waitFor(async () => {
       expect((await driverEvents(root)).filter(event => event.event === 'initialize')).toHaveLength(2)
     }, { timeout: 10_000 })
     await vi.waitFor(async () => {
-      const result = await ctx.tools.execute({ name: TOOL, arguments: { display: 2 }, callId: ToolCallId('reconnected'), signal: new AbortController().signal })
+      const result = await executeToolFixture(ctx, { name: TOOL, arguments: { display: 2 }, callId: brandString<ToolCallId>('reconnected'), signal: new AbortController().signal })
       expect(result.isError).not.toBe(true)
       expect(result.content[0]).toEqual({ type: 'text', text: 'Display 2' })
     })

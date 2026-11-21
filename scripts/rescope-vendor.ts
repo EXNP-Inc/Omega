@@ -1,5 +1,5 @@
 /**
- * Rescope the vendored Cordis packages into the `@omega-ai` scope, and undo
+ * Rescope the vendored Cordis packages into the `@deepseek-ai` scope, and undo
  * that rescope with `--reverse`. Every harness package declares `cordis` as a
  * peer dependency, so publication carries this framework layer too; publishing
  * it under the upstream names would squat them on the registry
@@ -10,11 +10,11 @@
  * scalar. A match needs a quote (or `name: `) immediately left and the matching
  * quote — optionally after a `/subpath` — immediately right, which excludes
  * `cordis.yml`, the Loader's `cordis:` builtin prefix, `cordis-config-entry`,
- * `@omega-ai/dsh-tool-cordis`, and `cordiverse/cordis`, and makes the
+ * `@deepseek-ai/dsh-tool-cordis`, and `cordiverse/cordis`, and makes the
  * rewrite idempotent because the scoped name's `cordis` is preceded by `/`.
- * Markdown follows the rename inside every fence, and in `docs/` prose too:
- * a tutorial that teaches an unresolvable name is wrong, while prose elsewhere
- * records what was true when it was written.
+ * Markdown follows the token rule in fences and `docs/` prose. Audited product
+ * names stay intact; their source module references and YAML plugin names still
+ * follow the rename. Prose elsewhere records what was true when it was written.
  *
  * Sites the token rule cannot express (dot-notation access, unquoted object
  * keys, regex literals, the vendored-manifest table) are listed in
@@ -31,6 +31,7 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import ts from 'typescript'
 
 const root = resolve(import.meta.dirname, '..')
 
@@ -43,15 +44,15 @@ interface Rename {
 
 /** The mapping this codemod applies; `vendor/README.md` carries the same table. */
 const RENAMES: readonly Rename[] = [
-  { directory: 'cordis', upstream: 'cordis', scoped: '@omega-ai/cordis' },
-  { directory: 'cosmokit', upstream: 'cosmokit', scoped: '@omega-ai/cosmokit' },
-  { directory: 'schemastery', upstream: 'schemastery', scoped: '@omega-ai/schemastery' },
-  { directory: 'loader', upstream: '@cordisjs/plugin-loader', scoped: '@omega-ai/cordis-plugin-loader' },
-  { directory: 'include', upstream: '@cordisjs/plugin-include', scoped: '@omega-ai/cordis-plugin-include' },
-  { directory: 'group', upstream: '@cordisjs/plugin-group', scoped: '@omega-ai/cordis-plugin-group' },
-  { directory: 'timer', upstream: '@cordisjs/plugin-timer', scoped: '@omega-ai/cordis-plugin-timer' },
-  { directory: 'hmr', upstream: '@cordisjs/plugin-hmr', scoped: '@omega-ai/cordis-plugin-hmr' },
-  { directory: 'logger-console', upstream: '@cordisjs/plugin-logger-console', scoped: '@omega-ai/cordis-plugin-logger-console' },
+  { directory: 'cordis', upstream: 'cordis', scoped: '@deepseek-ai/cordis' },
+  { directory: 'cosmokit', upstream: 'cosmokit', scoped: '@deepseek-ai/cosmokit' },
+  { directory: 'schemastery', upstream: 'schemastery', scoped: '@deepseek-ai/schemastery' },
+  { directory: 'loader', upstream: '@cordisjs/plugin-loader', scoped: '@deepseek-ai/cordis-plugin-loader' },
+  { directory: 'include', upstream: '@cordisjs/plugin-include', scoped: '@deepseek-ai/cordis-plugin-include' },
+  { directory: 'group', upstream: '@cordisjs/plugin-group', scoped: '@deepseek-ai/cordis-plugin-group' },
+  { directory: 'timer', upstream: '@cordisjs/plugin-timer', scoped: '@deepseek-ai/cordis-plugin-timer' },
+  { directory: 'hmr', upstream: '@cordisjs/plugin-hmr', scoped: '@deepseek-ai/cordis-plugin-hmr' },
+  { directory: 'logger-console', upstream: '@cordisjs/plugin-logger-console', scoped: '@deepseek-ai/cordis-plugin-logger-console' },
 ]
 
 const EXTENSIONS = ['.ts', '.tsx', '.js', '.mjs', '.cjs', '.tpl', '.json', '.yml', '.yaml', '.md'] as const
@@ -66,13 +67,14 @@ interface ExactEdit {
 }
 
 /**
- * A file where an upstream name also appears as a vendor DIRECTORY name or an
- * upstream runtime identifier: the generic pass is disabled for the listed
- * names and {@link EXACT_EDITS} renames the real package-name occurrences.
+ * A file where an upstream name also identifies runtime metadata, directories,
+ * presets, events or locale keys. Its module references and YAML plugin names
+ * still change; fixture owners retain both package spellings throughout.
  */
 interface GenericSkip {
   readonly file: string
   readonly upstream: readonly string[]
+  readonly fixture?: true
 }
 
 const GENERIC_SKIPS: readonly GenericSkip[] = [
@@ -83,8 +85,10 @@ const GENERIC_SKIPS: readonly GenericSkip[] = [
   // Native schema detection and its fixture share the vendored runtime's Symbol.for identifier.
   { file: 'packages/boot/app-boot/src/config-schema/native.ts', upstream: ['schemastery'] },
   { file: 'packages/boot/app-boot/tests/config-schema.spec.ts', upstream: ['schemastery'] },
+  // The codemod's positive and negative fixtures contain both package spellings.
+  { file: 'scripts/rescope-vendor.spec.ts', upstream: RENAMES.map(rename => rename.upstream), fixture: true },
   // Asserts the vendored-manifest table, which gains an upstream-name column.
-  { file: 'scripts/gen-third-party-notices.spec.ts', upstream: RENAMES.map(rename => rename.upstream) },
+  { file: 'scripts/gen-third-party-notices.spec.ts', upstream: RENAMES.map(rename => rename.upstream), fixture: true },
   // `cordis` is also an agent-preset id, so in these files the bare name is
   // product data, not a package reference. Renaming it changed which preset
   // the creator flow stages and which id the roster reports.
@@ -97,7 +101,41 @@ const GENERIC_SKIPS: readonly GenericSkip[] = [
   { file: 'apps/cli/tests/web-agent-presets.e2e.ts', upstream: ['cordis'] },
   { file: 'apps/cli/tests/profiles/web/tests/fixtures/creator-plugin-manager.mjs', upstream: ['cordis'] },
   { file: 'apps/web/tests/agent-preset-authoring.e2e.ts', upstream: ['cordis'] },
+  { file: 'apps/web/tests/creator-persona.e2e.ts', upstream: ['cordis'] },
   { file: 'packages/preset/agent-preset-registry/tests/session.spec.ts', upstream: ['cordis'] },
+  { file: 'packages/experimental/cua/tests/agent-scopes.spec.ts', upstream: ['cordis'] },
+  { file: 'packages/experimental/creation-recommendations/src/index.ts', upstream: ['cordis'] },
+  { file: 'packages/experimental/creation-recommendations/tests/creation.spec.ts', upstream: ['cordis'] },
+  { file: 'packages/experimental/creation-recommendations/tests/loader-composition.spec.ts', upstream: ['cordis'] },
+  // Preset selection, reminder policy and UI copy use the same product id.
+  { file: 'apps/cli/tests/optional-bundle-transitions.e2e.ts', upstream: ['cordis'] },
+  { file: 'apps/web/tests/agent-preset-selection.e2e.ts', upstream: ['cordis'] },
+  { file: 'apps/web/tests/developer-tools-settings.e2e.ts', upstream: ['cordis'] },
+  { file: 'docs/tool-catalog.md', upstream: ['cordis'] },
+  { file: 'docs/tool-catalog.zh.md', upstream: ['cordis'] },
+  { file: 'docs/upgrade-guide/v0.2.2-alpha.2/fs-observation-policy-default-off/guide.md', upstream: ['cordis'] },
+  { file: 'docs/upgrade-guide/v0.2.2-alpha.2/fs-observation-policy-default-off/guide.zh.md', upstream: ['cordis'] },
+  { file: 'docs/upgrade-guide/v0.2.2-rc.1/subagent-interrupt-default/guide.md', upstream: ['cordis'] },
+  { file: 'docs/upgrade-guide/v0.2.2-rc.1/subagent-interrupt-default/guide.zh.md', upstream: ['cordis'] },
+  { file: 'scripts/gen-tool-catalog.ts', upstream: ['cordis'] },
+  { file: 'docs/upgrade-guide/v0.2.0-rc.2/schedule-bundle-retired/guide.md', upstream: ['cordis'] },
+  { file: 'docs/upgrade-guide/v0.2.0-rc.2/schedule-bundle-retired/guide.zh.md', upstream: ['cordis'] },
+  { file: 'docs/upgrade-guide/v0.2.1-alpha.1/subagent-preset-composition/guide.md', upstream: ['cordis'] },
+  { file: 'docs/upgrade-guide/v0.2.1-alpha.1/subagent-preset-composition/guide.zh.md', upstream: ['cordis'] },
+  { file: 'docs/user/guide/schedule.md', upstream: ['cordis'] },
+  { file: 'docs/user/guide/schedule.zh.md', upstream: ['cordis'] },
+  { file: 'packages/bundle/web-app/cordis.patch.yml', upstream: ['cordis'] },
+  { file: 'packages/client/ui-agent-preset/src/client/CreatePluginMenuItem.tsx', upstream: ['cordis'] },
+  { file: 'packages/client/ui-agent-preset/src/client/analytics.ts', upstream: ['cordis'] },
+  { file: 'packages/client/ui-agent-preset/tests/analytics.client.spec.ts', upstream: ['cordis'] },
+  { file: 'packages/client/ui-agent-preset/tests/components.client.spec.tsx', upstream: ['cordis'] },
+  { file: 'packages/client/ui-agent-preset/tests/create-plugin-menu-item.client.spec.tsx', upstream: ['cordis'] },
+  { file: 'packages/client/ui-agent-preset/tests/section-store.client.spec.ts', upstream: ['cordis'] },
+  { file: 'packages/client/ui-conversation/src/client/input/submission-analytics.ts', upstream: ['cordis'] },
+  { file: 'packages/client/ui-conversation/tests/service-orchestration.client.spec.ts', upstream: ['cordis'] },
+  { file: 'packages/client/ui-entry-customization/src/client/index.ts', upstream: ['cordis'] },
+  { file: 'packages/client/ui-entry-customization/tests/menu.client.spec.tsx', upstream: ['cordis'] },
+  { file: 'packages/client/ui-workspace/tests/workspaces-service.client.spec.ts', upstream: ['cordis'] },
   // The preset-roster loop names the `cordis` preset id, not a package.
   { file: 'apps/cli/tests/windows-shell.spec.ts', upstream: ['cordis'] },
   // GROUP_ORDER holds `packages/<group>/` directory names, not package names.
@@ -124,6 +162,10 @@ const GENERIC_SKIPS: readonly GenericSkip[] = [
   { file: 'packages/extensions/tool-cordis/src/providers.ts', upstream: ['cordis'] },
   { file: 'packages/extensions/ui-cordis/src/client/index.ts', upstream: ['cordis'] },
   { file: 'packages/extensions/ui-cordis/src/client/inventory.ts', upstream: ['cordis'] },
+  // Inspector fixtures use the same extension event domain.
+  { file: 'packages/extensions/cordis-host-runner/tests/inspect-registry.spec.ts', upstream: ['cordis'] },
+  { file: 'snapshots/session/cordis-inspect-liveness/client-fixture.mjs', upstream: ['cordis'] },
+  { file: 'snapshots/session/cordis-inspect-timeout/client-fixture.mjs', upstream: ['cordis'] },
   // `cordis/tree` is an Inspector observation topic, not a package subpath.
   { file: 'packages/experimental/inspector/src/shared/bridge/messages/cordis.ts', upstream: ['cordis'] },
   { file: 'packages/experimental/inspector/tests/cordis-query.host.spec.ts', upstream: ['cordis'] },
@@ -131,7 +173,6 @@ const GENERIC_SKIPS: readonly GenericSkip[] = [
   { file: 'packages/experimental/inspector/tests/plugin.client.spec.ts', upstream: ['cordis'] },
   { file: 'scripts/gen-cordis-catalog.ts', upstream: ['cordis'] },
   // The UI locale namespace and input-trigger source id are product keys.
-  { file: 'packages/client/ui-settings-plugin-inventory/src/client/PluginInventorySettingsTab.tsx', upstream: ['cordis'] },
   { file: 'packages/extensions/ui-cordis/src/client/CordisActionRow.tsx', upstream: ['cordis'] },
   { file: 'packages/extensions/ui-cordis/src/client/CordisDefineRow.tsx', upstream: ['cordis'] },
   { file: 'packages/extensions/ui-cordis/src/client/CordisPanel.tsx', upstream: ['cordis'] },
@@ -148,16 +189,16 @@ interface PostCondition {
 }
 
 const POSTCONDITIONS: readonly PostCondition[] = [
-  { file: 'vendor/cordis/package.json', text: '"name": "@omega-ai/cordis"', count: 1 },
-  { file: 'vendor/hmr/package.json', text: '"name": "@omega-ai/cordis-plugin-hmr"', count: 1 },
-  { file: 'scripts/cordis-walk.ts', text: '@omega-ai\\/cordis', count: 1 },
-  { file: 'scripts/cordis-walk.ts', text: '!== \'@omega-ai/cordis\'', count: 1 },
-  { file: 'packages/typert/generator/src/analyzer.ts', text: '!== \'@omega-ai/cordis\'', count: 2 },
-  { file: 'scripts/check-workspace-constraints.ts', text: '?.[\'@omega-ai/cordis\']', count: 2 },
-  { file: 'packages/boot/app-boot/tsdown.config.ts', text: '[\'@omega-ai/cordis-plugin-include\']', count: 1 },
-  { file: 'tsconfig.base.json', text: '"@omega-ai/cordis-plugin-loader": ["./vendor/loader/src"]', count: 1 },
+  { file: 'vendor/cordis/package.json', text: '"name": "@deepseek-ai/cordis"', count: 1 },
+  { file: 'vendor/hmr/package.json', text: '"name": "@deepseek-ai/cordis-plugin-hmr"', count: 1 },
+  { file: 'scripts/cordis-walk.ts', text: '@deepseek-ai\\/cordis', count: 1 },
+  { file: 'scripts/cordis-walk.ts', text: '!== \'@deepseek-ai/cordis\'', count: 1 },
+  { file: 'packages/typert/generator/src/analyzer.ts', text: '!== \'@deepseek-ai/cordis\'', count: 2 },
+  { file: 'scripts/check-workspace-constraints.ts', text: '?.[\'@deepseek-ai/cordis\']', count: 2 },
+  { file: 'packages/boot/app-boot/tsdown.config.ts', text: '[\'@deepseek-ai/cordis-plugin-include\']', count: 1 },
+  { file: 'tsconfig.base.json', text: '"@deepseek-ai/cordis-plugin-loader": ["./vendor/loader/src"]', count: 1 },
   // The vendored README owns this required entry; reject its deletion or duplication.
-  { file: 'vendor/README.md', text: '17. **`@omega-ai` rescope**', count: 1 },
+  { file: 'vendor/README.md', text: '`@deepseek-ai` rescope**', count: 1 },
   { file: 'pnpm-workspace.yaml', text: 'cordis@4.0.0-rc.7', count: 0 },
   // The preset ids in this table are product data, not package names.
   { file: 'packages/client/ui-agent-preset/tests/locales.client.spec.ts', text: '[\'cordis\', \'presetCordisName\'', count: 1 },
@@ -174,14 +215,14 @@ const EXACT_EDITS: readonly ExactEdit[] = [
     id: 'loader-diff-schemastery-import',
     file: 'vendor/loader/src/config/diff.ts',
     find: "import type Schema from 'schemastery'",
-    replace: "import type Schema from '@omega-ai/schemastery'",
+    replace: "import type Schema from '@deepseek-ai/schemastery'",
     expect: 1,
   },
   {
     id: 'cordis-walk-merge-head',
     file: 'scripts/cordis-walk.ts',
     find: 'const MERGE_HEAD = /declare module [\'"](?:cordis|\\.\\/context\\.ts)[\'"]/',
-    replace: 'const MERGE_HEAD = /declare module [\'"](?:@omega-ai\\/cordis|\\.\\/context\\.ts)[\'"]/',
+    replace: 'const MERGE_HEAD = /declare module [\'"](?:@deepseek-ai\\/cordis|\\.\\/context\\.ts)[\'"]/',
     expect: 1,
   },
   {
@@ -194,13 +235,13 @@ const EXACT_EDITS: readonly ExactEdit[] = [
     if (!dev) errors.push(\`\${label}: cordis must also be a devDependency\`)
     if (peer && dev && peer !== dev) {
       errors.push(\`\${label}: cordis peer (\${peer}) and dev (\${dev}) ranges must match\`)`,
-    replace: `    const peer = manifest.peerDependencies?.['@omega-ai/cordis']
-    const dev = manifest.devDependencies?.['@omega-ai/cordis']
+    replace: `    const peer = manifest.peerDependencies?.['@deepseek-ai/cordis']
+    const dev = manifest.devDependencies?.['@deepseek-ai/cordis']
 
-    if (!peer) errors.push(\`\${label}: @omega-ai/cordis must be a peerDependency\`)
-    if (!dev) errors.push(\`\${label}: @omega-ai/cordis must also be a devDependency\`)
+    if (!peer) errors.push(\`\${label}: @deepseek-ai/cordis must be a peerDependency\`)
+    if (!dev) errors.push(\`\${label}: @deepseek-ai/cordis must also be a devDependency\`)
     if (peer && dev && peer !== dev) {
-      errors.push(\`\${label}: @omega-ai/cordis peer (\${peer}) and dev (\${dev}) ranges must match\`)`,
+      errors.push(\`\${label}: @deepseek-ai/cordis peer (\${peer}) and dev (\${dev}) ranges must match\`)`,
     expect: 1,
   },
   {
@@ -219,17 +260,17 @@ const EXACT_EDITS: readonly ExactEdit[] = [
   {
     id: 'publication-set-scope-assertion',
     file: 'scripts/publish-npm-baseline.ts',
-    find: '      if (!isVendored && !name.startsWith(\'@omega-ai/\')) {',
+    find: '      if (!isVendored && !name.startsWith(\'@deepseek-ai/\')) {',
     replace: `      // Vendored packages are rescoped too (vendor/README.md), so publication
       // never carries an upstream name that would squat it on the registry.
-      if (!name.startsWith('@omega-ai/')) {`,
+      if (!name.startsWith('@deepseek-ai/')) {`,
     expect: 1,
   },
   {
     id: 'vendor-readme-preamble',
     file: 'vendor/README.md',
     find: 'All vendored packages keep their **original npm names** (they are resolved through pnpm workspaces) and are marked `private: true` — they are never published from this repo.',
-    replace: 'All vendored packages use the **`@omega-ai` scope** (`cordis` → `@omega-ai/cordis`, `@cordisjs/plugin-<x>` → `@omega-ai/cordis-plugin-<x>`). The manifest table records upstream versions and source commits; each package manifest carries its Harness release version and publication metadata. References to vendored packages use `workspace:~`, so local builds resolve the workspace packages and published ranges permit patch updates within the same minor version.',
+    replace: 'All vendored packages use the **`@deepseek-ai` scope** (`cordis` → `@deepseek-ai/cordis`, `@cordisjs/plugin-<x>` → `@deepseek-ai/cordis-plugin-<x>`). The manifest table records upstream versions and source commits; each package manifest carries its Harness release version and publication metadata. References to vendored packages use `workspace:~`, so local builds resolve the workspace packages and published ranges permit patch updates within the same minor version.',
     expect: 1,
   },
   {
@@ -244,11 +285,11 @@ const EXACT_EDITS: readonly ExactEdit[] = [
     id: 'root-agents-vendored-name-contract',
     file: 'AGENTS.md',
     find: 'vendored packages keep upstream names and are `private: true`. `cordis` is a peerDependency (+ dev) of every harness package.',
-    replace: 'vendor is [rescoped](docs/rescope.md) and `private: true`. Harness packages declare `@omega-ai/cordis` in `peerDependencies`/`devDependencies`.',
+    replace: 'vendor is [rescoped](docs/rescope.md) and `private: true`. Harness packages declare `@deepseek-ai/cordis` in `peerDependencies`/`devDependencies`.',
     expect: 1,
   },
   {
-    // The client purity gate reads `@omega-ai/` as "another plugin package".
+    // The client purity gate reads `@deepseek-ai/` as "another plugin package".
     // The rescope moves the vendored framework and its libraries into that
     // namespace, where the gate would reject the library imports client
     // bundles have always inlined, so it needs their names.
@@ -256,12 +297,12 @@ const EXACT_EDITS: readonly ExactEdit[] = [
     file: 'packages/client/tsdown.client.ts',
     find: '/** Generated descriptor/codec contribution with no shared runtime identity. */',
     replace: `/**
- * Vendored framework libraries: rescoped into @omega-ai, so the gate below
+ * Vendored framework libraries: rescoped into @deepseek-ai, so the gate below
  * would read them as plugin packages. They carry no cross-plugin runtime
  * identity to share — the framework itself is a requested module-table row
  * (external), while these are ordinary libraries a browser bundle inlines.
  */
-const VENDORED_LIBRARY = /^@omega-ai\\/(cosmokit|schemastery)(\\/|$)/
+const VENDORED_LIBRARY = /^@deepseek-ai\\/(?:(?:cosmokit|schemastery)(?:\\/|$)|cordis-plugin-timer$)/
 
 /** Generated descriptor/codec contribution with no shared runtime identity. */`,
     expect: 1,
@@ -310,14 +351,14 @@ const VENDORED_LIBRARY = /^@omega-ai\\/(cosmokit|schemastery)(\\/|$)/
     id: 'agent-preset-spec-framework-import',
     file: 'packages/client/ui-agent-preset/tests/apply.client.spec.ts',
     find: "import { Context } from 'cordis'",
-    replace: "import { Context } from '@omega-ai/cordis'",
+    replace: "import { Context } from '@deepseek-ai/cordis'",
     expect: 1,
   },
   {
     id: 'web-agent-presets-e2e-framework-import',
     file: 'apps/cli/tests/web-agent-presets.e2e.ts',
     find: "import { Context } from 'cordis'",
-    replace: "import { Context } from '@omega-ai/cordis'",
+    replace: "import { Context } from '@deepseek-ai/cordis'",
     expect: 1,
   },
   {
@@ -355,7 +396,7 @@ const VENDORED_LIBRARY = /^@omega-ai\\/(cosmokit|schemastery)(\\/|$)/
     id: 'notices-vendored-section',
     file: 'scripts/gen-third-party-notices.ts',
     find: 'The Cordis framework and its foundation libraries are source-vendored into this repository rather than consumed from npm. All are MIT-licensed',
-    replace: 'The Cordis framework and its foundation libraries are source-vendored into this repository rather than consumed from npm, and republished under the \\`@omega-ai\\` scope. All are MIT-licensed',
+    replace: 'The Cordis framework and its foundation libraries are source-vendored into this repository rather than consumed from npm, and republished under the \\`@deepseek-ai\\` scope. All are MIT-licensed',
     expect: 1,
   },
   {
@@ -374,7 +415,7 @@ const VENDORED_LIBRARY = /^@omega-ai\\/(cosmokit|schemastery)(\\/|$)/
     file: 'scripts/gen-third-party-notices.spec.ts',
     find: '    expect(rows).toContainEqual({ npmName: \'cordis\', upstream: \'https://github.com/cordiverse/cordis\' })',
     replace: `    expect(rows).toContainEqual({
-      npmName: '@omega-ai/cordis',
+      npmName: '@deepseek-ai/cordis',
       upstreamName: 'cordis',
       upstream: 'https://github.com/cordiverse/cordis',
     })`,
@@ -384,7 +425,7 @@ const VENDORED_LIBRARY = /^@omega-ai\\/(cosmokit|schemastery)(\\/|$)/
     id: 'notices-spec-shape-fixture',
     file: 'scripts/gen-third-party-notices.spec.ts',
     find: 'parseVendoredRows(\'| `cordis/` | cordis | 4.0.0 | https://example.com | `abc123` |\\n\')',
-    replace: 'parseVendoredRows(\'| `cordis/` | `@omega-ai/cordis` | cordis | 4.0.0 | https://example.com | `abc123` |\\n\')',
+    replace: 'parseVendoredRows(\'| `cordis/` | `@deepseek-ai/cordis` | cordis | 4.0.0 | https://example.com | `abc123` |\\n\')',
     expect: 1,
   },
   {
@@ -470,7 +511,7 @@ function patterns(reverse: boolean): Pattern[] {
     .map(rename => ({
       ...rename,
       token: new RegExp(`(['"\`])${escapeRegExp(rename.from)}((?:/[^'"\`\\s]*)?)\\1`, 'g'),
-      yamlName: new RegExp(`^(\\s*(?:-\\s*)?name:[ \\t]+)${escapeRegExp(rename.from)}([ \\t]*(?:#.*)?)$`, 'gm'),
+      yamlName: new RegExp(`^(\\s*(?:-\\s*)?name:[ \\t]+)(['"]?)${escapeRegExp(rename.from)}((?:/[^\\s'"]*)?)\\2([ \\t]*(?:#.*)?)$`, 'gm'),
     }))
 }
 
@@ -478,45 +519,109 @@ function skipped(file: string, pattern: Pattern): boolean {
   return GENERIC_SKIPS.some(skip => skip.file === file && skip.upstream.includes(pattern.upstream))
 }
 
-function rewriteLine(line: string, file: string, all: readonly Pattern[]): string {
+function rewriteLine(line: string, file: string, all: readonly Pattern[], yaml = false): string {
   let out = line
   for (const pattern of all) {
-    if (skipped(file, pattern)) continue
-    out = out.replace(pattern.token, (_match, quote: string, subpath: string) => `${quote}${pattern.to}${subpath}${quote}`)
-    out = out.replace(pattern.yamlName, (_match, prefix: string, suffix: string) => `${prefix}${pattern.to}${suffix}`)
+    const preserve = skipped(file, pattern)
+    if (!preserve) out = out.replace(pattern.token, (_match, quote: string, subpath: string) => `${quote}${pattern.to}${subpath}${quote}`)
+    if (!preserve || yaml) {
+      out = out.replace(pattern.yamlName, (_match, prefix: string, quote: string, subpath: string, suffix: string) => `${prefix}${quote}${pattern.to}${subpath}${quote}${suffix}`)
+    }
+  }
+  return out
+}
+
+/** Rewrite only module literals whose other same-file uses are product data. */
+function rewriteModules(text: string, file: string, all: readonly Pattern[], sourceName = file): string {
+  const skip = GENERIC_SKIPS.find(entry => entry.file === file)
+  if (!skip || skip.fixture) return text
+  const active = all.filter(pattern => skip.upstream.includes(pattern.upstream))
+  const source = ts.createSourceFile(sourceName, text, ts.ScriptTarget.Latest, true)
+  const edits = new Map<number, { end: number; value: string }>()
+  const visited = new Set<ts.Node>()
+  const visit = (node: ts.Node): void => {
+    if (visited.has(node)) return
+    visited.add(node)
+    let literal: ts.Node | undefined
+    if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node) || ts.isJSDocImportTag(node)) {
+      literal = node.moduleSpecifier
+    } else if (ts.isImportEqualsDeclaration(node) && ts.isExternalModuleReference(node.moduleReference)) {
+      literal = node.moduleReference.expression
+    } else if (ts.isImportTypeNode(node) && ts.isLiteralTypeNode(node.argument)) {
+      literal = node.argument.literal
+    } else if (ts.isCallExpression(node) && (node.expression.kind === ts.SyntaxKind.ImportKeyword || (ts.isIdentifier(node.expression) && node.expression.text === 'require'))) {
+      literal = node.arguments[0]
+    } else if (ts.isModuleDeclaration(node)) {
+      literal = node.name
+    }
+    if (literal && ts.isStringLiteralLike(literal)) {
+      const start = literal.getStart(source) + 1
+      const end = literal.getEnd() - 1
+      const value = text.slice(start, end)
+      const pattern = active.find(entry => value === entry.from || value.startsWith(`${entry.from}/`))
+      if (pattern) edits.set(start, { end, value: pattern.to + value.slice(pattern.from.length) })
+    }
+    ts.forEachChild(node, visit)
+    for (const doc of ts.getJSDocCommentsAndTags(node)) visit(doc)
+  }
+  visit(source)
+  let out = text
+  for (const [start, edit] of [...edits].sort(([left], [right]) => right - left)) {
+    out = out.slice(0, start) + edit.value + out.slice(edit.end)
   }
   return out
 }
 
 /**
- * Rewrite a file's eligible lines.
- *
- * Markdown splits in two. Every fence is code a reader copies or a
- * configuration they mount, so every fence follows the rename regardless of its
- * info string. Prose follows it only under `docs/`, where a sentence quoting
- * `` `cordis` `` teaches an unresolved package name; elsewhere
- * prose is a record of what was true when it was written, and the same spelling
- * can mean something else entirely — the Python SDK's `cordis` option, or the
- * unvendored `@cordisjs/plugin-http`.
+ * Rewrite eligible source, fences and docs prose. Audited names in source and
+ * TypeScript/JavaScript fences change only in module syntax; YAML names remain
+ * eligible too. Other names retain the token rule. Prose outside docs is kept.
  */
 function rewrite(text: string, file: string, all: readonly Pattern[]): { text: string; lines: number } {
   const markdown = file.endsWith('.md')
   const prose = markdown && file.startsWith('docs/')
-  let insideFence = false
-  let lines = 0
-  const out = text.split('\n').map((line) => {
+  const original = text.split('\n')
+  let source = text
+  if (!markdown && /\.(ts|tsx|js|mjs|cjs|tpl)$/.test(file)) source = rewriteModules(text, file, all)
+  let fenceStart: number | undefined
+  let language = ''
+  const out = source.split('\n')
+  const finishFence = (end: number): void => {
+    if (fenceStart === undefined || fenceStart === end || !/^(?:[cm]?[jt]sx?|typescript|javascript)?$/.test(language)) return
+    const extension = language === 'jsx' || language === 'tsx' ? 'tsx' : language === 'js' || language === 'javascript' || language === 'mjs' || language === 'cjs' ? 'js' : 'ts'
+    const body = out.slice(fenceStart, end).join('\n')
+    out.splice(fenceStart, end - fenceStart, ...rewriteModules(body, file, all, `fence.${extension}`).split('\n'))
+  }
+  for (const [index, line] of out.entries()) {
     if (markdown) {
-      if (/^\s*```/.test(line)) {
-        insideFence = !insideFence
-        return line
+      const fence = /^\s*```(\S*)/.exec(line)
+      if (fence) {
+        if (fenceStart === undefined) {
+          fenceStart = index + 1
+          language = fence[1] ?? ''
+        } else {
+          finishFence(index)
+          fenceStart = undefined
+        }
+        continue
       }
-      if (!insideFence && !prose) return line
+      if (fenceStart === undefined && !prose) continue
     }
-    const next = rewriteLine(line, file, all)
-    if (next !== line) lines += 1
-    return next
-  })
-  return { text: out.join('\n'), lines }
+    out[index] = rewriteLine(line, file, all, /\.ya?ml$/.test(file) || (fenceStart !== undefined && (language === 'yaml' || language === 'yml')))
+  }
+  if (fenceStart !== undefined) finishFence(out.length)
+  return { text: out.join('\n'), lines: out.filter((line, index) => line !== original[index]).length }
+}
+
+/**
+ * Apply the CLI's generic package rename with the audited name exceptions.
+ * @param text - Complete source text.
+ * @param file - Repository-relative path with forward slash separators.
+ * @param reverse - Restore upstream package names when true.
+ * @returns Rewritten text and the number of changed lines.
+ */
+export function rescopeText(text: string, file: string, reverse = false): { text: string; lines: number } {
+  return rewrite(text, file, patterns(reverse))
 }
 
 function classify(file: string): string {
@@ -563,14 +668,24 @@ export function exactEditState(text: string, find: string, replace: string, expe
   return hits === expect && landed === 0 ? 'pending' : 'invalid'
 }
 
+/**
+ * List tracked paths that the rescope checks or rewrites.
+ * @param repoRoot - Git working directory.
+ * @param env - Git's environment; omitted, Git inherits this process's environment.
+ * @returns eligible repository-relative paths, including large tracked corpora.
+ */
+export function listRescopeFiles(repoRoot: string, env?: NodeJS.ProcessEnv): string[] {
+  return execFileSync('git', ['ls-files', '-z'], { cwd: repoRoot, env, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+    .split('\0')
+    .filter(file => file !== '' && !isRescopeExcluded(file))
+}
+
 function main(): void {
   const args = process.argv.slice(2)
   const mode = args.includes('--apply') ? 'apply' : args.includes('--check') ? 'check' : 'dry'
   const reverse = args.includes('--reverse')
   const all = patterns(reverse)
-  const files = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8' })
-    .split('\0')
-    .filter(file => file !== '' && !isRescopeExcluded(file))
+  const files = listRescopeFiles(root)
 
   const counts = new Map<string, { files: number; lines: number }>()
   const failures: string[] = []

@@ -1,13 +1,13 @@
 {
-  "name": "@omega-ai/dsh-client-hmr",
-  "description": "Web client graph synchronization and rebuilt-bundle reload transport",
-  "version": "0.2.1-alpha.1",
+  "name": "@deepseek-ai/dsh-client-hmr",
+  "description": "Web client graph and rebuilt-bundle delivery over an authenticated Remote stream",
+  "version": "0.2.2-rc.5",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/omega-ai/omega-harness.git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
     "directory": "packages/client/hmr"
   },
   "type": "module",
@@ -18,17 +18,34 @@
       "types": "./lib/types/index.d.ts",
       "default": "./lib/index.js"
     },
+    "./types": {
+      "types": "./lib/types/types.d.ts"
+    },
     "./client": {
       "types": "./lib/types/client/index.d.ts",
       "default": "./lib/client.js"
     },
+    "./typert": {
+      "types": "./lib/typert.host.d.ts",
+      "default": "./lib/typert.host.js"
+    },
+    "./remote": {
+      "types": "./lib/typert.remote-client.d.ts",
+      "default": "./lib/typert.remote-client.js"
+    },
     "./src/*": "./src/*",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "dsh": {
     "client": {
+      "external": [
+        "@deepseek-ai/dsh-api-gateway/client"
+      ],
       "inject": [
-        "@omega-ai/dsh-client-modules"
+        "@deepseek-ai/dsh-api-gateway",
+        "@deepseek-ai/dsh-api-remote-access",
+        "@deepseek-ai/dsh-client-modules"
       ],
       "platform": "web",
       "immediately": true
@@ -36,20 +53,33 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@omega-ai/schemastery": "workspace:~"
+    "@deepseek-ai/dsh-deque": "workspace:*",
+    "@deepseek-ai/dsh-typert-protocol": "workspace:*",
+    "@deepseek-ai/schemastery": "workspace:~",
+    "zod": "4.6.6"
   },
   "peerDependencies": {
-    "@omega-ai/cordis": "workspace:~"
+    "@deepseek-ai/cordis": "workspace:~"
   },
   "devDependencies": {
-    "@omega-ai/cordis-plugin-loader": "workspace:~",
-    "@omega-ai/dsh-client-modules": "workspace:*",
-    "@omega-ai/dsh-host-webserver": "workspace:*",
-    "@omega-ai/cordis": "workspace:~"
+    "@deepseek-ai/cordis": "workspace:~",
+    "@deepseek-ai/cordis-plugin-loader": "workspace:~",
+    "@deepseek-ai/dsh-api-gateway": "workspace:*",
+    "@deepseek-ai/dsh-api-remote-access": "workspace:*",
+    "@deepseek-ai/dsh-client-modules": "workspace:*"
   },
   "files": [
+    "locale/*.json",
     "lib/index.js",
     "lib/client.js",
-    "lib/types/**/*.d.ts"
+    "lib/types/**/*.d.ts",
+    "lib/types/**/*.d.ts.map",
+    "lib/**/*.js.map",
+    "lib/typert.host.js",
+    "lib/typert.host.d.ts",
+    "lib/typert.remote-client.js",
+    "lib/typert.remote-client.d.ts",
+    "lib/typert.remote-client.d.ts.map",
+    "src"
   ]
 }

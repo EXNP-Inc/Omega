@@ -1,9 +1,9 @@
-/** Local durable attachment backend rooted below `DSH_HOME`. @module @omega-ai/dsh-attachment-local */
+/** Local durable attachment backend rooted below `DSH_HOME`. @module @deepseek-ai/dsh-attachment-local */
 
 import { join } from 'node:path'
-import { Context } from '@omega-ai/cordis'
-import z from '@omega-ai/schemastery'
-import { AttachmentStore } from '@omega-ai/dsh-attachment'
+import { Context } from '@deepseek-ai/cordis'
+import z from '@deepseek-ai/schemastery'
+import { AttachmentStore } from '@deepseek-ai/dsh-attachment'
 import type {
   FileAttachmentRef,
   ImageAttachmentLimits,
@@ -14,8 +14,8 @@ import type {
   SaveFileStreamAttachment,
   SaveImageAttachment,
   StoredImageAttachment,
-} from '@omega-ai/dsh-attachment'
-import { dshCachePath, resolveDshHome } from '@omega-ai/dsh-home-paths'
+} from '@deepseek-ai/dsh-attachment'
+import { dshCachePath, resolveDshHome } from '@deepseek-ai/dsh-home-paths'
 import type { NormalizationPolicy } from './normalization.ts'
 import { CompressionLimiter, compressionFailure } from './compression-limiter.ts'
 import { commitPreparedImageFile, normalizedImagePath, prepareImageFile, readImageFile, validateImageFile } from './store.ts'
@@ -31,15 +31,19 @@ export type { PreparedImageFile } from './store.ts'
 export { readRequestImageFile, requestImageVariantId } from './request-image.ts'
 
 /** Default maximum encoded bytes for one submitted image; oversized sources are refused, not shrunk. */
-export const DEFAULT_MAX_IMAGE_BYTES = 20 * 1024 * 1024
+export const DEFAULT_MAX_IMAGE_BYTES = 50 * 1024 * 1024
 /** Default maximum images in one prompt. */
 export const DEFAULT_MAX_IMAGES_PER_MESSAGE = 20
 /** Default maximum aggregate image bytes in one prompt. */
 export const DEFAULT_MAX_MESSAGE_IMAGE_BYTES = 200 * 1024 * 1024
 /** Default maximum intrinsic pixels for one submitted image. */
 export const DEFAULT_MAX_IMAGE_PIXELS = 64_000_000
-/** Default per-side pixel cap for one submitted image. */
-export const DEFAULT_MAX_IMAGE_DIMENSION = 8192
+/**
+ * Default per-side pixel cap for one submitted image: the largest side a JPEG
+ * can carry. Normalization downscales a long side, so by default the
+ * decoded-pixel limit alone bounds admission.
+ */
+export const DEFAULT_MAX_IMAGE_DIMENSION = 65_535
 /**
  * Default total-pixel budget of the stored normalized image. A larger source
  * is admitted and downscaled proportionally, so admission bounds what rides
@@ -61,7 +65,7 @@ export const MAX_IMAGE_COMPRESSION_CONCURRENCY = 8
 export interface Config {
   /** Explicit harness home; omitted follows `DSH_HOME`, then `~/.dsh`. */
   dshHome?: string
-  /** Maximum encoded bytes accepted for one submitted image. Default: 20 MiB. */
+  /** Maximum encoded bytes accepted for one submitted image. Default: 50 MiB. */
   maxImageBytes?: number
   /** Maximum image count accepted in one submitted message. Default: 20. */
   maxImagesPerMessage?: number
@@ -69,7 +73,7 @@ export interface Config {
   maxMessageImageBytes?: number
   /** Maximum intrinsic width multiplied by height accepted for one submitted image. Default: 64,000,000. */
   maxImagePixels?: number
-  /** Maximum intrinsic width and maximum intrinsic height accepted for one submitted image. Default: 8192px. */
+  /** Maximum intrinsic width and maximum intrinsic height accepted for one submitted image. Default: 65,535px. */
   maxImageDimension?: number
   /** Total-pixel budget of the stored provider-independent normalized image. */
   normalizedImageMaxPixels?: number

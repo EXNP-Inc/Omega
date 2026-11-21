@@ -7,11 +7,11 @@
  * aggregates — with zero content duplication. Host-coupled domain
  * vocabulary (message sources, events, fold shapes) lives in ./domain.ts.
  *
- * @module @omega-ai/dsh-goal/types
+ * @module @deepseek-ai/dsh-goal/types
  */
 
-import type { Branded } from '@omega-ai/dsh-brand'
-import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { Branded } from '@deepseek-ai/dsh-brand'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
 
 /** Identifies one goal across its durable revisions. */
 export type GoalId = Branded<'GoalId'>
@@ -125,10 +125,7 @@ export interface GoalProjectionState {
   readonly failure: string | null
 }
 
-declare module '@omega-ai/dsh-session-projection/types' {
-  interface SessionProjectionStateMap {
-    goal: GoalProjectionState
-  }
+declare module '@deepseek-ai/dsh-session-projection/types' {
   interface SessionProjectionMap {
     /**
      * The session's current goal and admitted-round count, or
@@ -140,7 +137,7 @@ declare module '@omega-ai/dsh-session-projection/types' {
   }
 }
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Events {
     /**
      * Process-local goal activation changed for one session.

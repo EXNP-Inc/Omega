@@ -10,16 +10,18 @@
  * VM-realm schemas and canonical values are rebuilt as host objects, while rendered content and
  * presentation metadata are shape-checked before entering the registry. Common JSON-Schema spellings are normalized when they
  * have one meaning; invalid vocabulary fails during registration with a teaching error.
- * @module @omega-ai/dsh-cordis-host-runner/guard
+ * @module @deepseek-ai/dsh-cordis-host-runner/guard
  */
 
-import { Context } from '@omega-ai/cordis'
-import type { Plugin } from '@omega-ai/cordis'
-import { scopeOf } from '@omega-ai/dsh-scope'
-import { assertSupportedJsonSchema, defineTool } from '@omega-ai/dsh-tools'
-import type { ToolDefinition } from '@omega-ai/dsh-tools'
-import type { ContentBlock } from '@omega-ai/dsh-llm'
-import type { JsonValue } from '@omega-ai/dsh-util-values'
+import { Context } from '@deepseek-ai/cordis'
+import type { Plugin } from '@deepseek-ai/cordis'
+import { scopeOf } from '@deepseek-ai/dsh-scope'
+import { assertSupportedJsonSchema, defineTool } from '@deepseek-ai/dsh-tools'
+import { toolErrorMessage } from '@deepseek-ai/dsh-tools/pipeline'
+import type { ToolDefinition, ToolExecution } from '@deepseek-ai/dsh-tools'
+import { HarnessError } from '@deepseek-ai/dsh-error'
+import type { ContentBlock } from '@deepseek-ai/dsh-llm'
+import type { JsonValue } from '@deepseek-ai/dsh-util-values'
 
 const DYNAMIC_TOOL = Symbol('cordis-host-runner.dynamic-tool')
 const SCHEMA_TYPES = new Set<unknown>(['string', 'number', 'integer', 'boolean', 'null', 'object', 'array', 'json'])
@@ -540,11 +542,65 @@ function assertRenderedContent(value: JsonValue): ContentBlock[] {
 }
 
 /**
+ * Every {@link PluginToolError} code:
+ * - `PLUGIN_TOOL_FAILED`: a dynamic tool's `execute` threw or rejected with a value other than a
+ *   `HarnessError`; `message` keeps the thrown message and any string `code` it carried, and `cause`
+ *   is the thrown value.
+ * - `PLUGIN_TOOL_INVALID_RESULT`: `execute` resolved with a value that is not lossless JSON data.
+ */
+export const PLUGIN_TOOL_ERROR_CODES = ['PLUGIN_TOOL_FAILED', 'PLUGIN_TOOL_INVALID_RESULT'] as const
+
+/** One {@link PluginToolError} code. */
+export type PluginToolErrorCode = typeof PLUGIN_TOOL_ERROR_CODES[number]
+
+/** Failure of a tool a dynamic plugin defined; `code` is one of {@link PLUGIN_TOOL_ERROR_CODES}. */
+export class PluginToolError extends HarnessError {
+  override readonly code: PluginToolErrorCode
+
+  constructor(message: string, code: PluginToolErrorCode, options?: ErrorOptions) {
+    super(message, code, options)
+    this.name = 'PluginToolError'
+    this.code = code
+  }
+}
+
+/**
+ * Whether a value thrown by sandbox `execute` code is a `HarnessError` or the
+ * caller's cancellation. A Proxy whose traps throw is neither.
+ */
+function keepsIdentity(error: unknown, signal: AbortSignal): boolean {
+  try {
+    return error instanceof HarnessError
+      || (signal.aborted && (error === signal.reason || (error instanceof Error && error.name === 'AbortError')))
+  } catch {
+    // A trapped prototype or `name` read identifies neither a coded failure nor a cancellation.
+    return false
+  }
+}
+
+/**
+ * Classify a value thrown by sandbox `execute` code. Sandbox errors come from
+ * another realm, so their fields are read structurally rather than through `instanceof`.
+ */
+function pluginToolFailure(error: unknown): PluginToolError {
+  const message = toolErrorMessage(error)
+  let code: unknown
+  try {
+    code = typeof error === 'object' && error !== null ? (error as { code?: unknown }).code : undefined
+  } catch (_codeReadTrapped) {
+    // A trapped `code` read carries no usable code; the message alone describes the failure.
+  }
+  return new PluginToolError(typeof code === 'string' ? `${message} (code ${code})` : message, 'PLUGIN_TOOL_FAILED', { cause: error })
+}
+
+/**
  * The `harness.defineTool` handed into the sandbox: the real DSL, with `parameters` normalized
  * into a fresh host-realm ParameterSchemaSpec (raw object wrappers unwrapped,
  * required arrays mapped, and explicit DSL object openness enforced) and the tool's `execute` return normalized into the host realm
- * via a JSON round-trip. Non-JSON or wrong-shape output fails that call instead of poisoning
- * the session log.
+ * via a JSON round-trip. Non-JSON or wrong-shape output fails that call with
+ * {@link PluginToolError} `PLUGIN_TOOL_INVALID_RESULT` instead of poisoning the session log, and a
+ * value thrown by `execute` fails it with `PLUGIN_TOOL_FAILED` unless it is a `HarnessError` or
+ * the caller's cancellation.
  * @param options - the standard `defineTool` options; `parameters` may be the ParameterSchemaSpec DSL or a JSON-Schema-style wrapper.
  * @returns the marker-tagged definition `harness.registerTool` (and the guarded `ctx.tools.register`) accepts.
  */
@@ -579,8 +635,21 @@ export function sandboxDefineTool(options: unknown): ToolDefinition {
         },
       } : {},
     },
-    async execute(args: unknown, exec: unknown): Promise<JsonValue> {
-      return cloneJson(await rawExecute(args, exec), 'harness.defineTool execute result') as JsonValue
+    async execute(args: unknown, exec: ToolExecution): Promise<JsonValue> {
+      let result: unknown
+      try {
+        result = await rawExecute(args, exec)
+      } catch (error) {
+        // The cancellation and host services' coded failures keep their own identity.
+        if (keepsIdentity(error, exec.signal)) throw error
+        throw pluginToolFailure(error)
+      }
+      try {
+        return cloneJson(result, 'harness.defineTool execute result') as JsonValue
+      } catch (error) {
+        // Getters and Proxy traps on the returned value run during the clone and may throw any value.
+        throw new PluginToolError(toolErrorMessage(error), 'PLUGIN_TOOL_INVALID_RESULT', { cause: error })
+      }
     },
   })
   const parameters = { ...tool.parameters, ...normalized.rootAnnotations }
@@ -641,7 +710,7 @@ const TIMER_VERBS = new Set(['timeout', 'interval', 'setTimeout', 'setInterval',
  * metadata (`schemas`, and `get` returning a schema view, never the live
  * `ToolDefinition`). Exposing the raw definition would hand package code the
  * tool's `execute` function, letting it call another tool directly and bypass
- * `ToolRuntime.execute` — identity protection, pre-policy, monotonic guards,
+ * `ToolsService.execute` — identity protection, pre-policy, monotonic guards,
  * around dispatch, post-policy, final observation, and result normalization. So `get` returns the same
  * name/description/parameters view as `schemas()`, and nothing invocable.
  */
@@ -744,7 +813,7 @@ function sandboxContext(ctx: Context, reportFailure: (error: Error) => void): Co
   }
   const get = (name: string): unknown => readService(name, false)
   // The browser half builds the same façade over its own Context
-  // (`@omega-ai/dsh-cordis-client-runner`, whose CTX_VERBS names this one its
+  // (`@deepseek-ai/dsh-cordis-client-runner`, whose CTX_VERBS names this one its
   // twin), and the sameness is the point: a package author meets ONE contract on
   // both halves. Folding them together is not available — the two halves compile
   // in separate programs where `Context` merges different service keys — so the

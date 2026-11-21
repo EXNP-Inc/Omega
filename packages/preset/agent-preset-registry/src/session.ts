@@ -11,19 +11,21 @@
  *
  * Reconstruction reads the `agentPreset` Session projection, never the header
  * alone.
- * @module @omega-ai/dsh-agent-preset-registry/session
+ * @module @deepseek-ai/dsh-agent-preset-registry/session
  */
 
-import type { ProjectionDefinition } from '@omega-ai/dsh-session-projection'
+import type { ProjectionDefinition } from '@deepseek-ai/dsh-session-projection'
 import { z } from 'zod'
 
-declare module '@omega-ai/dsh-session/types' {
+declare module '@deepseek-ai/dsh-session/types' {
   interface SessionEventMap {
     /**
      * The session's agent preset was chosen after creation, while the session
      * was still blank. Log-only: it records the composition later turns ran
      * under, so a resumed or forked session rebuilds the same one instead of
-     * the header's creation-time value.
+     * the header's creation-time value. Subagent restoration reads this saved
+     * selection independently of its creator (`dsh-subagent` README,
+     * "Restoring child composition").
      */
     'agent-preset/selected': { agentPreset: string }
   }

@@ -3,13 +3,13 @@
  * chunks its output ring hands out. This leaf reaches no Host package, so
  * browser programs and Remote wire types import it without pulling the
  * registry's Host declaration merges.
- * @module @omega-ai/dsh-jobs/view
+ * @module @deepseek-ai/dsh-jobs/view
  */
 
-import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
 // Type-only: the Workspace registry's archive-admission family map this seam merges `job` into.
-import type {} from '@omega-ai/dsh-workspace/types'
-import type { JobId } from './brand.ts'
+import type {} from '@deepseek-ai/dsh-workspace/types'
+import type { JobId } from './types.ts'
 
 /**
  * Job lifecycle: `running`, optionally `stopping`, then exactly one terminal
@@ -18,7 +18,7 @@ import type { JobId } from './brand.ts'
  */
 export type JobStatus = 'running' | 'stopping' | 'completed' | 'killed' | 'failed'
 
-declare module '@omega-ai/dsh-workspace/types' {
+declare module '@deepseek-ai/dsh-workspace/types' {
   interface SessionActivityKindMap {
     /** A background job owned by this session is running or stopping. */
     job: true
@@ -31,7 +31,6 @@ declare module '@omega-ai/dsh-workspace/types' {
  */
 export interface JobKindMap {
   bash: 'bash'
-  subagent: 'subagent'
 }
 
 /** The merge-extensible union of registered producer kind names. */
@@ -63,7 +62,7 @@ export interface JobChunk {
  * stream all consume this one shape.
  */
 export interface JobView {
-  /** The registry-issued id (`<kind>-N`). */
+  /** The registry-issued id (`<kind>-<short-uuid>`). */
   readonly id: JobId
   /**
    * The producer kind the job was registered with: a Host-registered
@@ -83,6 +82,8 @@ export interface JobView {
   readonly progress?: string
   /** Terminal reason (`exit code: 3`); a recorded kill reason is merged in. */
   readonly detail?: string
+  /** Exit code of the process the job ran, once settled, for a producer that reports one. */
+  readonly exitCode?: number
   /** Epoch ms when the job was registered. */
   readonly startedAt: number
   /** Epoch ms when the job settled; absent while live. */

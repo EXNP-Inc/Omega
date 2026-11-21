@@ -3,7 +3,7 @@ description: "The managed DSH_* shell environment for users and maintainers choo
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-shell-env
+# @deepseek-ai/dsh-shell-env
 
 English | [中文](README.zh.md)
 
@@ -29,15 +29,15 @@ Load this plugin in any composition that mounts a model shell tool (`dsh-tool-ba
 
 ### What every shell call receives
 
-Every call receives `DSH_HOME` (the absolute Harness home), `DSH_SHELL=1`, and, for agent calls, `DSH_SESSION_ID` (the calling session's id). When the launcher provided a profile context, every call also receives `DSH_PROFILE` (the profile name) and `DSH_PROFILE_DIR` (its absolute directory; its `node_modules` holds only profile-installed packages, while the harness's own bundles resolve from the dsh installation); compositions booted without a profile omit both.
+Every call receives `DSH_HOME` (the absolute Harness home), `DSH_SHELL=1`, and, for agent calls, `DSH_SESSION_ID` (the calling session's id). Outside a single-executable application, every call also receives `DSH_NODE_EXECUTABLE`, the absolute path of the executable running the Harness. Under Desktop that is the Electron executable: it runs a script as Node only with `ELECTRON_RUN_AS_NODE=1`, and its Node file APIs read entries inside the `app.asar` archive that ordinary tools cannot open. When the launcher provided a profile context, every call also receives `DSH_PROFILE` (the profile name), `DSH_PROFILE_DIR` (its absolute directory; its `node_modules` holds only profile-installed packages, while the harness's own bundles resolve from the dsh installation), and `DSH_INSTALL_DIR` (the absolute directory of the `@deepseek-ai/dsh` package that anchors the installation, which carries the published `docs/` and `src/`); compositions booted without a profile omit all three.
 
 ### Adding your own environment facts
 
 Other plugins contribute facts by registering a contributor with a stable name, the complete set of `DSH_*` keys it may return, a description per key, and a resolver that computes values for one execution:
 
 ```ts
-import type { Context } from '@omega-ai/cordis'
-import type {} from '@omega-ai/dsh-shell-env'
+import type { Context } from '@deepseek-ai/cordis'
+import type {} from '@deepseek-ai/dsh-shell-env'
 
 export const inject = ['shellEnv']
 
@@ -50,7 +50,7 @@ export function apply(ctx: Context): void {
 }
 ```
 
-Contributors must declare every key they return; returning an undeclared or non-string value fails the call. Registration is disposed with the registering plugin, so hot-reloading a plugin removes its facts.
+Contributors must declare every key they return; returning an undeclared or non-string value fails the call with `ShellEnvError` (`SHELL_ENV_CONTRIBUTION_INVALID`). Registration is disposed with the registering plugin, so hot-reloading a plugin removes its facts.
 
 ### Choosing the Harness home
 
@@ -60,11 +60,11 @@ The single config field picks the home directory exposed as `DSH_HOME`; the defa
 |---|---|---|
 | `dshHome` | `$DSH_HOME`, then `~/.dsh` | Absolute Harness home exposed as `DSH_HOME` |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#omega-aidsh-shell-env) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-shell-env) is the exhaustive source for every accepted field and its JSDoc.
 
 ### What can go wrong
 
-Two contributors declaring the same key, or a contributor claiming a reserved built-in (`DSH_HOME`, `DSH_SHELL`, `DSH_SESSION_ID`, `DSH_PROFILE`, `DSH_PROFILE_DIR`), fails plugin load loudly. A `DSH_*` key must be all-caps with underscores (for example `DSH_REGION`), and a missing description fails registration.
+Two contributors declaring the same key, or a contributor claiming a reserved built-in (`DSH_HOME`, `DSH_SHELL`, `DSH_SESSION_ID`, `DSH_PROFILE`, `DSH_PROFILE_DIR`, `DSH_INSTALL_DIR`, `DSH_NODE_EXECUTABLE`), fails plugin load loudly. A `DSH_*` key must be all-caps with underscores (for example `DSH_REGION`), and a missing description fails registration.
 
 -----
 
@@ -80,13 +80,14 @@ This section explains the design decisions behind the registry and points at the
 
 - **Trusted namespace, rebuilt per call.** The environment is a Harness-owned `DSH_*` namespace: the shell executor discards inherited `DSH_*` values and merges the registry's current snapshot for each execution, so nested harnesses and concurrent parent/child agents cannot leak stale identities, and `process.env` is never modified.
 - **Declared ownership, loud conflicts.** Contributors declare their keys up front so duplicate ownership is detected before the first command; resolvers may only return declared keys.
-- **Built-ins stay here.** `DSH_HOME`, `DSH_SHELL`, `DSH_SESSION_ID`, `DSH_PROFILE`, and `DSH_PROFILE_DIR` are reserved for the registry; contributors cannot claim them.
+- **Built-ins stay here.** `DSH_HOME`, `DSH_SHELL`, `DSH_SESSION_ID`, `DSH_PROFILE`, `DSH_PROFILE_DIR`, `DSH_INSTALL_DIR`, and `DSH_NODE_EXECUTABLE` are reserved for the registry; contributors cannot claim them.
 
 ### Source map
 
 | File | Role |
 |---|---|
 | [`src/index.ts`](src/index.ts) | Plugin entry, `ShellEnvRegistry` service, and the built-in facts |
+| [`src/error.ts`](src/error.ts) | `ShellEnvError` and its codes |
 
 ### Collection
 
@@ -106,7 +107,7 @@ Read these pages when the package-level contract is not enough. They move from t
 - [tool-bash](../tool-bash/README.md) — the bash tool that consumes this environment.
 - [tool-pwsh](../tool-pwsh/README.md) — the pwsh tool that consumes this environment.
 - [home paths package](../../util/home-paths/README.md) — how `DSH_HOME` is resolved.
-- [Generated configuration catalog](../../../docs/config-catalog.md#omega-aidsh-shell-env) — every accepted config field and its source declaration.
+- [Generated configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-shell-env) — every accepted config field and its source declaration.
 
 -----
 
@@ -126,7 +127,7 @@ The managed environment never enters the request prefix, so it does not invalida
 
 These limits define when the registry is a poor fit or needs care. They are current package constraints, not a task backlog.
 
-- **`list()` enumerates plugin-contributed variables only** — registry-owned built-ins (`DSH_HOME`, `DSH_SHELL`, `DSH_SESSION_ID`, `DSH_PROFILE`, `DSH_PROFILE_DIR`) are not included, so diagnostics, prompt, or UI code must not treat `list()` as an exhaustive environment catalog.
+- **`list()` enumerates plugin-contributed variables only** — registry-owned built-ins (`DSH_HOME`, `DSH_SHELL`, `DSH_SESSION_ID`, `DSH_PROFILE`, `DSH_PROFILE_DIR`, `DSH_INSTALL_DIR`, `DSH_NODE_EXECUTABLE`) are not included, so diagnostics, prompt, or UI code must not treat `list()` as an exhaustive environment catalog.
 
 <a id="dev-note"></a>
 ### Dev Note

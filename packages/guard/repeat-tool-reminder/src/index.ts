@@ -1,25 +1,25 @@
 /**
- * Advisory per-agent repeat-call detector. It enriches post-execute decisions
+ * Advisory per-agent detector for model-direct repeat calls. It enriches post-execute decisions
  * with logged model context without vetoing or rewriting calls. Configuration
  * and chain semantics live in the package README; rationale lives in the
  * repeat-tool-reminder Agent Note.
- * @module @omega-ai/dsh-repeat-tool-reminder
+ * @module @deepseek-ai/dsh-repeat-tool-reminder
  */
 
-import type { Context } from '@omega-ai/cordis'
-import z from '@omega-ai/schemastery'
-import type { Agent, PreStepDecision } from '@omega-ai/dsh-agent'
-import { createUserMessage } from '@omega-ai/dsh-llm'
-import type { ContextFormed } from '@omega-ai/dsh-llm'
-declare module '@omega-ai/dsh-llm' {
+import type { Context } from '@deepseek-ai/cordis'
+import z from '@deepseek-ai/schemastery'
+import type { Agent, PreStepDecision } from '@deepseek-ai/dsh-agent'
+import { createUserMessage } from '@deepseek-ai/dsh-llm'
+import type { ContextFormed } from '@deepseek-ai/dsh-llm'
+declare module '@deepseek-ai/dsh-llm' {
   interface MessageSourceMap {
     'repeat-tool-reminder': { kind: 'repeat-tool-reminder' } & ContextFormed
   }
 }
 
-import type { MessageSource } from '@omega-ai/dsh-llm'
-import type { UserMessage } from '@omega-ai/dsh-session'
-import type { PostToolDecision, ToolExecution } from '@omega-ai/dsh-tools'
+import type { MessageSource } from '@deepseek-ai/dsh-llm'
+import type { UserMessage } from '@deepseek-ai/dsh-session'
+import type { PostToolDecision, ToolExecution } from '@deepseek-ai/dsh-tools'
 
 export const name = 'repeat-tool-reminder'
 
@@ -186,17 +186,15 @@ export function apply(ctx: Context, config: Config): void {
   }
 
   /**
-   * Advance the calling agent's chain for one attempt and return the reminder
-   * to deliver, if this attempt's run length hits a configured threshold.
+   * Advance the calling agent's chain for one model-direct attempt and return
+   * the reminder at a configured threshold. Nested executions neither count nor reset.
    * Counting happens here — in post-execute — because denied calls also flow
    * through this waterfall (`ToolRuntime.execute` routes a deny through the
    * same pipeline), and a model hammering a denied call is exactly the loop
    * worth breaking.
    */
   function observe(exec: ToolExecution): UserMessage | undefined {
-    // A direct `ctx.tools.execute()` caller has no model to remind and no id
-    // to key on; only agent-loop calls participate.
-    if (!exec.agent) return undefined
+    if (!exec.agent || exec.parent !== undefined) return undefined
     if (!tracked(exec.name)) return undefined
     const canonical = canonicalize(exec.arguments)
     const key = JSON.stringify([exec.name, canonical])
@@ -221,13 +219,7 @@ export function apply(ctx: Context, config: Config): void {
     const reminder = observe(exec)
     const downstream = await next()
     if (!reminder) return downstream
-    if (downstream.kind === 'block') {
-      return { kind: 'block', feedback: downstream.feedback, additionalContexts: prependContext(reminder, downstream.additionalContexts) }
-    }
-    return {
-      ...downstream,
-      additionalContexts: prependContext(reminder, downstream.additionalContexts),
-    }
+    return { ...downstream, additionalContexts: prependContext(reminder, downstream.additionalContexts) }
   })
 
   // A user interjection changes the context; repetition across it is not a

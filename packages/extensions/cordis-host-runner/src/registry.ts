@@ -1,10 +1,11 @@
 /**
  * Process-local dynamic Plugin registry and its opaque identity mints.
- * @module @omega-ai/dsh-cordis-host-runner/registry
+ * @module @deepseek-ai/dsh-cordis-host-runner/registry
  */
 
-import type { Fiber } from '@omega-ai/cordis'
-import type { SessionId } from '@omega-ai/dsh-session/types'
+import type { Fiber } from '@deepseek-ai/cordis'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import type {
   ApprovalRequestId, CordisDynamicPackageId, CordisDynamicPluginId, CordisDynamicPluginRunId,
   CordisDynamicRunMode, DynamicCordisRenderFailure, DynamicCordisRunAttempt,
@@ -153,7 +154,7 @@ export class DynamicCordisRegistry {
    */
   mintPluginId(prefix: string): string {
     let id: CordisDynamicPluginId
-    do id = `${prefix}-${this.nextPlugin++}` as CordisDynamicPluginId
+    do id = brandString<CordisDynamicPluginId>(`${prefix}-${this.nextPlugin++}`)
     while (this.plugins.has(id))
     return id
   }

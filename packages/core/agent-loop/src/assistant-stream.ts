@@ -1,18 +1,19 @@
 /** Process-local assistant attempt framing and durable stream accumulation. */
 
+import { brandString } from '@deepseek-ai/dsh-brand'
 import {
   AssistantStreamAccumulator,
   BlockAssembler,
-  LlmAttemptId,
+  type LlmAttemptId,
   type AssistantStreamRecord,
   type ContentBlock,
   type FinishReason,
   type ReplayEnvelope,
   type StreamChunk,
   type TokenUsage,
-} from '@omega-ai/dsh-llm'
-import type { AssistantStreamFrame } from '@omega-ai/dsh-agent'
-import type { SessionEventMap, SessionId, SessionSeq } from '@omega-ai/dsh-session'
+} from '@deepseek-ai/dsh-llm'
+import type { AssistantStreamFrame } from '@deepseek-ai/dsh-agent'
+import type { SessionEventMap, SessionId, SessionSeq } from '@deepseek-ai/dsh-session'
 
 /** Folds one model attempt into one compact stream plus ordered transient frames. */
 export class AssistantStreamAttempt {
@@ -42,7 +43,7 @@ export class AssistantStreamAttempt {
     readonly step: number,
     private readonly emit: (frame: AssistantStreamFrame) => void,
   ) {
-    this.attemptId = LlmAttemptId(`${sessionId}:${attempt}`)
+    this.attemptId = brandString<LlmAttemptId>(`${sessionId}:${attempt}`)
   }
 
   /** Publish the opening marker before the first delivered chunk. */

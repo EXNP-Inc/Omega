@@ -5,13 +5,13 @@
  * and retries through the agent or compaction summary error waterfall. Every route
  * sends placeholder text for those occurrences in subsequent requests.
  *
- * @module @omega-ai/dsh-compaction-image-offload
+ * @module @deepseek-ai/dsh-compaction-image-offload
  */
 
-import type { Context } from '@omega-ai/cordis'
-import type {} from '@omega-ai/dsh-compaction'
-import type { RequestErrorAction } from '@omega-ai/dsh-agent'
-import { IMAGE_OFFLOAD_REQUIRED_CODE, LlmError } from '@omega-ai/dsh-llm'
+import type { Context } from '@deepseek-ai/cordis'
+import type {} from '@deepseek-ai/dsh-compaction'
+import type { RequestErrorAction } from '@deepseek-ai/dsh-agent'
+import { IMAGE_OFFLOAD_REQUIRED_CODE, LlmError } from '@deepseek-ai/dsh-llm'
 import { offloadOldestImages } from './image-offload.ts'
 import { imageOffloadProjection } from './projection.ts'
 
@@ -24,8 +24,8 @@ export const inject = ['agents', 'sessions']
  */
 export function apply(ctx: Context): void {
   ctx.sessions.registerMessageProjection(imageOffloadProjection)
-  ctx.on('agent/request-error', ({ agent, failure }, next): Promise<RequestErrorAction> => {
-    if (failure.code !== IMAGE_OFFLOAD_REQUIRED_CODE || failure.offloadImages === undefined) return next()
+  ctx.on('agent/request-error', ({ agent, failure, signal }, next): Promise<RequestErrorAction> => {
+    if (failure.code !== IMAGE_OFFLOAD_REQUIRED_CODE || failure.offloadImages === undefined || signal.aborted) return next()
     // A durable surface repair, not a provider retry: it spends no retry budget and logs no retry event.
     if (!offloadOldestImages(agent.session, agent.session.surface.nodes, failure.offloadImages)) return next()
     return Promise.resolve<RequestErrorAction>({ kind: 'retry' })

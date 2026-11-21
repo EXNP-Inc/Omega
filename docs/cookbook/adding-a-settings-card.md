@@ -7,8 +7,8 @@ Declare live fields in the plugin Config schema and expose them through a produc
 ## 1. Declare live fields
 
 ```ts
-import type { Context, Volatile } from '@omega-ai/cordis'
-import z from '@omega-ai/schemastery'
+import type { Context, Volatile } from '@deepseek-ai/cordis'
+import z from '@deepseek-ai/schemastery'
 
 export interface Config {
   endpoint: Volatile<string | undefined>
@@ -39,7 +39,7 @@ Give each instance a unique profile entry id. The base bundle mounts settings an
 
 Change a field in Plugins and save. Verify the profile patch, the next consumer operation, unchanged plugin instance identity, and restoration after restart. Reject an invalid value and verify that neither the file nor the live value changed.
 
-Custom plugin pages receive `form.state` and `form.mutate(operations, expectedRevision)` from the Plugins page owner. The Host validates full Config and applies edits through ConfigEditor and volatile HMR. The [plugin settings package](../../packages/client/ui-settings-plugins/README.md) owns the existing card examples.
+Custom plugin pages receive `form.state` and `form.mutate(operations, expectedRevision)` from the Plugins page owner. The Host validates full Config and applies edits through ConfigEditor and volatile HMR. The [Plugins page README](../../packages/client/ui-plugin-manager/README.md#configuration-pages) lists the slots such a page registers into and how a `settings.section` entry also appears there; [ui-settings-shell](../../packages/client/ui-settings-shell/README.md) is an existing page.
 
 ## 4. Contribute to another plugin's page
 
@@ -65,7 +65,7 @@ The built `./client` file must be in the client module system's lazy-CJS factory
     ".": { "types": "./lib/types/index.d.ts", "default": "./lib/index.js" },
     "./client": { "types": "./lib/types/client/index.d.ts", "default": "./lib/client.js" }
   },
-  "dsh": { "client": { "platform": "web", "inject": ["@omega-ai/dsh-client-ui-settings"] } }
+  "dsh": { "client": { "platform": "web", "inject": ["@deepseek-ai/dsh-client-ui-settings"] } }
 }
 ```
 

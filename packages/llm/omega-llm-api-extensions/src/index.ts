@@ -1,35 +1,35 @@
 /**
- * Omega LLM API extension registry: plugins own independent top-level request
+ * DeepSeek LLM API extension registry: plugins own independent top-level request
  * fields while the official adapter performs one preparation and acceptance transaction.
- * @module @omega-ai/dsh-omega-llm-api-extensions
+ * @module @deepseek-ai/dsh-deepseek-llm-api-extensions
  */
 
-import { Context, Service } from '@omega-ai/cordis'
+import { Context, Service } from '@deepseek-ai/cordis'
 import type {
-  OmegaLlmApiExtensionMap,
-  OmegaLlmApiExtensionProvider,
-  OmegaLlmApiExtensionRequest,
-  OmegaLlmApiJson,
-  PreparedOmegaLlmApiExtensions,
+  DeepSeekLlmApiExtensionMap,
+  DeepSeekLlmApiExtensionProvider,
+  DeepSeekLlmApiExtensionRequest,
+  DeepSeekLlmApiJson,
+  PreparedDeepSeekLlmApiExtensions,
 } from './types.ts'
 
 export type * from './types.ts'
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Context {
-    omegaLlmApiExtensions: OmegaLlmApiExtensionRegistry
+    deepseekLlmApiExtensions: DeepSeekLlmApiExtensionRegistry
   }
 }
 
 interface ErasedProvider {
-  prepare(request: OmegaLlmApiExtensionRequest):
-    | { readonly value: OmegaLlmApiJson; accept?(): void | Promise<void> }
+  prepare(request: DeepSeekLlmApiExtensionRequest):
+    | { readonly value: DeepSeekLlmApiJson; accept?(): void | Promise<void> }
     | undefined
-    | Promise<{ readonly value: OmegaLlmApiJson; accept?(): void | Promise<void> } | undefined>
+    | Promise<{ readonly value: DeepSeekLlmApiJson; accept?(): void | Promise<void> } | undefined>
 }
 
 /** Recursively freeze a fresh structured clone. */
-function freezeJson<T extends OmegaLlmApiJson>(value: T): T {
+function freezeJson<T extends DeepSeekLlmApiJson>(value: T): T {
   if (value !== null && typeof value === 'object') {
     for (const child of Array.isArray(value) ? value : Object.values(value)) freezeJson(child)
     Object.freeze(value)
@@ -44,7 +44,7 @@ async function acceptAll(callbacks: readonly (() => void | Promise<void>)[]): Pr
     .filter((outcome): outcome is PromiseRejectedResult => outcome.status === 'rejected')
     .map(outcome => outcome.reason as unknown)
   if (failures.length === 1) throw failures[0]
-  if (failures.length > 1) throw new AggregateError(failures, 'Omega LLM API extension acceptance failed')
+  if (failures.length > 1) throw new AggregateError(failures, 'DeepSeek LLM API extension acceptance failed')
 }
 
 /** Stop awaiting provider work when the containing model request is cancelled. */
@@ -62,12 +62,14 @@ async function abortable<T>(work: Promise<T>, signal: AbortSignal): Promise<T> {
   }
 }
 
-/** Registry of independently owned top-level fields for official Omega requests. */
-export class OmegaLlmApiExtensionRegistry extends Service {
+/** Registry of independently owned top-level fields for official DeepSeek requests. */
+export class DeepSeekLlmApiExtensionRegistry extends Service {
   private readonly providers = new Map<string, ErasedProvider>()
+  /** Fields whose preparation failure was already logged; later failures stay silent. */
+  private readonly warnedFields = new Set<string>()
 
   constructor(ctx: Context) {
-    super(ctx, 'omegaLlmApiExtensions')
+    super(ctx, 'deepseekLlmApiExtensions')
   }
 
   /**
@@ -76,47 +78,57 @@ export class OmegaLlmApiExtensionRegistry extends Service {
    * @param provider - request-time field preparation and optional acceptance behavior.
    * @returns disposer that releases the field.
    */
-  register<K extends keyof OmegaLlmApiExtensionMap>(
+  register<K extends keyof DeepSeekLlmApiExtensionMap>(
     field: K,
-    provider: OmegaLlmApiExtensionProvider<OmegaLlmApiExtensionMap[K]>,
+    provider: DeepSeekLlmApiExtensionProvider<DeepSeekLlmApiExtensionMap[K]>,
   ): () => Promise<void> {
     const fieldName = field as string
     if (fieldName.length === 0 || fieldName.trim() !== fieldName) {
-      throw new Error('omega-llm-api-extensions: field must be a non-blank trimmed string')
+      throw new Error('deepseek-llm-api-extensions: field must be a non-blank trimmed string')
     }
     const providers = this.providers
     const erased = provider as ErasedProvider
     const dispose = this.ctx.effect(() => {
       if (providers.has(fieldName)) {
-        throw new Error(`omega-llm-api-extensions: field ${JSON.stringify(fieldName)} is already registered`)
+        throw new Error(`deepseek-llm-api-extensions: field ${JSON.stringify(fieldName)} is already registered`)
       }
       providers.set(fieldName, erased)
       return () => {
         providers.delete(fieldName)
       }
-    }, `omegaLlmApiExtensions.register(${JSON.stringify(fieldName)})`)
+    }, `deepseekLlmApiExtensions.register(${JSON.stringify(fieldName)})`)
     return dispose
   }
 
   /**
    * Prepare every currently registered field from one immutable base request.
-   * Preparation failures reject before HTTP dispatch. Field values are cloned and frozen;
-   * providers retain no mutable alias to the outgoing request.
+   * A provider whose preparation throws, or whose value cannot be cloned, is omitted
+   * from this request; the first such failure per field is logged. Only cancellation rejects. Field values are cloned
+   * and frozen; providers retain no mutable alias to the outgoing request.
    * @param request - exact serialized request facts before extension fields.
    * @returns detached fields and their idempotent joint acceptance transaction.
    */
-  async prepare(request: OmegaLlmApiExtensionRequest): Promise<PreparedOmegaLlmApiExtensions> {
+  async prepare(request: DeepSeekLlmApiExtensionRequest): Promise<PreparedDeepSeekLlmApiExtensions> {
     request.signal.throwIfAborted()
     const entries = [...this.providers.entries()]
-    const prepared = await abortable(Promise.all(entries.map(async ([field, provider]) => ({
-      field,
-      result: await provider.prepare(request),
-    }))), request.signal)
-    const fields: Record<string, OmegaLlmApiJson> = Object.create(null) as Record<string, OmegaLlmApiJson>
+    const prepared = await abortable(Promise.all(entries.map(async ([field, provider]) => {
+      try {
+        const result = await provider.prepare(request)
+        return result === undefined ? undefined : { field, value: freezeJson(structuredClone(result.value)), result }
+      } catch (error) {
+        if (!request.signal.aborted && !this.warnedFields.has(field)) {
+          this.warnedFields.add(field)
+          this.ctx.logger.warn(`deepseek-llm-api-extensions: omitting field ${JSON.stringify(field)} from this request because its preparation failed: %o`, error)
+        }
+        return undefined
+      }
+    })), request.signal)
+    const fields: Record<string, DeepSeekLlmApiJson> = Object.create(null) as Record<string, DeepSeekLlmApiJson>
     const callbacks: Array<() => void | Promise<void>> = []
-    for (const { field, result } of prepared) {
-      if (result === undefined) continue
-      fields[field] = freezeJson(structuredClone(result.value))
+    for (const item of prepared) {
+      if (item === undefined) continue
+      const { field, value, result } = item
+      fields[field] = value
       const accept = result.accept
       if (accept !== undefined) callbacks.push(accept.bind(result))
     }
@@ -129,4 +141,4 @@ export class OmegaLlmApiExtensionRegistry extends Service {
   }
 }
 
-export default OmegaLlmApiExtensionRegistry
+export default DeepSeekLlmApiExtensionRegistry

@@ -9,8 +9,8 @@ import { basename, dirname, extname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { JSDOM } from 'jsdom'
 import ts from 'typescript'
-import { applyEntryPatches, type PatchOptions } from '@omega-ai/cordis-plugin-include'
-import type { EntryOptions } from '@omega-ai/cordis-plugin-loader'
+import { applyEntryPatches, type PatchOptions } from '@deepseek-ai/cordis-plugin-include'
+import type { EntryOptions } from '@deepseek-ai/cordis-plugin-loader'
 import { loadOverlayPatches } from '../packages/boot/app-boot/src/index.ts'
 import { bundlePatchPaths, composeEntries } from '../packages/boot/app-boot/src/profile.ts'
 import type { DshBundleManifest } from '../packages/util/package-manifest/src/types.ts'
@@ -20,12 +20,10 @@ import {
   collectRuntimeSourceSpecifiers,
 } from './verify-client-packages.ts'
 
-const EXPERIMENTAL_PREFIX = '@omega-ai/dsh-experimental-'
-// The independently published entry package owns platform-engine dependencies;
-// the default product must not depend on the engines or unknown kit variants directly.
+import { isExperimentalPackageName } from './experimental-package-policy.ts'
+// The independently published entry package owns platform-engine dependencies.
 const EXTERNAL_KIT_PACKAGES = new Set(['@deepseek-ai/libreoffice-kit'])
-const EXTERNAL_ENGINE_PREFIX = '@deepseek-ai/libreoffice-kit-'
-const PROFILE_SOURCE = 'packages/boot/app-boot/src/profile.ts'
+const PROFILE_SOURCE = 'packages/util/official-bundles/src/bundles.ts'
 const PRESET_PATTERN = 'packages/bundle/web-app/presets/*.patch.yml'
 const RUNTIME_SECTIONS = ['dependencies', 'optionalDependencies', 'peerDependencies'] as const
 
@@ -80,8 +78,8 @@ export function verifyDefaultProductIsolation(root: string): ProductIsolationRes
     if (!existsSync(resolve(root, path))) failures.push(`missing default product root ${path}`)
   }
   const cli = directories.get(resolve(root, 'apps/cli'))
-  if (cli?.manifest.name !== '@omega-ai/dsh') {
-    failures.push('apps/cli/package.json must identify @omega-ai/dsh')
+  if (cli?.manifest.name !== '@deepseek-ai/dsh') {
+    failures.push('apps/cli/package.json must identify @deepseek-ai/dsh')
   }
   // The bundles the launcher ships switched off: each a runtime dependency of the installation that is a bundle
   // with an icon and locale display metadata for the plugin manager's Official group, none a default.
@@ -109,7 +107,7 @@ export function verifyDefaultProductIsolation(root: string): ProductIsolationRes
   const sources = new Set<string>()
   const configs = new Set<string>()
   let webPluginCount = 0
-  const isExperimental = (pkg: Package): boolean => pkg.manifest.name.startsWith(EXPERIMENTAL_PREFIX)
+  const isExperimental = (pkg: Package): boolean => isExperimentalPackageName(pkg.manifest.name)
     || display(pkg.directory).startsWith('packages/experimental/')
   const add = (pkg: Package, origin: string): void => {
     if (isExperimental(pkg)) {
@@ -138,15 +136,14 @@ export function verifyDefaultProductIsolation(root: string): ProductIsolationRes
       return
     }
     const packageName = barePackageName(name)
-    if (packageName.startsWith(EXPERIMENTAL_PREFIX)) {
+    if (isExperimentalPackageName(packageName)) {
       failures.push(`${origin} -> ${name}: default product must not include experimental packages`)
       return
     }
     const pkg = packages.get(packageName)
     if (pkg !== undefined) add(pkg, origin)
     else if (EXTERNAL_KIT_PACKAGES.has(packageName)) return
-    else if (packageName.startsWith(EXTERNAL_ENGINE_PREFIX)) failures.push(`${origin}: unknown workspace package ${name}`)
-    else if (packageName.startsWith('@omega-ai/')) failures.push(`${origin}: unknown workspace package ${name}`)
+    else if (packageName.startsWith('@deepseek-ai/')) failures.push(`${origin}: unknown workspace package ${name}`)
   }
   const dependency = (name: string, range: string, owner: Package, origin: string): void => {
     reference(name, origin, owner)
@@ -201,7 +198,7 @@ export function verifyDefaultProductIsolation(root: string): ProductIsolationRes
       }
       if (isAgentPresetEntry(entry)) entry.config.plugins.forEach(visit)
       if (Array.isArray(entry.insert)) entry.insert.forEach(visit)
-      if ((entry.name === '@omega-ai/cordis-plugin-include' || entry.name === 'cordis:include') && isRecord(entry.config)) {
+      if ((entry.name === '@deepseek-ai/cordis-plugin-include' || entry.name === 'cordis:include') && isRecord(entry.config)) {
         if (!composedWeb && Array.isArray(entry.config.patches)) entry.config.patches.forEach(visit)
         const included = entry.config.path
         if (typeof included !== 'string') return
@@ -222,7 +219,7 @@ export function verifyDefaultProductIsolation(root: string): ProductIsolationRes
           failures.push(`${display(filename)}: included composition must contain an entry array`)
           return
         }
-        const entries = applyEntryPatches(content as EntryOptions[], entry.config.patches as PatchOptions[] | undefined, () => {})
+        const entries = applyEntryPatches(content as EntryOptions[], entry.config.patches as PatchOptions[] | undefined, () => {}).data
         scanEntries(entries, filename, true, nestedStack)
       }
     }
@@ -296,7 +293,8 @@ export function verifyDefaultProductIsolation(root: string): ProductIsolationRes
     const { manifest } = pkg
     for (const section of RUNTIME_SECTIONS) {
       for (const [name, range] of Object.entries(manifest[section] ?? {})) {
-        if (pkg === cli && section === 'dependencies' && optionalBundles.has(name)) continue
+        const target = packages.get(name)
+        if (pkg === cli && section === 'dependencies' && optionalBundles.has(name) && target !== undefined && isExperimental(target)) continue
         dependency(name, range, pkg, `${manifest.name} ${section}`)
       }
     }

@@ -2,7 +2,7 @@
 description: "JavaScript entry for the prebuilt Landlock launcher and asynchronous POSIX flock."
 kind: "package-library"
 ---
-# @omega-ai/node-addon-system
+# @deepseek-ai/node-addon-system
 
 English | [中文](README.zh.md)
 

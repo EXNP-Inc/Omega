@@ -3,7 +3,7 @@ description: "基于 user-questions seam 的模型侧 ask_user_question 工具�
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-tool-ask-user
+# @deepseek-ai/dsh-tool-ask-user
 
 [English](README.md) | 中文
 
@@ -31,7 +31,7 @@ kind: "package-reference"
 
 ```yaml
 - id: tool-ask-user
-  name: '@omega-ai/dsh-tool-ask-user'
+  name: '@deepseek-ai/dsh-tool-ask-user'
   config:
     mode: timed
     timeout: 120
@@ -61,7 +61,7 @@ kind: "package-reference"
 
 ### 模型得到什么
 
-收到回答时，工具为每个问题返回一项。`selected` 保存选项标签；`custom` 可以补充多选答案，或替代单选选项。跳过的回答项具有空 `selected`，且没有 `custom`。
+收到回答时，工具为每个问题返回一项。`selected` 保存选项标签；`custom` 可以补充多选答案，或替代单选选项。跳过的回答项具有空 `selected`，且没有 `custom`；两种工具描述都告诉模型如何处理这种回答项。
 
 对于有限时长的 timed 调用，`{ "pending": true, "callId": "…" }` 表示前台等待结束时仍没有回答。问题仍可回答，模型可以继续独立工作。之后的回答以用户消息送达，由 `kind`、`tool` 和 `callId` 标识。Web 对话会配对展示问题与回答；其他消费方收到紧凑 JSON 文本。
 
@@ -71,7 +71,7 @@ kind: "package-reference"
 
 ### 调用何时失败
 
-Legacy 调用和 `timeout: -1` 调用会等待回答或取消；没有 answerer 接受时返回错误。有限时长的 timed 调用若没有 answerer，则在到期后返回 pending。取消调用，或调用方不是确切的存活运行时根时，也会返回错误。存活的子 agent 会以 `DELEGATED_CALLER` 被拒绝，必须在最终结果中包含尚未解决的决定。
+Legacy 调用和 `timeout: -1` 调用会等待回答或取消；没有 answerer 接受时返回错误。有限时长的 timed 调用若没有 answerer，则在到期后返回 pending。取消调用，或调用方不是确切的存活运行时根时，也会返回错误。timed 调用以 `ToolArgsError` `INVALID_ARGS` 拒绝超出范围的 `timeout` 与重复的问题 id，以 `ToolContextUnavailableError` 拒绝缺少调用方 agent 的调用。存活的子 agent 会以 `DELEGATED_CALLER` 被拒绝，必须在最终结果中包含尚未解决的决定。
 
 -----
 
@@ -108,7 +108,7 @@ Legacy 调用和 `timeout: -1` 调用会等待回答或取消；没有 answerer 
 当包级约定不够用时阅读以下页面。它们从工具表面逐步进入 seam 约定及其 answerer waterfall。
 
 - [用户交互子系统参考](../../../docs/subsystems/user-questions.zh.md)——此工具背后的服务约定、问题词汇与 answerer waterfall。
-- [工具目录](../../../docs/tool-catalog.zh.md#omega-aidsh-tool-ask-user)——生成的 `ask_user_question` schema。
+- [工具目录](../../../docs/tool-catalog.zh.md#deepseek-aidsh-tool-ask-user)——生成的 `ask_user_question` schema。
 - [user-questions 包](../user-questions/README.zh.md)——本工具消费的 seam。
 - [交互组映射](../README.zh.md)——相邻的审批与命令表面。
 
@@ -121,7 +121,7 @@ Legacy 调用和 `timeout: -1` 调用会等待回答或取消；没有 answerer 
 
 #### 模型看到的内容
 
-随附 preset 会公开原有的阻塞式 [`ask_user_question` schema](../../../docs/tool-catalog.zh.md#omega-aidsh-tool-ask-user)。自定义 Cordis 行设置 `mode: timed` 后，会切换到包含问题 id、提示语、标题、选项、多选标志、`timeout` 与待处理结果的异步 schema；模型只会看到被选中的定义。
+随附 preset 会公开原有的阻塞式 [`ask_user_question` schema](../../../docs/tool-catalog.zh.md#deepseek-aidsh-tool-ask-user)。自定义 Cordis 行设置 `mode: timed` 后，会切换到包含问题 id、提示语、标题、选项、多选标志、`timeout` 与待处理结果的异步 schema；模型只会看到被选中的定义。
 
 #### Token 影响
 

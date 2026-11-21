@@ -3,7 +3,7 @@ description: "Remote file-effect confinement for compositions using SSH filesyst
 kind: "package-reference"
 ---
 
-# @omega-ai/dsh-sandbox-ssh
+# @deepseek-ai/dsh-sandbox-ssh
 
 English | [中文](README.zh.md)
 

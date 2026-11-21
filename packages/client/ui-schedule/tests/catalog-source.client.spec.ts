@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { RemoteResult } from '@omega-ai/dsh-api-remotes/client'
-import { RemoteError } from '@omega-ai/dsh-client-test-runtime'
-import type { ScheduleDeleteResult, ScheduleId, ScheduleRecord } from '@omega-ai/dsh-schedule/client'
+import type { RemoteResult } from '@deepseek-ai/dsh-api-remotes/client'
+import { RemoteError } from '@deepseek-ai/dsh-client-test-runtime'
+import type { ScheduleDeleteResult, ScheduleId, ScheduleRecord } from '@deepseek-ai/dsh-schedule/client'
 import { createCatalogSource } from '../src/client/catalog-source.ts'
 
 const id = 'reminder' as ScheduleId
@@ -42,6 +42,37 @@ async function flushed(): Promise<void> {
 }
 
 describe('Schedule catalog Remote source', () => {
+  it('retains an acknowledged creation when its catalog refresh fails and ignores older reads', async () => {
+    const h = harness()
+    const older = Promise.withResolvers<RemoteResult<ScheduleRecord[]>>()
+    h.list.mockReturnValueOnce(older.promise)
+    const dispose = h.source.subscribe(vi.fn())
+    h.entry.retainCreated(row)
+    h.list.mockResolvedValueOnce(failure)
+    await h.entry.onRetry(h.source.getSnapshot().readRequest)
+    older.resolve(ready([]))
+    await flushed()
+    expect(h.source.getSnapshot()).toMatchObject({ status: 'error', records: [row] })
+    h.list.mockResolvedValueOnce(ready([]))
+    await h.entry.onRetry()
+    expect(h.source.getSnapshot()).toMatchObject({ status: 'ready', records: [] })
+    dispose()
+  })
+
+  it('does not duplicate a created task the catalog already lists', async () => {
+    const h = harness()
+    const listener = vi.fn()
+    const dispose = h.source.subscribe(listener)
+    await flushed()
+    const snapshot = h.source.getSnapshot()
+    expect(snapshot.records).toEqual([row])
+    listener.mockClear()
+    h.entry.retainCreated(row)
+    expect(h.source.getSnapshot()).toBe(snapshot)
+    expect(listener).not.toHaveBeenCalled()
+    dispose()
+  })
+
   it('queries on subscription and refreshes on changes and reconnection', async () => {
     const h = harness()
     const dispose = h.source.subscribe(vi.fn())

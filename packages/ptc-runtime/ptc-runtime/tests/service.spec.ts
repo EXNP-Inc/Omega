@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import { PtcRuntime } from '@omega-ai/dsh-ptc-runtime'
-import type { PtcRunRequest, PtcRunResult } from '@omega-ai/dsh-ptc-runtime'
+import { Context } from '@deepseek-ai/cordis'
+import { PtcRuntime } from '@deepseek-ai/dsh-ptc-runtime'
+import type { PtcRunRequest, PtcRunResult } from '@deepseek-ai/dsh-ptc-runtime'
 
 /**
  * Minimal concrete runtime: records requests, "executes" by invoking every
@@ -10,17 +10,17 @@ import type { PtcRunRequest, PtcRunResult } from '@omega-ai/dsh-ptc-runtime'
  * the smallest subclass that honors it.
  */
 class StubRuntime extends PtcRuntime {
-  resolve(request: import('@omega-ai/dsh-ptc-runtime').PtcRunRequest): import('@omega-ai/dsh-ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+  resolve(request: import('@deepseek-ai/dsh-ptc-runtime').PtcRunRequest): import('@deepseek-ai/dsh-ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
   readonly language = 'typescript'
   readonly isolation = 'in-process-stub'
   requests: PtcRunRequest[] = []
-  nextResult: PtcRunResult = { logs: [] }
+  nextResult: PtcRunResult = { output: [] }
 
   async run(request: PtcRunRequest): Promise<PtcRunResult> {
     this.requests.push(request)
     if (request.signal?.aborted) {
-      return { logs: [], error: { kind: 'abort', message: String(request.signal.reason) } }
+      return { output: [], error: { kind: 'abort', message: String(request.signal.reason) } }
     }
     for (const namespace of request.bindings) {
       for (const fn of Object.values(namespace.functions)) {
@@ -44,13 +44,19 @@ describe('PtcRuntime service seam', () => {
     expect(runtime.language).toBe('typescript')
     expect(runtime.isolation).toBe('in-process-stub')
     expect(runtime.sandboxMode).toBeUndefined()
+    expect(runtime.programFormat).toBe('function-body')
+    expect(runtime.retainsState).toBe(false)
+    expect(runtime.executionInstructions).toBe('')
+    expect(runtime.timeout).toBeUndefined()
+    await expect(runtime.release({})).resolves.toBeUndefined()
+    expect(() => runtime.registerEnvironmentInitializer('')).toThrow('environment initialization is unsupported')
 
     const calls: unknown[] = []
     const result = await runtime.run(runtime.resolve({
       program: 'return 1',
       bindings: [{ global: 'tools', functions: { probe: async (args) => { calls.push(args); return null } } }],
     }))
-    expect(result).toEqual({ logs: [] })
+    expect(result).toEqual({ output: [] })
     expect(calls).toEqual([{ from: 'stub' }])
     expect(runtime.requests).toHaveLength(1)
   })
@@ -58,7 +64,7 @@ describe('PtcRuntime service seam', () => {
   it('reports a failed run as an error field on a resolved result, never a rejection', async () => {
     const { runtime } = await setup()
     runtime.nextResult = {
-      logs: ['boom'],
+      output: [{ type: 'text', text: 'boom' }],
       error: { kind: 'exception', message: 'boom' },
     }
     const result = await runtime.run(runtime.resolve({ program: 'throw new Error("boom")', bindings: [] }))

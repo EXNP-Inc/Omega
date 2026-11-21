@@ -4,10 +4,10 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import NodeModule, { createRequire } from 'node:module'
-import { Context, type Plugin } from '@omega-ai/cordis'
-import Loader, { type ModuleJob, type ModuleLoader } from '@omega-ai/cordis-plugin-loader'
-import Timer from '@omega-ai/cordis-plugin-timer'
-import z from '@omega-ai/schemastery'
+import { Context, type Plugin } from '@deepseek-ai/cordis'
+import Loader, { type ModuleJob, type ModuleLoader } from '@deepseek-ai/cordis-plugin-loader'
+import Timer from '@deepseek-ai/cordis-plugin-timer'
+import z from '@deepseek-ai/schemastery'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import Hmr from '../src/index.ts'
 
@@ -298,7 +298,7 @@ it('leaves disposed child instances to their replacing parent', async () => {
   expect(seen).toContain('new:entry')
   expect(seen).not.toContain('new:child')
   expect(seen).toContain('new:independent')
-  expect(entry.fiber?._config).toEqual({ value: 'entry' })
+  expect(entry.fiber?.rawConfig).toEqual({ value: 'entry' })
 })
 
 it.each(['v1', 'v2'] as const)('invalidates a disabled %s module without activating it', async (version) => {

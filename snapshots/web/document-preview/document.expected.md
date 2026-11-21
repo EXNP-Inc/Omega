@@ -65,9 +65,11 @@
 
 ## Image zoom
 
+- Contained sidebar PNG drags into the composer as an original-byte image attachment
 - Small PNG fit width remains at intrinsic size; 200% doubles it
 - SVG fit width -> 100% -> fit width toggles horizontal overflow: false -> true -> false
 - Image and Blob identities remain stable while zoom changes
+- Overflowing image drag pans both axes by 80px; releasing restores the grab cursor
 
 ## Code paging
 
@@ -81,7 +83,7 @@
 ## Office unavailable
 
 - DOC, DOCX, PPT, PPTX viewer menus: 0 | 0 | 0 | 0
-- Guidance: Read failed: Office previews are unavailable. Enable the document preview service on the computer running Omega.
+- Guidance: Read failed: Office previews are unavailable. Enable the document preview service on the computer running DeepSeek Harness.
 - Binary text shown: false
 - Plain-text option and viewer picker: hidden
 

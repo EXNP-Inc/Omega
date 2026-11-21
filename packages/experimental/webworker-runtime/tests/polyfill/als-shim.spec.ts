@@ -26,9 +26,9 @@
 import { expect, test } from 'vitest'
 import {
   AsyncLocalStorage, __restoreAll, __snapshotAll, alsCausality, runAtAsyncContextRoot,
-} from '@omega-ai/dsh-experimental-webworker-runtime/src/node/builtin_modules/implemented/async_hooks.ts'
-import { installAsyncContextHooks } from '@omega-ai/dsh-experimental-webworker-runtime/src/polyfill/async-context/async-context-hooks.ts'
-import { installTimerGlobals } from '@omega-ai/dsh-experimental-webworker-runtime/src/node/globals/timers.ts'
+} from '@deepseek-ai/dsh-experimental-webworker-runtime/src/node/builtin_modules/implemented/async_hooks.ts'
+import { installAsyncContextHooks } from '@deepseek-ai/dsh-experimental-webworker-runtime/src/polyfill/async-context/async-context-hooks.ts'
+import { installTimerGlobals } from '@deepseek-ai/dsh-experimental-webworker-runtime/src/node/globals/timers.ts'
 
 // Same order the worker entry uses: patch the platform, then wrap the timers over
 // the patched platform. The folding cases below must hold with both in place.
@@ -102,7 +102,7 @@ const delay = (ms = 0): Promise<void> => new Promise((resolve) => { setTimeout(r
   const als = new AsyncLocalStorage<string>()
   try {
     als.run('thrower', () => { throw new Error('sync failure') })
-  } catch { /* expected */ }
+  } catch (_syncFailure) { /* The callback throws on purpose; the check below reads the store after it. */ }
   check('boundary closes after sync throw', als.getStore(), undefined)
 }
 

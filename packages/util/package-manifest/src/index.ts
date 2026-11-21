@@ -1,7 +1,17 @@
 /**
  * Public package manifest and plugin display types, with no runtime exports.
- * @module @omega-ai/dsh-package-manifest
+ * @module @deepseek-ai/dsh-package-manifest
  */
+
+export type {
+  ClientModuleStylesheetDescriptor,
+  ClientModuleStyleContext,
+  ClientModuleMeta,
+  ClientModuleMetaFactory,
+  ClientBundleRequire,
+  ClientModuleFactory,
+  DshClientModuleManifest,
+} from './client-module.ts'
 
 export type {
   DshBundleManifest,

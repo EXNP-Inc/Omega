@@ -1,9 +1,10 @@
-/** Omega Files API transport. @module dsh-llm-omega/files-api */
+/** DeepSeek Files API transport. @module dsh-llm-deepseek/files-api */
 
-import { attributionHeaders, LlmError } from '@omega-ai/dsh-llm'
-import type { ImageMediaType } from '@omega-ai/dsh-attachment'
-import { OmegaFileId } from './file-id.ts'
-import type { OmegaFileId as OmegaFileIdType } from './file-id.ts'
+import { attributionHeaders, LlmError } from '@deepseek-ai/dsh-llm'
+import type { ImageMediaType } from '@deepseek-ai/dsh-attachment'
+import { brandString } from '@deepseek-ai/dsh-brand'
+import { retryAfterMs } from './transport.ts'
+import type { DeepSeekFileId as DeepSeekFileIdType } from './file-id.ts'
 import { messagesApiRoot, MESSAGES_FILES_BETA } from './messages-api.ts'
 
 /** Minimum provider-supported file lifetime. */
@@ -18,8 +19,8 @@ export const MAX_STORED_FILE_COUNT = 10_000
 export const MAX_STORED_FILE_BYTES = 25 * 1024 * 1024 * 1024
 
 /** Validated provider file metadata. */
-export interface OmegaFileObject {
-  id: OmegaFileIdType
+export interface DeepSeekFileObject {
+  id: DeepSeekFileIdType
   bytes: number
   createdAt: number
   filename: string
@@ -28,15 +29,15 @@ export interface OmegaFileObject {
 }
 
 /** One page returned by `GET /files`. */
-export interface OmegaFilePage {
-  data: OmegaFileObject[]
-  firstId?: OmegaFileIdType
-  lastId?: OmegaFileIdType
+export interface DeepSeekFilePage {
+  data: DeepSeekFileObject[]
+  firstId?: DeepSeekFileIdType
+  lastId?: DeepSeekFileIdType
   hasMore: boolean
 }
 
 /** Files API operation failure with its HTTP status retained for recovery policy. */
-export class OmegaFilesError extends LlmError {
+export class DeepSeekFilesError extends LlmError {
   /** Parsed provider detail used only for error classification. */
   readonly detail: string
 
@@ -44,16 +45,18 @@ export class OmegaFilesError extends LlmError {
    * @param message - user-readable provider failure.
    * @param status - HTTP status returned by the Files API.
    * @param detail - provider error fields joined for classification.
+   * @param headers - Files response headers carrying Retry-After.
    */
-  constructor(message: string, status: number, detail: string) {
+  constructor(message: string, status: number, detail: string, headers?: Headers) {
+    const wait = retryAfterMs(headers)
     super(message, status === 401 || status === 403
       ? 'AUTH'
       : status === 429
         ? 'RATE_LIMIT'
         : status >= 500
           ? 'SERVER'
-          : 'FILES_API', { status })
-    this.name = 'OmegaFilesError'
+          : 'FILES_API', { status, ...wait === undefined ? {} : { providerRetryAfterMs: wait } })
+    this.name = 'DeepSeekFilesError'
     this.detail = detail
   }
 }
@@ -63,8 +66,8 @@ export class OmegaFilesError extends LlmError {
  * @param error - Files API operation failure.
  * @returns whether one bounded remote cleanup and upload retry may recover.
  */
-export function isFilesQuotaError(error: unknown): error is OmegaFilesError {
-  return error instanceof OmegaFilesError
+export function isFilesQuotaError(error: unknown): error is DeepSeekFilesError {
+  return error instanceof DeepSeekFilesError
     && /(?:quota|storage|stored files|file count|too many files)/iu.test(error.detail)
 }
 
@@ -76,7 +79,7 @@ interface FilesApiOptions {
 }
 
 function invalidResponse(operation: string): LlmError {
-  return new LlmError(`Omega Files API returned an invalid ${operation} response.`, 'INVALID_RESPONSE')
+  return new LlmError(`DeepSeek Files API returned an invalid ${operation} response.`, 'INVALID_RESPONSE')
 }
 
 /** Decode successful Files JSON with operation context; body transport and abort failures retain their identity. */
@@ -85,14 +88,14 @@ async function responseJson(response: Response, operation: string): Promise<unkn
     return await response.json()
   } catch (error: unknown) {
     if (!(error instanceof SyntaxError)) throw error
-    throw new LlmError(`Omega Files API returned invalid JSON for ${operation} (HTTP ${response.status}).`, 'INVALID_RESPONSE', {
+    throw new LlmError(`DeepSeek Files API returned invalid JSON for ${operation} (HTTP ${response.status}).`, 'INVALID_RESPONSE', {
       status: response.status,
       cause: error,
     })
   }
 }
 
-function parseFileObject(value: unknown, operation: string): OmegaFileObject {
+function parseFileObject(value: unknown, operation: string): DeepSeekFileObject {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) throw invalidResponse(operation)
   const wire = value as Record<string, unknown>
   const createdAt = typeof wire.created_at === 'string' ? Math.floor(Date.parse(wire.created_at) / 1_000) : NaN
@@ -106,7 +109,7 @@ function parseFileObject(value: unknown, operation: string): OmegaFileObject {
     throw invalidResponse(operation)
   }
   return {
-    id: OmegaFileId(wire.id),
+    id: brandString<DeepSeekFileIdType>(wire.id),
     bytes: wire.size_bytes,
     createdAt,
     filename: wire.filename,
@@ -128,7 +131,7 @@ function providerErrorDetail(value: unknown): { message?: string; detail: string
 }
 
 /** Direct Files client retaining the configured URL root and refusing redirects before credentials can leave its origin. */
-export class OmegaFilesClient {
+export class DeepSeekFilesClient {
   private readonly baseURL: string
   private readonly authHeaders: Readonly<Record<string, string>>
   private readonly fetchImpl: typeof fetch
@@ -157,20 +160,21 @@ export class OmegaFilesClient {
       })
     } catch (error: unknown) {
       if (signal?.aborted) throw error
-      throw new LlmError(`Omega Files API request to ${this.baseURL} failed`, 'TRANSPORT', { cause: error })
+      throw new LlmError(`DeepSeek Files API request to ${this.baseURL} failed`, 'TRANSPORT', { cause: error })
     }
     if (response.ok) return response
     let parsed: unknown
     try {
       parsed = await response.json()
-    } catch {
+    } catch (_nonJsonErrorBody) {
       // A status remains sufficient to report the provider failure.
     }
     const { message, detail } = providerErrorDetail(parsed)
-    throw new OmegaFilesError(
-      message ?? `Omega Files API error (HTTP ${response.status})`,
+    throw new DeepSeekFilesError(
+      message ?? `DeepSeek Files API error (HTTP ${response.status})`,
       response.status,
       detail,
+      response.headers,
     )
   }
 
@@ -186,14 +190,14 @@ export class OmegaFilesClient {
     filename: string
     expiresAfterSeconds: number
     signal?: AbortSignal
-  }): Promise<OmegaFileObject & { expiresAt: number }> {
+  }): Promise<DeepSeekFileObject & { expiresAt: number }> {
     if (input.data.byteLength > MAX_FILE_UPLOAD_BYTES) {
-      throw new LlmError('Omega Files API upload exceeds 128 MiB.', 'INVALID_REQUEST')
+      throw new LlmError('DeepSeek Files API upload exceeds 128 MiB.', 'INVALID_REQUEST')
     }
     if (!Number.isSafeInteger(input.expiresAfterSeconds)
       || input.expiresAfterSeconds < MIN_FILE_EXPIRY_SECONDS
       || input.expiresAfterSeconds > MAX_FILE_EXPIRY_SECONDS) {
-      throw new LlmError('Omega file expiry must be between 3600 and 2592000 seconds.', 'INVALID_REQUEST')
+      throw new LlmError('DeepSeek file expiry must be between 3600 and 2592000 seconds.', 'INVALID_REQUEST')
     }
     const form = new FormData()
     form.set('expires_after[anchor]', 'created_at')
@@ -210,10 +214,10 @@ export class OmegaFilesClient {
    * @returns the validated page with null cursors omitted.
    */
   async list(options: {
-    after?: OmegaFileIdType
+    after?: DeepSeekFileIdType
     limit?: number
     signal?: AbortSignal
-  } = {}): Promise<OmegaFilePage> {
+  } = {}): Promise<DeepSeekFilePage> {
     const query = new URLSearchParams()
     if (options.after !== undefined) query.set('after_id', options.after)
     if (options.limit !== undefined) query.set('limit', String(options.limit))
@@ -230,8 +234,8 @@ export class OmegaFilesClient {
     }
     return {
       data: wire.data.map(item => parseFileObject(item, 'list')),
-      ...typeof firstId === 'string' ? { firstId: OmegaFileId(firstId) } : {},
-      ...typeof lastId === 'string' ? { lastId: OmegaFileId(lastId) } : {},
+      ...typeof firstId === 'string' ? { firstId: brandString<DeepSeekFileIdType>(firstId) } : {},
+      ...typeof lastId === 'string' ? { lastId: brandString<DeepSeekFileIdType>(lastId) } : {},
       hasMore: wire.has_more,
     }
   }
@@ -242,7 +246,7 @@ export class OmegaFilesClient {
    * @param signal - request cancellation.
    * @returns the validated file object.
    */
-  async retrieve(fileId: OmegaFileIdType, signal?: AbortSignal): Promise<OmegaFileObject> {
+  async retrieve(fileId: DeepSeekFileIdType, signal?: AbortSignal): Promise<DeepSeekFileObject> {
     const response = await this.request(`/files/${encodeURIComponent(fileId)}`, { method: 'GET' }, signal)
     return parseFileObject(await responseJson(response, 'retrieve'), 'retrieve')
   }
@@ -252,7 +256,7 @@ export class OmegaFilesClient {
    * @param fileId - provider file identifier.
    * @param signal - request cancellation.
    */
-  async delete(fileId: OmegaFileIdType, signal?: AbortSignal): Promise<void> {
+  async delete(fileId: DeepSeekFileIdType, signal?: AbortSignal): Promise<void> {
     const response = await this.request(`/files/${encodeURIComponent(fileId)}`, { method: 'DELETE' }, signal)
     const value: unknown = await responseJson(response, 'delete')
     if (value === null || typeof value !== 'object' || Array.isArray(value)) throw invalidResponse('delete')

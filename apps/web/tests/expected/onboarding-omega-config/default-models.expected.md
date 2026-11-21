@@ -1,9 +1,9 @@
 - dialog "设置":
+  - text: 设置
   - navigation:
-    - text: 设置
     - button "通用设置"
     - button "模型"
-    - button "内置插件"
+    - button "插件管理"
     - button "Agent 预设"
   - button "打开配置文件"
   - button "关闭"
@@ -11,57 +11,59 @@
   - paragraph: 填入各提供商的 API 密钥即可使用其模型。
   - list:
     - listitem:
-      - text: Omega
+      - text: DeepSeek
       - img "API 密钥已配置"
-      - button "编辑 Omega (omega-official)": 编辑
-      - text: Omega omega-official API 密钥
+      - button "编辑 DeepSeek (deepseek-official)": 编辑
+      - text: DeepSeek deepseek-official API 密钥
+      - button "认证说明": "?"
       - textbox "API 密钥":
-        - /placeholder: 已配置——输入新值可替换
+        - /placeholder: dsh_onboa•••••••••••••••••••••••••••••••test
+      - paragraph: 使用已保存的 API key。
       - group:
         - text: 自定义设置 API 地址
         - textbox "API 地址":
-          - /placeholder: https://api.omega.com/anthropic
+          - /placeholder: https://api.deepseek.com/anthropic（默认使用环境 DEEPSEEK_BASE_URL）
         - text: 请填写兼容 Anthropic Messages 协议的 API 地址。
+        - group "重试策略":
+          - text: 重试策略
+          - combobox "重试策略":
+            - option "默认（仅临时错误）" [selected]
+            - option "仅临时错误"
+            - option "所有错误"
         - region "模型目录":
-          - text: 模型目录 已自定义模型目录
-          - button "恢复默认模型"
+          - text: 模型目录 正在使用适配器默认模型
+          - button "调整模型顺序 1"
           - textbox "模型 ID 1":
             - /placeholder: 模型 ID
-            - text: omega-flash
-          - textbox "显示名称 1":
-            - /placeholder: 显示名称
-            - text: Configured Flash
+            - text: deepseek-flash
           - button "模型选项 1" [expanded]
           - button "删除模型 1"
+          - textbox "显示名称 1":
+            - /placeholder: 显示名称
+            - text: DeepSeek-V4.1-Flash
           - text: 上下文窗口
           - textbox "上下文窗口 1":
             - /placeholder: 1M
+            - text: "1048576"
           - text: 最大输出 token 数
           - textbox "最大输出 token 数 1":
             - /placeholder: 256K
           - group "输入类型 1":
             - text: 输入类型
-            - checkbox "文本" [checked] [disabled]
+            - checkbox "文本" [checked]
             - text: 文本
-            - checkbox "图片"
+            - checkbox "图片" [checked]
             - text: 图片
+          - button "调整模型顺序 2"
           - textbox "模型 ID 2":
             - /placeholder: 模型 ID
-            - text: omega-v4-pro
-          - textbox "显示名称 2":
-            - /placeholder: 显示名称
-            - text: Omega-V4-Pro
+            - text: deepseek-v4-pro
           - button "模型选项 2"
           - button "删除模型 2"
+          - textbox "显示名称 2":
+            - /placeholder: 显示名称
+            - text: DeepSeek-V4-Pro
           - button "添加模型"
       - button "取消"
       - button "保存"
-    - listitem:
-      - text: alice 自定义
-      - img "API 密钥缺失"
-      - button "编辑 alice": 编辑
-    - listitem:
-      - text: Mac 自定义
-      - img "API 密钥缺失"
-      - button "编辑 Mac (mac)": 编辑
   - button "添加模型提供商"

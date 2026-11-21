@@ -6,18 +6,18 @@
  * reference graph closes a cycle through ui-sidebar → ui-layout → ui-theme.
  * The settings SLOT types (what registrants contribute) stay in ui-settings.
  */
-import type { ConnectionState } from '@omega-ai/dsh-client-connection/client'
+import type { ConnectionState } from '@deepseek-ai/dsh-client-connection/client'
 import type {
-  HostObservable, InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime,
-} from '@omega-ai/dsh-client-ui-slots'
+  HostObservable, InjectFace, PropsLocale, PropsRenderFactories, PropsRenderSlots, PropsRuntime,
+} from '@deepseek-ai/dsh-client-ui-slots'
 // Type-only: pulls ui-sidebar's SlotMap merge (the 'sidebar.settings' entry)
 // into every program that sees this contract.
-import type {} from '@omega-ai/dsh-client-ui-sidebar/client'
+import type {} from '@deepseek-ai/dsh-client-ui-sidebar/client'
 // Type-only: pulls the settings slot declarations the shell renders into.
-import type {} from '@omega-ai/dsh-client-ui-settings/client'
-import type { PropsStore } from '@omega-ai/dsh-client-store'
+import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
+import type { PropsStore } from '@deepseek-ai/dsh-client-store'
 import type { createSettingsShellStore } from './shell-store.ts'
-import type { ShortcutCatalogEntry } from '@omega-ai/dsh-client-shortcuts/client'
+import type { ShortcutCatalogEntry } from '@deepseek-ai/dsh-client-shortcuts/client'
 import type { DesktopUpdateView } from '../types.ts'
 
 /** One nav row projected from a settings.section registration's options. */
@@ -67,13 +67,15 @@ export type SettingsRootComponentProps =
   PropsRuntime<'sidebar.settings'>
   & PropsRenderSlots<
     | 'settings.launcher'
+    | 'settings.notice'
     | 'settings.trigger'
     | 'settings.header'
     | 'settings.action'
     | 'settings.close'
-    | 'settings.section'
+    | 'settings.section.icon'
     | 'settings.onboarding'
   >
+  & PropsRenderFactories
   & InjectFace<SettingsRootInjected>
   & PropsLocale<'settings'>
   & PropsStore<ReturnType<typeof createSettingsShellStore>>

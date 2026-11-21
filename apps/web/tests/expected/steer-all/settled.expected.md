@@ -1,16 +1,23 @@
 - banner:
   - navigation "Session hierarchy": Use the ask_user_question tool to
   - text: Standard mode
+  - button "Session panel"
   - button "More actions"
   - button "Open right sidebar"
   - tablist:
     - tab "Chat" [selected]
     - tab "Trajectory"
+  - button "More conversation views"
 - text: Use the ask_user_question tool to ask me exactly one question with id "checkpoint", question "Ready to continue?", header "Checkpoint", and options labeled "Yes" and "No". After I answer, reply with one short sentence acknowledging my answer and stop. {{clock}}
 - button "Copy"
 - status: Completed
 - button "Completed in {{duration}}" [disabled]
 - button "Asked questions"
+- group "Questions and answers":
+  - term: Checkpoint Ready to continue?
+  - definition: "Yes"
+  - text: {{clock}}
+  - button "Copy"
 - text: "Interjection: include the word BANANA in your final reply. {{clock}}"
 - button "Copy"
 - text: "Interjection: include the word ORANGE in your final reply. {{clock}}"
@@ -24,7 +31,7 @@
 - textbox "Message or run a task, / commands, @ files or sessions"
 - button "Add files or run commands"
 - 'button "Access mode, current: Workspace Write"': Workspace Write
-- button "Select model, current Omega-V4-Flash": Omega-V4-Flash
+- button "Select model, current DeepSeek-V4-Flash": DeepSeek-V4-Flash
 - button "Send message" [disabled]
 - button "1 turns 2 steps · {{throughput}} tok/s": 1 turns 2 steps{{throughput}} tok/s
 - button "40 tok · Cache hit 0%": 40 tokCache hit 0%

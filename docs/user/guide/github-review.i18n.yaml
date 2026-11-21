@@ -6,17 +6,17 @@
   en: d7326712d79158d8
   zh: 02102a8b9e749928
 /create-review-sessions-from-github-webhooks/prerequisites:
-  en: 699c3a3cbee14809
-  zh: a63d255eaea55568
-/create-review-sessions-from-github-webhooks/start-omega:
-  en: d527f576bfe4ad59
-  zh: 28f07f69aa6ea4b6
+  en: 6784d85f90231608
+  zh: 3e62e9cadfdc2c18
+/create-review-sessions-from-github-webhooks/start-dsh:
+  en: 6c2c8394bfaf5d11
+  zh: a863fa2ad6bc48bb
 /create-review-sessions-from-github-webhooks/expose-the-dedicated-endpoint:
-  en: 4079cc54fb181bf9
-  zh: 52a7086fa93092ba
+  en: f18a2969b3082da9
+  zh: 87d3d0e58d25a62f
 /create-review-sessions-from-github-webhooks/rule-behavior:
-  en: 8cfa0552ba2df87b
-  zh: c872d9430daaf9ca
+  en: 3306087b78170a99
+  zh: 7c7b0baefa1dc303
 /create-review-sessions-from-github-webhooks/programmatic-extensions:
   en: d448fc3e440a0ec6
   zh: 18568898933ef054

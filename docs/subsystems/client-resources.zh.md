@@ -14,7 +14,7 @@
 |---|---|---|
 | `dsh-resource://file/session/s1/notes/a.md` | `file` | 会话 `s1` 工作区根下 `notes/a.md` 的元数据（`file` 提供方已注册时） |
 | `dsh-resource://file/absolute/home/me/notes.md` | `file` | 可解析，但没有授权 Session，以 `workspace-file/unknown-workspace` 失败；不借用当前或 Tab Session |
-| `Omega-RESOURCE://File/session/s1/a` | `file` | 另一份记录：地址按字符串比较，`openResource` 只接受 `fileAddressFor` 生成的规范小写拼写 |
+| `DSH-RESOURCE://File/session/s1/a` | `file` | 另一份记录：地址按字符串比较，`openResource` 只接受 `fileAddressFor` 生成的规范小写拼写 |
 | `dsh-resource://subagentchat/session/c1?parent=p1&mode=continuable` | `subagentchat` | 已寻址的 subagent Conversation；其值持有一个 `SessionReference`，直到资源关闭 |
 | `sidebar://guide` | — | `none`：导航地址 |
 | `/home/me/notes.md` | — | `none`：不是 URL |
@@ -24,13 +24,13 @@
 协议拥有者在 `ResourceProtocolMap` 上声明其值类型，并在自己的 `ctx.effect` 里注册一个提供方，使协议与插件同寿（[提供协议](../../packages/client/resources/README.zh.md#provide-a-protocol)）。`open(address, { signal })` 返回一条 `RemoteResult` 帧流——首帧是当前状态，之后每次变化一帧——并且必须在 `signal` 中止时停下。失败是携带 `RemoteFailure` 的 `ok: false` 帧；流里抛出是编程错误，不会被捕获。
 
 ```ts ignore-check
-import type { Context } from '@omega-ai/cordis'
-import type { RemoteResult } from '@omega-ai/dsh-typert-protocol'
-import type {} from '@omega-ai/dsh-client-resources/client'
+import type { Context } from '@deepseek-ai/cordis'
+import type { RemoteResult } from '@deepseek-ai/dsh-typert-protocol'
+import type {} from '@deepseek-ai/dsh-client-resources/client'
 
 interface NoteView { readonly title: string; readonly updatedAt: string }
 
-declare module '@omega-ai/dsh-client-ui-slots' {
+declare module '@deepseek-ai/dsh-client-ui-slots' {
   interface ResourceProtocolMap { note: NoteView }
 }
 
@@ -62,8 +62,8 @@ export function apply(ctx: Context): void {
 | `failed` | 最新一帧报告了失败 | 保留的上一个 `ok` 值 | 该帧的 `RemoteFailure` |
 
 ```tsx ignore-check
-import type { PropsRuntime } from '@omega-ai/dsh-client-ui-slots'
-import type {} from '@omega-ai/dsh-api-workspace-files/client'
+import type { PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
+import type {} from '@deepseek-ai/dsh-api-workspace-files/client'
 
 type Props = PropsRuntime<'sidebar.right.pane.tab'>
 

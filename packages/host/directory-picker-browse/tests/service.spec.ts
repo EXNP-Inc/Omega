@@ -4,9 +4,9 @@ import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises'
 import { homedir, tmpdir } from 'node:os'
 import { basename, join } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import { DirectoryPickerError } from '@omega-ai/dsh-host-directory-picker'
-import type { DirectoryPickerBrowseCapability } from '@omega-ai/dsh-host-directory-picker'
+import { Context } from '@deepseek-ai/cordis'
+import { DirectoryPickerError } from '@deepseek-ai/dsh-host-directory-picker'
+import type { DirectoryPickerBrowseCapability } from '@deepseek-ai/dsh-host-directory-picker'
 import BrowseDirectoryPicker, { boundedInsert, fullyQualified, raceAbort } from '../src/index.ts'
 import type { ListingCandidate } from '../src/index.ts'
 
@@ -24,7 +24,7 @@ beforeAll(async () => {
   await symlink(join(root, 'gone'), join(root, 'broken'), 'junction')
   try {
     await symlink(join(root, 'notes.txt'), join(root, 'file-link'))
-  } catch {
+  } catch (_fileSymlinkDenied) {
     // Windows denies unprivileged file symlinks; the file-link row only
     // feeds the POSIX lanes' coverage of the symlink-to-file arm, and every
     // assertion below expects it to be filtered out anyway.

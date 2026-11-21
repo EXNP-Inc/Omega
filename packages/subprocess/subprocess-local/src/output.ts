@@ -3,7 +3,7 @@ import { randomBytes } from 'node:crypto'
 import { closeSync, mkdtempSync, openSync, rmdirSync, unlinkSync, writeSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import type { CollectedOutput } from '@omega-ai/dsh-subprocess'
+import type { CollectedOutput } from '@deepseek-ai/dsh-subprocess'
 
 /**
  * Receives one spill failure so the owner can log it through its own logger.
@@ -52,7 +52,7 @@ function privateSpillDir(): string {
 /* v8 ignore next 4 -- exit listeners run after the coverage dump; removal is verified by the CI /tmp residue measurement. */
 process.once('exit', () => {
   if (defaultSpillDir === undefined) return
-  try { rmdirSync(defaultSpillDir) } catch { /* best-effort: ENOENT/ENOTEMPTY/EBUSY/EPERM must not change the exit code. */ }
+  try { rmdirSync(defaultSpillDir) } catch (_spillDirKept) { /* ENOENT, ENOTEMPTY, EBUSY, or EPERM keeps the directory; exit continues. */ }
 })
 
 /**
@@ -244,7 +244,7 @@ export class OutputCollector {
     if (file !== undefined) {
       try {
         unlinkSync(file)
-      } catch {
+      } catch (_spillUnlinkFailed) {
         // A failed unlink leaves at most maxSpillBytes behind, never an unbounded file.
       }
     }

@@ -1,5 +1,11 @@
+- id: tool-executor-native
+  disabled: false
+
+- id: tool-executor-ptc
+  disabled: true
+
 - insert:
     - id: ptc-runtime
-      name: '@omega-ai/dsh-ptc-runtime-node'
+      name: '@deepseek-ai/dsh-ptc-runtime-node'
     - id: structured-denial-fixture
       name: './deny.mjs'

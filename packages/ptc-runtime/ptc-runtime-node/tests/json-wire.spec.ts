@@ -1,6 +1,6 @@
 import { runInNewContext } from 'node:vm'
 import { describe, expect, it } from 'vitest'
-import { snapshotJsonValue } from '@omega-ai/dsh-util-values'
+import { snapshotJsonValue } from '@deepseek-ai/dsh-util-values'
 import { decodePtcJsonWire, encodePtcJsonWire, snapshotPtcJsonValue } from '../src/json-wire.ts'
 
 describe('snapshotPtcJsonValue', () => {
@@ -254,4 +254,32 @@ describe('flat worker JSON wire', () => {
     expect(() => encodePtcJsonWire([undefined] as never)).toThrow(/sparse JSON array/)
     expect(() => encodePtcJsonWire({ value: undefined } as never)).toThrow(/undefined JSON object property/)
   })
+})
+
+
+it('transports registered images as leaves inside arrays and objects', () => {
+  const image = { attachmentId: 'sha256:selected', path: '/images/selected.png', width: 8, height: 4 }
+  const encoded = encodePtcJsonWire({ selected: [image, 7] }, value => value === image
+    ? { kind: 'image', id: 'image-1', ...image } : undefined)
+  expect(decodePtcJsonWire(encoded)).toBeUndefined()
+  const decoded = decodePtcJsonWire(encoded, (wire) => {
+    expect(wire).toEqual({ kind: 'image', id: 'image-1', ...image })
+    return image
+  })
+  expect(decoded).toEqual({ selected: [image, 7] })
+  expect(decoded && typeof decoded === 'object' && !Array.isArray(decoded) && decoded.selected).toEqual([image, 7])
+})
+
+it.each([
+  [], new Date(0),
+  { kind: 'image', id: '', attachmentId: 'sha256:image', path: '/image.png', width: 8, height: 4 },
+  { kind: 'image', id: '1', attachmentId: 'sha256:image', path: '', width: 8, height: 4 },
+  { kind: 'image', id: '1', attachmentId: 'sha256:image', path: '/image.png', width: 0, height: 4 },
+  { kind: 'image', id: '1', attachmentId: 'sha256:image', path: '/image.png', width: 8, height: 1.5 },
+  { kind: 'image', id: '1', attachmentId: 'sha256:image', path: '/image.png', width: 8, height: 4, extra: true },
+  { kind: 'image', id: '1', path: '/image.png', width: 8, height: 4 },
+  { kind: 'image', id: '1', attachmentId: '', path: '/image.png', width: 8, height: 4 },
+  { kind: 'image', id: '1', attachmentId: 1, path: '/image.png', width: 8, height: 4 },
+])('rejects malformed image tokens %j', (token) => {
+  expect(decodePtcJsonWire([token], () => null)).toBeUndefined()
 })

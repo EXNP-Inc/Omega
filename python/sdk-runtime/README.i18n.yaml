@@ -2,18 +2,18 @@
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write python/sdk-runtime/README.md
-/omega-harness-runtime-bin:
-  en: c58908e7bd9965e6
-  zh: 9b23dee87672cd86
-/omega-harness-runtime-bin/installed-commands-and-artifacts:
-  en: 82dbc462b039fea4
-  zh: 696a95414781fef2
-/omega-harness-runtime-bin/python-module-api:
-  en: a88b7574e0e00a28
-  zh: 3fd4fe8c0b338e79
-/omega-harness-runtime-bin/packaged-profile-resolution:
-  en: 641c647efc49c568
-  zh: a29371de9fbbebfd
-/omega-harness-runtime-bin/build-and-distribution:
-  en: a5e51510266deeff
-  zh: ffc9d3369e3c62f9
+/deepseek-harness-runtime-bin:
+  en: 1ea1d8e6d2c14b02
+  zh: 8e0b9903158667a1
+/deepseek-harness-runtime-bin/installed-commands-and-artifacts:
+  en: b1314b95771612fa
+  zh: f06b96e1feba3757
+/deepseek-harness-runtime-bin/python-module-api:
+  en: 78a200e328d96637
+  zh: f3b7a0b69b7a39e0
+/deepseek-harness-runtime-bin/packaged-profile-resolution:
+  en: d7acc2c43da2cff4
+  zh: 38bdc89484c2b41c
+/deepseek-harness-runtime-bin/build-and-distribution:
+  en: 2512cd7c3624ef6e
+  zh: 455f6a528e5f9d61

@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { setTimeout as sleep } from 'node:timers/promises'
 import { describe, expect, it, onTestFinished } from 'vitest'
-import { initProfile } from '@omega-ai/dsh-app-boot'
+import { initProfile } from '@deepseek-ai/dsh-app-boot'
 import { runProfilePnpm, type PackageOperationOptions } from '../src/operations.ts'
 
 /** Holds the inherited pipes until its stop file appears, and ends on its own after a minute. */
@@ -86,7 +86,7 @@ function fixture(child: string, descendant: string) {
     writeFileSync(stopFile, '')
     if (existsSync(pidFile)) {
       const pid = Number(readFileSync(pidFile, 'utf8'))
-      try { process.kill(pid, 'SIGKILL') } catch { /* the descendant exited with its own timer */ }
+      try { process.kill(pid, 'SIGKILL') } catch (_alreadyExited) { /* The descendant exited on its own timer, so there is nothing left to kill. */ }
       await awaitGone(pid)
     }
     rmSync(home, { recursive: true, force: true })
@@ -150,7 +150,7 @@ it('waits for a run recorded by an exited operation before starting its own', as
     stdio: 'ignore',
   })
   onTestFinished(async () => {
-    try { orphan.kill('SIGKILL') } catch { /* the recorded run already exited */ }
+    try { orphan.kill('SIGKILL') } catch (_alreadyExited) { /* The recorded run already exited, so there is nothing left to kill. */ }
     await awaitGone(orphan.pid as number)
   })
   const dir = join(context.home, 'profiles', 'test')

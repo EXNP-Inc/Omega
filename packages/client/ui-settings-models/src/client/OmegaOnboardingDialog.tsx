@@ -1,15 +1,15 @@
 /**
- * Official-Omega first-run step. Readiness comes from the same
+ * Official-DeepSeek first-run step. Readiness comes from the same
  * provider/settings/credential join as the Models page: any provider the user
  * can already talk to ends the step, and only a user with none is offered the
- * official Omega route. The step reuses that page's credential editor in
+ * official DeepSeek route. The step reuses that page's credential editor in
  * the onboarding plugin's shared modal, so the key is entered once.
  */
-import type { TrackProductEvent } from '@omega-ai/dsh-client-product-analytics/client'
+import type { TrackProductEvent } from '@deepseek-ai/dsh-client-product-analytics/client'
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import type { SnapshotStore } from '@omega-ai/dsh-client-store'
-import type { InjectFace, PropsRuntime, PropsRenderSlots } from '@omega-ai/dsh-client-ui-slots'
+import type { ObservableSnapshot, SnapshotStore } from '@deepseek-ai/dsh-client-store'
+import type { InjectFace, PropsRuntime, PropsRenderSlots } from '@deepseek-ai/dsh-client-ui-slots'
 import type { ModelsSettingsState, ModelsSettingsStore } from './store.ts'
 import { onboardingReadiness } from './store.ts'
 import type { ModelsOperations } from './operations.ts'
@@ -18,17 +18,20 @@ import { ProviderEditor } from './ProviderEditor.tsx'
 import type {} from './slot-contract.ts'
 import type { en } from './locales.ts'
 import { OnboardingModal } from './OnboardingModal.tsx'
-import styles from './OmegaOnboardingDialog.module.css'
+import styles from './DeepSeekOnboardingDialog.module.css'
 
-/** Registration-side dependencies of {@link OmegaOnboardingDialog}. */
-export interface OmegaOnboardingInjected {
+/** Registration-side dependencies of {@link DeepSeekOnboardingDialog}. */
+export interface DeepSeekOnboardingInjected {
   /** Desktop-only event collection. */
   track?: TrackProductEvent
-  /** Whether first-run setup should show automatically. Explicit requests remain available. */
-  automatic: boolean
   hooks: {
     /** Shared Models-page join state, bound by the slot renderer. */
     models: SnapshotStore<ModelsSettingsState>
+    /**
+     * Whether first-run setup should show automatically; the step reads it once when it mounts, so a later change
+     * never withdraws a step that already took its turn. Explicit requests remain available.
+     */
+    automatic: ObservableSnapshot<boolean>
   }
   /** Shared Models-page join controller. */
   controller: ModelsSettingsStore
@@ -41,23 +44,25 @@ export interface OmegaOnboardingInjected {
 }
 
 /** Slot owner props plus the feature's injected dependencies. */
-export type OmegaOnboardingDialogProps =
-  PropsRuntime<'settings.onboarding'> & PropsRenderSlots<'settings.models.sign-in'> & InjectFace<OmegaOnboardingInjected>
+export type DeepSeekOnboardingDialogProps =
+  PropsRuntime<'settings.onboarding'> & PropsRenderSlots<'settings.models.sign-in'> & InjectFace<DeepSeekOnboardingInjected>
 
 /* v8 ignore next 3 -- closed-union defaults only defend future source widening */
 function assertNever(_value: never): never {
-  throw new Error('unexpected Omega onboarding state')
+  throw new Error('unexpected DeepSeek onboarding state')
 }
 
 /**
- * Prompt a first-run user for the official Omega credential while no
+ * Prompt a first-run user for the official DeepSeek credential while no
  * provider can serve requests and that credential is writable.
  * @param props - settings-shell owner state and Models feature dependencies.
  * @returns the onboarding modal or null when onboarding needs no intervention.
  */
-export function OmegaOnboardingDialog(props: OmegaOnboardingDialogProps): ReactNode {
-  const { complete, controller, useModels, operations, schema, t, renderSlot, automatic, explicit = false } = props
+export function DeepSeekOnboardingDialog(props: DeepSeekOnboardingDialogProps): ReactNode {
+  const { complete, controller, useModels, useAutomatic, operations, schema, t, renderSlot, explicit = false } = props
   const [apiKey, setApiKey] = useState(explicit)
+  const automaticOnMount = useAutomatic(value => value)
+  const [automatic] = useState(automaticOnMount)
   const state = useModels(snapshot => snapshot)
   const readiness = onboardingReadiness(state)
 
@@ -92,10 +97,10 @@ export function OmegaOnboardingDialog(props: OmegaOnboardingDialogProps): ReactN
   }
 
   const row = state.rows.find(candidate =>
-    candidate.entry.provider === 'omega-official'
-    && candidate.entry.settingsNs === 'llm-omega'
+    candidate.entry.provider === 'deepseek-official'
+    && candidate.entry.settingsNs === 'llm-deepseek'
     && candidate.entry.settingsPath.length === 0)
-  const namespace = state.namespaces.get('llm-omega')
+  const namespace = state.namespaces.get('llm-deepseek')
   /* v8 ignore next 2 -- credential-missing is derived only from this exact joined row. */
   if (row === undefined || namespace === undefined) return null
 

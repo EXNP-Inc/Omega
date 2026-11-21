@@ -14,13 +14,14 @@
  * NOTE: ./suite.ts imports vitest, so this package is importable only inside a
  * vitest run — a support-tier constraint stated in the README.
  *
- * @module @omega-ai/dsh-session-snapshot
+ * @module @deepseek-ai/dsh-session-snapshot
  */
 
 export {
   redactSessionSnapshotIds,
 } from './identity.ts'
 export {
+  REPLAY_CREDENTIAL_ENV,
   runScenario,
   snapshotSpillRoot,
   type HarvestedLog,

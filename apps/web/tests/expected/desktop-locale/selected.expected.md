@@ -1,9 +1,9 @@
 - dialog "Settings":
+  - text: Settings
   - navigation:
-    - text: Settings
     - button "General"
     - button "Models"
-    - button "Built-in plugins"
+    - button "Plugins"
     - button "Agent presets"
   - button "Open configuration file"
   - button "Close"
@@ -18,8 +18,14 @@
   - text: Font size Only affects conversation content 14
   - button "Increase font size"
   - button "Decrease font size"
-  - text: px Work details Choose how much detail to show for tool calls
+  - text: px
+  - button "More font settings"
+  - text: Work details Choose how much detail to show for tool calls
   - button "Standard"
+  - text: When to Collapse Work Details Choose when to automatically collapse work details
+  - button "On completion"
+  - text: Replies After Collapse Choose which assistant replies stay visible when work details collapse
+  - button "All replies"
   - text: Show coding view Shows trajectory, code diffs, and all Agent presets
   - switch "Show coding view" [checked]
   - text: Keyboard shortcuts
@@ -29,6 +35,6 @@
   - button "Queue"
   - text: Performance & usage Choose how much performance and usage information to show
   - button "Detailed"
-  - text: Upload Session Log when using the official model API Help improve Omega models and products.
+  - text: Upload Session Log when using the official model API Help improve DeepSeek models and products.
   - switch "Upload Session Log when using the official model API"
   - text: "Current version: {{version}}"

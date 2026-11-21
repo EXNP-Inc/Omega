@@ -1,10 +1,10 @@
-/** Client-safe question, answer, and event types. @module @omega-ai/dsh-user-questions/types */
+/** Client-safe question, answer, and event types. @module @deepseek-ai/dsh-user-questions/types */
 
-import type { Scoped } from '@omega-ai/dsh-scope'
-import type { Agent } from '@omega-ai/dsh-agent/types'
-import type { ToolCallId } from '@omega-ai/dsh-llm/brand'
-import type {} from '@omega-ai/dsh-session/types'
-import type {} from '@omega-ai/dsh-session-projection/types'
+import type { Scoped } from '@deepseek-ai/dsh-scope'
+import type { Agent } from '@deepseek-ai/dsh-agent/types'
+import type { ToolCallId } from '@deepseek-ai/dsh-llm/types'
+import type {} from '@deepseek-ai/dsh-session/types'
+import type {} from '@deepseek-ai/dsh-session-projection/types'
 
 /** One selectable answer offered to the user. */
 export interface AskUserQuestionOption {
@@ -32,6 +32,23 @@ export type AskUserQuestionIntent = {
   approve: string
   /** Logged tool invocation whose arguments contain the reviewed plan. */
   callId?: ToolCallId
+} | {
+  /** A blocking permission decision with fixed actions and no free-text answer. */
+  kind: 'approval'
+  /** Option label granting the scope described by the caller. */
+  approve: string
+  /** Option label refusing the requested access. */
+  reject: string
+  /** Optional persistent grant offered only when the caller supports it. */
+  always?: string
+  /** Metadata for human recognition; the caller admits icon sources, which the UI may load as URLs. Never an authorization identity. */
+  subject?: { name: string; icon?: string }
+  /** Localized question and limited-grant label; fixed cards own reject/always wording. Option labels remain answer values. */
+  display?: {
+    question: { en: string; [locale: string]: string }
+    detail?: { en: string; [locale: string]: string }
+    approve?: { en: string; [locale: string]: string }
+  }
 }
 
 /** One question in a user-questions request. */
@@ -104,7 +121,7 @@ export interface UserQuestionProjectionView {
   readonly settled: readonly SettledUserQuestion[]
 }
 
-declare module '@omega-ai/dsh-llm' {
+declare module '@deepseek-ai/dsh-llm' {
   interface MessageSourceMap {
     /**
      * Late reply to a continued `ask_user_question` call, steered into the
@@ -118,7 +135,7 @@ declare module '@omega-ai/dsh-llm' {
   }
 }
 
-declare module '@omega-ai/dsh-session-projection/types' {
+declare module '@deepseek-ai/dsh-session-projection/types' {
   interface SessionProjectionMap {
     /** Timed questions that remain answerable in this Session, and the ones a late reply settled. */
     userQuestions: UserQuestionProjectionView
@@ -145,12 +162,12 @@ export interface AskUserQuestionRequestEvent {
   }
 }
 
-declare module '@omega-ai/cordis' {
+declare module '@deepseek-ai/cordis' {
   interface Events {
     /**
      * Ask composed answerers for structured user input. Return an answer to
      * claim the request or call `next()` to delegate. Scope-filtered dispatch
-     * (`@omega-ai/dsh-scope`): agent-scoped listeners receive only that agent.
+     * (`@deepseek-ai/dsh-scope`): agent-scoped listeners receive only that agent.
      * @param request - pending user-question request.
      * @mode waterfall
      */

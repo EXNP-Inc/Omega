@@ -2,9 +2,9 @@ import { readFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import type { IncomingMessage, Server, ServerResponse } from 'node:http'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@omega-ai/cordis'
-import LlmRuntime, { userAgent } from '@omega-ai/dsh-llm'
-import * as LlmPiAi from '@omega-ai/dsh-llm-pi-ai'
+import { Context } from '@deepseek-ai/cordis'
+import LlmRuntime, { userAgent } from '@deepseek-ai/dsh-llm'
+import * as LlmPiAi from '@deepseek-ai/dsh-llm-pi-ai'
 import { getBuiltinModels } from '@earendil-works/pi-ai/providers/all'
 import { discoverModels } from '../src/discovery.ts'
 
@@ -220,6 +220,52 @@ describe('draft-provider model discovery', () => {
     expect(server.headers.map(headers => headers['user-agent'])).toEqual([userAgent(), userAgent(), userAgent()])
   })
 
+  it('uses the Gemini model-listing path, header, and fields', async () => {
+    const server = await listingServer({
+      body: JSON.stringify({
+        models: [
+          {
+            name: 'models/gemini-pro',
+            displayName: 'Gemini Pro',
+            inputTokenLimit: 1_048_576,
+            outputTokenLimit: 65_536,
+            supportedGenerationMethods: ['generateContent', 'countTokens'],
+          },
+          { name: 'models/text-embedding', supportedGenerationMethods: ['embedContent'] },
+          { name: 'gateway-alias' },
+          { name: 'models/' },
+          { displayName: 'nameless' },
+        ],
+        nextPageToken: 'ignored',
+      }),
+    })
+    const ctx = await harness()
+
+    const models = await ctx.llm.discoverModels('llm-pi-ai', {
+      baseURL: `${server.url}/v1beta/`,
+      api: 'google-generative-ai',
+      apiKey: 'gemini-key',
+    })
+
+    expect(models).toEqual([
+      { id: 'gemini-pro', name: 'Gemini Pro', contextWindow: 1_048_576, maxTokens: 65_536 },
+      { id: 'gateway-alias', name: 'gateway-alias' },
+    ])
+    expect(server.paths).toEqual(['/v1beta/models?pageSize=1000'])
+    expect(server.headers[0]?.['x-goog-api-key']).toBe('gemini-key')
+    expect(server.headers[0]?.authorization).toBeUndefined()
+  })
+
+  it('leaves a Gemini probe with no key unauthenticated, and rejects a reply with no models array', async () => {
+    const server = await listingServer({ body: JSON.stringify({ data: [{ id: 'm' }] }) })
+    const ctx = await harness()
+
+    const failure = ctx.llm.discoverModels('llm-pi-ai', { baseURL: server.url, api: 'google-generative-ai' })
+    await expect(failure).rejects.toMatchObject({ code: 'DISCOVERY_FAILED' })
+    await expect(failure).rejects.toThrow(/no "models" array/)
+    expect(server.headers[0]?.['x-goog-api-key']).toBeUndefined()
+  })
+
   it('prefers the standard data array when both supported formats are present', async () => {
     const server = await listingServer({
       body: JSON.stringify({
@@ -379,7 +425,7 @@ describe('draft-provider model discovery', () => {
       .rejects.toMatchObject({ code: 'DISCOVERY_FAILED' })
   })
 
-  it.each(['azure-openai-responses', 'openai-codex-responses', 'google-generative-ai'])(
+  it.each(['azure-openai-responses', 'openai-codex-responses'])(
     'says it cannot interrogate %s rather than guessing a shape',
     async (api) => {
       // Azure authenticates with an `api-key` header and an `api-version`
@@ -431,7 +477,7 @@ describe('draft-provider model discovery', () => {
     const ctx = await harness()
 
     await expect(ctx.llm.discoverModels('llm-pi-ai', { provider: 'openai' })).resolves.not.toHaveLength(0)
-    await expect(ctx.llm.discoverModels('llm-omega', { baseURL: 'https://api.deepseek.com' }))
+    await expect(ctx.llm.discoverModels('llm-deepseek', { baseURL: 'https://api.deepseek.com' }))
       .rejects.toMatchObject({ code: 'NO_DISCOVERY' })
     await expect(ctx.llm.discoverModels('llm-pi-ai', { baseURL: '' }))
       .rejects.toMatchObject({ code: 'INVALID_DISCOVERY' })

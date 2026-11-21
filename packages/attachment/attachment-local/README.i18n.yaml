@@ -5,57 +5,57 @@
 /:
   en: 5d8d225549347391
   zh: 0fc0e5ee73acf917
-/omega-ai-dsh-attachment-local:
-  en: f25579554b9e2636
-  zh: be70e1efe5e0ed3b
-/omega-ai-dsh-attachment-local/summary:
+/deepseek-ai-dsh-attachment-local:
+  en: d43be6d0218e5f22
+  zh: 444ec4f8125c08b9
+/deepseek-ai-dsh-attachment-local/summary:
   en: 2350024cee2e9954
   zh: 73a4900b1e40013b
-/omega-ai-dsh-attachment-local/table-of-contents:
+/deepseek-ai-dsh-attachment-local/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/omega-ai-dsh-attachment-local/use-this-package:
+/deepseek-ai-dsh-attachment-local/use-this-package:
   en: 912a19be4b59ff8a
   zh: 9c14694cf2ebbaf2
-/omega-ai-dsh-attachment-local/use-this-package/minimal-configuration:
-  en: 0d1d50cc212eb420
-  zh: f486925c702eef01
-/omega-ai-dsh-attachment-local/use-this-package/where-your-images-are-stored-and-how-long-they-last:
+/deepseek-ai-dsh-attachment-local/use-this-package/minimal-configuration:
+  en: 9597c3d9779cb93d
+  zh: 900baa94138cc7de
+/deepseek-ai-dsh-attachment-local/use-this-package/where-your-images-are-stored-and-how-long-they-last:
   en: 4ee90b8f74baa38c
   zh: 9c577709ec55eb82
-/omega-ai-dsh-attachment-local/use-this-package/what-happens-when-you-attach-an-image:
+/deepseek-ai-dsh-attachment-local/use-this-package/what-happens-when-you-attach-an-image:
   en: 75ba799b1e4edba4
   zh: 06c5f76200e8da8a
-/omega-ai-dsh-attachment-local/use-this-package/what-can-go-wrong:
+/deepseek-ai-dsh-attachment-local/use-this-package/what-can-go-wrong:
   en: 377696b2dc08b170
   zh: 6b831ef31c93f712
-/omega-ai-dsh-attachment-local/understand-the-implementation:
+/deepseek-ai-dsh-attachment-local/understand-the-implementation:
   en: e44b0aa3e234a0ef
   zh: b7dd6829478eb7f1
-/omega-ai-dsh-attachment-local/understand-the-implementation/design-decisions:
+/deepseek-ai-dsh-attachment-local/understand-the-implementation/design-decisions:
   en: dcd9857653645420
   zh: a27259a09f17465d
-/omega-ai-dsh-attachment-local/understand-the-implementation/write-and-read-paths:
-  en: 609ccc784a87b770
-  zh: bc702582cf2b3316
-/omega-ai-dsh-attachment-local/understand-the-implementation/source-map:
+/deepseek-ai-dsh-attachment-local/understand-the-implementation/write-and-read-paths:
+  en: 4cbbe8a1466ed46f
+  zh: 49d2d118501867d3
+/deepseek-ai-dsh-attachment-local/understand-the-implementation/source-map:
   en: 05af85aa85934d01
   zh: 1c89e80d496dc0a3
-/omega-ai-dsh-attachment-local/further-exploration:
-  en: 0b9cc4f0fd1a7ea5
-  zh: f8bf80fd6b9aa057
-/omega-ai-dsh-attachment-local/model-experience:
+/deepseek-ai-dsh-attachment-local/further-exploration:
+  en: f8b09b2542211379
+  zh: 57a8fa44aa76b737
+/deepseek-ai-dsh-attachment-local/model-experience:
   en: 2e18b3dfbc5af126
   zh: aaee1745632c561a
-/omega-ai-dsh-attachment-local/model-experience/kv-cache-effect:
+/deepseek-ai-dsh-attachment-local/model-experience/kv-cache-effect:
   en: 64670486210bdab7
   zh: 44c988dd6268c1ff
-/omega-ai-dsh-attachment-local/known-limitations-and-deferred-work:
+/deepseek-ai-dsh-attachment-local/known-limitations-and-deferred-work:
   en: 46a33da5b3740127
   zh: c3ac244228b81d8f
-/omega-ai-dsh-attachment-local/known-limitations-and-deferred-work/dev-note:
+/deepseek-ai-dsh-attachment-local/known-limitations-and-deferred-work/dev-note:
   en: d56846da29ad869c
   zh: 41e655e01351fd1d
-/omega-ai-dsh-attachment-local/known-limitations-and-deferred-work/dev-note/future-retention-and-remote-storage:
+/deepseek-ai-dsh-attachment-local/known-limitations-and-deferred-work/dev-note/future-retention-and-remote-storage:
   en: d4bbda6aadc3c879
   zh: 97a22323e77affb3
