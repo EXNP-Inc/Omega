@@ -1,10 +1,10 @@
 version: 1
-scenario: deepseek-protocol-system-prompt
+scenario: omega-protocol-system-prompt
 profile: headless
-composition: deepseek-protocol-system-prompt
+composition: omega-protocol-system-prompt
 recording: authored
 header:
-  class: deepseek-protocol-system-prompt
+  class: omega-protocol-system-prompt
   pin: true
   systemPromptSource: omega-messages-system-prompt
   toolSchemasSource: text-turn

@@ -1,11 +1,11 @@
 version: 1
-scenario: deepseek-fetch
+scenario: omega-fetch
 profile: headless
-composition: deepseek-fetch
+composition: omega-fetch
 recording: authored
 permission: workspace-write
 header:
-  class: deepseek-fetch
+  class: omega-fetch
   pin: true
   systemPromptSource: web-fetch
   toolSchemasSource: web-fetch

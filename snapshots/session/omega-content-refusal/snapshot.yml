@@ -1,5 +1,5 @@
 version: 1
-scenario: deepseek-content-refusal
+scenario: omega-content-refusal
 profile: headless
 composition: default
 recording: authored

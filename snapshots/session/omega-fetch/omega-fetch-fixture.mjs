@@ -6,7 +6,7 @@ const RECORDED_ENDPOINT = 'http://127.0.0.1:43118/api/v1/tools/fetch'
 const RECORDED_URL = new URL(RECORDED_ENDPOINT)
 
 /** Cordis plugin name. */
-export const name = 'deepseek-fetch-fixture'
+export const name = 'omega-fetch-fixture'
 
 function requestUrl(input) {
   if (typeof input === 'string') return input
@@ -28,7 +28,7 @@ function transportInput(input, transportEndpoint) {
     return input
   }
   if (parsed.host === RECORDED_URL.host) {
-    throw new Error(`deepseek-fetch-fixture: unexpected URL for recorded authority: ${url}`)
+    throw new Error(`omega-fetch-fixture: unexpected URL for recorded authority: ${url}`)
   }
   return input
 }
@@ -37,7 +37,7 @@ function transportInput(input, transportEndpoint) {
 export async function apply(ctx) {
   let restoreFetch = () => {}
   await applyLoopbackServerEffect(ctx, {
-    label: 'deepseek-fetch-fixture',
+    label: 'omega-fetch-fixture',
     requestListener: (request, response) => {
       if (request.method === 'POST' && request.url === '/api/v1/tools/fetch') {
         if (request.headers.authorization !== 'Bearer snapshot-key') {
@@ -59,7 +59,7 @@ export async function apply(ctx) {
       globalThis.fetch = fixtureFetch
       restoreFetch = () => {
         if (globalThis.fetch !== fixtureFetch) {
-          throw new Error('deepseek-fetch-fixture: global fetch owner changed before cleanup')
+          throw new Error('omega-fetch-fixture: global fetch owner changed before cleanup')
         }
         globalThis.fetch = originalFetch
       }

@@ -175,7 +175,7 @@ wording.
 | Unit | `pnpm run test` | green apart from section 5 |
 | GUI | `pnpm run test:gui` — `vitest run packages/client packages/host` (there is no `vitest.gui.config.ts`) | green apart from section 5 |
 | Web e2e | `CI=true PNPM_HOME=$PWD/.pnpm-home DSH_SNAPSHOT=replay ./node_modules/.bin/vitest run --config vitest.web.config.ts` | 171 passed / 1 skipped (key self-skip) |
-| Snapshot | `pnpm run test:snapshot` | green apart from the 13 sandbox-denial debt |
+| Snapshot | `pnpm run test:snapshot` | green apart from `ptc-script-imports` (section 5, environmental) |
 | Docs | `pnpm run doc-sync` | 41/42 (persistence baseline debt) |
 | Website | `pnpm run website:build` | green (doubles as the dead-link check) |
 
@@ -195,8 +195,17 @@ Fixture and golden maintenance when upstream changes model-visible output:
   `apps/web/tests/changed-files-turn.e2e.ts`) do not write their fixture on
   refresh: apply the same deterministic wording to their current-generation
   `session.v4.jsonl` by hand and diff-review it.
-- Historical `session.v2.jsonl` / `session.v3.jsonl` generations are immutable
-  replay inputs — never reword them.
+- Session and SDK fixtures: when upstream or rebrand changes model-visible
+  output (tool descriptions, system prompts, model or provider defaults), run
+  the keyless refresh `DSH_SNAPSHOT_MAX_CONCURRENCY=1 DSH_SNAPSHOT=refresh
+  pnpm run test:snapshot` (it replays the committed scripts and rewrites the
+  current expected outputs; it never loads `.env`), then diff-review every
+  hunk — only the intended output changes may move. Revert refresh noise:
+  stream-chunk timestamps, `durationMs`, and omitted-byte counts in
+  `writer.expected.jsonl` files, and any fixture whose red is environmental
+  (section 5) rather than rebrand output. Historical `session.v2.jsonl` /
+  `session.v3.jsonl` generations are immutable replay inputs — never reword
+  them.
 - ARIA goldens: `vitest run -u` on the affected spec, then diff-review every
   hunk before committing.
 - `scripts/lint-rule-fingerprint.spec.ts`: if upstream changes a custom-rule
@@ -228,7 +237,8 @@ re-record-once goldens.
 | `gen-dependency-catalog`, `lint-rule-fingerprint`, `persistence-developer`, `release/families`, `release/verify-packed-install` | unit | npm-resolution sha256 pins and the release package catalog track the live npm registry / rc.5 package list | environmental — regenerate/re-pin on a full host, or owner decision |
 | `ui-settings-account` contact-url, `text-search` fuzzy `flash`, `website` table-filter `LLM-DEEPSEEK` | unit | rc.5 re-derivation residue (not in the 3 `llm-omega` packages) | re-derive with the next lane |
 | `verify-persistence-changes` | doc-sync | deepseek to omega event renames against the frozen v4 persistence baseline | owner decision |
-| 13 replay failures (3 sdk, 10 headless) | `test:snapshot` | fixtures record `SANDBOX_UNAVAILABLE` denials; the working host sandbox runs the commands instead | re-record from a host where the sandbox backend is unavailable, or owner decision |
+| 13 replay failures (3 sdk, 10 headless) | `test:snapshot` | fixtures record `SANDBOX_UNAVAILABLE` denials; the working host sandbox runs the commands instead | re-record from a host where the sandbox backend is unavailable, or owner decision. **Not observed at the re-apply (`d885a4cb38`) — its 25 snapshot failures were all rebrand gaps with zero `SANDBOX_UNAVAILABLE` signatures — nor at the follow-up re-derivation, which left the lane green apart from `ptc-script-imports`** |
+| `ptc-script-imports` | `test:snapshot` | fixture records successful ESM `import()` results; rc.5's `vm-script` execution mode supports evaluation-phase imports only, so the replay emits `CODE_RUN_FAILED` on a Node-22 host | environmental with the unit-lane `ptc-runtime-node` vm-script row — re-record on a Node ≥ 24 host, or owner decision |
 | `ui-trajectory` `client-bundle` | gui/unit | fails at the fork tip before any pull (rebrand-era) | owner attention |
 | `agent-preset` `skills.spec` x2 | unit | untracked local `graphify` skill install (46856 bytes > 8192 pruner threshold) | owner's install |
 | `workspace-files/changes`, `skill-office/checkers` | unit, full run only | load-dependent timeouts; both green focused | re-run focused when they fail |
@@ -269,7 +279,9 @@ Anything else red after the pull is a regression to fix or report, not debt.
    test that pins an `api.omega.com` / `api.deepseek.com` endpoint at the
    local gateway.
 4. Run the section 3 regeneration chain, then the section 4 verification
-   chain.
+   chain. When a pull (or the re-apply) changes model-visible output in the
+   recorded lanes, first re-derive the session/SDK fixtures with the keyless
+   refresh described in section 4, then run the snapshot replay.
 5. Triage the remaining red against the section 5 table.
 6. Commit the re-applied patch set as one `rebrand(harness): ...` commit
    naming what was re-applied; `git diff --cached --check` must stay clean

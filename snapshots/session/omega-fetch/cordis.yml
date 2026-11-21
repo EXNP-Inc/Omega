@@ -1,6 +1,6 @@
 - insert:
-    - id: deepseek-fetch-fixture
-      name: './deepseek-fetch-fixture.mjs'
+    - id: omega-fetch-fixture
+      name: './omega-fetch-fixture.mjs'
 
 - id: web
   name: '@omega-ai/dsh-web'
