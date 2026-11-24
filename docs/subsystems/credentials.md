@@ -225,15 +225,20 @@ Source: [`packages/credentials/credentials/src/index.ts`](../../packages/credent
 
 Host service backing the generated `ctx.remote.credentials` namespace. It carries every wire obligation the credential seam itself does not: the batch fan-out bound, the field-by-field view projection, the reference-grammar guard, and the refusal mapping. Full secret values cross in one direction only — no method here returns one.
 
+When mounted by `SettingsController`, it shares that controller's unlock gate, so a browser peer's writes (`set`, `unset`) pass the same password. Reads (`describe`) return secret-free metadata and are never locked, so a locked page can still render its credential rows. Mounted standalone it has no gate and is never locked, matching the in-process-trusted posture of the settings namespace.
+
 ```ts cordis-catalog
 /**
  * Describe several references for one configuration surface. Batched because
  * a settings page describes every reference its rows name at once, and one
- * round trip keeps those rows from settling separately.
+ * round trip keeps those rows from settling separately. This read is never
+ * locked: it returns only metadata (configured, source, writable, masked),
+ * never secret values, so a locked page can still render its credential rows.
  * @param refs - reference names, at most {@link MAX_DESCRIBE_REFS}; a name outside the grammar
  *   rejects the whole call as `gateway/bad-request`.
  * @returns one view per requested name, keyed by that name.
- * @throws RemoteError when the request is invalid or no credential provider is mounted.
+ * @throws RemoteError when the request is invalid or no credential provider is
+ *   mounted.
  */
 @Remote async describe(refs: string[]): Promise<Record<string, CredentialInfo>>
 

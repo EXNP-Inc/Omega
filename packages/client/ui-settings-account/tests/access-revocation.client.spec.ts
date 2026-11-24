@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 /** Account surfaces follow `account/watch` access: a revocation withdraws them and a later grant restores them. */
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
 import { afterEach, expect, it, vi } from 'vitest'
 import type { AccountView } from '@omega-ai/dsh-omega-account/types'
 import { apply, type AccountSectionInjected } from '../src/client/index.ts'
@@ -45,6 +46,7 @@ it('withdraws every account surface and the account stream on revocation, and re
   const registered = new Map<string, number>()
   const streams: { readonly signal: AbortSignal; readonly accepted: Promise<undefined> }[] = []
   const lifetime: (() => void)[] = []
+  const hardened = createSnapshotStore(false)
   const ctx = {
     on: () => () => {}, provide: () => {}, emit: () => {}, parallel: async () => [],
     effect: (install: () => (() => void) | undefined) => { const dispose = install(); if (dispose) lifetime.push(dispose) },
@@ -52,6 +54,7 @@ it('withdraws every account surface and the account stream on revocation, and re
     configForms: {
       get: () => ({ subscribe: () => () => {}, getSnapshot: () => ({ status: 'loading', value: undefined }) }),
       describe: () => ({ subscribe: () => () => {}, getSnapshot: () => ({ error: null }) }),
+      hardenedMode: { enabled: hardened },
     },
     slots: {
       inject: (_name: string, install: () => (() => void) | undefined) => {
@@ -124,6 +127,7 @@ it('drops reads a revoked grant started, and the next grant shows no account sec
   const profile = Promise.withResolvers<{ ok: true; value: { status: 'failed' } }>()
   const firstFrames: { release: () => void; accepted: Promise<undefined> }[] = []
   const lifetime: (() => void)[] = []
+  const hardened = createSnapshotStore(false)
   const ctx = {
     on: () => () => {}, provide: () => {}, emit: () => {}, parallel: async () => [],
     effect: (install: () => (() => void) | undefined) => { const dispose = install(); if (dispose) lifetime.push(dispose) },
@@ -131,6 +135,7 @@ it('drops reads a revoked grant started, and the next grant shows no account sec
     configForms: {
       get: () => ({ subscribe: () => () => {}, getSnapshot: () => ({ status: 'loading', value: undefined }) }),
       describe: () => ({ subscribe: () => () => {}, getSnapshot: () => ({ error: null }) }),
+      hardenedMode: { enabled: hardened },
     },
     slots: {
       inject: (_name: string, install: () => (() => void) | undefined) => {
@@ -217,6 +222,7 @@ function revocationHarness(scripts: StreamScript[]) {
   const getProfile = vi.fn(async () => ({ ok: true, value: null }))
   const getNotifications = vi.fn(async () => ({ ok: true, value: null }))
   const startSignIn = vi.fn<() => Promise<{ ok: false }>>()
+  const hardened = createSnapshotStore(false)
   const ctx = {
     on: () => () => {}, provide: () => {}, emit: () => {}, parallel: async () => [],
     effect: (install: () => (() => void) | undefined) => { const dispose = install(); if (dispose) lifetime.push(dispose) },
@@ -224,6 +230,7 @@ function revocationHarness(scripts: StreamScript[]) {
     configForms: {
       get: () => ({ subscribe: () => () => {}, getSnapshot: () => ({ status: 'loading', value: undefined }) }),
       describe: () => ({ subscribe: () => () => {}, getSnapshot: () => ({ error: null }) }),
+      hardenedMode: { enabled: hardened },
     },
     theme: { getTheme: () => ({ active: { colorScheme: 'light' } }) },
     slots: {
@@ -269,7 +276,7 @@ function revocationHarness(scripts: StreamScript[]) {
   }
   apply(ctx as never)
   return {
-    guards, registered, accepted, getProfile, getNotifications, startSignIn,
+    guards, registered, accepted, getProfile, getNotifications, startSignIn, hardened,
     operations: () => operations!,
     dispose: () => { revoke(guards); for (const dispose of lifetime.reverse()) dispose() },
   }
@@ -317,5 +324,48 @@ it('closes the sign-in dialog, its failure, and the pending authorization tab on
   } finally {
     b.dispose()
     open.mockRestore()
+  }
+})
+
+it('installs, withdraws, and reconciles every account surface around hardened-mode flips without leaking registrations', async () => {
+  vi.stubEnv('DSH_CLIENT_VERSION', '0.0.0-test')
+  const b = revocationHarness([() => {}, () => {}])
+  // A surface counts as 0 when it was never registered (hidden from the first
+  // reconcile) as well as when it registered and was later withdrawn.
+  const surfaces = (): Record<string, number> => {
+    const names = ['settings.launcher', 'settings.notice', 'shell.quota-notice', 'settings.models.sign-in', 'settings.section']
+    const out: Record<string, number> = {}
+    for (const name of names) out[name] = b.registered.get(name) ?? 0
+    return out
+  }
+  const allVisible = { 'settings.launcher': 1, 'settings.notice': 1, 'shell.quota-notice': 1, 'settings.models.sign-in': 1, 'settings.section': 1 }
+  const allHidden = { 'settings.launcher': 0, 'settings.notice': 0, 'shell.quota-notice': 0, 'settings.models.sign-in': 0, 'settings.section': 0 }
+  try {
+    // Grant while hardened mode is already on: each gate's first reconcile sees
+    // a hidden surface and installs nothing (the stream still opens).
+    b.hardened.set(true)
+    grant(b.guards)
+    await b.accepted[0]
+    expect(surfaces()).toEqual(allHidden)
+
+    b.hardened.set(false)
+    expect(surfaces()).toEqual(allVisible)
+
+    // A repeat of the same value re-runs the reconcile as a no-op: the gate is
+    // already installed, so nothing is re-registered or dropped.
+    b.hardened.set(false)
+    expect(surfaces()).toEqual(allVisible)
+
+    b.hardened.set(true)
+    expect(surfaces()).toEqual(allHidden)
+
+    // The already-withdrawn state is stable under a repeat notification.
+    b.hardened.set(true)
+    expect(surfaces()).toEqual(allHidden)
+
+    b.hardened.set(false)
+    expect(surfaces()).toEqual(allVisible)
+  } finally {
+    b.dispose()
   }
 })

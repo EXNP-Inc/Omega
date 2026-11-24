@@ -64,6 +64,9 @@
     },
     {
       "path": "../../core/tool-executor-ptc"
+    },
+    {
+      "path": "../ui-settings/tsconfig.client.json"
     }
   ]
 }

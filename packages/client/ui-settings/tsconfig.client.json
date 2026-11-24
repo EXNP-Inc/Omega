@@ -13,6 +13,9 @@
       "path": "../../../vendor/cordis"
     },
     {
+      "path": "../config"
+    },
+    {
       "path": "../ui-slots"
     },
     {

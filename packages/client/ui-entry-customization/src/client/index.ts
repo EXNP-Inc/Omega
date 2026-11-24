@@ -8,6 +8,7 @@ import type {} from '@omega-ai/dsh-client-ui-sidebar/client'
 import type {} from '@omega-ai/dsh-client-ui-conversation/client'
 import type {} from '@omega-ai/dsh-client-ui-sidebar-right/client'
 import type {} from '@omega-ai/dsh-client-ui-plugin-manager/client'
+import type {} from '@omega-ai/dsh-client-ui-settings/client'
 import type {} from '@omega-ai/dsh-client-ui-workspace/client'
 import { EntryMenuContent, type EntryMenuInjected, type EntryRegion } from './EntryMenuContent.tsx'
 import { en, ja, es, fr, de, ru, pt, zh } from './locales.ts'
@@ -19,8 +20,12 @@ declare module '@omega-ai/dsh-client-ui-slots' {
   }
 }
 
-/** Services used by the menu rows' footer actions; the optional `pluginNavigation` shows the discovery row while present. */
-export const inject = ['slots', 'locale', 'uiWorkspace']
+/**
+ * Services used by the menu rows' footer actions; the optional
+ * `pluginNavigation` shows the discovery row while present, and the
+ * `hardenedMode` preference hides the plugin rows while hardened.
+ */
+export const inject = ['slots', 'locale', 'uiWorkspace', 'configForms']
 
 /**
  * Register the same menu rows into each region's More menu.
@@ -39,7 +44,7 @@ export function apply(ctx: Context): void {
   })
   const injected = (region: EntryRegion): EntryMenuInjected => ({
     region,
-    hooks: { pluginNavigation },
+    hooks: { pluginNavigation, hardenedMode: ctx.configForms.hardenedMode.enabled },
     browsePlugins: () => {
       ctx.get('productAnalytics')?.track('more_menu_item_click', { region, action: 'browse_plugins' })
       ctx.get('pluginNavigation')?.openList()

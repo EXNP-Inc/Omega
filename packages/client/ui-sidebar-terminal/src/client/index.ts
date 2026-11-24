@@ -10,6 +10,8 @@ import type {} from '@omega-ai/dsh-client-ui-renderer/client'
 import type {} from '@omega-ai/dsh-client-locale/client'
 import type {} from '@omega-ai/dsh-client-ui-session/client'
 import type {} from '@omega-ai/dsh-client-ui-theme/client'
+// Type-only: the shared configForms service merge (the hardened-mode preference).
+import type {} from '@omega-ai/dsh-client-ui-settings/client'
 import { PluginArtworkTerminal } from '@omega-ai/dsh-client-ui-primitives'
 import { TerminalGuide, type TerminalGuideInjected } from './TerminalGuide.tsx'
 import { LazyTerminalBody } from './LazyTerminalBody.tsx'
@@ -20,8 +22,8 @@ import { AgentTerminalOpener, type AgentTerminalOpenerInjected } from './AgentTe
 import type { TerminalBodyInjected, TerminalInjected } from './face.ts'
 import { en, ja, es, fr, de, ru, pt, zh } from './locales.ts'
 
-/** Services needed by the terminal's two sidebar seats. */
-export const inject = ['slots', 'locale', 'sidebarRight', 'sidebarRightTabs', 'webTerminals', 'theme', 'shortcuts']
+/** Services needed by the terminal's two sidebar seats and the hardened-mode preference. */
+export const inject = ['slots', 'locale', 'sidebarRight', 'sidebarRightTabs', 'webTerminals', 'theme', 'shortcuts', 'configForms']
 
 /**
  * Register the terminal type, observable views and background process cleanup.
@@ -63,6 +65,9 @@ export function apply(ctx: Context): void {
     },
     regions: ['page', 'editable', 'terminal'], modals: [],
     resolve: ({ target: element }) => {
+      if (ctx.configForms.hardenedMode.enabled.getSnapshot()) {
+        return { status: 'blocked', reason: t('shortcut.noSession') }
+      }
       const target = ctx.sidebarRight.commandTarget(element)
       if (target === undefined) return { status: 'blocked', reason: t('shortcut.noSession') }
       return { status: 'handled', run: () => { ctx.sidebarRight.openTabFromTarget('terminal', target) } }
@@ -132,7 +137,11 @@ export function apply(ctx: Context): void {
       if (watch === undefined) {
         watch = {
           watchAgentTerminals: () => ctx.webTerminals.watch(sessionId, (terminals) => {
+            // With the surface withheld the roster is still tracked, so an
+            // ended Agent terminal releases its tab; no tab is opened for a
+            // running one until the surface is available again.
             closeEndedAgentTerminals(sessionId, terminals)
+            if (ctx.configForms.hardenedMode.enabled.getSnapshot()) return
             openAgentTerminals(sessionId, terminals)
           }),
         }

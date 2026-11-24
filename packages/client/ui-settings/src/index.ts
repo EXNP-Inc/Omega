@@ -1,20 +1,20 @@
 /** Host registration of shared Web and desktop developer-tool preferences. */
 import type {} from '@omega-ai/dsh-settings'
 
-import type { Volatile, Context } from '@omega-ai/cordis'
+import type { Context } from '@omega-ai/cordis'
 
 import z from '@omega-ai/schemastery'
 import { DeveloperToolsSettingsFields } from './developer-tools-settings.ts'
+import { HardenedModeSettingsFields } from './hardened-settings.ts'
+import type { UiSettingsConfig } from './types.ts'
 
 /** Runtime preferences projected to the browser. */
-export interface Config {
-  /** Whether developer tools are enabled. */
-  enabled: Volatile<boolean>
-}
+export type Config = UiSettingsConfig
 
 /** Live preferences projected to the browser. */
 export const Config = z.object({
   enabled: DeveloperToolsSettingsFields['enabled'].volatile(),
+  hardenedMode: HardenedModeSettingsFields['hardenedMode'].volatile(),
 })
 
 /** Host preferences are consumed through the configuration form projection.

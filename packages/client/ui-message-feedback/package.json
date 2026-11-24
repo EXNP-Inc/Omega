@@ -33,7 +33,8 @@
         "@omega-ai/dsh-client-locale",
         "@omega-ai/dsh-client-ui-conversation",
         "@omega-ai/dsh-client-ui-renderer",
-        "@omega-ai/dsh-client-ui-commands"
+        "@omega-ai/dsh-client-ui-commands",
+        "@omega-ai/dsh-client-ui-settings"
       ],
       "platform": "web"
     }
@@ -54,6 +55,7 @@
     "@omega-ai/dsh-client-ui-conversation": "workspace:*",
     "@omega-ai/dsh-client-ui-primitives": "workspace:*",
     "@omega-ai/dsh-client-ui-renderer": "workspace:*",
+    "@omega-ai/dsh-client-ui-settings": "workspace:*",
     "@omega-ai/dsh-client-ui-slots": "workspace:*",
     "@omega-ai/dsh-message-feedback": "workspace:*",
     "@omega-ai/dsh-remote-mock": "workspace:*",

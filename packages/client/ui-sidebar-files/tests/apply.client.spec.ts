@@ -89,9 +89,11 @@ async function boot() {
   ctx.provide('locale', locale as never)
   ctx.provide('remote', { workspaceFiles } as never)
   ctx.provide('remote.workspaceFiles', workspaceFiles as never)
+  const hardened = createSnapshotStore(false)
+  ctx.provide('configForms', { hardenedMode: { enabled: hardened } } as never)
   const fiber = ctx.plugin({ inject: [...inject], apply })
   await fiber.await()
-  return { ctx, tabs, registered, dictionaries, fiber, sidebar, commands, slots, navigation, source }
+  return { ctx, tabs, registered, dictionaries, fiber, sidebar, commands, slots, navigation, source, hardened }
 }
 
 /** Run the files command for one target. */
@@ -279,6 +281,25 @@ describe('ui-sidebar-files apply', () => {
     expect(tabs.get(FILES_KIND)).toBeUndefined()
     expect(registered).toEqual([])
     expect(dictionaries.size).toBe(0)
+  })
+
+  it('refuses the files command while the hardened mode is on, and serves it when it clears', async () => {
+    const h = await boot()
+    try {
+      const target = { sessionId: SESSION, paneId: PANE, host: 'float' }
+      run(h, target)
+      expect(h.sidebar.openTabFromTarget).toHaveBeenCalledWith('files', target)
+      h.sidebar.openTabFromTarget.mockClear()
+      h.hardened.set(true)
+      // A valid target still refuses: with the session check satisfied, only
+      // the hardened guard can block here.
+      expect(h.commands[0]!.resolve({ region: 'page', modal: null, target: null }))
+        .toEqual({ status: 'blocked', reason: 'shortcut.noSession' })
+      expect(h.sidebar.openTabFromTarget).not.toHaveBeenCalled()
+      h.hardened.set(false)
+      run(h, target)
+      expect(h.sidebar.openTabFromTarget).toHaveBeenCalledWith('files', target)
+    } finally { await h.fiber.dispose() }
   })
 })
 

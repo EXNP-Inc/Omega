@@ -11,6 +11,7 @@ import type { CredentialProvider } from '@omega-ai/dsh-credentials'
 import type { CredentialInfo } from '@omega-ai/dsh-credentials/types'
 import { Remote, RemoteError, TypertRemoteService } from '@omega-ai/dsh-typert-protocol'
 import { z } from 'zod'
+import type { SettingsGate } from './settings-gate.ts'
 
 /**
  * Fan-out bound on one remote `describe` batch. A settings page asks about the
@@ -64,21 +65,51 @@ declare module '@omega-ai/cordis' {
  * fan-out bound, the field-by-field view projection, the reference-grammar
  * guard, and the refusal mapping. Full secret values cross in one direction only —
  * no method here returns one.
+ *
+ * When mounted by `SettingsController`, it shares that controller's unlock gate,
+ * so a browser peer's writes (`set`, `unset`) pass the same password. Reads
+ * (`describe`) return secret-free metadata and are never locked, so a locked
+ * page can still render its credential rows. Mounted standalone it has no gate
+ * and is never locked, matching the in-process-trusted posture of the settings
+ * namespace.
  */
 export class CredentialsController extends TypertRemoteService {
-  /** @param ctx - Host context where a credential provider may be mounted. */
-  constructor(ctx: Context) {
+  private readonly gate: SettingsGate | undefined
+
+  /**
+   * @param ctx - Host context where a credential provider may be mounted.
+   * @param internals - the shared unlock gate, handed over by the owning
+   *   `SettingsController`; absent when this namespace is mounted standalone.
+   */
+  constructor(ctx: Context, internals: { readonly gate?: SettingsGate } = {}) {
     super(ctx, 'credentialsController', { namespace: 'credentials' })
+    this.gate = internals.gate
+  }
+
+  /**
+   * Pass the caller through the shared gate for the WRITE side of the namespace.
+   * A missing gate (standalone mount) or an in-process call with no peer is
+   * never locked; a peer-identified call needs a fresh unlock fact. Reads
+   * (`describe`) do not pass through this helper: they return secret-free
+   * metadata and are never locked, so a locked page can still render its rows.
+   * @throws RemoteError `settings/locked` when a peer's unlock fact is absent or
+   *   has reached its UTC hour boundary.
+   */
+  private requireUnlocked(): void {
+    this.gate?.requireUnlocked(this.ctx.invocation?.peer)
   }
 
   /**
    * Describe several references for one configuration surface. Batched because
    * a settings page describes every reference its rows name at once, and one
-   * round trip keeps those rows from settling separately.
+   * round trip keeps those rows from settling separately. This read is never
+   * locked: it returns only metadata (configured, source, writable, masked),
+   * never secret values, so a locked page can still render its credential rows.
    * @param refs - reference names, at most {@link MAX_DESCRIBE_REFS}; a name outside the grammar
    *   rejects the whole call as `gateway/bad-request`.
    * @returns one view per requested name, keyed by that name.
-   * @throws RemoteError when the request is invalid or no credential provider is mounted.
+   * @throws RemoteError when the request is invalid or no credential provider is
+   *   mounted.
    */
   @Remote
   async describe(refs: string[]): Promise<Record<string, CredentialInfo>> {
@@ -141,6 +172,7 @@ export class CredentialsController extends TypertRemoteService {
    * carry the value back out.
    */
   private async write(ref: string, write: () => Promise<void>): Promise<void> {
+    this.requireUnlocked()
     try {
       await write()
     } catch (error: unknown) {

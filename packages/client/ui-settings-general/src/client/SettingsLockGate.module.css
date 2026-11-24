@@ -1,0 +1,56 @@
+/* The unlock gate reuses the settings overlay chrome (mask + centered panel
+   frame from SettingsRoot) but paints its own compact card: one column, no
+   section rail. Panel frame tokens match the settings panel so the gate
+   reads as the same surface in a locked state. */
+
+.gate {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 420px;
+  max-width: calc(100vw - 48px);
+  border-radius: var(--dsw-radius-panel);
+  overflow: hidden;
+  background: var(--dsw-alias-bg-layer-2);
+  box-shadow: var(--dsw-elevation-prominent);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+}
+
+.heading {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 22px;
+  color: var(--dsw-alias-label-primary);
+}
+
+.description {
+  margin-bottom: 4px;
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.error {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-danger, var(--dsw-alias-label-primary));
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

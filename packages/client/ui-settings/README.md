@@ -31,6 +31,8 @@ Feature plugins use this package to store and edit their preferences without re-
 
 `ctx.configForms.developerTools` owns the Coding Tools switch and the shared Web and desktop preference `ui-settings.enabled`, defaulting to `true`. Its `enabled` observable publishes accepted choices and `setEnabled` uses the same ordered settings writes. Desktop and every authenticated Web browser persist to the Host document. This controls presentation and HTML preview permissions, not Host authorization or Session recording. Host-backed clients keep developer features disabled until the first accepted schema-resolved value arrives; missing or failed initial responses do not enable them. Later refreshes retain the last accepted choice.
 
+`ctx.configForms.hardenedMode` owns the Hardened mode switch and the shared `ui-settings.hardenedMode` preference, defaulting to `false`. Its `enabled` observable publishes the persisted value, read from the browser's synced Config reference before any settings unlock so gated surfaces hide their features from the first render even while settings are still locked; `setEnabled` writes through the same ordered settings writes as the developer-tool preference, so the write answers the settings unlock gate.
+
 Feature adapters use `ctx.configForms.get(entryId)` to obtain accepted values and a write queue shared by every editor of that Host entry. Snapshots contain resolved `value`, inherited `base`, raw `user`, revision, and writability. `set` and `unset` submit one operation; `mutate` submits one atomic operation list. Staged editors pass the revision read before editing; conflicts preserve their drafts. Unsetting removes the override and restores inheritance.
 
 A configuration form persists through the Host settings service for every authenticated browser; the [authenticated-browser Host preferences note](../../../.agents/notes/implemented/bug-fix/2026-09-15-authenticated-browser-host-preferences.md) owns that policy. `settings.describe.writable` is the authority on whether a write is accepted.
@@ -64,7 +66,7 @@ The package realizes one ownership rule: the browser keeps one shared mirror of 
 
 ### The describe mirror
 
-The Host Config of the `ui-settings` entry declares the default-on `enabled` preference. The Client plugin injects `remote` with its `settings` namespace and owns the one `settings.describe` reader in the browser: a shared mirror refreshed on every forwarded `settings/document-updated` event and on `connection/reset` (the first connection included, closing the window where a commit lands between the eager read and the SSE subscription). Cross-namespace surfaces read it through `ctx.configForms.describe()`, a read/fold face (`getSnapshot`/`subscribe`/`ensure`, plus `acceptView` folding a write answer in).
+The Host Config of the `ui-settings` entry declares the default-on `enabled` and default-off `hardenedMode` preferences. The Client plugin injects `remote` with its `settings` namespace and owns the one `settings.describe` reader in the browser: a shared mirror refreshed on every forwarded `settings/document-updated` event and on `connection/reset` (the first connection included, closing the window where a commit lands between the eager read and the SSE subscription). Cross-namespace surfaces read it through `ctx.configForms.describe()`, a read/fold face (`getSnapshot`/`subscribe`/`ensure`, plus `acceptView` folding a write answer in).
 
 ### Shared entry writes
 

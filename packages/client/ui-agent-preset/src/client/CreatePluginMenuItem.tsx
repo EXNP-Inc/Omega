@@ -1,7 +1,7 @@
 /** Create a plugin through the existing Creator flow from the Add plugin menu. */
 import { useEffect } from 'react'
 import type { SnapshotStore } from '@omega-ai/dsh-client-store'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@omega-ai/dsh-client-ui-slots'
+import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@omega-ai/dsh-client-ui-slots'
 import type {} from '@omega-ai/dsh-client-ui-plugin-manager/client'
 import { IconAgentPresetOutlineRegular, MenuItemButton } from '@omega-ai/dsh-client-ui-primitives'
 import type { AgentPresetSettingsState } from './settings-store.ts'
@@ -11,6 +11,8 @@ import css from './CreatePluginMenuItem.module.css'
 export interface CreatePluginMenuItemInjected {
   hooks: {
     agentPresets: SnapshotStore<AgentPresetSettingsState>
+    /** Whether hardened mode hides this creation entry. */
+    hardenedMode: HostObservable<boolean>
   }
   load: () => Promise<void>
   startCreatorDraft: () => void
@@ -25,11 +27,12 @@ type CreatePluginMenuItemProps = PropsRuntime<'plugins.add.actions'>
  * @returns a stable menu item that explains why Creator is unavailable.
  */
 export function CreatePluginMenuItem({
-  t, useAgentPresets, load, onDismiss, startCreatorDraft,
+  t, useAgentPresets, useHardenedMode, load, onDismiss, startCreatorDraft,
 }: CreatePluginMenuItemProps) {
   const roster = useAgentPresets(state => state)
   const enabled = roster.status === 'ready' && roster.options.some(option => option.id === 'cordis')
   useEffect(() => { void load() }, [load])
+  if (useHardenedMode(hardened => hardened)) return null
 
   let description = t('createPluginDescription')
   if (roster.status === 'idle' || roster.status === 'loading') description = t('createPluginChecking')

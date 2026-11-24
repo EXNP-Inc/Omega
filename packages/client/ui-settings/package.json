@@ -45,6 +45,7 @@
   "devDependencies": {
     "@omega-ai/cordis": "workspace:~",
     "@omega-ai/dsh-api-remotes": "workspace:*",
+    "@omega-ai/dsh-client-config": "workspace:*",
     "@omega-ai/dsh-client-store": "workspace:*",
     "@omega-ai/dsh-client-test-runtime": "workspace:*",
     "@omega-ai/dsh-client-ui-slots": "workspace:*",

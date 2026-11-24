@@ -4,6 +4,7 @@ import type { SessionForkError } from '@omega-ai/dsh-api-session-controller/clie
 import { createSnapshotStore } from '@omega-ai/dsh-client-store'
 import type { ShortcutCommand, ShortcutCommandId } from '@omega-ai/dsh-client-shortcuts/client'
 import type { SnapshotStore } from '@omega-ai/dsh-client-store'
+import type { HostObservable } from '@omega-ai/dsh-client-ui-slots'
 import type { SessionId } from '@omega-ai/dsh-session/types'
 import type { UiWorkspace } from './navigation.ts'
 
@@ -55,6 +56,8 @@ export function createWorkspaceShortcutControls(): WorkspaceShortcutControls {
  * @param archiveSession - shared archive action, including running-work confirmation and notices.
  * @param reportForkFailure - publish a classified failure through the frame-wide notice channel.
  * @param markSession - shared reading action; only failed writes raise a notice.
+ * @param hardened - whether hardened mode is on: while it is, `workspace.add`
+ *   resolves to blocked (there is a single default Workspace to add to).
  */
 export function installWorkspaceShortcuts(
   ctx: Context,
@@ -63,6 +66,7 @@ export function installWorkspaceShortcuts(
   archiveSession: (sessionId: SessionId) => void,
   reportForkFailure: (reason: 'unavailable' | 'failed') => void,
   markSession: (sessionId: SessionId, unread: boolean) => void,
+  hardened: HostObservable<boolean>,
 ): void {
   const t = ctx.locale.bind('workspace')
   const current = () => Object.values(ctx.sessions.list.getSnapshot().byId)
@@ -86,6 +90,7 @@ export function installWorkspaceShortcuts(
     () => ({ status: 'handled', run: controls.search }))
   register('workspace.add', () => t('workspace.add'), ['add workspace', 'open folder'], 'KeyO', ['primary'], ['primary', 'alt'],
     () => {
+      if (hardened.getSnapshot()) return { status: 'blocked', reason: t('shortcut.addUnavailable') }
       const reason = addReason()
       return reason === null ? { status: 'handled', run: controls.add } : { status: 'blocked', reason }
     })

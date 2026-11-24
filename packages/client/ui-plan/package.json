@@ -36,7 +36,8 @@
         "@omega-ai/dsh-client-ui-chat",
         "@omega-ai/dsh-client-ui-user-questions",
         "@omega-ai/dsh-client-resources",
-        "@omega-ai/dsh-api-session-controller"
+        "@omega-ai/dsh-api-session-controller",
+        "@omega-ai/dsh-client-ui-settings"
       ],
       "platform": "web"
     }
@@ -56,6 +57,7 @@
     "@omega-ai/dsh-client-test-runtime": "workspace:*",
     "@omega-ai/dsh-client-ui-conversation": "workspace:*",
     "@omega-ai/dsh-client-ui-primitives": "workspace:*",
+    "@omega-ai/dsh-client-ui-settings": "workspace:*",
     "@omega-ai/dsh-client-ui-slots": "workspace:*",
     "@omega-ai/dsh-plan-mode": "workspace:*",
     "@omega-ai/cordis": "workspace:~",

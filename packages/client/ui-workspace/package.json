@@ -41,6 +41,7 @@
         "@omega-ai/dsh-client-ui-renderer",
         "@omega-ai/dsh-client-ui-session",
         "@omega-ai/dsh-client-ui-session-status",
+        "@omega-ai/dsh-client-ui-settings",
         "@omega-ai/dsh-client-ui-sidebar",
         "@omega-ai/dsh-client-ui-context-menu"
       ],
@@ -81,6 +82,7 @@
     "@omega-ai/dsh-client-ui-renderer": "workspace:*",
     "@omega-ai/dsh-client-ui-session": "workspace:*",
     "@omega-ai/dsh-client-ui-session-status": "workspace:*",
+    "@omega-ai/dsh-client-ui-settings": "workspace:*",
     "@omega-ai/dsh-client-ui-sidebar": "workspace:*",
     "@omega-ai/dsh-client-ui-slots": "workspace:*",
     "@omega-ai/dsh-jobs": "workspace:*",

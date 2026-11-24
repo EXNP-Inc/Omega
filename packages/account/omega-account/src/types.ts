@@ -5,7 +5,8 @@ import type { JsonValue } from '@omega-ai/dsh-util-values'
 
 /** Identity of the requesting UI for one account operation; the Host derives Platform request headers from it. */
 export interface AccountClientMetadata {
-  readonly version: string
+  /** Client build version; absent when the build carries none, in which case the version header is omitted. */
+  readonly version?: string
   /** Active UI language; only its primary subtag selects the Platform wire locale. */
   readonly locale: string
   /** Offset from UTC in seconds, positive east of Greenwich. */

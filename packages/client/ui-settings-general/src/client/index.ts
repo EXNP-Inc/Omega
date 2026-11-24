@@ -41,8 +41,8 @@ import { DesktopUpdateSource } from './desktop-update-source.ts'
 import { CloseLabel, HeaderContent, TriggerContent } from './chrome.tsx'
 import { GeneralSection } from './GeneralSection.tsx'
 import { SettingsSectionView } from './SettingsSectionView.tsx'
-import { CurrentVersionRow } from './CurrentVersionRow.tsx'
 import { DeveloperToolsRow, type DeveloperToolsRowInjected } from './DeveloperToolsRow.tsx'
+import { HardenedModeRow, type HardenedModeRowInjected } from './HardenedModeRow.tsx'
 import { SettingsDocumentAction } from './SettingsDocumentAction.tsx'
 import type { SettingsDocumentActionInjected } from './SettingsDocumentAction.tsx'
 import { SettingsDocumentStore } from './settings-document-store.ts'
@@ -98,10 +98,15 @@ export function apply(ctx: ClientContext): void {
       },
     }),
   }, DeveloperToolsRow))
-  // Version information follows the core preferences.
+  // The hardened-mode switch follows the developer-tool preference; it hides the
+  // interface's non-essential surfaces for external sharing.
   ctx.slots.inject('settings.general.item', () => ctx.slots.register({
-    name: 'settings.general.item', id: 'current-version', order: 100, locale: NS,
-  }, CurrentVersionRow))
+    name: 'settings.general.item', id: 'hardened-mode', order: 16, locale: NS,
+    inject: (): HardenedModeRowInjected => ({
+      hooks: { hardenedMode: ctx.configForms.hardenedMode.enabled },
+      setHardenedMode: enabled => ctx.configForms.hardenedMode.setEnabled(enabled),
+    }),
+  }, HardenedModeRow))
   ctx.effect(() => ctx.locale.register(NS, { zh, en, ja, es, fr, de, ru, pt }), 'ui-settings-general: dictionaries')
   const connection = ctx.get('connection') as ConnectionHandle
   const carrier = (globalThis as typeof globalThis & { dshDesktop?: { protocolVersion: number; updates?: DesktopUpdateBridge } }).dshDesktop
@@ -152,13 +157,19 @@ export function apply(ctx: ClientContext): void {
   let rows: readonly SettingsSectionRow[] = []
   let onboardingVersion = -1
   let onboardingSteps: readonly SettingsOnboardingStep[] = []
+  const settingsDescribe = ctx.configForms.describe()
   const shellInjected = (): SettingsRootInjected => ({
     openDesktopUpdate: () => { desktopUpdate.open() },
     reconnect: () => { connection.reconnect() },
+    unlock: password => settingsDescribe.unlock(password),
     hooks: {
       shortcuts: ctx.shortcuts.catalog,
       desktopUpdate: desktopUpdate.store,
       connectionState: connection.state,
+      settingsLocked: {
+        getSnapshot: () => settingsDescribe.getSnapshot().locked,
+        subscribe: listener => settingsDescribe.subscribe(listener),
+      },
       sections: {
         getSnapshot: () => {
           const version = ctx.slots.getVersion('settings.section')

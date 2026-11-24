@@ -59,6 +59,15 @@ export interface SettingsDescribeValue {
   writable: boolean
   /** Whether the configuration editor owns a local document, without exposing its Host path. */
   hasDocument: boolean
+  /**
+   * Whether the settings gate is locked for the caller's peer. The Host always
+   * sends it: `false` for an in-process caller (no peer) and for a peer holding
+   * a fresh unlock, `true` while the peer's fact is absent or has reached its
+   * UTC hour boundary. It carries no secret — it only says whether the writes
+   * this page can issue will pass the server-side gate, which is what the
+   * settings shell renders its unlock prompt from.
+   */
+  locked: boolean
   /** One view per profile plugin entry. */
   namespaces: SettingsNamespaceView[]
 }

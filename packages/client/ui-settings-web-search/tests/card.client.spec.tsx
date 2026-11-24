@@ -28,7 +28,7 @@ const DESCRIPTIONS: Record<string, { en: string; zh: string }> = {
     zh: 'Search API 说明。会产生费用，按「计费方式」向 Omega 账号或 Omega API Key 计费。',
   },
   'http': { en: 'Direct fetch description.', zh: '本机获取说明' },
-  'deepseek-fetch-api': {
+  'omega-fetch-api': {
     en: 'Fetch API description. Incurs charges, billed to the Omega account or Omega API key that the Billing setting selects.',
     zh: 'Fetch API 说明。会产生费用，按「计费方式」向 Omega 账号或 Omega API Key 计费。',
   },
@@ -40,7 +40,7 @@ function options(...ids: string[]): WebProviderOption[] {
 
 /** Menu entries as the controller orders them. */
 const SEARCH_OPTIONS = options('omega-search-api', 'omega-official')
-const FETCH_OPTIONS = options('http', 'deepseek-fetch-api')
+const FETCH_OPTIONS = options('http', 'omega-fetch-api')
 
 /** The locale service's resolution, with Chinese active. */
 const resolveText = vi.fn((text: string | { en: string; [locale: string]: string }) => typeof text === 'string' ? text : text.zh ?? text.en)
@@ -66,7 +66,7 @@ function shipped(): WebSearchCardState {
 function apis(): WebSearchCardState {
   const base = shipped()
   return {
-    ...base, fetch: { ...base.fetch, selected: 'deepseek-fetch-api', kind: 'omega' }, fetchBilling: { value: 'account', overridden: true, advancedOverride: [] },
+    ...base, fetch: { ...base.fetch, selected: 'omega-fetch-api', kind: 'omega' }, fetchBilling: { value: 'account', overridden: true, advancedOverride: [] },
   }
 }
 
@@ -267,7 +267,7 @@ describe('WebSearchCard', () => {
   it('shows the Omega Fetch API description under its provider menu, and its billing panel after it', () => {
     renderPage(apis())
     expect(fetchMenu().textContent).toBe(en.providerOmegaFetch)
-    expect(region(en.fetchSection).getByText(DESCRIPTIONS['deepseek-fetch-api']!.zh)).toBeTruthy()
+    expect(region(en.fetchSection).getByText(DESCRIPTIONS['omega-fetch-api']!.zh)).toBeTruthy()
     expect(screen.getAllByRole('button').filter(button => button.hasAttribute('aria-expanded')).map(button => button.id)).toEqual([
       'plugin-config-web-search-provider', 'plugin-config-web-search-billing',
       'plugin-config-web-fetch-provider', 'plugin-config-web-fetch-billing',
@@ -317,7 +317,7 @@ describe('WebSearchCard', () => {
     expect(actions.selectProvider).not.toHaveBeenCalled()
     fireEvent.click(fetchMenu())
     fireEvent.click(screen.getByRole('menuitem', { name: en.providerOmegaFetch }))
-    expect(actions.selectProvider).toHaveBeenLastCalledWith('fetchProvider', 'deepseek-fetch-api')
+    expect(actions.selectProvider).toHaveBeenLastCalledWith('fetchProvider', 'omega-fetch-api')
     expect(actions.save).not.toHaveBeenCalled()
   })
 

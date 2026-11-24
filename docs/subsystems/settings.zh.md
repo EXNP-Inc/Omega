@@ -78,11 +78,18 @@ Source: [`packages/settings/settings/src/index.ts`](../../packages/settings/sett
 
 Host service backing the generated `ctx.remote.settings` namespace. Every remote read uses `redactSecrets: true`, so a `role('secret')` field cannot ride a response. Writes expose the settings service's merge, replacement, and path-addressed operations, and classify every provider refusal as `settings/conflict` or `settings/rejected` with the service's message.
 
+Writes are locked behind a server-side password: a browser peer (one whose call carries an `invocation.peer`) must first call `unlock` with the current UTC-rolling password, or every write (`update`, `replace`, `mutate`, `openSettingsDocument`) and credentials write answers `settings/locked`. Reads are never locked — `describe` returns redacted, secret-free values plus the caller's gate state in its `locked` field — so a locked page renders and offers the unlock instead of failing at boot. In-process callers arrive with no peer and are never locked. The `credentials` namespace shares the same gate, so one unlock clears both.
+
 ```ts cordis-catalog
 /**
  * Describe every registered namespace for a configuration page: redacted
  * layered values plus the serialized schema the page renders its form from.
- * @returns provider writability, local-document presence, and one view per namespace.
+ * This read is never locked — it answers redacted, secret-free values and the
+ * caller's own gate state in `locked`, so a locked page still renders and
+ * offers the unlock instead of a failure; only the writes gate below the
+ * password.
+ * @returns provider writability, local-document presence, the caller's gate
+ *   state, and one view per namespace.
  * @throws RemoteError when no settings provider is mounted.
  */
 @Remote describe(): SettingsDescribeValue
@@ -93,7 +100,9 @@ Host service backing the generated `ctx.remote.settings` namespace. Every remote
  * @param patch - fields to merge into the user section.
  * @param expectedRevision - revision the caller read; `undefined` writes unconditionally.
  * @returns the namespace's redacted view after the write.
- * @throws RemoteError when the request is invalid, no provider is mounted, or the provider refuses the write.
+ * @throws RemoteError when the request is invalid, no provider is mounted, the
+ *   provider refuses the write, or the caller's peer holds no fresh unlock fact
+ *   (`settings/locked`).
  */
 @Remote update( ns: string, patch: Record<string, JsonValue>, expectedRevision: number | undefined, ): Promise<SettingsNamespaceView>
 
@@ -103,7 +112,9 @@ Host service backing the generated `ctx.remote.settings` namespace. Every remote
  * @param section - complete replacement user section.
  * @param expectedRevision - revision the caller read; `undefined` writes unconditionally.
  * @returns the namespace's redacted view after the write.
- * @throws RemoteError when the request is invalid, no provider is mounted, or the provider refuses the write.
+ * @throws RemoteError when the request is invalid, no provider is mounted, the
+ *   provider refuses the write, or the caller's peer holds no fresh unlock fact
+ *   (`settings/locked`).
  */
 @Remote replace( ns: string, section: Record<string, JsonValue>, expectedRevision: number | undefined, ): Promise<SettingsNamespaceView>
 
@@ -126,6 +137,23 @@ Host service backing the generated `ctx.remote.settings` namespace. Every remote
  * @throws RemoteError when no document exists, preparation fails, or opening fails.
  */
 @Remote async openSettingsDocument(signal: AbortSignal): Promise<SettingsDocumentOpenValue>
+
+/**
+ * Enter the current password to unlock the settings and credentials
+ * namespaces for this connection. This is the only method that needs no
+ * prior unlock. The password is checked only on the Host in constant time
+ * against the UTC day and hour of the moment of entry, so a tampered client
+ * cannot learn or bypass it, and it changes every UTC hour so a successful
+ * unlock re-locks on the next hour boundary. Only the owner peer may unlock;
+ * every failure — not the owner, or a wrong password — answers the same
+ * refusal, so a caller learns only that the password was not accepted.
+ * @param password - the entered password, `fidelio` plus the 2-digit UTC day
+ *   and 2-digit UTC 24h hour at the moment of entry.
+ * @returns confirmation that the caller's unlock fact was recorded.
+ * @throws RemoteError `settings/rejected` when the caller is not the owner or
+ *   the password does not match the current UTC hour's password.
+ */
+@Remote unlock(password: string): { readonly unlocked: true }
 ```
 
 Source: [`packages/api/settings-controller/src/index.ts`](../../packages/api/settings-controller/src/index.ts)

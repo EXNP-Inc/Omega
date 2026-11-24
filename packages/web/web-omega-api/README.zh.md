@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-通过 Omega Search 与 Fetch API 搜索和抓取网页：每次操作只发起一次直接请求，无需辅助模型请求。插件注册 `omega-search-api` 和 `deepseek-fetch-api`；每个能力的计费方式决定它的 Omega 凭据：默认在 Omega 模型提供方上沿用会话的账号或 API 密钥，否则先用 API 密钥，再用已登录的账号；也可以固定为其中一种。也可以在 YAML 中为任一能力单独配置基础地址与密钥。Search 返回标题、URL、snippet、summary 与发布时间；Fetch 返回页面 Markdown。面向模型的工具由 `dsh-tool-web` 提供；[旧版 Messages 搜索](../web-search-omega/README.zh.md)仍是独立提供方。
+通过 Omega Search 与 Fetch API 搜索和抓取网页：每次操作只发起一次直接请求，无需辅助模型请求。插件注册 `omega-search-api` 和 `omega-fetch-api`；每个能力的计费方式决定它的 Omega 凭据：默认在 Omega 模型提供方上沿用会话的账号或 API 密钥，否则先用 API 密钥，再用已登录的账号；也可以固定为其中一种。也可以在 YAML 中为任一能力单独配置基础地址与密钥。Search 返回标题、URL、snippet、summary 与发布时间；Fetch 返回页面 Markdown。面向模型的工具由 `dsh-tool-web` 提供；[旧版 Messages 搜索](../web-search-omega/README.zh.md)仍是独立提供方。
 
 ## 目录
 
@@ -24,13 +24,13 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用此包
 
-将插件与 `dsh-web` 以及为它释放凭据的 [`dsh-omega-auth`](../../account/omega-auth/README.zh.md) 一起挂载，并选择它的提供方。内置配置挂载此插件，不配置搜索提供方，并为抓取选择本地 HTTP 抓取；未配置时搜索使用它的 Search API（`omega-search-api`），但为 Omega 模型路由上的模型请求发起的搜索使用[旧版 Messages 搜索](../web/README.zh.md#provider-selection)。在**插件 > 内置插件配置 > 网页搜索与获取**中，在**搜索**下拉框选择 **Omega Search API** 会选中 `omega-search-api`，在**获取**下拉框选择 **Omega Fetch API** 会选中 `deepseek-fetch-api`；两个下拉框分别保存，选择其他条目即改用其他提供方。下拉框选中这两个提供方之一时，其下方的**计费方式**下拉框写入 `searchBilling` 或 `fetchBilling`：**自动**、**已登录的 Omega 账号**或 **Omega API Key**。保存的选择从下一次操作开始生效。
+将插件与 `dsh-web` 以及为它释放凭据的 [`dsh-omega-auth`](../../account/omega-auth/README.zh.md) 一起挂载，并选择它的提供方。内置配置挂载此插件，不配置搜索提供方，并为抓取选择本地 HTTP 抓取；未配置时搜索使用它的 Search API（`omega-search-api`），但为 Omega 模型路由上的模型请求发起的搜索使用[旧版 Messages 搜索](../web/README.zh.md#provider-selection)。在**插件 > 内置插件配置 > 网页搜索与获取**中，在**搜索**下拉框选择 **Omega Search API** 会选中 `omega-search-api`，在**获取**下拉框选择 **Omega Fetch API** 会选中 `omega-fetch-api`；两个下拉框分别保存，选择其他条目即改用其他提供方。下拉框选中这两个提供方之一时，其下方的**计费方式**下拉框写入 `searchBilling` 或 `fetchBilling`：**自动**、**已登录的 Omega 账号**或 **Omega API Key**。保存的选择从下一次操作开始生效。
 
 ```yaml
 - name: '@omega-ai/dsh-web'
   config:
     searchProvider: omega-search-api
-    fetchProvider: deepseek-fetch-api
+    fetchProvider: omega-fetch-api
 - name: '@omega-ai/dsh-omega-auth'
 - name: '@omega-ai/dsh-web-omega-api'
   config:

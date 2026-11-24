@@ -1313,7 +1313,7 @@ describe('web tool admission per model step', () => {
     const asked: (string | undefined)[] = []
     const { step } = await compose({
       providers: [routeProvider('omega', ['omega-official'])],
-      fetchProviders: [fetchRouteProvider('deepseek-fetch', ['omega-account'], asked)],
+      fetchProviders: [fetchRouteProvider('omega-fetch', ['omega-account'], asked)],
     })
     const { tools, prompt } = await step()
     expect(tools).toContain('web_search')
@@ -1325,7 +1325,7 @@ describe('web tool admission per model step', () => {
 
   it('offers web_fetch and its guidance when the selected fetch provider can authenticate the route', async () => {
     const { step } = await compose({
-      providers: [], fetchProviders: [fetchRouteProvider('deepseek-fetch', ['omega-account'])], route: 'omega-account',
+      providers: [], fetchProviders: [fetchRouteProvider('omega-fetch', ['omega-account'])], route: 'omega-account',
     })
     const { tools, prompt } = await step()
     expect(tools).toContain('web_fetch')
@@ -1337,7 +1337,7 @@ describe('web tool admission per model step', () => {
     const { step } = await compose({
       providers: [],
       fetchProvider: 'http',
-      fetchProviders: [fetchRouteProvider('http', ['omega-official']), fetchRouteProvider('deepseek-fetch', [], omegaAsked)],
+      fetchProviders: [fetchRouteProvider('http', ['omega-official']), fetchRouteProvider('omega-fetch', [], omegaAsked)],
     })
     expect((await step()).tools).toContain('web_fetch')
     expect(omegaAsked).toEqual([])
@@ -1346,7 +1346,7 @@ describe('web tool admission per model step', () => {
   it('refuses a web_fetch call in a step that withheld it', async () => {
     const fetched: string[] = []
     const { ctx, agent, step } = await compose({
-      providers: [], fetchProviders: [fetchRouteProvider('deepseek-fetch', ['omega-account'], [], fetched)],
+      providers: [], fetchProviders: [fetchRouteProvider('omega-fetch', ['omega-account'], [], fetched)],
     })
     const { toolSet } = await step()
     const result = await executeToolFixture(ctx, {

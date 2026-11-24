@@ -10,7 +10,8 @@
  * The node half stays inert.
  */
 import { Context, Service } from '@omega-ai/cordis'
-import { afterEach, describe, expect, it } from 'vitest'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup } from '@testing-library/react'
 import { SlotRegistry } from '@omega-ai/dsh-client-ui-renderer/client'
 import type { SessionId } from '@omega-ai/dsh-session/types'
@@ -86,12 +87,15 @@ async function bench(options: { recordResult?: unknown; recordCarrier?: unknown 
       return () => { decorations.delete(decoration.name) }
     },
   })
+  const hardened = createSnapshotStore(false)
+  ctx.provide('configForms', { hardenedMode: { enabled: hardened } } as never)
   const fiber = ctx.plugin({ inject: [...inject], apply })
   return {
     ctx,
     fiber,
     calls,
     decorations,
+    hardened,
     entry: () => {
       const entry = ctx.slots.entries('conversation.chat.assistant-actions')[0]
       if (entry === undefined) return undefined
@@ -316,6 +320,29 @@ describe('ui-message-feedback browser plugin', () => {
     const before = b.calls.length
     expect(await face.retract(MSG, 'negative')).toMatchObject({ ok: false, error: { code: 'disposed' } })
     expect(b.calls).toHaveLength(before)
+  })
+
+  it('withholds every feedback surface while the hardened mode is on, and restores all three when it clears', async () => {
+    const b = await bench()
+    await b.fiber.await()
+    expect(b.ctx.slots.entries('conversation.chat.assistant-actions')).toHaveLength(1)
+    expect(b.ctx.slots.entries('conversation.input.overlay')).toHaveLength(1)
+    expect(b.decorations.get('feedback')).toBeDefined()
+
+    b.hardened.set(true)
+    await vi.waitFor(() => {
+      expect(b.ctx.slots.entries('conversation.chat.assistant-actions')).toEqual([])
+      expect(b.ctx.slots.entries('conversation.input.overlay')).toEqual([])
+      expect(b.decorations.get('feedback')).toBeUndefined()
+    })
+
+    b.hardened.set(false)
+    await vi.waitFor(() => {
+      expect(b.ctx.slots.entries('conversation.chat.assistant-actions')).toHaveLength(1)
+      expect(b.ctx.slots.entries('conversation.input.overlay')).toHaveLength(1)
+    })
+    expect(b.decorations.get('feedback')).toBeDefined()
+    expect(b.entry()?.id).toBe('feedback')
   })
 
   it('re-registers cleanly when the plugin is reloaded', async () => {

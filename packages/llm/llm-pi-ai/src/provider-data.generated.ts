@@ -15,7 +15,7 @@ export const PROVIDER_DATA: Record<BuiltinProvider, ProviderData> & Partial<Reco
   'cerebras': { env: ['CEREBRAS_API_KEY'], defaultBaseURL: 'https://api.cerebras.ai/v1' },
   'cloudflare-ai-gateway': { env: ['CLOUDFLARE_API_KEY', 'CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLARE_GATEWAY_ID'], baseURLEnv: ['CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLARE_GATEWAY_ID'] },
   'cloudflare-workers-ai': { env: ['CLOUDFLARE_API_KEY', 'CLOUDFLARE_ACCOUNT_ID'], baseURLEnv: ['CLOUDFLARE_ACCOUNT_ID'] },
-  'deepseek': { env: ['DEEPSEEK_API_KEY'], defaultBaseURL: 'https://api.deepseek.com' },
+  'omega': { env: ['OMEGA_OPENAI_API_KEY'], defaultBaseURL: 'https://api.omega.ai' },
   'fireworks': { env: ['FIREWORKS_API_KEY'], defaultBaseURL: 'https://api.fireworks.ai/inference' },
   'github-copilot': { env: ['COPILOT_GITHUB_TOKEN'], defaultBaseURL: 'https://api.individual.githubcopilot.com' },
   'google': { env: ['GEMINI_API_KEY'], defaultBaseURL: 'https://generativelanguage.googleapis.com/v1beta' },

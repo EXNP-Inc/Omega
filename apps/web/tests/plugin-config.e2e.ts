@@ -49,6 +49,12 @@ describe('web e2e: plugin configuration pages', () => {
     tripwire = watchConsole(page)
     await page.goto(scaffold.authenticatedUrl, { waitUntil: 'load' })
     await page.waitForSelector('[class*="frame"]', { timeout: 30_000 })
+    // The Plugins page is a separate surface that never shows the settings
+    // unlock gate in place, but its forms write settings through the same
+    // server-side gate. Open the settings dialog once to clear the gate for
+    // this peer (the unlock fact holds until the next UTC hour), so the
+    // scenarios' saves are accepted; the dialog closes with the next openPlugins.
+    await openSettings(page, 'zh')
   }, 120_000)
 
   afterAll(async () => {
@@ -224,7 +230,7 @@ describe('web e2e: plugin configuration pages', () => {
     await fetchSection.getByText('使用「模型」页配置的 API Key，需要先配置。', { exact: true }).waitFor()
     await save.click()
     await expect.poll(() => save.isDisabled()).toBe(true)
-    await expect.poll(settingsDocument).toContain('fetchProvider: deepseek-fetch-api')
+    await expect.poll(settingsDocument).toContain('fetchProvider: omega-fetch-api')
     await expect.poll(settingsDocument).toContain('fetchBilling: api-key')
     await choose(fetchBilling, '自动')
     await save.click()
@@ -243,7 +249,7 @@ describe('web e2e: plugin configuration pages', () => {
     await choose(fetchMenu, '本机直接获取')
     await save.click()
     await expect.poll(() => save.isDisabled()).toBe(true)
-    await expect.poll(settingsDocument).not.toContain('fetchProvider: deepseek-fetch-api')
+    await expect.poll(settingsDocument).not.toContain('fetchProvider: omega-fetch-api')
 
     await choose(searchMenu, 'Omega 服务端搜索')
     const messagesEndpoint = panel.locator('#plugin-config-web-search-endpoint')

@@ -2079,6 +2079,7 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
         value: {
           writable: true,
           hasDocument: true,
+          locked: false,
           namespaces: [{
             ns: 'llm-omega',
             autoGenerate: true,

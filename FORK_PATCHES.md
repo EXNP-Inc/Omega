@@ -37,9 +37,12 @@ commit (single parent `191b24a3b3`):
   upstream 2-model bundled catalog to the fork's empty-catalog, 8090-endpoint
   binding (16 test files, 804 tests green).
 - **pi-ai external surface** (2.1): the installed `@earendil-works/pi-ai`
-  keeps its literal `deepseek` provider vocabulary in the harness's
-  `llm-pi-ai` sources, tests, and the Web worker `pi-ai.ts` stub — never
-  renamed; only the `@deepseek-ai` scope is rescoped there.
+  builtin provider is rebranded to `omega` (id, `Omega` name,
+  `https://api.omega.ai`, `OMEGA_OPENAI_API_KEY`, `omega-flash` / `omega-v4-pro`)
+  by the rebrand patch, so the harness's `llm-pi-ai` sources, tests, and the
+  Web worker `pi-ai.ts` stub all use `omega`; only the `@deepseek-ai` scope
+  and the internal deepseek file/export names are rescoped, never the
+  `thinkingFormat: "deepseek"` token (see 2.1).
 - The `0.2.1-alpha.1`-era items (2.2–2.4) re-apply unchanged.
 
 ## 2. Fork patch set (re-apply on every upstream pull)
@@ -57,14 +60,26 @@ commit (single parent `191b24a3b3`):
   `scripts/libreoffice-packages.mjs`, `scripts/verify-default-product-isolation.ts`
   (`EXTERNAL_ENGINE_PREFIX` rule), and the kit row in
   `THIRD_PARTY_NOTICES.md` (regenerate the file, do not hand-edit).
-- **Exception:** the installed `@earendil-works/pi-ai` package keeps its
-  literal `deepseek` provider vocabulary — `deepseek`/`DeepSeek` in the
-  `BuiltinProvider` and thinking-format unions, `DEEPSEEK_API_KEY`,
-  `api.deepseek.com`, `deepseek/*` model ids, and the "DeepSeek" display
-  name — across `packages/llm/llm-pi-ai` sources and tests and the Web
-  worker `pi-ai.ts` cosmetic stub. Only the `@deepseek-ai` scope is rescoped
-  there. Renaming these breaks the installed dependency contract and the
-  `gen-provider-data --check` pin.
+- **Exception:** the installed `@earendil-works/pi-ai` package's builtin
+  provider is rebranded from `deepseek` to `omega` by the patch in
+  `patches/@earendil-works__pi-ai@1.3.0.patch` (re-apply with `pnpm install`):
+  provider id `omega`, display name `Omega`, base URL `https://api.omega.ai`,
+  credential environment variable `OMEGA_OPENAI_API_KEY` (the `envMap` key is
+  `omega`; the upstream `DEEPSEEK_API_KEY` / `api.deepseek.com` are gone from
+  the builtin), and models `omega-flash` ("Omega V4.1 Flash") and `omega-v4-pro`
+  ("Omega V4 Pro"). Internal file names and exports keep the `deepseek` token
+  (`deepseek.js`, `data/deepseek.json`, `DEEPSEEK_MODELS`, `deepseek.models.js`)
+  and the `compat.thinkingFormat: "deepseek"` wire token (a protocol constant
+  the harness maps in `getCompat`); the `KnownProvider` type-level union keeps
+  the upstream `deepseek` literal. Third-party vendor catalogs in the package
+  (OpenRouter, LobeChat, opencode, and others) still list real DeepSeek models
+  — never rename them. The `llm-pi-ai` sources, specs, and the Web worker
+  `pi-ai.ts` stub use `omega` throughout (the stub is vocabulary-free).
+- **Exception:** the web fetch provider id is `omega-fetch-api` (upstream
+  `deepseek-fetch-api`); its search sibling is already `omega-search-api`.
+  Guarded across the shipped `cordis.patch.yml`, the `snapshots/session/omega-fetch`
+  scenario, the `ui-settings-web-search` and `web-omega-api` sources and READMEs,
+  and the `tool-web` `deepseek-fetch` test route (now `omega-fetch`).
 
 ### 2.2 User-visible naming: `DSH` to `Omega`
 
@@ -219,15 +234,17 @@ Fixture and golden maintenance when upstream changes model-visible output:
 
 ## 5. Known red debt (do not chase during an upstream pull)
 
-The 0.2.2-rc.5 pull (`191b24a3b3`) surfaced the rows below. The re-derivation
-lanes (`llm-pi-ai`, `web-search-omega`, translator) are the same
-empty-catalog/8090 class as the completed `llm-omega` lane (2.4) and are the
-next work, not debt to ignore; the rest are host/environmental or
-re-record-once goldens.
+The 0.2.2-rc.5 pull (`191b24a3b3`) surfaced the rows below. The `llm-pi-ai`
+lane is resolved: the pi-ai rebrand (2.1) now supplies the `omega` model
+catalog, so its specs pass without touching the harness's own empty `omega`
+catalog. The remaining re-derivation lanes (`web-search-omega`, translator)
+are the same empty-catalog/8090 class as the completed `llm-omega` lane (2.4)
+and are the next work, not debt to ignore; the rest are host/environmental
+or re-record-once goldens.
 
 | Failure | Lane | Cause | Action |
 |---|---|---|---|
-| `llm-pi-ai` (adapter, dynamic-config, egress, loader-composition, login, native-auth, request-headers) — ~30 tests | unit | provider `omega` resolves no models under the empty catalog; rc.5 tests still expect the upstream bundled models | re-derive to the empty catalog (next lane) |
+| ~~`llm-pi-ai` (adapter, catalog, discovery, native-auth, request-headers)~~ | unit | **Resolved:** the pi-ai rebrand (2.1) supplies the `omega` model catalog, so the lane is green (179 tests) without touching the harness's own empty `omega` catalog | — |
 | `web-search-omega` `omega.spec` x7 | unit | account-route tests expect `https://api.omega.com/...`; fork source resolves the gateway `http://127.0.0.1:8090/anthropic/v1` | re-derive the account-route expectations to the 8090 gateway (next lane) |
 | `translator` `omega.spec` / `audit.spec` ~14 | unit | omega-official / omega-account native Flash providers unresolved under the empty catalog | re-derive to the catalog binding (next lane) |
 | `ui-sidebar` sidebar-snapshot x3, `ui-primitives` icons (BrandWordmark), `ui-brand-official` browser-plugin, `ui-chat` turn-usage-panel, `ui-plugin-manager` components, `desktop-publication-preflight` | gui/unit | fork rebrand changed the rendered Ω mark/wordmark and product text; recorded goldens still hold the upstream values | re-record the goldens after the rebrand (`vitest run -u` + diff-review), then green |

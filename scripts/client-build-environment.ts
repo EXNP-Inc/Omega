@@ -179,19 +179,32 @@ function clientBuildEnvironment(environment: NodeJS.ProcessEnv): ClientBuildEnvi
     .sort(([left], [right]) => left.localeCompare(right))) as Record<string, string>
 }
 
+/** Build-identity values the default product build omits so no version string is embedded. */
+const DEFAULT_BUILD_IDENTITY_VARIABLES = [
+  'DSH_CLIENT_VERSION',
+  'DSH_CLIENT_COMMIT_HASH',
+  'DSH_CLIENT_GIT_DIRTY',
+] as const
+
 /**
  * Resolve the exact public environment selected for a complete client build.
  * Named profiles discard inherited public overrides. Local builds retain the supplied
  * commit, version, and true dirty marker; repositoryClientBuildEnvironment supplies that metadata.
+ * The default (no-profile) product build omits the build-identity values so the served
+ * client presents the brand without a version string; named profiles retain them.
  * @param environment - parent process environment.
  * @param profile - explicit profile, or the non-public selector when omitted.
- * @returns the inherited public values when no profile is selected, otherwise the named profile.
+ * @returns the inherited public values (without build identity) when no profile is selected, otherwise the named profile.
  */
 export function resolveClientBuildEnvironment(
   environment: NodeJS.ProcessEnv,
   profile: string | undefined = environment[CLIENT_BUILD_PROFILE_SELECTOR],
 ): ClientBuildEnvironment {
-  if (profile === undefined) return clientBuildEnvironment(environment)
+  if (profile === undefined) {
+    const identity = new Set<string>(DEFAULT_BUILD_IDENTITY_VARIABLES)
+    return Object.fromEntries(Object.entries(clientBuildEnvironment(environment))
+      .filter(([name]) => !identity.has(name))) as ClientBuildEnvironment
+  }
   if (profile === 'official' || profile === 'local') {
     const commitHash = environment[CLIENT_COMMIT_HASH_VARIABLE]
     const version = environment[CLIENT_VERSION_VARIABLE]

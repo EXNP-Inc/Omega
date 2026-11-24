@@ -25,6 +25,8 @@ import type {} from '@omega-ai/dsh-client-ui-context-menu/client'
  * from another package does — `ui-sidebar-documentpreview` is the live proof.
  */
 import type {} from '@omega-ai/dsh-client-shortcuts/client'
+// Type-only: the shared configForms service merge (the hardened-mode preference).
+import type {} from '@omega-ai/dsh-client-ui-settings/client'
 import { observeSidebarFocus } from './focus.ts'
 import { registerSidebarShortcuts } from './shortcuts.ts'
 import type { Context as ClientContext } from '@omega-ai/cordis'
@@ -85,8 +87,8 @@ export type { SidebarRightOpenTab } from './tab-inventory.ts'
 /** This package's copy namespace. */
 const NS = 'sidebarRight'
 
-/** Required browser services: the slot registry, the frame's panel actions, copy, and the resource model. */
-export const inject = ['contextMenus', 'slots', 'layout', 'locale', 'resources', 'sessions', 'uiSession', 'shortcuts']
+/** Required browser services: the slot registry, the frame's panel actions, copy, the resource model, and the settings forms. */
+export const inject = ['contextMenus', 'slots', 'layout', 'locale', 'resources', 'sessions', 'uiSession', 'shortcuts', 'configForms']
 
 declare module '@omega-ai/cordis' {
   interface Context {
@@ -126,6 +128,11 @@ export function apply(ctx: ClientContext): void {
   // The automatic fullscreen rule as the seats last rendered it: the frame
   // hands them its width as owner props, and every seat reports the same rule.
   let autoFullscreen = false
+  // The hardened-mode gate: the controller reads it to answer its face silently
+  // while its seats, guide, and shortcuts are hidden, so a caller that still
+  // reaches for the column (a conversation file link, a guide entry) does not
+  // throw against a surface nobody is drawing.
+  const hardened = ctx.configForms.hardenedMode.enabled
   const { controller, adopt, forget, show, measure } = createSidebarRightController(
     tabs,
     (address, signal) => { ctx.resources.pin(address, signal) },
@@ -133,6 +140,7 @@ export function apply(ctx: ClientContext): void {
       autoFullscreen: () => autoFullscreen,
       openWithFocus: (sessionId, open) => { openWithPaneFocus(document, sessionId, open) },
       closeWithFocus: (sessionId, paneId, close) => { closeWithPaneFocus(document, sessionId, paneId, close) },
+      hardened: () => hardened.getSnapshot(),
     },
   )
   ctx.effect(() => ctx.slots.inject('contextMenu.icon', () => ctx.slots.register({
@@ -194,7 +202,7 @@ export function apply(ctx: ClientContext): void {
   ctx.effect(() => ctx.locale.register(NS, { zh, en, ja, es, fr, de, ru, pt }), 'ui-sidebar-right: dictionaries')
   ctx.effect(() => registerSidebarShortcuts(ctx.shortcuts, controller, t, () => {
     void ctx.shortcuts.closeWindow().catch((error: unknown) => { console.error('Window close failed', error) })
-  }), 'ui-sidebar-right: shortcuts')
+  }, hardened), 'ui-sidebar-right: shortcuts')
   if (typeof document !== 'undefined') ctx.effect(() => observeSidebarFocus(document), 'ui-sidebar-right: focus')
 
   ctx.effect(() => {
@@ -229,89 +237,114 @@ export function apply(ctx: ClientContext): void {
     }
     const tabTypes = { subscribe: (listener: () => void) => tabs.subscribe(listener), getSnapshot: () => tabs.entries() }
 
-    const disposeTypes = [tabs.register(guideDefinition(t))]
-    const disposeSeat = ctx.slots.inject('rightbar', function* () {
-      yield ctx.slots.register({
-        name: 'rightbar',
-        children: { 'rightbar.session': { kind: 'single', scope: 'session' } },
-        inject: (): RightbarRootInjected => ({
-          hooks: { views: views.source },
-          mountView: reference => views.mount(reference),
-        }),
-      }, RightbarRoot)
-      yield ctx.slots.register({
-        name: 'rightbar.session',
+    // The seats, the guide type, its body and title, and the expand button are
+    // the right sidebar's whole surface. Hardened mode hides all of it: one
+    // reconcile installs them when the gate is off and tears them down in
+    // lockstep when it flips on, so no client can ever open the column. The
+    // store and adoptions above outlive the flip; the controller's backstop
+    // answers the callers that still reach for a surface nobody draws.
+    let installed: (() => void) | undefined
+    const reconcile = (): void => {
+      const visible = !hardened.getSnapshot()
+      if (visible === (installed !== undefined)) return
+      installed?.()
+      if (!visible) {
+        installed = undefined
+        return
+      }
+      // The guide registers through the same public two-stage path any other
+      // type uses: the type into the registry, its body under its own key.
+      const disposeType = tabs.register(guideDefinition(t))
+      const disposeSeat = ctx.slots.inject('rightbar', function* () {
+        yield ctx.slots.register({
+          name: 'rightbar',
+          children: { 'rightbar.session': { kind: 'single', scope: 'session' } },
+          inject: (): RightbarRootInjected => ({
+            hooks: { views: views.source },
+            mountView: reference => views.mount(reference),
+          }),
+        }, RightbarRoot)
+        yield ctx.slots.register({
+          name: 'rightbar.session',
+          locale: NS,
+          children: {
+            'sidebar.right.pane.tab': { kind: 'keyed', scope: 'session', inject: { hooks: { tabInfo: tabInfoFactory } } },
+            'sidebar.right.pane.tab.title': { kind: 'keyed', scope: 'session', inject: { hooks: { tabInfo: tabInfoFactory } } },
+          },
+          store,
+          inject: (sessionId): SidebarRightInjected => ({
+            ...injected,
+            hooks: {
+              contextMenuTarget: ctx.contextMenus.active, shortcuts: ctx.shortcuts.catalog, tabTypes, flash: controller.flashOf(sessionId),
+            },
+            measureRoom: (canSplitPane) => { measure(sessionId, canSplitPane) },
+            closeTab: (tabId) => {
+              try { controller.closeIn(sessionId, tabId) }
+              catch (error) { console.error('Sidebar tab close failed:', error) }
+            },
+            keyedHooks: { tabNavigation: key => controller.tabDomain.occurrence(sessionId, { id: key as TabId }).navigation },
+            occurrence: tab => controller.tabDomain.occurrence(sessionId, tab),
+          }),
+        }, RightbarSeat)
+      })
+      // The expand button shares the panel's store: it only needs to know
+      // whether the panel is expanded, and to ask for it to be.
+      const disposeExpand = ctx.slots.inject('conversation.session.header.corner', () => ctx.slots.register({
+        name: 'conversation.session.header.corner',
+        locale: NS,
+        store,
+        inject: () => ({ hooks: { shortcuts: ctx.shortcuts.catalog } }),
+      }, ExpandButton))
+      // Stage two for the guide: it declares the chain child it hosts and reads
+      // the registry's entry boxes, which an ordinary type has no reason to do.
+      const guidePins = createGuidePins()
+      const guideInjected: GuideInjected = {
+        hooks: {
+          shortcuts: ctx.shortcuts.catalog,
+          guideEntries: { subscribe: listener => tabs.subscribe(listener), getSnapshot: () => tabs.guide() },
+          entryPins: guidePins.unpinned,
+          entryActions: {
+            getSnapshot: () => ctx.slots.entriesOfSlot('sidebar.right.tab.guide.actions').length > 0,
+            subscribe: listener => ctx.slots.subscribe('sidebar.right.tab.guide.actions', listener),
+          },
+        },
+        setPinned: guidePins.setPinned,
+      }
+      const disposeGuide = ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register({
+        name: 'sidebar.right.pane.tab',
+        key: GUIDE_ID,
         locale: NS,
         children: {
-          'sidebar.right.pane.tab': { kind: 'keyed', scope: 'session', inject: { hooks: { tabInfo: tabInfoFactory } } },
-          'sidebar.right.pane.tab.title': { kind: 'keyed', scope: 'session', inject: { hooks: { tabInfo: tabInfoFactory } } },
-        },
-        store,
-        inject: (sessionId): SidebarRightInjected => ({
-          ...injected,
-          hooks: {
-            contextMenuTarget: ctx.contextMenus.active, shortcuts: ctx.shortcuts.catalog, tabTypes, flash: controller.flashOf(sessionId),
+          'sidebar.right.tab.guide.actions': { kind: 'list', scope: 'root' },
+          'sidebar.right.tab.guide.entry': {
+            kind: 'keyed', scope: 'session', inject: { hooks: { tabInfo: guideTabInfoFactory } },
           },
-          measureRoom: (canSplitPane) => { measure(sessionId, canSplitPane) },
-          closeTab: (tabId) => {
-            try { controller.closeIn(sessionId, tabId) }
-            catch (error) { console.error('Sidebar tab close failed:', error) }
+          'sidebar.right.tab.guide': {
+            kind: 'chain', scope: 'session', inject: { hooks: { tabInfo: guideTabInfoFactory } },
           },
-          keyedHooks: { tabNavigation: key => controller.tabDomain.occurrence(sessionId, { id: key as TabId }).navigation },
-          occurrence: tab => controller.tabDomain.occurrence(sessionId, tab),
-        }),
-      }, RightbarSeat)
-    })
-    // The expand button shares the panel's store: it only needs to know whether
-    // the panel is expanded, and to ask for it to be. The header's corner seat
-    // is its own place, past the utilities, so showing and hiding it moves
-    // nothing else in the row.
-    const disposeExpand = ctx.slots.inject('conversation.session.header.corner', () => ctx.slots.register({
-      name: 'conversation.session.header.corner',
-      locale: NS,
-      store,
-      inject: () => ({ hooks: { shortcuts: ctx.shortcuts.catalog } }),
-    }, ExpandButton))
-    // Stage two for the guide: it declares the chain child it hosts and reads
-    // the registry's entry boxes, which an ordinary type has no reason to do.
-    const guidePins = createGuidePins()
-    const guideInjected: GuideInjected = {
-      hooks: {
-        shortcuts: ctx.shortcuts.catalog,
-        guideEntries: { subscribe: listener => tabs.subscribe(listener), getSnapshot: () => tabs.guide() },
-        entryPins: guidePins.unpinned,
-        entryActions: {
-          getSnapshot: () => ctx.slots.entriesOfSlot('sidebar.right.tab.guide.actions').length > 0,
-          subscribe: listener => ctx.slots.subscribe('sidebar.right.tab.guide.actions', listener),
         },
-      },
-      setPinned: guidePins.setPinned,
+        inject: () => guideInjected,
+      }, GuideBody))
+      const disposeGuideTitle = ctx.slots.inject('sidebar.right.pane.tab.title', () => ctx.slots.register(
+        { name: 'sidebar.right.pane.tab.title', key: GUIDE_ID },
+        GuideTitle,
+      ))
+      // Children first: the guide body and title leave their keyed seats
+      // before the seat itself and the guide type collapse.
+      installed = () => {
+        disposeGuideTitle()
+        disposeGuide()
+        disposeExpand()
+        disposeSeat()
+        disposeType()
+      }
     }
-    const disposeGuide = ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register({
-      name: 'sidebar.right.pane.tab',
-      key: GUIDE_ID,
-      locale: NS,
-      children: {
-        'sidebar.right.tab.guide.actions': { kind: 'list', scope: 'root' },
-        'sidebar.right.tab.guide.entry': {
-          kind: 'keyed', scope: 'session', inject: { hooks: { tabInfo: guideTabInfoFactory } },
-        },
-        'sidebar.right.tab.guide': {
-          kind: 'chain', scope: 'session', inject: { hooks: { tabInfo: guideTabInfoFactory } },
-        },
-      },
-      inject: () => guideInjected,
-    }, GuideBody))
-    const disposeGuideTitle = ctx.slots.inject('sidebar.right.pane.tab.title', () => ctx.slots.register(
-      { name: 'sidebar.right.pane.tab.title', key: GUIDE_ID },
-      GuideTitle,
-    ))
+    const unsubscribe = hardened.subscribe(() => reconcile())
+    reconcile()
     return () => {
-      disposeGuideTitle()
-      disposeGuide()
-      disposeExpand()
-      disposeSeat()
-      for (const dispose of disposeTypes.reverse()) dispose()
+      unsubscribe()
+      installed?.()
+      installed = undefined
       for (const release of adoptions.values()) release()
       adoptions.clear()
     }

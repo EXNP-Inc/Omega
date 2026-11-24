@@ -285,6 +285,13 @@ export type WorkspaceBrowserInjected = {
     hostInfo: HostObservable<RemoteHostFacts>
     workspaceShortcuts: HostObservable<WorkspaceShortcutState>
     shortcuts: HostObservable<readonly ShortcutCatalogEntry[]>
+    /**
+     * Whether hardened mode is on: with it, the browsing region is a single
+     * flat list of the one default Workspace, so the add-workspace button, the
+     * add-flow, the rename/delete dialogs, and the group-by view options are all
+     * withdrawn.
+     */
+    hardenedMode: HostObservable<boolean>
   }
   /** Open the browser search and focus its input. */
   requestSearch: () => void

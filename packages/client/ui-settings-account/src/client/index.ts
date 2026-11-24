@@ -161,6 +161,25 @@ export function apply(ctx: Context): void {
   // lets an entry request one.
   const platformPages = createPlatformPages()
   ctx.effect(() => () => { platformPages.dispose() }, 'account: platform page request')
+  const hardened = ctx.configForms.hardenedMode.enabled
+  /**
+   * Gate one account surface behind the hardened-mode preference: the
+   * contribution installs only while hardened mode is off and reconciles on
+   * every flip, so turning hardened mode on withdraws it and off restores it.
+   * @param install - creates the surface's registration and returns its disposer.
+   * @returns the effect disposer ending the gate and any live registration.
+   */
+  const hardenedGate = (install: () => () => void): (() => void) => {
+    let off: (() => void) | undefined
+    const reconcile = (): void => {
+      const visible = !hardened.getSnapshot()
+      if (visible && off === undefined) off = install()
+      else if (!visible && off !== undefined) { off(); off = undefined }
+    }
+    const unsubscribe = hardened.subscribe(() => { reconcile() })
+    reconcile()
+    return () => { unsubscribe(); off?.(); off = undefined }
+  }
   // Extensions share explicit refreshes; profile and wallet reads remain coalesced.
   const refreshAccount = async (): Promise<void> => {
     avatar.retry()
@@ -276,7 +295,9 @@ export function apply(ctx: Context): void {
       ]
       return () => { for (const dispose of disposers) dispose() }
     }, 'account: desktop credential readiness')
-    ctx.slots.inject('shell.overlay', () => ctx.slots.register({
+    // Desktop-only surface: the controller stays alive for its lifetime, only
+    // the onboarding registration is withdrawn while hardened mode is on.
+    ctx.effect(() => hardenedGate(() => ctx.slots.inject('shell.overlay', () => ctx.slots.register({
       name: 'shell.overlay', id: 'desktop-onboarding', locale: 'settings.account',
       inject: (): DesktopOnboardingInjected => ({
         hooks: { account: operations.hooks.account, onboarding: controller.state },
@@ -290,36 +311,40 @@ export function apply(ctx: Context): void {
         retry: () => controller.retry(),
         track: (name, attributes) => ctx.get('productAnalytics')?.track(name, attributes),
       }),
-    }, DesktopOnboardingEntry))
+    }, DesktopOnboardingEntry))), 'account: hardened desktop onboarding')
   }
-  ctx.remoteAccess.whenAccess('account/watch', () => ctx.slots.inject('settings.models.sign-in', () => ctx.slots.register({
+  ctx.remoteAccess.whenAccess('account/watch', () => hardenedGate(() => ctx.slots.inject('settings.models.sign-in', () => ctx.slots.register({
     name: 'settings.models.sign-in', locale: 'settings.account', inject: () => operations,
-  }, AccountOnboarding)))
-  ctx.remoteAccess.whenAccess('account/watch', () => ctx.slots.inject('shell.quota-notice', () => ctx.slots.register({
+  }, AccountOnboarding))))
+  ctx.remoteAccess.whenAccess('account/watch', () => hardenedGate(() => ctx.slots.inject('shell.quota-notice', () => ctx.slots.register({
     name: 'shell.quota-notice', locale: 'settings.account',
     select: owner => owner.code === 'ACCOUNT_QUOTA' ? owner : null,
     inject: (): AccountQuotaNoticeInjected => ({
       hooks: { account: operations.hooks.account, platformPage: platformPages },
       ...nativePlatform === undefined ? {} : { openPlatformPage: platformPageOpener(refreshAccount) },
     }),
-  }, AccountQuotaNotice)))
+  }, AccountQuotaNotice))))
   if (nativePlatform !== undefined) {
-    ctx.slots.inject('shell.overlay', () => ctx.slots.register({
+    // Native-only surface: the page request channel stays alive, only the
+    // platform host registration is withdrawn while hardened mode is on.
+    ctx.effect(() => hardenedGate(() => ctx.slots.inject('shell.overlay', () => ctx.slots.register({
       name: 'shell.overlay', id: 'account.platform-page', locale: 'settings.account',
       inject: (): AccountPlatformHostInjected => ({
         platform: nativePlatform, hooks: { page: platformPages },
         closePage: platformPages.close,
       }),
-    }, AccountPlatformHost))
+    }, AccountPlatformHost))), 'account: hardened platform page')
   }
-  ctx.remoteAccess.whenAccess('account/watch', () => ctx.slots.inject('settings.launcher', () => ctx.slots.register({
+  ctx.remoteAccess.whenAccess('account/watch', () => hardenedGate(() => ctx.slots.inject('settings.launcher', () => ctx.slots.register({
     name: 'settings.launcher', locale: 'settings.account', inject: () => operations,
-  }, AccountMenu)))
-  ctx.remoteAccess.whenAccess('account/watch', () => ctx.slots.inject('settings.notice', () => ctx.slots.register({
+  }, AccountMenu))))
+  ctx.remoteAccess.whenAccess('account/watch', () => hardenedGate(() => ctx.slots.inject('settings.notice', () => ctx.slots.register({
     name: 'settings.notice', inject: () => operations,
     children: { 'settings.launcher.notifications': { kind: 'single', scope: 'root' } },
-  }, AccountNotices)))
-  ctx.remoteAccess.whenAccess('account/watch', () => ctx.slots.inject('settings.section', () => {
+  }, AccountNotices))))
+  // The whole section contribution is hardened-gated: on, the gate withdraws it
+  // and its listeners; off, it reinstalls and re-evaluates credential status.
+  ctx.remoteAccess.whenAccess('account/watch', () => hardenedGate(() => ctx.slots.inject('settings.section', () => {
     let unregister: (() => void) | undefined
     const update = () => {
       if (snapshot.view?.status === 'credential-stored') {
@@ -335,5 +360,5 @@ export function apply(ctx: Context): void {
     listeners.add(update)
     update()
     return () => { listeners.delete(update); unregister?.() }
-  }))
+  })))
 }

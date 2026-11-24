@@ -22,7 +22,7 @@ export const WHALE_ARTWORK: WhaleArtwork = {
     '// Everything is a plugin', 'ctx.plugin(Agent)', 'await agent.run()',
     'ctx.on("turn/end", next)', 'const tools = ctx.tools', 'await session.append(event)',
     'return next()', 'ctx.effect(() => dispose)', 'const { skills } = ctx',
-    'yield tool.result', 'type Context = Harness', 'MCP.connect()',
+    'yield tool.result', 'const context = ctx', 'MCP.connect()',
     'useSession()', 'const workspace = cwd', 'await runtime.start()', '// Creator Mode',
   ],
   frameRate: 24,

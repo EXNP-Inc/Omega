@@ -181,8 +181,8 @@ function renderTab(
     useBundleDetails: bindSnapshotSelector(bundleDetails),
     useLocale: bindSnapshotSelector(createSnapshotStore<LocaleSnapshot>({ active: 'en', locales: [], revision: 0 })),
     useConfigurations: bindSnapshotSelector(createSnapshotStore<SettingsMirrorSnapshot>({
-      status: 'ready', error: null,
-      view: { writable: true, hasDocument: true, namespaces: Object.keys(forms).map(ns => ({
+      status: 'ready', error: null, locked: false,
+      view: { writable: true, hasDocument: true, locked: false, namespaces: Object.keys(forms).map(ns => ({
         ns, schema: {}, value: {}, applies: 'live' as const, secrets: [], revision: 0, autoGenerate: true,
       })) },
     })),
@@ -3070,7 +3070,7 @@ describe('registry versions and updates', () => {
     open(navigation)
     expect(within(section()).getByText(title)).toBeTruthy()
     expect(within(detail()).queryByRole('button', { name: /^Update to / })).toBeNull()
-    if (title === en.versionsBlocked) expect(within(section()).getByText(`2.0.0 needs @omega-ai/dsh >=0.9.0; this DSH is ${runtime}`)).toBeTruthy()
+    if (title === en.versionsBlocked) expect(within(section()).getByText(`2.0.0 needs @omega-ai/dsh >=0.9.0; this Omega is ${runtime}`)).toBeTruthy()
   })
 
   it('reports a refused check with the registries asked and a retry', () => {

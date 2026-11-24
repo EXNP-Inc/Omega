@@ -18,3 +18,12 @@ it('selects zh_CN only for a Chinese primary language subtag', () => {
   expect(locale('ZH_hans')).toBe('zh_CN')
   for (const value of ['ja', 'ja-JP', 'en', 'en-US', 'fr-FR', 'English', '', 'zhx']) expect(locale(value)).toBe('en_US')
 })
+
+it('omits the version header when the build carries no version', () => {
+  const headers = platformClientHeaders(null, { locale: 'en-US', timezoneOffsetSeconds: 0 })
+  expect(headers['x-client-version']).toBeUndefined()
+  expect(headers).toEqual({
+    'x-client-bundle-id': '', 'x-client-platform': 'web',
+    'x-client-locale': 'en_US', 'x-client-timezone-offset': '0',
+  })
+})

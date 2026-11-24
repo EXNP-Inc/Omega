@@ -31,10 +31,11 @@
   - text: Keyboard shortcuts
   - paragraph: View and edit available shortcuts and input actions
   - button "Edit shortcuts"
+  - text: Hardened mode Hides plugins, workspaces, file browsing, terminal, feedback, and account features for sharing externally.
+  - switch "Hardened mode"
   - text: Send behavior while busy What Enter and the Send button do while the agent is running; Cmd/Ctrl+Enter uses the other behavior
   - button "Queue"
   - text: Performance & usage Choose how much performance and usage information to show
   - button "Detailed"
   - text: Upload Session Log when using the official model API Help improve Omega models and products.
   - switch "Upload Session Log when using the official model API"
-  - text: "Current version: {{version}}"

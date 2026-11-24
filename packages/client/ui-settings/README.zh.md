@@ -31,6 +31,8 @@ kind: "package-reference"
 
 `ctx.configForms.developerTools` 管理代码工作工具开关与 Web 和桌面端共享的偏好 `ui-settings.enabled`，默认为 `true`。其 `enabled` 可观察值发布已接受的选择，`setEnabled` 使用相同的有序设置写入。桌面端和每个已认证的 Web 浏览器都将设置持久化到 Host 文档。此设置控制界面展示和 HTML 预览权限，不控制 Host 授权或 Session 记录。 使用 Host 偏好的客户端在首个经过 schema 解析并接受的值到达前保持开发者功能关闭；首次响应缺失或失败不会启用它们。后续刷新保留已接受的选择。
 
+`ctx.configForms.hardenedMode` 管理强化模式开关与共享偏好 `ui-settings.hardenedMode`，默认为 `false`。其 `enabled` 可观察值发布已持久化的值，该值从浏览器同步的 Config 读取，早于任何设置解锁，因此受门控的表面在设置仍锁定时就从首帧起隐藏其功能；`setEnabled` 经由与开发者工具偏好相同的有序设置写入，因此写入会受设置解锁门控。
+
 功能适配器使用 `ctx.configForms.get(entryId)` 获取该 Host 条目所有编辑器共享的已接受值和写入队列。快照包含解析后的 `value`、继承 `base`、原始 `user`、修订号和可写性。`set` 与 `unset` 提交单个操作，`mutate` 提交一个原子操作列表。暂存编辑器传入编辑前读取的修订号；冲突时保留草稿。清除操作移除覆盖并恢复继承。
 
 配置表单对每个已认证浏览器都通过 Host settings 服务持久化；该策略由[已认证浏览器 Host 偏好笔记](../../../.agents/notes/implemented/bug-fix/2026-09-15-authenticated-browser-host-preferences.zh.md)拥有。写入是否被接受由 `settings.describe.writable` 决定。
@@ -64,7 +66,7 @@ kind: "package-reference"
 
 ### Describe 镜像
 
-`ui-settings` 条目的 Host Config 声明默认开启的 `enabled` 偏好。Client 插件注入 `remote` 及其 `settings` 命名空间，并持有浏览器中唯一的 `settings.describe` 读取方：一面共享镜像，在每次转发的 `settings/document-updated` 事件与 `connection/reset` 时刷新（首次连接也包含在内，关闭「提交落在急切读取与 SSE 订阅之间」的窗口）。跨命名空间表面通过 `ctx.configForms.describe()` 读它，这是一个读取/折叠面（`getSnapshot`/`subscribe`/`ensure`，另有把写应答折入的 `acceptView`）。
+`ui-settings` 条目的 Host Config 声明默认开启的 `enabled` 与默认关闭的 `hardenedMode` 偏好。Client 插件注入 `remote` 及其 `settings` 命名空间，并持有浏览器中唯一的 `settings.describe` 读取方：一面共享镜像，在每次转发的 `settings/document-updated` 事件与 `connection/reset` 时刷新（首次连接也包含在内，关闭「提交落在急切读取与 SSE 订阅之间」的窗口）。跨命名空间表面通过 `ctx.configForms.describe()` 读它，这是一个读取/折叠面（`getSnapshot`/`subscribe`/`ensure`，另有把写应答折入的 `acceptView`）。
 
 ### 共享条目写入
 

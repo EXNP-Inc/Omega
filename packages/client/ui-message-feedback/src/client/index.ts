@@ -14,6 +14,8 @@ import type { SessionId } from '@omega-ai/dsh-session/types'
 import type {} from '@omega-ai/dsh-api-remotes/client'
 // Type-only: pulls the ui-conversation SlotMap merge (the assistant-actions and overlay entries).
 import type {} from '@omega-ai/dsh-client-ui-conversation/client'
+// Type-only: pulls the shared configForms service merge (the hardened-mode preference).
+import type {} from '@omega-ai/dsh-client-ui-settings/client'
 // Type-only: pulls the command UI's Context merge (ctx.commandUi).
 import type {} from '@omega-ai/dsh-client-ui-commands/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
@@ -56,8 +58,8 @@ declare module '@omega-ai/cordis' {
 /** Dictionary namespace owned by this plugin. */
 const NS = 'feedback'
 
-/** Required services: the slot registry, the two Remote namespaces, and the copy. */
-export const inject = ['slots', 'remote', 'remote.messageFeedback', 'remote.sessionFeedback', 'locale']
+/** Required services: the slot registry, the two Remote namespaces, the copy, and the hardened-mode preference. */
+export const inject = ['slots', 'remote', 'remote.messageFeedback', 'remote.sessionFeedback', 'locale', 'configForms']
 
 /**
  * Client plugin body: the per-message feedback entry, the Session's dialog
@@ -95,48 +97,74 @@ export function apply(ctx: ClientContext): void {
     }
   })
 
-  ctx.slots.inject('conversation.chat.assistant-actions', () => ctx.slots.register({
-    name: 'conversation.chat.assistant-actions',
-    id: 'feedback',
-    order: 10,
-    locale: NS,
-    inject: (sessionId): MessageFeedbackInjected => {
-      const { feedback, dialog } = surfaceFor(sessionId)
-      return {
-        hooks: { feedback },
-        ensure: () => feedback.ensure(),
-        current: messageId => feedback.getSnapshot().items.get(messageId),
-        retract: (messageId, rating) => feedback.retract(messageId, rating),
-        openDialog: (messageId, rating) => { dialog.open({ kind: 'message', messageId, rating }) },
-      }
-    },
-  }, MessageFeedbackActions))
-
-  ctx.slots.inject('conversation.input.overlay', () => ctx.slots.register({
-    name: 'conversation.input.overlay',
-    id: 'feedback-dialog',
-    order: 2,
-    locale: NS,
-    inject: (sessionId): FeedbackDialogInjected => {
-      const { dialog } = surfaceFor(sessionId)
-      return {
-        hooks: { dialog: dialog.state },
-        edit: (draft) => { dialog.edit(draft) },
-        submit: () => dialog.submitDraft(),
-        dismiss: () => { dialog.dismiss() },
-        dismissFailure: () => { dialog.dismissFailure() },
-        dismissToast: (seq) => { dialog.dismissToast(seq) },
-      }
-    },
-  }, FeedbackDialog))
-
-  // The Host keeps `/feedback <text>` for a typed remark; a bare invocation
-  // from the menu or the composer opens the dialog instead.
-  ctx.inject(['commandUi'], (scope: ClientContext) => {
-    scope.effect(() => scope.commandUi.decorate({
-      name: 'feedback',
-      available: () => true,
-      ui: { kind: 'action', run: (session) => { feedbackUi.openSession(session.sessionId) } },
-    }), 'ui-message-feedback: /feedback decoration')
-  })
+  // The three feedback surfaces are one set. Hardened mode hides all of it:
+  // one reconcile installs the entry, the dialog, and the /feedback decoration
+  // when the gate is off and tears them down in lockstep when it flips on.
+  const hardened = ctx.configForms.hardenedMode.enabled
+  let installed: (() => void) | undefined
+  const reconcile = (): void => {
+    const visible = !hardened.getSnapshot()
+    if (visible === (installed !== undefined)) return
+    installed?.()
+    if (!visible) {
+      installed = undefined
+      return
+    }
+    const disposeEntry = ctx.slots.inject('conversation.chat.assistant-actions', () => ctx.slots.register({
+      name: 'conversation.chat.assistant-actions',
+      id: 'feedback',
+      order: 10,
+      locale: NS,
+      inject: (sessionId): MessageFeedbackInjected => {
+        const { feedback, dialog } = surfaceFor(sessionId)
+        return {
+          hooks: { feedback },
+          ensure: () => feedback.ensure(),
+          current: messageId => feedback.getSnapshot().items.get(messageId),
+          retract: (messageId, rating) => feedback.retract(messageId, rating),
+          openDialog: (messageId, rating) => { dialog.open({ kind: 'message', messageId, rating }) },
+        }
+      },
+    }, MessageFeedbackActions))
+    const disposeDialog = ctx.slots.inject('conversation.input.overlay', () => ctx.slots.register({
+      name: 'conversation.input.overlay',
+      id: 'feedback-dialog',
+      order: 2,
+      locale: NS,
+      inject: (sessionId): FeedbackDialogInjected => {
+        const { dialog } = surfaceFor(sessionId)
+        return {
+          hooks: { dialog: dialog.state },
+          edit: (draft) => { dialog.edit(draft) },
+          submit: () => dialog.submitDraft(),
+          dismiss: () => { dialog.dismiss() },
+          dismissFailure: () => { dialog.dismissFailure() },
+          dismissToast: (seq) => { dialog.dismissToast(seq) },
+        }
+      },
+    }, FeedbackDialog))
+    // The Host keeps `/feedback <text>` for a typed remark; a bare invocation
+    // from the menu or the composer opens the dialog instead. The decoration
+    // rides a child fiber so it keeps its wait for the command UI service;
+    // unloading that fiber withdraws the decoration.
+    const decorationFiber = ctx.inject(['commandUi'], (scope: ClientContext) => {
+      scope.effect(() => scope.commandUi.decorate({
+        name: 'feedback',
+        available: () => true,
+        ui: { kind: 'action', run: (session) => { feedbackUi.openSession(session.sessionId) } },
+      }), 'ui-message-feedback: /feedback decoration')
+    })
+    installed = () => {
+      void decorationFiber.dispose()
+      disposeDialog()
+      disposeEntry()
+    }
+  }
+  const unsubscribe = hardened.subscribe(() => reconcile())
+  reconcile()
+  ctx.effect(() => () => {
+    unsubscribe()
+    installed?.()
+    installed = undefined
+  }, 'ui-message-feedback: hardened mode')
 }

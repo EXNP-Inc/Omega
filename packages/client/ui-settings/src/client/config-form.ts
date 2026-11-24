@@ -1,7 +1,10 @@
 /** Shared entry values and ordered writes over the Host configuration mirror. */
 
 import { DeveloperToolsPreference } from './developer-tools.ts'
+import { HardenedModePreference } from './hardened-mode.ts'
+import type { SyncedConfigRef } from '@omega-ai/dsh-client-config/types'
 import { DEVELOPER_TOOLS_NAMESPACE } from '../developer-tools-settings.ts'
+import { HARDENED_MODE_NAMESPACE } from '../hardened-settings.ts'
 import { Service } from '@omega-ai/cordis'
 import type { Context } from '@omega-ai/cordis'
 import type {
@@ -237,6 +240,8 @@ export class ConfigForms extends Service {
   private readonly forms = new Map<string, ConfigFormController<unknown>>()
   /** Shared developer-tool preference owned by this settings provider. */
   readonly developerTools: DeveloperToolsPreference
+  /** Shared hardened-mode preference: ungated synced read, Host-backed write. */
+  readonly hardenedMode: HardenedModePreference
   private readonly mirror: SettingsDescribeMirror
   private readonly schema: SettingsSchemaService
   /**
@@ -248,18 +253,21 @@ export class ConfigForms extends Service {
 
   /**
    * @param ctx - the providing plugin's context.
-   * @param config - the shared describe mirror every shared form derives from
-   * and the settings-owned schema operations.
+   * @param config - the shared describe mirror every shared form derives from,
+   *   the settings-owned schema operations, and the synced reference of the
+   *   `hardenedMode` volatile field that reads the persisted value.
    */
   constructor(ctx: Context, config: {
     mirror: SettingsDescribeMirror
     schema: SettingsSchemaService
+    hardenedModeRef: SyncedConfigRef<boolean | undefined>
   }) {
     super(ctx, 'configForms')
     this.mirror = config.mirror
     this.schema = config.schema
     this.owner = ctx
     this.developerTools = new DeveloperToolsPreference(this.get(DEVELOPER_TOOLS_NAMESPACE))
+    this.hardenedMode = new HardenedModePreference(config.hardenedModeRef, this.get(HARDENED_MODE_NAMESPACE))
     ctx.effect(() => async () => {
       await Promise.all([...this.forms.values()].map(form => form.dispose()))
       this.forms.clear()

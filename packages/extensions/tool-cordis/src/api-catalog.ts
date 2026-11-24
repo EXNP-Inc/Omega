@@ -959,11 +959,11 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
   {
     key: 'credentialsController',
     summary: 'Host service backing the generated `ctx.remote.credentials` namespace.',
-    description: 'Host service backing the generated `ctx.remote.credentials` namespace. It carries every wire obligation the credential seam itself does not: the batch fan-out bound, the field-by-field view projection, the reference-grammar guard, and the refusal mapping. Full secret values cross in one direction only — no method here returns one.',
+    description: 'Host service backing the generated `ctx.remote.credentials` namespace. It carries every wire obligation the credential seam itself does not: the batch fan-out bound, the field-by-field view projection, the reference-grammar guard, and the refusal mapping. Full secret values cross in one direction only — no method here returns one.\n\nWhen mounted by `SettingsController`, it shares that controller\'s unlock gate, so a browser peer\'s writes (`set`, `unset`) pass the same password. Reads (`describe`) return secret-free metadata and are never locked, so a locked page can still render its credential rows. Mounted standalone it has no gate and is never locked, matching the in-process-trusted posture of the settings namespace.',
     methods: [
       {
         signature: '@Remote async describe(refs: string[]): Promise<Record<string, CredentialInfo>>',
-        description: 'Describe several references for one configuration surface. Batched because a settings page describes every reference its rows name at once, and one round trip keeps those rows from settling separately.',
+        description: 'Describe several references for one configuration surface. Batched because a settings page describes every reference its rows name at once, and one round trip keeps those rows from settling separately. This read is never locked: it returns only metadata (configured, source, writable, masked), never secret values, so a locked page can still render its credential rows.',
         parameters: [{ name: 'refs', description: 'reference names, at most {@link MAX_DESCRIBE_REFS}; a name outside the grammar rejects the whole call as `gateway/bad-request`.' }],
         returns: 'one view per requested name, keyed by that name.',
         throws: ['RemoteError when the request is invalid or no credential provider is mounted.'],
@@ -4005,13 +4005,13 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
   {
     key: 'settingsController',
     summary: 'Host service backing the generated `ctx.remote.settings` namespace.',
-    description: 'Host service backing the generated `ctx.remote.settings` namespace. Every remote read uses `redactSecrets: true`, so a `role(\'secret\')` field cannot ride a response. Writes expose the settings service\'s merge, replacement, and path-addressed operations, and classify every provider refusal as `settings/conflict` or `settings/rejected` with the service\'s message.',
+    description: 'Host service backing the generated `ctx.remote.settings` namespace. Every remote read uses `redactSecrets: true`, so a `role(\'secret\')` field cannot ride a response. Writes expose the settings service\'s merge, replacement, and path-addressed operations, and classify every provider refusal as `settings/conflict` or `settings/rejected` with the service\'s message.\n\nWrites are locked behind a server-side password: a browser peer (one whose call carries an `invocation.peer`) must first call `unlock` with the current UTC-rolling password, or every write (`update`, `replace`, `mutate`, `openSettingsDocument`) and credentials write answers `settings/locked`. Reads are never locked — `describe` returns redacted, secret-free values plus the caller\'s gate state in its `locked` field — so a locked page renders and offers the unlock instead of failing at boot. In-process callers arrive with no peer and are never locked. The `credentials` namespace shares the same gate, so one unlock clears both.',
     methods: [
       {
         signature: '@Remote describe(): SettingsDescribeValue',
-        description: 'Describe every registered namespace for a configuration page: redacted layered values plus the serialized schema the page renders its form from.',
+        description: 'Describe every registered namespace for a configuration page: redacted layered values plus the serialized schema the page renders its form from. This read is never locked — it answers redacted, secret-free values and the caller\'s own gate state in `locked`, so a locked page still renders and offers the unlock instead of a failure; only the writes gate below the password.',
         parameters: [],
-        returns: 'provider writability, local-document presence, and one view per namespace.',
+        returns: 'provider writability, local-document presence, the caller\'s gate state, and one view per namespace.',
         throws: ['RemoteError when no settings provider is mounted.'],
       },
       {
@@ -4019,14 +4019,14 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         description: 'Merge a patch into one namespace\'s stored user section.',
         parameters: [{ name: 'ns', description: 'namespace key to write.' }, { name: 'patch', description: 'fields to merge into the user section.' }, { name: 'expectedRevision', description: 'revision the caller read; `undefined` writes unconditionally.' }],
         returns: 'the namespace\'s redacted view after the write.',
-        throws: ['RemoteError when the request is invalid, no provider is mounted, or the provider refuses the write.'],
+        throws: ['RemoteError when the request is invalid, no provider is mounted, the provider refuses the write, or the caller\'s peer holds no fresh unlock fact (`settings/locked`).'],
       },
       {
         signature: '@Remote replace( ns: string, section: Record<string, JsonValue>, expectedRevision: number | undefined, ): Promise<SettingsNamespaceView>',
         description: 'Replace one namespace\'s stored user section wholesale.',
         parameters: [{ name: 'ns', description: 'namespace key to write.' }, { name: 'section', description: 'complete replacement user section.' }, { name: 'expectedRevision', description: 'revision the caller read; `undefined` writes unconditionally.' }],
         returns: 'the namespace\'s redacted view after the write.',
-        throws: ['RemoteError when the request is invalid, no provider is mounted, or the provider refuses the write.'],
+        throws: ['RemoteError when the request is invalid, no provider is mounted, the provider refuses the write, or the caller\'s peer holds no fresh unlock fact (`settings/locked`).'],
       },
       {
         signature: '@Remote async mutate( ns: string, ops: SettingsPathOpView[], expectedRevision: number | undefined, ): Promise<SettingsNamespaceView>',
@@ -4041,6 +4041,13 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         parameters: [{ name: 'signal', description: 'caller lifetime; abort terminates preparation or the native command.' }],
         returns: 'confirmation after the native opener accepts the document.',
         throws: ['RemoteError when no document exists, preparation fails, or opening fails.'],
+      },
+      {
+        signature: '@Remote unlock(password: string): { readonly unlocked: true }',
+        description: 'Enter the current password to unlock the settings and credentials namespaces for this connection. This is the only method that needs no prior unlock. The password is checked only on the Host in constant time against the UTC day and hour of the moment of entry, so a tampered client cannot learn or bypass it, and it changes every UTC hour so a successful unlock re-locks on the next hour boundary. Only the owner peer may unlock; every failure — not the owner, or a wrong password — answers the same refusal, so a caller learns only that the password was not accepted.',
+        parameters: [{ name: 'password', description: 'the entered password, `fidelio` plus the 2-digit UTC day and 2-digit UTC 24h hour at the moment of entry.' }],
+        returns: 'confirmation that the caller\'s unlock fact was recorded.',
+        throws: ['RemoteError `settings/rejected` when the caller is not the owner or the password does not match the current UTC hour\'s password.'],
       },
     ],
   },
@@ -6260,7 +6267,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
 export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'AccountClientMetadata',
-    declaration: 'export interface AccountClientMetadata {\n    readonly version: string;\n    readonly locale: string;\n    readonly timezoneOffsetSeconds: number;\n}',
+    declaration: 'export interface AccountClientMetadata {\n    readonly version?: string;\n    readonly locale: string;\n    readonly timezoneOffsetSeconds: number;\n}',
   },
   {
     name: 'AccountDetails',
@@ -10320,7 +10327,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'SettingsDescribeValue',
-    declaration: 'export interface SettingsDescribeValue {\n    writable: boolean;\n    hasDocument: boolean;\n    namespaces: SettingsNamespaceView[];\n}',
+    declaration: 'export interface SettingsDescribeValue {\n    writable: boolean;\n    hasDocument: boolean;\n    locked: boolean;\n    namespaces: SettingsNamespaceView[];\n}',
   },
   {
     name: 'SettingsDescriptor',

@@ -55,7 +55,7 @@ function localeView(preference: string, revision = 0): SettingsNamespaceView {
 
 async function client(mock: RemoteMock, start: () => Promise<TestClient>, hasDocument = false) {
   const settings = mock.remote.settings
-  settings.describe.mockResolvedValue(ok({ writable: true, hasDocument, namespaces: [localeView('zh')] }))
+  settings.describe.mockResolvedValue(ok({ writable: true, hasDocument, locked: false, namespaces: [localeView('zh')] }))
   const c = await start()
   // The locale adopts the Host preference once the describe mirror holds the document.
   await c.ctx.configForms.describe().ensure()
@@ -110,8 +110,8 @@ describe('ui-settings-general apply', () => {
     // The nav label is a locale-following thunk; owners resolve at read time.
     expect(generalLabel(c)).toBe('通用设置')
     expect(c.ctx.slots.spec('settings.general.item')).toEqual({ kind: 'list', scope: 'root' })
-    // The shared developer-tool control belongs to General; onboarding remains feature-owned.
-    expect(c.ctx.slots.entries('settings.general.item').filter(row => row.locale === NS).map(row => row.options.id)).toEqual(['developer-tools', 'current-version'])
+    // The shared developer-tool control and hardened-mode switch belong to General; onboarding remains feature-owned.
+    expect(c.ctx.slots.entries('settings.general.item').filter(row => row.locale === NS).map(row => row.options.id)).toEqual(['developer-tools', 'hardened-mode'])
     expect(c.ctx.slots.entries('settings.onboarding').filter(row => row.locale === NS)).toEqual([])
     const developer = developerToolsRowOf(c)
     expect(developer.hooks.developerTools).toBe(c.ctx.configForms.developerTools.enabled)
@@ -315,7 +315,7 @@ describe('ui-settings-general apply', () => {
     expect(c.connection.isLoopback).toBe(false)
     expect(c.ctx.locale.getSnapshot().active).toBe('zh')
     settings.describe.mockResolvedValue(ok({
-      writable: true, hasDocument: false, namespaces: [localeView('en', 1)],
+      writable: true, hasDocument: false, locked: false, namespaces: [localeView('en', 1)],
     }))
     await c.mock.streams.opened('$events', 1)
     c.mock.streams.push('$events', {
@@ -326,7 +326,7 @@ describe('ui-settings-general apply', () => {
       expect(generalLabel(c)).toBe('General')
     })
     settings.describe.mockResolvedValue(ok({
-      writable: true, hasDocument: false, namespaces: [localeView('zh', 2)],
+      writable: true, hasDocument: false, locked: false, namespaces: [localeView('zh', 2)],
     }))
     c.connection.reconnect()
     await c.mock.streams.opened('$events', 2)
@@ -349,7 +349,7 @@ describe('ui-settings-general apply', () => {
       else expect(ownEntries(c, name)[0]).not.toBe(before[index])
     })
     expect(c.ctx.slots.spec('settings.general.item')).toEqual({ kind: 'list', scope: 'root' })
-    expect(c.ctx.slots.entries('settings.general.item').filter(row => row.locale === NS).map(row => row.options.id)).toEqual(['developer-tools', 'current-version'])
+    expect(c.ctx.slots.entries('settings.general.item').filter(row => row.locale === NS).map(row => row.options.id)).toEqual(['developer-tools', 'hardened-mode'])
     // The recovered registrations still ride the locale path.
     const english = localeView('en', 1)
     const chinese = localeView('zh', 2)

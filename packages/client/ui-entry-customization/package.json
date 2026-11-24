@@ -38,6 +38,7 @@
     "@omega-ai/dsh-client-ui-conversation": "workspace:*",
     "@omega-ai/dsh-client-ui-sidebar-right": "workspace:*",
     "@omega-ai/dsh-client-ui-plugin-manager": "workspace:*",
+    "@omega-ai/dsh-client-ui-settings": "workspace:*",
     "@omega-ai/dsh-client-ui-workspace": "workspace:*",
     "@omega-ai/dsh-client-ui-primitives": "workspace:*",
     "@omega-ai/dsh-client-ui-renderer": "workspace:*",

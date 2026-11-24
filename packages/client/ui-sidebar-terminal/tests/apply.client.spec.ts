@@ -91,10 +91,12 @@ async function mountPlugin() {
   } as never)
   const theme = { preference: 'light' as const, fontSizes: { text: 14, code: 11, terminal: 13 }, fontFamilies: { text: '', code: '', terminal: '' }, active: { id: 'light', colorScheme: 'light' as const, tokens: {} }, themes: [], revision: 0 }
   ctx.provide('theme', { getTheme: () => theme } as never)
+  const hardened = createSnapshotStore(false)
+  ctx.provide('configForms', { hardenedMode: { enabled: hardened } } as never)
   const fiber = await ctx.plugin({ inject, apply })
   return {
     tabs, entries, dictionaries, terminals, model, occurrence, openTabIn, tabsIn, closeIn, sidebarTabs, openTabs, theme,
-    commandTarget, openTabFromTarget, commands, represented, rosterListeners, releaseRoster,
+    commandTarget, openTabFromTarget, commands, represented, rosterListeners, releaseRoster, hardened,
     setAdopted(next: boolean) { adopted = next },
     emitTheme() { ctx.emit('theme/change', theme) },
     get closeHandler() { return closeHandler },
@@ -200,6 +202,39 @@ it('retains terminal metadata from dormant layouts and releases its inventory su
   h.openTabs.set([terminal])
   await Promise.resolve()
   expect(h.terminals.retainTabs).toHaveBeenCalledTimes(calls)
+})
+
+it('refuses the terminal command and the agent roster while the hardened mode is on, and serves both when it clears', async () => {
+  const h = await mountPlugin()
+  try {
+    const command = h.commands[0]!
+    const input = { region: 'page', modal: null, target: null } as const
+    const target = { sessionId: 'terminal-session' }
+    h.commandTarget.mockReturnValue(target)
+    h.hardened.set(true)
+    expect(command.resolve(input)).toEqual({ status: 'blocked', reason: 'shortcut.noSession' })
+    expect(h.openTabFromTarget).not.toHaveBeenCalled()
+
+    const sessionId = 'session' as SessionId
+    const entry = h.entries.find(item => item.name === 'conversation.session.header.actions')!
+    const opener = entry.inject(sessionId) as AgentTerminalOpenerInjected
+    opener.watchAgentTerminals()
+    const listener = h.rosterListeners.get(sessionId)!
+    const agent: WebTerminalInfo = {
+      id: 'agent' as WebTerminalId, title: 'zsh', shell: { path: '/bin/zsh', name: 'zsh', args: ['-i'] }, cwd: '/workspace',
+      cols: 80, rows: 24, state: 'running', exitCode: null, origin: 'agent', control: 'agent', sandboxMode: 'workspace-write',
+    }
+    listener([agent])
+    expect(h.openTabIn).not.toHaveBeenCalled()
+    expect(h.terminals.bind).not.toHaveBeenCalled()
+
+    h.hardened.set(false)
+    expect(command.resolve(input)).toEqual({ status: 'handled', run: expect.any(Function) })
+    listener([agent])
+    expect(h.openTabIn).toHaveBeenCalledExactlyOnceWith(sessionId, 'terminal', { params: { terminalId: 'agent' } })
+    expect(h.terminals.bind).toHaveBeenCalledExactlyOnceWith(sessionId, 'sidebar://terminal/1', 'agent')
+  } finally { await h.dispose() }
+  expect(h.commands).toEqual([])
 })
 
 it('opens each running agent terminal once, binds its new tab and skips other terminals', async () => {

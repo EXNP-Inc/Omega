@@ -18,8 +18,12 @@ declare module '../src/client/contract/params.ts' {
 export const SESSION = 's-test' as SessionId
 const t = ((key: string) => key) as Parameters<typeof guideDefinition>[0]
 
-/** Construct a controller without publishing its Session or creating its surface. */
-export function controllerHarness() {
+/**
+ * Construct a controller without publishing its Session or creating its surface.
+ * @param hardened — when true, the host declares the hardened-mode gate on, so
+ *   every command path answers silently instead of throwing.
+ */
+export function controllerHarness(hardened = false) {
   const tabs = new SidebarRightTabRegistry(new Context())
   tabs.register(guideDefinition(t))
   tabs.register({
@@ -31,6 +35,7 @@ export function controllerHarness() {
     autoFullscreen: () => false,
     openWithFocus: (_sessionId, open) => { open() },
     closeWithFocus: (_sessionId, _paneId, close) => { close() },
+    hardened: () => hardened,
   })
   const instance = createSidebarRightStore(() => ({ kind: 'guide', title: 'seed' })).create()
   const unadopt = adopt(SESSION, instance)

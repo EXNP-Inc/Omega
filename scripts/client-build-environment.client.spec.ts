@@ -112,6 +112,16 @@ describe('client build environment', () => {
     expect(resolveClientBuildEnvironment({ DSH_CLIENT_TITLE: 'Local title' })).toEqual({
       DSH_CLIENT_TITLE: 'Local title',
     })
+    // The default (no-profile) product build omits build identity so no version
+    // string is embedded, even when the environment already carries it.
+    expect(resolveClientBuildEnvironment({
+      DSH_CLIENT_TITLE: 'Local title',
+      DSH_CLIENT_VERSION: '1.2.3',
+      DSH_CLIENT_COMMIT_HASH: COMMIT_HASH.slice(0, 7),
+      DSH_CLIENT_GIT_DIRTY: 'true',
+    })).toEqual({
+      DSH_CLIENT_TITLE: 'Local title',
+    })
     expect(resolveClientBuildEnvironment(parent)).toEqual({
       DSH_CLIENT_BUILD_PROFILE: 'official',
       DSH_CLIENT_COMMIT_HASH: COMMIT_HASH.slice(0, 7),

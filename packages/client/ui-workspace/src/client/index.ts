@@ -44,6 +44,8 @@ import type {} from '@omega-ai/dsh-client-ui-layout/client'
 import type {} from '@omega-ai/dsh-client-ui-session/client'
 // Type-only: pulls the useSessionStatus root standard-hook merge.
 import type {} from '@omega-ai/dsh-client-ui-session-status/client'
+// Type-only: the shared configForms service merge (the hardened-mode preference).
+import type {} from '@omega-ai/dsh-client-ui-settings/client'
 import {
   type ArchiveSessionInjected, type DirectoryFlowSlotName, type ForkSessionInjected, menuOpenStateFactory, type PinSessionInjected,
   type SessionArchiveConfirmInjected, type SessionArchiveConfirmRequest,
@@ -142,7 +144,7 @@ const NS = 'workspace'
  */
 export const inject = ['contextMenus',
   'slots', 'sessions', 'workspaces', 'locale', 'remote', 'remote.directoryPicker', 'layout', 'shortcuts', 'remoteAccess',
-  'uiSession', 'uiSession.sessionStatus',
+  'uiSession', 'uiSession.sessionStatus', 'configForms',
 ]
 
 /**
@@ -272,7 +274,8 @@ export function apply(ctx: Context, config: SyncedConfig<WorkspaceNavigationConf
     unarchiveSession,
   })
   installWorkspaceShortcuts(ctx, uiWorkspace, shortcutControls, archiveInjected().archiveSession,
-    (reason) => { notify({ kind: 'shortcutForkFailed', reason }) }, markSession)
+    (reason) => { notify({ kind: 'shortcutForkFailed', reason }) }, markSession,
+    ctx.configForms.hardenedMode.enabled)
   const archiveConfirmInjected = (): SessionArchiveConfirmInjected => ({
     hooks: { archiveRequest },
     settleSessionArchive: () => { archiveRequest.set(null) },
@@ -336,17 +339,37 @@ export function apply(ctx: Context, config: SyncedConfig<WorkspaceNavigationConf
       'workspace.markRead': IconMailReadOutlineRegular, 'workspace.markUnread': IconMailUnreadOutlineRegular,
     })) yield ctx.slots.register({ name: 'contextMenu.icon', key }, Icon)
   })
-  ctx.effect(() => ctx.contextMenus.register({
-    id: 'workspace.rename', target: 'workspace', order: 100,
-    resolve: ({ workspaceId, displayTitle }) => ctx.remoteAccess.source('workspace', workspaceId, 'workspace/rename').getSnapshot()
-      ? [{ id: 'rename', label: ctx.locale.bind(NS)('rename'), icon: { key: 'workspace.rename' }, run: () => { requestWorkspaceAction(workspaceId, displayTitle, 'rename') } }] : [],
-  }), 'workspace: rename menu action')
-  ctx.effect(() => ctx.contextMenus.register({
-    id: 'workspace.delete', target: 'workspace', order: 300,
-    resolve: ({ workspaceId, displayTitle }) => ctx.remoteAccess.source('workspace', workspaceId, 'workspace/delete').getSnapshot()
-      ? [{ id: 'delete', label: ctx.locale.bind(NS)('delete.workspace'), icon: { key: 'workspace.delete' }, danger: true, separatorBefore: true,
-        run: () => { requestWorkspaceAction(workspaceId, displayTitle, 'delete') } }] : [],
-  }), 'workspace: delete menu action')
+  // The Workspace management rows (rename, delete) are the only two ways to
+  // edit the Workspace list from the sidebar. Hardened mode hides the rest of
+  // the Workspace surface, so these registrations install with it off, dispose
+  // when it flips on, and re-run when it flips back. One reconcile owns both
+  // rows so the two stay in lockstep.
+  {
+    const hardened = ctx.configForms.hardenedMode.enabled
+    let installed: (() => void) | undefined
+    const reconcile = (): void => {
+      const visible = !hardened.getSnapshot()
+      if (visible === (installed !== undefined)) return
+      installed?.()
+      if (!visible) { installed = undefined; return }
+      installed = ctx.effect(function* () {
+        yield ctx.contextMenus.register({
+          id: 'workspace.rename', target: 'workspace', order: 100,
+          resolve: ({ workspaceId, displayTitle }) => ctx.remoteAccess.source('workspace', workspaceId, 'workspace/rename').getSnapshot()
+            ? [{ id: 'rename', label: ctx.locale.bind(NS)('rename'), icon: { key: 'workspace.rename' }, run: () => { requestWorkspaceAction(workspaceId, displayTitle, 'rename') } }] : [],
+        })
+        yield ctx.contextMenus.register({
+          id: 'workspace.delete', target: 'workspace', order: 300,
+          resolve: ({ workspaceId, displayTitle }) => ctx.remoteAccess.source('workspace', workspaceId, 'workspace/delete').getSnapshot()
+            ? [{ id: 'delete', label: ctx.locale.bind(NS)('delete.workspace'), icon: { key: 'workspace.delete' }, danger: true, separatorBefore: true,
+              run: () => { requestWorkspaceAction(workspaceId, displayTitle, 'delete') } }] : [],
+        })
+      }, 'workspace: management menu actions')
+    }
+    const unsubscribe = hardened.subscribe(() => reconcile())
+    reconcile()
+    ctx.effect(() => () => { unsubscribe(); installed?.() }, 'workspace: management menu actions gate')
+  }
   const browserInjected = (): WorkspaceBrowserInjected => ({
     settleWorkspaceAction: () => { workspaceActionRequest.set(null) },
     // Explicit group actions keep their target; unscoped New Session inherits
@@ -369,7 +392,8 @@ export function apply(ctx: Context, config: SyncedConfig<WorkspaceNavigationConf
     closeAddWorkspace: shortcutControls.closeAdd,
     setDirectoryBusy: shortcutControls.directoryBusy,
     hooks: { workspaceActionRequest, contextMenuTarget: ctx.contextMenus.active, directoryFlow: browserFlowSource, hostInfo,
-      workspaceShortcuts: shortcutControls.state, shortcuts: ctx.shortcuts.catalog },
+      workspaceShortcuts: shortcutControls.state, shortcuts: ctx.shortcuts.catalog,
+      hardenedMode: ctx.configForms.hardenedMode.enabled },
   })
   const pickerInjected = (directoryFlow: HostObservable<boolean>) => (): WorkspacePickerInjected => ({
     createWorkspace: input => workspaces.create(input),
@@ -421,24 +445,44 @@ export function apply(ctx: Context, config: SyncedConfig<WorkspaceNavigationConf
       children: { 'workspace.toast': { kind: 'keyed', scope: 'root' } },
     }, RowActionToast)
   })
-  ctx.slots.inject('conversation.hero.workspace', () => ctx.slots.register(
-    {
-      name: 'conversation.hero.workspace',
-      children: { 'conversation.hero.workspace.directoryFlow': { kind: 'single', scope: 'root' } },
-      inject: pickerInjected(pickerFlowSource),
-      locale: NS,
-    },
-    WorkspacePicker,
-  ))
-  // The reusable picker depends on no other declaration, so the definition
-  // and its directory-flow hole live for this plugin's lifetime.
-  ctx.slots.registerFactory({
-    name: 'workspace.picker',
-    scope: 'root',
-    children: { 'workspace.picker.directoryFlow': { kind: 'single', scope: 'root' } },
-    inject: pickerInjected(factoryFlowSource),
-    locale: NS,
-  }, WorkspacePickerFactory)
+  // The blank-session hero picker and the reusable `workspace.picker` Factory
+  // are both ways to create a Workspace from a picked folder. Hardened mode
+  // keeps a single default Workspace and offers no other, so the two
+  // registrations install with it off, dispose when it flips on, and re-run
+  // when it flips back.
+  {
+    const hardened = ctx.configForms.hardenedMode.enabled
+    let installed: (() => void) | undefined
+    const reconcile = (): void => {
+      const visible = !hardened.getSnapshot()
+      if (visible === (installed !== undefined)) return
+      installed?.()
+      if (!visible) { installed = undefined; return }
+      installed = ctx.effect(function* () {
+        yield ctx.slots.inject('conversation.hero.workspace', () => ctx.slots.register(
+          {
+            name: 'conversation.hero.workspace',
+            children: { 'conversation.hero.workspace.directoryFlow': { kind: 'single', scope: 'root' } },
+            inject: pickerInjected(pickerFlowSource),
+            locale: NS,
+          },
+          WorkspacePicker,
+        ))
+        // The reusable picker depends on no other declaration, so the
+        // definition and its directory-flow hole live for the install.
+        yield ctx.slots.registerFactory({
+          name: 'workspace.picker',
+          scope: 'root',
+          children: { 'workspace.picker.directoryFlow': { kind: 'single', scope: 'root' } },
+          inject: pickerInjected(factoryFlowSource),
+          locale: NS,
+        }, WorkspacePickerFactory)
+      }, 'workspace: pickers gate')
+    }
+    const unsubscribe = hardened.subscribe(() => reconcile())
+    reconcile()
+    ctx.effect(() => () => { unsubscribe(); installed?.() }, 'workspace: pickers gate')
+  }
 }
 
 /**

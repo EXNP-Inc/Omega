@@ -33,7 +33,8 @@
         "@omega-ai/dsh-client-ui-sidebar-right",
         "@omega-ai/dsh-api-remotes",
         "@omega-ai/dsh-client-ui-theme",
-        "@omega-ai/dsh-client-shortcuts"
+        "@omega-ai/dsh-client-shortcuts",
+        "@omega-ai/dsh-client-ui-settings"
       ],
       "platform": "web"
     }
@@ -56,6 +57,7 @@
     "@omega-ai/dsh-client-ui-primitives": "workspace:*",
     "@omega-ai/dsh-client-ui-renderer": "workspace:*",
     "@omega-ai/dsh-client-ui-session": "workspace:*",
+    "@omega-ai/dsh-client-ui-settings": "workspace:*",
     "@omega-ai/dsh-client-ui-sidebar-right": "workspace:*",
     "@omega-ai/dsh-client-ui-slots": "workspace:*",
     "@omega-ai/dsh-session": "workspace:*",

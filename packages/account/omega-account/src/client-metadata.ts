@@ -32,14 +32,14 @@ export function desktopClientHeaders(platform: 'darwin' | 'win32' | null): Recor
  * Build the Platform client identity headers for one call.
  * @param platform - Operating system supplied by the desktop composition; null identifies the client as web.
  * @param client - identity of the requesting UI for this call.
- * @returns the five client headers; the bundle ID is intentionally empty.
+ * @returns the client headers; the bundle ID is intentionally empty, and the version header is omitted when the build carries no version.
  */
 export function platformClientHeaders(platform: 'darwin' | 'win32' | null, client: AccountClientMetadata): Record<string, string> {
   return {
     'x-client-bundle-id': '',
     'x-client-platform': 'web',
     ...desktopClientHeaders(platform),
-    'x-client-version': client.version,
+    ...(client.version === undefined ? {} : { 'x-client-version': client.version }),
     'x-client-locale': platformWireLocale(client.locale),
     'x-client-timezone-offset': String(client.timezoneOffsetSeconds),
   }

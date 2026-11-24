@@ -52,6 +52,9 @@
     },
     {
       "path": "../store"
+    },
+    {
+      "path": "../ui-settings/tsconfig.client.json"
     }
   ]
 }

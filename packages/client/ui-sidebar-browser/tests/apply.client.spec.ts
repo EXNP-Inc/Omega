@@ -62,11 +62,13 @@ async function boot(platform: ShortcutPlatform = 'macos', runtime: 'desktop' | '
   ctx.provide('shortcuts', { register: (command: ShortcutCommand) => registry.register(command) } as never)
   ctx.provide('sidebarRightTabs', tabs as never)
   ctx.provide('workspaces', { list: createSnapshotStore({ phase: 'ready', items: [] }) } as never)
+  const hardened = createSnapshotStore(false)
+  ctx.provide('configForms', { hardenedMode: { enabled: hardened } } as never)
   ctx.provide('slots', slots as never)
   ctx.provide('locale', locale as never)
   const fiber = ctx.plugin({ inject: [...inject], apply })
   await fiber.await()
-  return { tabs, registered, dictionaries, fiber, openTabs, registry, sidebar, target }
+  return { tabs, registered, dictionaries, fiber, openTabs, registry, sidebar, target, hardened }
 }
 
 describe('ui-sidebar-browser apply', () => {
@@ -159,6 +161,20 @@ describe('ui-sidebar-browser apply', () => {
       expect(h.registry.dispatch(gesture, context, consume).status).toBe('blocked')
     } finally { await h.fiber.dispose() }
     expect(h.registry.catalog.getSnapshot()).toEqual([])
+  })
+
+  it('refuses the browser command while the hardened mode is on, and serves it when it clears', async () => {
+    const h = await boot('macos')
+    try {
+      const gesture = { code: 'KeyT', meta: true, control: false, alt: false, shift: false, repeat: false, composing: false, defaultPrevented: false }
+      const context = { region: 'page' as const, modal: null, target: null }
+      h.hardened.set(true)
+      expect(h.registry.dispatch(gesture, context, vi.fn()).status).toBe('blocked')
+      expect(h.sidebar.openTabFromTarget).not.toHaveBeenCalled()
+      h.hardened.set(false)
+      expect(h.registry.dispatch(gesture, context, vi.fn()).status).toBe('handled')
+      expect(h.sidebar.openTabFromTarget).toHaveBeenCalledExactlyOnceWith('browser', h.target)
+    } finally { await h.fiber.dispose() }
   })
 
   it('publishes the macOS Web Browser default', async () => {

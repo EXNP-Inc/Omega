@@ -3,7 +3,7 @@ import { build } from 'vite'
 import { fileURLToPath } from 'node:url'
 import { readFileSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
-import { repositoryClientBuildEnvironment, resolveClientBuildEnvironment } from '../../scripts/client-build-environment.ts'
+import { repositoryVersion } from '../../scripts/client-build-environment.ts'
 import { packagedImportsPlugin } from './scripts/desktop-bundle-imports.mjs'
 
 // This config runs after the workspace tsdown pass, not inside it: the main bundle inlines
@@ -22,12 +22,8 @@ const preloadImports = { packages: new Set(['electron', 'events', 'timers', 'url
 
 const REPOSITORY_ROOT = fileURLToPath(new URL('../..', import.meta.url))
 
-/** Use the client environment this build already received, otherwise the repository's own version and commit. */
-const clientEnvironment = resolveClientBuildEnvironment(process.env.DSH_CLIENT_VERSION === undefined
-  ? repositoryClientBuildEnvironment(REPOSITORY_ROOT, process.env)
-  : process.env)
-const clientVersion = clientEnvironment.DSH_CLIENT_VERSION
-if (clientVersion === undefined) throw new Error('desktop build: the client environment carries no DSH_CLIENT_VERSION')
+/** The Desktop application always ships the repository version; a build process that already resolved one takes precedence. */
+const clientVersion = process.env.DSH_CLIENT_VERSION ?? repositoryVersion(REPOSITORY_ROOT)
 
 /** Inline the one public build value the Node entry reads; every other variable stays a runtime lookup. */
 const clientVersionDefine = { 'process.env.DSH_CLIENT_VERSION': JSON.stringify(clientVersion) }

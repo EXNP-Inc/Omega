@@ -52,6 +52,9 @@
     },
     {
       "path": "../../api/session-controller/tsconfig.client.json"
+    },
+    {
+      "path": "../ui-settings/tsconfig.client.json"
     }
   ]
 }

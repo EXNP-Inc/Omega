@@ -15,6 +15,13 @@ declare module '@omega-ai/dsh-typert-protocol' {
      */
     'settings/rejected': { readonly ns: string }
     /**
+     * A peer-identified call to the configuration surfaces arrived before the
+     * password was entered or after the unlock hour expired. The details carry
+     * no namespace and no password material: the client answers by opening the
+     * unlock dialog and retrying.
+     */
+    'settings/locked': {}
+    /**
      * The stored revision moved after the caller read it. Its own outcome rather
      * than an invalid request: the caller must re-read and re-apply.
      */

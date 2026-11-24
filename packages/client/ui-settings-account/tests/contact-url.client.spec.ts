@@ -4,16 +4,18 @@ import { ContactConfig } from '../src/contact-config.ts'
 import { contactUrl } from '../src/client/contact-url.ts'
 
 it('prefills the available support context and hides every context field', () => {
-  const config = ContactConfig({ contactSource: 'app_harness' })
+  // The questionnaire destination is an explicit form URL (its options live in
+  // the query string); the local default carries no options, so the test names
+  // its own form the way the shipped config does at deployment time.
+  const form = 'http://127.0.0.1:8090/contact?hide_uid=1&hide_device_info=1&hide_harness_version=1'
+  const config = ContactConfig({ contactFormUrl: form, contactSource: 'app_harness' })
   const url = new URL(contactUrl(config, {
     uid: 'account-user' as AccountUserId, version: '1.2.3',
     deviceInfo: 'Mozilla/5.0 (Macintosh) Harness/1.2.3', width: 1512, height: 982, pixelRatio: 2,
   }))
-  expect(url.origin).toBe('https://trtgsjkv6r.feishu.cn')
-  expect(url.pathname).toBe('/share/base/form/shrcnlCoGElW7MQznGy9r3YYXcg')
-  expect(Object.fromEntries(new URL(ContactConfig({}).contactFormUrl).searchParams)).toEqual({
-    hide_uid: '1', hide_device_info: '1', hide_harness_version: '1',
-  })
+  expect(url.origin).toBe('http://127.0.0.1:8090')
+  expect(url.pathname).toBe('/contact')
+  expect(Object.fromEntries(new URL(ContactConfig({}).contactFormUrl).searchParams)).toEqual({})
   expect(Object.fromEntries(url.searchParams)).toEqual({
     hide_uid: '1', prefill_uid: 'account-user',
     hide_source: '1', prefill_source: 'app_harness',

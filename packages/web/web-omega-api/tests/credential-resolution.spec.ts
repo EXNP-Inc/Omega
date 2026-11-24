@@ -76,7 +76,7 @@ async function mount(setup: Setup): Promise<{ ctx: Context; sent: () => Sent[] }
   await ctx.plugin(SessionStore)
   await ctx.plugin(SessionProjectionRegistry)
   await ctx.plugin(AgentRegistry)
-  await ctx.plugin(WebRuntime, { searchProvider: 'omega-search-api', fetchProvider: 'deepseek-fetch-api' })
+  await ctx.plugin(WebRuntime, { searchProvider: 'omega-search-api', fetchProvider: 'omega-fetch-api' })
   await ctx.plugin(webApiPlugin, setup.config ?? {})
   return {
     ctx,
@@ -754,7 +754,7 @@ describe('provider registration', () => {
     const { ctx } = await mount({})
     const { search, fetch } = ctx.web.listProviders()
     expect(search.map(({ id }) => id)).toEqual(['omega-search-api'])
-    expect(fetch.map(({ id }) => id)).toEqual(['deepseek-fetch-api'])
+    expect(fetch.map(({ id }) => id)).toEqual(['omega-fetch-api'])
     expect(search[0]?.description).toMatchObject({
       en: 'Incurs charges, paid by the account or API key chosen under Billing.',
       zh: '会产生费用，由「计费方式」选定的账号或 API Key 支付。',

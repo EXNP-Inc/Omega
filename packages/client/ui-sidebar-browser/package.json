@@ -34,7 +34,8 @@
       "inject": [
         "@omega-ai/dsh-api-workspace-controller",
         "@omega-ai/dsh-client-ui-sidebar-right",
-        "@omega-ai/dsh-client-ui-session"
+        "@omega-ai/dsh-client-ui-session",
+        "@omega-ai/dsh-client-ui-settings"
       ],
       "platform": "web"
     }
@@ -58,6 +59,7 @@
     "@omega-ai/dsh-client-ui-primitives": "workspace:*",
     "@omega-ai/dsh-client-ui-renderer": "workspace:*",
     "@omega-ai/dsh-client-ui-session": "workspace:*",
+    "@omega-ai/dsh-client-ui-settings": "workspace:*",
     "@omega-ai/dsh-client-ui-sidebar-right": "workspace:*",
     "@omega-ai/dsh-client-ui-slots": "workspace:*",
     "@testing-library/react": "^16.3.3",

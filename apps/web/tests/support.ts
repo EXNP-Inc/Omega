@@ -6,6 +6,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Browser, Locator, Page } from 'playwright'
 import { expect, vi, type MockInstance } from 'vitest'
+import { settingsUnlockPassword } from '@omega-ai/dsh-api-settings-controller'
 import type { RegionRect } from '@omega-ai/dsh-client-web/src/window-drag/regions.ts'
 
 /** The built page under test; `pnpm run test:web` rebuilds it before running. */
@@ -462,11 +463,57 @@ export function conversationContextKey(kind: string, id: string): string {
   return `${kind.length}:${kind}${id}`
 }
 
-/** Open Settings through the sidebar account menu.
+/** The settings unlock gate's copy, by locale: its title, password field, and submit control. */
+const LOCK_GATE_COPY = {
+  en: { title: 'Settings are locked', placeholder: 'Enter password', submit: 'Unlock' },
+  zh: { title: '设置已锁定', placeholder: '输入密码', submit: '解锁' },
+  ja: { title: '設定がロックされています', placeholder: 'パスワードを入力', submit: 'ロック解除' },
+} as const
+
+/**
+ * Clear the settings unlock gate if it is shown, so the settings panel is
+ * usable for a locked browser peer. A locked browser peer meets the gate in
+ * place of the panel, so the helper offers the current UTC password and waits
+ * for the gate to detach into the panel. It retries while the gate stays up,
+ * recomputing the password at the next UTC hour (where the Host re-locks and
+ * the password rolls with the hour) so a submission landing on the boundary
+ * never strands the gate; it returns quietly when the panel is already shown.
+ * @param page - browser page with the settings dialog open.
+ * @param locale - current UI language.
+ * @param attempts - maximum unlock attempts; defaults to 3.
+ * @returns whether the gate was present and cleared (false when the panel was already shown).
+ */
+export async function unlockSettingsGate(page: Page, locale: 'en' | 'zh' | 'ja', attempts = 3): Promise<boolean> {
+  const copy = LOCK_GATE_COPY[locale]
+  const gate = page.getByRole('dialog', { name: copy.title, exact: true })
+  const field = page.getByRole('textbox', { name: copy.placeholder, exact: true })
+  // The gate is distinguished from the panel by its title dialog; the wait
+  // also covers the brief gap between the dialog attaching and the gate
+  // painting. If the panel is already shown the gate never appears, so the wait
+  // times out and the call reports no gate.
+  const gateShown = await gate.waitFor({ state: 'visible', timeout: 5_000 }).then(() => true, () => false)
+  if (!gateShown) return false
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    await field.fill(settingsUnlockPassword(new Date()))
+    await gate.getByRole('button', { name: copy.submit, exact: true }).click()
+    // An accepted unlock detaches the gate and mounts the panel in its place;
+    // a refused attempt (a password that rolled at an hour boundary) keeps the
+    // gate mounted, so the next attempt recomputes the password.
+    if (await field.waitFor({ state: 'detached', timeout: 10_000 }).then(() => true, () => false)) return true
+  }
+  throw new Error(`the settings unlock gate refused ${attempts} attempts`)
+}
+
+/**
+ * Open Settings through the sidebar account menu. A locked browser peer meets
+ * the Host's settings unlock gate in place of the panel, so the call clears
+ * the gate first (entering the current UTC password) unless the caller wants
+ * to observe the locked state.
  * @param page - browser page with the mounted sidebar.
  * @param locale - current UI language.
+ * @param options - `leaveLocked: true` skips the automatic unlock.
  */
-export async function openSettings(page: Page, locale: 'en' | 'zh' | 'ja'): Promise<void> {
+export async function openSettings(page: Page, locale: 'en' | 'zh' | 'ja', options?: { leaveLocked?: boolean }): Promise<void> {
   const labels = { en: ['Account menu', 'Settings'], zh: ['账号菜单', '设置'], ja: ['アカウントメニュー', '設定'] } as const
   const trigger = page.getByRole('button', {
     name: labels[locale][0], exact: true, includeHidden: true,
@@ -478,6 +525,7 @@ export async function openSettings(page: Page, locale: 'en' | 'zh' | 'ja'): Prom
   }
   await trigger.click()
   await page.getByRole('menuitem', { name: labels[locale][1], exact: true }).click()
+  if (options?.leaveLocked !== true) await unlockSettingsGate(page, locale)
 }
 
 /** The Session panel toggle in the Session header. */

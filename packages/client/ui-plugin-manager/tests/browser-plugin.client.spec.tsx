@@ -98,8 +98,17 @@ async function bench(allows: ((action: string) => boolean) | 'switchable' = () =
   ctx.provide('modules', { entries: { state: clientSync, retry: retryClient } })
   ctx.provide('layout', { panelInfo, selectPanel, beginNavigation: () => new AbortController().signal,
     toggleSidebar: vi.fn(), openRightbar: vi.fn(), closeRightbar: vi.fn() })
-  await ctx.plugin(settings).await()
-  return { ctx, slots: ctx.get('slots') as SlotRegistry, locale, list, remote, selectPanel, panelInfo, access, clientSync, retryClient }
+  // The Loader hands the plugin its volatile projection; the bench stands in
+  // with a controllable reference so a spec can flip the hardened-mode
+  // preference the page follows.
+  const hardenedMode = createSnapshotStore<boolean | undefined>(undefined)
+  const hardenedRef = {
+    get: () => hardenedMode.getSnapshot(),
+    getSnapshot: () => hardenedMode.getSnapshot(),
+    subscribe: (listener: () => void) => hardenedMode.subscribe(listener),
+  }
+  await ctx.plugin({ inject: settings.inject, apply: scope => settings.apply(scope, { hardenedMode: hardenedRef } as never) }).await()
+  return { ctx, slots: ctx.get('slots') as SlotRegistry, locale, list, remote, selectPanel, panelInfo, access, clientSync, retryClient, hardenedMode }
 }
 
 function declare(slots: SlotRegistry): () => void {
@@ -273,6 +282,42 @@ describe('ui-plugin-manager browser plugin', () => {
     expect(b.ctx.get('pluginNavigation')).toBeUndefined()
     expect(b.ctx.get('pluginChanges')?.bundle('dsh-any').getSnapshot()).toBe(false)
     await fiber.dispose()
+  })
+
+  it('hides the whole Plugins feature while hardened mode is on, and restores it when it turns off', async () => {
+    const b = await bench()
+    b.slots.register({
+      name: 'root',
+      children: {
+        'main': { kind: 'keyed', scope: 'root' },
+        'shell.overlay': { kind: 'list', scope: 'root' },
+        'sidebar.panellist': { kind: 'list', scope: 'root' },
+        'settings.section': { kind: 'list', scope: 'root' },
+      },
+    } as never, () => null)
+    await b.ctx.plugin({ inject: [...inject], apply }).await()
+    for (const name of ['main', 'shell.overlay', 'sidebar.panellist', 'settings.section'] as const) expect(b.slots.entries(name)).toHaveLength(1)
+    expect(b.ctx.get('pluginNavigation')).toBeDefined()
+
+    b.hardenedMode.set(true)
+    await vi.waitFor(() => {
+      for (const name of ['main', 'shell.overlay', 'sidebar.panellist', 'settings.section'] as const) expect(b.slots.entries(name)).toEqual([])
+    })
+    expect(b.ctx.get('pluginNavigation')).toBeUndefined()
+    b.remote.emit('plugin-manager/changed', [{ reason: 'install' }])
+    await Promise.resolve()
+    expect(b.list).not.toHaveBeenCalled()
+
+    b.hardenedMode.set(false)
+    await vi.waitFor(() => {
+      for (const name of ['main', 'shell.overlay', 'sidebar.panellist', 'settings.section'] as const) expect(b.slots.entries(name)).toHaveLength(1)
+    })
+    expect(b.ctx.get('pluginNavigation')).toBeDefined()
+    const face = b.slots.entries('main')[0]!.inject!() as object as PluginManagerFace
+    face.ensure()
+    await vi.waitFor(() => { expect(b.list).toHaveBeenCalledTimes(1) })
+    b.remote.emit('plugin-manager/changed', [{ reason: 'install' }])
+    await vi.waitFor(() => { expect(b.list).toHaveBeenCalledTimes(2) })
   })
 
   it('registers the sidebar entry and its page, which reads the Host only once rendered and follows Host changes', async () => {

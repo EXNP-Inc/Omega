@@ -45,11 +45,11 @@ Settings visibility and section selection live in the shell owner store. The she
 
 ### The General section
 
-The current release version appears at the bottom of General Settings in Web and Desktop, using the build’s `DSH_CLIENT_VERSION` metadata and the active language. Partial builds without version metadata omit the row.
-
 The Coding Tools switch controls the shared `ui-settings.enabled` preference described by [ui-settings](../ui-settings/README.md#use-this-package). It is available in both Web and desktop, follows accepted changes immediately, and disables duplicate input while a write settles. A failed write displays localized retry guidance. On Desktop, a change made with this switch reports `code_work_view_toggle` with the new value through the optional [product analytics](../product-analytics/README.md) service, timestamped at the click. Only a write that changes a known value and leaves the preference at the requested value reports; requesting the current value, an unknown previous value, a failed write, and preference updates made elsewhere report nothing.
 
-The General section holds the built-in Coding Tools and Current version rows alongside rows registered into `settings.general.item` by feature packages. Each registrant owns its row copy and behavior. The Appearance row, for example, lives in ui-theme.
+The Hardened mode switch persists the shared `ui-settings.hardenedMode` preference, defaulting to off. While enabled, it hides the Plugins entry in the navigation, the workspaces list (forcing a single default workspace), the file browser and terminal windows, the feedback action, and the account sign-in, so the interface can be shared externally without exposing its internals. Every gated surface reads the preference from the synced Config reference before the first settings unlock, so the hidden state holds from the first render even while settings are still locked.
+
+The General section holds the built-in Coding Tools and Hardened mode rows alongside rows registered into `settings.general.item` by feature packages. Each registrant owns its row copy and behavior. The Appearance row, for example, lives in ui-theme.
 
 ### Opening the configuration file
 
@@ -73,7 +73,7 @@ The shell declares settings.launcher for an account-owned sidebar menu and retai
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The shell owns the chrome and the projections; it contributes the Coding Tools and Current version rows, while feature registrants own their additional content and copy. The panel's four seats — title, header, navigation, section — are its direct children and take their places from its grid, so one markup tree serves both the desktop rail and the mobile strip.
+The shell owns the chrome and the projections; it contributes the Coding Tools and Hardened mode rows, while feature registrants own their additional content and copy. The panel's four seats — title, header, navigation, section — are its direct children and take their places from its grid, so one markup tree serves both the desktop rail and the mobile strip.
 
 ### Ledger projections
 
@@ -129,7 +129,7 @@ None; this package neither assembles nor sends a provider request.
 These limits define what the shell itself provides versus what features must supply; they are current package constraints.
 
 - **Mobile software keyboards require device validation** — browser regression tests cover layout and focus, but native Safari keyboard panning and installed-PWA behavior remain unverified.
-- **Additional General rows require their feature plugins** — the shell supplies Coding Tools and Current version; feature plugins supply the remaining preferences.
+- **Additional General rows require their feature plugins** — the shell supplies Coding Tools and Hardened mode; feature plugins supply the remaining preferences.
 - **The Windows caption badge keeps a side-opening bubble** — `DesktopUpdateBadge` occupies `sidebar.toggle.badge` in the caption and requests `side="right"`, so the Desktop-owned menu text can cover its bubble while the sidebar is collapsed on Windows; the sidebar toggle and New Session bubbles open below the caption instead (#4688).
 
 <a id="dev-note"></a>

@@ -23,6 +23,6 @@ it('samples the offset when it is called instead of caching the first reading', 
   expect(accountClientMetadata('en', '1.2.3').timezoneOffsetSeconds).toBe(3_600)
 })
 
-it.each([undefined, ''])('refuses an empty client build version instead of reporting it', (version) => {
-  expect(() => accountClientMetadata('en', version)).toThrow(/DSH_CLIENT_VERSION/)
+it.each([undefined, ''])('omits the version from the metadata when the build carries none', (version) => {
+  expect(accountClientMetadata('en', version)).not.toHaveProperty('version')
 })

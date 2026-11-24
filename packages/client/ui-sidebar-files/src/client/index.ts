@@ -13,6 +13,7 @@ import type {} from '@omega-ai/dsh-api-remotes/client'
 import type {} from '@omega-ai/dsh-client-ui-renderer/client'
 import type {} from '@omega-ai/dsh-client-ui-session/client'
 import type {} from '@omega-ai/dsh-client-ui-sidebar-right/client'
+import type {} from '@omega-ai/dsh-client-ui-settings/client'
 import { createSnapshotStore, type BoundActions } from '@omega-ai/dsh-client-store'
 import type { TabId } from '@omega-ai/dsh-client-ui-dockkit'
 import type { SessionId } from '@omega-ai/dsh-session/types'
@@ -59,9 +60,10 @@ const NS = 'sidebarFiles'
 
 /**
  * Required browser services: the tab registry, the keyed seat, the Remote
- * carrier and its namespace, and copy.
+ * carrier and its namespace, copy, and the shared settings forms (the
+ * hardened-mode flag that withholds this whole surface).
  */
-export const inject = ['slots', 'locale', 'sidebarRightTabs', 'sidebarRight', 'remote', 'remote.workspaceFiles']
+export const inject = ['slots', 'locale', 'sidebarRightTabs', 'sidebarRight', 'remote', 'remote.workspaceFiles', 'configForms']
 
 /**
  * Client plugin body: register the type, its shortcut, its dictionaries, the
@@ -141,6 +143,11 @@ export function apply(ctx: ClientContext): void {
       /* jscpd:ignore-start */
       regions: ['page', 'editable', 'terminal'], modals: [],
       resolve: ({ target: element }) => {
+        // Hardened mode withholds the whole right sidebar, so the files page
+        // refuses before the ordinary session check.
+        if (ctx.configForms.hardenedMode.enabled.getSnapshot()) {
+          return { status: 'blocked', reason: t('shortcut.noSession') }
+        }
         const target = ctx.sidebarRight.commandTarget(element)
         if (target === undefined) return { status: 'blocked', reason: t('shortcut.noSession') }
         /* jscpd:ignore-end */

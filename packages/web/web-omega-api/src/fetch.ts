@@ -10,7 +10,7 @@ import {
 } from './transport.ts'
 
 /** Stable id the Fetch API provider registers under in the fetch registry. */
-export const OMEGA_FETCH_API_PROVIDER_ID = 'deepseek-fetch-api'
+export const OMEGA_FETCH_API_PROVIDER_ID = 'omega-fetch-api'
 
 /** Authentication and endpoint settings snapshotted for one fetch. */
 export interface OmegaFetchApiOptions {

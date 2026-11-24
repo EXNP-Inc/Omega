@@ -248,7 +248,7 @@ export function apply(ctx: ClientContext): void {
       id: 'create-plugin',
       locale: 'settings.agentPreset',
       inject: () => ({
-        hooks: { agentPresets: controller.store },
+        hooks: { agentPresets: controller.store, hardenedMode: ctx.configForms.hardenedMode.enabled },
         load: () => controller.load(),
         startCreatorDraft,
       }),

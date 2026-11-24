@@ -6,6 +6,7 @@ import { act, cleanup, fireEvent, render, waitFor, within } from '@testing-libra
 import type { ComponentProps } from 'react'
 import { useState } from 'react'
 import { makeTranslate, SlotTestRuntime } from '@omega-ai/dsh-client-test-runtime'
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
 import { LocaleRuntime } from '@omega-ai/dsh-client-locale/client'
 import { Menu } from '@omega-ai/dsh-client-ui-primitives'
 import type { PropsRenderSlots } from '@omega-ai/dsh-client-ui-slots'
@@ -35,6 +36,7 @@ function content(overrides: Partial<ContentProps> = {}) {
     entries: [{ id: 'notes', label: 'Notes', pinned: true }, { id: 'tasks', label: 'Tasks', pinned: false }],
     region: 'sidebar', t: makeTranslate(en),
     usePluginNavigation: <T,>(select: (present: boolean) => T): T => select(true),
+    useHardenedMode: <T,>(select: (present: boolean) => T): T => select(false),
     usePanelInfo: unused, useSessions: unused, useSessionStatus: unused, useSessionRetainInfo: unused,
     useResource: unused, useWorkspaces: unused, renderFactorySlot: () => null,
     ...callbacks,
@@ -151,7 +153,7 @@ function Frame({ renderSlot }: PropsRenderSlots<Seats>) {
 
 async function bench(
   language: 'en' | 'zh' = 'en',
-  { analytics = true, navigation = true }: { analytics?: boolean; navigation?: boolean } = {},
+  { analytics = true, navigation = true, hardened = false }: { analytics?: boolean; navigation?: boolean; hardened?: boolean } = {},
 ) {
   const runtime = await SlotTestRuntime.create()
   runtimes.add(runtime)
@@ -166,6 +168,8 @@ async function bench(
       if (navigation) ctx.provide('pluginNavigation', { openList } as never)
       ctx.provide('uiWorkspace', { startSession } as never)
       if (analytics) ctx.provide('productAnalytics', { track } as never)
+      const hardenedMode = createSnapshotStore(hardened)
+      ctx.provide('configForms', { hardenedMode: { enabled: hardenedMode } } as never)
     },
   })
   await runtime.root.declare({
@@ -219,12 +223,12 @@ describe('More menu registrations', () => {
   })
 
   it.each([
-    ['en', 'sidebar.panellist.actions', 'Create a DSH plugin with a left sidebar entry.'],
-    ['en', 'conversation.session.header.views.actions', 'Create a DSH conversation view plugin.'],
-    ['en', 'sidebar.right.tab.guide.actions', 'Create a DSH plugin with a right sidebar entry.'],
-    ['zh', 'sidebar.panellist.actions', '创建一个带左侧栏入口的 DSH 插件。'],
-    ['zh', 'conversation.session.header.views.actions', '创建一个 DSH 会话视图插件。'],
-    ['zh', 'sidebar.right.tab.guide.actions', '创建一个带右侧栏入口的 DSH 插件。'],
+    ['en', 'sidebar.panellist.actions', 'Create an Omega plugin with a left sidebar entry.'],
+    ['en', 'conversation.session.header.views.actions', 'Create an Omega conversation view plugin.'],
+    ['en', 'sidebar.right.tab.guide.actions', 'Create an Omega plugin with a right sidebar entry.'],
+    ['zh', 'sidebar.panellist.actions', '创建一个带左侧栏入口的 Omega 插件。'],
+    ['zh', 'conversation.session.header.views.actions', '创建一个 Omega 会话视图插件。'],
+    ['zh', 'sidebar.right.tab.guide.actions', '创建一个带右侧栏入口的 Omega 插件。'],
   ] as const)('starts an unsent %s Creator draft from %s', async (language, seat, prompt) => {
     const b = await bench(language)
     fireEvent.click(within(b.view.getByRole('menu', { name: seat }))
@@ -258,5 +262,13 @@ describe('More menu registrations', () => {
     expect(b.openList).toHaveBeenCalledExactlyOnceWith()
     expect(b.startSession).toHaveBeenCalledOnce()
     expect(b.track).not.toHaveBeenCalled()
+  })
+
+  it.each(SEATS)('hides the plugin rows from %s while hardened mode is on', async (seat) => {
+    const b = await bench('en', { hardened: true })
+    const menu = within(b.view.getByRole('menu', { name: seat }))
+    expect(menu.queryByRole('menuitem', { name: 'Browse other plugins' })).toBeNull()
+    expect(menu.queryByRole('menuitem', { name: 'Create your plugin' })).toBeNull()
+    expect(menu.queryByRole('separator')).toBeNull()
   })
 })

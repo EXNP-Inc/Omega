@@ -71,6 +71,8 @@ async function bench(access: 'fake' | 'static' = 'fake') {
   ctx.provide('contextMenus', { register: menuRegistry.register.bind(menuRegistry), resolve: menuRegistry.resolve.bind(menuRegistry), active: createSnapshotStore(null), open: vi.fn(), close: vi.fn() } as never)
   ctx.provide('uiConversation', {})
   const status = provideSessionStatus(ctx)
+  const hardenedMode = createSnapshotStore(false)
+  ctx.provide('configForms', { hardenedMode: { enabled: hardenedMode } } as never)
   await ctx.plugin(SlotRegistry).await()
   const accessSource = vi.fn((_kind: string, _id: string, _action: string): HostObservable<boolean> => ALLOWED)
   const stopGuard = vi.fn()
@@ -173,6 +175,7 @@ async function bench(access: 'fake' | 'static' = 'fake') {
     whenResourceAccess, stopGuard, status,
     retain, using, selectPanel, search, renameSession, binding, fork, pickDirectory, pinSession, unpinSession,
     workspacesSubscribe, initializeDefault, history, scope, sessionOf,
+    hardenedMode,
     setWorkspaces: (snapshot: WorkspaceSnapshot): void => { workspaceSnapshot = snapshot },
     setSessions: (snapshot: SessionListState): void => { sessionSnapshot = snapshot },
   }
@@ -241,7 +244,7 @@ describe('ui-workspace apply', () => {
   it('declares the services it drives', () => {
     expect(inject).toEqual(['contextMenus',
       'slots', 'sessions', 'workspaces', 'locale', 'remote', 'remote.directoryPicker', 'layout', 'shortcuts', 'remoteAccess',
-      'uiSession', 'uiSession.sessionStatus',
+      'uiSession', 'uiSession.sessionStatus', 'configForms',
     ])
   })
 
@@ -1076,4 +1079,61 @@ it('captures Workspace menu requests, rechecks mutable access, and withdraws reg
   await pending.ready
   await fiber.dispose()
   expect(pending.source.getSnapshot()).toEqual([])
+})
+
+it('withholds the Workspace management surface in hardened mode and restores it when the flag clears', async () => {
+  const b = await bench()
+  b.setWorkspaces(workspaceState([workspace('alpha', [])]))
+  declare(b.slots, 'sidebar.workspaces', 'conversation.hero.workspace')
+  const fiber = b.ctx.plugin({ inject: [...inject], apply }, syncedConfig({ recentViewLimit: 10 }))
+  await fiber.await()
+  const target = { kind: 'workspace' as const, value: { workspaceId: 'alpha' as WorkspaceId, path: '/projects/alpha', displayTitle: 'Alpha' } }
+
+  // Off by default: both picker surfaces and the two Workspace management rows exist.
+  expect(b.slots.entries('conversation.hero.workspace')).toHaveLength(1)
+  expect(b.slots.snapshot('factory:workspace.picker').length).toBe(1)
+  const openMenu = b.ctx.contextMenus.resolve(target)
+  await openMenu.ready
+  expect(openMenu.source.getSnapshot().map(item => item.id)).toEqual(['workspace.rename/rename', 'workspace.delete/delete'])
+  expect(b.hardenedMode.getSnapshot()).toBe(false)
+
+  // Hardened mode withdraws every Workspace-creation and management surface.
+  b.hardenedMode.set(true)
+  await Promise.resolve()
+  expect(b.slots.entries('conversation.hero.workspace')).toHaveLength(0)
+  expect(b.slots.snapshot('factory:workspace.picker')).toEqual([])
+  const hiddenMenu = b.ctx.contextMenus.resolve(target)
+  await hiddenMenu.ready
+  expect(hiddenMenu.source.getSnapshot()).toEqual([])
+
+  // Clearing the flag restores the identical surfaces.
+  b.hardenedMode.set(false)
+  await Promise.resolve()
+  expect(b.slots.entries('conversation.hero.workspace')).toHaveLength(1)
+  expect(b.slots.snapshot('factory:workspace.picker').length).toBe(1)
+  const restored = b.ctx.contextMenus.resolve(target)
+  await restored.ready
+  expect(restored.source.getSnapshot().map(item => item.id)).toEqual(['workspace.rename/rename', 'workspace.delete/delete'])
+
+  await fiber.dispose()
+  expect(b.slots.entries('conversation.hero.workspace')).toHaveLength(0)
+  expect(b.slots.snapshot('factory:workspace.picker')).toEqual([])
+  expect(b.ctx.contextMenus.resolve(target).source.getSnapshot()).toEqual([])
+})
+
+it('exposes the hardened flag to the Workspace browser and keeps the add command blocked while it is on', async () => {
+  const b = await bench()
+  b.setWorkspaces(workspaceState([workspace('alpha', [])]))
+  declare(b.slots, 'sidebar.workspaces')
+  await b.ctx.plugin({ inject: [...inject], apply }, syncedConfig({ recentViewLimit: 10 })).await()
+  const browser = faceOf(b.slots.entries('sidebar.workspaces')[0]!) as WorkspaceBrowserInjected
+  expect(browser.hooks.hardenedMode.getSnapshot()).toBe(false)
+  const addCommand = b.commands.get('workspace.add')!
+  // The bench has no directory-flow occupant, so the command is already blocked
+  // by the ordinary reason; hardened mode takes priority with its own reason.
+  expect(addCommand.resolve({} as never)).toMatchObject({ status: 'blocked', reason: '目录选择器不可用' })
+  b.hardenedMode.set(true)
+  await Promise.resolve()
+  expect(browser.hooks.hardenedMode.getSnapshot()).toBe(true)
+  expect(addCommand.resolve({} as never)).toMatchObject({ status: 'blocked', reason: '当前配置下无法添加工作区' })
 })

@@ -43,6 +43,13 @@ export type SettingsRootInjected = {
   openDesktopUpdate: () => void
   /** Request a fresh logical generation and physical WebSocket immediately. */
   reconnect: () => void
+  /**
+   * Offer the settings password to the Host gate. The dialog shows the
+   * Host's single refusal (no reason is reported) until the gate accepts.
+   * @param password - the password the user entered.
+   * @returns true when the Host accepted, false when it refused.
+   */
+  unlock: (password: string) => Promise<boolean>
   hooks: {
     /** Effective command presentation, shared with the reference. */
     shortcuts: HostObservable<readonly ShortcutCatalogEntry[]>
@@ -54,6 +61,11 @@ export type SettingsRootInjected = {
     sections: HostObservable<readonly SettingsSectionRow[]>
     /** settings.onboarding ledger projected into coordinator order. */
     onboardingSteps: HostObservable<readonly SettingsOnboardingStep[]>
+    /**
+     * Whether the settings gate is locked for this peer, so the shell shows
+     * its unlock prompt instead of the held section views.
+     */
+    settingsLocked: HostObservable<boolean>
   }
 }
 

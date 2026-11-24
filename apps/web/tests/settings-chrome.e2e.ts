@@ -19,7 +19,7 @@ import {
   acknowledgeReloadConnectionLoss, assertFixtureInventory, captureStableAria, compareOrRefreshGolden,
   launchWebScaffold, watchConsole, webSnapshotMode, type WebScaffold,
 } from './scaffold.ts'
-import { openSettings, ZH_BROWSER_LOCALE, saveFailureShot } from './support.ts'
+import { openSettings, unlockSettingsGate, ZH_BROWSER_LOCALE, saveFailureShot } from './support.ts'
 import { brandString } from '@omega-ai/dsh-brand'
 
 const SNAPSHOT_DIR = fileURLToPath(new URL('./expected/settings-chrome', import.meta.url))
@@ -29,8 +29,6 @@ const DIALOG_EN_EXPECTED = join(SNAPSHOT_DIR, 'dialog-en.expected.md')
 const MODE = webSnapshotMode()
 const SCREENSHOTS = 'screenshots/collapse-timing-settings'
 const SCREENSHOT_DIR = fileURLToPath(new URL(`../../../.artifacts/${SCREENSHOTS}`, import.meta.url))
-const { version } = JSON.parse(await readFile(new URL('../../../package.json', import.meta.url), 'utf8')) as { version: string }
-const versionCapture = { replacements: [[version, '{{version}}']] as const }
 
 async function saveSettingsFailureShot(page: Page, name: string): Promise<void> {
   await mkdir(SCREENSHOT_DIR, { recursive: true })
@@ -79,6 +77,11 @@ describe('web e2e: settings modal and General preferences', () => {
     await trigger.click()
     expect(await trigger.getAttribute('aria-expanded')).toBe('true')
     await page.getByRole('menuitem', { name: '设置', exact: true }).click()
+    // This path opens Settings through the raw menu, so it does not clear the
+    // unlock gate the way openSettings does; a locked browser peer shows the
+    // gate in place of the panel, and the first describe read can flip a
+    // briefly shown panel to it. Clear the gate before measuring the chrome.
+    await unlockSettingsGate(page, 'zh')
     const dialog = page.getByRole('dialog', { name: '设置' })
     await dialog.waitFor({ timeout: 10_000 })
     expect(await trigger.getAttribute('aria-expanded')).toBe('false')
@@ -129,9 +132,10 @@ describe('web e2e: settings modal and General preferences', () => {
     } finally {
       await page.unrouteAll({ behavior: 'wait' })
     }
-    await dialog.getByText(`当前版本：${version}`, { exact: true }).waitFor()
+    // Readiness: the last General row is the shared hardened-mode switch.
+    await dialog.getByRole('switch', { name: '强化模式' }).waitFor()
     // Golden of the freshly opened dialog (default zh, General active).
-    const snapshot = await captureStableAria(page, '[role="dialog"]', scaffold.workspaceCwd, versionCapture)
+    const snapshot = await captureStableAria(page, '[role="dialog"]', scaffold.workspaceCwd)
     await compareOrRefreshGolden(DIALOG_EXPECTED, snapshot, MODE)
     // Section switch: aria-current moves (the Models page itself has its own scenario file).
     await dialog.getByRole('button', { name: '模型', exact: true }).click()
@@ -831,7 +835,8 @@ describe('web e2e: settings modal and General preferences', () => {
     // ...and the attribute follows that switch, in the assembled app.
     await expect.poll(() => page.evaluate(() => document.documentElement.lang), { timeout: 5_000 }).toBe('en')
     expect(await enDialog.getByRole('button', { name: 'General' }).getAttribute('aria-current')).toBe('true')
-    await enDialog.getByText(`Current version: ${version}`, { exact: true }).waitFor()
+    // Readiness: the last General row is the shared hardened-mode switch.
+    await enDialog.getByRole('switch', { name: 'Hardened mode' }).waitFor()
     await expect.poll(() => enDialog.getByText('Appearance', { exact: true }).count(), { timeout: 5_000 }).toBe(1)
     expect(await page.evaluate(() => localStorage.getItem('dsh.locale'))).toBeNull()
     await expect.poll(async () => readFile(join(scaffold.harnessHome, 'profiles', 'scaffold', 'cordis.patch.yml'), 'utf8'), { timeout: 5_000 })
@@ -936,8 +941,8 @@ describe('web e2e: settings modal and General preferences', () => {
       // Golden of the English fallback dialog — the visible output this change
       // produces. The zh golden above covers the detected-locale surface, so
       // the pair pins both directions of the resolution.
-      await dialog.getByText(`Current version: ${version}`, { exact: true }).waitFor()
-      const snapshot = await captureStableAria(unsupportedPage, '[role="dialog"]', fresh.workspaceCwd, versionCapture)
+      await dialog.getByRole('switch', { name: 'Hardened mode' }).waitFor()
+      const snapshot = await captureStableAria(unsupportedPage, '[role="dialog"]', fresh.workspaceCwd)
       await compareOrRefreshGolden(DIALOG_EN_EXPECTED, snapshot, MODE)
       expect(unsupportedTripwire.pageErrors).toEqual([])
       expect(unsupportedTripwire.warnings).toEqual([])
@@ -963,7 +968,7 @@ describe('web e2e: settings modal and General preferences', () => {
     await dialog.getByText('Work details', { exact: true }).locator('../..')
       .getByRole('button', { name: 'Detailed', exact: true }).waitFor()
     expect(await dialog.getByText('Open chat links in', { exact: true }).count()).toBe(0)
-    const snapshot = await captureStableAria(withoutBrowser, '[role="dialog"]', fresh.workspaceCwd, versionCapture)
+    const snapshot = await captureStableAria(withoutBrowser, '[role="dialog"]', fresh.workspaceCwd)
     await compareOrRefreshGolden(join(SNAPSHOT_DIR, 'dialog-no-browser.expected.md'), snapshot, MODE)
     expect(browserConsole.pageErrors).toEqual([])
     expect(browserConsole.warnings).toEqual([])

@@ -51,7 +51,6 @@ export const zh = {
   'openDocument': '打开配置文件',
   'openDocument.error': '无法打开配置文件',
   'general.nav': '通用设置',
-  'general.currentVersion': '当前版本：{version}',
   'developerTools.title': '显示代码工作视图',
   'developerTools.error': '保存失败，请重试',
   'developerTools.description': '开启后，显示轨迹、本轮代码差异，可选择完整的 Agent 预设切换',
@@ -67,6 +66,15 @@ export const zh = {
   'hostRelease.unknown': '未解析',
   'hostRelease.reload': '刷新以加载新版本',
   'hostRelease.later': '暂不刷新',
+  'lockGate.title': '设置已锁定',
+  'lockGate.description': '请输入当前密码以打开设置。密码每小时更新一次。',
+  'lockGate.placeholder': '输入密码',
+  'lockGate.submit': '解锁',
+  'lockGate.error': '密码不正确，请重试',
+  'lockGate.close': '关闭',
+  'hardenedMode.title': '强化模式',
+  'hardenedMode.description': '开启后，隐藏插件、工作区、文件浏览、终端、反馈和账号功能，用于对外分享。',
+  'hardenedMode.error': '保存失败，请重试',
 } satisfies Record<string, string>
 
 /** The settings namespace key union. */
@@ -123,7 +131,6 @@ export const en = {
   'openDocument': 'Open configuration file',
   'openDocument.error': 'Could not open configuration file',
   'general.nav': 'General',
-  'general.currentVersion': 'Current version: {version}',
   'developerTools.title': 'Show coding view',
   'developerTools.error': 'Could not save. Please try again.',
   'developerTools.description': 'Shows trajectory, code diffs, and all Agent presets',
@@ -139,6 +146,15 @@ export const en = {
   'hostRelease.unknown': 'Unknown',
   'hostRelease.reload': 'Reload to load the new version',
   'hostRelease.later': 'Not now',
+  'lockGate.title': 'Settings are locked',
+  'lockGate.description': 'Enter the current password to open settings. It changes every hour.',
+  'lockGate.placeholder': 'Enter password',
+  'lockGate.submit': 'Unlock',
+  'lockGate.error': 'The password was not accepted. Try again.',
+  'lockGate.close': 'Close',
+  'hardenedMode.title': 'Hardened mode',
+  'hardenedMode.description': 'Hides plugins, workspaces, file browsing, terminal, feedback, and account features for sharing externally.',
+  'hardenedMode.error': 'Could not save. Please try again.',
 } satisfies Record<SettingsKey, string>
 
 /** Japanese copy, checked against the English keys. */
@@ -192,7 +208,6 @@ export const ja = {
   'openDocument': '設定ファイルを開く',
   'openDocument.error': '設定ファイルを開けませんでした',
   'general.nav': '一般',
-  'general.currentVersion': '現在のバージョン: {version}',
   'developerTools.title': 'コーディングビューを表示',
   'developerTools.error': '保存できませんでした。再試行してください。',
   'developerTools.description': '軌跡、コード差分、すべてのエージェントプリセットを表示します',
@@ -208,6 +223,15 @@ export const ja = {
   'hostRelease.unknown': '不明',
   'hostRelease.reload': '再読み込みして新しいバージョンを読み込む',
   'hostRelease.later': '後で',
+  'lockGate.title': '設定がロックされています',
+  'lockGate.description': '設定を開くには現在のパスワードを入力してください。1時間ごとに変更されます。',
+  'lockGate.placeholder': 'パスワードを入力',
+  'lockGate.submit': 'ロック解除',
+  'lockGate.error': 'パスワードが受け付けられませんでした。もう一度お試しください。',
+  'lockGate.close': '閉じる',
+  'hardenedMode.title': '強化モード',
+  'hardenedMode.description': 'プラグイン、ワークスペース、ファイル閲覧、ターミナル、フィードバック、アカウント機能を非表示にし、外部共有に適します。',
+  'hardenedMode.error': '保存できませんでした。再試行してください。',
 } satisfies Record<keyof typeof en, string>
 
 /** Spanish dictionary, checked against the English keys. */
@@ -261,7 +285,6 @@ export const es = {
   'openDocument': 'Abrir archivo de configuración',
   'openDocument.error': 'No se pudo abrir el archivo de configuración',
   'general.nav': 'General',
-  'general.currentVersion': 'Versión actual: {version}',
   'developerTools.title': 'Mostrar vista de codificación',
   'developerTools.error': 'No se pudo guardar. Por favor inténtalo de nuevo.',
   'developerTools.description': 'Muestra la trayectoria, las diferencias de código y todos los ajustes preestablecidos del agente.',
@@ -277,6 +300,15 @@ export const es = {
   'hostRelease.unknown': 'Desconocido',
   'hostRelease.reload': 'Recargar para cargar la nueva versión.',
   'hostRelease.later': 'Ahora no',
+  'lockGate.title': 'La configuración está bloqueada',
+  'lockGate.description': 'Introduce la contraseña actual para abrir la configuración. Cambia cada hora.',
+  'lockGate.placeholder': 'Introduce la contraseña',
+  'lockGate.submit': 'Desbloquear',
+  'lockGate.error': 'La contraseña no se aceptó. Inténtalo de nuevo.',
+  'lockGate.close': 'Cerrar',
+  'hardenedMode.title': 'Modo endurecido',
+  'hardenedMode.description': 'Oculta los complementos, los espacios de trabajo, la navegación de archivos, la terminal, la retroalimentación y las funciones de cuenta para compartir externamente.',
+  'hardenedMode.error': 'No se pudo guardar. Inténtalo de nuevo.',
 } satisfies Record<keyof typeof en, string>
 
 /** French dictionary, checked against the English keys. */
@@ -330,7 +362,6 @@ export const fr = {
   'openDocument': 'Ouvrir le fichier de configuration',
   'openDocument.error': "Impossible d'ouvrir le fichier de configuration",
   'general.nav': 'Général',
-  'general.currentVersion': 'Version actuelle : {version}',
   'developerTools.title': 'Afficher la vue de codage',
   'developerTools.error': "Impossible d'enregistrer. Veuillez réessayer.",
   'developerTools.description': "Affiche la trajectoire, les différences de code et tous les préréglages d'agent",
@@ -346,6 +377,15 @@ export const fr = {
   'hostRelease.unknown': 'Inconnu',
   'hostRelease.reload': 'Recharger pour charger la nouvelle version',
   'hostRelease.later': 'Pas maintenant',
+  'lockGate.title': 'Les paramètres sont verrouillés',
+  'lockGate.description': 'Saisissez le mot de passe actuel pour ouvrir les paramètres. Il change chaque heure.',
+  'lockGate.placeholder': 'Saisissez le mot de passe',
+  'lockGate.submit': 'Déverrouiller',
+  'lockGate.error': 'Le mot de passe n’a pas été accepté. Réessayez.',
+  'lockGate.close': 'Fermer',
+  'hardenedMode.title': 'Mode renforcé',
+  'hardenedMode.description': 'Masque les plugins, les espaces de travail, la navigation de fichiers, le terminal, le retour et les fonctions de compte pour un partage externe.',
+  'hardenedMode.error': 'L’enregistrement a échoué. Réessayez.',
 } satisfies Record<keyof typeof en, string>
 
 /** German dictionary, checked against the English keys. */
@@ -399,7 +439,6 @@ export const de = {
   'openDocument': 'Konfigurationsdatei öffnen',
   'openDocument.error': 'Die Konfigurationsdatei konnte nicht geöffnet werden',
   'general.nav': 'Allgemein',
-  'general.currentVersion': 'Aktuelle Version: {version}',
   'developerTools.title': 'Codieransicht anzeigen',
   'developerTools.error': 'Konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.',
   'developerTools.description': 'Zeigt Ausführungsverlauf, Codeunterschiede und alle Agentenvoreinstellungen an',
@@ -415,6 +454,15 @@ export const de = {
   'hostRelease.unknown': 'Unbekannt',
   'hostRelease.reload': 'Neu laden, um die neue Version zu laden',
   'hostRelease.later': 'Nicht jetzt',
+  'lockGate.title': 'Einstellungen sind gesperrt',
+  'lockGate.description': 'Geben Sie das aktuelle Passwort ein, um die Einstellungen zu öffnen. Es wird jede Stunde geändert.',
+  'lockGate.placeholder': 'Passwort eingeben',
+  'lockGate.submit': 'Entsperren',
+  'lockGate.error': 'Das Passwort wurde nicht akzeptiert. Versuchen Sie es erneut.',
+  'lockGate.close': 'Schließen',
+  'hardenedMode.title': 'Härtungsmodus',
+  'hardenedMode.description': 'Blendet Plugins, Arbeitsbereiche, die Dateidurchsicht, das Terminal, Feedback und Kontofunktionen für die externe Freigabe aus.',
+  'hardenedMode.error': 'Speichern fehlgeschlagen. Versuchen Sie es erneut.',
 } satisfies Record<keyof typeof en, string>
 
 /** Russian dictionary, checked against the English keys. */
@@ -468,7 +516,6 @@ export const ru = {
   'openDocument': 'Открыть файл конфигурации',
   'openDocument.error': 'Не удалось открыть файл конфигурации',
   'general.nav': 'Общие',
-  'general.currentVersion': 'Текущая версия: {version}.',
   'developerTools.title': 'Показать представление кодирования',
   'developerTools.error': 'Не удалось сохранить. Пожалуйста, попробуйте еще раз.',
   'developerTools.description': 'Показывает траекторию, различия в коде и все настройки агента.',
@@ -484,6 +531,15 @@ export const ru = {
   'hostRelease.unknown': 'Неизвестно',
   'hostRelease.reload': 'Перезагрузите, чтобы загрузить новую версию',
   'hostRelease.later': 'Не сейчас',
+  'lockGate.title': 'Настройки заблокированы',
+  'lockGate.description': 'Введите текущий пароль, чтобы открыть настройки. Он меняется каждый час.',
+  'lockGate.placeholder': 'Введите пароль',
+  'lockGate.submit': 'Разблокировать',
+  'lockGate.error': 'Пароль не принят. Попробуйте ещё раз.',
+  'lockGate.close': 'Закрыть',
+  'hardenedMode.title': 'Усиленный режим',
+  'hardenedMode.description': 'Скрывает плагины, рабочие области, просмотр файлов, терминал, обратную связь и функции учётной записи для внешнего обмена.',
+  'hardenedMode.error': 'Не удалось сохранить. Попробуйте ещё раз.',
 } satisfies Record<keyof typeof en, string>
 
 /** Portuguese dictionary, checked against the English keys. */
@@ -537,7 +593,6 @@ export const pt = {
   'openDocument': 'Abra o arquivo de configuração',
   'openDocument.error': 'Não foi possível abrir o arquivo de configuração',
   'general.nav': 'Geral',
-  'general.currentVersion': 'Versão atual: {version}',
   'developerTools.title': 'Mostrar visualização de codificação',
   'developerTools.error': 'Não foi possível salvar. Por favor, tente novamente.',
   'developerTools.description': 'Mostra trajetória, diferenças de código e todas as predefinições do agente',
@@ -553,4 +608,13 @@ export const pt = {
   'hostRelease.unknown': 'Desconhecido',
   'hostRelease.reload': 'Recarregue para carregar a nova versão',
   'hostRelease.later': 'Agora não',
+  'lockGate.title': 'As configurações estão bloqueadas',
+  'lockGate.description': 'Digite a senha atual para abrir as configurações. Ela muda a cada hora.',
+  'lockGate.placeholder': 'Digite a senha',
+  'lockGate.submit': 'Desbloquear',
+  'lockGate.error': 'A senha não foi aceita. Tente novamente.',
+  'lockGate.close': 'Fechar',
+  'hardenedMode.title': 'Modo endurecido',
+  'hardenedMode.description': 'Oculta plugins, espaços de trabalho, navegação de arquivos, terminal, feedback e recursos de conta para compartilhamento externo.',
+  'hardenedMode.error': 'Não foi possível salvar. Tente novamente.',
 } satisfies Record<keyof typeof en, string>

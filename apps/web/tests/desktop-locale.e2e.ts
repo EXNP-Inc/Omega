@@ -12,8 +12,6 @@ import { openSettings, saveFailureShot } from './support.ts'
 
 const SNAPSHOT_DIR = fileURLToPath(new URL('./expected/desktop-locale', import.meta.url))
 const MODE = webSnapshotMode()
-const { version } = JSON.parse(await readFile(new URL('../../../package.json', import.meta.url), 'utf8')) as { version: string }
-const versionCapture = { replacements: [[version, '{{version}}']] as const }
 
 describe.skipIf(MODE === 'record')('web e2e: native and Client locale preferences', () => {
   let scaffold: WebScaffold
@@ -61,7 +59,7 @@ describe.skipIf(MODE === 'record')('web e2e: native and Client locale preference
     await expect.poll(() => reported).toEqual(['zh'])
     expect(scaffold.ctx.settings.describe().find(row => row.ns === 'locale')!.value).toEqual({})
     await compareOrRefreshGolden(join(SNAPSHOT_DIR, 'automatic.expected.md'),
-      await captureStableAria(page, '[role="dialog"]', scaffold.workspaceCwd, versionCapture), MODE)
+      await captureStableAria(page, '[role="dialog"]', scaffold.workspaceCwd), MODE)
     languages = ['ja-JP', 'zh-CN', 'en-US']
     const automaticWarnings = tripwire.warnings.length
     reported.length = 0
@@ -80,7 +78,7 @@ describe.skipIf(MODE === 'record')('web e2e: native and Client locale preference
     await expect.poll(() => readFile(join(scaffold.harnessHome, 'profiles', 'scaffold', 'cordis.patch.yml'), 'utf8'))
       .toContain('preference: en')
     await compareOrRefreshGolden(join(SNAPSHOT_DIR, 'selected.expected.md'),
-      await captureStableAria(page, '[role="dialog"]', scaffold.workspaceCwd, versionCapture), MODE)
+      await captureStableAria(page, '[role="dialog"]', scaffold.workspaceCwd), MODE)
     const warningsBefore = tripwire.warnings.length
     reported.length = 0
     await page.reload({ waitUntil: 'load' })

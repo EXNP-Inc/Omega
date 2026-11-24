@@ -17,10 +17,11 @@ function unusedHook(): never {
   throw new Error('Create plugin does not read this slot source')
 }
 
-function view(roster: Partial<AgentPresetSettingsState> = {}, inMenu = false) {
+function view(roster: Partial<AgentPresetSettingsState> = {}, inMenu = false, { hardened = false } = {}) {
   const agentPresets = createSnapshotStore<AgentPresetSettingsState>({
     status: 'ready', error: null, options: [{ id: 'standard' }, { id: 'cordis' }], ...roster,
   })
+  const hardenedMode = createSnapshotStore(hardened)
   const calls: string[] = []
   const startCreatorDraft = vi.fn(() => { calls.push('start') })
   const onDismiss = vi.fn(() => { calls.push('dismiss') })
@@ -28,6 +29,7 @@ function view(roster: Partial<AgentPresetSettingsState> = {}, inMenu = false) {
   const props: ComponentProps<typeof CreatePluginMenuItem> = {
     t: key => translations.get(key) ?? key,
     useAgentPresets: bindSnapshotSelector(agentPresets),
+    useHardenedMode: bindSnapshotSelector(hardenedMode),
     usePanelInfo: unusedHook, useSessions: unusedHook, useSessionStatus: unusedHook,
     useSessionRetainInfo: unusedHook, useWorkspaces: unusedHook, useResource: unusedHook,
     ...allowAllAccess,
@@ -43,7 +45,7 @@ function view(roster: Partial<AgentPresetSettingsState> = {}, inMenu = false) {
     </Menu>
   }
   render(inMenu ? <TestMenu /> : <CreatePluginMenuItem {...props} />)
-  return { agentPresets, load, startCreatorDraft, onDismiss, calls }
+  return { agentPresets, hardenedMode, load, startCreatorDraft, onDismiss, calls }
 }
 
 function item(): HTMLElement {
@@ -116,6 +118,16 @@ describe('Create plugin menu item', () => {
     expect(original).toHaveProperty('disabled', false)
     expect(original.textContent).toContain(en.createPluginDescription)
     fireEvent.click(original)
+    expect(actions.calls).toEqual(['dismiss', 'start'])
+  })
+
+  it('hides the entry while hardened mode is on and restores it when it turns off', () => {
+    const actions = view({}, true, { hardened: true })
+    expect(screen.getByRole('menuitem', { name: 'Install a third-party plugin' })).toBeTruthy()
+    expect(screen.queryByRole('menuitem', { name: new RegExp(en.createPlugin) })).toBeNull()
+    act(() => { actions.hardenedMode.set(false) })
+    expect(item()).toHaveProperty('disabled', false)
+    fireEvent.click(item())
     expect(actions.calls).toEqual(['dismiss', 'start'])
   })
 })

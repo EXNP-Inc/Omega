@@ -48,6 +48,31 @@ describe('SidebarRightController — opening', () => {
     expect(() => { controller.dock('pane1' as PaneId) }).toThrow('no session surface is mounted')
   })
 
+  it('answers every command silently when the hardened-mode gate is on', () => {
+    const { controller } = harness(true)
+    // A conversation caller still reaching for the column finds a surface that
+    // no client can open: every command returns without acting and without
+    // throwing the "no session surface" refusal.
+    expect(() => { controller.openResource('dsh-resource://file/session/s-test/a.txt') }).not.toThrow()
+    expect(() => { controller.openTab('guide') }).not.toThrow()
+    expect(() => { controller.close('tab1' as TabId) }).not.toThrow()
+    expect(() => { controller.toggleExpanded() }).not.toThrow()
+    expect(() => { controller.focus('tab1' as TabId) }).not.toThrow()
+    expect(() => { controller.float('tab1' as TabId) }).not.toThrow()
+    expect(() => { controller.dock('pane1' as PaneId) }).not.toThrow()
+    expect(controller.split()).toBeUndefined()
+    // closeTarget names its state instead of acting; the read-only faces stay quiet.
+    const target = { sessionId: SESSION, paneId: 'pane1' as PaneId, host: 'dock' as const,
+      tabId: 'tab1' as TabId, occurrence: undefined, navigationRevision: undefined }
+    expect(controller.closeTarget(target)).toBe('unavailable')
+    expect(controller.toggleFullscreen(target)).toBeUndefined()
+    expect(() => { controller.openTabFromTarget('guide', target) }).not.toThrow()
+    expect(() => { controller._undo() }).not.toThrow()
+    expect(() => { controller._redo() }).not.toThrow()
+    expect(controller.isExpanded()).toBe(false)
+    expect(controller.active()).toBeUndefined()
+  })
+
   it('publishes the on-screen Session only when it changes', () => {
     const h = harness()
     const seen: (string | undefined)[] = []

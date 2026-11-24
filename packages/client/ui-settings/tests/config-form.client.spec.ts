@@ -505,7 +505,8 @@ describe('ConfigForms.get', () => {
     let theme!: ConfigForm<UiTestSettings>
     let locale!: ConfigForm<UiTestSettings>
     new TestRemote(ctx, { settings: { describe: describeCall } })
-    await ctx.plugin(ConfigForms, { mirror, schema: settingsSchema }).await()
+    const hardenedModeRef = { get: () => undefined, getSnapshot: () => undefined, subscribe: () => () => {} }
+    await ctx.plugin(ConfigForms, { mirror, schema: settingsSchema, hardenedModeRef }).await()
     expect(ctx.configForms.describe()).toBe(mirror)
     const fiber = ctx.plugin({
       inject: ['remote', 'configForms'],

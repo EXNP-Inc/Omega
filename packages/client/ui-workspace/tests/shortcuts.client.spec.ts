@@ -62,16 +62,17 @@ async function bench(runtime: 'web' | 'desktop' = 'desktop', platform: ShortcutP
   const controls = createWorkspaceShortcutControls()
   const reportForkFailure = vi.fn()
   const markSession = vi.fn()
+  const hardenedMode = createSnapshotStore(false)
   const fiber = ctx.plugin((scoped) => {
     installWorkspaceShortcuts(scoped, navigation, controls,
-      (id) => { void navigation.archiveSession(id) }, reportForkFailure, markSession)
+      (id) => { void navigation.archiveSession(id) }, reportForkFailure, markSession, hardenedMode)
   })
   await fiber.await()
   const select = (id: string) => { list.set({ ...list.getSnapshot(), byId: {
     [sid('a')]: row('a', id === 'a'), [sid('b')]: row('b', id === 'b'),
   } }) }
   return { ctx, fiber, registry, commands, navigation, controls, reportForkFailure, list, directory,
-    select, history, loadOlder, panelInfo, status, access, markSession, workspaces }
+    select, history, loadOlder, panelInfo, status, access, markSession, workspaces, hardenedMode }
 }
 
 afterEach(() => { vi.restoreAllMocks() })
@@ -286,4 +287,16 @@ it('blocks reading shortcuts while unavailable or outside the main Conversation 
   b.select('none')
   expect(command.resolve(context)).toMatchObject({ status: 'blocked', reason: en['shortcut.noSession'] })
   expect(b.markSession).not.toHaveBeenCalled()
+})
+
+it('blocks adding a Workspace while hardened mode is on, before the ordinary reason', async () => {
+  const b = await bench()
+  b.directory.set(true)
+  b.controls.directoryBusy(false)
+  const add = b.commands.get('workspace.add')!
+  expect(add.resolve(context)).toEqual({ status: 'handled', run: b.controls.add })
+  b.hardenedMode.set(true)
+  expect(add.resolve(context)).toMatchObject({ status: 'blocked', reason: en['shortcut.addUnavailable'] })
+  b.hardenedMode.set(false)
+  expect(add.resolve(context)).toEqual({ status: 'handled', run: b.controls.add })
 })

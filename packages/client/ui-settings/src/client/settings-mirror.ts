@@ -21,6 +21,12 @@ export interface SettingsDescribeView {
   writable: boolean
   /** Whether a native settings document exists for the Host to open. */
   hasDocument: boolean
+  /**
+   * The caller's settings-gate lock state, as the Host reported it for this
+   * read. It is the sole source of the snapshot's `locked` flag: the Host
+   * re-locks each UTC hour and clears it on an accepted unlock.
+   */
+  locked: boolean
 }
 
 /** Mirror state every derived settings surface renders from. */
@@ -35,6 +41,16 @@ export interface SettingsMirrorSnapshot {
   view: SettingsDescribeView | undefined
   /** The latest refresh failure message, cleared by the next success. */
   error: string | null
+  /**
+   * Whether the settings gate is locked for this peer, as the Host last
+   * reported it in `locked` on a `settings.describe` answer. Reads are never
+   * refused by the gate — only writes are — so this tracks the wire field, not
+   * a failure. While true, a derived surface renders its unlock prompt instead
+   * of the held view; it clears on the next read that reports an accepted
+   * unlock and re-arms at each UTC hour boundary (when the Host's fact
+   * expires).
+   */
+  locked: boolean
 }
 
 /**
@@ -63,6 +79,16 @@ export interface SettingsDescribeFace {
    * @param view - the namespace view a settings write answered with.
    */
   acceptView(view: SettingsNamespaceView): void
+  /**
+   * Offer the current settings password to the Host gate. The Host re-locks on
+   * its own schedule, so this unlocks only until the next UTC hour boundary or
+   * the peer's connection closes.
+   * @param password - the password the user entered.
+   * @returns true when the Host accepted and the mirror is no longer locked;
+   * false when the password was refused (the Host reports one refusal for both
+   * a not-owner caller and a wrong password, so no reason leaks to the UI).
+   */
+  unlock(password: string): Promise<boolean>
 }
 
 /**
@@ -85,6 +111,7 @@ export class SettingsDescribeMirror implements SettingsDescribeFace {
       status: 'idle',
       view: undefined,
       error: null,
+      locked: false,
     })
   }
 
@@ -155,6 +182,27 @@ export class SettingsDescribeMirror implements SettingsDescribeFace {
     return this.store.getSnapshot().view?.namespaces.find(row => row.ns === ns)
   }
 
+  /**
+   * Offer the current settings password to the Host gate, then refresh the
+   * document so a successful unlock is reflected in the held view.
+   * @param password - the password the user entered.
+   * @returns true when the Host accepted and the mirror is no longer locked;
+   * false when the password was refused (the mirror keeps serving the locked
+   * prompt).
+   */
+  async unlock(password: string): Promise<boolean> {
+    const response = await this.ctx.remote.settings.unlock(password)
+    // A refusal keeps the mirror locked and reports refused; the caller's gate
+    // shows the Host's single refusal and stays in place of the panel.
+    if (!response.ok) return false
+    // An accepted unlock clears the locked fact now, then refreshes so the
+    // authoritative wire word (still unlocked until the next hour boundary)
+    // stands; the gate's caller hands the shell back to the panel.
+    this.store.set({ ...this.getSnapshot(), locked: false })
+    await this.load()
+    return true
+  }
+
   private async run(): Promise<void> {
     // The in-flight slot must clear in the same synchronous segment that
     // observes `rerun` false (and on abrupt exit): a `.finally()` on the
@@ -177,20 +225,27 @@ export class SettingsDescribeMirror implements SettingsDescribeFace {
             ? { view: response.value }
             : { failure: response.error.message }
         } catch (error) {
+          // Reads are never refused by the gate, so a rejection here is an
+          // assembly or transport fault; the prior locked flag stands.
           outcome = { failure: error instanceof Error ? error.message : String(error) }
         }
         // A write answer invalidates a document read before that write committed.
         if (generation !== this.generation) continue
         if ('view' in outcome) {
-          this.store.set({ status: 'ready', view: outcome.view, error: null })
+          // The wire field is the gate's word for this peer: false once an
+          // unlock is accepted, true again at each UTC hour boundary.
+          this.store.set({ status: 'ready', view: outcome.view, error: null, locked: outcome.view.locked })
         } else {
           const held = this.store.getSnapshot()
           // No answer yet: fall back to idle so `ensure` retries; with one, the
           // held view keeps serving and only the error field reports the miss.
+          // A failed read changes no gate state, so the flag stands as the
+          // prior settled read left it.
           this.store.set({
             status: held.view === undefined ? 'idle' : 'ready',
             view: held.view,
             error: outcome.failure,
+            locked: held.locked,
           })
         }
       } while (this.shouldRerun())

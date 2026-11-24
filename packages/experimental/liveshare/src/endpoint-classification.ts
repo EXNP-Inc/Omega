@@ -134,6 +134,7 @@ export const VIEWER_ENDPOINT_CLASSES = {
   'settings/openSettingsDocument': 'owner-only', // owner settings
   'settings/replace': 'owner-only', // owner settings
   'settings/update': 'owner-only', // owner settings
+  'settings/unlock': 'owner-only', // owner settings; the password is verified server-side, never a reader surface
   'terminal/attach': 'owner-only', // owner terminals
   'terminal/close': 'owner-only', // owner terminals
   'terminal/create': 'owner-only', // owner terminals

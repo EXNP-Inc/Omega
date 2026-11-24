@@ -36,7 +36,7 @@ function ctxWith(namespaces: object) {
 /** Providers the shipped composition registers, in registration order. */
 const SHIPPED_PROVIDERS = {
   search: [{ id: 'omega-search-api' }, { id: 'omega-official' }],
-  fetch: [{ id: 'http' }, { id: 'deepseek-fetch-api' }],
+  fetch: [{ id: 'http' }, { id: 'omega-fetch-api' }],
 }
 
 type ProviderEntry = { id: string; title?: string; description?: { en: string; [locale: string]: string } }
@@ -106,7 +106,7 @@ function serve(
 }
 
 /** Both Omega API providers selected. */
-const API_SELECTION = { searchProvider: 'omega-search-api', fetchProvider: 'deepseek-fetch-api' }
+const API_SELECTION = { searchProvider: 'omega-search-api', fetchProvider: 'omega-fetch-api' }
 
 /** The shipped providers plus the plugin providers `exa` (Search) and `jina` (Fetch). */
 const WITH_PLUGINS = {
@@ -598,7 +598,7 @@ describe('WebSearchCardController billing', () => {
       serve(b)
       await vi.waitFor(() => { expect(b.state().search.kind).toBe('omega') })
       expect(b.state()).toMatchObject({ searchBilling: { value: 'auto', overridden: false }, fetchBilling: undefined })
-      b.face.selectProvider('fetchProvider', 'deepseek-fetch-api')
+      b.face.selectProvider('fetchProvider', 'omega-fetch-api')
       b.face.selectProvider('searchProvider', 'omega-official')
       expect(b.state()).toMatchObject({ searchBilling: undefined, fetchBilling: { value: 'auto', overridden: false } })
     } finally { b.controller.dispose() }
@@ -694,7 +694,7 @@ describe('WebSearchCardController providers', () => {
         ok: true,
         value: {
           search: [{ id: 'exa' }, { id: 'brave' }, { id: 'omega-search-api' }],
-          fetch: [{ id: 'jina' }, { id: 'deepseek-fetch-api' }, { id: 'http' }],
+          fetch: [{ id: 'jina' }, { id: 'omega-fetch-api' }, { id: 'http' }],
         },
       })
       b.controller.refreshProviders()
@@ -704,7 +704,7 @@ describe('WebSearchCardController providers', () => {
         { id: 'omega-search-api', missing: false },
         { id: 'exa', missing: false }, { id: 'brave', missing: false }, { id: 'perplexity', missing: true },
       ])
-      expect(b.state().fetch.options.map(option => option.id)).toEqual(['http', 'deepseek-fetch-api', 'jina'])
+      expect(b.state().fetch.options.map(option => option.id)).toEqual(['http', 'omega-fetch-api', 'jina'])
     } finally { b.controller.dispose() }
   })
 
@@ -775,7 +775,7 @@ describe('WebSearchCardController providers', () => {
       b.credentials.listProviders.mockResolvedValue({ ok: true, value: { search: [{ id: 'exa' }], fetch: [] } })
       b.controller.refreshProviders()
       serve(b, { value: API_SELECTION })
-      await vi.waitFor(() => { expect(b.state().fetch.options).toEqual([{ id: 'deepseek-fetch-api', missing: true }]) })
+      await vi.waitFor(() => { expect(b.state().fetch.options).toEqual([{ id: 'omega-fetch-api', missing: true }]) })
       expect(b.state()).toMatchObject({ search: { kind: 'none' }, fetch: { kind: 'none' } })
     } finally { b.controller.dispose() }
   })
@@ -925,10 +925,10 @@ describe('WebSearchCardController provider selection', () => {
       b.face.save()
       await vi.waitFor(() => { expect(b.state().dirty).toBe(false) })
       expect(b.web.mutate).toHaveBeenLastCalledWith([{ op: 'set', path: ['searchProvider'], value: 'exa' }], undefined)
-      b.face.selectProvider('fetchProvider', 'deepseek-fetch-api')
+      b.face.selectProvider('fetchProvider', 'omega-fetch-api')
       b.face.save()
       await vi.waitFor(() => { expect(b.state().dirty).toBe(false) })
-      expect(b.web.mutate).toHaveBeenLastCalledWith([{ op: 'set', path: ['fetchProvider'], value: 'deepseek-fetch-api' }], undefined)
+      expect(b.web.mutate).toHaveBeenLastCalledWith([{ op: 'set', path: ['fetchProvider'], value: 'omega-fetch-api' }], undefined)
       b.face.selectProvider('searchProvider', 'omega-search-api')
       b.face.selectProvider('fetchProvider', 'http')
       b.face.save()
@@ -960,7 +960,7 @@ describe('WebSearchCardController provider selection', () => {
       const accept = host.mutate.getMockImplementation()!
       host.mutate.mockImplementation((ops, revision) => { order.push(name); return accept(ops, revision) })
     }
-    b.face.selectProvider('fetchProvider', 'deepseek-fetch-api')
+    b.face.selectProvider('fetchProvider', 'omega-fetch-api')
     b.face.edit('count', '20')
     b.face.save()
     await vi.waitFor(() => { expect(b.state().dirty).toBe(false) })
@@ -972,12 +972,12 @@ describe('WebSearchCardController provider selection', () => {
     const b = bench({ accept: true })
     serve(b)
     b.api.mutate.mockImplementation(() => Promise.resolve(false))
-    b.face.selectProvider('fetchProvider', 'deepseek-fetch-api')
+    b.face.selectProvider('fetchProvider', 'omega-fetch-api')
     b.face.edit('count', '20')
     b.face.save()
     await vi.waitFor(() => { expect(b.state().failed).toBe(true) })
     expect(b.web.mutate).not.toHaveBeenCalled()
-    expect(b.state()).toMatchObject({ fetch: { selected: 'deepseek-fetch-api' }, dirty: true, selectionBlocked: true })
+    expect(b.state()).toMatchObject({ fetch: { selected: 'omega-fetch-api' }, dirty: true, selectionBlocked: true })
     b.controller.dispose()
   })
 
@@ -1024,7 +1024,7 @@ describe('WebSearchCardController provider selection', () => {
     serve(b)
     b.face.edit('count', '3')
     b.api.publish({ status: 'unavailable' })
-    b.face.selectProvider('fetchProvider', 'deepseek-fetch-api')
+    b.face.selectProvider('fetchProvider', 'omega-fetch-api')
     b.face.save()
     await vi.waitFor(() => { expect(b.web.mutate).toHaveBeenCalled() })
     expect(b.api.mutate).not.toHaveBeenCalled()

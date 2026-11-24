@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 /** Account state updates continue after default-model initialization refuses. */
+import { createSnapshotStore } from '@omega-ai/dsh-client-store'
 import { expect, it, vi, afterEach } from 'vitest'
 import type { AccountView, SignInAttemptId } from '@omega-ai/dsh-omega-account/types'
 import { apply, type AccountSectionInjected } from '../src/client/index.ts'
@@ -27,6 +28,7 @@ it.each(['accepted', 'refused', 'disconnected', 'pending'] as const)('initialize
   const frames: AccountView[] = [signedIn, signedIn, signedIn, { status: 'signed-out', links, attempt: null }]
   const getNotifications = vi.fn(async () => ({ ok: true, value: null }))
   const disposers: (() => void)[] = []
+  const hardened = createSnapshotStore(false)
   let operations: AccountSectionInjected | undefined
   const ctx = {
     on: () => () => {}, provide: () => {}, emit: () => {}, parallel: async () => [],
@@ -35,6 +37,7 @@ it.each(['accepted', 'refused', 'disconnected', 'pending'] as const)('initialize
     configForms: {
       get: () => ({ subscribe: () => () => {}, getSnapshot: () => ({ status: 'loading', value: undefined }) }),
       describe: () => ({ subscribe: () => () => {}, getSnapshot: () => ({ error: null }) }),
+      hardenedMode: { enabled: hardened },
     },
     slots: {
       inject: (_name: string, install: () => (() => void) | undefined) => {

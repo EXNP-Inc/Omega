@@ -66,7 +66,7 @@ describe('Omega Fetch API', () => {
     vi.stubGlobal('fetch', vi.fn(async () => jsonResponse({ title: '', content: 'body' })))
     const ctx = new Context()
     try {
-      await ctx.plugin(WebRuntime, { searchProvider: 'omega-search-api', fetchProvider: 'deepseek-fetch-api' })
+      await ctx.plugin(WebRuntime, { searchProvider: 'omega-search-api', fetchProvider: 'omega-fetch-api' })
       ctx.provide(DSH_LAUNCH_ENVIRONMENT_KEY, createLaunchEnvironmentSnapshot([{ source: 'process', values: { OMEGA_API_KEY: 'ds-key' } }]))
       await ctx.plugin(OmegaAuth)
       const fiber = await ctx.plugin(webApiPlugin, { fetchBaseURL: BASE })

@@ -139,7 +139,16 @@ function useNativeDragAcceptance(active: boolean): void {
 }
 
 /** Grouping, ordering, and archived-filter menu; own open state so it resets with the wide chrome. */
-function ViewOptionsMenu({ groupBy, orderBy, archivedFilter, onGroupPick, onOrderPick, onArchivedFilterPick, t }: {
+function ViewOptionsMenu({
+  groupBy,
+  orderBy,
+  archivedFilter,
+  onGroupPick,
+  onOrderPick,
+  onArchivedFilterPick,
+  t,
+  groupingAvailable = true,
+}: {
   groupBy: SessionGroupBy
   orderBy: SessionOrderBy
   archivedFilter: ArchivedFilter
@@ -147,6 +156,8 @@ function ViewOptionsMenu({ groupBy, orderBy, archivedFilter, onGroupPick, onOrde
   onOrderPick: (mode: SessionOrderBy) => void
   onArchivedFilterPick: (filter: ArchivedFilter) => void
   t: WorkspaceBrowserProps['t']
+  /** Whether the group-by section is offered; hardened mode withholds it (the list is always flat). */
+  groupingAvailable?: boolean
 }) {
   const [open, setOpen] = useState(false)
   return (
@@ -154,11 +165,13 @@ function ViewOptionsMenu({ groupBy, orderBy, archivedFilter, onGroupPick, onOrde
       open={open}
       onClose={() => { setOpen(false) }}
       items={[
-        { type: 'label' as const, id: 'group-by', text: t('groupBy.label') },
-        { id: 'workspace', label: t('groupBy.workspace'), icon: <IconFolderCloseRegular /> },
-        { id: 'workspace-tree', label: t('groupBy.workspaceTree'), icon: <IconWorkspaceTreeOutlineRegular /> },
-        { id: 'flat', label: t('groupBy.flat'), icon: <IconFlatListOutlineRegular /> },
-        { type: 'separator' as const, id: 'order-by-separator' },
+        ...groupingAvailable ? [
+          { type: 'label' as const, id: 'group-by', text: t('groupBy.label') },
+          { id: 'workspace', label: t('groupBy.workspace'), icon: <IconFolderCloseRegular /> },
+          { id: 'workspace-tree', label: t('groupBy.workspaceTree'), icon: <IconWorkspaceTreeOutlineRegular /> },
+          { id: 'flat', label: t('groupBy.flat'), icon: <IconFlatListOutlineRegular /> },
+          { type: 'separator' as const, id: 'order-by-separator' },
+        ] : [],
         { type: 'label' as const, id: 'order-by', text: t('orderBy.label') },
         { id: 'manual', label: t('orderBy.manual'), icon: <IconChevronsUpDownOutlineRegular /> },
         { id: 'updated', label: t('orderBy.updated'), icon: <IconClockOutlineRegular /> },
@@ -169,7 +182,7 @@ function ViewOptionsMenu({ groupBy, orderBy, archivedFilter, onGroupPick, onOrde
         { id: 'only-archived', label: t('viewOptions.onlyArchived'), icon: <IconArchiveCheckOutlineRegular /> },
       ]}
       selectedIds={[
-        groupBy,
+        ...(groupingAvailable ? [groupBy] : []),
         orderBy,
         { default: 'hide-archived', show: 'show-archived', only: 'only-archived' }[archivedFilter],
       ]}
@@ -930,6 +943,7 @@ export function WorkspaceBrowser({
   useHostInfo,
   useShortcuts,
   useWorkspaceShortcuts,
+  useHardenedMode,
   requestSearch,
   requestAddWorkspace,
   closeAddWorkspace,
@@ -942,6 +956,10 @@ export function WorkspaceBrowser({
   const searchShortcut = shortcuts.find(row => row.id === 'session.search')
   const addShortcut = shortcuts.find(row => row.id === 'workspace.add')
   const shortcutState = useWorkspaceShortcuts(state => state)
+  // Hardened mode collapses the browsing region to one flat list of the single
+  // default Workspace: no adding, renaming, or deleting Workspaces, no
+  // folder grouping, and no view options.
+  const hardened = useHardenedMode(on => on)
   // Ordering remains live while the rail or search replaces the list body.
   const list = useSessions(state => state)
   const storedWorkspaces = useWorkspaces(state => state.items)
@@ -1303,12 +1321,14 @@ export function WorkspaceBrowser({
               onOrderPick={(mode) => { actions.setOrderBy(mode, activeSessionOrders) }}
               onArchivedFilterPick={actions.setArchivedFilter}
               t={t}
+              groupingAvailable={!hardened}
             />
           )}
           {/* Adding is the button's one action, so a composition with no
               picking affordance has nothing to offer here: the region hides the
-              button rather than leaving a dead one in the header. */}
-          {directoryFlowAvailable && (
+              button rather than leaving a dead one in the header. Hardened mode
+              keeps a single Workspace, so it withholds the button too. */}
+          {directoryFlowAvailable && !hardened && (
             <Tooltip label={t('workspace.add')} shortcutKeys={addShortcut?.keys} side="bottom" delayMs={500} portal>
               <button
                 ref={wsPlusRef}
@@ -1325,8 +1345,10 @@ export function WorkspaceBrowser({
             </Tooltip>
           )}
         </div>
-        {/* Add flow + its error dialog (same package — direct composition). */}
-        <WorkspacePickFlow
+        {/* Add flow + its error dialog (same package — direct composition). It
+            opens only from the add button or the add command, both withheld
+            while hardened, so it is rendered only when they can be. */}
+        {!hardened && <WorkspacePickFlow
           t={t}
           open={wsPickerOpen}
           anchorRef={wsPlusRef}
@@ -1342,7 +1364,7 @@ export function WorkspaceBrowser({
             startSession(workspaceId, { clearPreviousDraft: false })
           }}
           onClose={() => { closeAddWorkspace() }}
-        />
+        />}
       </div>
 
       {/* The collapsed rail keeps search as its own 36px control. */}
@@ -1440,7 +1462,7 @@ export function WorkspaceBrowser({
             ))}
       </div>
 
-      {workspaceActionRequest !== null && <WorkspaceDialogs key={`${workspaceActionRequest.action}/${workspaceActionRequest.workspaceId}`}
+      {!hardened && workspaceActionRequest !== null && <WorkspaceDialogs key={`${workspaceActionRequest.action}/${workspaceActionRequest.workspaceId}`}
         request={workspaceActionRequest} workspaces={workspaces} renameWorkspace={renameWorkspace} deleteWorkspace={deleteWorkspace}
         settleWorkspaceAction={settleWorkspaceAction} t={t} />}
     </div>

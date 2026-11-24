@@ -515,7 +515,7 @@
     # Omega Search API (omega-search-api) for every other route. Fetch
     # defaults to the
     # anonymous local fetcher (http). The Omega Search and Fetch APIs
-    # (omega-search-api, deepseek-fetch-api) follow the conversation: on the
+    # (omega-search-api, omega-fetch-api) follow the conversation: on the
     # omega-account route they send the account token to that route's
     # origin, and otherwise the API key of the Omega API-key route to its
     # origin, so a OMEGA_API_KEY alone serves both without a sign-in.

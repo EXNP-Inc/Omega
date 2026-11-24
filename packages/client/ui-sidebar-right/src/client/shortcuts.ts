@@ -2,6 +2,7 @@
 import type { Shortcuts, ShortcutBinding, ShortcutCommandId } from '@omega-ai/dsh-client-shortcuts/client'
 import type { TranslateNS } from '@omega-ai/dsh-client-locale/client'
 import { closeTopModal } from '@omega-ai/dsh-client-ui-primitives'
+import type { HostObservable } from '@omega-ai/dsh-client-ui-slots'
 import type { SidebarRightController } from './service.ts'
 import type { SidebarRightTarget } from './focus.ts'
 import type {} from './locales.ts'
@@ -12,10 +13,12 @@ import type {} from './locales.ts'
  * @param sidebar - current Session and page owner.
  * @param t - current localized command and unavailable labels.
  * @param closeWindow - private native close operation using the current configuration revision.
+ * @param hardened - whether hardened mode is on: while it is, the sidebar's own
+ *   commands resolve to blocked (its seats, guide, and expand button are hidden).
  * @returns release callback for the commands.
  */
 export function registerSidebarShortcuts(shortcuts: Pick<Shortcuts, 'register' | 'runtime'>, sidebar: SidebarRightController,
-  t: TranslateNS<'sidebarRight'>, closeWindow: () => void): () => void {
+  t: TranslateNS<'sidebarRight'>, closeWindow: () => void, hardened?: HostObservable<boolean>): () => void {
   const reason = (kind: 'split' | 'fullscreen', target: SidebarRightTarget): string | null => {
     if (kind === 'split') {
       const block = sidebar.splitBlock(target)
@@ -35,6 +38,7 @@ export function registerSidebarShortcuts(shortcuts: Pick<Shortcuts, 'register' |
     },
     regions: ['page', 'editable', 'terminal'], modals: [],
     resolve: () => {
+      if (hardened?.getSnapshot() === true) return { status: 'blocked', reason: t('command.sidebarUnavailable') }
       const target = sidebar.commandTarget(null)
       if (target === undefined) return { status: 'blocked', reason: t('command.noSession') }
       return { status: 'handled', run: () => { if (sidebar.isTargetCurrent(target)) sidebar.toggleExpanded() } }
@@ -50,6 +54,7 @@ export function registerSidebarShortcuts(shortcuts: Pick<Shortcuts, 'register' |
         'web:macos': binding, 'web:windows': binding },
       regions: ['page', 'editable', 'terminal'], modals: [],
       resolve: ({ target: element }) => {
+        if (hardened?.getSnapshot() === true) return { status: 'blocked', reason: t('command.sidebarUnavailable') }
         const target = sidebar.focusedTarget(element)
         if (target === undefined) return { status: 'blocked', reason: t('command.noFocus') }
         const unavailable = reason(kind, target)

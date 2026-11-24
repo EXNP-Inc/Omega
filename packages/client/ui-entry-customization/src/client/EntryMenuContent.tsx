@@ -16,6 +16,8 @@ export interface EntryMenuInjected {
   readonly hooks: {
     /** Whether the Plugins page navigation service is present; the discovery row shows only while it is. */
     readonly pluginNavigation: HostObservable<boolean>
+    /** Whether hardened mode hides the plugin discovery and creation rows. */
+    readonly hardenedMode: HostObservable<boolean>
   }
   /** Open the Plugins main list. */
   readonly browsePlugins: () => void
@@ -33,10 +35,22 @@ type EntryMenuContentProps = PropsRuntime<'sidebar.panellist.actions'>
  * @returns Menu rows for the region's More menu.
  */
 export function EntryMenuContent({
-  entries, onOpen, onPinnedChange, region, onDismiss, usePluginNavigation, browsePlugins, createPlugin, t, renderFactorySlot,
+  entries,
+  onOpen,
+  onPinnedChange,
+  region,
+  onDismiss,
+  usePluginNavigation,
+  useHardenedMode,
+  browsePlugins,
+  createPlugin,
+  t,
+  renderFactorySlot,
 }: EntryMenuContentProps) {
   const moreEntries = region === 'sidebar' ? entries.filter(entry => !entry.pinned) : region === 'conversation' ? entries : []
   const browsable = usePluginNavigation(present => present)
+  // Hardened mode hides the plugin discovery and creation rows in every region.
+  const hardened = useHardenedMode(present => present)
   return <>
     {moreEntries.map(entry => <div key={entry.id} className={region === 'sidebar' ? css.sidebarEntry : undefined}>
       <MenuItemButton current={entry.active === true} icon={region === 'sidebar' ? (
@@ -59,13 +73,14 @@ export function EntryMenuContent({
         </Tooltip>
       </span>}
     </div>)}
-    {browsable && <MenuItemButton separatorBefore={moreEntries.length > 0} icon={<IconPluginPinwheelOutlineRegular size={16} />}
+    {hardened ? null : browsable && <MenuItemButton
+      separatorBefore={moreEntries.length > 0} icon={<IconPluginPinwheelOutlineRegular size={16} />}
       onSelect={() => { onDismiss(); browsePlugins() }}>
       {t('install')}
     </MenuItemButton>}
-    <MenuItemButton icon={<IconPlusOutlineRegular size={16} />} separatorBefore={!browsable && moreEntries.length > 0}
+    {hardened ? null : <MenuItemButton icon={<IconPlusOutlineRegular size={16} />} separatorBefore={!browsable && moreEntries.length > 0}
       onSelect={() => { onDismiss(); createPlugin() }}>
       {t('create')}
-    </MenuItemButton>
+    </MenuItemButton>}
   </>
 }

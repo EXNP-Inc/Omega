@@ -45,7 +45,7 @@ async function boot() {
   rt.slots.provideRoot({ props: {
     useContextMenu: contextMenuHook((target, point) => { rt.ctx.contextMenus.open(target, point) }),
   } })
-  rt.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) } } as never)
+  rt.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, hardenedMode: { enabled: createSnapshotStore(false) } } as never)
   rt.ctx.provide('layout', { openRightbar: vi.fn(), closeRightbar: vi.fn(), panelInfo: rt.panelInfo } as never)
   rt.ctx.provide('shortcuts', { register: () => () => {}, catalog: { getSnapshot: () => SHORTCUT_CATALOG, subscribe: () => () => {} } } as never)
   const locale = new LocaleRuntime(rt.ctx)

@@ -74,7 +74,7 @@ async function bootComposition(
     { id: 'omega-auth', name: '@omega-ai/dsh-omega-auth' },
     { id: 'llm-omega', name: '@omega-ai/dsh-llm-omega-api-key' },
     { id: 'llm-omega-account', name: '@omega-ai/dsh-llm-omega-account' },
-    { id: 'web', name: '@omega-ai/dsh-web', config: { searchProvider: 'omega-search-api', fetchProvider: 'deepseek-fetch-api' } },
+    { id: 'web', name: '@omega-ai/dsh-web', config: { searchProvider: 'omega-search-api', fetchProvider: 'omega-fetch-api' } },
     { id: 'web-omega-api', name: '@omega-ai/dsh-web-omega-api', config: web },
   ]))
   const ctx: Context = await boot('web-omega-api-composition', configPath, [], (host) => {

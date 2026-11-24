@@ -98,3 +98,135 @@ index 7da1c45..296d131 100644
                  break;
              }
              case "toolcall_end":
+diff --git a/dist/env-api-keys.js b/dist/env-api-keys.js
+index e27cf6f1015a5d0d0058df808b5737879eeb90c4..4089d9dca2ac8f3881644f617bc0340179e42e37 100644
+--- a/dist/env-api-keys.js
++++ b/dist/env-api-keys.js
+@@ -82,7 +82,7 @@ function getApiKeyEnvVars(provider) {
+         openai: "OPENAI_API_KEY",
+         azure: "AZURE_OPENAI_API_KEY",
+         nvidia: "NVIDIA_API_KEY",
+-        deepseek: "DEEPSEEK_API_KEY",
++        omega: "OMEGA_OPENAI_API_KEY",
+         google: "GEMINI_API_KEY",
+         "google-vertex": "GOOGLE_CLOUD_API_KEY",
+         groq: "GROQ_API_KEY",
+diff --git a/dist/models.generated.d.ts b/dist/models.generated.d.ts
+index 845ba1dfd38f8c1b7e4791c2331063c2d9831dd8..0d8ffd73af1f8df17b3ee323e6857e6956768a0c 100644
+--- a/dist/models.generated.d.ts
++++ b/dist/models.generated.d.ts
+@@ -49,7 +49,7 @@ export declare const MODELS: {
+     readonly "cerebras": typeof CEREBRAS_MODELS;
+     readonly "cloudflare-ai-gateway": typeof CLOUDFLARE_AI_GATEWAY_MODELS;
+     readonly "cloudflare-workers-ai": typeof CLOUDFLARE_WORKERS_AI_MODELS;
+-    readonly "deepseek": typeof DEEPSEEK_MODELS;
++    readonly "omega": typeof DEEPSEEK_MODELS;
+     readonly "fireworks": typeof FIREWORKS_MODELS;
+     readonly "github-copilot": typeof GITHUB_COPILOT_MODELS;
+     readonly "google": typeof GOOGLE_MODELS;
+@@ -93,7 +93,7 @@ export declare const IMAGE_MODELS: {
+     readonly "cerebras": typeof CEREBRAS_IMAGE_MODELS;
+     readonly "cloudflare-ai-gateway": typeof CLOUDFLARE_AI_GATEWAY_IMAGE_MODELS;
+     readonly "cloudflare-workers-ai": typeof CLOUDFLARE_WORKERS_AI_IMAGE_MODELS;
+-    readonly "deepseek": typeof DEEPSEEK_IMAGE_MODELS;
++    readonly "omega": typeof DEEPSEEK_IMAGE_MODELS;
+     readonly "fireworks": typeof FIREWORKS_IMAGE_MODELS;
+     readonly "github-copilot": typeof GITHUB_COPILOT_IMAGE_MODELS;
+     readonly "google": typeof GOOGLE_IMAGE_MODELS;
+@@ -137,7 +137,7 @@ export declare const CLASSIFIER_MODELS: {
+     readonly "cerebras": typeof CEREBRAS_CLASSIFIER_MODELS;
+     readonly "cloudflare-ai-gateway": typeof CLOUDFLARE_AI_GATEWAY_CLASSIFIER_MODELS;
+     readonly "cloudflare-workers-ai": typeof CLOUDFLARE_WORKERS_AI_CLASSIFIER_MODELS;
+-    readonly "deepseek": typeof DEEPSEEK_CLASSIFIER_MODELS;
++    readonly "omega": typeof DEEPSEEK_CLASSIFIER_MODELS;
+     readonly "fireworks": typeof FIREWORKS_CLASSIFIER_MODELS;
+     readonly "github-copilot": typeof GITHUB_COPILOT_CLASSIFIER_MODELS;
+     readonly "google": typeof GOOGLE_CLASSIFIER_MODELS;
+diff --git a/dist/models.generated.js b/dist/models.generated.js
+index c41c8dcfdfb9a2bdf3699eaad421b3be01c6dcac..36b443c5eedc947714acaae6e8f9241b25bc53b6 100644
+--- a/dist/models.generated.js
++++ b/dist/models.generated.js
+@@ -51,7 +51,7 @@ export const MODELS = {
+     "cerebras": CEREBRAS_MODELS,
+     "cloudflare-ai-gateway": CLOUDFLARE_AI_GATEWAY_MODELS,
+     "cloudflare-workers-ai": CLOUDFLARE_WORKERS_AI_MODELS,
+-    "deepseek": DEEPSEEK_MODELS,
++    "omega": DEEPSEEK_MODELS,
+     "fireworks": FIREWORKS_MODELS,
+     "github-copilot": GITHUB_COPILOT_MODELS,
+     "google": GOOGLE_MODELS,
+@@ -95,7 +95,7 @@ export const IMAGE_MODELS = {
+     "cerebras": CEREBRAS_IMAGE_MODELS,
+     "cloudflare-ai-gateway": CLOUDFLARE_AI_GATEWAY_IMAGE_MODELS,
+     "cloudflare-workers-ai": CLOUDFLARE_WORKERS_AI_IMAGE_MODELS,
+-    "deepseek": DEEPSEEK_IMAGE_MODELS,
++    "omega": DEEPSEEK_IMAGE_MODELS,
+     "fireworks": FIREWORKS_IMAGE_MODELS,
+     "github-copilot": GITHUB_COPILOT_IMAGE_MODELS,
+     "google": GOOGLE_IMAGE_MODELS,
+@@ -139,7 +139,7 @@ export const CLASSIFIER_MODELS = {
+     "cerebras": CEREBRAS_CLASSIFIER_MODELS,
+     "cloudflare-ai-gateway": CLOUDFLARE_AI_GATEWAY_CLASSIFIER_MODELS,
+     "cloudflare-workers-ai": CLOUDFLARE_WORKERS_AI_CLASSIFIER_MODELS,
+-    "deepseek": DEEPSEEK_CLASSIFIER_MODELS,
++    "omega": DEEPSEEK_CLASSIFIER_MODELS,
+     "fireworks": FIREWORKS_CLASSIFIER_MODELS,
+     "github-copilot": GITHUB_COPILOT_CLASSIFIER_MODELS,
+     "google": GOOGLE_CLASSIFIER_MODELS,
+diff --git a/dist/providers/data/deepseek.json b/dist/providers/data/deepseek.json
+index 1443bb592b2913ba09579f3f555a2b09456e63cf..97b501b673e0e73ba3f70c2e20932a2b22fc5ff8 100644
+--- a/dist/providers/data/deepseek.json
++++ b/dist/providers/data/deepseek.json
+@@ -1 +1 @@
+-{"openai-completions":{"chat:deepseek-flash":{"id":"deepseek-flash","name":"DeepSeek V4.1 Flash","api":"openai-completions","baseUrl":"https://api.deepseek.com","provider":"deepseek","reasoning":true,"thinkingLevelMap":{"minimal":null,"low":"low","medium":null,"high":"high","max":"max"},"input":["text","image"],"cost":{"input":0.3,"output":1.2,"cacheRead":0.006,"cacheWrite":0},"contextWindow":1000000,"maxTokens":384000,"compat":{"supportsStore":false,"supportsDeveloperRole":false,"maxTokensField":"max_tokens","requiresReasoningContentOnAssistantMessages":true,"thinkingFormat":"deepseek","supportsStrictMode":true},"inputLimits":{"images":{"resize":{"maxWidth":2000,"maxHeight":2000,"maxBytes":4718592,"jpegQuality":80}}},"type":"chat"},"chat:deepseek-v4-pro":{"id":"deepseek-v4-pro","name":"DeepSeek V4 Pro","api":"openai-completions","baseUrl":"https://api.deepseek.com","provider":"deepseek","reasoning":true,"input":["text"],"cost":{"input":1.32,"output":3.96,"cacheRead":0.044,"cacheWrite":0},"contextWindow":1000000,"maxTokens":384000,"compat":{"supportsStore":false,"supportsDeveloperRole":false,"maxTokensField":"max_tokens","requiresReasoningContentOnAssistantMessages":true,"thinkingFormat":"deepseek","supportsStrictMode":true,"supportsMidConvoSystemMessages":true},"thinkingLevelMap":{"minimal":null,"low":null,"medium":null,"high":"high","max":"max"},"type":"chat"}}}
++{"openai-completions":{"chat:omega-flash":{"id":"omega-flash","name":"Omega V4.1 Flash","api":"openai-completions","baseUrl":"https://api.omega.ai","provider":"omega","reasoning":true,"thinkingLevelMap":{"minimal":null,"low":"low","medium":null,"high":"high","max":"max"},"input":["text","image"],"cost":{"input":0.3,"output":1.2,"cacheRead":0.006,"cacheWrite":0},"contextWindow":1000000,"maxTokens":384000,"compat":{"supportsStore":false,"supportsDeveloperRole":false,"maxTokensField":"max_tokens","requiresReasoningContentOnAssistantMessages":true,"thinkingFormat":"deepseek","supportsStrictMode":true},"inputLimits":{"images":{"resize":{"maxWidth":2000,"maxHeight":2000,"maxBytes":4718592,"jpegQuality":80}}},"type":"chat"},"chat:omega-v4-pro":{"id":"omega-v4-pro","name":"Omega V4 Pro","api":"openai-completions","baseUrl":"https://api.omega.ai","provider":"omega","reasoning":true,"input":["text"],"cost":{"input":1.32,"output":3.96,"cacheRead":0.044,"cacheWrite":0},"contextWindow":1000000,"maxTokens":384000,"compat":{"supportsStore":false,"supportsDeveloperRole":false,"maxTokensField":"max_tokens","requiresReasoningContentOnAssistantMessages":true,"thinkingFormat":"deepseek","supportsStrictMode":true,"supportsMidConvoSystemMessages":true},"thinkingLevelMap":{"minimal":null,"low":null,"medium":null,"high":"high","max":"max"},"type":"chat"}}}
+diff --git a/dist/providers/deepseek.js b/dist/providers/deepseek.js
+index f137dd907daf4c01d7a134a934ddf89db1798e5e..956182914cc0c944276623594b45d5c05991bc67 100644
+--- a/dist/providers/deepseek.js
++++ b/dist/providers/deepseek.js
+@@ -4,10 +4,10 @@ import { createProvider } from "../models.js";
+ import { DEEPSEEK_MODELS } from "./deepseek.models.js";
+ export function deepseekProvider() {
+     return createProvider({
+-        id: "deepseek",
+-        name: "DeepSeek",
+-        baseUrl: "https://api.deepseek.com",
+-        auth: { apiKey: envApiKeyAuth("DeepSeek API key", ["DEEPSEEK_API_KEY"]) },
++        id: "omega",
++        name: "Omega",
++        baseUrl: "https://api.omega.ai",
++        auth: { apiKey: envApiKeyAuth("Omega API key", ["OMEGA_OPENAI_API_KEY"]) },
+         models: Object.values(DEEPSEEK_MODELS),
+         api: openAICompletionsApi(),
+     });
+diff --git a/dist/providers/deepseek.models.d.ts b/dist/providers/deepseek.models.d.ts
+index 8cb9adeb717aa898c5666c732a2f81a0d716e76d..8a15ef832d89e1e18908f879facca79074b7511b 100644
+--- a/dist/providers/deepseek.models.d.ts
++++ b/dist/providers/deepseek.models.d.ts
+@@ -1,6 +1,6 @@
+ import values from "./data/deepseek.json";
+ import { type ChatModelCatalog, type ClassifierModelCatalog, type ImageModelCatalog } from "../model-catalog.ts";
+-export declare const DEEPSEEK_MODELS: ChatModelCatalog<typeof values, "deepseek">;
+-export declare const DEEPSEEK_IMAGE_MODELS: ImageModelCatalog<typeof values, "deepseek">;
+-export declare const DEEPSEEK_CLASSIFIER_MODELS: ClassifierModelCatalog<typeof values, "deepseek">;
++export declare const DEEPSEEK_MODELS: ChatModelCatalog<typeof values, "omega">;
++export declare const DEEPSEEK_IMAGE_MODELS: ImageModelCatalog<typeof values, "omega">;
++export declare const DEEPSEEK_CLASSIFIER_MODELS: ClassifierModelCatalog<typeof values, "omega">;
+ //# sourceMappingURL=deepseek.models.d.ts.map
+\ No newline at end of file
+diff --git a/dist/providers/deepseek.models.js b/dist/providers/deepseek.models.js
+index b8924d8ce65a1b09edb1e95955feefc7fb2fb6eb..3897097a341760634ebacfaba84605125f2bc1ba 100644
+--- a/dist/providers/deepseek.models.js
++++ b/dist/providers/deepseek.models.js
+@@ -2,7 +2,7 @@
+ // Do not edit manually - run 'npm run generate-models' to update
+ import values from "./data/deepseek.json" with { type: "json" };
+ import { flattenChatModelCatalog, flattenClassifierModelCatalog, flattenImageModelCatalog } from "../model-catalog.js";
+-export const DEEPSEEK_MODELS = flattenChatModelCatalog("deepseek", values);
+-export const DEEPSEEK_IMAGE_MODELS = flattenImageModelCatalog("deepseek", values);
+-export const DEEPSEEK_CLASSIFIER_MODELS = flattenClassifierModelCatalog("deepseek", values);
++export const DEEPSEEK_MODELS = flattenChatModelCatalog("omega", values);
++export const DEEPSEEK_IMAGE_MODELS = flattenImageModelCatalog("omega", values);
++export const DEEPSEEK_CLASSIFIER_MODELS = flattenClassifierModelCatalog("omega", values);
+ //# sourceMappingURL=deepseek.models.js.map
+\ No newline at end of file

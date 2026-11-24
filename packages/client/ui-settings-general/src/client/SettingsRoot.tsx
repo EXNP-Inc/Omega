@@ -25,6 +25,7 @@ import type { ConnectionIndicatorState } from '@omega-ai/dsh-client-ui-primitive
 import type { SettingsRootComponentProps, SettingsSectionRow } from './shell-contract.ts'
 import css from './SettingsRoot.module.css'
 import { DesktopUpdateIndicator } from './DesktopUpdateIndicator.tsx'
+import { SettingsLockGate } from './SettingsLockGate.tsx'
 
 const RECOVERY_CONFIRMATION_MS = 2_000
 
@@ -122,9 +123,10 @@ function SettingsPanel({ rows, renderSlot, renderFactorySlot, activeId, onSelect
 export function SettingsRoot(props: SettingsRootComponentProps) {
   const {
     wide, reconnect, useConnectionState, useSections, useOnboardingSteps, useSessions, renderSlot, renderFactorySlot, t,
-    useDesktopUpdate, openDesktopUpdate, useStore, actions, useShortcuts,
+    useDesktopUpdate, openDesktopUpdate, useStore, actions, useShortcuts, useSettingsLocked, unlock,
   } = props
   const { open, activeId } = useStore(state => state)
+  const settingsLocked = useSettingsLocked(value => value)
   const shortcut = useShortcuts(rows => rows.find(row => row.id === 'settings.open'))
   const { close, openSection } = actions
   const [requestedOnboarding, setRequestedOnboarding] = useState<string | undefined>()
@@ -259,16 +261,16 @@ export function SettingsRoot(props: SettingsRootComponentProps) {
         <DesktopUpdateIndicator wide={wide} hidden={connectionIndicator !== undefined && desktopUpdate.presentation?.phase !== 'installing'}
           t={t} view={desktopUpdate} onOpen={openDesktopUpdate} />
       </div>
-      {open && (
-        <SettingsPanel
+      {open && (settingsLocked
+        ? <SettingsLockGate unlock={unlock} onClose={close} t={t} />
+        : <SettingsPanel
           rows={rows}
           renderSlot={renderSlot}
           renderFactorySlot={renderFactorySlot}
           activeId={activeId}
           onSelect={actions.select}
           onClose={close}
-        />
-      )}
+        />)}
       {/* Dialog chrome and `#root` inert ownership live inside each step's
           visible branch. A step still deciding (private facts loading)
           renders null, so nothing paints or blocks while it decides. */}

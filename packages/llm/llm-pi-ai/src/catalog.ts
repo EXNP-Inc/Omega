@@ -850,7 +850,7 @@ export interface RouteCatalog {
  * Materialize one route's catalog by merging the installed catalog defaults
  * under the configured entries. A route with no configured `models` serves the
  * installed catalog unchanged, which is what keeps an existing
- * `providers: { deepseek: { apiKeyEnv: … } }` profile working untouched.
+ * `providers: { omega: { apiKeyEnv: … } }` profile working untouched.
  * @param request - the route-level catalog facts.
  * @param validation - strict writes reject every error; deferred reads retain model diagnostics.
  * @returns the materialized models and the explicitly configured request caps.

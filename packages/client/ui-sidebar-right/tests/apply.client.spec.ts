@@ -46,7 +46,7 @@ interface Recorded {
   component: unknown
 }
 
-async function boot(shortcuts: Partial<Shortcuts> = {}) {
+async function boot(shortcuts: Partial<Shortcuts> = {}, hardenedEnabled = false) {
   const ctx = new Context()
   const registered: Recorded[] = []
   const slots = {
@@ -85,6 +85,8 @@ async function boot(shortcuts: Partial<Shortcuts> = {}) {
   ctx.provide('resources', resources as never)
   ctx.provide('sessions', { retain: vi.fn(() => ({ ready: Promise.resolve(), release: vi.fn() })) } as never)
   ctx.provide('uiSession', { adapter: { current } } as never)
+  const hardened = createSnapshotStore(hardenedEnabled)
+  ctx.provide('configForms', { hardenedMode: { enabled: hardened } } as never)
   const fiber = ctx.plugin({ inject: [...inject], apply })
   await fiber.await()
   const seat = (name: string): Recorded => {
@@ -96,7 +98,7 @@ async function boot(shortcuts: Partial<Shortcuts> = {}) {
     if (entry.inject === undefined) throw new Error(`expected ${entry.name} to inject`)
     return entry.inject(SESSION)
   }
-  return { ctx, menus, slots, registered, dictionaries, layout, current, resources, fiber, seat, injectedOf }
+  return { ctx, menus, slots, registered, dictionaries, layout, current, resources, fiber, seat, injectedOf, hardened }
 }
 
 describe('ui-sidebar-right apply', () => {
@@ -153,6 +155,58 @@ describe('ui-sidebar-right apply', () => {
     // Both seats read one store: the button only needs to know whether the panel is expanded.
     expect(seat('rightbar.session').store).toBeDefined()
     expect(seat('conversation.session.header.corner').store).toBe(seat('rightbar.session').store)
+  })
+
+  it('hides the whole right sidebar when hardened mode flips on, and restores it in order when it flips off', async () => {
+    const { ctx, registered, hardened } = await boot()
+    onTestFinished(async () => { await ctx.fiber.dispose() })
+    const surface = () => registered.map(entry => [entry.name, entry.key] as const)
+    // Boot off: the conversation-column decorations and the whole right-surface set are in.
+    expect(surface()).toEqual([
+      ['contextMenu.icon', 'sidebar.close'],
+      ['contextMenu.content', 'tab'],
+      ['rightbar', undefined],
+      ['rightbar.session', undefined],
+      ['conversation.session.header.corner', undefined],
+      ['sidebar.right.pane.tab', GUIDE_ID],
+      ['sidebar.right.pane.tab.title', GUIDE_ID],
+    ])
+    expect(ctx.sidebarRightTabs.get('guide')?.id).toBe(GUIDE_ID)
+    // Flip on: the seats, the expand button, and the guide's body and title all
+    // leave at once; only the conversation-column decorations remain.
+    hardened.set(true)
+    expect(surface()).toEqual([
+      ['contextMenu.icon', 'sidebar.close'],
+      ['contextMenu.content', 'tab'],
+    ])
+    expect(ctx.sidebarRightTabs.get('guide')).toBeUndefined()
+    // Flip off: the same set returns in the same order, over the same store.
+    hardened.set(false)
+    expect(surface()).toEqual([
+      ['contextMenu.icon', 'sidebar.close'],
+      ['contextMenu.content', 'tab'],
+      ['rightbar', undefined],
+      ['rightbar.session', undefined],
+      ['conversation.session.header.corner', undefined],
+      ['sidebar.right.pane.tab', GUIDE_ID],
+      ['sidebar.right.pane.tab.title', GUIDE_ID],
+    ])
+    expect(ctx.sidebarRightTabs.get('guide')?.id).toBe(GUIDE_ID)
+  })
+
+  it('boots the right sidebar already hidden when hardened mode is on', async () => {
+    const { ctx, registered, hardened } = await boot(undefined, true)
+    onTestFinished(async () => { await ctx.fiber.dispose() })
+    // The conversation-column decorations install; the whole right surface and
+    // the guide type do not, so nothing a client can open exists.
+    expect(registered.map(entry => [entry.name, entry.key] as const)).toEqual([
+      ['contextMenu.icon', 'sidebar.close'],
+      ['contextMenu.content', 'tab'],
+    ])
+    expect(ctx.sidebarRightTabs.get('guide')).toBeUndefined()
+    // Clearing the gate brings the surface back; re-asserting it stays a no-op.
+    hardened.set(false)
+    expect(ctx.sidebarRightTabs.get('guide')?.id).toBe(GUIDE_ID)
   })
 
   it('names the selected Session as on screen while the Conversation fills the main column', async () => {

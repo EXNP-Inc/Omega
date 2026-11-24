@@ -106,87 +106,107 @@ export function apply(ctx: ClientContext): void {
   // page declares here, so the page never names a configurable plugin.
   const configLedger = configLedgerSource(ctx)
   const face = controller.inject(configLedger, tabLedgerSource(ctx), text => ctx.locale.resolveText(text))
-  ctx.remoteAccess.whenAccess('pluginManager/listBundles', function* () {
-    // The Host says when what is installed, enabled, or composed changed — from
-    // this page, the CLI, or another browser — and streams install output.
-    // A page never rendered holds no snapshot to refresh.
-    const refresh = (): void => {
-      // A profile change can replace a bundle's files, and a restarted Host is read afresh.
-      controller.details.reset()
-      if (controller.getSnapshot().status !== 'idle') void controller.load()
+  ctx.remoteAccess.whenAccess('pluginManager/listBundles', () => {
+    // The whole Plugins feature follows the shared hardened-mode preference:
+    // one reconcile installs the guarded registrations while it is off,
+    // removes them when it flips on, and re-runs them when it flips back.
+    // The guarded work is its own nested effect so every registration it
+    // yields disposes in reverse when the feature is hidden.
+    const hardened = ctx.configForms.hardenedMode.enabled
+    let installed: (() => void) | undefined
+    const reconcile = (): void => {
+      // The feature is visible while the preference is off; the guard is in
+      // sync while the visible state matches the installed state.
+      const visible = !hardened.getSnapshot()
+      if (visible === (installed !== undefined)) return
+      installed?.()
+      if (!visible) { installed = undefined; return }
+      installed = ctx.effect(function* () {
+        // The Host says when what is installed, enabled, or composed changed —
+        // from this page, the CLI, or another browser — and streams install
+        // output. A page never rendered holds no snapshot to refresh.
+        const refresh = (): void => {
+          // A profile change can replace a bundle's files, and a restarted Host is read afresh.
+          controller.details.reset()
+          if (controller.getSnapshot().status !== 'idle') void controller.load()
+        }
+        // Host changes made while access was withdrawn reached no subscription below.
+        refresh()
+        yield ctx.remote.$on('plugin-manager/changed', refresh)
+        yield ctx.remote.$on('plugin-manager/install-log', (chunk) => { controller.appendLog(chunk) })
+        yield ctx.remote.$on('plugin-manager/install-state', (progress) => { controller.installProgress(progress) })
+        yield ctx.remote.$on('plugin-manager/update-state', (progress) => { controller.updateProgress(progress) })
+        yield ctx.on('connection/reset', refresh)
+        yield ctx.slots.inject('shell.overlay', () => ctx.slots.register({
+          name: 'shell.overlay', id: 'plugin-manager.refresh-toast', locale: NS,
+          inject: (): PluginRefreshToastFace => ({
+            hooks: { pluginManager: face.hooks.pluginManager },
+            dismissNotice: face.dismissNotice,
+          }),
+        }, PluginRefreshToast))
+        yield ctx.slots.inject('main', function* () {
+          const handle = createNavigationStore(), instance = handle.create()
+          const store: typeof handle = { ...handle, create: () => instance }
+          yield ctx.slots.register({
+            name: 'main',
+            key: PANEL_ID,
+            locale: NS,
+            store,
+            inject: () => ({
+              ...face,
+              createHeaderRef: createPluginHeaderRef,
+              hooks: { ...face.hooks, clientSync: ctx.modules.entries.state },
+              retryClient: () => { void ctx.modules.entries.retry().catch((error: unknown) => { ctx.logger.error(error) }) },
+            }),
+            children: {
+              'plugins.add.actions': { kind: 'list', scope: 'root' },
+              'plugins.tab': { kind: 'list', scope: 'root' },
+              'plugins.item': { kind: 'list', scope: 'root' },
+              'plugins.bundle.activation': { kind: 'keyed', scope: 'root' },
+              'plugins.bundle.config': { kind: 'keyed', scope: 'root' },
+              'plugins.row.config': { kind: 'keyed', scope: 'root' },
+              'plugins.detail.actions': { kind: 'list', scope: 'root' },
+              'plugins.detail.badge': { kind: 'list', scope: 'root' },
+              'plugins.detail.section': { kind: 'list', scope: 'root' },
+            },
+          }, PluginManagerPage)
+          yield ctx.layout.panelInfo.subscribe(() => {
+            if (ctx.layout.panelInfo.getSnapshot().activePanelId !== PANEL_ID) instance.actions.setView({ kind: 'list' })
+          })
+          const openList = (): void => {
+            ctx.layout.selectPanel(PANEL_ID)
+            instance.actions.setTab('installed')
+            instance.actions.setView({ kind: 'list' })
+          }
+          const disposeNavigation = ctx.reflect.provide('pluginNavigation', {
+            openList,
+            openBundle: (packageName: string) => {
+              ctx.layout.selectPanel(PANEL_ID)
+              instance.actions.setTab('installed')
+              instance.actions.setView({ kind: 'package', name: packageName })
+            },
+          })
+          yield () => { void disposeNavigation() }
+          // Settings lists one entry that leads here.
+          yield ctx.slots.inject('settings.section', () => ctx.slots.register({
+            name: 'settings.section',
+            id: PANEL_ID,
+            order: 15,
+            label: () => t('settingsEntry'),
+            inject: (): PluginsSettingsLinkInjected => ({ openPlugins: openList }),
+          }, PluginsSettingsLink))
+        })
+        yield ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({
+          name: 'sidebar.panellist',
+          id: PANEL_ID,
+          order: 0,
+          label: () => t('panel'),
+          locale: NS,
+        }, PluginsPanelIcon))
+      }, 'ui-plugin-manager: hardened mode gate')
     }
-    // Host changes made while access was withdrawn reached no subscription below.
-    refresh()
-    yield ctx.remote.$on('plugin-manager/changed', refresh)
-    yield ctx.remote.$on('plugin-manager/install-log', (chunk) => { controller.appendLog(chunk) })
-    yield ctx.remote.$on('plugin-manager/install-state', (progress) => { controller.installProgress(progress) })
-    yield ctx.remote.$on('plugin-manager/update-state', (progress) => { controller.updateProgress(progress) })
-    yield ctx.on('connection/reset', refresh)
-    yield ctx.slots.inject('shell.overlay', () => ctx.slots.register({
-      name: 'shell.overlay', id: 'plugin-manager.refresh-toast', locale: NS,
-      inject: (): PluginRefreshToastFace => ({
-        hooks: { pluginManager: face.hooks.pluginManager },
-        dismissNotice: face.dismissNotice,
-      }),
-    }, PluginRefreshToast))
-    yield ctx.slots.inject('main', function* () {
-      const handle = createNavigationStore(), instance = handle.create()
-      const store: typeof handle = { ...handle, create: () => instance }
-      yield ctx.slots.register({
-        name: 'main',
-        key: PANEL_ID,
-        locale: NS,
-        store,
-        inject: () => ({
-          ...face,
-          createHeaderRef: createPluginHeaderRef,
-          hooks: { ...face.hooks, clientSync: ctx.modules.entries.state },
-          retryClient: () => { void ctx.modules.entries.retry().catch((error: unknown) => { ctx.logger.error(error) }) },
-        }),
-        children: {
-          'plugins.add.actions': { kind: 'list', scope: 'root' },
-          'plugins.tab': { kind: 'list', scope: 'root' },
-          'plugins.item': { kind: 'list', scope: 'root' },
-          'plugins.bundle.activation': { kind: 'keyed', scope: 'root' },
-          'plugins.bundle.config': { kind: 'keyed', scope: 'root' },
-          'plugins.row.config': { kind: 'keyed', scope: 'root' },
-          'plugins.detail.actions': { kind: 'list', scope: 'root' },
-          'plugins.detail.badge': { kind: 'list', scope: 'root' },
-          'plugins.detail.section': { kind: 'list', scope: 'root' },
-        },
-      }, PluginManagerPage)
-      yield ctx.layout.panelInfo.subscribe(() => {
-        if (ctx.layout.panelInfo.getSnapshot().activePanelId !== PANEL_ID) instance.actions.setView({ kind: 'list' })
-      })
-      const openList = (): void => {
-        ctx.layout.selectPanel(PANEL_ID)
-        instance.actions.setTab('installed')
-        instance.actions.setView({ kind: 'list' })
-      }
-      const disposeNavigation = ctx.reflect.provide('pluginNavigation', {
-        openList,
-        openBundle: (packageName: string) => {
-          ctx.layout.selectPanel(PANEL_ID)
-          instance.actions.setTab('installed')
-          instance.actions.setView({ kind: 'package', name: packageName })
-        },
-      })
-      yield () => { void disposeNavigation() }
-      // Settings lists one entry that leads here.
-      yield ctx.slots.inject('settings.section', () => ctx.slots.register({
-        name: 'settings.section',
-        id: PANEL_ID,
-        order: 15,
-        label: () => t('settingsEntry'),
-        inject: (): PluginsSettingsLinkInjected => ({ openPlugins: openList }),
-      }, PluginsSettingsLink))
-    })
-    yield ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({
-      name: 'sidebar.panellist',
-      id: PANEL_ID,
-      order: 0,
-      label: () => t('panel'),
-      locale: NS,
-    }, PluginsPanelIcon))
+    const unsubscribe = hardened.subscribe(() => reconcile())
+    reconcile()
+    return () => { unsubscribe(); installed?.() }
   })
 }

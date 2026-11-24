@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Search and fetch the web through the Omega Search and Fetch APIs: one direct request per operation, without an auxiliary model request. The plugin registers `omega-search-api` and `deepseek-fetch-api`; each capability's billing chooses its Omega credential: by default the conversation's account or API key on a Omega model provider, otherwise the API key, then the signed-in account; it can also be fixed to either. YAML can give either capability its own base URL and key instead. Search returns titles, URLs, snippets, summaries, and dates; Fetch returns page Markdown. The model-facing tools live in `dsh-tool-web`; [legacy Messages search](../web-search-omega/README.md) remains a separate provider.
+Search and fetch the web through the Omega Search and Fetch APIs: one direct request per operation, without an auxiliary model request. The plugin registers `omega-search-api` and `omega-fetch-api`; each capability's billing chooses its Omega credential: by default the conversation's account or API key on a Omega model provider, otherwise the API key, then the signed-in account; it can also be fixed to either. YAML can give either capability its own base URL and key instead. Search returns titles, URLs, snippets, summaries, and dates; Fetch returns page Markdown. The model-facing tools live in `dsh-tool-web`; [legacy Messages search](../web-search-omega/README.md) remains a separate provider.
 
 ## Table of Contents
 
@@ -24,13 +24,13 @@ Search and fetch the web through the Omega Search and Fetch APIs: one direct req
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount the plugin alongside `dsh-web` and [`dsh-omega-auth`](../../account/omega-auth/README.md), which releases its credentials, and select its providers. Shipped profiles mount it, configure no search provider, and select local HTTP fetch for fetch; an unconfigured search runs its Search API (`omega-search-api`) except for a model request on a Omega model route, which runs [legacy Messages search](../web/README.md#provider-selection). In **Plugins > Built-in plugin settings > Web search and fetch**, choosing **Omega Search API** in the **Search** menu selects `omega-search-api` and choosing **Omega Fetch API** in the **Fetch** menu selects `deepseek-fetch-api`; each menu is saved independently, and choosing another entry restores another provider. While a menu selects one of these providers, its **Billing** menu below writes `searchBilling` or `fetchBilling`: **Automatic**, **Signed-in Omega account**, or **Omega API key**. A saved selection applies to the next operation.
+Mount the plugin alongside `dsh-web` and [`dsh-omega-auth`](../../account/omega-auth/README.md), which releases its credentials, and select its providers. Shipped profiles mount it, configure no search provider, and select local HTTP fetch for fetch; an unconfigured search runs its Search API (`omega-search-api`) except for a model request on a Omega model route, which runs [legacy Messages search](../web/README.md#provider-selection). In **Plugins > Built-in plugin settings > Web search and fetch**, choosing **Omega Search API** in the **Search** menu selects `omega-search-api` and choosing **Omega Fetch API** in the **Fetch** menu selects `omega-fetch-api`; each menu is saved independently, and choosing another entry restores another provider. While a menu selects one of these providers, its **Billing** menu below writes `searchBilling` or `fetchBilling`: **Automatic**, **Signed-in Omega account**, or **Omega API key**. A saved selection applies to the next operation.
 
 ```yaml
 - name: '@omega-ai/dsh-web'
   config:
     searchProvider: omega-search-api
-    fetchProvider: deepseek-fetch-api
+    fetchProvider: omega-fetch-api
 - name: '@omega-ai/dsh-omega-auth'
 - name: '@omega-ai/dsh-web-omega-api'
   config:

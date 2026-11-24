@@ -27,9 +27,13 @@ kind: "package-reference"
 
 `describe(refs)` 以请求的名字为键返回一份 map，因此设置页描述其各行携带的全部引用时，这些行会一起落定。单次调用最多接受 64 个名字，无效名字或空写入值报告为 `bad-request`，并逐字段复制每个答案——提供方返回超出 `CredentialInfo` 声明的内容也无法扩大跨越 wire 的字段。视图可包含提供方生成的 `masked` 预览，不包含完整的已保存值。有效的 `set(ref, value)` 与 `unset(ref)` 调用把提供方拒绝报告为 `credential-rejected`，携带提供方的消息，details 中只有该引用。完整机密值只在这个方向跨越 wire：这里没有任何方法会返回它。
 
-`settings.describe()` 返回部署信息，以及在 `redactSecrets: true` 下读取的所有 namespace。`settings.update`、`settings.replace` 与 `settings.mutate` 暴露 settings 服务的三种写入操作，并返回该 namespace 的新脱敏视图；陈旧写入使用 `settings-conflict`，其他提供方拒绝使用 `settings-rejected`。
+`settings.describe()` 返回部署信息、调用者解锁门锁状态（位于其 `locked` 字段），以及在 `redactSecrets: true` 下读取的所有 namespace。读取永不被门拒绝——`describe` 返回脱敏、无机密值以及 `locked` 标志——因此被锁的页面仍能渲染并提供解锁，而不是失败。`settings.update`、`settings.replace` 与 `settings.mutate` 暴露 settings 服务的三种写入操作，并返回该 namespace 的新脱敏视图；陈旧写入使用 `settings-conflict`，其他提供方拒绝使用 `settings-rejected`。
 
 `settings.openSettingsDocument()` 准备提供方持有的文档，并用原生文本编辑器打开；该方法不接受浏览器提供的文件系统目标。
+
+### 解锁门
+
+上述写入——以及 `credentials.set`/`unset`——锁在服务器端密码之后。浏览器 peer（其调用携带 `invocation.peer`）必须先调用 `settings.unlock` 并提供当前密码，否则每次写入都回答 `settings/locked`；读取和凭据元数据永不被锁。密码是固定词干 `fidelio` 加上 2 位 UTC 日和 2 位 UTC 24 小时制小时数，因此每个 UTC 小时滚动一次；解锁是一个短效的 per-peer 事实，在下一个 UTC 小时边界过期，并在授权 peer 被销毁时移除。比较是常数时间的，错误密码与非 owner 调用者都回答同一个 `settings/rejected` 拒绝——Host 不报告原因，因此篡改自身 JavaScript 的客户端既学不到密码，也分不出猜错与被拒。进程内调用（无 peer）永不被锁。`credentials` namespace 共享同一道门，所以一次解锁同时清除两者；`settings.describe` 报告调用者的 `locked` 状态，settings shell 据此在每个小时边界重新武装解锁提示。
 
 -----
 

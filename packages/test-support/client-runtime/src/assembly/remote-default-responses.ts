@@ -16,7 +16,7 @@ export const remoteDefaultResponses: RemoteTable = {
     // ui-workspace startup with no entries; first-use initialization is ineligible.
     'workspace/initializeDefault': ok(undefined),
     // ui-settings `mirror.ensure()` at apply and again on `connection/reset`.
-    'settings/describe': ok({ writable: true, hasDocument: false, namespaces: [] }),
+    'settings/describe': ok({ writable: true, hasDocument: false, locked: false, namespaces: [] }),
     // ui-model-selection `ModelDirectoryResolver` constructor; mirrors the shipped localhost providers.
     'session/modelCatalog': ok({
       default: { provider: 'mac', model: 'qwen3.8-27b-lite' },

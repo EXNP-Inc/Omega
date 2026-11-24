@@ -25,8 +25,8 @@ function view(ns: string, revision = 0): SettingsNamespaceView {
   return { ns, schema: {}, value: { field: ns }, autoGenerate: true, applies: 'live', secrets: [], revision }
 }
 
-function described(namespaces: SettingsNamespaceView[]): Answer<SettingsDescribeView> {
-  return ok({ writable: true, hasDocument: true, namespaces })
+function described(namespaces: SettingsNamespaceView[], locked = false): Answer<SettingsDescribeView> {
+  return ok({ writable: true, hasDocument: true, namespaces, locked })
 }
 
 function deferred<T>() {
@@ -73,6 +73,57 @@ describe('SettingsDescribeMirror', () => {
     expect(mirror.getSnapshot().view?.namespaces).toHaveLength(1)
   })
 
+  it('sources the locked flag from the wire field, not a refusal code', async () => {
+    const describeCall = vi.fn()
+      .mockResolvedValueOnce(described([view('theme', 1)], true))
+      .mockResolvedValueOnce(described([view('theme', 1)], false))
+    const mirror = new SettingsDescribeMirror(ctxWith(describeCall))
+    await mirror.load()
+    expect(mirror.getSnapshot()).toMatchObject({ status: 'ready', error: null, locked: true })
+    await mirror.load()
+    expect(mirror.getSnapshot()).toMatchObject({ status: 'ready', error: null, locked: false })
+  })
+
+  it('keeps a failed refresh from changing the wire-sourced locked flag', async () => {
+    const describeCall = vi.fn()
+      .mockResolvedValueOnce(described([view('theme', 1)], true))
+      .mockRejectedValueOnce(new Error('host gone'))
+      .mockResolvedValueOnce(rejected('busy'))
+    const mirror = new SettingsDescribeMirror(ctxWith(describeCall))
+    await mirror.load()
+    expect(mirror.getSnapshot()).toMatchObject({ locked: true })
+    await mirror.load()
+    expect(mirror.getSnapshot()).toMatchObject({ status: 'ready', error: 'host gone', locked: true })
+    await mirror.load()
+    expect(mirror.getSnapshot()).toMatchObject({ status: 'ready', error: 'busy', locked: true })
+  })
+
+  it('reports a refused password without changing the locked flag', async () => {
+    const describeCall = vi.fn().mockResolvedValueOnce(described([view('theme', 1)], true))
+    const unlockCall = vi.fn().mockResolvedValueOnce(rejected('the password was not accepted'))
+    const mirror = new SettingsDescribeMirror({ remote: { settings: { describe: describeCall, unlock: unlockCall } } } as never)
+    await mirror.load()
+    // The Host refusal keeps the mirror serving the locked prompt.
+    await expect(mirror.unlock('wrong')).resolves.toBe(false)
+    expect(unlockCall).toHaveBeenCalledExactlyOnceWith('wrong')
+    expect(mirror.getSnapshot()).toMatchObject({ locked: true, error: null })
+  })
+
+  it('reports an accepted password, clears the locked fact, and refreshes from the wire', async () => {
+    // The first describe locks the peer; the accepted unlock clears it; the
+    // refresh that follows reports the authoritative wire word (still unlocked).
+    const describeCall = vi.fn()
+      .mockResolvedValueOnce(described([view('theme', 1)], true))
+      .mockResolvedValueOnce(described([view('theme', 1)], false))
+    const unlockCall = vi.fn().mockResolvedValueOnce(ok({ unlocked: true }))
+    const mirror = new SettingsDescribeMirror({ remote: { settings: { describe: describeCall, unlock: unlockCall } } } as never)
+    await mirror.load()
+    await expect(mirror.unlock('fidelio2304')).resolves.toBe(true)
+    expect(unlockCall).toHaveBeenCalledExactlyOnceWith('fidelio2304')
+    expect(describeCall).toHaveBeenCalledTimes(2)
+    expect(mirror.getSnapshot()).toMatchObject({ status: 'ready', error: null, locked: false })
+  })
+
   it('returns to idle after a first read that never succeeded, so ensure retries', async () => {
     const describeCall = vi.fn()
       .mockRejectedValueOnce(new Error('offline'))
@@ -112,7 +163,7 @@ describe('SettingsDescribeMirror', () => {
     const describeCall = vi.fn()
     const mirror = new SettingsDescribeMirror(ctxWith(describeCall))
     mirror.acceptView(view('theme', 1))
-    expect(mirror.getSnapshot()).toEqual({ status: 'idle', view: undefined, error: null })
+    expect(mirror.getSnapshot()).toEqual({ status: 'idle', view: undefined, error: null, locked: false })
   })
 
   it('acceptView appends a namespace the held view has not seen yet', async () => {

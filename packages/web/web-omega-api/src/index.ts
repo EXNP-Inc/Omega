@@ -1,5 +1,5 @@
 /**
- * Register the Omega Search and Fetch APIs in `ctx.web` as `omega-search-api` and `deepseek-fetch-api`. Each
+ * Register the Omega Search and Fetch APIs in `ctx.web` as `omega-search-api` and `omega-fetch-api`. Each
  * operation is one direct API request without an auxiliary model request. `web.searchProvider` and `web.fetchProvider`
  * select them. Each capability's billing setting chooses its credential. `auto` follows the conversation: a Session
  * whose latest model request used the mounted `omega-account` route sends the account credential to that route's

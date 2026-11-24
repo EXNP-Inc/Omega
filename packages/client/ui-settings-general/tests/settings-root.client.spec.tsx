@@ -61,6 +61,7 @@ function mount({
   desktopUpdate = { failed: false, opening: false },
   onboardingActive = true,
   mainView = true,
+  settingsLocked = false,
   rows = [
     { id: 'general', order: 0, label: 'General' },
     { id: 'models', order: 10, label: 'Models' },
@@ -78,6 +79,7 @@ function mount({
   desktopUpdate?: DesktopUpdateView
   onboardingActive?: boolean
   mainView?: boolean
+  settingsLocked?: boolean
   rows?: Row[]
   steps?: Step[]
 } = {}) {
@@ -85,8 +87,10 @@ function mount({
   // plays a ledger change through the same observable contract.
   let current = rows
   let currentConnectionState = connectionState
+  let currentLocked = settingsLocked
   const listeners = new Set<() => void>()
   const connectionListeners = new Set<() => void>()
+  const lockedListeners = new Set<() => void>()
   const reconnect = vi.fn()
   const renderSlot = vi.fn(
     ((key: string, _owner: unknown, opts?: { only?: string; fallback?: import('react').ReactNode }) =>
@@ -113,10 +117,21 @@ function mount({
   }
   const unusedHook = (() => { throw new Error('unused by SettingsRoot') }) as never
   const shell = createSettingsShellStore().create()
+  const unlock = vi.fn().mockResolvedValue(true)
   const props: SettingsRootComponentProps = {
     useStore: bindSnapshotSelector(shell), actions: shell.actions,
     useShortcuts: select => select(shortcuts),
     useSessions: select => select(sessions),
+    useSettingsLocked: (select) => {
+      const [, force] = useState(0)
+      useEffect(() => {
+        const listener = () => { force(n => n + 1) }
+        lockedListeners.add(listener)
+        return () => { lockedListeners.delete(listener) }
+      }, [])
+      return select(currentLocked)
+    },
+    unlock,
     useSessionStatus,
     usePanelInfo, useSessionRetainInfo: () => undefined, useResource,
     useWorkspaces: unusedHook,
@@ -178,9 +193,18 @@ function mount({
     act(() => { sessions.byId[activeId] = { ...session, blank: next } })
     view.rerender(<SettingsRoot {...props} />)
   }
+  /** Flip the settings gate so the shell swaps the panel for the unlock prompt. */
+  const setSettingsLocked = (next: boolean) => {
+    act(() => {
+      currentLocked = next
+      for (const fn of [...lockedListeners]) fn()
+    })
+    view.rerender(<SettingsRoot {...props} />)
+  }
   return {
     view, renderSlot, renderFactorySlot, bump, listeners, reconnect,
     setConnectionState, setDesktopUpdate, setShortcuts, setOnboardingActive, setWide,
+    setSettingsLocked, unlock,
   }
 }
 
@@ -580,4 +604,23 @@ it('hides the notice row in the collapsed rail and keeps the same node', () => {
   setWide(true)
   expect(screen.getByText('Account notice').parentElement).toBe(notice)
   expect(notice.hidden).toBe(false)
+})
+
+describe('Settings gate lock', () => {
+  it('swaps the panel for the unlock gate while locked and restores it after the lock clears', async () => {
+    const { setSettingsLocked, unlock } = mount({ settingsLocked: true })
+    openPanel()
+    const gate = screen.getByRole('dialog', { name: 'Settings are locked' })
+    expect(screen.getByPlaceholderText('Enter password')).toBeTruthy()
+    // The panel itself is held back: no section views render while locked.
+    expect(screen.queryByTestId('section-general')).toBeNull()
+    expect(gate.querySelectorAll('nav').length).toBe(0)
+    const field = screen.getByPlaceholderText('Enter password')
+    fireEvent.change(field, { target: { value: 'fidelio0101' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Unlock' }))
+    await vi.waitFor(() => { expect(unlock).toHaveBeenCalledExactlyOnceWith('fidelio0101') })
+    setSettingsLocked(false)
+    expect(screen.queryByRole('dialog', { name: 'Settings are locked' })).toBeNull()
+    expect(screen.getByTestId('section-general')).toBeTruthy()
+  })
 })

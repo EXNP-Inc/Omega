@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import { chromium, type Browser } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { openSettings } from './support.ts'
+import { openSettings, unlockSettingsGate } from './support.ts'
 import { captureStableAria, compareOrRefreshGolden, launchWebScaffold, watchConsole, webSnapshotMode, type WebScaffold } from './scaffold.ts'
 
 const expected = fileURLToPath(new URL('./expected/shortcuts', import.meta.url))
@@ -37,6 +37,10 @@ describe('web e2e: shortcut reference', () => {
       expect(await settingsItem.getAttribute('aria-keyshortcuts')).toBe(key === 'Meta' ? 'Alt+Meta+,' : 'Control+Alt+,')
       expect(await settingsItem.innerText()).toMatch(key === 'Meta' ? /⌥\s*⌘\s*,$/ : /Ctrl\s*\+\s*Alt\s*\+\s*,$/)
       await settingsItem.click()
+      // The raw menu open bypasses `openSettings`'s automatic unlock, so a locked
+      // remote peer meets the settings unlock gate in place of the panel; clear it
+      // before the test can reach the shortcut view button.
+      await unlockSettingsGate(page, locale === 'zh-CN' ? 'zh' : 'en')
       await page.getByRole('button', { name: view, exact: true }).click()
       const dialog = page.getByRole('dialog', { name: title, exact: true })
       await dialog.waitFor()
@@ -301,6 +305,9 @@ describe('web e2e: shortcut reference', () => {
       expect(await settingsItem.getAttribute('aria-keyshortcuts')).toBe(key === 'Meta' ? 'Shift+Meta+,' : 'Control+Shift+,')
       expect(await settingsItem.innerText()).toMatch(key === 'Meta' ? /⇧\s*⌘\s*,$/ : /Ctrl\s*\+?\s*Shift\s*\+?\s*,$/)
       await settingsItem.click()
+      // A locked remote peer meets the unlock gate in place of the panel on this
+      // raw open too, so clear it before the test reads the reopened settings.
+      await unlockSettingsGate(page, locale === 'zh-CN' ? 'zh' : 'en')
       await page.getByRole('dialog', { name: settings, exact: true }).waitFor()
       await page.keyboard.press('Escape')
       expect(await trigger.evaluate(element => element === document.activeElement)).toBe(true)

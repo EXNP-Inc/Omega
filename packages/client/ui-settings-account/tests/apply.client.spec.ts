@@ -547,6 +547,23 @@ it('ignores a terminal stream error when plugin disposal already owns teardown',
   expect(actions.hooks.account.getSnapshot().failed).toBe(false)
 }, 60_000)
 
+it('marks the account failed when the connection carrier itself fails', async ({ start }) => {
+  vi.stubGlobal('dshDesktop', {})
+  const c = await start()
+  let options: Parameters<typeof c.ctx.remote.$stream>[0] | undefined
+  const original = c.ctx.remote.$stream.bind(c.ctx.remote)
+  const spy = vi.spyOn(c.ctx.remote, '$stream').mockImplementation((opts) => {
+    options = opts
+    return original(opts)
+  })
+  await c.reload(SELF)
+  spy.mockRestore()
+  const actions = operations(c)
+  await c.mock.streams.opened('account/watch', 2)
+  options?.carrierFailed?.(Object.assign(new Error('gateway/carrier-lost'), { code: 'gateway/carrier-lost' as const }))
+  await vi.waitFor(() => { expect(actions.hooks.account.getSnapshot().failed).toBe(true) })
+}, 60_000)
+
 it('samples the build version, language, and UTC offset for every account call', async ({ start }) => {
   vi.stubGlobal('dshDesktop', {})
   const c = await start()
@@ -636,7 +653,7 @@ it('applies API-key defaults through the desktop slot and shared configuration o
   const schemas = { 'ui-settings-account': OnboardingConfig, 'ui-chat': ChatConfig, 'ui-settings': SettingsConfig }
   const namespace = (ns: keyof typeof schemas) => ({ ns, autoGenerate: false, schema: JSON.parse(JSON.stringify(schemas[ns].toJSON())) as JsonValue, value: values[ns] as JsonValue, applies: 'live' as const, secrets: [], revision: 0 })
   mock.remote.settings.describe.mockResolvedValue(ok({
-    writable: true, hasDocument: true, namespaces: Object.keys(schemas).map(ns => namespace(ns as keyof typeof schemas)),
+    writable: true, hasDocument: true, locked: false, namespaces: Object.keys(schemas).map(ns => namespace(ns as keyof typeof schemas)),
   }))
   const hasApiKey = vi.fn(async () => true)
   vi.stubGlobal('dshOnboarding', { hasApiKey })

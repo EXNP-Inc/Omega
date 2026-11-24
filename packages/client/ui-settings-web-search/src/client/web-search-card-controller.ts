@@ -52,7 +52,7 @@ export const PROVIDER_IDS = {
   apiSearch: 'omega-search-api',
   legacySearch: 'omega-official',
   localFetch: 'http',
-  apiFetch: 'deepseek-fetch-api',
+  apiFetch: 'omega-fetch-api',
 } as const
 
 /**

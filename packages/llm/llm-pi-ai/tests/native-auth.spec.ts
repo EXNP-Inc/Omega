@@ -97,7 +97,7 @@ describe('provider metadata', () => {
     } } }
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     try {
-      expect((await generateProviderData([provider])).omega!.env).toEqual(['OMEGA_API_KEY'])
+      expect((await generateProviderData([provider])).omega!.env).toEqual(['OMEGA_OPENAI_API_KEY'])
       expect(warn).toHaveBeenCalledWith('omega: using findEnvKeys auth metadata fallback', expect.any(Error))
       await expect(generateProviderData([{ ...provider, id: 'unknown-provider' }])).rejects.toThrow('no auth metadata fallback')
     } finally { warn.mockRestore() }

@@ -5,6 +5,8 @@ import type {} from '@omega-ai/dsh-client-locale/client'
 import type {} from '@omega-ai/dsh-client-ui-renderer/client'
 import type {} from '@omega-ai/dsh-client-ui-session/client'
 import type {} from '@omega-ai/dsh-client-ui-sidebar-right/client'
+// Type-only: the shared configForms service merge (the hardened-mode preference).
+import type {} from '@omega-ai/dsh-client-ui-settings/client'
 import type {} from '@omega-ai/dsh-api-workspace-controller/client'
 import { BrowserBody, type BrowserBodyProps } from './view/BrowserBody.tsx'
 import { BrowserTitle } from './view/BrowserTitle.tsx'
@@ -36,8 +38,8 @@ declare module '@omega-ai/dsh-client-ui-sidebar-right/client' {
   }
 }
 
-/** Required Browser services. */
-export const inject = ['slots', 'locale', 'sidebarRight', 'sidebarRightTabs']
+/** Required Browser services and the hardened-mode preference. */
+export const inject = ['slots', 'locale', 'sidebarRight', 'sidebarRightTabs', 'configForms']
 
 /** Register the Browser type, localized guide entry, body, and title. */
 export function apply(ctx: Context): void {
@@ -57,6 +59,9 @@ export function apply(ctx: Context): void {
       /* jscpd:ignore-start */
       regions: ['page', 'editable', 'terminal'], modals: [],
       resolve: ({ target: element }) => {
+        if (ctx.configForms.hardenedMode.enabled.getSnapshot()) {
+          return { status: 'blocked', reason: t('shortcut.noSession') }
+        }
         const target = ctx.sidebarRight.commandTarget(element)
         if (target === undefined) return { status: 'blocked', reason: t('shortcut.noSession') }
         return { status: 'handled', run: () => { ctx.sidebarRight.openTabFromTarget('browser', target) } }

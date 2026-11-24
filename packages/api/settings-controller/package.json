@@ -65,6 +65,7 @@
   "devDependencies": {
     "@omega-ai/cordis": "workspace:~",
     "@omega-ai/dsh-agent-preset-registry": "workspace:*",
+    "@omega-ai/dsh-client-connection": "workspace:*",
     "@omega-ai/dsh-credentials": "workspace:*",
     "@omega-ai/dsh-native-command": "workspace:*",
     "@omega-ai/dsh-session": "workspace:*",

@@ -41,7 +41,7 @@ describe('TurnUsagePanel', () => {
     expect(dialog.firstChild?.textContent).toBe('Turn usage15,800 tok')
     const details = dialog.querySelector('[data-turn-usage-details]') as HTMLElement
     expect(details).toBeTruthy()
-    expect(details.textContent).toContain('Provider / modeldeepseek/omega-chat')
+    expect(details.textContent).toContain('Provider / modelomega/omega-chat')
     expect(details.textContent).toContain('Cache hit49.4%')
     expect(details.textContent).toContain('Uncached input5,060 tok')
     expect(details.textContent).toContain('Cached input4,940 tok')

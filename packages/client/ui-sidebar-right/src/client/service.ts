@@ -150,6 +150,14 @@ export interface SidebarRightHost {
    * @param close - the synchronous cleanup and removal.
    */
   readonly closeWithFocus: (sessionId: SessionId, paneId: PaneId, close: () => void) => void
+  /**
+   * Whether the column's hardened-mode gate is on: the plugin unregisters its
+   * seats, its guide type, and its shortcuts, and a command that still arrives
+   * through the face returns silently instead of throwing against a surface
+   * nobody is drawing.
+   * @returns the gate's current state.
+   */
+  readonly hardened?: () => boolean
 }
 
 /** Where an open lands; every field is optional and the defaults are the common case. */
@@ -346,6 +354,11 @@ export class SidebarRightController implements ISidebarRight {
     this.tabDomain = new TabDomain(this, pin)
   }
 
+  /** The hardened-mode gate's current state; off when the host declares no gate. */
+  private get hardened(): boolean {
+    return this.host.hardened?.() === true
+  }
+
   /**
    * Read closeable tabs from the clicked pane.
    * @param sessionId - owning Session.
@@ -378,6 +391,7 @@ export class SidebarRightController implements ISidebarRight {
    * @param options - placement, the opening type, and navigation parameters.
    */
   openResource(address: string, options: SidebarRightOpenResourceOptions = {}): void {
+    if (this.hardened) return
     const { sessionId, actions } = this.require()
     this.placeResource(sessionId, actions, address, options)
   }
@@ -388,6 +402,7 @@ export class SidebarRightController implements ISidebarRight {
    * @param options - placement and that kind's navigation parameters.
    */
   openTab<K extends string>(kind: K, options: SidebarRightOpenTabOptions<K> = {}): void {
+    if (this.hardened) return
     const { sessionId, actions } = this.require()
     this.placeTab(sessionId, actions, kind, options)
   }
@@ -570,6 +585,7 @@ export class SidebarRightController implements ISidebarRight {
    * @param tabId - the tab to close.
    */
   close(tabId: TabId): void {
+    if (this.hardened) return
     this.closeIn(this.require().sessionId, tabId)
   }
 
@@ -605,6 +621,7 @@ export class SidebarRightController implements ISidebarRight {
 
   /** Collapse the column, or expand it and focus its active dock pane after rendering. */
   toggleExpanded(): void {
+    if (this.hardened) return
     const { sessionId, actions } = this.require()
     this.host.openWithFocus(sessionId, () => {
       actions.toggleExpanded(sessionId)
@@ -618,6 +635,7 @@ export class SidebarRightController implements ISidebarRight {
    * @param tabId - the tab to focus.
    */
   focus(tabId: TabId): void {
+    if (this.hardened) return
     const { sessionId, actions } = this.require()
     if (this.mountedSurface()?.layout.tabs[tabId] === undefined) return
     actions.focusTab(sessionId, tabId)
@@ -659,6 +677,7 @@ export class SidebarRightController implements ISidebarRight {
    * @param target - captured live pane and optional page.
    */
   openTabFromTarget(kind: string, target: SidebarRightTarget): void {
+    if (this.hardened) return
     if (!this.isTargetCurrent(target)) return
     const { sessionId, actions } = this.require()
     this.host.openWithFocus(sessionId, () => {
@@ -696,6 +715,7 @@ export class SidebarRightController implements ISidebarRight {
    * @returns closed after removal or collapse, unavailable without a page, or stale after identity changes.
    */
   closeTarget(target: SidebarRightTarget): 'closed' | 'unavailable' | 'stale' {
+    if (this.hardened) return 'unavailable'
     if (!this.isTargetCurrent(target)) return 'stale'
     const surface = this.mountedSurface()
     if (surface === undefined || target.tabId === undefined) return 'unavailable'
@@ -747,6 +767,7 @@ export class SidebarRightController implements ISidebarRight {
    * @param target - captured dock pane; floating and stale targets are unchanged.
    */
   toggleFullscreen(target: SidebarRightTarget): void {
+    if (this.hardened) return
     if (!this.isTargetCurrent(target) || target.host === 'float' || !this.isExpanded()) return
     const { sessionId, actions } = this.require()
     const autoFullscreen = this.host.autoFullscreen()
@@ -761,6 +782,7 @@ export class SidebarRightController implements ISidebarRight {
    * @returns the new pane's id, or `undefined` when nothing was split.
    */
   split(paneId?: PaneId): PaneId | undefined {
+    if (this.hardened) return undefined
     const { sessionId, actions } = this.require()
     const layout = this.mountedSurface()?.layout
     if (layout === undefined) return undefined
@@ -782,6 +804,7 @@ export class SidebarRightController implements ISidebarRight {
    * @param rect - the panel's rectangle; defaults to the cascade from the last panel.
    */
   float(tabId: TabId, rect?: FloatRect): void {
+    if (this.hardened) return
     const { sessionId, actions } = this.require()
     const layout = this.mountedSurface()?.layout
     if (layout === undefined || layout.tabs[tabId] === undefined) return
@@ -794,6 +817,7 @@ export class SidebarRightController implements ISidebarRight {
    * @param paneId - the floating pane.
    */
   dock(paneId: PaneId): void {
+    if (this.hardened) return
     const { sessionId, actions } = this.require()
     const node = this.mountedSurface()?.layout.nodes[paneId]
     if (node === undefined || node.kind !== 'pane' || node.host !== 'float') return
@@ -807,6 +831,7 @@ export class SidebarRightController implements ISidebarRight {
    * with no user-facing control yet. Kept reachable for tests.
    */
   _undo(): void {
+    if (this.hardened) return
     const { sessionId, actions } = this.require()
     actions.undo(sessionId)
   }
@@ -817,6 +842,7 @@ export class SidebarRightController implements ISidebarRight {
    * @internal See `_undo`.
    */
   _redo(): void {
+    if (this.hardened) return
     const { sessionId, actions } = this.require()
     actions.redo(sessionId)
   }

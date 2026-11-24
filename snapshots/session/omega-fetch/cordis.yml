@@ -6,7 +6,7 @@
   name: '@omega-ai/dsh-web'
   config:
     searchProvider: omega-search-api
-    fetchProvider: deepseek-fetch-api
+    fetchProvider: omega-fetch-api
 
 - id: web-omega-api
   name: '@omega-ai/dsh-web-omega-api'
