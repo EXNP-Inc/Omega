@@ -94,11 +94,14 @@ it('hot-reloads a real client-plugin source edit without refreshing the page', a
     .map(async path => [path, await readFile(path)] as const))
   const originalClientArtifactPaths = new Set(originalClientArtifacts.map(([path]) => path))
   const originalSource = await readFile(sourcePath)
-  const oldText = 'Into the Unknown'
-  const sourceNeedle = "'hero.headline': 'Into the Unknown'"
+  const oldText = 'Martino HVAC'
+  // The headline is identical in every locale, so the en block is anchored by its
+  // unique 'Preview' label to edit the line the page actually renders (English).
+  const enHeroBlock = ["  'hero.headline': 'Martino HVAC',", "  'hero.preview': 'Preview',"].join('\n')
   const newText = `HMR UPDATED ${'x'.repeat(80)}`
-  const updatedSource = originalSource.toString().replace(sourceNeedle, `'hero.headline': '${newText}'`)
-  if (updatedSource === originalSource.toString()) throw new Error(`HMR source lacks ${JSON.stringify(sourceNeedle)}`)
+  const editedHeroBlock = `  'hero.headline': '${newText}',\n  'hero.preview': 'Preview',`
+  const updatedSource = originalSource.toString().replace(enHeroBlock, editedHeroBlock)
+  if (updatedSource === originalSource.toString()) throw new Error('HMR source lacks the English hero block')
 
   const subprocessCtx = new Context()
   let subprocessFiber: Fiber | undefined
