@@ -71,7 +71,7 @@ it('boots the built plugin graph and renders a fixture session end to end', asyn
     expect(clientBuildValue('DSH_CLIENT_VERSION')).toBeUndefined()
     expect(clientBuildValue('DSH_CLIENT_COMMIT_HASH')).toBeUndefined()
     expect(clientBuildValue('DSH_CLIENT_GIT_DIRTY')).toBeUndefined()
-    screen.getByText('Martino AI')
+    expect(screen.getAllByText('Martino AI')).not.toHaveLength(0)
   }
   // The compact layout dropped group session counts; the fixture workspace
   // group row renders immediately with its sessions beneath it.
