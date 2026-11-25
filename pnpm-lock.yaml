@@ -6741,6 +6741,9 @@ importers:
       '@omega-ai/dsh-client-ui-session':
         specifier: workspace:*
         version: link:../ui-session
+      '@omega-ai/dsh-client-ui-settings':
+        specifier: workspace:*
+        version: link:../ui-settings
       '@omega-ai/dsh-client-ui-slots':
         specifier: workspace:*
         version: link:../ui-slots

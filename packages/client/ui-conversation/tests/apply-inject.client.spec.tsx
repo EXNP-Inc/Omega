@@ -73,6 +73,8 @@ async function bench(renderQuote = false) {
       enabled: developerTools,
       setEnabled: async (enabled: boolean) => { developerTools.set(enabled) },
     },
+    // No white-label name set: the Hero shows its localized headline.
+    brandName: { name: createSnapshotStore<string | undefined>(undefined) },
     get: () => stubConfigForm().scope,
   } as never)
   const connectWorkspace = vi.fn(async () => ROOT)

@@ -63,7 +63,7 @@ it('boots the built plugin graph and renders a fixture session end to end', asyn
   const tree = await screen.findByRole('tree', { name: 'Sessions' }, { timeout: 10_000 })
   if (clientBuildValue('DSH_CLIENT_BUILD_PROFILE') === 'official') {
     expect(document.querySelector('svg[viewBox="26 0 72 24"]')).not.toBeNull()
-    expect(screen.queryByText('Omega Local Build')).toBeNull()
+    expect(screen.queryByText('Martino AI')).toBeNull()
   } else {
     // The default product build carries no build identity: the badge shows the
     // brand name with no version string.
@@ -71,7 +71,7 @@ it('boots the built plugin graph and renders a fixture session end to end', asyn
     expect(clientBuildValue('DSH_CLIENT_VERSION')).toBeUndefined()
     expect(clientBuildValue('DSH_CLIENT_COMMIT_HASH')).toBeUndefined()
     expect(clientBuildValue('DSH_CLIENT_GIT_DIRTY')).toBeUndefined()
-    screen.getByText('Omega Local Build')
+    screen.getByText('Martino AI')
   }
   // The compact layout dropped group session counts; the fixture workspace
   // group row renders immediately with its sessions beneath it.

@@ -47,6 +47,9 @@ async function bench(options: { locale?: 'en' } = {}) {
   locale.register('common', { zh: commonZh, en: commonEn })
   if (options.locale === 'en') locale.setLocale('en')
   runtime.ctx.provide('locale', locale)
+  // No white-label name set: the localized product label shows, so the
+  // brand row matches the historical snapshots.
+  runtime.ctx.provide('configForms', { brandName: { name: createSnapshotStore<string | undefined>(undefined) } } as never)
   runtime.slots.installLocale(locale)
   await runtime.declare({ 'sidebar': { kind: 'single', scope: 'root' } })
   await runtime.mount({ inject: [...inject], apply })

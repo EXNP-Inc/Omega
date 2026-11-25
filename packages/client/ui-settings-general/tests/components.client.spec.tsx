@@ -12,6 +12,7 @@ import { SettingsDocumentAction } from '../src/client/SettingsDocumentAction.tsx
 import { DesktopChannelRow, DesktopChannelToast } from '../src/client/DesktopChannelRow.tsx'
 import { DesktopChannelSource } from '../src/client/desktop-channel-source.ts'
 import type { DesktopChannelChangeResult, DesktopChannelState } from '../src/types.ts'
+import { BrandNameRow } from '../src/client/BrandNameRow.tsx'
 import { DeveloperToolsRow } from '../src/client/DeveloperToolsRow.tsx'
 import { createSnapshotStore } from '@omega-ai/dsh-client-store'
 import { SettingsDescribeMirror } from '@omega-ai/dsh-client-ui-settings/src/client/settings-mirror.ts'
@@ -408,4 +409,105 @@ it('labels uncertain settings saves without claiming they were not written', () 
 it('does not describe a saved selection that failed to apply as unsaved', () => {
   expect(zh['desktop.channel.result.apply']).toBe('设置保存异常')
   expect(en['desktop.channel.result.apply']).toBe('Settings save error')
+})
+
+describe('brand name field', () => {
+  const title = en['brandName.title']
+
+  it('shows an empty field with a placeholder and no clear action when unset', () => {
+    const store = createSnapshotStore<string | undefined>(undefined)
+    const view = render(<BrandNameRow {...kit} t={t} useBrandName={bindSnapshotSelector(store)} setBrandName={() => Promise.resolve()} />)
+    const input = screen.getByRole('textbox', { name: title })
+    expect(input.getAttribute('placeholder')).toBe(en['brandName.placeholder'])
+    expect((input as HTMLInputElement).value).toBe('')
+    expect(screen.queryByRole('button', { name: en['brandName.clear'] })).toBeNull()
+    view.unmount()
+  })
+
+  it('saves typed text on blur and on Enter, and not when the field is unchanged', async () => {
+    const store = createSnapshotStore<string | undefined>(undefined)
+    const setBrandName = vi.fn((name: string) => { store.set(name); return Promise.resolve() })
+    const view = render(<BrandNameRow {...kit} t={t} useBrandName={bindSnapshotSelector(store)} setBrandName={setBrandName} />)
+    const input = screen.getByRole('textbox', { name: title })
+    fireEvent.blur(input)
+    expect(setBrandName).not.toHaveBeenCalled()
+    fireEvent.change(input, { target: { value: 'Acme Support' } })
+    fireEvent.keyDown(input, { key: 'a' })
+    expect(setBrandName).toHaveBeenCalledTimes(0)
+    fireEvent.keyDown(input, { key: 'Enter' })
+    expect(setBrandName).toHaveBeenLastCalledWith('Acme Support')
+    expect(setBrandName).toHaveBeenCalledTimes(1)
+    expect((input as HTMLInputElement).value).toBe('Acme Support')
+    fireEvent.change(input, { target: { value: 'Acme Support' } })
+    fireEvent.blur(input)
+    expect(setBrandName).toHaveBeenCalledTimes(1)
+    view.unmount()
+  })
+
+  it('does not write a reverted field back to its committed value', async () => {
+    const setBrandName = vi.fn(() => Promise.resolve())
+    const store = createSnapshotStore<string | undefined>('Martino AI')
+    const view = render(<BrandNameRow {...kit} t={t} useBrandName={bindSnapshotSelector(store)} setBrandName={setBrandName} />)
+    const input = screen.getByRole('textbox', { name: title })
+    expect((input as HTMLInputElement).value).toBe('Martino AI')
+    fireEvent.change(input, { target: { value: 'Martino HVAC' } })
+    fireEvent.change(input, { target: { value: 'Martino AI' } })
+    fireEvent.blur(input)
+    expect(setBrandName).not.toHaveBeenCalled()
+    view.unmount()
+  })
+
+  it('follows an external value change while the field tracks the committed value', () => {
+    const store = createSnapshotStore<string | undefined>('First')
+    const view = render(<BrandNameRow {...kit} t={t} useBrandName={bindSnapshotSelector(store)} setBrandName={() => Promise.resolve()} />)
+    const input = screen.getByRole('textbox', { name: title })
+    expect((input as HTMLInputElement).value).toBe('First')
+    act(() => { store.set('Second') })
+    expect((input as HTMLInputElement).value).toBe('Second')
+    view.unmount()
+  })
+
+  it('clears the field with the clear action and hides it once empty', async () => {
+    const store = createSnapshotStore<string | undefined>('Martino AI')
+    const setBrandName = vi.fn((name: string) => { store.set(name); return Promise.resolve() })
+    const view = render(<BrandNameRow {...kit} t={t} useBrandName={bindSnapshotSelector(store)} setBrandName={setBrandName} />)
+    const clear = screen.getByRole('button', { name: en['brandName.clear'] })
+    fireEvent.click(clear)
+    expect(setBrandName).toHaveBeenLastCalledWith('')
+    await waitFor(() => { expect(screen.queryByRole('button', { name: en['brandName.clear'] })).toBeNull() })
+    expect((screen.getByRole('textbox', { name: title }) as HTMLInputElement).value).toBe('')
+    view.unmount()
+  })
+
+  it('reports a refused write and allows a retry', async () => {
+    const store = createSnapshotStore<string | undefined>(undefined)
+    const setBrandName = vi.fn().mockRejectedValue(new Error('refused'))
+    const view = render(<BrandNameRow {...kit} t={t} useBrandName={bindSnapshotSelector(store)} setBrandName={setBrandName} />)
+    const input = screen.getByRole('textbox', { name: title })
+    fireEvent.change(input, { target: { value: 'Acme' } })
+    fireEvent.blur(input)
+    await waitFor(() => { expect(screen.getByRole('alert').textContent).toBe(en['brandName.error']) })
+    expect(input.hasAttribute('disabled')).toBe(false)
+    setBrandName.mockResolvedValue(undefined)
+    fireEvent.change(input, { target: { value: 'Acme' } })
+    fireEvent.blur(input)
+    await waitFor(() => { expect(screen.queryByRole('alert')).toBeNull() })
+    expect(setBrandName).toHaveBeenCalledTimes(2)
+    view.unmount()
+  })
+
+  it('disables the field and clear action while a save is in flight', async () => {
+    const store = createSnapshotStore<string | undefined>('Martino AI')
+    let finish!: () => void
+    const setBrandName = vi.fn(() => new Promise<void>((resolve) => { finish = () => { store.set(''); resolve() } }))
+    const view = render(<BrandNameRow {...kit} t={t} useBrandName={bindSnapshotSelector(store)} setBrandName={setBrandName} />)
+    const input = screen.getByRole('textbox', { name: title })
+    const clear = screen.getByRole('button', { name: en['brandName.clear'] })
+    fireEvent.click(clear)
+    expect(input.hasAttribute('disabled')).toBe(true)
+    expect(clear.hasAttribute('disabled')).toBe(true)
+    act(() => { finish() })
+    await waitFor(() => { expect(input.hasAttribute('disabled')).toBe(false) })
+    view.unmount()
+  })
 })

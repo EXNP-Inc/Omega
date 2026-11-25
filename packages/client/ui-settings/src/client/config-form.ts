@@ -1,8 +1,10 @@
 /** Shared entry values and ordered writes over the Host configuration mirror. */
 
+import { BrandNamePreference } from './brand-name.ts'
 import { DeveloperToolsPreference } from './developer-tools.ts'
 import { HardenedModePreference } from './hardened-mode.ts'
 import type { SyncedConfigRef } from '@omega-ai/dsh-client-config/types'
+import { BRAND_NAMESPACE } from '../brand-settings.ts'
 import { DEVELOPER_TOOLS_NAMESPACE } from '../developer-tools-settings.ts'
 import { HARDENED_MODE_NAMESPACE } from '../hardened-settings.ts'
 import { Service } from '@omega-ai/cordis'
@@ -242,6 +244,8 @@ export class ConfigForms extends Service {
   readonly developerTools: DeveloperToolsPreference
   /** Shared hardened-mode preference: ungated synced read, Host-backed write. */
   readonly hardenedMode: HardenedModePreference
+  /** Shared white-label brand name: ungated synced read, Host-backed write. */
+  readonly brandName: BrandNamePreference
   private readonly mirror: SettingsDescribeMirror
   private readonly schema: SettingsSchemaService
   /**
@@ -254,13 +258,15 @@ export class ConfigForms extends Service {
   /**
    * @param ctx - the providing plugin's context.
    * @param config - the shared describe mirror every shared form derives from,
-   *   the settings-owned schema operations, and the synced reference of the
-   *   `hardenedMode` volatile field that reads the persisted value.
+   *   the settings-owned schema operations, and the synced references of the
+   *   `hardenedMode` and `brandName` volatile fields that read the persisted
+   *   values.
    */
   constructor(ctx: Context, config: {
     mirror: SettingsDescribeMirror
     schema: SettingsSchemaService
     hardenedModeRef: SyncedConfigRef<boolean | undefined>
+    brandNameRef: SyncedConfigRef<string | undefined>
   }) {
     super(ctx, 'configForms')
     this.mirror = config.mirror
@@ -268,6 +274,7 @@ export class ConfigForms extends Service {
     this.owner = ctx
     this.developerTools = new DeveloperToolsPreference(this.get(DEVELOPER_TOOLS_NAMESPACE))
     this.hardenedMode = new HardenedModePreference(config.hardenedModeRef, this.get(HARDENED_MODE_NAMESPACE))
+    this.brandName = new BrandNamePreference(config.brandNameRef, this.get(BRAND_NAMESPACE))
     ctx.effect(() => async () => {
       await Promise.all([...this.forms.values()].map(form => form.dispose()))
       this.forms.clear()

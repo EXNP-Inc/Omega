@@ -49,7 +49,9 @@ The Coding Tools switch controls the shared `ui-settings.enabled` preference des
 
 The Hardened mode switch persists the shared `ui-settings.hardenedMode` preference, defaulting to off. While enabled, it hides the Plugins entry in the navigation, the workspaces list (forcing a single default workspace), the file browser and terminal windows, the feedback action, and the account sign-in, so the interface can be shared externally without exposing its internals. Every gated surface reads the preference from the synced Config reference before the first settings unlock, so the hidden state holds from the first render even while settings are still locked.
 
-The General section holds the built-in Coding Tools and Hardened mode rows alongside rows registered into `settings.general.item` by feature packages. Each registrant owns its row copy and behavior. The Appearance row, for example, lives in ui-theme.
+The Brand name row persists the shared `ui-settings.brandName` preference, absent by default. Its input commits on Enter or blur through the ordered settings writes and shows the same save-failure guidance as the other General rows; a clear control appears while the field holds a value and commits an empty name to restore the localized product name. The preference is absent, never a default: the sidebar brand, window title, and empty-session hero each fall back to their localized `brand.localBuild` label when it is unset.
+
+The General section holds the built-in Coding Tools, Hardened mode, and Brand name rows alongside rows registered into `settings.general.item` by feature packages. Each registrant owns its row copy and behavior. The Appearance row, for example, lives in ui-theme.
 
 ### Opening the configuration file
 

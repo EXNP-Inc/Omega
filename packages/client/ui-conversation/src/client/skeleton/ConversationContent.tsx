@@ -22,9 +22,12 @@ function NoConversationWidthControls() {
 export function ConversationContent(props: ConversationContentProps) {
   const {
     sessionId, phase, hero, useSession, useSessions, useSessionStatus,
-    useWorkspaces, useInput, useComposerBlock, renderSlot, renderSlotChain,
+    useWorkspaces, useInput, useComposerBlock, useBrandName, renderSlot, renderSlotChain,
     moveDraft, t, useFactorySlot,
   } = props
+  // A white-label name set in Settings replaces the Hero's default headline and
+  // hides its preview badge; absent (or cleared) it keeps the localized copy.
+  const brandName = useBrandName(name => name ?? undefined)
   const session = useSession(snapshot => snapshot)
   const Views = useFactorySlot('views', ConversationSessionView)
   const WidthControls = useFactorySlot('widthControls', NoConversationWidthControls)
@@ -164,7 +167,7 @@ export function ConversationContent(props: ConversationContentProps) {
 
   const composerBar = (
     <div className={clsx(css.composerStack, hero && css.composerHero)}>
-      {hero && <HeroShell t={t} renderSlot={renderSlot} headline={props.headline} />}
+      {hero && <HeroShell t={t} renderSlot={renderSlot} headline={props.headline ?? brandName} />}
       {hero && heroWorkspaceRow}
       {zone !== undefined && renderSlot('conversation.input.dock', zone)}
       {inputBar}

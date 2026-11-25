@@ -259,6 +259,8 @@ export type SidebarRootInjected = {
     entryPins: ObservableSnapshot<readonly string[]>
     /** Whether `sidebar.panellist.actions` has registrations. */
     entryActions: ObservableSnapshot<boolean>
+    /** White-label brand name; undefined when the localized product label should show. */
+    brandName: ObservableSnapshot<string | undefined>
   }
 }
 

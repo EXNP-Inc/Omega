@@ -15,4 +15,10 @@ export interface UiSettingsConfig {
    * workspace.
    */
   hardenedMode: Volatile<boolean>
+  /**
+   * White-label brand name shown in the sidebar, window title, and empty
+   * session hero. Absent (unset) when the localized product label should show
+   * instead; an empty value reads as unset.
+   */
+  brandName: Volatile<string | undefined>
 }

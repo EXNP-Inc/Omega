@@ -492,8 +492,15 @@ export interface ConversationInjected {
    * with a submission in flight stays where it is.
    */
   moveDraft: WorkspaceSessionAdopter
-  /** Session-addressed composer block source, or the stable absent source. */
-  hooks: { composerBlock: ObservableSnapshot<ComposerBlock | undefined> }
+  /**
+   * Session-addressed composer block source, or the stable absent source; plus the
+   * white-label brand name, which the blank-session Hero shows instead of its
+   * default headline and preview badge when set.
+   */
+  hooks: {
+    composerBlock: ObservableSnapshot<ComposerBlock | undefined>
+    brandName: ObservableSnapshot<string | undefined>
+  }
 }
 
 /** Business callbacks injected into the strict Session body. */

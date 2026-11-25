@@ -44,6 +44,18 @@ const ABSENT_HARDENED_MODE_REF: SyncedConfigRef<boolean | undefined> = {
   subscribe: () => () => {},
 }
 
+/**
+ * A synced reference with no value: the brand-name preference reads it as
+ * absent, so the localized product label shows. It stands in for the
+ * loader-supplied reference in the tests that mount this plugin through a
+ * bare `ctx.plugin` without a synced Config.
+ */
+const ABSENT_BRAND_NAME_REF: SyncedConfigRef<string | undefined> = {
+  get: () => undefined,
+  getSnapshot: () => undefined,
+  subscribe: () => () => {},
+}
+
 /** One hour in milliseconds, the granularity at which the server's unlock fact expires. */
 const HOUR_MS = 3_600_000
 
@@ -60,10 +72,11 @@ function msToNextUtcHourBoundary(now: number): number {
 
 /** Provide shared forms and refresh them on document changes and reconnects.
  * @param ctx Client provider context.
- * @param config This plugin's synced volatile Config, whose `hardenedMode`
- *   reference reads the persisted value the Host projects to the owner. It is
- *   absent from a bare `ctx.plugin` mount, where the reference reads `undefined`
- *   and the preference defaults to off.
+ * @param config This plugin's synced volatile Config, whose `hardenedMode` and
+ *   `brandName` references read the persisted values the Host projects to the
+ *   owner. They are absent from a bare `ctx.plugin` mount, where the
+ *   references read `undefined` and the preferences fall back to their
+ *   defaults (off, and the localized product label).
  */
 export function apply(ctx: Context, config?: SyncedConfig<UiSettingsConfig>): void {
   const schema = new SettingsSchemaService(ctx)
@@ -98,5 +111,9 @@ export function apply(ctx: Context, config?: SyncedConfig<UiSettingsConfig>): vo
     arm()
     return () => { if (timer !== undefined) clearTimeout(timer) }
   }, 'ui-settings: describe mirror hour-boundary re-arm')
-  new ConfigForms(ctx, { mirror, schema, hardenedModeRef: config?.hardenedMode ?? ABSENT_HARDENED_MODE_REF })
+  new ConfigForms(ctx, {
+    mirror, schema,
+    hardenedModeRef: config?.hardenedMode ?? ABSENT_HARDENED_MODE_REF,
+    brandNameRef: config?.brandName ?? ABSENT_BRAND_NAME_REF,
+  })
 }

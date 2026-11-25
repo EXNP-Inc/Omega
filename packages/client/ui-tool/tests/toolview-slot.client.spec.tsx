@@ -85,7 +85,7 @@ async function bench(nodes: ToolResultNode[]) {
   runtime.ctx.provide('fileDrag', { actions: { prepare: async () => ({ start: () => true, release: () => {} }), reportFailure: () => {} }, read: () => undefined } satisfies import('@omega-ai/cordis').Context['fileDrag'])
   const openWorkspacePath = vi.fn(async () => ({ ok: true, value: { opened: true } }))
   runtime.remote.provideNamespaces({ session: { openWorkspacePath } })
-  runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
+  runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, brandName: { name: createSnapshotStore<string | undefined>(undefined) }, get: () => stubConfigForm().scope } as never)
   const layout = { openDetails: vi.fn(), closeDetails: vi.fn() }
   runtime.ctx.provide('connection', { state: createSnapshotStore('connected') } as never)
   runtime.ctx.provide('layout', layout)
@@ -368,7 +368,7 @@ describe('registrant declaration injection', () => {
         openWorkspacePath: vi.fn(async () => ({ ok: true, value: { opened: true } })),
       },
     })
-    runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
+    runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, brandName: { name: createSnapshotStore<string | undefined>(undefined) }, get: () => stubConfigForm().scope } as never)
     runtime.ctx.provide('connection', { state: createSnapshotStore('connected') } as never)
     runtime.ctx.provide('layout', { openDetails: vi.fn(), closeDetails: vi.fn() })
     runtime.ctx.provide('sidebarRight', { openResource: vi.fn() } as never)

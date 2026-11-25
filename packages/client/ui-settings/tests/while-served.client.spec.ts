@@ -26,7 +26,8 @@ async function bench(namespaces: readonly string[]) {
   new TestRemote(ctx, { settings: { describe: describeCall } })
   const mirror = new SettingsDescribeMirror({ remote: { settings: { describe: describeCall } } } as never)
   const hardenedModeRef = { get: () => undefined, getSnapshot: () => undefined, subscribe: () => () => {} }
-  await ctx.plugin(ConfigForms, { mirror, schema: new SettingsSchemaService(ctx), hardenedModeRef }).await()
+  const brandNameRef = { get: () => undefined, getSnapshot: () => undefined, subscribe: () => () => {} }
+  await ctx.plugin(ConfigForms, { mirror, schema: new SettingsSchemaService(ctx), hardenedModeRef, brandNameRef }).await()
   return { ctx, mirror, describeCall }
 }
 

@@ -82,6 +82,7 @@ async function renderChat(events: readonly SessionEventLikeEntry[]) {
   const chatSettings = stubConfigForm<ChatSettings>()
   runtime.ctx.provide('configForms', {
     developerTools: { enabled: createSnapshotStore(true) },
+    brandName: { name: createSnapshotStore<string | undefined>(undefined) },
     get: (namespace: string) => namespace === CHAT_SETTINGS_NAMESPACE ? chatSettings.scope : stubConfigForm().scope,
   } as never)
   runtime.ctx.provide('connection', { state: createSnapshotStore('connected') } as never)

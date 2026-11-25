@@ -34,7 +34,7 @@ export const de = {
   'collapse': 'Einklappen',
   'expand': 'Ausklappen',
   'back': 'Zurück',
-  'brand.localBuild': 'Lokaler Build',
+  'brand.localBuild': 'Martino AI',
   'workspace.defaultName': 'Standardarbeitsbereich',
   'unknown': 'Unbekannt',
   'none': 'Keine',

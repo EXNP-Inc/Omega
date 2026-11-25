@@ -75,6 +75,11 @@ export const zh = {
   'hardenedMode.title': '强化模式',
   'hardenedMode.description': '开启后，隐藏插件、工作区、文件浏览、终端、反馈和账号功能，用于对外分享。',
   'hardenedMode.error': '保存失败，请重试',
+  'brandName.title': '品牌名称',
+  'brandName.description': '显示在侧边栏、窗口标题和空白会话首屏中。留空则使用默认产品名称。',
+  'brandName.placeholder': '默认产品名称',
+  'brandName.clear': '清除品牌名称',
+  'brandName.error': '保存失败，请重试',
 } satisfies Record<string, string>
 
 /** The settings namespace key union. */
@@ -155,6 +160,11 @@ export const en = {
   'hardenedMode.title': 'Hardened mode',
   'hardenedMode.description': 'Hides plugins, workspaces, file browsing, terminal, feedback, and account features for sharing externally.',
   'hardenedMode.error': 'Could not save. Please try again.',
+  'brandName.title': 'Brand name',
+  'brandName.description': 'Shown in the sidebar, the window title, and the empty-session hero. Leave blank to use the default product name.',
+  'brandName.placeholder': 'Default product name',
+  'brandName.clear': 'Clear brand name',
+  'brandName.error': 'Could not save. Please try again.',
 } satisfies Record<SettingsKey, string>
 
 /** Japanese copy, checked against the English keys. */
@@ -232,6 +242,11 @@ export const ja = {
   'hardenedMode.title': '強化モード',
   'hardenedMode.description': 'プラグイン、ワークスペース、ファイル閲覧、ターミナル、フィードバック、アカウント機能を非表示にし、外部共有に適します。',
   'hardenedMode.error': '保存できませんでした。再試行してください。',
+  'brandName.title': 'ブランド名',
+  'brandName.description': 'サイドバー、ウィンドウタイトル、および空白セッションのヒーローに表示されます。デフォルトの製品名を使用するには空白のままにしてください。',
+  'brandName.placeholder': 'デフォルトの製品名',
+  'brandName.clear': 'ブランド名をクリア',
+  'brandName.error': '保存できませんでした。再試行してください。',
 } satisfies Record<keyof typeof en, string>
 
 /** Spanish dictionary, checked against the English keys. */
@@ -309,6 +324,11 @@ export const es = {
   'hardenedMode.title': 'Modo endurecido',
   'hardenedMode.description': 'Oculta los complementos, los espacios de trabajo, la navegación de archivos, la terminal, la retroalimentación y las funciones de cuenta para compartir externamente.',
   'hardenedMode.error': 'No se pudo guardar. Inténtalo de nuevo.',
+  'brandName.title': 'Nombre de la marca',
+  'brandName.description': 'Se muestra en la barra lateral, el título de la ventana y el héroe de la sesión vacía. Déjalo en blanco para usar el nombre de producto predeterminado.',
+  'brandName.placeholder': 'Nombre de producto predeterminado',
+  'brandName.clear': 'Borrar nombre de la marca',
+  'brandName.error': 'No se pudo guardar. Inténtalo de nuevo.',
 } satisfies Record<keyof typeof en, string>
 
 /** French dictionary, checked against the English keys. */
@@ -386,6 +406,11 @@ export const fr = {
   'hardenedMode.title': 'Mode renforcé',
   'hardenedMode.description': 'Masque les plugins, les espaces de travail, la navigation de fichiers, le terminal, le retour et les fonctions de compte pour un partage externe.',
   'hardenedMode.error': 'L’enregistrement a échoué. Réessayez.',
+  'brandName.title': 'Nom de la marque',
+  'brandName.description': 'Affiché dans la barre latérale, le titre de la fenêtre et le héros de la session vide. Laissez vide pour utiliser le nom de produit par défaut.',
+  'brandName.placeholder': 'Nom de produit par défaut',
+  'brandName.clear': 'Effacer le nom de la marque',
+  'brandName.error': 'L’enregistrement a échoué. Réessayez.',
 } satisfies Record<keyof typeof en, string>
 
 /** German dictionary, checked against the English keys. */
@@ -463,6 +488,11 @@ export const de = {
   'hardenedMode.title': 'Härtungsmodus',
   'hardenedMode.description': 'Blendet Plugins, Arbeitsbereiche, die Dateidurchsicht, das Terminal, Feedback und Kontofunktionen für die externe Freigabe aus.',
   'hardenedMode.error': 'Speichern fehlgeschlagen. Versuchen Sie es erneut.',
+  'brandName.title': 'Markenname',
+  'brandName.description': 'Wird in der Seitenleiste, im Fenstertitel und im Hero der leeren Sitzung angezeigt. Leer lassen, um den Standardproduktnamen zu verwenden.',
+  'brandName.placeholder': 'Standardproduktnamen',
+  'brandName.clear': 'Markennamen löschen',
+  'brandName.error': 'Speichern fehlgeschlagen. Versuchen Sie es erneut.',
 } satisfies Record<keyof typeof en, string>
 
 /** Russian dictionary, checked against the English keys. */
@@ -540,6 +570,11 @@ export const ru = {
   'hardenedMode.title': 'Усиленный режим',
   'hardenedMode.description': 'Скрывает плагины, рабочие области, просмотр файлов, терминал, обратную связь и функции учётной записи для внешнего обмена.',
   'hardenedMode.error': 'Не удалось сохранить. Попробуйте ещё раз.',
+  'brandName.title': 'Название бренда',
+  'brandName.description': 'Отображается в боковой панели, заголовке окна и на экране пустой сессии. Оставьте пустым, чтобы использовать название продукта по умолчанию.',
+  'brandName.placeholder': 'Название продукта по умолчанию',
+  'brandName.clear': 'Удалить название бренда',
+  'brandName.error': 'Не удалось сохранить. Попробуйте ещё раз.',
 } satisfies Record<keyof typeof en, string>
 
 /** Portuguese dictionary, checked against the English keys. */
@@ -617,4 +652,9 @@ export const pt = {
   'hardenedMode.title': 'Modo endurecido',
   'hardenedMode.description': 'Oculta plugins, espaços de trabalho, navegação de arquivos, terminal, feedback e recursos de conta para compartilhamento externo.',
   'hardenedMode.error': 'Não foi possível salvar. Tente novamente.',
+  'brandName.title': 'Nome da marca',
+  'brandName.description': 'Exibido na barra lateral, no título da janela e no herói da sessão vazia. Deixe em branco para usar o nome do produto padrão.',
+  'brandName.placeholder': 'Nome do produto padrão',
+  'brandName.clear': 'Limpar nome da marca',
+  'brandName.error': 'Não foi possível salvar. Tente novamente.',
 } satisfies Record<keyof typeof en, string>

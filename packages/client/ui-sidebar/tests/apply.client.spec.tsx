@@ -38,6 +38,8 @@ async function bench(declare = true) {
   ctx.provide('shortcuts', { catalog: createSnapshotStore([]) } as never)
   ctx.provide('layout', layout)
   ctx.provide('uiWorkspace', uiWorkspace as never)
+  // No white-label name set: the localized product label shows.
+  ctx.provide('configForms', { brandName: { name: createSnapshotStore<string | undefined>(undefined) } } as never)
   ctx.provide('locale', new LocaleRuntime(ctx))
   const slots = ctx.get('slots') as SlotRegistry
   if (declare) {
@@ -59,7 +61,7 @@ describe('ui-sidebar apply', () => {
   })
 
   it('declares only the services it uses', () => {
-    expect(inject).toEqual(['slots', 'layout', 'uiWorkspace', 'locale', 'shortcuts'])
+    expect(inject).toEqual(['slots', 'layout', 'uiWorkspace', 'locale', 'shortcuts', 'configForms'])
   })
 
   it('registers the shell and declares its child seats', async () => {

@@ -6,6 +6,8 @@ import { resolveSlotLabel } from '@omega-ai/dsh-client-ui-slots'
 import type { MainPanelId } from '@omega-ai/dsh-client-ui-layout/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
 import type {} from '@omega-ai/dsh-client-locale/client'
+// Type-only: the shared configForms service merge (the white-label brand name).
+import type {} from '@omega-ai/dsh-client-ui-settings/client'
 // Type-only: pulls the SlotRegistry service merge (ctx.slots).
 import type {} from '@omega-ai/dsh-client-ui-renderer/client'
 // Type-only: pulls the Session root standard-props merge.
@@ -45,7 +47,7 @@ interface WorkspaceNavigation {
 }
 
 /** Services required by the sidebar plugin. */
-export const inject = ['slots', 'layout', 'uiWorkspace', 'locale', 'shortcuts']
+export const inject = ['slots', 'layout', 'uiWorkspace', 'locale', 'shortcuts', 'configForms']
 
 /** Registers the sidebar shell and its service callbacks.
  * @param ctx - Client root context.
@@ -83,7 +85,10 @@ export function apply(ctx: ClientContext): void {
     selectPanel: (id) => { ctx.layout.selectPanel(id) },
     setPinned: panelPins.setPinned,
     trackEntryClick: (attributes) => { ctx.get('productAnalytics')?.track('sidebar_menu_click', attributes) },
-    hooks: { panels, shortcuts: ctx.shortcuts.catalog, entryPins: panelPins.unpinned, entryActions },
+    hooks: {
+      panels, shortcuts: ctx.shortcuts.catalog, entryPins: panelPins.unpinned, entryActions,
+      brandName: ctx.configForms.brandName.name,
+    },
   })
   ctx.slots.inject('sidebar', function* () {
     yield ctx.slots.registerFactory({

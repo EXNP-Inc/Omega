@@ -55,6 +55,8 @@ async function bench(collapsed = false, track?: TrackProductEvent) {
       ctx.provide('shortcuts', { catalog: createSnapshotStore([]) } as never)
       ctx.provide('layout', layout)
       ctx.provide('uiWorkspace', { startSession: vi.fn() } as never)
+      // No white-label name set: the localized product label shows.
+      ctx.provide('configForms', { brandName: { name: createSnapshotStore<string | undefined>(undefined) } } as never)
       ctx.provide('locale', locale)
       if (track !== undefined) ctx.provide('productAnalytics', { track } as never)
       ctx.effect(() => locale.register('common', { zh: commonZh, en: commonEn }), 'panel test: common locale')

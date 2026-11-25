@@ -34,7 +34,7 @@ export const pt = {
   'collapse': 'Recolher',
   'expand': 'Expandir',
   'back': 'Voltar',
-  'brand.localBuild': 'Versão local',
+  'brand.localBuild': 'Martino AI',
   'workspace.defaultName': 'Espaço de trabalho padrão',
   'unknown': 'Desconhecido',
   'none': 'Nenhum',

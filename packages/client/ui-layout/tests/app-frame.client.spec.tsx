@@ -17,6 +17,7 @@ const useResource = (() => ({ status: 'none' as const, value: undefined, failure
 let selectedSession: SessionId | undefined
 let selectedSessionTitle: string | undefined
 let workspacesReady = true
+let brandNameStore: SnapshotStore<string | undefined>
 type AttentionSnapshot = Parameters<Parameters<AppFrameProps['useSessionStatus']>[0]>[0]
 const noAttention: AttentionSnapshot = new Map()
 const useSessionStatus: AppFrameProps['useSessionStatus'] = selector => selector(noAttention)
@@ -91,6 +92,8 @@ function mountFrame(windowWidth = frameWidth, content?: AppFrameProps['renderSlo
     getSnapshot: () => instance.getSnapshot().panelInfo,
     subscribe: listener => instance.subscribe(listener),
   })
+  // The white-label name, driven per test; undefined titles with the localized label.
+  const useBrandName = bindSnapshotSelector(brandNameStore)
   const element = () => (
     <AppFrame
       useStore={useStore}
@@ -99,6 +102,7 @@ function mountFrame(windowWidth = frameWidth, content?: AppFrameProps['renderSlo
       useSessions={useSessions}
       usePanelInfo={usePanelInfo}
       useFoldedLandscape={bindSnapshotSelector(foldedLandscape)}
+      useBrandName={useBrandName}
       useSessionStatus={useSessionStatus}
       useSessionRetainInfo={() => undefined}
       useContextMenu={contextMenuHook()} useResource={useResource}
@@ -151,6 +155,7 @@ beforeEach(() => {
   selectedSession = 's-test' as SessionId
   selectedSessionTitle = undefined
   workspacesReady = true
+  brandNameStore = createSnapshotStore<string | undefined>(undefined)
   observers = []
   animationFrames = new Map()
   nextFrame = 1
@@ -206,6 +211,32 @@ describe('AppFrame', () => {
     selectedSession = undefined
     rerenderFrame()
     expect(document.title).toBe('Product')
+  })
+
+  it('titles the frame with the white-label name over the localized label', () => {
+    brandNameStore.set('Martino Support')
+    selectedSession = undefined
+    mountFrame()
+    expect(document.title).toBe('Martino Support')
+  })
+
+  it('lets a configured build title override the white-label name', () => {
+    vi.stubEnv('DSH_CLIENT_TITLE', 'Product')
+    brandNameStore.set('Martino Support')
+    selectedSession = undefined
+    const { rerenderFrame } = mountFrame()
+    expect(document.title).toBe('Product')
+    // Clearing the setting restores the build title, not the localized label.
+    brandNameStore.set(undefined)
+    rerenderFrame()
+    expect(document.title).toBe('Product')
+  })
+
+  it('falls back to the localized label when the setting is cleared to an empty string', () => {
+    brandNameStore.set('')
+    selectedSession = undefined
+    mountFrame()
+    expect(document.title).toBe('DSH Local Build')
   })
 
   it('renders owner props for the default sidebar and prospective right panel', () => {

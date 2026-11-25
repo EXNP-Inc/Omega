@@ -362,6 +362,7 @@ export function apply(ctx: Context, config: SyncedConfig<ConversationConfig>): v
     inject: (sessionId: SessionId | undefined): ConversationInjected => ({
       hooks: {
         composerBlock: sessionId === undefined ? ABSENT_BLOCK : composerBlocks.storeFor(sessionId),
+        brandName: ctx.configForms.brandName.name,
       },
       moveDraft: (nextId) => {
         if (sessionId !== undefined && nextId !== sessionId) {

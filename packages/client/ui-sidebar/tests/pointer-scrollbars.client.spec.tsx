@@ -28,6 +28,8 @@ const neverHook = (() => { throw new Error('shell must not read global hooks') }
 type AttentionSnapshot = Parameters<Parameters<SidebarRootComponentProps['useSessionStatus']>[0]>[0]
 const noAttention: AttentionSnapshot = new Map()
 const useSessionStatus: SidebarRootComponentProps['useSessionStatus'] = selector => selector(noAttention)
+// No white-label name in this bench, so the localized product label shows.
+const useBrandName: SidebarRootComponentProps['useBrandName'] = selector => selector(undefined)
 
 afterEach(() => {
   cleanup()
@@ -45,7 +47,7 @@ function mountColumn(): { column: HTMLElement; quiet: () => boolean } {
       useSessions={neverHook} useSessionStatus={useSessionStatus} useSessionRetainInfo={neverHook}
       usePanelInfo={usePanelInfo} selectPanel={() => {}} usePanels={selector => selector([])} useEntryPins={selector => selector([])}
       useEntryActions={selector => selector(false)} setPinned={vi.fn()}
-      useShortcuts={selector => selector([])}
+      useShortcuts={selector => selector([])} useBrandName={useBrandName}
       useContextMenu={contextMenuHook()} useResource={useResource} useWorkspaces={neverHook}
       {...allowAllAccess}
       startSession={vi.fn()} toggleSidebar={vi.fn()} trackEntryClick={vi.fn()} t={t}

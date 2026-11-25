@@ -41,6 +41,7 @@ import { DesktopUpdateSource } from './desktop-update-source.ts'
 import { CloseLabel, HeaderContent, TriggerContent } from './chrome.tsx'
 import { GeneralSection } from './GeneralSection.tsx'
 import { SettingsSectionView } from './SettingsSectionView.tsx'
+import { BrandNameRow, type BrandNameRowInjected } from './BrandNameRow.tsx'
 import { DeveloperToolsRow, type DeveloperToolsRowInjected } from './DeveloperToolsRow.tsx'
 import { HardenedModeRow, type HardenedModeRowInjected } from './HardenedModeRow.tsx'
 import { SettingsDocumentAction } from './SettingsDocumentAction.tsx'
@@ -107,6 +108,15 @@ export function apply(ctx: ClientContext): void {
       setHardenedMode: enabled => ctx.configForms.hardenedMode.setEnabled(enabled),
     }),
   }, HardenedModeRow))
+  // The white-label brand name, after hardened mode; a blank field shows the
+  // localized product name.
+  ctx.slots.inject('settings.general.item', () => ctx.slots.register({
+    name: 'settings.general.item', id: 'brand-name', order: 17, locale: NS,
+    inject: (): BrandNameRowInjected => ({
+      hooks: { brandName: ctx.configForms.brandName.name },
+      setBrandName: name => ctx.configForms.brandName.set(name),
+    }),
+  }, BrandNameRow))
   ctx.effect(() => ctx.locale.register(NS, { zh, en, ja, es, fr, de, ru, pt }), 'ui-settings-general: dictionaries')
   const connection = ctx.get('connection') as ConnectionHandle
   const carrier = (globalThis as typeof globalThis & { dshDesktop?: { protocolVersion: number; updates?: DesktopUpdateBridge } }).dshDesktop

@@ -6,6 +6,7 @@
     "tsBuildInfoFile": "lib/tsconfig.host.tsbuildinfo"
   },
   "files": [
+    "src/brand-settings.ts",
     "src/developer-tools-settings.ts",
     "src/hardened-settings.ts",
     "src/types.ts",

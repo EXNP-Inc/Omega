@@ -38,6 +38,8 @@ const neverHook = (() => { throw new Error('shell must not read global hooks') }
 type AttentionSnapshot = Parameters<Parameters<SidebarRootComponentProps['useSessionStatus']>[0]>[0]
 const noAttention: AttentionSnapshot = new Map()
 const useSessionStatus: SidebarRootComponentProps['useSessionStatus'] = selector => selector(noAttention)
+// No white-label name in these benches, so the localized product label shows.
+const useBrandName: SidebarRootComponentProps['useBrandName'] = selector => selector(undefined)
 
 function makeHeaderProps(): HeaderLeadingControlsProps {
   return {
@@ -46,6 +48,7 @@ function makeHeaderProps(): HeaderLeadingControlsProps {
     usePanelInfo, useResource, useWorkspaces: neverHook, ...allowAllAccess,
     usePanels: selector => selector([]), useShortcuts: selector => selector([]),
     useEntryPins: selector => selector([]), useEntryActions: selector => selector(false),
+    useBrandName,
     selectPanel: vi.fn(), setPinned: vi.fn(), toggleSidebar: vi.fn(),
     startSession: vi.fn(), trackEntryClick: vi.fn(), t,
   }
@@ -78,7 +81,7 @@ function mountShell({ collapsed = false, width = 300, drawer = false, shortcuts 
       useSessions={neverHook} useSessionStatus={useSessionStatus} useSessionRetainInfo={neverHook}
       usePanelInfo={usePanelInfo} selectPanel={() => {}} usePanels={selector => selector(panels)} useEntryPins={selector => selector([])}
       useEntryActions={selector => selector(false)} setPinned={vi.fn()}
-      useShortcuts={selector => selector(shortcuts)}
+      useShortcuts={selector => selector(shortcuts)} useBrandName={useBrandName}
       useContextMenu={contextMenuHook()} useResource={useResource} useWorkspaces={neverHook}
       {...allowAllAccess}
       startSession={startSession} toggleSidebar={toggleSidebar} trackEntryClick={trackEntryClick} t={t}
@@ -191,7 +194,8 @@ describe('SidebarRoot shell', () => {
       useSessionRetainInfo={neverHook} useContextMenu={contextMenuHook()} useResource={useResource} useWorkspaces={neverHook}
       {...allowAllAccess}
       usePanels={select => select([])} useEntryPins={select => select([])}
-      useEntryActions={select => select(false)} setPinned={vi.fn()} useShortcuts={select => select([shortcut])} />)
+      useEntryActions={select => select(false)} setPinned={vi.fn()} useShortcuts={select => select([shortcut])}
+      useBrandName={useBrandName} />)
     const button = screen.getByRole('button', { name: 'New session' })
     expect(screen.getByRole('button', { name: 'Open sidebar' }).hasAttribute('data-sidebar-opener')).toBe(true)
     expect(button.getAttribute('aria-keyshortcuts')).toBe('Control+N')
@@ -233,7 +237,7 @@ describe('SidebarRoot shell', () => {
       useSessions={neverHook} useSessionStatus={useSessionStatus} useSessionRetainInfo={neverHook}
       usePanelInfo={usePanelInfo} selectPanel={() => {}} usePanels={selector => selector([])} useEntryPins={selector => selector([])}
       useEntryActions={selector => selector(false)} setPinned={vi.fn()}
-      useShortcuts={selector => selector([])}
+      useShortcuts={selector => selector([])} useBrandName={useBrandName}
       useContextMenu={contextMenuHook()} useResource={useResource} useWorkspaces={neverHook}
       {...allowAllAccess}
       useRemoteAccess={useRemoteAccess}
@@ -268,7 +272,7 @@ describe('SidebarRoot shell', () => {
       useSessions={neverHook} useSessionStatus={useSessionStatus} useSessionRetainInfo={neverHook}
       usePanelInfo={usePanelInfo} selectPanel={() => {}} usePanels={selector => selector([])} useEntryPins={selector => selector([])}
       useEntryActions={selector => selector(false)} setPinned={vi.fn()}
-      useShortcuts={selector => selector([])}
+      useShortcuts={selector => selector([])} useBrandName={useBrandName}
       useContextMenu={contextMenuHook()} useResource={useResource} useWorkspaces={neverHook}
       {...allowAllAccess}
       startSession={vi.fn()} toggleSidebar={vi.fn()} trackEntryClick={vi.fn()} t={t}
@@ -277,8 +281,29 @@ describe('SidebarRoot shell', () => {
         options?.fallback ?? null) as SidebarRootComponentProps['renderSlot']}
     />)
 
-    expect(screen.getByText('Omega Local Build')).toBeTruthy()
+    expect(screen.getByText('Martino AI')).toBeTruthy()
     expect(container.textContent).not.toContain('1.2.3')
+    expect(container.querySelector('svg')).not.toBeNull()
+  })
+
+  it('shows the set white-label name over the localized product label', () => {
+    const useBrandName: SidebarRootComponentProps['useBrandName'] = selector => selector('Martino Support')
+    const { container } = render(<SidebarRoot
+      drawer={false}
+      collapsed={false} width={300}
+      useSessions={neverHook} useSessionStatus={useSessionStatus} useSessionRetainInfo={neverHook}
+      usePanelInfo={usePanelInfo} selectPanel={() => {}} usePanels={selector => selector([])} useEntryPins={selector => selector([])}
+      useEntryActions={selector => selector(false)} setPinned={vi.fn()}
+      useShortcuts={selector => selector([])} useBrandName={useBrandName}
+      useContextMenu={contextMenuHook()} useResource={useResource} useWorkspaces={neverHook}
+      {...allowAllAccess}
+      startSession={vi.fn()} toggleSidebar={vi.fn()} trackEntryClick={vi.fn()} t={t}
+      renderFactorySlot={() => null}
+      renderSlot={((_key: string, _owner: unknown, options?: { fallback?: ReactNode }) =>
+        options?.fallback ?? null) as SidebarRootComponentProps['renderSlot']}
+    />)
+    expect(screen.getByText('Martino Support')).toBeTruthy()
+    expect(screen.queryByText('Martino AI')).toBeNull()
     expect(container.querySelector('svg')).not.toBeNull()
   })
 
@@ -342,7 +367,7 @@ describe('SidebarRoot shell', () => {
       useSessions={neverHook} useSessionStatus={useSessionStatus} useSessionRetainInfo={neverHook}
       usePanelInfo={usePanelInfo} selectPanel={() => {}} usePanels={selector => selector([])} useEntryPins={selector => selector([])}
       useEntryActions={selector => selector(false)} setPinned={vi.fn()}
-      useShortcuts={selector => selector([])}
+      useShortcuts={selector => selector([])} useBrandName={useBrandName}
       useContextMenu={contextMenuHook()} useResource={useResource} useWorkspaces={neverHook}
       {...allowAllAccess}
       startSession={vi.fn()} toggleSidebar={vi.fn()} trackEntryClick={vi.fn()} t={t}

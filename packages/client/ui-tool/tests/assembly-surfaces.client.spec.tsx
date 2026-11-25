@@ -91,7 +91,7 @@ async function bench(nodes: ToolResultNode[]) {
       openWorkspacePath: vi.fn(async () => ({ ok: true, value: { opened: true } })),
     },
   })
-  runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
+  runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, brandName: { name: createSnapshotStore<string | undefined>(undefined) }, get: () => stubConfigForm().scope } as never)
   runtime.ctx.provide('connection', { state: createSnapshotStore('connected') } as never)
   runtime.ctx.provide('layout', { openDetails: vi.fn(), closeDetails: vi.fn() })
   runtime.ctx.provide('sidebarRight', { openResource: vi.fn() } as never)

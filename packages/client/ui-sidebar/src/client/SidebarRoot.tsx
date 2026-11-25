@@ -148,6 +148,7 @@ export function SidebarRoot({
   useEntryPins,
   useEntryActions,
   useShortcuts,
+  useBrandName,
   usePanelInfo,
   t,
   renderSlot,
@@ -155,6 +156,8 @@ export function SidebarRoot({
 }: SidebarRootComponentProps) {
   const panels = usePanels(snapshot => snapshot)
   const unpinned = useEntryPins(ids => ids)
+  // The white-label name; the localized product label shows when it is unset.
+  const brandName = useBrandName(name => name ?? '')
   const activePanelId = usePanelInfo(info => info.activePanelId)
   const hasEntryActions = useEntryActions(registered => registered)
   const shortcut = useShortcuts(rows => rows.find(row => row.id === 'sidebar.left.toggle'))
@@ -290,7 +293,7 @@ export function SidebarRoot({
               </span>
               <span className={css.brandName}>
                 {renderSlot('sidebar.brand.name', {}, {
-                  fallback: <span className={css.fallbackBrandName}>{t('brand.localBuild')}</span>,
+                  fallback: <span className={css.fallbackBrandName}>{brandName || t('brand.localBuild')}</span>,
                 })}
               </span>
             </span>

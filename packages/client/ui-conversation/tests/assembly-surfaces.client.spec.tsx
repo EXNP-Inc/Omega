@@ -84,7 +84,7 @@ function WorkspaceProbe({ open }: EmptyWorkspaceOwnerProps) {
 async function bench(opts?: { blank?: boolean }) {
   const runtime = await SlotTestRuntime.create()
   const openSession = provideWorkspaceNavigation(runtime)
-  runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
+  runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, brandName: { name: createSnapshotStore<string | undefined>(undefined) }, get: () => stubConfigForm().scope } as never)
   const locale = new LocaleRuntime(runtime.ctx)
   runtime.ctx.provide('locale', locale)
   runtime.slots.installLocale(locale)
@@ -109,7 +109,7 @@ describe('resident composer', () => {
   it('renders the locked view state while no session exists at all', async () => {
     const runtime = await SlotTestRuntime.create()
     provideWorkspaceNavigation(runtime)
-    runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
+    runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, brandName: { name: createSnapshotStore<string | undefined>(undefined) }, get: () => stubConfigForm().scope } as never)
     const locale = new LocaleRuntime(runtime.ctx)
     runtime.ctx.provide('locale', locale)
     runtime.slots.installLocale(locale)
@@ -138,7 +138,7 @@ describe('resident composer', () => {
   it('keeps the complete Hero tree mounted when the first Workspace session appears', async () => {
     const runtime = await SlotTestRuntime.create()
     const openSession = provideWorkspaceNavigation(runtime)
-    runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
+    runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, brandName: { name: createSnapshotStore<string | undefined>(undefined) }, get: () => stubConfigForm().scope } as never)
     const locale = new LocaleRuntime(runtime.ctx)
     runtime.ctx.provide('locale', locale)
     runtime.slots.installLocale(locale)
@@ -207,7 +207,7 @@ describe('prompt rejection through the assembled composer', () => {
   it('renders the promptError alert strip and keeps the draft in the machine', async () => {
     const runtime = await SlotTestRuntime.create()
     const openSession = provideWorkspaceNavigation(runtime)
-    runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
+    runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, brandName: { name: createSnapshotStore<string | undefined>(undefined) }, get: () => stubConfigForm().scope } as never)
     const locale = new LocaleRuntime(runtime.ctx)
     runtime.ctx.provide('locale', locale)
     runtime.slots.installLocale(locale)

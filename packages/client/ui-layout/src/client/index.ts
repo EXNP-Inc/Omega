@@ -11,6 +11,7 @@ import type { Context as ClientContext } from '@omega-ai/cordis'
 import type {} from '@omega-ai/dsh-client-locale/client'
 import type {} from '@omega-ai/dsh-client-ui-renderer/client'
 import type {} from '@omega-ai/dsh-client-ui-session/client'
+import type {} from '@omega-ai/dsh-client-ui-settings/client'
 import type {} from '@omega-ai/dsh-client-ui-theme/client'
 import type { HostObservable, SnapshotSelectorHook } from '@omega-ai/dsh-client-ui-slots'
 import type { PanelInfo } from './service.ts'
@@ -151,7 +152,7 @@ export interface RightbarOwnerProps {
 }
 
 /** Required services (cordis fiber inject — the loader passes all module exports as an object plugin). */
-export const inject = ['slots', 'theme', 'locale', 'shortcuts']
+export const inject = ['slots', 'theme', 'locale', 'shortcuts', 'configForms']
 
 /**
  * Client plugin body: provide ctx.layout, then one register() call — AppFrame
@@ -201,7 +202,7 @@ export function apply(ctx: ClientContext): void {
         'shell.leading': { kind: 'single', scope: 'root' },
       },
       store,
-      inject: (): AppFrameInjected => ({ hooks: { foldedLandscape } }),
+      inject: (): AppFrameInjected => ({ hooks: { foldedLandscape, brandName: ctx.configForms.brandName.name } }),
     }, AppFrame)
     const disposeShortcut = ctx.shortcuts.register({
       id: 'sidebar.left.toggle' as ShortcutCommandId, label: () => t('toggle'), aliases: ['sidebar', 'toggle left sidebar'],

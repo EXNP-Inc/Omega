@@ -141,6 +141,8 @@ function mount(
     nestedSubagent?: boolean
     /** A composer block another plugin raised for this session. */
     composerBlock?: { reason: string }
+    /** White-label brand name for the blank-session Hero headline. */
+    brandName?: string
     /** Mutable view ledger used by registration-order regressions. */
     viewTabs?: ViewTab[]
     /** Persisted ids of unpinned View tabs. */
@@ -374,6 +376,7 @@ function mount(
       ...allowAllAccess,
       useProjection: (() => undefined),
       useComposerBlock: select => select(options.composerBlock),
+      useBrandName: select => select(options.brandName),
       useInput,
       inputActions,
       renderSlot,
@@ -429,7 +432,7 @@ describe('Hero chrome', () => {
   it('renders the English preview badge through the hero locale seat', () => {
     const renderSlot = vi.fn<(key: string, owner: object, opts?: { fallback?: ReactNode }) => ReactNode>(() => null)
     const view = render(<HeroShell t={makeTranslate(en, commonEn)} renderSlot={renderSlot as never} />)
-    expect(view.getByText('Martino HVAC')).toBeTruthy()
+    expect(view.getByText('Martino AI')).toBeTruthy()
     expect(view.getByText('Preview')).toBeTruthy()
     expect(renderSlot).toHaveBeenCalledOnce()
     expect(renderSlot.mock.calls[0]?.[0]).toBe('conversation.hero.brand.mark')
@@ -445,7 +448,7 @@ describe('Hero chrome', () => {
   it('shows an owner headline instead of the default headline and preview badge', () => {
     const view = render(<HeroShell t={makeTranslate(en, commonEn)} renderSlot={(() => null) as never} headline="Review demo #42" />)
     expect(view.getByText('Review demo #42')).toBeTruthy()
-    expect(view.queryByText('Martino HVAC')).toBeNull()
+    expect(view.queryByText('Martino AI')).toBeNull()
     expect(view.queryByText('Preview')).toBeNull()
   })
 })
@@ -606,7 +609,7 @@ describe('ConversationRoot resident composer', () => {
     expect(b.slotCalls).not.toContain('conversation.session.header.utilities')
     expect(b.headerFactory).not.toHaveBeenCalled()
     expect(b.slotCalls).not.toContain('conversation.session.header.actions')
-    expect(b.view.getByText('Martino HVAC')).toBeTruthy()
+    expect(b.view.getByText('Martino AI')).toBeTruthy()
     expect(b.view.getByText('预览版')).toBeTruthy()
     expect(b.view.queryByTestId('view-chat')).toBeNull()
     // The same machine-backed textarea is live in the hero, and the
@@ -640,7 +643,7 @@ describe('ConversationRoot resident composer', () => {
     expect(conversationPhase(failed, EMPTY_CONVERSATION_SNAPSHOT)).toBe('engaging')
     const b = mount(failed, undefined, undefined, { summaryBlank: true })
     expect(b.view.container.querySelector('[data-phase]')?.getAttribute('data-phase')).toBe('active')
-    expect(b.view.queryByText('Martino HVAC')).toBeNull()
+    expect(b.view.queryByText('Martino AI')).toBeNull()
   })
 
   it('settling phase: a summary that does not prove the session blank hides the composer while it opens', () => {
@@ -672,8 +675,18 @@ describe('ConversationRoot resident composer', () => {
     // blank the column for the history round-trip.
     const root = b.view.container.querySelector('[data-phase]')
     expect(root?.getAttribute('data-phase')).toBe('hero')
-    expect(b.view.getByText('Martino HVAC')).toBeTruthy()
+    expect(b.view.getByText('Martino AI')).toBeTruthy()
     expect(b.view.getByRole('textbox')).toBeTruthy()
+  })
+
+  it('shows the set white-label name in the hero and hides the preview badge', () => {
+    const b = mount(sessionSnapshotOf({ blank: true }), undefined, undefined, { brandName: 'Martino Support' })
+    const root = b.view.container.querySelector('[data-phase]')
+    expect(root?.getAttribute('data-phase')).toBe('hero')
+    // The white-label name replaces the localized headline and its preview badge.
+    expect(b.view.getByText('Martino Support')).toBeTruthy()
+    expect(b.view.queryByText('Martino AI')).toBeNull()
+    expect(b.view.queryByText('预览版')).toBeNull()
   })
 
   it('same textarea DOM node survives the hero → active flip into the sticky scrollport', () => {

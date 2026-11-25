@@ -4,6 +4,7 @@ import type {} from '@omega-ai/dsh-settings'
 import type { Context } from '@omega-ai/cordis'
 
 import z from '@omega-ai/schemastery'
+import { BrandSettingsFields } from './brand-settings.ts'
 import { DeveloperToolsSettingsFields } from './developer-tools-settings.ts'
 import { HardenedModeSettingsFields } from './hardened-settings.ts'
 import type { UiSettingsConfig } from './types.ts'
@@ -15,6 +16,7 @@ export type Config = UiSettingsConfig
 export const Config = z.object({
   enabled: DeveloperToolsSettingsFields['enabled'].volatile(),
   hardenedMode: HardenedModeSettingsFields['hardenedMode'].volatile(),
+  brandName: BrandSettingsFields['brandName'].volatile(),
 })
 
 /** Host preferences are consumed through the configuration form projection.

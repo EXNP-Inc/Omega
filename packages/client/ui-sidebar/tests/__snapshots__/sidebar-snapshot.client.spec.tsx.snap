@@ -156,7 +156,7 @@ exports[`sidebar shell snapshots > renders Windows caption controls in expanded 
               <span
                 class="fallbackBrandName"
               >
-                Omega Local Build
+                Martino AI
               </span>
             </div>
           </span>
@@ -432,7 +432,7 @@ exports[`sidebar shell snapshots > renders the expanded column (wordmark, capsul
               <span
                 class="fallbackBrandName"
               >
-                Omega Local Build
+                Martino AI
               </span>
             </div>
           </span>
@@ -583,7 +583,7 @@ exports[`sidebar shell snapshots > renders the expanded column in the default lo
               <span
                 class="fallbackBrandName"
               >
-                Omega 本地构建
+                Martino AI
               </span>
             </div>
           </span>
