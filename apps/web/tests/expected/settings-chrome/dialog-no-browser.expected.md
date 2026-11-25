@@ -33,6 +33,9 @@
   - button "Edit shortcuts"
   - text: Hardened mode Hides plugins, workspaces, file browsing, terminal, feedback, and account features for sharing externally.
   - switch "Hardened mode"
+  - text: Brand name Shown in the sidebar, the window title, and the empty-session hero. Leave blank to use the default product name.
+  - textbox "Brand name":
+    - /placeholder: Default product name
   - text: Send behavior while busy What Enter and the Send button do while the agent is running; Cmd/Ctrl+Enter uses the other behavior
   - button "Queue"
   - text: Performance & usage Choose how much performance and usage information to show
